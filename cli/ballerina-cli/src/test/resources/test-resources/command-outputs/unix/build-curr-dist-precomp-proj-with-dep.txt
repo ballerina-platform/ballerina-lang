@@ -1,0 +1,5 @@
+Compiling source
+	gayaldassanayake/preCompiledPackage:0.1.0
+
+Generating executable
+	target/bin/preCompiledPackage.jar

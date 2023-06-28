@@ -35,8 +35,10 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
@@ -44,6 +46,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -71,16 +74,102 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     private SemanticModel semanticModel;
     private List<JsonObject> visibleEpsForEachBlock;
     private List<JsonObject> visibleEpsForModule;
+    private List<JsonObject> visibleEpsForClass;
+
 
     public SyntaxTreeMapGenerator(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
         this.visibleEpsForEachBlock = new ArrayList<>();
         this.visibleEpsForModule = new ArrayList<>();
+        this.visibleEpsForClass = new ArrayList<>();
     }
+
 
     public SyntaxTreeMapGenerator() {
         this.visibleEpsForEachBlock = new ArrayList<>();
         this.visibleEpsForModule = new ArrayList<>();
+        this.visibleEpsForClass = new ArrayList<>();
+    }
+
+    @Override
+    public JsonElement transform(ModulePartNode modulePartNode) {
+        // Find all visible endpoints in module level
+        modulePartNode.members().forEach(node -> {
+            try {
+                if (semanticModel != null) {
+                    LineRange lineRange = node.children().get(2).lineRange();
+                    Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
+                    if (typeSymbol.isEmpty()) {
+                        typeSymbol = this.semanticModel.type(node.children().get(3).lineRange());
+                    }
+                    if (typeSymbol.isPresent()) {
+                        TypeSymbol rawType = getRawType(typeSymbol.get());
+                        if (rawType.typeKind() == TypeDescKind.OBJECT) {
+                            ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+                            boolean isEndpoint = objectTypeSymbol.qualifiers()
+                                    .contains(Qualifier.CLIENT);
+                            if (isEndpoint) {
+                                updateVisibleEP(node, typeSymbol.get(), false);
+                            }
+                        }
+                    }
+                }
+            } catch (RuntimeException e) {
+                // Ignore as semantic API calls cannot break the ST JSON creation.
+            } catch (Exception | AssertionError e) {
+                // Ignore as semantic API calls cannot break the ST JSON creation.
+            }
+        });
+        return transformSyntaxNode(modulePartNode);
+    }
+
+    @Override
+    public JsonElement transform(ClassDefinitionNode classDefinitionNode) {
+        // Find all visible endpoints in class block level
+        classDefinitionNode.members().forEach(this::findAndUpdateClientNode);
+        JsonElement classDefinitionJson = transformSyntaxNode(classDefinitionNode);
+        // Clear class block visible endpoints
+        this.visibleEpsForClass.clear();
+        return classDefinitionJson;
+    }
+
+    @Override
+    public JsonElement transform(ServiceDeclarationNode serviceDeclarationNode) {
+        // Find all visible endpoints in service block level
+        serviceDeclarationNode.members().forEach(this::findAndUpdateClientNode);
+        JsonElement seviceDeclarationJson = transformSyntaxNode(serviceDeclarationNode);
+        // Clear class block visible endpoints
+        this.visibleEpsForClass.clear();
+        return seviceDeclarationJson;
+    }
+
+
+    private void findAndUpdateClientNode(Node node) {
+        try {
+            if (semanticModel != null) {
+                LineRange lineRange = node.lineRange();
+                Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
+                if (typeSymbol.isEmpty()) {
+                    ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                    typeSymbol = this.semanticModel.type(objectFieldNode.children().get(1).lineRange());
+                }
+                if (typeSymbol.isPresent()) {
+                    TypeSymbol rawType = getRawType(typeSymbol.get());
+                    if (rawType.typeKind() == TypeDescKind.OBJECT) {
+                        ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+                        boolean isEndpoint = objectTypeSymbol.qualifiers()
+                                .contains(Qualifier.CLIENT);
+                        if (isEndpoint) {
+                            updateVisibleEP(node, typeSymbol.get(), false);
+                        }
+                    }
+                }
+            }
+        } catch (RuntimeException e) {
+            // Ignore as semantic API calls cannot break the ST JSON creation.
+        } catch (Exception | AssertionError e) {
+            // Ignore as semantic API calls cannot break the ST JSON creation.
+        }
     }
 
     @Override
@@ -215,6 +304,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 JsonArray blockEndpoints = new JsonArray();
                 // Add module level endpoints
                 this.visibleEpsForModule.forEach(blockEndpoints::add);
+                // Add class level endpoints
+                this.visibleEpsForClass.forEach(blockEndpoints::add);
 
                 for (JsonObject endpoint : this.visibleEpsForEachBlock) {
                     int epStartLine = endpoint.get("position").getAsJsonObject().get("startLine").getAsInt();
@@ -327,7 +418,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         false, true);
                 symbolMetaInfo.addProperty("isClassField", true);
                 if (!isAvailableAsEndpoint(fieldName)) {
-                    this.visibleEpsForEachBlock.add(symbolMetaInfo);
+                    this.visibleEpsForClass.add(symbolMetaInfo);
                 }
                 break;
             case LOCAL_VAR_DECL:
@@ -404,6 +495,12 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
 
         for (JsonObject ep : this.visibleEpsForModule) {
+            if (ep.get("name").getAsString().equals(name)) {
+                return true;
+            }
+        }
+
+        for (JsonObject ep : this.visibleEpsForClass) {
             if (ep.get("name").getAsString().equals(name)) {
                 return true;
             }

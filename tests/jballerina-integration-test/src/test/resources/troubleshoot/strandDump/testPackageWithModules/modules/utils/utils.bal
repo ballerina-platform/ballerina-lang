@@ -15,9 +15,10 @@
 // under the License.
 
 import ballerina/lang.runtime;
+import testPackageWithModules.anotherutils;
 
 public function entryfunc() {
-   func1();
+    func1();
 }
 
 function func1() {
@@ -27,19 +28,20 @@ function func1() {
 function func2() {
     func3();
 }
- 
+
 function func3() {
-   worker w1 {
-       sleep_and_wait();
-       int x = 10;
-       x -> w2;
-       x+1 -> w2;
-   }
- 
-   worker w2 {
-       int y = <- w1;
-       int z = <- w1;
-   }
+    worker w1 {
+        sleep_and_wait();
+        int x = 10;
+        x -> w2;
+        x + 1 -> w2;
+    }
+
+    worker w2 {
+        anotherutils:println("func3 w2");
+        int y = <- w1;
+        int z = <- w1;
+    }
 }
 
 function sleep_and_wait() {
@@ -47,5 +49,6 @@ function sleep_and_wait() {
 }
 
 function sleep_and_wait_nested() {
+    anotherutils:println("sleep_and_wait_nested utils");
     runtime:sleep(100);
 }

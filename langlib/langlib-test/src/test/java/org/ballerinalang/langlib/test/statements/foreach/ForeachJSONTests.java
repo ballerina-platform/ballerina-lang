@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -67,7 +67,7 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns.toString(), result);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'map<json>'.*")
     public void testJSONString() {
         String result = "{ballerina}ConversionError {\"message\":\"'string' value "
@@ -76,7 +76,7 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns.toString(), result);
     }
 
-    @Test(expectedExceptions =  BLangRuntimeException.class,
+    @Test(expectedExceptions =  BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'map<json>'.*")
     public void testJSONNumber() {
         String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot"
@@ -85,7 +85,7 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns.toString(), result);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'boolean' cannot be cast to 'map<json>'.*")
     public void testJSONBoolean() {
         String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
@@ -94,7 +94,7 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns.toString(), result);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"key 'city'" +
                     " not found in JSON mapping\"\\}\n" +
                     "\tat foreach-json:testJSONNull\\(foreach-json.bal:79\\)")

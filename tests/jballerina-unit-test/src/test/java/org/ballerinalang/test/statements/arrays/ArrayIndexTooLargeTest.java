@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class ArrayIndexTooLargeTest {
     }
 
     @Test(description = "Test adding too large index to an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void addTooLargeIndex() {
         Object[] args = {(2147483648L), (7)};
@@ -48,7 +48,7 @@ public class ArrayIndexTooLargeTest {
     }
 
     @Test(description = "Test accessing too large index from an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void accessTooLargeIndex() {
         Object[] args = {(2147483648L)};
@@ -56,7 +56,7 @@ public class ArrayIndexTooLargeTest {
     }
 
     @Test(description = "Test adding minus index to an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void addMinusIndex() {
         Object[] args = {(-4), (7)};
@@ -64,7 +64,7 @@ public class ArrayIndexTooLargeTest {
     }
 
     @Test(description = "Test accessing minus index from an array",
-          expectedExceptions = {BLangRuntimeException.class },
+          expectedExceptions = {BLangTestException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void accessMinusIndex() {
         Object[] args = {(-4)};

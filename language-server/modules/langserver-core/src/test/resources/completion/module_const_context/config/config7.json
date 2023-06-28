@@ -192,14 +192,14 @@
     {
       "label": "varName",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "",
       "documentation": {
         "right": {
           "kind": "markdown",
           "value": ""
         }
       },
-      "sortText": "AB",
+      "sortText": "F",
       "insertText": "varName",
       "insertTextFormat": "Snippet"
     },

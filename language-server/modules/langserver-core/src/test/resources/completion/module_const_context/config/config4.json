@@ -4,6 +4,7 @@
     "character": 16
   },
   "source": "module_const_context/source/source4.bal",
+  "description": "",
   "items": [
     {
       "label": "StrandData",
@@ -14,14 +15,6 @@
       },
       "sortText": "BM",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "varName",
-      "kind": "TypeParameter",
-      "detail": "Int",
-      "sortText": "D",
-      "insertText": "varName",
       "insertTextFormat": "Snippet"
     },
     {
@@ -554,6 +547,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "varName",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "varName",
       "insertTextFormat": "Snippet"
     }
   ]

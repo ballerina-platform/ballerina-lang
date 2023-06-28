@@ -25,9 +25,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -46,12 +45,12 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.STRING_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStringVal;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.STRING_OPERATION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for String manipulation.
@@ -76,7 +75,7 @@ public class StringUtils {
             }
             result = bos.toString();
         } catch (IOException ioe) {
-            throw new BallerinaException("Error occurred when reading input stream", ioe);
+            throw ErrorCreator.createError(StringUtils.fromString("Error occurred when reading input stream"), ioe);
         }
         return StringUtils.fromString(result);
     }
@@ -89,7 +88,8 @@ public class StringUtils {
                 textBuilder.append((char) character);
             }
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error occurred when reading input stream with the charset" + charset), e);
         }
         return StringUtils.fromString(textBuilder.toString());
     }
@@ -98,7 +98,7 @@ public class StringUtils {
         if (index < 0 || index >= s.length()) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
+                    ErrorHelper.getErrorDetails(ErrorCodes.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
@@ -207,8 +207,6 @@ public class StringUtils {
     public static Object parseExpressionStringValue(String value) throws BError {
         try {
             return parseExpressionStringVal(value, null);
-        } catch (BallerinaException e) {
-            throw ErrorCreator.createError(STRING_OPERATION_ERROR, StringUtils.fromString(e.getMessage()));
         } catch (BError bError) {
             throw ErrorCreator.createError(STRING_OPERATION_ERROR,
                     StringUtils.fromString(bError.getErrorMessage().getValue()));
@@ -221,10 +219,11 @@ public class StringUtils {
      *
      * @param value The value on which the function is invoked
      * @return      Ballerina value represented by Ballerina expression syntax
+     * @throws      BError for any parsing error
      * @deprecated  use {@link #parseExpressionStringValue(String)} instead.
      */
     @Deprecated(since = "2201.6.0", forRemoval = true)
-    public static Object parseExpressionStringValue(String value, BLink parent) throws BallerinaException {
+    public static Object parseExpressionStringValue(String value, BLink parent) throws BError {
         return parseExpressionStringVal(value, parent);
     }
 
@@ -261,7 +260,8 @@ public class StringUtils {
             gen.flush();
             return byteOut.toString();
         } catch (IOException e) {
-            throw new BallerinaException("Error in converting string value to a json string: " + e.getMessage(), e);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error in converting string value to a json string: " + e.getMessage()), e);
         }
     }
 

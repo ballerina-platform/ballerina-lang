@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -24,7 +25,9 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -41,6 +44,17 @@ import org.testng.annotations.Test;
  */
 public class NodeParserLineRangeTest {
 
+    private void assertLineRange(Node node, SyntaxKind kind, int startLine, int startLineOffset, int endLine,
+                                 int endLineOffset) {
+        Assert.assertEquals(node.kind(), kind);
+        Assert.assertFalse(node.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(startLine, startLineOffset);
+        LinePosition expectedEndPos = LinePosition.from(endLine, endLineOffset);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(node.lineRange(), expectedLineRange);
+    }
+
     @Test
     public void testParseActionOrExpression() {
         String queryAction = "from var a in b\n" +
@@ -51,13 +65,7 @@ public class NodeParserLineRangeTest {
                 "}";
 
         ExpressionNode actionNode = NodeParser.parseActionOrExpression(queryAction);
-        Assert.assertEquals(actionNode.kind(), SyntaxKind.QUERY_ACTION);
-        Assert.assertFalse(actionNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(5, 1);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(actionNode.lineRange(), expectedLineRange);
+        assertLineRange(actionNode, SyntaxKind.QUERY_ACTION, 0, 0, 5, 1);
     }
 
     @Test
@@ -73,13 +81,7 @@ public class NodeParserLineRangeTest {
                 "}";
 
         BindingPatternNode bindingPatternNode = NodeParser.parseBindingPattern(mappingBindingPatten);
-        Assert.assertEquals(bindingPatternNode.kind(), SyntaxKind.MAPPING_BINDING_PATTERN);
-        Assert.assertFalse(bindingPatternNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(8, 1);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(bindingPatternNode.lineRange(), expectedLineRange);
+        assertLineRange(bindingPatternNode, SyntaxKind.MAPPING_BINDING_PATTERN, 0, 0, 8, 1);
     }
 
     @Test
@@ -94,18 +96,8 @@ public class NodeParserLineRangeTest {
                 "}";
 
         BlockStatementNode blockStmtNode = NodeParser.parseBlockStatement(blockStmt);
-        Assert.assertEquals(blockStmtNode.kind(), SyntaxKind.BLOCK_STATEMENT);
-        Assert.assertFalse(blockStmtNode.hasDiagnostics());
-
-        LinePosition expectedStartPos1 = LinePosition.from(0, 0);
-        LinePosition expectedEndPos1 = LinePosition.from(7, 1);
-        LineRange expectedLineRange1 = LineRange.from(null, expectedStartPos1, expectedEndPos1);
-        Assert.assertEquals(blockStmtNode.lineRange(), expectedLineRange1);
-
-        LinePosition expectedStartPos2 = LinePosition.from(5, 0);
-        LinePosition expectedEndPos2 = LinePosition.from(6, 31);
-        LineRange expectedLineRange2 = LineRange.from(null, expectedStartPos2, expectedEndPos2);
-        Assert.assertEquals(blockStmtNode.statements().get(2).lineRange(), expectedLineRange2);
+        assertLineRange(blockStmtNode, SyntaxKind.BLOCK_STATEMENT, 0, 0, 7, 1);
+        assertLineRange(blockStmtNode.statements().get(2), SyntaxKind.LOCAL_VAR_DECL, 5, 0, 6, 31);
     }
 
     @Test
@@ -124,13 +116,7 @@ public class NodeParserLineRangeTest {
                 "}";
 
         ExpressionNode expressionNode = NodeParser.parseExpression(mappingConstructor);
-        Assert.assertEquals(expressionNode.kind(), SyntaxKind.MAPPING_CONSTRUCTOR);
-        Assert.assertFalse(expressionNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(11, 1);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(expressionNode.lineRange(), expectedLineRange);
+        assertLineRange(expressionNode, SyntaxKind.MAPPING_CONSTRUCTOR, 0, 0, 11, 1);
     }
 
     @Test
@@ -145,13 +131,7 @@ public class NodeParserLineRangeTest {
                 "}";
 
         FunctionBodyBlockNode funcBodyBlockNode = NodeParser.parseFunctionBodyBlock(funcBodyBlock);
-        Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
-        Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(7, 1);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(funcBodyBlockNode.lineRange(), expectedLineRange);
+        assertLineRange(funcBodyBlockNode, SyntaxKind.FUNCTION_BODY_BLOCK, 0, 0, 7, 1);
     }
 
     @Test
@@ -159,13 +139,7 @@ public class NodeParserLineRangeTest {
         String importDecl = "\n\nimport foobar/foo.bar.baz as qux;\n";
 
         ImportDeclarationNode importDeclarationNode = NodeParser.parseImportDeclaration(importDecl);
-        Assert.assertEquals(importDeclarationNode.kind(), SyntaxKind.IMPORT_DECLARATION);
-        Assert.assertFalse(importDeclarationNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(2, 0);
-        LinePosition expectedEndPos = LinePosition.from(2, 33);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(importDeclarationNode.lineRange(), expectedLineRange);
+        assertLineRange(importDeclarationNode, SyntaxKind.IMPORT_DECLARATION, 2, 0, 2, 33);
     }
 
     @Test
@@ -176,13 +150,7 @@ public class NodeParserLineRangeTest {
                 "}";
 
         ModuleMemberDeclarationNode funcBodyBlockNode = NodeParser.parseModuleMemberDeclaration(funcDef);
-        Assert.assertEquals(funcBodyBlockNode.kind(), SyntaxKind.FUNCTION_DEFINITION);
-        Assert.assertFalse(funcBodyBlockNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(3, 1);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(funcBodyBlockNode.lineRange(), expectedLineRange);
+        assertLineRange(funcBodyBlockNode, SyntaxKind.FUNCTION_DEFINITION, 0, 0, 3, 1);
     }
 
     @Test
@@ -194,13 +162,7 @@ public class NodeParserLineRangeTest {
                 "}";
 
         StatementNode statementNode = NodeParser.parseStatement(ifElseStmt);
-        Assert.assertEquals(statementNode.kind(), SyntaxKind.IF_ELSE_STATEMENT);
-        Assert.assertFalse(statementNode.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(4, 1);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(statementNode.lineRange(), expectedLineRange);
+        assertLineRange(statementNode, SyntaxKind.IF_ELSE_STATEMENT, 0, 0, 4, 1);
     }
 
     @Test
@@ -211,55 +173,28 @@ public class NodeParserLineRangeTest {
                 "|}\n";
 
         TypeDescriptorNode recordTypeDescriptor = NodeParser.parseTypeDescriptor(recordTypeDesc);
-        Assert.assertEquals(recordTypeDescriptor.kind(), SyntaxKind.RECORD_TYPE_DESC);
-        Assert.assertFalse(recordTypeDescriptor.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(3, 2);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(recordTypeDescriptor.lineRange(), expectedLineRange);
+        assertLineRange(recordTypeDescriptor, SyntaxKind.RECORD_TYPE_DESC, 0, 0, 3, 2);
     }
 
     @Test
     public void testParseIntermediateFromClause() {
         String intermediateClauseText = "from int i in [1, 2, 3]";
-
         IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, true);
-        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.FROM_CLAUSE);
-        Assert.assertFalse(intermediateClause.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 23);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+        assertLineRange(intermediateClause, SyntaxKind.FROM_CLAUSE, 0, 0, 0, 23);
     }
 
     @Test
     public void testParseIntermediateWhereClause() {
         String intermediateClauseText = "where i == 1";
-
         IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, false);
-        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.WHERE_CLAUSE);
-        Assert.assertFalse(intermediateClause.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 12);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+        assertLineRange(intermediateClause, SyntaxKind.WHERE_CLAUSE, 0, 0, 0, 12);
     }
 
     @Test
     public void testParseIntermediateLetClause() {
         String intermediateClauseText = "let int a = 3, string b = \"\"";
-
         IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, true);
-        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.LET_CLAUSE);
-        Assert.assertFalse(intermediateClause.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 28);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+        assertLineRange(intermediateClause, SyntaxKind.LET_CLAUSE, 0, 0, 0, 28);
     }
 
     @Test
@@ -268,71 +203,53 @@ public class NodeParserLineRangeTest {
                 "name: \"Keith\"}, {id: 6789, name: \"Anne\"}] on login.userId equals user.id";
 
         IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, false);
-        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.JOIN_CLAUSE);
-        Assert.assertFalse(intermediateClause.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 107);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+        assertLineRange(intermediateClause, SyntaxKind.JOIN_CLAUSE, 0, 0, 0, 107);
     }
 
     @Test
     public void testParseIntermediateOrderClause() {
         String intermediateClauseText = "order by name";
-
         IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, true);
-        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.ORDER_BY_CLAUSE);
-        Assert.assertFalse(intermediateClause.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 13);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+        assertLineRange(intermediateClause, SyntaxKind.ORDER_BY_CLAUSE, 0, 0, 0, 13);
     }
 
     @Test
     public void testParseIntermediateLimitClause() {
         String intermediateClauseText = "limit getIntValue()";
-
         IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, false);
-        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.LIMIT_CLAUSE);
-        Assert.assertFalse(intermediateClause.hasDiagnostics());
-
-        LinePosition expectedStartPos = LinePosition.from(0, 0);
-        LinePosition expectedEndPos = LinePosition.from(0, 19);
-        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
-        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+        assertLineRange(intermediateClause, SyntaxKind.LIMIT_CLAUSE, 0, 0, 0, 19);
     }
 
     @Test
     public void testParseLetVarDeclaration() {
         String letVarDeclTxt = "int a = 5";
-
         LetVariableDeclarationNode letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, false);
-        Assert.assertEquals(letVarDecl.kind(), SyntaxKind.LET_VAR_DECL);
-        Assert.assertFalse(letVarDecl.hasDiagnostics());
-
-        LineRange expectedLineRange = LineRange.from(
-                null, LinePosition.from(0, 0), LinePosition.from(0, 9));
-        Assert.assertEquals(letVarDecl.lineRange(), expectedLineRange);
+        assertLineRange(letVarDecl, SyntaxKind.LET_VAR_DECL, 0, 0, 0, 9);
 
         letVarDeclTxt = "@a {m: 5} @b T b = getValue()";
-
         letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, false);
-        Assert.assertEquals(letVarDecl.kind(), SyntaxKind.LET_VAR_DECL);
-        Assert.assertFalse(letVarDecl.hasDiagnostics());
-        
-        expectedLineRange = LineRange.from(null, LinePosition.from(0, 0), LinePosition.from(0, 29));
-        Assert.assertEquals(letVarDecl.lineRange(), expectedLineRange);
+        assertLineRange(letVarDecl, SyntaxKind.LET_VAR_DECL, 0, 0, 0, 29);
 
         letVarDeclTxt = "@a {m: 5} @b var b = c->getValue()";
-
         letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, true);
-        Assert.assertEquals(letVarDecl.kind(), SyntaxKind.LET_VAR_DECL);
-        Assert.assertFalse(letVarDecl.hasDiagnostics());
+        assertLineRange(letVarDecl, SyntaxKind.LET_VAR_DECL, 0, 0, 0, 34);
+    }
 
-        expectedLineRange = LineRange.from(null, LinePosition.from(0, 0), LinePosition.from(0, 34));
-        Assert.assertEquals(letVarDecl.lineRange(), expectedLineRange);
+    @Test
+    public void testParseAnnotation() {
+        String annotationText = "\n    @foo:bar {qux: 5}";
+        AnnotationNode annotation = NodeParser.parseAnnotation(annotationText);
+        assertLineRange(annotation, SyntaxKind.ANNOTATION, 1, 4, 1, 21);
+    }
+
+    @Test
+    public void testParseMarkdownAnnotation() {
+        String markdownDocText = "\n\n# This is the description\n" +
+                "#\n" +
+                "# + value - value input parameter\n" +
+                "# + return - return a integer value\n\n\n";
+
+        MarkdownDocumentationNode markdownDoc = NodeParser.parseMarkdownDocumentation(markdownDocText);
+        assertLineRange(markdownDoc, SyntaxKind.MARKDOWN_DOCUMENTATION, 2, 0, 5, 35);
     }
 }

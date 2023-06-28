@@ -55,6 +55,8 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
 
     public BSymbol symbol;
 
+    public int cycleDepth = -1;
+
     public BLangTypeDefinition() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);

@@ -1,0 +1,130 @@
+{
+  "position": {
+    "line": 14,
+    "character": 16
+  },
+  "source": "action_node_context/source/client_resource_access_action_source27.bal",
+  "description": "Tests union typed path params",
+  "items": [
+    {
+      "label": "/[PathParamType... path]",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+        }
+      },
+      "sortText": "G",
+      "filterText": "get",
+      "insertText": "/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 15
+            },
+            "end": {
+              "line": 14,
+              "character": 16
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/<path>",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+        }
+      },
+      "sortText": "G",
+      "filterText": "get",
+      "insertText": "/${1:path};",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 15
+            },
+            "end": {
+              "line": 14,
+              "character": 16
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/[PathParamType... path].post",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+        }
+      },
+      "sortText": "G",
+      "filterText": "post",
+      "insertText": "/[${1:\"path\"}].post;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 15
+            },
+            "end": {
+              "line": 14,
+              "character": 16
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/<path>.post",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
+        }
+      },
+      "sortText": "G",
+      "filterText": "post",
+      "insertText": "/${1:path}.post;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 15
+            },
+            "end": {
+              "line": 14,
+              "character": 16
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

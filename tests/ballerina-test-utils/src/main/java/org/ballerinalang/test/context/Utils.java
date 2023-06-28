@@ -29,6 +29,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -38,6 +39,8 @@ import java.util.zip.ZipInputStream;
 public class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
+
+    private Utils() {}
 
     /**
      * This method will wait for given ports to open until given timeout period.
@@ -260,6 +263,15 @@ public class Utils {
      */
     public static String getOSName() {
         return System.getProperty("os.name");
+    }
+
+    /**
+     * Return whether the operating system is Windows.
+     *
+     * @return true if the operating system is Windows, otherwise false
+     */
+    public static boolean isWindowsOS() {
+        return getOSName().toLowerCase(Locale.ENGLISH).contains("windows");
     }
 
     /**

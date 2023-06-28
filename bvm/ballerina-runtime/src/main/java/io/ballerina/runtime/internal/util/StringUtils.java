@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.util;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
@@ -33,12 +34,13 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
+
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
 /**
  * Common utility methods used for String manipulation.
@@ -165,14 +167,14 @@ public class StringUtils {
      * @return Ballerina value represented by Ballerina expression syntax
      * @throws BError for any parsing error
      */
-    public static Object parseExpressionStringVal(String value, BLink parent) throws BallerinaException {
+    public static Object parseExpressionStringVal(String value, BLink parent) throws BError {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {
             return null;
         }
         if (exprValue.startsWith("\"") && exprValue.endsWith("\"")) {
-            return io.ballerina.runtime.api.utils.StringUtils.fromString(exprValue.substring(1, endIndex));
+            return fromString(exprValue.substring(1, endIndex));
         }
         if (exprValue.matches("[+-]?[0-9][0-9]*")) {
             return Long.parseLong(exprValue);
@@ -211,6 +213,6 @@ public class StringUtils {
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        throw new BallerinaException("invalid expression style string value");
+        throw ErrorCreator.createError(fromString("invalid expression style string value"));
     }
 }

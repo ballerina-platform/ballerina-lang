@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -33,8 +34,11 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.DEFAULT_TEMPLATE;
 import static io.ballerina.cli.cmd.CommandUtil.balFilesExists;
 import static io.ballerina.cli.cmd.CommandUtil.checkPackageFilesExists;
 import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
@@ -113,9 +117,16 @@ public class NewCommand implements BLauncherCmd {
         Path argPath = Paths.get(argList.get(0));
         Path packagePath = argPath;
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        List<Path> filesInDir = new ArrayList<>();
         try {
-            Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
-            if (Files.exists(relativeToCurrentDir) || Files.exists(relativeToCurrentDir.getParent())) {
+            Path relativeToCurrentDir = Paths.get(currentDir.toString(),
+                    packagePath.toString()).normalize();
+            Path relativeParent = relativeToCurrentDir.getParent();
+            Optional<Path> optionalRelativeParent = Optional.ofNullable(relativeToCurrentDir.getParent());
+            if (optionalRelativeParent.isPresent()) {
+                relativeParent = optionalRelativeParent.get();
+            }
+            if (Files.exists(relativeToCurrentDir) || Files.exists(relativeParent)) {
                 packagePath = relativeToCurrentDir;
             }
         } catch (InvalidPathException ignored) {
@@ -125,6 +136,16 @@ public class NewCommand implements BLauncherCmd {
         CommandUtil.setPrintStream(errStream);
         Path packageDirectory;
         String packageName;
+        Optional<Path> optionalPackageName = Optional.ofNullable(packagePath.getFileName());
+        if (optionalPackageName.isEmpty()) {
+            CommandUtil.printError(errStream,
+                    "package name could not be derived",
+                    "bal new <project-path>",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        packageName = optionalPackageName.get().toString();
         boolean balFilesExist = false;
 
         // Check if the given path is a valid path
@@ -138,10 +159,18 @@ public class NewCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+            if (FileUtils.checkBallerinaTomlInExistingDir(packagePath)) {
+                CommandUtil.printError(errStream,
+                        "Directory already contains a Ballerina project",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
 
-            //Check if package files/directories other than .bal files exist
+            //Check if package files/directories other than .bal files exist.
             String packageFiles = checkPackageFilesExists(packagePath);
-            if (!packageFiles.equals("")) {
+            if (!packageFiles.equals("") && !template.equals(DEFAULT_TEMPLATE)) {
                 CommandUtil.printError(errStream,
                         "Existing " + packageFiles.substring(0, packageFiles.length() - 2) +
                                 " file/directory(s) were found. " +
@@ -154,7 +183,7 @@ public class NewCommand implements BLauncherCmd {
 
             try {
                 balFilesExist = balFilesExists(packagePath);
-                if (balFilesExist && !template.equals("default")) {
+                if (balFilesExist && !template.equals(DEFAULT_TEMPLATE)) {
                     CommandUtil.printError(errStream,
                             "Existing .bal files found. " +
                                     "Please use a different directory or remove existing files.",
@@ -173,7 +202,7 @@ public class NewCommand implements BLauncherCmd {
             }
 
             packageDirectory = packagePath;
-            packageName = packagePath.getFileName().toString();
+            filesInDir = FileUtils.getFilesInDirectory(packageDirectory);
         } else {
             if (packagePath.getParent() == null) {
                 CommandUtil.printError(errStream,
@@ -183,8 +212,8 @@ public class NewCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            packageDirectory = packagePath.getParent();
-            packageName = packagePath.getFileName().toString();
+            Optional<Path> optionalPackageDirectory = Optional.ofNullable(packagePath.getParent());
+            packageDirectory = optionalPackageDirectory.get();
             // Check if the parent directory path is a valid path
             if (!Files.exists((packageDirectory))) {
                 CommandUtil.printError(errStream,
@@ -256,7 +285,7 @@ public class NewCommand implements BLauncherCmd {
                 Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
                         .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                         .resolve(ProjectConstants.BALA_DIR_NAME);
-                initPackageFromCentral(balaCache, packagePath, packageName, template);
+                initPackageFromCentral(balaCache, packagePath, packageName, template, filesInDir);
             }
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,

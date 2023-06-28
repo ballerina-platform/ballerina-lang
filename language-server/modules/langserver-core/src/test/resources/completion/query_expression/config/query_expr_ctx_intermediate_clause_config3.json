@@ -103,6 +103,33 @@
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "group by",
+      "insertText": "group by ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "BP",
+      "filterText": "group by",
+      "insertText": "group by ${1:var} ${2:item} = ${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "collect",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "collect",
+      "insertText": "collect ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

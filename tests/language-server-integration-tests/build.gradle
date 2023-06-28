@@ -48,6 +48,7 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-testng-common'
 
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-completion-providers')
 }
 
 description = 'Ballerina - Language Server Integration Tests'

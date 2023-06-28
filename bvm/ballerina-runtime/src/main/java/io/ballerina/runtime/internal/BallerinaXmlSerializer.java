@@ -19,7 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
@@ -79,7 +79,7 @@ public class BallerinaXmlSerializer extends OutputStream {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
             parentNSSet = new ArrayDeque<>();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -93,7 +93,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         try {
             xmlStreamWriter.flush();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -102,7 +102,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         try {
             xmlStreamWriter.close();
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -131,7 +131,7 @@ public class BallerinaXmlSerializer extends OutputStream {
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
             }
         } catch (XMLStreamException e) {
-            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
+            ErrorHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 

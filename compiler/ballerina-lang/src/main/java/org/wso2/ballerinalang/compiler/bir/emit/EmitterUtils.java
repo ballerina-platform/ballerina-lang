@@ -26,7 +26,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A utility class with common emit and helper functions.
@@ -35,23 +37,25 @@ import java.util.Map;
  */
 class EmitterUtils {
 
-    static String emitName(Name name) {
+    private EmitterUtils() {}
 
+    static String emitName(Name name) {
         return name.value;
     }
 
     static String emitVarRef(BIROperand ref) {
-
         return emitName(ref.variableDcl.name);
     }
 
-    static String emitBasicBlockRef(BIRNode.BIRBasicBlock basicBlock) {
+    static String emitVarRefs(BIROperand[] refs) {
+        return Arrays.stream(refs).map(EmitterUtils::emitVarRef).collect(Collectors.joining(","));
+    }
 
+    static String emitBasicBlockRef(BIRNode.BIRBasicBlock basicBlock) {
         return emitName(basicBlock.id);
     }
 
     static String emitModuleID(PackageID modId) {
-
         String str = "";
         str += modId.orgName + "/";
         str += modId.name;
@@ -63,7 +67,6 @@ class EmitterUtils {
     }
 
     static String emitBinaryOpInstructionKind(InstructionKind kind) {
-
         switch (kind) {
             case ADD:
                 return "+";
@@ -115,7 +118,6 @@ class EmitterUtils {
     }
 
     static String emitFlags(long flag) {
-
         if (SymbolFlags.isFlagOn(flag, SymbolFlags.PRIVATE)) {
             return "private";
         } else if (SymbolFlags.isFlagOn(flag, SymbolFlags.PUBLIC)) {
@@ -127,7 +129,6 @@ class EmitterUtils {
     }
 
     static String emitTabs(int tabs) {
-
         StringBuilder tab = new StringBuilder();
         int i = 0;
         while (i < tabs) {
@@ -138,7 +139,6 @@ class EmitterUtils {
     }
 
     static String emitSpaces(int spaces) {
-
         StringBuilder spacesString = new StringBuilder();
         int i = 0;
         while (i < spaces) {
@@ -149,7 +149,6 @@ class EmitterUtils {
     }
 
     static String emitLBreaks(int breaks) {
-
         StringBuilder lineBreaks = new StringBuilder();
         int i = 0;
         while (i < breaks) {
@@ -160,23 +159,19 @@ class EmitterUtils {
     }
 
     static String getTypeName(BType bType) {
-
         for (Map.Entry<String, BType> entry : TypeEmitter.B_TYPES.entrySet()) {
             if (entry.getValue().equals(bType)) {
                 return entry.getKey();
             }
         }
-
         return "";
     }
 
     static boolean isEmpty(Name nameVal) {
-
         return nameVal.value.equals("");
     }
 
     static String emitValue(Object value, BType type) {
-
         if (value == null || TypeTags.NIL == type.tag) {
             return "0";
         } else {
@@ -185,7 +180,6 @@ class EmitterUtils {
     }
 
     static boolean isBinaryInstructionKind(InstructionKind insKind) {
-
         switch (insKind) {
             case ADD:
             case SUB:
@@ -218,7 +212,6 @@ class EmitterUtils {
     }
 
     static boolean isUnaryInstructionKind(InstructionKind insKind) {
-
         switch (insKind) {
             case TYPEOF:
             case NOT:

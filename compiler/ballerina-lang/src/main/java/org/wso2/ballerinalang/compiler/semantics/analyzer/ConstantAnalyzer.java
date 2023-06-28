@@ -17,10 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -35,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Stack;
 
@@ -47,12 +52,21 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<ConstantAnalyzer> CONSTANT_ANALYZER_KEY =
             new CompilerContext.Key<>();
+
+    private final BLangMissingNodesHelper missingNodesHelper;
+    private final Names names;
+    private final SymbolTable symTable;
+    private final SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
     private Stack<BLangExpression> expressions = new Stack<>();
 
     private ConstantAnalyzer(CompilerContext context) {
 
         context.put(CONSTANT_ANALYZER_KEY, this);
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -87,6 +101,16 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRef) {
         BSymbol symbol = varRef.symbol;
+        if (varRef.pkgSymbol != symTable.notFoundSymbol && symbol == symTable.notFoundSymbol) {
+            SymbolEnv pkgEnv = symTable.pkgEnvMap.get(varRef.pkgSymbol);
+            symbol = pkgEnv == null ? symbol : symResolver.lookupMainSpaceSymbolInPackage(varRef.pos, pkgEnv,
+                    names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName));
+        }
+
+        if (symbol == symTable.notFoundSymbol) {
+            logUndefinedSymbolError(varRef.pos, varRef.variableName.value);
+        }
+
         // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
         if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
             dlog.error(varRef.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
@@ -111,15 +135,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        for (int i = expressions.size() - 1; i >= 0; i--) {
-            NodeKind kind = expressions.get(i).getKind();
-            if (kind == NodeKind.GROUP_EXPR || kind == NodeKind.UNARY_EXPR) {
-                continue;
-            }
-            if (kind != NodeKind.BINARY_EXPR) {
-                dlog.error(binaryExpr.pos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
-            }
-        }
         analyzeExpr(binaryExpr.lhsExpr);
         analyzeExpr(binaryExpr.rhsExpr);
     }
@@ -155,5 +170,11 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
                 return;
         }
         dlog.error(expr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+    }
+
+    private void logUndefinedSymbolError(Location pos, String name) {
+        if (!missingNodesHelper.isMissingNode(name)) {
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, name);
+        }
     }
 }

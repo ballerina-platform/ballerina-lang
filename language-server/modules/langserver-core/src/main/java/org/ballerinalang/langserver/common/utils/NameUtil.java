@@ -211,7 +211,8 @@ public class NameUtil {
      * @return Signature
      */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        String typeSignature = typeSymbol.signature();
+        String typeSignature = typeSymbol.typeKind() == 
+                TypeDescKind.COMPILATION_ERROR ? "" : typeSymbol.signature();
         return CommonUtil.getModifiedSignature(context, typeSignature);
     }
 

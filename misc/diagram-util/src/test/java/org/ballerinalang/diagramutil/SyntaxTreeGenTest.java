@@ -44,6 +44,7 @@ public class SyntaxTreeGenTest {
     private final Path documentLevelClientOnly = TestUtil.RES_DIR.resolve("documentLevelClientOnly");
     private final Path externalClientInitOnly = TestUtil.RES_DIR.resolve("externalClientInitOnly");
     private final Path multiLevelEndpoints = TestUtil.RES_DIR.resolve("multiLevelEndpoints");
+    private final Path endpointOrder = TestUtil.RES_DIR.resolve("endpointOrder");
 
     @Test(description = "Generate ST for empty bal file.")
     public void testEmptyBalST() throws IOException {
@@ -605,6 +606,87 @@ public class SyntaxTreeGenTest {
         JsonObject inEp3 = abcGetResourceVEps.get(2).getAsJsonObject();
         checkClientVisibleEndpoints(inEp3, "inEp3", "InternalClient", "gayanOrg", "testEps",
                 "testEps", "0.1.0", 110, 114, false, true, true, false);
+    }
+
+    @Test(description = "Test visible endpoint defined after the invocations")
+    public void testVisibleEndpointOrder() throws IOException {
+        Path inputFile = TestUtil.createTempProject(endpointOrder);
+
+        BuildProject project = BuildProject.load(inputFile);
+        Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
+        if (optionalModuleId.isEmpty()) {
+            Assert.fail("Failed to retrieve the module ID");
+        }
+        ModuleId moduleId = optionalModuleId.get();
+        Module module = project.currentPackage().module(moduleId);
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+        Optional<DocumentId> optionalDocumentId = module.documentIds().stream()
+                .filter(documentId -> module.document(documentId).name().equals("main.bal")).findFirst();
+        if (optionalDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+        DocumentId documentId = optionalDocumentId.get();
+        Document document = module.document(documentId);
+        JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        Assert.assertTrue(stJson.isJsonObject());
+
+        Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+
+        // Verify user service
+        JsonObject userService = members.get(1).getAsJsonObject();
+        JsonObject userGetFunction = userService.get("members").getAsJsonArray().get(2).getAsJsonObject();
+        JsonArray userGetFunctionVEp = userGetFunction.get("functionBody").getAsJsonObject().get("VisibleEndpoints")
+                .getAsJsonArray();
+        Assert.assertEquals(userGetFunctionVEp.size(), 7);
+
+        // Verify user service > get resource > visible endpoints
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(0).getAsJsonObject(), "httpEpM0", "Client", "ballerina",
+                "http", "http", "2.8.0", 2, 2, true, true);
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(1).getAsJsonObject(), "httpEpM1", "Client", "ballerina",
+                "http", "http", "2.8.0", 34, 37, true, true);
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(2).getAsJsonObject(), "httpEpM2", "Client", "ballerina",
+                "http", "http", "2.8.0", 79, 79, true, true);
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(3).getAsJsonObject(), "httpEpS10", "Client", "ballerina",
+                "http", "http", "2.8.0", 6, 6, false, true, true, false);
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(4).getAsJsonObject(), "httpEpS11", "Client", "ballerina",
+                "http", "http", "2.8.0", 18, 18, false, true, true, false);
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(5).getAsJsonObject(), "httpEpS12", "Client", "ballerina",
+                "http", "http", "2.8.0", 27, 27, false, true, true, false);
+        checkClientVisibleEndpoints(userGetFunctionVEp.get(6).getAsJsonObject(), "httpEpL0", "Client", "ballerina",
+                "http", "http", "2.8.0", 15, 15, false, false);
+
+        JsonObject userPostFunction = userService.get("members").getAsJsonArray().get(4).getAsJsonObject();
+        JsonArray userPostFunctionVEp = userPostFunction.get("functionBody").getAsJsonObject().get("VisibleEndpoints")
+                .getAsJsonArray();
+        Assert.assertEquals(userPostFunctionVEp.size(), 7);
+
+        checkClientVisibleEndpoints(userPostFunctionVEp.get(6).getAsJsonObject(), "httpEpL1", "Client", "ballerina",
+                "http", "http", "2.8.0", 21, 24, false, false);
+
+        // Verify main function > visible endpoints
+        JsonObject mainFunction = members.get(2).getAsJsonObject();
+        JsonArray mainFunctionVEp = mainFunction.get("functionBody").getAsJsonObject().get("VisibleEndpoints")
+                .getAsJsonArray();
+        Assert.assertEquals(mainFunctionVEp.size(), 3);
+
+        // Verify product service > get resource > visible endpoints
+        JsonObject productService = members.get(4).getAsJsonObject();
+        JsonObject productGetFunction = productService.get("members").getAsJsonArray().get(2).getAsJsonObject();
+        JsonArray productGetFunctionVEp = productGetFunction.get("functionBody").getAsJsonObject()
+                .get("VisibleEndpoints").getAsJsonArray();
+        Assert.assertEquals(productGetFunctionVEp.size(), 5);
+
+        // Verify user class > getUser function > visible endpoints
+        JsonObject userClass = members.get(6).getAsJsonObject();
+        JsonObject getUserFunction = userClass.get("members").getAsJsonArray().get(3).getAsJsonObject();
+        JsonArray getUserFunctionVEp = getUserFunction.get("functionBody").getAsJsonObject().get("VisibleEndpoints")
+                .getAsJsonArray();
+        Assert.assertEquals(getUserFunctionVEp.size(), 7);
+
+        checkClientVisibleEndpoints(getUserFunctionVEp.get(5).getAsJsonObject(), "httpEpC2", "Client", "ballerina",
+                "http", "http", "2.8.0", 74, 74, false, true, true, false);
     }
 
     private void checkClientVisibleEndpoints(JsonObject ep, String varName, String typeName, String orgName,

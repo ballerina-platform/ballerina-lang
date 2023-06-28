@@ -41,7 +41,19 @@ public class QueryExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
+    /**
+     * @deprecated Use {@link #resultClause()} instead.
+     */
+    @Deprecated
     public SelectClauseNode selectClause() {
+        ClauseNode resultClause = resultClause();
+        if (resultClause.kind() != SyntaxKind.SELECT_CLAUSE) {
+            throw new IllegalStateException("select-clause not found");
+        }
+        return (SelectClauseNode) resultClause;
+    }
+
+    public ClauseNode resultClause() {
         return childInBucket(2);
     }
 
@@ -64,19 +76,19 @@ public class QueryExpressionNode extends ExpressionNode {
         return new String[]{
                 "queryConstructType",
                 "queryPipeline",
-                "selectClause",
+                "resultClause",
                 "onConflictClause"};
     }
 
     public QueryExpressionNode modify(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause,
+            ClauseNode resultClause,
             OnConflictClauseNode onConflictClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause)) {
             return this;
         }
@@ -84,7 +96,7 @@ public class QueryExpressionNode extends ExpressionNode {
         return NodeFactory.createQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -101,14 +113,14 @@ public class QueryExpressionNode extends ExpressionNode {
         private final QueryExpressionNode oldNode;
         private QueryConstructTypeNode queryConstructType;
         private QueryPipelineNode queryPipeline;
-        private SelectClauseNode selectClause;
+        private ClauseNode resultClause;
         private OnConflictClauseNode onConflictClause;
 
         public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.queryConstructType = oldNode.queryConstructType().orElse(null);
             this.queryPipeline = oldNode.queryPipeline();
-            this.selectClause = oldNode.selectClause();
+            this.resultClause = oldNode.resultClause();
             this.onConflictClause = oldNode.onConflictClause().orElse(null);
         }
 
@@ -125,10 +137,10 @@ public class QueryExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public QueryExpressionNodeModifier withSelectClause(
-                SelectClauseNode selectClause) {
-            Objects.requireNonNull(selectClause, "selectClause must not be null");
-            this.selectClause = selectClause;
+        public QueryExpressionNodeModifier withResultClause(
+                ClauseNode resultClause) {
+            Objects.requireNonNull(resultClause, "resultClause must not be null");
+            this.resultClause = resultClause;
             return this;
         }
 
@@ -142,7 +154,7 @@ public class QueryExpressionNode extends ExpressionNode {
             return oldNode.modify(
                     queryConstructType,
                     queryPipeline,
-                    selectClause,
+                    resultClause,
                     onConflictClause);
         }
     }

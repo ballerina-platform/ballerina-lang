@@ -93,7 +93,7 @@ function executeTest(TestFunction testFunction) {
         shouldSkipDependents = true;
     }
 
-    testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
+    testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
@@ -230,13 +230,13 @@ function executeAfterFunction(TestFunction testFunction) returns boolean {
 }
 
 function executeBeforeGroupFunctions(TestFunction testFunction) {
-    foreach string group in testFunction.groups {
-        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions(group);
-        if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted(group) {
+    foreach string 'group in testFunction.groups {
+        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
+        if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
             ExecutionError? err = executeFunctions(beforeGroupFunctions, shouldSkip);
             if err is ExecutionError {
                 testFunction.skip = true;
-                groupStatusRegistry.setSkipAfterGroup(group);
+                groupStatusRegistry.setSkipAfterGroup('group);
                 exitCode = 1;
                 printExecutionError(err, "before test group function for the test");
             }
@@ -245,11 +245,11 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
 }
 
 function executeAfterGroupFunctions(TestFunction testFunction) {
-    foreach string group in testFunction.groups {
-        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions(group);
-        if afterGroupFunctions != () && groupStatusRegistry.lastExecuted(group) {
+    foreach string 'group in testFunction.groups {
+        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
+        if afterGroupFunctions != () && groupStatusRegistry.lastExecuted('group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                shouldSkip || groupStatusRegistry.getSkipAfterGroup(group));
+                shouldSkip || groupStatusRegistry.getSkipAfterGroup('group));
             if err is ExecutionError {
                 exitCode = 1;
                 printExecutionError(err, "after test group function for the test");

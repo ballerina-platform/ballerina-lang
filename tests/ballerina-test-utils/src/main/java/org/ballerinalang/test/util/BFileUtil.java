@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.exceptions.BLangTestException;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -79,7 +79,7 @@ public class BFileUtil {
                 }
             });
         } catch (IOException e) {
-            throw new BLangRuntimeException(
+            throw new BLangTestException(
                     "error occured while copying from '" + sourcePath + "' " + "to '" + targetPath + "'", e);
         }
     }
@@ -115,7 +115,7 @@ public class BFileUtil {
                 }
             });
         } catch (IOException e) {
-            throw new BLangRuntimeException("error occurred while deleting '" + path + "'", e);
+            throw new BLangTestException("error occurred while deleting '" + path + "'", e);
         }
     }
 

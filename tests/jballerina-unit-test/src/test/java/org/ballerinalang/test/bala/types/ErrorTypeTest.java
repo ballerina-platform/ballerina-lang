@@ -121,6 +121,11 @@ public class ErrorTypeTest {
         BRunUtil.invoke(errorConstructorResult, "testErrorConstructor");
     }
 
+    @Test
+    public void testErrorIntersection() {
+        BRunUtil.invoke(result, "testErrorIntersection");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

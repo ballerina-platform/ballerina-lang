@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
@@ -415,11 +415,11 @@ public class Scheduler {
 
     private Throwable createError(Throwable t) {
         if (t instanceof StackOverflowError) {
-            BError error = ErrorCreator.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            BError error = ErrorCreator.createError(ErrorReasons.STACK_OVERFLOW_ERROR);
             error.setStackTrace(t.getStackTrace());
             return error;
         } else if (t instanceof OutOfMemoryError) {
-            BError error = ErrorCreator.createError(BallerinaErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
+            BError error = ErrorCreator.createError(ErrorReasons.JAVA_OUT_OF_MEMORY_ERROR,
                     StringUtils.fromString(t.getMessage()));
             error.setStackTrace(t.getStackTrace());
             return error;

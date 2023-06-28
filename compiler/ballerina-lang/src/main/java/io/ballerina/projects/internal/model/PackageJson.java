@@ -54,6 +54,9 @@ public class PackageJson {
     private boolean template; //?
     private String template_version; //?
 
+    // GraalVM compatibility property for package
+    private Boolean graalvmCompatible;
+
     public PackageJson(String organization, String name, String version) {
         this.organization = organization;
         this.name = name;
@@ -202,5 +205,13 @@ public class PackageJson {
 
     public void setLocalDependencies(List<LocalDependency> localDependencies) {
         this.localDependencies = localDependencies;
+    }
+
+    public Boolean getGraalvmCompatible() {
+        return graalvmCompatible;
+    }
+
+    public void setGraalvmCompatible(Boolean graalvmCompatible) {
+        this.graalvmCompatible = graalvmCompatible;
     }
 }

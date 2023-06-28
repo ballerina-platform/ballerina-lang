@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TypedescValue;
@@ -133,7 +132,7 @@ public class DebuggerRuntime {
             latch.await();
             return finalResult[0];
         } catch (Exception e) {
-            throw new BallerinaException("invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
     }
 
@@ -159,7 +158,8 @@ public class DebuggerRuntime {
                 try {
                     return method.invoke(null, args);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new BallerinaException("'" + methodName + "' function invocation failed: " + e.getMessage());
+                    throw ErrorCreator.createError(StringUtils.fromString(
+                            "'" + methodName + "' function invocation failed: " + e.getMessage()));
                 }
             };
 
@@ -183,7 +183,8 @@ public class DebuggerRuntime {
             latch.await();
             return finalResult[0];
         } catch (Exception e) {
-            throw new BallerinaException("'" + methodName + "' function invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "'" + methodName + "' function invocation failed: " + e.getMessage()));
         }
     }
 

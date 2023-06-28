@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -53,7 +53,7 @@ public class DivisionOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "Test two int divide expression", expectedExceptions = BLangTestException.class)
     public void testIntDivideByZeroExpr() {
         Object[] args = { (2000), (0) };
         BRunUtil.invoke(result, "intDivide", args);
@@ -104,7 +104,7 @@ public class DivisionOperationTest {
         BAssertUtil.validateError(resultNegative, i, "operator '/' not defined for 'C' and 'float'", 45, 14);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -82,7 +82,7 @@ public class AccessTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testFieldOptionalFieldAndMemberAccess2() {
         BRunUtil.invoke(result, "testFieldOptionalFieldAndMemberAccess3");

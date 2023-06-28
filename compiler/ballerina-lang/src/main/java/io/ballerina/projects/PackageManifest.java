@@ -184,6 +184,10 @@ public class PackageManifest {
         return platforms.get(platformCode);
     }
 
+    public Map<String, Platform> platforms() {
+        return platforms;
+    }
+
     // TODO Do we need to custom key/value par mapping here
     public Object getValue(String key) {
         return otherEntries.get(key);
@@ -246,12 +250,14 @@ public class PackageManifest {
         // We could eventually add more things to the platform
         private final List<Map<String, Object>> dependencies;
         private final List<Map<String, Object>> repositories;
+        private final Boolean graalvmCompatible;
 
         public Platform(List<Map<String, Object>> dependencies) {
-            this(dependencies, Collections.emptyList());
+            this(dependencies, Collections.emptyList(), null);
         }
 
-        public Platform(List<Map<String, Object>> dependencies, List<Map<String, Object>> repositories) {
+        public Platform(List<Map<String, Object>> dependencies, List<Map<String, Object>> repositories,
+                        Boolean graalvmCompatible) {
             if (dependencies != null) {
                 this.dependencies = Collections.unmodifiableList(dependencies);
             } else {
@@ -262,6 +268,7 @@ public class PackageManifest {
             } else {
                 this.repositories = Collections.emptyList();
             }
+            this.graalvmCompatible = graalvmCompatible;
         }
 
         public List<Map<String, Object>> dependencies() {
@@ -270,6 +277,10 @@ public class PackageManifest {
 
         public List<Map<String, Object>> repositories() {
             return repositories;
+        }
+
+        public Boolean graalvmCompatible() {
+            return graalvmCompatible;
         }
     }
 

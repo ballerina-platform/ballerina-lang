@@ -168,7 +168,7 @@ public class CommandUtil {
 
 
     static void applyTemplate(String orgName, String templatePkgName, String version, String packageName,
-                              Path projectPath, Path balaCache) {
+                              Path projectPath, Path balaCache, List<Path> filesInDir) {
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
         //First we will check for a bala that match any platform
@@ -185,7 +185,7 @@ public class CommandUtil {
         try {
             addModules(balaPath, projectPath, packageName, platform);
         } catch (IOException e) {
-            ProjectUtils.deleteDirectory(projectPath);
+            ProjectUtils.deleteSelectedFilesInDirectory(projectPath, filesInDir);
             CommandUtil.printError(errStream,
                     "error occurred while creating the package: " + e.getMessage(),
                     null,
@@ -381,7 +381,8 @@ public class CommandUtil {
         }
     }
 
-    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template) {
+    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template,
+                                              List<Path> filesInDir) {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         String templatePackageName = findPkgName(template);
         String orgName = findOrg(template);
@@ -418,7 +419,7 @@ public class CommandUtil {
             PackageVersion latest = findLatest(packageVersions);
             version = Objects.requireNonNull(latest).toString();
         }
-        applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache);
+        applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache, filesInDir);
     }
 
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
@@ -433,7 +434,8 @@ public class CommandUtil {
                 settings = Settings.from();
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()),
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(),
                     getAccessTokenOfCLI(settings));
             client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);
@@ -765,8 +767,10 @@ public class CommandUtil {
         if (Files.notExists(gitignore)) {
             Files.createFile(gitignore);
         }
-        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
-        Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        if (Files.size(gitignore) == 0) {
+            String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
+            Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     private static void createDefaultDevContainer(Path path) throws IOException {
@@ -774,9 +778,11 @@ public class CommandUtil {
         if (Files.notExists(devContainer)) {
             Files.createFile(devContainer);
         }
-        String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
-        defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
-        Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
+        if (Files.size(devContainer) == 0) {
+            String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+            defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
+            Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     /**
@@ -978,9 +984,13 @@ public class CommandUtil {
         List<Path> templateFilePathList = paths.collect(Collectors.toList());
         String existingFiles = "";
         for (Path path : templateFilePathList) {
-            String fileName = path.getFileName().toString();
-            if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) && Files.exists(packagePath.resolve(fileName))) {
-                existingFiles += fileName + FILE_STRING_SEPARATOR;
+            Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());
+            if (fileNameOptional.isPresent()) {
+                String fileName = fileNameOptional.get();
+                if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
+                        Files.exists(packagePath.resolve(fileName))) {
+                    existingFiles += fileName + FILE_STRING_SEPARATOR;
+                }
             }
         }
         return existingFiles;
@@ -993,8 +1003,7 @@ public class CommandUtil {
      */
     public static String checkPackageFilesExists(Path packagePath) {
         String[] packageFiles = {DEPENDENCIES_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
-                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME,
-                ProjectConstants.GITIGNORE_FILE_NAME, ProjectConstants.DEVCONTAINER};
+                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME};
         String existingFiles = "";
 
         for (String file : packageFiles) {

@@ -768,8 +768,8 @@ public class TypedescriptorTest {
 
         List<TypeSymbol> members = intrType.memberTypeDescriptors();
 
-        assertEquals(members.get(0).typeKind(), RECORD);
-        assertEquals(members.get(1).typeKind(), READONLY);
+        assertEquals(members.get(0).typeKind(), READONLY);
+        assertEquals(members.get(1).typeKind(), RECORD);
     }
 
     @Test
@@ -1082,8 +1082,8 @@ public class TypedescriptorTest {
         assertEquals(symbol.get().kind(), CONSTANT);
         BallerinaConstantSymbol constSymbol = (BallerinaConstantSymbol) symbol.get();
         assertEquals(constSymbol.getName().get(), "greeting");
-        assertEquals(constSymbol.typeDescriptor().typeKind(), SINGLETON);
-        assertEquals(constSymbol.typeDescriptor().signature(), "");
+        assertEquals(constSymbol.typeDescriptor().typeKind(), COMPILATION_ERROR);
+        assertEquals(constSymbol.typeDescriptor().signature(), "$CompilationError$");
     }
 
     @Test(dataProvider = "UnionTypeSymbolPos")

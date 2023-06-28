@@ -898,6 +898,23 @@ function testNestedQueryActionOrExprWithClientResourceAccessAction() {
     assertEquality([["book1", "book4"]], res3);
 }
 
+function testQueryActionWithQueryExpression() {
+    string[] res = [];
+    int[] res2 = [];
+
+    from var item in from string letter in ["a", "b", "c"] select letter
+    do {
+        res.push(item);
+    };
+
+    from var x in from int num in [2, -3, -4, 5] where num > 0 select num * num
+    do {
+        res2.push(x);
+    };
+
+    assertEquality([4, 25], res2);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {

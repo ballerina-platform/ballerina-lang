@@ -64,7 +64,8 @@ public class SingleFileProject extends Project {
     }
 
     public static SingleFileProject load(Path filePath, BuildOptions buildOptions) {
-        PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
+        PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath,
+                buildOptions.disableSyntaxTree());
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         SingleFileProject singleFileProject = new SingleFileProject(environmentBuilder, filePath, buildOptions);
         singleFileProject.addPackage(packageConfig);

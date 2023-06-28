@@ -22,11 +22,11 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -116,7 +116,7 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String message = ((BLangRuntimeException) expectedException).getMessage();
+        String message = ((BLangTestException) expectedException).getMessage();
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
@@ -350,13 +350,13 @@ public class ErrorTest {
         Assert.assertEquals(result.toString(), "str");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: x.*")
+    @Test(expectedExceptions = BLangTestException.class, expectedExceptionsMessageRegExp = "error: x.*")
     public void testPanicOnErrorUnionCustomError() {
         Object[] args = new Object[]{(1)};
         BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y " +
+    @Test(expectedExceptions = BLangTestException.class, expectedExceptionsMessageRegExp = "error: y " +
             "\\{\"code\":4\\}.*")
     public void testPanicOnErrorUnionCustomError2() {
         Object[] args = new Object[]{(2)};

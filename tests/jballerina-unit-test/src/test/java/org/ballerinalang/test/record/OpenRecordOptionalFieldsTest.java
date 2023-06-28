@@ -21,11 +21,11 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -117,7 +117,7 @@ public class OpenRecordOptionalFieldsTest {
     }
 
     @Test(description = "Test non-defaultable optional field access",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' " +
                     "cannot be cast to 'Address3'.*")
     public void testOptionalNonDefField2() {
@@ -125,7 +125,7 @@ public class OpenRecordOptionalFieldsTest {
     }
 
     @Test(description = "Test non-defaultable optional field access",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'adrs'.*")
     public void testOptionalNonDefField3() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField3");

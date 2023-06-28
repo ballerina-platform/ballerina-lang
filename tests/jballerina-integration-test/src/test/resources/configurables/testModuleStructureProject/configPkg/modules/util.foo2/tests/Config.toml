@@ -1,0 +1,11 @@
+[configPkg.util.foo]
+intVar = 41
+floatVar = 3.6
+stringVar = "test string"
+booleanVar = true
+
+[configPkg.util.foo2]
+testInt = 22
+testFloat = 12.4
+testString = "configurable variable inside test source"
+testBoolean = true

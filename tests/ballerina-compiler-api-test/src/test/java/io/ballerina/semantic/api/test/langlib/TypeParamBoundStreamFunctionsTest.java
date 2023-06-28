@@ -109,7 +109,7 @@ public class TypeParamBoundStreamFunctionsTest {
 
         TypeSymbol returnTypeSymbol = ((StreamTypeSymbol) mapFnRetType).typeParameter();
         assertEquals(returnTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) returnTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(((TypeReferenceTypeSymbol) returnTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.RECORD);
     }
 
     @Test

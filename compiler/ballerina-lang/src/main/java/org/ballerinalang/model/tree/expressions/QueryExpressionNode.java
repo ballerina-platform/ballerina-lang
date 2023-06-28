@@ -18,6 +18,7 @@ package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.List;
 public interface QueryExpressionNode extends ExpressionNode {
 
     SelectClauseNode getSelectClause();
+
+    Node getFinalClause();
 
     List<? extends BLangNode> getQueryClauses();
 

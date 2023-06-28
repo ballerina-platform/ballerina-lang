@@ -93,7 +93,8 @@ public class ConfigSchemaGenTaskTest {
     @DataProvider(name = "project-data-provider-for-schema-validation")
     public Object[][] dpMethod2() {
         return new Object[][]{{"DefaultModuleProjects", "ComplexTypeConfigs2", false},
-                {"DefaultModuleProjects", "ComplexTypeConfigs3", false}};
+                {"DefaultModuleProjects", "ComplexTypeConfigs3", false},
+                {"MultiModuleProjects", "IndirectImports", false}};
     }
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {

@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.CollectClauseNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -41,7 +42,9 @@ import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
@@ -219,7 +222,9 @@ public class CompleteExpressionValidator extends NodeTransformer<Boolean> {
     public Boolean transform(QueryExpressionNode node) {
         return (node.onConflictClause().isEmpty()
                 && node.onConflictClause().get().expression().apply(this))
-                || node.selectClause().expression().apply(this);
+                || node.kind() == SyntaxKind.SELECT_CLAUSE ?
+                ((SelectClauseNode) node.resultClause()).expression().apply(this) :
+                ((CollectClauseNode) node.resultClause()).expression().apply(this);
     }
 
     @Override

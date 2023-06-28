@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.FROM_BAL_STRING_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.FROM_BAL_STRING_ERROR;
 
 /**
  * Returns the result of evaluating a Ballerina expression syntax.

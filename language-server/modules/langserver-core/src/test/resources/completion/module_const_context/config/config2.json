@@ -4,15 +4,8 @@
     "character": 14
   },
   "source": "module_const_context/source/source2.bal",
+  "description": "",
   "items": [
-    {
-      "label": "i",
-      "kind": "TypeParameter",
-      "detail": "None",
-      "sortText": "D",
-      "insertText": "i",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "StrandData",
       "kind": "Struct",
@@ -554,6 +547,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "i",
       "insertTextFormat": "Snippet"
     }
   ]

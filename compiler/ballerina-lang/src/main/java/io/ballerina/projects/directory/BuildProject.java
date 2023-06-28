@@ -113,7 +113,8 @@ public class BuildProject extends Project {
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
                                     BuildOptions buildOptions) {
-        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
+        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath,
+                buildOptions.disableSyntaxTree());
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
 
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);

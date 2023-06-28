@@ -212,8 +212,9 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldConstantAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_constant_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "expression is not a constant expression", 19, 47);
+        int i = 0;
+        validateError(result, i++, "expression is not a constant expression", 19, 47);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test(enabled = false)

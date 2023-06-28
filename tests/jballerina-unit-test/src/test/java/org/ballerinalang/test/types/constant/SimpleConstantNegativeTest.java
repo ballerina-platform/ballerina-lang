@@ -34,17 +34,17 @@ public class SimpleConstantNegativeTest {
                 "test-src/types/constant/simple-literal-constant-negative.bal");
 
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found '10'",
                 1, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '\"ABC\"'",
                 2, 21);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found '500'",
                 3, 23);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found 'boolean'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found 'true'",
                 4, 25);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'decimal', found 'boolean'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'decimal', found 'true'",
                 5, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found '120'",
                 6, 27);
         BAssertUtil.validateError(compileResult, index++, "'_' is a keyword, and may not be used as an identifier",
                 9, 14);
@@ -58,7 +58,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 26, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 27, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 33, 9);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found '10'",
                 40, 21);
         BAssertUtil.validateError(compileResult, index++,
                                   "a type compatible with mapping constructor expressions not found in type 'string'",
@@ -68,43 +68,21 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized with 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ACTION', found '\"XYZ\"'",
                 64, 21);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
-                73, 12);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'G', found 'H'",
                 91, 11);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[UVW, UVW]'", 98, 1);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[IJK, IJK]'", 103, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", 103, 18);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[LMN, OPQ, LMN]'", 108, 1);
+        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[LMN, OPQ, LMN]'",
+                108, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", 108, 20);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[OPQ, LMN, OPQ]'", 110, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", 110, 20);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[ACE, BDF, CEG, ACE]'",
                 115, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[ACE, BDF, CEG, EGI," +
-                        " ACE]'", 115, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[BDF, CEG, EGI, BDF]'",
-                115, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[BDF, CEG, ACE, BDF]'",
-                117, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[BDF, CEG, EGI, ACE," +
-                        " BDF]'", 117, 1);
+        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in " +
+                "'[ACE, BDF, CEG, EGI, ACE]'", 115, 1);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[BDF, CEG, EGI, BDF]'",
                 117, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[CEG, ACE, BDF, CEG]'",
-                119, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[CEG, EGI, ACE, BDF," +
-                        " CEG]'", 119, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[CEG, EGI, BDF, CEG]'",
-                119, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[ACE, BDF, CEG, ACE]'",
-                123, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[BDF, CEG, ACE, BDF]'",
-                123, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[EGI, ACE, BDF," +
-                        " CEG, EGI]'", 123, 1);
-        BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[EGI, BDF, CEG, EGI]'",
-                123, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'PQ'", 128, 10);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", 137, 12);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'U'", 137, 14);
@@ -150,14 +128,11 @@ public class SimpleConstantNegativeTest {
                 294, 17);
         BAssertUtil.validateError(compileResult, index++, "constant declarations are allowed only at module level",
                 297, 5);
-        BAssertUtil.validateError(compileResult, index++, "type is required for constants with expressions",
-                301, 25);
-        BAssertUtil.validateError(compileResult, index++, "cannot resolve constant 'UT_COUNT'", 302, 27);
-        BAssertUtil.validateError(compileResult, index++, "self referenced constant 'CONST1'", 304, 20);
+        BAssertUtil.validateError(compileResult, index++, "illegal cyclic reference '[CONST1]'", 304, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc2'", 308, 7);
         BAssertUtil.validateError(compileResult, index++, "symbol 'abc2' is already initialized with '1'", 308, 7);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Byte', found 'int'", 312, 17);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Byte', found '256'", 312, 17);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints', found '1.0f'",
                                   316, 17);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints2', found 'int'",
                 320, 15);
@@ -178,7 +153,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'Division by zero'",
                 347, 23);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ANS7'", 349, 11);
-        BAssertUtil.validateError(compileResult, index++, "symbol 'ANS7' is already initialized with 'null'", 349, 11);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'ANS7' is already initialized", 349, 11);
         BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 349, 18);
         BAssertUtil.validateError(compileResult, index++, "'9.999999999999999999999999999999999E+6146' " +
                 "is out of range for 'decimal'", 351, 20);

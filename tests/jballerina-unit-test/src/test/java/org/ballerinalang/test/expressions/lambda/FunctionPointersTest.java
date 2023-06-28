@@ -19,11 +19,11 @@ package org.ballerinalang.test.expressions.lambda;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -209,7 +209,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.get(1).toString(), "smith, tom");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testStructFPNullReference() {
         BRunUtil.invoke(structProgram, "test2");
     }
@@ -266,7 +266,7 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns, 40L);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { BLangTestException.class },
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError " +
                     "\\{\"message\":\"incompatible types: " +
                     "'isolated function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +

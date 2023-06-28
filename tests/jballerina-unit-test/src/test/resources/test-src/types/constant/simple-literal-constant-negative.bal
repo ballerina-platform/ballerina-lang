@@ -275,7 +275,7 @@ type Foo record {
     int i;
 };
 
-const Foo f = { s: "const string", i: 1 };
+const Foo f = { s: "const string", i: 1 }; // Valid case.
 
 const json j = 1;
 

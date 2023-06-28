@@ -17,9 +17,9 @@
 const int CI6 = 1 + 2;
 const float CF1 = 1.0 + 2.0;
 const decimal CD1 = 1.0 + 2.0;
-// const byte CBT1 = 1; // Uncomment after fixing #33889
-// const byte CBT2 = 2;
-// const byte CBT3 = CBT1 + CBT2;
+const byte CBT1 = 1;
+const byte CBT2 = 2;
+const byte CBT3 = CBT1 + CBT2;
 const boolean CB2 = !true;
 const string CS2 = "1" + "2";
 
@@ -34,14 +34,14 @@ function userDefinedTypeTests() {
     CI6 ci6 = 4; // expected '3', found 'int'
     CF1 cf1 = 4.0; // expected '3.0f', found 'float'
     CD1 cd1 = 4.0; // expected '3.0d', found 'float'
-//  CBT3 cbt3 = 4; // expected '3', found 'int' // Uncomment after fixing #33889
+    CBT3 cbt3 = 4; // expected '3', found 'int'
     CB2 cb2 = true; // expected 'false', found 'boolean'
     CS2 cs2 = "4"; // expected '"12"', found 'string'
 
     TYPE1 t1 = CI6; // expected 'TYPE1', found '3'
     TYPE2 t2 = CF1; // expected 'TYPE2', found '3.0f'
     TYPE3 t3 = CD1; // expected 'TYPE3', found '3.0d'
-//  TYPE4 t4 = CBT3; // expected 'TYPE4', found '3' // Uncomment after fixing #33889
+    TYPE4 t4 = CBT3; // expected 'TYPE4', found '3'
     TYPE5 t5 = CB2; // expected 'TYPE5', found 'false'
     TYPE6 t6 = CS2; // expected 'TYPE5', found '12'
 }
@@ -54,7 +54,7 @@ const map<float> CMF1 = {a : 0.11, b : 2.12};
 const map<map<float>> CMF2 = {c : {d : 0.11, e : 2.12}, f : CMF1};
 const map<decimal> CMD1 = {a : 0.11, b : 2.12};
 const map<map<decimal>> CMD2 = {c : {d : 0.11, e : 2.12}, f : CMD1};
-const map<byte> CMBT = {a : 127, b : 255}; // Uncomment after fixing #33889
+const map<byte> CMBT = {a : 127, b : 255};
 const map<boolean> CMB1 = {a : true, b : false};
 const map<string> CMS1 = {a : "C", b : "S"};
 const map<string> CMS2 = {b : "C", c : "S"};
@@ -117,7 +117,7 @@ function testTypesOfConstantMaps() {
     TYPE12 t1 = CMI4;
     TYPE11 t2 = CMF1;
     TYPE10 t3 = CMD1;
-//  TYPE9 t4 = CMBT; // Uncomment after fixing #33889
+    TYPE9 t4 = CMBT;
     TYPE8 t5 = CMB1;
     TYPE7 t6 = CMS1;
     TYPE7 t7 = CMS1_CLONE;
@@ -127,7 +127,7 @@ function testTypesOfConstantMaps() {
     CMI4 cmi4 = {a : "C", b : "S"};
     CMF1 cmf1 = {a : 0.11, c : 2.12d};
     CMD1 cmd1 = {a : 0.11f, b : 2.12d};
-//  CMBT cmbt = {a : "C", b : "S"};
+    CMBT cmbt = {a : "C", b : "S"};
     CMB1 cmb1 = {a : true};
     CMS1 cms1 = {a : "S", b : "C"};
     CMS1_CLONE cms1_clone = {};

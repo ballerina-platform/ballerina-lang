@@ -23,7 +23,7 @@ public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneabl
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type CloneableType Cloneable|never;
+type CloneableType Cloneable;
 
 # A type parameter that is a subtype of `anydata`.
 # Has the special semantic that when used in a declaration

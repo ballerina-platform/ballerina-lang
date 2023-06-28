@@ -59,13 +59,13 @@
       ]
     },
     {
-      "label": "reduce(function (map:Type1 accum, map:Type val) returns map:Type1 func, map:Type1 initial)",
+      "label": "reduce(function (MyType accum, MyType val) returns MyType func, MyType initial)",
       "kind": "Function",
-      "detail": "map:Type1",
+      "detail": "MyType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nCombines the members of a map using a combining function.\n\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 195\n```\n  \n**Params**  \n- `function (map:Type1 accum, map:Type val) returns map:Type1` func: combining function  \n- `map:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `map:Type1`   \n- result of combining the members of parameter `m` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nCombines the members of a map using a combining function.\n\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 195\n```\n  \n**Params**  \n- `function (MyType accum, MyType val) returns MyType` func: combining function  \n- `MyType` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `MyType`   \n- result of combining the members of parameter `m` using parameter `func`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -97,13 +97,13 @@
       }
     },
     {
-      "label": "forEach(function (map:Type val) returns () func)",
+      "label": "forEach(function (MyType val) returns () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function to each member of a map.\n\nThe parameter `func` is applied to each member of parameter `m`.\n\n```ballerina\nint total = 0;\n{\"Carl\": 85, \"Bob\": 50, \"Max\": 60}.forEach(function (int m) {\n    total += m;\n});\ntotal ⇒ 195\n```\n  \n**Params**  \n- `function (map:Type val) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function to each member of a map.\n\nThe parameter `func` is applied to each member of parameter `m`.\n\n```ballerina\nint total = 0;\n{\"Carl\": 85, \"Bob\": 50, \"Max\": 60}.forEach(function (int m) {\n    total += m;\n});\ntotal ⇒ 195\n```\n  \n**Params**  \n- `function (MyType val) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "CD",
@@ -135,13 +135,13 @@
       }
     },
     {
-      "label": "filter(function (map:Type val) returns boolean func)",
+      "label": "filter(function (MyType val) returns boolean func)",
       "kind": "Function",
       "detail": "map<MyType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nSelects the members from a map for which a function returns true.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.filter(m => m >= 60) ⇒ {\"Carl\":85,\"Max\":60}\n```\n  \n**Params**  \n- `function (map:Type val) returns boolean` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<MyType>`   \n- new map containing members for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nSelects the members from a map for which a function returns true.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.filter(m => m >= 60) ⇒ {\"Carl\":85,\"Max\":60}\n```\n  \n**Params**  \n- `function (MyType val) returns boolean` func: a predicate to apply to each element to test whether it should be included  \n  \n**Return** `map<MyType>`   \n- new map containing members for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -268,13 +268,13 @@
       }
     },
     {
-      "label": "'map(function (map:Type val) returns map:Type1 func)",
+      "label": "'map(function (MyType val) returns MyType func)",
       "kind": "Function",
-      "detail": "map<map:Type1>",
+      "detail": "map<MyType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.map(m => m > 50) ⇒ {\"Carl\":true,\"Bob\":false,\"Max\":true}\n```\n  \n**Params**  \n- `function (map:Type val) returns map:Type1` func: a function to apply to each member  \n  \n**Return** `map<map:Type1>`   \n- new map containing result of applying parameter `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n\n```ballerina\nmap<int> marks = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60};\nmarks.map(m => m > 50) ⇒ {\"Carl\":true,\"Bob\":false,\"Max\":true}\n```\n  \n**Params**  \n- `function (MyType val) returns MyType` func: a function to apply to each member  \n  \n**Return** `map<MyType>`   \n- new map containing result of applying parameter `func` to each member  \n  \n"
         }
       },
       "sortText": "CD",
@@ -319,11 +319,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|MyType value;|}?;}",
+      "detail": "object {public isolated function next() returns record {|MyType value; MyType...;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60}.iterator();\niterator.next() ⇒ {\"value\":85}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|MyType value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns an iterator over a map.\n\nThe iterator will iterate over the members of the map not the keys.\nThe function `entries` can be used to iterate over the keys and members together.\nThe function `keys` can be used to iterator over just the keys.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = {\"Carl\": 85, \"Bob\": 50, \"Max\": 60}.iterator();\niterator.next() ⇒ {\"value\":85}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|MyType value; MyType...;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `m`  \n  \n"
         }
       },
       "sortText": "CD",

@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class ForeachErrorHandlingTests {
         BRunUtil.invoke(program, "testArrayForeachAndTrap");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
+    @Test(expectedExceptions = BLangTestException.class, expectedExceptionsMessageRegExp =
             "error: \\{ballerina/lang.int\\}NumberParsingError \\{\"message\":\"'string' value 'waruna' cannot be " +
                     "converted to 'int'\"\\}\n" +
                     "\tat ballerina.lang.int.0:fromString\\(int.bal:175\\)\n" +

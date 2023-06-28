@@ -251,10 +251,10 @@ public class JBallerinaBalaWriter extends BalaWriter {
     private Optional<BalToolDescriptor> readBalToolToml() {
         Optional<BalToolToml> balToolToml = backend.packageContext().project()
                 .currentPackage().balToolToml();
-
         if (balToolToml.isPresent()) {
             TomlDocument tomlDocument = balToolToml.get().balToolTomlContext().tomlDocument();
-            return Optional.of(BalToolDescriptor.from(tomlDocument));
+            Path sourceRoot = packageContext.project().sourceRoot();
+            return Optional.of(BalToolDescriptor.from(tomlDocument, sourceRoot));
         }
         return Optional.empty();
     }

@@ -51,6 +51,11 @@ function testQueryExpr() {
     table<Person> key(id)|error v8 = table key(id) from var st in students.toStream()
                                select <Person>{id: st.id, name: st.fname, age: st.age}
                                on conflict error("Conflicted Key", cKey = st.id);
+
+    // group by clause
+    var v9 = from var {name, age} in people
+                group by age
+             select age;
 }
 
 // utils

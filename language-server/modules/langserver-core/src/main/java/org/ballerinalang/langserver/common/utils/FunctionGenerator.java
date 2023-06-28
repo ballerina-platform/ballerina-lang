@@ -90,6 +90,42 @@ public class FunctionGenerator {
     }
 
     /**
+     * Given a text like "ballerina/module1:0.1.0:Response", this will output "module1:Response" after filtering the
+     * version and org information from the full qualified module name.
+     *
+     * @param text Text to be processed
+     * @return Processed text
+     */
+    public static String processModuleIDsInText(String text) {
+        StringBuilder newText = new StringBuilder();
+        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
+        int nextStart = 0;
+        while (matcher.find()) {
+            // Append up-to start of the match
+            newText.append(text, nextStart, matcher.start(1));
+
+            String modPart = matcher.group(2);
+            int last = modPart.lastIndexOf(".");
+            if (last != -1) {
+                modPart = modPart.substring(last + 1);
+            }
+
+            String typeName = matcher.group(4);
+
+            newText.append(modPart);
+            newText.append(":");
+            newText.append(typeName);
+            // Update next-start position
+            nextStart = matcher.end(4);
+        }
+        // Append the remaining
+        if (nextStart != 0 && nextStart < text.length()) {
+            newText.append(text.substring(nextStart));
+        }
+        return newText.length() > 0 ? newText.toString() : text;
+    }
+
+    /**
      * Generates a function with the provided parameters.
      *
      * @param context          Document service context

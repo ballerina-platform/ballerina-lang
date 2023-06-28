@@ -48,13 +48,13 @@ import java.util.function.Function;
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_ARGS_AMBIGUITY;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_UNUSED_CLI_ARGS;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_VARIABLE_AMBIGUITY;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_ARGS_AMBIGUITY;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_UNUSED_CLI_ARGS;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_VARIABLE_AMBIGUITY;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INCOMPATIBLE_TYPE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.

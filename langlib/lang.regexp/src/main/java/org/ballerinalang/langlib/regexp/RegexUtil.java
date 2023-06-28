@@ -24,12 +24,12 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
@@ -54,8 +54,8 @@ public class RegexUtil {
         try {
             return getMatcher(regexpVal, inputStr.getValue());
         } catch (PatternSyntaxException e) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    RuntimeErrors.REGEXP_INVALID_PATTERN, e.getMessage());
+            throw ErrorHelper.getRuntimeException(ErrorReasons.REG_EXP_PARSING_ERROR,
+                    ErrorCodes.REGEXP_INVALID_PATTERN, e.getMessage());
         }
     }
 
@@ -149,19 +149,19 @@ public class RegexUtil {
 
     protected static void checkIndexWithinRange(BString str, long startIndex) {
         if (startIndex != (int) startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.REGEXP_OPERATION_ERROR,
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, startIndex);
         }
 
         if (startIndex < 0) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    ErrorCodes.NEGATIVE_REGEXP_FIND_INDEX);
         }
 
         int strLength = str.length();
         if (strLength != 0 && strLength <= startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    ErrorCodes.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
         }
     }
 }

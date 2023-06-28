@@ -472,6 +472,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_ORDER_KEYWORD;
             case BY_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_BY_KEYWORD;
+            case GROUP_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_GROUP_KEYWORD;
             case ORDER_DIRECTION:
                 return DiagnosticErrorCode.ERROR_MISSING_ASCENDING_KEYWORD;
             case JOIN_KEYWORD:
@@ -517,6 +519,8 @@ public class SyntaxErrors {
             case THIRD_CLASS_TYPE_QUALIFIER:
             case FOURTH_CLASS_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
+            case COLLECT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_COLLECT_KEYWORD;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }

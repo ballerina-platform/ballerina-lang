@@ -34,6 +34,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -74,6 +77,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -167,10 +171,10 @@ public class TypeParamAnalyzer {
         return createBuiltInType(type, name, flag);
     }
 
-    BType createTypeParam(BType type, Name name) {
-
+    BType createTypeParam(BSymbol symbol) {
+        BType type = symbol.type;
         var flag = type.flags | Flags.TYPE_PARAM;
-        return createBuiltInType(type, name, flag);
+        return createTypeParamType(symbol, type, symbol.name, flag);
     }
 
     BType getMatchingBoundType(BType expType, SymbolEnv env) {
@@ -275,21 +279,70 @@ public class TypeParamAnalyzer {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                BUnionType unionType = (BUnionType) type;
-                BAnydataType anydataType = new BAnydataType(unionType);
-                Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
-                                                                                   unionType);
-                if (immutableType.isPresent()) {
-                    Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, immutableType.get());
-                }
-                anydataType.name = name;
-                anydataType.flags |= flags;
-                return anydataType;
+                return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, null, name, flags);
         }
         // For others, we will use TSymbol.
         return type;
+    }
+
+    private BType createTypeParamType(BSymbol symbol, BType type, Name name, long flags) {
+        // Handle built-in types.
+        BType refType = Types.getReferredType(type);
+        switch (refType.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+                return new BType(type.tag, null, name, flags);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, null, name, flags);
+            case TypeTags.ANYDATA:
+                return createAnydataType((BUnionType) type, name, flags);
+            case TypeTags.READONLY:
+                return new BReadonlyType(type.tag, null, name, flags);
+            case TypeTags.UNION:
+                if (types.isCloneableType((BUnionType) refType)) {
+                    BUnionType cloneableType = BUnionType.create(null, symTable.readonlyType, symTable.xmlType);
+                    addCyclicArrayMapTableOfMapMembers(cloneableType);
+                    cloneableType.flags = flags;
+
+                    cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, refType.tsymbol.flags, symbol.name,
+                            refType.tsymbol.pkgID, cloneableType, refType.tsymbol.owner, type.tsymbol.pos,
+                            BUILTIN);
+                    ((BTypeDefinitionSymbol) symbol).referenceType.referredType = cloneableType;
+                    return cloneableType;
+                }
+                break;
+            default:
+                break;
+        }
+        // For others, we will use TSymbol.
+        return type;
+    }
+
+    private BAnydataType createAnydataType(BUnionType unionType, Name name, long flags) {
+        BAnydataType anydataType = new BAnydataType(unionType);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
+                unionType);
+        immutableType.ifPresent(bIntersectionType ->
+                Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, bIntersectionType));
+        anydataType.name = name;
+        anydataType.flags |= flags;
+        return anydataType;
+    }
+
+    private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {
+        BArrayType arrayCloneableType = new BArrayType(unionType);
+        BMapType mapCloneableType = new BMapType(TypeTags.MAP, unionType, null);
+        BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
+        unionType.add(arrayCloneableType);
+        unionType.add(mapCloneableType);
+        unionType.add(tableMapCloneableType);
+        unionType.isCyclic = true;
     }
 
     private void findTypeParam(Location loc, BType expType, BType actualType, SymbolEnv env,

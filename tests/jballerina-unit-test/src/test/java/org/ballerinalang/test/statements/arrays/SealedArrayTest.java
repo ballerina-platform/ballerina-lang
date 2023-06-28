@@ -22,11 +22,11 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -343,7 +343,7 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
         Object[] args = {5};
@@ -351,14 +351,14 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array when assigned to unsealed array",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 4, size: 3.*")
     public void assignedArrayInvalidIndexAccess() {
         BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
     @Test(description = "Test accessing invalid index of sealed auto filled array when assigned to unsealed array",
-          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptions = {BLangTestException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 4, size: 3.*")
     public void assignedAutoFilledArrayInvalidIndexAccess() {
         BRunUtil.invoke(compileResult, "assignedAutoFilledArrayInvalidIndexAccess");
@@ -385,7 +385,7 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
         BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 3));
@@ -397,7 +397,7 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                             "\\{\"message\":\"array index out of range: index: 4, size: 3.*")
@@ -411,7 +411,7 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*\\{\"message\":\"array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
         BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
@@ -444,7 +444,7 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
         BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 3));

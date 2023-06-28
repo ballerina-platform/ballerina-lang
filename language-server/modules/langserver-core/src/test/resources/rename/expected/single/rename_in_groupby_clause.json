@@ -1,0 +1,57 @@
+{
+  "source": {
+    "file": "rename_in_groupby_clause.bal"
+  },
+  "position": {
+    "line": 6,
+    "character": 18
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "rename_in_groupby_clause.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 27
+            },
+            "end": {
+              "line": 4,
+              "character": 32
+            }
+          },
+          "newText": "price: newPrice"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 17
+            },
+            "end": {
+              "line": 5,
+              "character": 22
+            }
+          },
+          "newText": "newPrice"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 15
+            },
+            "end": {
+              "line": 6,
+              "character": 20
+            }
+          },
+          "newText": "newPrice"
+        }
+      ]
+    }
+  }
+}

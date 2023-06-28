@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
@@ -228,7 +227,7 @@ public class XmlFactory {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             return parse(inputStream);
         } catch (IOException | XMLStreamException e) {
-            throw new BallerinaException(e);
+            throw ErrorCreator.createError(e);
         }
     }
 

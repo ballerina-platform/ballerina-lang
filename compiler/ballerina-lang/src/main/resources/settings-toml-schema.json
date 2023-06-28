@@ -13,7 +13,7 @@
           "type": "string"
         },
         "port": {
-          "type": "number"
+          "type": "integer"
         },
         "username": {
           "type": "string"

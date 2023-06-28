@@ -540,6 +540,8 @@ public class JsonParser {
                         state = sm.initNewObject();
                     } else if (ch == '[') {
                         state = sm.initNewArray();
+                    } else if (ch == ']') {
+                        throw new JsonParserException("expected an array element");
                     } else {
                         state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
@@ -647,6 +649,8 @@ public class JsonParser {
                         state = sm.initNewObject();
                     } else if (ch == '[') {
                         state = sm.initNewArray();
+                    } else if (ch == ']' || ch == '}') {
+                        throw new JsonParserException("expected a field value");
                     } else {
                         state = NON_STRING_FIELD_VALUE_STATE;
                     }
@@ -1122,8 +1126,7 @@ public class JsonParser {
                         continue;
                     }
                     this.reset(sm);
-                    StateMachine.throwExpected("hexadecimal value of an unicode character");
-                    break;
+                    throw new JsonParserException("expected the hexadecimal value of a unicode character");
                 }
                 sm.index = i + 1;
                 return state;
@@ -1249,7 +1252,7 @@ public class JsonParser {
                             }
                             break;
                         default:
-                            StateMachine.throwExpected("escaped characters");
+                            throw new JsonParserException("expected escaped characters");
                     }
                 }
                 sm.index = i + 1;

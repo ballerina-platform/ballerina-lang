@@ -1,0 +1,7 @@
+Compiling source
+	gayaldassanayake/preCompiledPackage:0.1.0
+WARNING [preCompiledPackage] Detected an attempt to compile this package using Swan Lake Update INSERT_NEW_DIST_VERSION_HERE. However, this package was built using Swan Lake Update INSERT_OLD_DIST_VERSION_HERE.
+HINT: Execute the bal command with --sticky=false
+
+Generating executable
+	target/bin/preCompiledPackage.jar

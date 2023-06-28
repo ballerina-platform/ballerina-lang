@@ -116,8 +116,9 @@ public class VisibleSymbolsInQueryExprsTest extends BaseVisibleSymbolsTest {
                                 from("res5", VARIABLE),
                                 from("res6", VARIABLE)
                 )},
-                {53, 58, concat(expModuleSymbols,
-                                from("m", VARIABLE),
+                {52, 25, concat(expModuleSymbols,
+                                from("firstName", VARIABLE),
+                                from("lastName", VARIABLE),
                                 from("p1", VARIABLE),
                                 from("p2", VARIABLE),
                                 from("personList", VARIABLE),
@@ -129,7 +130,40 @@ public class VisibleSymbolsInQueryExprsTest extends BaseVisibleSymbolsTest {
                                 from("res6", VARIABLE),
                                 from("res7", VARIABLE)
                 )},
-                {53, 64, concat(expModuleSymbols,
+                {55, 25, concat(expModuleSymbols,
+                        from("firstName", VARIABLE),
+                        from("lastName", VARIABLE),
+                        from("p1", VARIABLE),
+                        from("p2", VARIABLE),
+                        from("personList", VARIABLE),
+                        from("res1", VARIABLE),
+                        from("res2", VARIABLE),
+                        from("res3", VARIABLE),
+                        from("res4", VARIABLE),
+                        from("res5", VARIABLE),
+                        from("res6", VARIABLE),
+                        from("res7", VARIABLE),
+                        from("res8", VARIABLE)
+
+                )},
+                {59, 58, concat(expModuleSymbols,
+                                from("m", VARIABLE),
+                                from("p1", VARIABLE),
+                                from("p2", VARIABLE),
+                                from("personList", VARIABLE),
+                                from("res1", VARIABLE),
+                                from("res2", VARIABLE),
+                                from("res3", VARIABLE),
+                                from("res4", VARIABLE),
+                                from("res5", VARIABLE),
+                                from("res6", VARIABLE),
+                                from("res7", VARIABLE),
+                                from("res8", VARIABLE),
+                                from("res9", VARIABLE)
+
+
+                )},
+                {59, 64, concat(expModuleSymbols,
                                 from("ii", VARIABLE),
                                 from("p1", VARIABLE),
                                 from("p2", VARIABLE),
@@ -139,9 +173,11 @@ public class VisibleSymbolsInQueryExprsTest extends BaseVisibleSymbolsTest {
                                 from("res3", VARIABLE),
                                 from("res4", VARIABLE),
                                 from("res5", VARIABLE),
-                                from("res6", VARIABLE)
-                )},
+                                from("res6", VARIABLE),
+                                from("res7", VARIABLE),
+                                from("res8", VARIABLE)
 
+                )},
         };
     }
 }

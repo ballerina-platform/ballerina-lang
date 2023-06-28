@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -850,6 +851,13 @@ public class Types {
             return true;
         }
 
+        if (sourceTag == TypeTags.SEQUENCE) {
+            BSequenceType seqType = (BSequenceType) source;
+            if (targetTag == TypeTags.ARRAY) {
+                return isAssignable(seqType.elementType, ((BArrayType) target).eType, unresolvedTypes);
+            }
+        }
+
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
                 !isInherentlyImmutableType(source) && isMutable(source)) {
@@ -1536,12 +1544,20 @@ public class Types {
             case TypeTags.XML_PI:
                 return true;
             case TypeTags.ARRAY:
-                BType elementType = ((BArrayType) type).eType;
+                BArrayType arrayType = (BArrayType) type;
+                BType elementType = arrayType.eType;
+                if (elementType == symTable.semanticError && arrayType.mutableType != null) {
+                    elementType = arrayType.mutableType.eType;
+                }
                 return isInherentlyImmutableType(elementType) ||
                         isSelectivelyImmutableType(elementType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType memberType : tupleType.getTupleTypes()) {
+                List<BType> tupleMemberTypes = tupleType.getTupleTypes();
+                if (tupleMemberTypes.isEmpty() && tupleType.mutableType != null) {
+                    tupleMemberTypes = tupleType.mutableType.getTupleTypes();
+                }
+                for (BType memberType : tupleMemberTypes) {
                     if (!isInherentlyImmutableType(memberType) &&
                             !isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
                         return false;
@@ -1557,7 +1573,11 @@ public class Types {
                         isSelectivelyImmutableType(tupRestType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields.values()) {
+                LinkedHashMap<String, BField> recordFields = recordType.fields;
+                if (recordFields.isEmpty() && recordType.mutableType != null) {
+                    recordFields = recordType.mutableType.fields;
+                }
+                for (BField field : recordFields.values()) {
                     BType fieldType = field.type;
                     if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
                             !isInherentlyImmutableType(fieldType) &&
@@ -1567,13 +1587,20 @@ public class Types {
                 }
                 return true;
             case TypeTags.MAP:
-                BType constraintType = ((BMapType) type).constraint;
+                BMapType mapType = (BMapType) type;
+                BType constraintType = mapType.constraint;
+                if (constraintType == symTable.semanticError && mapType.mutableType != null) {
+                    constraintType = mapType.mutableType.constraint;
+                }
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
-
-                for (BField field : objectType.fields.values()) {
+                LinkedHashMap<String, BField> objectFields = objectType.fields;
+                if (objectFields.isEmpty() && objectType.mutableType != null) {
+                    objectFields = objectType.mutableType.fields;
+                }
+                for (BField field : objectFields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
                             !isSelectivelyImmutableType(fieldType, unresolvedTypes, forceCheck, packageID)) {
@@ -1582,12 +1609,18 @@ public class Types {
                 }
                 return true;
             case TypeTags.TABLE:
-                BType tableConstraintType = ((BTableType) type).constraint;
+                BTableType tableType = (BTableType) type;
+                BType tableConstraintType = tableType.constraint;
+                if (tableConstraintType == symTable.semanticError && tableType.mutableType != null) {
+                    tableConstraintType = tableType.mutableType.constraint;
+                }
                 return isInherentlyImmutableType(tableConstraintType) ||
                         isSelectivelyImmutableType(tableConstraintType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.UNION:
                 boolean readonlyIntersectionExists = false;
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                BUnionType unionType = (BUnionType) type;
+                LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
+                for (BType memberType : memberTypes) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
                         readonlyIntersectionExists = true;
@@ -1777,7 +1810,7 @@ public class Types {
             if (!isInSameVisibilityRegion(lhsFunc.symbol, rhsFunc.symbol)) {
                 return false;
             }
-            
+
             if (Symbols.isRemote(lhsFunc.symbol) != Symbols.isRemote(rhsFunc.symbol)) {
                 return false;
             }
@@ -3534,11 +3567,11 @@ public class Types {
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst();
-        
+
         if (matchingFunction.isEmpty()) {
             return matchingFunction;
         }
-        // For resource function match, we need to check whether lhs function resource path type belongs to 
+        // For resource function match, we need to check whether lhs function resource path type belongs to
         // rhs function resource path type
         BAttachedFunction matchingFunc = matchingFunction.get();
         // Todo: We could include this logic in `isFunctionTypeAssignable` if we have `resourcePathType` information in
@@ -3561,13 +3594,13 @@ public class Types {
         if (lhsFuncResourcePathTypesSize != rhsFuncPathTypes.size()) {
             return Optional.empty();
         }
-        
+
         for (int i = 0; i < lhsFuncResourcePathTypesSize; i++) {
             if (!isAssignable(lhsFuncPathTypes.get(i).type, rhsFuncPathTypes.get(i).type)) {
                 return Optional.empty();
             }
         }
-        
+
         return matchingFunction;
     }
 
@@ -5088,7 +5121,7 @@ public class Types {
     private BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,
                                      SymbolEnv env,
                                      LinkedHashSet<BType> visitedTypes) {
-        List<BType> rhsTypeComponents = getAllTypes(rhsType, false);
+        List<BType> rhsTypeComponents = getAllTypes(rhsType, true);
         LinkedHashSet<BType> intersection = new LinkedHashSet<>(rhsTypeComponents.size());
         for (BType rhsComponent : rhsTypeComponents) {
             BType it = getIntersection(intersectionContext, lhsType, env, rhsComponent,
@@ -5971,12 +6004,22 @@ public class Types {
                 // TODO : Fix this, Issue : #21542
 //            case TypeTags.CHAR_STRING:
             case TypeTags.NIL:
+            case TypeTags.UNION:
                 return true;
             case TypeTags.MAP:
                 return isAllowedConstantType(((BMapType) type).constraint);
+//            case TypeTags.RECORD:
+//                for (BField field : ((BRecordType) type).fields.values()) {
+//                    if (!isAllowedConstantType(field.type)) {
+//                        return false;
+//                    }
+//                }
+//                return true;
             case TypeTags.FINITE:
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.getBType());
+//            case TypeTags.INTERSECTION:
+//                return isAllowedConstantType(((BIntersectionType) type).effectiveType);
             case TypeTags.TYPEREFDESC:
                 return isAllowedConstantType(((BTypeReferenceType) type).referredType);
             default:
@@ -7193,5 +7236,38 @@ public class Types {
     public boolean isFunctionVarRef(BLangExpression expr) {
         return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol != null
                 && (((BLangSimpleVarRef) expr).symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION;
+    }
+
+    public boolean isCloneableType(BUnionType type) {
+        LinkedHashSet<BType> cloneableMemberTypes = symTable.cloneableType.getMemberTypes();
+        Iterator memItr = type.getMemberTypes().iterator();
+        for (BType memberType : cloneableMemberTypes) {
+            if (!memItr.hasNext() || memberType.tag != ((BType) memItr.next()).tag) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isContainSubtypeOfInt(BType type) {
+        switch (type.tag) {
+            case TypeTags.BYTE:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+                return true;
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                    if (isContainSubtypeOfInt(memberType)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return false;
+        }
     }
 }

@@ -257,10 +257,10 @@ public class BindgenCommand implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("  $ bal " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
-        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.32.jar,./libs/pdfbox-1.8.10.jar " +
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-2.0.jar,./libs/pdfbox-1.8.10.jar " +
                 "-o ./modules/sample\n");
         out.append("  org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
-        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -mvn org.yaml:snakeyaml:1.32 org.yaml.snakeyaml.Yaml\n");
+        out.append("  $ bal " + COMPONENT_IDENTIFIER + " -mvn org.yaml:snakeyaml:2.0 org.yaml.snakeyaml.Yaml\n");
     }
 
     @Override

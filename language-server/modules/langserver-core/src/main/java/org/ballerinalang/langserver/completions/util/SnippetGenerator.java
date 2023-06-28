@@ -287,6 +287,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Group By Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGroupByKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.GROUPBY_KEYWORD, ItemResolverConstants.GROUPBY_KEYWORD,
+                "group by ", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
+     * Get Collect Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCollectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.COLLECT_KEYWORD, ItemResolverConstants.COLLECT_KEYWORD,
+                "collect ", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+    
+    /**
      * Get Limit Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1122,6 +1142,18 @@ public class SnippetGenerator {
         String snippet = "let ${1:var} ${2:varName} = " + "${3}";
 
         return new SnippetBlock(ItemResolverConstants.LET_CLAUSE, ItemResolverConstants.LET, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Group By clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGroupByClauseSnippet() {
+        String snippet = "group by ${1:var} ${2:item} = " + "${3}";
+
+        return new SnippetBlock(ItemResolverConstants.GROUPBY_CLAUSE, ItemResolverConstants.GROUPBY_KEYWORD, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 

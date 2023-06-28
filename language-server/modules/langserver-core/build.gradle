@@ -39,6 +39,7 @@ configurations {
 }
 
 dependencies {
+    dist project(':ballerina-rt')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
@@ -128,9 +129,23 @@ task deleteGeneratedModules(type:Delete) {
     delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
 }
 
+// This is need for the run via ls (fast-run) feature to be tested.
+task copyRuntime() {
+    dependsOn configurations.dist
+    doFirst {
+        configurations.dist.each { artifact ->
+            copy {
+                from artifact.getPath()
+                into "$buildDir/bre/lib"
+            }
+        }
+    }
+}
+
 test {
     dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
+    dependsOn copyRuntime
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version

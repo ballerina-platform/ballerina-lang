@@ -140,7 +140,9 @@ public class SearchCommand implements BLauncherCmd {
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                            initializeProxy(settings.getProxy()),
-                                                           getAccessTokenOfCLI(settings));
+                                                            settings.getProxy().username(),
+                                                            settings.getProxy().password(),
+                                                                getAccessTokenOfCLI(settings));
             PackageSearchResult packageSearchResult = client.searchPackage(query,
                                                                            JvmTarget.JAVA_11.code(),
                                                                            RepoUtils.getBallerinaVersion());

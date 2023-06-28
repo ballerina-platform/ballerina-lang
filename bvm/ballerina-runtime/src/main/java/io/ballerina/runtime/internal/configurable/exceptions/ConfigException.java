@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.exceptions;
 
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 
 /**
  * Exception class used for configuration specific errors.
@@ -27,16 +27,16 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
  */
 public class ConfigException extends RuntimeException {
 
-    private RuntimeErrors errorCode;
+    private ErrorCodes errorCode;
 
     private Object[] args;
 
-    public ConfigException(RuntimeErrors errorCode, Object... args) {
+    public ConfigException(ErrorCodes errorCode, Object... args) {
         this.errorCode = errorCode;
         this.args = args;
     }
 
-    public RuntimeErrors getErrorCode() {
+    public ErrorCodes getErrorCode() {
         return errorCode;
     }
 

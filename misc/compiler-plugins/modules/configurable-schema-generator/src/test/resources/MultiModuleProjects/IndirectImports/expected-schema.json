@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "dilhashanazeer": {
+      "type": "object",
+      "properties": {
+        "IndirectImports": {
+          "type": "object",
+          "properties": {
+            "mod1": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "description": ""
+                }
+              },
+              "additionalProperties": false
+            },
+            "mod2": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": ""
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

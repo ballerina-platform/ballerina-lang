@@ -20,10 +20,11 @@ package io.ballerina.runtime.transactions;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
@@ -90,7 +91,8 @@ public class TransactionUtils {
                 try {
                     return method.invoke(null, args);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
+                    throw ErrorCreator.createError(StringUtils.fromString(
+                            methodName + " function invocation failed: " + e.getMessage()));
                 }
             };
             CountDownLatch completeFunction = new CountDownLatch(1);
@@ -108,7 +110,7 @@ public class TransactionUtils {
             completeFunction.await();
             return futureValue.result;
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
-            throw new BallerinaException("invocation failed: " + e.getMessage());
+            throw ErrorCreator.createError(StringUtils.fromString("invocation failed: " + e.getMessage()));
         }
     }
 

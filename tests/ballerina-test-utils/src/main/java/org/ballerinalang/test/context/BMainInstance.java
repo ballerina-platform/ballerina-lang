@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -241,7 +240,7 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         try {
 
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -321,7 +320,7 @@ public class BMainInstance implements BMain {
         }
 
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -606,7 +605,7 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         try {
 
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {

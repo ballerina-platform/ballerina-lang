@@ -1,2 +1,4 @@
 intVar = 56
 stringVar = "green"
+
+[test_module.util.foo]

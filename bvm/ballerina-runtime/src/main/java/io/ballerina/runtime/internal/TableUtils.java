@@ -21,8 +21,8 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BRefValue;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -32,7 +32,7 @@ import io.ballerina.runtime.internal.values.TableValue;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.CycleUtils.Node;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
  * This class contains the utility methods required by the table implementation.
@@ -61,8 +61,8 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw ErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
-                        .getErrorDetails(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
+                throw ErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, ErrorHelper
+                        .getErrorDetails(ErrorCodes.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
             BRefValue refValue = (BRefValue) obj;

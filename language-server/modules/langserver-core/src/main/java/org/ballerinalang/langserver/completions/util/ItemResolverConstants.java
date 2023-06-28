@@ -94,6 +94,7 @@ public class ItemResolverConstants {
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
+    public static final String GROUPBY_CLAUSE = "group by clause";
     public static final String ON_FAIL_CLAUSE = "on fail clause";
     public static final String ON_CONFLICT_CLAUSE = "on conflict";
 
@@ -146,6 +147,8 @@ public class ItemResolverConstants {
     public static final String WHERE_KEYWORD = "where";
     public static final String JOIN_KEYWORD = "join";
     public static final String ORDERBY_KEYWORD = "order by";
+    public static final String GROUPBY_KEYWORD = "group by";
+    public static final String COLLECT_KEYWORD = "collect";
     public static final String LIMIT_KEYWORD = "limit";
     public static final String SELECT_KEYWORD = "select";
     public static final String EQUALS_KEYWORD = "equals";

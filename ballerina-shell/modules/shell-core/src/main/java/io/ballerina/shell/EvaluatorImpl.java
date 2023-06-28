@@ -46,7 +46,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-class EvaluatorImpl extends Evaluator {
+public class EvaluatorImpl extends Evaluator {
     protected EvaluatorImpl(Preprocessor preprocessor, TreeParser treeParser,
                             SnippetFactory snippetFactory, ShellSnippetsInvoker invoker) {
         super(preprocessor, treeParser, snippetFactory, invoker);

@@ -203,6 +203,8 @@ public enum ParserRuleContext {
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     SELECT_CLAUSE("select-clause"),
+    COLLECT_CLAUSE("collect-clause"),
+    RESULT_CLAUSE("result-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
     LET_CLAUSE("let-clause"),
@@ -324,6 +326,10 @@ public enum ParserRuleContext {
     ORDER_BY_CLAUSE("order-by-clause"),
     ORDER_KEY_LIST("order-key-list"),
     ORDER_KEY_LIST_END("order-key-list-end"),
+    GROUP_BY_CLAUSE("group-by-clause"),
+    GROUPING_KEY_LIST_ELEMENT("grouping-key-list-element"),
+    GROUPING_KEY_LIST_ELEMENT_END("grouping-key-list-element-end"),
+    GROUP_BY_CLAUSE_END("group-by-clause-end"),
     ON_CONFLICT_CLAUSE("on-conflict-clause"),
     LIMIT_CLAUSE("limit-clause"),
     JOIN_CLAUSE("join-clause"),
@@ -448,6 +454,7 @@ public enum ParserRuleContext {
     FROM_KEYWORD("from"),
     WHERE_KEYWORD("where"),
     SELECT_KEYWORD("select"),
+    COLLECT_KEYWORD("collect"),
     START_KEYWORD("start"),
     FLUSH_KEYWORD("flush"),
     WAIT_KEYWORD("wait"),
@@ -474,6 +481,7 @@ public enum ParserRuleContext {
     EQUALS_KEYWORD("equals"),
     NOT_IS_KEYWORD("!is"),
     RE_KEYWORD("re"),
+    GROUP_KEYWORD("group"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -650,6 +658,7 @@ public enum ParserRuleContext {
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
     TYPE_DESC_IN_SERVICE("type-desc-in-service"),
     TYPE_DESC_IN_PATH_PARAM("type-desc-in-path-param"),
+    TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY("type-desc-before-identifier-in-grouping-key"),
 
     // XML
     XML_CONTENT("xml-content"),

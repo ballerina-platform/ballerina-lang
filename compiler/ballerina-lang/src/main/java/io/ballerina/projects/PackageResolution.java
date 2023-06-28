@@ -378,7 +378,7 @@ public class PackageResolution {
         String deprecationMsg = Optional.ofNullable(pkgDesc.getDeprecationMsg()).orElse("");
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.DEPRECATED_PACKAGE.diagnosticId(), pkgDesc.toString() +
-                " is deprecated due to : " + deprecationMsg, DiagnosticSeverity.WARNING);
+                " is deprecated: " + deprecationMsg, DiagnosticSeverity.WARNING);
         PackageDiagnostic diagnostic = new PackageDiagnostic(
                 diagnosticInfo, this.rootPackageContext.descriptor().name().toString());
         this.diagnosticList.add(diagnostic);

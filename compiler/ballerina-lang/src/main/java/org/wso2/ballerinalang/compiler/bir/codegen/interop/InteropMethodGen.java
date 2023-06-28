@@ -98,14 +98,14 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_CODES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -178,12 +178,12 @@ public class InteropMethodGen {
             mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
             Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
             mv.visitLabel(thenBlockLabel);
-            mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
-            mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+            mv.visitFieldInsn(GETSTATIC, ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+            mv.visitFieldInsn(GETSTATIC, ERROR_CODES, "JAVA_NULL_REFERENCE", "L" + ERROR_CODES + ";");
             mv.visitInsn(ICONST_0);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                    "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
+            mv.visitMethodInsn(INVOKESTATIC, ERROR_HELPER, "getRuntimeException",
+                    "(L" + STRING_VALUE + ";L" + ERROR_CODES + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
             mv.visitInsn(ATHROW);
             mv.visitLabel(elseBlockLabel);
         }
@@ -267,12 +267,20 @@ public class InteropMethodGen {
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
 
         int birFuncParamIndex = 0;
+        int bReceiverParamIndex = 0;
+        boolean isJavaInstanceMethod = jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic();
         // Load receiver which is the 0th parameter in the birFunc
-        if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
-            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
+        if (isJavaInstanceMethod) {
+            int pathParamCount = 0;
+            for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+                if (birFuncParam.isPathParameter) {
+                    pathParamCount++;
+                }
+            }
+            bReceiverParamIndex = pathParamCount;
+            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(bReceiverParamIndex);
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
-            birFuncParamIndex = 1;
         }
 
         JType varArgType = null;
@@ -288,6 +296,10 @@ public class InteropMethodGen {
 
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
+            if (birFuncParamIndex == bReceiverParamIndex && isJavaInstanceMethod) {
+                birFuncParamIndex++;
+                continue;
+            }
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);

@@ -585,8 +585,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(jsonValue is error, true);
     err = <error> jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
-        "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
+    assert(<string> checkpanic err.detail()["message"], "'A' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {
@@ -4162,7 +4161,7 @@ json  p = {
     ],
     married: false,
     bloodType: {
-        group: "O",
+        bloodGroup: "O",
         RHD: "+"
     }
 };
@@ -4311,7 +4310,7 @@ function testEnsureType() {
     assert(<float|string>(checkpanic testEnsureTypeWithUnion2()), name2);
     assert(<json>(checkpanic testEnsureTypeWithJson1()), 24);
     assert(<json>(checkpanic testEnsureTypeWithJson2()),h1);
-    assert(<json>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(<json>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(<json>(checkpanic testEnsureTypeWithJson4()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
     assert(<json>(checkpanic testEnsureTypeWithJson5()), 72.5);
@@ -4319,7 +4318,7 @@ function testEnsureType() {
     assert(<boolean>(checkpanic testEnsureTypeWithCast1()), false);
     assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(testEnsureTypeFunction() is int:Unsigned32, true);
     assert(testEnsureTypeFunction1() is string, true);
     assert(testEnsureTypeFunction2() is string[], true);

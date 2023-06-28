@@ -6,6 +6,13 @@
   "source": "source/project2/Ballerina.toml",
   "items": [
     {
+      "label": "platform.java11",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[platform.java11]"
+    },
+    {
       "label": "platform.java11.dependency",
       "kind": "Snippet",
       "detail": "Table Array",

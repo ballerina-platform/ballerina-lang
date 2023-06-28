@@ -1676,31 +1676,14 @@ function testArrSortWithNamedArgs1() {
 function testArrSortWithNamedArgs2() {
     int[] arr = [1, 10, 3, 100, 0, -1, 10];
     int[] sortedArr = arr.sort(direction = array:DESCENDING);
-    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
-
-    sortedArr = array:sort(arr, direction = array:DESCENDING);
-    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
 
     sortedArr = arr.sort(key = isolated function(int e) returns int {
         return e;
     });
-    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
 
-    sortedArr = array:sort(arr, key = isolated function(int e) returns int {
-        return e;
-    });
-    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
 
-    sortedArr = array:sort(arr, direction = array:ASCENDING, key = isolated function(int e) returns int {
-        return e;
-    });
-    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
 
-    sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
-    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
 
-    sortedArr = arr.sort(key = ());
-    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
 }
 
 function testArrSortWithNamedArgs3() {

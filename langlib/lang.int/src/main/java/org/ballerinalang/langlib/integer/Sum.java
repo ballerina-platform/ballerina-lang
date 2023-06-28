@@ -20,10 +20,10 @@ package org.ballerinalang.langlib.integer;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.MathUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.int:sum(int...).
@@ -39,7 +39,7 @@ public class Sum {
     public static long sum(long[] ns) {
         long sum = 0;
         BString errorMsg = getModulePrefixedReason(INT_LANG_LIB,
-                BallerinaErrorReasons.NUMBER_OVERFLOW_ERROR_IDENTIFIER);
+                ErrorReasons.NUMBER_OVERFLOW_ERROR_IDENTIFIER);
         for (long n : ns) {
             sum = MathUtils.addExact(sum, n, errorMsg);
         }

@@ -65,6 +65,8 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
                 {"changeVarTypeInObjectFields3.json"},
                 {"changeVarType_in_let_clause.json"},
                 {"changeVarType_in_select_clause.json"},
+                {"changeVarType_in_collect_clause.json"},
+                {"changeVarType_in_collect_clause2.json"}
         };
     }
 

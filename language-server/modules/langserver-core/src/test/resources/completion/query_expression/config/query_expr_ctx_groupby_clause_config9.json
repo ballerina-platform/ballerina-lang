@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 4,
+    "character": 24
+  },
+  "source": "query_expression/source/query_expr_ctx_groupby_clause_source9.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "Char",
+      "kind": "TypeParameter",
+      "detail": "Char",
+      "documentation": {
+        "left": "Built-in subtype of string containing strings of length 1."
+      },
+      "insertText": "Char",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RegExp",
+      "kind": "TypeParameter",
+      "detail": "Typereference",
+      "documentation": {
+        "left": "Refers to the `RegExp` type defined by lang.regexp module."
+      },
+      "insertText": "RegExp",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

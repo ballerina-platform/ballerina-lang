@@ -1,2 +1,7 @@
 [build-options]
 observabilityIncluded = false
+
+[package]
+org = "testOrg"
+name = "largeMethods"
+version = "0.1.0"

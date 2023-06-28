@@ -24,21 +24,21 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.
@@ -61,7 +61,7 @@ public class MapUtils {
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_MAP_INSERTION,
+                                       ErrorHelper.getErrorDetails(ErrorCodes.INVALID_MAP_INSERTION,
                                                                                expType, valuesType));
     }
 
@@ -79,7 +79,7 @@ public class MapUtils {
 
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
+                        ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,
                                                              fieldName, recType));
             }
 
@@ -96,8 +96,8 @@ public class MapUtils {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                                           BLangExceptionHelper.getErrorDetails(
-                                                      RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
+                                           ErrorHelper.getErrorDetails(
+                                                      ErrorCodes.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
@@ -107,8 +107,8 @@ public class MapUtils {
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorDetails(
-                                                  RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
+                                       ErrorHelper.getErrorDetails(
+                                                  ErrorCodes.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
                                                   valuesType));
     }
 
@@ -129,7 +129,7 @@ public class MapUtils {
 
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
+                ErrorHelper.getErrorDetails(ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, op, type));
     }
 
     public static void checkIsMapOnlyOperation(Type mapType, String op) {

@@ -1,0 +1,8 @@
+[package]
+org = "testorg"
+name = "delete_files"
+version = "0.1.0"
+distribution = "2201.6.0-SNAPSHOT"
+
+[build-options]
+observabilityIncluded = true

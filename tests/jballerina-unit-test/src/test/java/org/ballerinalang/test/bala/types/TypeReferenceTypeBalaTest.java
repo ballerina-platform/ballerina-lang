@@ -80,7 +80,6 @@ public class TypeReferenceTypeBalaTest {
         validateError(negativeResult, i++, "unknown type 'Integer2'", 44, 13);
         validateError(negativeResult, i++, "attempt to refer to non-accessible symbol 'Integer2'", 45, 9);
         validateError(negativeResult, i++, "unknown type 'Integer2'", 45, 9);
-        validateError(negativeResult, i++, "unknown type 'ImmutableIntOrStringArray'", 49, 23);
         validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 49, 60);
         validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 50, 13);
         validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 51, 17);

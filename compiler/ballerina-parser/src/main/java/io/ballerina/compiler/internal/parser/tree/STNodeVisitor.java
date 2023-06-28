@@ -525,6 +525,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(selectClauseNode);
     }
 
+    public void visit(STCollectClauseNode collectClauseNode) {
+        visitSyntaxNode(collectClauseNode);
+    }
+
     public void visit(STQueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
     }
@@ -789,6 +793,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(orderKeyNode);
     }
 
+    public void visit(STGroupByClauseNode groupByClauseNode) {
+        visitSyntaxNode(groupByClauseNode);
+    }
+
+    public void visit(STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        visitSyntaxNode(groupingKeyVarDeclarationNode);
+    }
+
     public void visit(STOnFailClauseNode onFailClauseNode) {
         visitSyntaxNode(onFailClauseNode);
     }
@@ -920,7 +932,7 @@ public abstract class STNodeVisitor {
     public void visit(STReBracedQuantifierNode reBracedQuantifierNode) {
         visitSyntaxNode(reBracedQuantifierNode);
     }
-  
+
     public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
     }

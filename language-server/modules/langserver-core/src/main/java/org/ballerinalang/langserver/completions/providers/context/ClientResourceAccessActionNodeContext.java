@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
@@ -323,23 +322,25 @@ public class ClientResourceAccessActionNodeContext
                 TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
                         ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
                                 .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
+                Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+                if (semanticModel.isEmpty()) {
+                    return Pair.of(Collections.emptyList(), false);
+                }
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
-                    Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-                    if (semanticModel.isEmpty()) {
-                        return Pair.of(Collections.emptyList(), false);
-                    }
                     Optional<TypeSymbol> exprType =
                             semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
                     if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
                         return Pair.of(Collections.emptyList(), false);
                     }
-                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
+                            && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
                 } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN
-                        && typeSymbol.typeKind() == TypeDescKind.STRING) {
-                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                        && semanticModel.get().types().STRING.subtypeOf(typeSymbol)) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
+                            && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;
                     }
                     continue;

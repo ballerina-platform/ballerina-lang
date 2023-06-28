@@ -87,6 +87,9 @@ OPTIONS
             For the complete list of supported patterns,
             see https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage.
 
+       --graalvm-build-options
+            Additional build options to be passed to the GraalVM native image.
+
 
 ARGUMENTS
        (-Ckey=value)...
@@ -150,3 +153,6 @@ EXAMPLES
 
        Run the test functions with values provided for configurable variables:
            $ bal test -Cval1=add -Cval2=10 -Cval3=5
+
+       Test the package with additional GraalVM native image options.
+           $ bal test --graalvm --graalvm-build-options="--static -H:Name=hello-world"

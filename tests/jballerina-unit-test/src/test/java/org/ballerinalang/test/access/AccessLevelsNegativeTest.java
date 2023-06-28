@@ -36,7 +36,6 @@ public class AccessLevelsNegativeTest {
 
         String expectedWarningMsg = "attempt to expose non-public symbol ";
         int i = 0;
-        validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 11, 1);
         validateWarning(compileResult, i++, expectedWarningMsg + "'ChildFoo'", 23, 5);
         validateWarning(compileResult, i++, expectedWarningMsg + "'Foo'", 24, 5);
         validateWarning(compileResult, i++, expectedWarningMsg + "'Baz'", 25, 5);

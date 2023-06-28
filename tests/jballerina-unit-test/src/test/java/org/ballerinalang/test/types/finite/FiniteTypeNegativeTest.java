@@ -54,14 +54,9 @@ public class FiniteTypeNegativeTest {
 
     @Test()
     public void testInvalidLiteralAssignment() {
-        Assert.assertEquals(resultNegativeTwo.getErrorCount(), 94, "Error count mismatch");
         int i = 0;
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'Finite', found 'string'",
                 33, 16);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected 'ByteType', found '5'",
-                40, 18);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected 'IntType', found '5'",
-                47, 17);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'IntType', found 'float'",
                 52, 17);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'FloatType', found '5'",
@@ -70,7 +65,7 @@ public class FiniteTypeNegativeTest {
                 64, 19);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'DecimalType', found '5'",
                 71, 21);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected 'DecimalType', found '5f'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected 'DecimalType', found '5.0f'",
                 76, 21);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'IntType', found 'int'",
                 81, 17);
@@ -234,16 +229,20 @@ public class FiniteTypeNegativeTest {
                 "found 'float'", 276, 34);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1.7976931348623157E309d', " +
                 "found 'decimal'", 277, 34);
-        validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
-                280, 21);
+        validateError(resultNegativeTwo, i++, "'-9.223372036854776E18' is out of range for 'int'",
+                280, 20);
+        validateError(resultNegativeTwo, i++, "unknown type 'testType'", 282, 5);
         validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
                 285, 30);
-        validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
-                290, 20);
+        validateError(resultNegativeTwo, i++, "unknown type 'testType'", 286, 5);
+        validateError(resultNegativeTwo, i++, "'-9.223372036854776E18' is out of range for 'int'",
+                290, 19);
+        validateError(resultNegativeTwo, i++, "unknown type 'InvalidTest1'", 292, 5);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'float'",
                 296, 12);
-        validateError(resultNegativeTwo, i, "incompatible types: expected '1f', found 'int'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'int'",
                 297, 12);
+        Assert.assertEquals(resultNegativeTwo.getErrorCount(), i, "Error count mismatch");
     }
 
     @AfterClass

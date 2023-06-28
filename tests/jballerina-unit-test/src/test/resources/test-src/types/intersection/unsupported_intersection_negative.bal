@@ -15,7 +15,7 @@
 // under the License.
 
 type A int & string;
-type II int & int;
+type II int & int; // valid case
 type IF (function () returns int) & (function () returns 2|3|4.0f|-50d|"a");
 
 int & int i = 0;

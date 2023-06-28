@@ -42,8 +42,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -62,8 +65,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -80,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -97,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -123,7 +131,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
@@ -207,12 +214,15 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_OUTER_JOIN_FUNCTION = new Name("createOuterJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_ORDER_BY_FUNCTION = new Name("createOrderByFunction");
+    private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
+    private static final Name QUERY_CREATE_COLLECT_FUNCTION = new Name("createCollectFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
+    private static final Name COLLECT_QUERY_FUNCTION = new Name("collectQuery");
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
@@ -303,6 +313,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
             onConflictExpr = null;
+        } else if (queryExpr.getFinalClause().getKind() == NodeKind.COLLECT) {
+            result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
         } else {
             BType refType = Types.getReferredType(queryExpr.getBType());
             if (isXml(refType)) {
@@ -525,10 +537,20 @@ public class QueryDesugar extends BLangNodeVisitor {
                             stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
+                case GROUP_BY:
+                    BLangVariableReference groupByFunc = addGroupByFunction(block, (BLangGroupByClause) clause,
+                            stmtsToBePropagated, initPipeline);
+                    addStreamFunction(block, initPipeline, groupByFunc);
+                    break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause,
                             stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, selectFunc);
+                    break;
+                case COLLECT:
+                    BLangVariableReference collectFunc = addCollectFunction(block, (BLangCollectClause) clause,
+                            stmtsToBePropagated);
+                    addStreamFunction(block, initPipeline, collectFunc);
                     break;
                 case DO:
                     BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause, stmtsToBePropagated);
@@ -807,6 +829,74 @@ public class QueryDesugar extends BLangNodeVisitor {
         body.stmts.add(orderDirectionStmt);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);
+    }
+
+    BLangVariableReference addGroupByFunction(BLangBlockStmt blockStmt, BLangGroupByClause groupByClause,
+                                              List<BLangStatement> stmtsToBePropagated,
+                                              BLangVariableReference initPipeline) {
+        Location pos = groupByClause.pos;
+        BLangArrayLiteral keys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        keys.exprs = new ArrayList<>();
+        keys.setBType(new BArrayType(symTable.stringType));
+        for (BLangGroupingKey key :groupByClause.groupingKeyList) {
+            if (key.variableDef == null) {
+                keys.exprs.add(createStringLiteral(key.pos, key.variableRef.variableName.value));
+            } else {
+                keys.exprs.add(createStringLiteral(key.pos, key.variableDef.var.name.value));
+                BLangSimpleVariableDef varDef = key.variableDef;
+                BLangVariableReference letFunc = addLetFunction(blockStmt, createLetClauseFromVarDef(varDef),
+                        stmtsToBePropagated);
+                addStreamFunction(blockStmt, initPipeline, letFunc);
+            }
+        }
+
+        BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        nonGroupingKeys.exprs = new ArrayList<>();
+        nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
+        for (String nonGroupingKey : groupByClause.nonGroupingKeys) {
+            nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey));
+        }
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION,
+                Lists.of(keys, nonGroupingKeys), pos);
+    }
+
+    BLangVariableReference addCollectFunction(BLangBlockStmt blockStmt, BLangCollectClause collectClause,
+                                              List<BLangStatement> stmtsToBePropagated) {
+        Location pos = collectClause.pos;
+        BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        nonGroupingKeys.exprs = new ArrayList<>();
+        nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
+        for (String nonGroupingKey : collectClause.nonGroupingKeys) {
+            nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey));
+        }
+
+        BLangLambdaFunction lambda = createPassthroughLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
+        BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
+        BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", collectClause.expression);
+        body.stmts.add(body.stmts.size() - 1, assignment);
+        lambda.accept(this);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_COLLECT_FUNCTION,
+                Lists.of(nonGroupingKeys, lambda), pos);
+    }
+
+    BLangLetClause createLetClauseFromVarDef(BLangSimpleVariableDef varDef) {
+        BLangLetClause letClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
+        letClause.pos = varDef.pos;
+        letClause.letVarDeclarations = new ArrayList<>();
+        BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
+        letVar.definitionNode = varDef;
+        letVar.definitionNode.getVariable().addFlag(Flag.FINAL);
+        letClause.letVarDeclarations.add(letVar);
+        return letClause;
+    }
+
+    private BLangLiteral createStringLiteral(Location pos, String value) {
+        BLangLiteral stringLit = new BLangLiteral(value, symTable.stringType);
+        stringLit.pos = pos;
+        return stringLit;
     }
 
     /**
@@ -1613,13 +1703,47 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        BLangInvocation invocation = collectContextInvocation.invocation;
+        result = invocation = rewrite(invocation);
+        if (isNilReturnInvocationInCollectClause(invocation)) {
+            Location pos = invocation.pos;
+            BLangSimpleVarRef restArg = (BLangSimpleVarRef) invocation.argExprs.get(0);
+            BType invocationType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
+            BLangSimpleVariable tempResultVar = ASTBuilderUtil.createVariable(pos, "$invocationResult$",
+                    invocationType, null, new BVarSymbol(0, Names.fromString("$invocationResult$"),
+                            this.env.scope.owner.pkgID, invocationType, this.env.scope.owner, pos, VIRTUAL));
+            BLangSimpleVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(pos, tempResultVar);
+            BLangSimpleVarRef tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
+
+            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
+            blockStmt.addStatement(tempResultVarDef);
+            BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(pos);
+            BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(pos);
+            BLangInvocation argLength = desugar.createLangLibInvocationNode("length", restArg, new ArrayList<>(),
+                    null, pos);
+            BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, argLength,
+                    ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0), symTable.booleanType,
+                    OperatorKind.EQUAL, null);
+            BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(pos, binaryExpr, thenBody, elseBody);
+            thenBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef,
+                    ASTBuilderUtil.createLiteral(pos, symTable.nilType, null)));
+            elseBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, invocation));
+            blockStmt.addStatement(ifElse);
+            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempResultVarRef);
+            stmtExpr.setBType(invocationType);
+            result = stmtExpr;
+        }
+    }
+
+    @Override
     public void visit(BLangInvocation invocationExpr) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
             requiredArgs = requiredArgs.subList(1, requiredArgs.size());
         }
         requiredArgs.forEach(this::acceptNode);
-        invocationExpr.restArgs.forEach(this::acceptNode);
+        visitRestArgs(invocationExpr);
         if (invocationExpr.functionPointerInvocation) {
             BLangExpression expr = rewrite(desugar.getFunctionPointerExpr(invocationExpr));
             result = new BLangInvocation.BFunctionPointerInvocation(invocationExpr, expr);
@@ -1629,24 +1753,48 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression getInvocationExpr(BLangInvocation invocation) {
-        if (invocation.functionPointerInvocation) {
-            BLangValueExpression expr;
-            if (invocation.expr == null) {
-                BLangSimpleVarRef varRef = new BLangSimpleVarRef();
-                varRef.variableName = invocation.name;
-                expr = varRef;
-            } else {
-                BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
-                fieldBasedAccess.expr = invocation.expr;
-                fieldBasedAccess.field = invocation.name;
-                expr = fieldBasedAccess;
+    private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation) {
+        BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
+        return symbol.restParam != null &&
+                symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
+    }
+
+    private void visitRestArgs(BLangInvocation invocation) {
+        List<BLangExpression> restArgs = invocation.restArgs;
+        for (int i = 0; i < restArgs.size(); i++) {
+            BLangExpression arg = restArgs.get(i);
+            if (arg.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                continue;
             }
-            expr.symbol = invocation.symbol;
-            expr.setBType(invocation.symbol.type);
-            return expr;
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) arg;
+            BSymbol symbol = varRef.symbol;
+            if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
+                continue;
+            }
+            BType type = changeSeqSymbolType(symbol);
+            varRef.setBType(type);
+            restArgs.set(i, createRestArgsExpression(varRef, type));
         }
-        return invocation.expr;
+        restArgs.forEach(this::acceptNode);
+    }
+
+    private BType changeSeqSymbolType(BSymbol symbol) {
+        if (symbol.type.tag == TypeTags.SEQUENCE) {
+            BType elementType = ((BSequenceType) symbol.type).elementType;
+            List<BTupleMember> tupleMembers = new ArrayList<>(1);
+            tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
+            symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
+        }
+        return symbol.type;
+    }
+
+    private BLangRestArgsExpression createRestArgsExpression(BLangSimpleVarRef expr, BType type) {
+        BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
+        bLangRestArgsExpression.expr = expr;
+        bLangRestArgsExpression.pos = expr.pos;
+        bLangRestArgsExpression.setBType(type);
+        bLangRestArgsExpression.expectedType = type;
+        return bLangRestArgsExpression;
     }
 
     @Override
@@ -1972,8 +2120,31 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         List<BLangExpression> expressions = listConstructorExpr.exprs;
+        convertSeqElementToSpread(expressions);
         rewrite(expressions);
         result = listConstructorExpr;
+    }
+
+    private void convertSeqElementToSpread(List<BLangExpression> expressions) {
+        if (expressions.size() != 1) {
+            return;
+        }
+        BLangExpression expr = expressions.get(0);
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BSymbol symbol = ((BLangSimpleVarRef) expr).symbol;
+        if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
+            return;
+        }
+        BType type = changeSeqSymbolType(symbol);
+        expr.expectedType = type;
+        expr.setBType(type);
+        BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+        spreadOpExpr.expr = expr;
+        spreadOpExpr.pos = expr.pos;
+        expressions.clear();
+        expressions.add(spreadOpExpr);
     }
 
     @Override
@@ -2412,6 +2583,23 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectClause collectClause) {
+        updateIdentifiers(collectClause.env);
+        collectClause.expression = rewrite(collectClause.expression);
+        result = collectClause;
+    }
+
+    void updateIdentifiers(SymbolEnv env) {
+        for (Map.Entry<String, BSymbol> identifier : identifiers.entrySet()) {
+            BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()),
+                    SymTag.SEQUENCE);
+            if (symbol != symTable.notFoundSymbol && !identifier.getValue().closure) {
+                    identifiers.put(identifier.getKey(), symbol);
+            }
+        }
+    }
+
+    @Override
     public void visit(BLangWhereClause whereClause) {
         whereClause.expression = rewrite(whereClause.expression);
         result = whereClause;
@@ -2441,6 +2629,20 @@ public class QueryDesugar extends BLangNodeVisitor {
             ((BLangOrderKey) orderKey).expression = rewrite(((BLangOrderKey) orderKey).expression);
         }
         result = orderByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(this::acceptNode);
+        updateIdentifiers(groupByClause.env);
+        result = groupByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        this.acceptNode(groupingKey.variableDef);
+        groupingKey.variableRef = rewrite(groupingKey.variableRef);
+        result = groupingKey;
     }
 
     @Override
