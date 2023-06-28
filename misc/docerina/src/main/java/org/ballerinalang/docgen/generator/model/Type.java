@@ -390,9 +390,10 @@ public class Type {
                 if (field.qualifiers().contains(Qualifier.PUBLIC)) {
                     Type objField = new Type();
                     objField.name = name;
-                    objField.description = documentation.isPresent() ? documentation.get().parameterMap().get(name) : "";
-                    objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
-                            isTypeInclusion, module);
+                    objField.description = documentation.isPresent() ?
+                            documentation.get().parameterMap().get(name) : "";
+                    objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation,
+                            parentTypeRefSymbol, isTypeInclusion, module);
                     objType.memberTypes.add(objField);
                 }
             });
