@@ -274,22 +274,21 @@ public class InitMethodGen {
     private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
                                                         BIRNode.BIRFunction mainFunc,
                                                         BIRNode.BIRFunction testExecuteFunc, String typeOwnerClass) {
-        BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
-                VarScope.FUNCTION, VarKind.RETURN, "");
+        BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType,
+                new Name("%ret"), VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
         List<BIROperand> functionArgs = new ArrayList<>();
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
-        BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD), 0,
-                funcType, null, 0, VIRTUAL);
+        BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD),
+                0, funcType, null, 0, VIRTUAL);
         List<BType> paramTypes = new ArrayList<>();
         List<BIRNode.BIRFunctionParameter> parameters = new ArrayList<>();
         List<BIRNode.BIRParameter> requiredParameters = new ArrayList<>();
         int argsCount = 0;
         BIRNode.BIRFunctionParameter cliArgVar = null;
 
-        List<BIRNode.BIRFunctionParameter> mainParameters = new ArrayList<>();
         if (mainFunc != null) {
-            mainParameters = mainFunc.parameters;
+            List<BIRNode.BIRFunctionParameter> mainParameters = mainFunc.parameters;
             if (mainParameters.isEmpty()) {
                 paramTypes = mainFunc.type.paramTypes;
                 parameters = mainParameters;
@@ -297,33 +296,42 @@ public class InitMethodGen {
                 argsCount += modExecFunc.parameters.size();
             } else {
                 Name argName = new Name("%_cli");
-                cliArgVar = new BIRNode.BIRFunctionParameter(null, symbolTable.anyType,
-                        argName, VarScope.FUNCTION, VarKind.ARG, "", false, false);
-                paramTypes = List.of(symbolTable.anyType);
-                parameters = List.of(cliArgVar);
-                requiredParameters = List.of(new BIRNode.BIRParameter(null, argName, 0));
+                cliArgVar = new BIRNode.BIRFunctionParameter(null, symbolTable.anyType, argName,
+                        VarScope.FUNCTION, VarKind.ARG, "", false, false);
+                paramTypes.add(symbolTable.anyType);
+                parameters.add(cliArgVar);
+                requiredParameters.add(new BIRNode.BIRParameter(null, argName, 0));
                 modExecFunc.localVars.add(cliArgVar);
                 argsCount += 1;
             }
 
-        } else if (testExecuteFunc != null) {
+            for (BIRNode.BIRFunctionParameter param : mainParameters) {
+                BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, param.type,
+                        new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.LOCAL, "");
+                BIROperand varRef = new BIROperand(paramVar);
+                modExecFunc.localVars.add(paramVar);
+                functionArgs.add(varRef);
+            }
+        }
+
+        if (testExecuteFunc != null) {
             paramTypes = testExecuteFunc.type.paramTypes;
             parameters = testExecuteFunc.parameters;
             requiredParameters = testExecuteFunc.requiredParams;
             argsCount += modExecFunc.parameters.size();
+            for (BIRNode.BIRFunctionParameter param : parameters) {
+                BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, param.type,
+                        new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.ARG, "");
+                BIROperand varRef = new BIROperand(paramVar);
+                modExecFunc.localVars.add(paramVar);
+                functionArgs.add(varRef);
+            }
         }
 
         funcType.paramTypes = paramTypes;
         modExecFunc.parameters = parameters;
         modExecFunc.requiredParams = requiredParameters;
         modExecFunc.argsCount = argsCount;
-        for (BIRNode.BIRFunctionParameter param : mainParameters) {
-            BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, param.type,
-                    new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.LOCAL, "");
-            BIROperand varRef = new BIROperand(paramVar);
-            modExecFunc.localVars.add(paramVar);
-            functionArgs.add(varRef);
-        }
 
         modExecFunc.localVars.add(retVar);
         addAndGetNextBasicBlock(modExecFunc);
@@ -334,16 +342,16 @@ public class InitMethodGen {
         if (mainFunc != null) {
             injectCLIArgInvocation(modExecFunc, mainFunc, cliArgVar, functionArgs);
             injectDefaultArgs(functionArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars);
-            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, functionArgs,
-                    mainFunc.annotAttachments);
+            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef,
+                    functionArgs, mainFunc.annotAttachments);
         }
 
-        BIRNode.BIRBasicBlock lastBB =
-                addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
+        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD,
+                retVarRef, boolRef);
 
         if (testExecuteFunc != null) {
-            lastBB = addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, TEST_EXECUTE_METHOD, retVarRef, boolRef,
-                    functionArgs, Collections.emptyList());
+            lastBB = addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, TEST_EXECUTE_METHOD, retVarRef,
+                    boolRef, functionArgs, Collections.emptyList());
         }
 
         if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {

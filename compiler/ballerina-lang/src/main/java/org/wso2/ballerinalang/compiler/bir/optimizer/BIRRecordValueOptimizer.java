@@ -98,9 +98,13 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
                     }
                     BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
                     lastBB = lastBB != null ? lastBB : basicBlock;
-                    if (defaultFunction.basicBlocks.size() == 2 && firstBB.instructions.size() == 1 && firstBB.instructions.get(0).kind == CONST_LOAD) {
-                        BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
-                        BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value, constantLoad.type, fpCall.lhsOp);
+                    if (defaultFunction.basicBlocks.size() == 2 && firstBB.instructions.size() == 1 &&
+                            firstBB.instructions.get(0).kind == CONST_LOAD) {
+                        BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad)
+                                firstBB.instructions.get(0);
+                        BIRNonTerminator.ConstantLoad newConstLoad =
+                                new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value,
+                                        constantLoad.type, fpCall.lhsOp);
                         newConstLoad.scope = fpCall.scope;
                         lastBB.instructions.add(newConstLoad);
                         lastBB.terminator = null;
