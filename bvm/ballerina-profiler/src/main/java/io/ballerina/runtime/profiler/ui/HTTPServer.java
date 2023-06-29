@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.profiler.ui;
 
+import io.ballerina.runtime.profiler.util.Constants;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -32,10 +34,9 @@ import static io.ballerina.runtime.profiler.ui.FrontEnd.getSiteData;
  * @since 2201.7.0
  */
 public class HTTPServer {
-    public static final String ANSI_YELLOW = "\033[1;38;2;255;255;0m";
-    public static final String ANSI_RESET = "\u001B[0m";
     public static void initializeHTMLExport() throws IOException {
-        System.out.printf(" ○ Output: " + ANSI_YELLOW + "target/bin/ProfilerOutput.html" + ANSI_RESET + "%n");
+        System.out.printf(" ○ Output: " + Constants.ANSI_YELLOW
+                + "target/bin/ProfilerOutput.html" + Constants.ANSI_RESET + "%n");
         String content = readData();
         String htmlData = getSiteData(content);
         String fileName = "ProfilerOutput.html";

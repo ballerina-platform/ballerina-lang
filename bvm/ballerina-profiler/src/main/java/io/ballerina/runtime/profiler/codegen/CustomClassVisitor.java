@@ -19,9 +19,12 @@
 package io.ballerina.runtime.profiler.codegen;
 
 import io.ballerina.runtime.profiler.Main;
+import io.ballerina.runtime.profiler.util.Constants;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
+import static io.ballerina.runtime.profiler.util.Constants.STRAND;
 
 
 /**
@@ -37,10 +40,10 @@ public class CustomClassVisitor extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        if (!name.startsWith("$") && desc.startsWith("(Lio/ballerina/runtime/internal/scheduling/Strand")) {
+        if (!name.startsWith("$") && desc.startsWith(STRAND)) {
             Main.incrementBalFunctionCount();
         }
-        if (desc.startsWith("(Lio/ballerina/runtime/internal/scheduling/Strand")) {
+        if (desc.startsWith(STRAND)) {
             return new StrandCheckAdapter(access, methodVisitor, name, desc, (access & Opcodes.ACC_STATIC));
         }
         return new NonStrandCheckAdapter(access, methodVisitor, name, desc);

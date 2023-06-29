@@ -20,6 +20,7 @@ package io.ballerina.runtime.profiler;
 
 import io.ballerina.runtime.profiler.codegen.CustomClassLoader;
 import io.ballerina.runtime.profiler.codegen.MethodWrapper;
+import io.ballerina.runtime.profiler.util.Constants;
 import io.ballerina.runtime.profiler.util.CustomException;
 import org.apache.commons.io.FileUtils;
 
@@ -54,16 +55,8 @@ import static io.ballerina.runtime.profiler.ui.JSONParser.initializeCPUParser;
  * @since 2201.7.0
  */
 public class Main {
-
-    // Define ANSI escape codes for colored console output
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GRAY = "\033[37m";
-    public static final String ANSI_CYAN = "\033[1;38;2;32;182;176m";
-
-    // Define public static variables for the program
     static long profilerStartTime;
     static int exitCode = 0;
-    public static final String TEMPJARFILENAME = "temp.jar";
     private static String balJarArgs = null;
     static String balJarName = null;
     static String skipFunctionString = null;
@@ -87,11 +80,16 @@ public class Main {
 
     private static void printHeader() {
         String header = "%n" +
-                ANSI_GRAY + "================================================================================" +
-                ANSI_RESET + "%n" +
-                ANSI_CYAN + "Ballerina Profiler" + ANSI_RESET + ": Profiling..." + "%n" +
-                ANSI_GRAY + "================================================================================" +
-                ANSI_RESET + "%n" +
+                Constants.ANSI_GRAY
+                + "================================================================================" +
+                Constants.ANSI_RESET
+                + "%n" +
+                Constants.ANSI_CYAN
+                + "Ballerina Profiler" + Constants.ANSI_RESET + ": Profiling..." + "%n" +
+                Constants.ANSI_GRAY
+                + "================================================================================" +
+                Constants.ANSI_RESET
+                + "%n" +
                 "WARNING : Ballerina Profiler is an experimental feature.";
         System.out.printf(header + "%n");
     }
@@ -135,7 +133,7 @@ public class Main {
     }
 
     private static void extractTheProfiler() throws CustomException {
-        System.out.printf(ANSI_CYAN + "[1/6] Initializing Profiler..." + ANSI_RESET + "%n");
+        System.out.printf(Constants.ANSI_CYAN + "[1/6] Initializing Profiler..." + Constants.ANSI_RESET + "%n");
         try {
             new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime")
                     .start()
@@ -147,9 +145,9 @@ public class Main {
 
     public static void createTempJar(String balJarName) {
         try {
-            System.out.printf(ANSI_CYAN + "[2/6] Copying Executable..." + ANSI_RESET + "%n");
+            System.out.printf(Constants.ANSI_CYAN + "[2/6] Copying Executable..." + Constants.ANSI_RESET + "%n");
             Path sourcePath = Paths.get(balJarName);
-            Path destinationPath = Paths.get(TEMPJARFILENAME);
+            Path destinationPath = Paths.get(Constants.TEMPJARFILENAME);
             Files.copy(sourcePath, destinationPath);
         } catch (IOException e) {
             exitCode = 2;
@@ -158,7 +156,7 @@ public class Main {
     }
 
     private static void initialize(String balJarName) throws CustomException {
-        System.out.printf(ANSI_CYAN + "[3/6] Performing Analysis..." + ANSI_RESET + "%n");
+        System.out.printf(Constants.ANSI_CYAN + "[3/6] Performing Analysis..." + Constants.ANSI_RESET + "%n");
         ArrayList<String> classNames = new ArrayList<>();
         try {
             findAllClassNames(balJarName, classNames);
@@ -166,7 +164,7 @@ public class Main {
         } catch (Exception e) {
             System.out.printf("(No such file or directory)" + "%n");
         }
-        System.out.printf(ANSI_CYAN + "[4/6] Instrumenting Functions..." + ANSI_RESET + "%n");
+        System.out.printf(Constants.ANSI_CYAN + "[4/6] Instrumenting Functions..." + Constants.ANSI_RESET + "%n");
         try (JarFile jarFile = new JarFile(balJarName)) {
             String mainClassPackage = MethodWrapper.mainClassFinder(
                     new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
@@ -223,7 +221,7 @@ public class Main {
 
     private static void loadDirectories(List<String> changedDirs) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("jar", "uf", TEMPJARFILENAME);
+            ProcessBuilder processBuilder = new ProcessBuilder("jar", "uf", Constants.TEMPJARFILENAME);
             processBuilder.command().addAll(changedDirs);
             processBuilder.start().waitFor();
         } catch (IOException e) {
@@ -234,8 +232,8 @@ public class Main {
     }
 
     public static void listAllFiles(final File userDirectory) {
-        String absolutePath = Paths.get(TEMPJARFILENAME).toFile().getAbsolutePath();
-        absolutePath = absolutePath.replaceAll(TEMPJARFILENAME, "");
+        String absolutePath = Paths.get(Constants.TEMPJARFILENAME).toFile().getAbsolutePath();
+        absolutePath = absolutePath.replaceAll(Constants.TEMPJARFILENAME, "");
 
         File[] files = userDirectory.listFiles();
         if (files != null) {
@@ -307,14 +305,15 @@ public class Main {
             try {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(
                         System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
-                File tempJarFile = new File(TEMPJARFILENAME);
+                File tempJarFile = new File(Constants.TEMPJARFILENAME);
                 if (tempJarFile.exists()) {
                     boolean deleted = tempJarFile.delete();
                     if (!deleted) {
-                        System.err.printf("Failed to delete temp jar file: " + TEMPJARFILENAME + "%n");
+                        System.err.printf("Failed to delete temp jar file: " + Constants.TEMPJARFILENAME + "%n");
                     }
                 }
-                System.out.printf("%n" + ANSI_CYAN + "[6/6] Generating Output..." + ANSI_RESET + "%n");
+                System.out.printf("%n" + Constants.ANSI_CYAN
+                        + "[6/6] Generating Output..." + Constants.ANSI_RESET + "%n");
                 Thread.sleep(100);
                 initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");

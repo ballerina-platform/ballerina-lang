@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.profiler.codegen;
 
+import io.ballerina.runtime.profiler.util.Constants;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -36,9 +37,6 @@ import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import static io.ballerina.runtime.profiler.Main.ANSI_CYAN;
-import static io.ballerina.runtime.profiler.Main.ANSI_RESET;
-import static io.ballerina.runtime.profiler.Main.TEMPJARFILENAME;
 import static io.ballerina.runtime.profiler.Main.getBalJarArgs;
 
 /**
@@ -49,7 +47,7 @@ import static io.ballerina.runtime.profiler.Main.getBalJarArgs;
 public class MethodWrapper extends ClassLoader {
     public static void invokeMethods() throws IOException, InterruptedException {
         String balJarArgs = getBalJarArgs();
-        String[] command = {"java", "-jar", TEMPJARFILENAME};
+        String[] command = {"java", "-jar", Constants.TEMPJARFILENAME};
         if (balJarArgs != null) {
             command = Arrays.copyOf(command, command.length + 1);
             command[3] = balJarArgs;
@@ -57,7 +55,7 @@ public class MethodWrapper extends ClassLoader {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
-        System.out.printf(ANSI_CYAN + "[5/6] Running Executable..." + ANSI_RESET + "%n");
+        System.out.printf(Constants.ANSI_CYAN + "[5/6] Running Executable..." + Constants.ANSI_RESET + "%n");
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             reader.lines().forEach(System.out::println);

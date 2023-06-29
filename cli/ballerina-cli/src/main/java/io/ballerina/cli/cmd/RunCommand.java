@@ -249,8 +249,8 @@ public class RunCommand implements BLauncherCmd {
     private void initiateProfiler(Project project, String[] args) throws java.io.IOException, InterruptedException {
         String[] profilerCommand;
         String profilerArguments = String.join(" ", args);
-
-        String profilerSource = System.getenv("BALLERINA_HOME") + "/bre/lib/ballerina-profiler-1.0.jar";
+        String profilerSource = Paths.get(System.getenv("BALLERINA_HOME")
+                , "bre", "lib", "ballerina-profiler-1.0.jar").toString();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
