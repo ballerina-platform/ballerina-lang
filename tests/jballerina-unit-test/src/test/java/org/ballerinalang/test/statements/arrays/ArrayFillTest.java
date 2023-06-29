@@ -25,10 +25,10 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -538,77 +538,77 @@ public class ArrayFillTest {
         BRunUtil.invoke(compileResult, "testFiniteTypeUnionArrayFill");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithObjWithInitParam() {
         BRunUtil.invoke(negativeCompileResult, "testArrayFillWithObjWithInitParam");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithIntFiniteTypes() {
         BRunUtil.invoke(negativeCompileResult, "testArrayFillWithIntFiniteTypes");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithFloatFiniteTypes() {
         BRunUtil.invoke(negativeCompileResult, "testArrayFillWithFloatFiniteTypes");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithStringFiniteTypes() {
         BRunUtil.invoke(negativeCompileResult, "testArrayFillWithStringFiniteTypes");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testArrayFillWithTypedesc() {
         BRunUtil.invoke(negativeCompileResult, "testArrayFillWithTypedesc");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testNonSequentialArrayInsertion() {
         BRunUtil.invoke(negativeCompileResult, "testNonSequentialArrayInsertion");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testIllegalArrayInsertion() {
         BRunUtil.invoke(negativeCompileResult, "testIllegalArrayInsertion");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testIllegalTwoDimensionalArrayInsertion() {
         BRunUtil.invoke(negativeCompileResult, "testIllegalTwoDimensionalArrayInsertion");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testRecordTypeWithRequiredFieldsArrayFill() {
         BRunUtil.invoke(negativeCompileResult, "testRecordTypeWithRequiredFieldsArrayFill");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testFiniteTypeArrayFillNegative() {
         BRunUtil.invoke(negativeCompileResult, "testFiniteTypeArrayFill");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
                     "without filler values.*")
     public void testFiniteTypeArrayFillNegative2() {

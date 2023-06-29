@@ -21,10 +21,10 @@ package org.ballerinalang.test.statements.arrays;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -78,7 +78,7 @@ public class ArrayLValueFillTest {
         }
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                     "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                     "filler values.*")
@@ -86,7 +86,7 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testObjectArrays2");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
@@ -94,7 +94,7 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "test2DObjectArrays3");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
@@ -102,7 +102,7 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 1 without " +
                   "filler values.*")
@@ -110,7 +110,7 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")

@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -194,6 +193,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BinaryOperator;
@@ -1705,7 +1705,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return new BTupleType(memTypes);
     }
 
-    private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
+    protected BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
                                                     AnalyzerData data) {
         int tag = bType.tag;
         if (tag == TypeTags.UNION) {
@@ -2257,7 +2257,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BType> restMemberTypes = new ArrayList<>();
     }
 
-    private BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
+    protected BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
 
         InferredTupleDetails inferredTupleDetails = checkExprList(listConstructor.exprs, expType, data);
         List<BType> fixedMemberTypes = inferredTupleDetails.fixedMemberTypes;
@@ -2689,7 +2689,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return hasAllRequiredFields;
     }
 
-    public HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields, AnalyzerData data) {
+    private HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields, AnalyzerData data) {
         HashSet<String> fieldNames = new HashSet<>();
 
         for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
@@ -2920,10 +2920,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         if (expectedType.tag != TypeTags.UNION) {
                             actualType = types.isAssignable(symbolType, expectedType) ? expectedType : actualType;
                         } else {
-                            BType posibleType = types.getAllTypes(expectedType, true).stream()
+                            Optional<BType> posibleType = types.getAllTypes(expectedType, true).stream()
                                     .filter(targetMemType ->
-                                            types.isAssignable(symbolType, targetMemType)).findFirst().get();
-                            actualType = posibleType != null ? posibleType : actualType;
+                                            types.isAssignable(symbolType, targetMemType)).findFirst();
+                            actualType = posibleType.isPresent() ? posibleType.get() : actualType;
                         }
                     }
                 }
@@ -6880,13 +6880,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             incRecordAllowAdditionalFields = false;
                         }
                         iExpr.requiredArgs.add(expr);
+                    } else if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
+                        iExpr.requiredArgs.add(expr);
                     } else {
-                        if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
-                            iExpr.requiredArgs.add(expr);
-                        } else {
-                            checkTypeParamExpr(expr, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
-                            dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                        }
+                        boolean referringToARest = invokableSymbol.restParam != null && invokableSymbol.restParam.name
+                                .value.equals(((BLangNamedArgsExpression) expr).name.value);
+                        DiagnosticErrorCode errorCode = referringToARest ?
+                                DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM
+                                : DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL;
+                        checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
+                        dlog.error(expr.pos, errorCode, iExpr.name.value);
                     }
                     i++;
                     break;
@@ -7001,7 +7004,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                             nonRestParams, incRecordParams, incRecordParamAllowAdditionalFields, data);
 
                 if (varSym == null) {
-                    checkTypeParamExpr(arg, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
+                    checkTypeParamExpr(arg, symTable.noType, iExpr.langLibInvocation, data);
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
@@ -7150,8 +7153,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             restType = data.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
-                BType elementType = ((BArrayType) listTypeRestArg).eType;
-                for (BLangExpression restArg : iExpr.restArgs) {
+                BType elementType = ((BArrayType) listTypeRestArg).eType; // int
+                for (BLangExpression restArg : iExpr.restArgs) { // seq int
                     checkTypeParamExpr(restArg, elementType, true, data);
                     if (restType != symTable.semanticError && data.resultType == symTable.semanticError) {
                         restType = data.resultType;
@@ -7329,6 +7332,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
         boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
         return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
+    }
+
+    protected void checkTypeParamExpr(BLangExpression arg, BType expectedType, AnalyzerData data) {
+        checkTypeParamExpr(arg, expectedType, true, data);
     }
 
     private void checkTypeParamExpr(BLangExpression arg, BType expectedType,
@@ -9489,6 +9496,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType;
         BType resultType;
         boolean isResourceAccessPathSegments = false;
-        QueryTypeChecker.AnalyzerData queryData;
+        QueryTypeChecker.AnalyzerData queryData = new QueryTypeChecker.AnalyzerData();
+        Set<String> queryVariables;
     }
 }

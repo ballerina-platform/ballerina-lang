@@ -30,8 +30,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -50,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -544,12 +548,28 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.orderByKeyList, data);
     }
 
+    public void visit(BLangGroupByClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.groupingKeyList, data);
+    }
+
+    public void visit(BLangGroupingKey node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.variableRef, data);
+        visitNode(node.variableDef, data);
+    }
+
     public void visit(BLangOrderKey node, T data) {
         analyzeNode(node, data);
         visitNode(node.expression, data);
     }
 
     public void visit(BLangSelectClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expression, data);
+    }
+
+    public void visit(BLangCollectClause node, T data) {
         analyzeNode(node, data);
         visitNode(node.expression, data);
     }
@@ -718,6 +738,11 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.argExprs, data);
         visitNode(node.requiredArgs, data);
         visitNode(node.restArgs, data);
+    }
+
+    public void visit(BLangCollectContextInvocation node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.invocation, data);
     }
 
     public void visit(BLangInvocation.BFunctionPointerInvocation node, T data) {
