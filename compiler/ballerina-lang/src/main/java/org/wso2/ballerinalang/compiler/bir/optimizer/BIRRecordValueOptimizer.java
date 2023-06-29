@@ -90,36 +90,38 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             BIROperand recOperand = recordOperandList.isEmpty() ? null :
                     recordOperandList.get(recordOperandList.size() - 1);
             BRecordType recordType = recordOperandTypeMap.get(recOperand);
-            if (recordType != null && recordType.tsymbol != null &&
-                    fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
+            if (recordType != null && recordType.tsymbol != null) {
+                if (fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
                     BIRNode.BIRFunction defaultFunction = getDefaultBIRFunction(fpCall.fp.variableDcl.name.value);
                     if (defaultFunction == null) {
                         return;
                     }
-                BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
-                lastBB = lastBB != null ? lastBB : basicBlock;
-                if (defaultFunction.basicBlocks.size() == 2 && firstBB.instructions.size() == 1 &&
-                        firstBB.instructions.get(0).kind == CONST_LOAD) {
-                    BIRNonTerminator.ConstantLoad constantLoad =
-                            (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
-                    BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
-                            constantLoad.value, constantLoad.type, fpCall.lhsOp);
-                    newConstLoad.scope = fpCall.scope;
-                    lastBB.instructions.add(newConstLoad);
-                    lastBB.terminator = null;
-                    fpRemoved = true;
+                    BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
+                    lastBB = lastBB != null ? lastBB : basicBlock;
+                    if (defaultFunction.basicBlocks.size() == 2 && firstBB.instructions.size() == 1 && firstBB.instructions.get(0).kind == CONST_LOAD) {
+                        BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
+                        BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value, constantLoad.type, fpCall.lhsOp);
+                        newConstLoad.scope = fpCall.scope;
+                        lastBB.instructions.add(newConstLoad);
+                        lastBB.terminator = null;
+                        fpRemoved = true;
+                    } else {
+                        resetBasicBlock(basicBlock);
+                    }
                 } else {
                     resetBasicBlock(basicBlock);
                 }
             }
-        } else if (fpRemoved && lastBB != null && valueCreated) {
+        } else if (fpRemoved  && valueCreated) {
             resetBasicBlock(basicBlock);
         }
     }
 
     private void resetBasicBlock(BIRNode.BIRBasicBlock basicBlock) {
-        lastBB.terminator = basicBlock.terminator;
-        lastBB = null;
+        if (lastBB != null) {
+            lastBB.terminator = basicBlock.terminator;
+            lastBB = null;
+        }
         fpRemoved = false;
     }
 

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 
 import java.util.Comparator;
 
@@ -30,8 +31,13 @@ public class FunctionParamComparator implements Comparator<BIRNode.BIRVariableDc
 
     @Override
     public int compare(BIRNode.BIRVariableDcl o1, BIRNode.BIRVariableDcl o2) {
-
-        return Integer.compare(getWeight(o1), getWeight(o2));
+        if (o1.kind != o2.kind) {
+            return Integer.compare(getWeight(o1), getWeight(o2));
+        }
+        if (o1.kind == VarKind.TEMP) {
+            return Integer.compare(o1.name.value.hashCode(), o2.name.value.hashCode());
+        }
+        return 0;
     }
 
     private int getWeight(BIRNode.BIRVariableDcl variableDcl) {
@@ -41,8 +47,10 @@ public class FunctionParamComparator implements Comparator<BIRNode.BIRVariableDc
                 return 1;
             case ARG:
                 return 2;
-            default:
+            case TEMP:
                 return 3;
+            default:
+                return 4;
         }
     }
 }

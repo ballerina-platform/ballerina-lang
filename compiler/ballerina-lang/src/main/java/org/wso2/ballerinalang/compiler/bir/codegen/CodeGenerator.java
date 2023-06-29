@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
-import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIRRecordValueOptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -43,13 +42,10 @@ import java.util.HashMap;
 public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
-    private SymbolTable symbolTable;
-    private PackageCache packageCache;
-    private BLangDiagnosticLog dlog;
-    private Types types;
-    private LargeMethodOptimizer largeMethodOptimizer;
-    private BIRRecordValueOptimizer recordValueOptimizer;
-
+    private final SymbolTable symbolTable;
+    private final PackageCache packageCache;
+    private final BLangDiagnosticLog dlog;
+    private final Types types;
 
     private CodeGenerator(CompilerContext compilerContext) {
 
@@ -82,14 +78,10 @@ public class CodeGenerator {
     private CompiledJarFile generate(BPackageSymbol packageSymbol) {
 
         // Split large BIR functions into smaller methods
-        largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
-        recordValueOptimizer = new BIRRecordValueOptimizer();
-
-        largeMethodOptimizer.splitLargeBIRFunctions(packageSymbol.bir);
+        BIRRecordValueOptimizer recordValueOptimizer = new BIRRecordValueOptimizer();
 
         // Optimize record value creation for default values - remove unnecessary method call
         recordValueOptimizer.optimizeNode(packageSymbol.bir);
-
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);

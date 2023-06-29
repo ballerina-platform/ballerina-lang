@@ -62,7 +62,7 @@ public class LargeMethodOptimizer {
     // splits are done only if the original function has more instructions than the below number
     private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
     // splits are done only if the newly created method will contain more instructions than the below number
-    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 50;
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 60;
     // splits are done only if the newly created method will have less function arguments than the below number
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 250;
     // current BIR package id
@@ -466,6 +466,7 @@ public class LargeMethodOptimizer {
         BIROperand isErrorResultOp = generateTempLocalVariable(function, symbolTable.booleanType);
         BIRNonTerminator errorTestIns = new BIRNonTerminator.TypeTest(null, symbolTable.errorType,
                 isErrorResultOp, splitFuncCallResultOp);
+        errorTestIns.scope = lastInsScope;
         currentBB.instructions.add(errorTestIns);
         BIRBasicBlock trueBB = new BIRBasicBlock(++newBBNum);
         BIRBasicBlock falseBB = new BIRBasicBlock(++newBBNum);
@@ -474,15 +475,18 @@ public class LargeMethodOptimizer {
         BIROperand castedErrorOp = generateTempLocalVariable(function, symbolTable.errorType);
         BIRNonTerminator typeCastErrIns = new BIRNonTerminator.TypeCast(null, castedErrorOp,
                 splitFuncCallResultOp, symbolTable.errorType, false);
+        typeCastErrIns.scope = lastInsScope;
         trueBB.instructions.add(typeCastErrIns);
         BIRNonTerminator moveIns = new BIRNonTerminator.Move(null, castedErrorOp,
                 new BIROperand(function.returnVariable));
         trueBB.instructions.add(moveIns);
+        moveIns.scope = lastInsScope;
         BIRBasicBlock returnBB = function.basicBlocks.get(function.basicBlocks.size() - 1);
         trueBB.terminator = new BIRTerminator.GOTO(null, returnBB, lastInsScope);
         newBBList.add(trueBB);
         BIRNonTerminator typeCastLhsOpIns = new BIRNonTerminator.TypeCast(null, splitLastInsLhsOp,
                 splitFuncCallResultOp, splitLastInsLhsOp.variableDcl.type, false);
+        typeCastLhsOpIns.scope = lastInsScope;
         falseBB.instructions.add(typeCastLhsOpIns);
         return falseBB;
     }

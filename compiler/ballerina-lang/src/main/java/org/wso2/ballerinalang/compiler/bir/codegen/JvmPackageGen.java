@@ -136,7 +136,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    private static Unifier unifier;
+    private static final Unifier unifier = new Unifier();
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
@@ -164,8 +164,6 @@ public class JvmPackageGen {
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
-        unifier = new Unifier();
-
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
 
@@ -455,7 +453,7 @@ public class JvmPackageGen {
     }
 
     /**
-     * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
+     * Java Class will be generated for each source file. This method add class mappings to globalVar and filters the
      * functions based on their source file name and then returns map of associated java class contents.
      *
      * @param module           bir module

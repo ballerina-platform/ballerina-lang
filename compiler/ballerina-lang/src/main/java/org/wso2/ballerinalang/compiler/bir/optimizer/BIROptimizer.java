@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
@@ -59,6 +61,8 @@ public class BIROptimizer {
     private final BIRLockOptimizer lockOptimizer;
     private final BIRBasicBlockOptimizer bbOptimizer;
 
+    private LargeMethodOptimizer largeMethodOptimizer;
+
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
         if (birGen == null) {
@@ -74,12 +78,14 @@ public class BIROptimizer {
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
         this.bbOptimizer = new BIRBasicBlockOptimizer();
+        this.largeMethodOptimizer = new LargeMethodOptimizer(SymbolTable.getInstance(context));
+
     }
 
     public void optimizePackage(BIRPackage pkg) {
         // RHS temp var optimization
         pkg.accept(this.rhsTempVarOptimizer);
-
+        largeMethodOptimizer.splitLargeBIRFunctions(pkg);
         // LHS temp var optimization
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
 
