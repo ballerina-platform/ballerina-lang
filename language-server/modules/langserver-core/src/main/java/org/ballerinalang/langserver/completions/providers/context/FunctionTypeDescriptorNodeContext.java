@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -80,18 +82,34 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         } else if (this.withinReturnKWContext(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         } else if (node.parent().kind() == SyntaxKind.OBJECT_FIELD) {
-            SnippetCompletionItem xx = new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get());
-//            Range range = PositionUtil.toRange(56, context.getCursorPositionInTree(), context.currentDocument().get().textDocument());
-            Range range = PositionUtil.toRange(node.functionKeyword().textRange().startOffset(), node.functionKeyword().textRangeWithMinutiae().endOffset(), context.currentDocument().get().textDocument());
+            SnippetCompletionItem initFuncCompletionItem =
+                    new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get());
+            Token funcKW = node.functionKeyword();
+            int endOffset = getEndPosWithoutNewLine(funcKW);
+            Range range = PositionUtil.toRange(funcKW.textRange().startOffset(), endOffset,
+                    context.currentDocument().get().textDocument());
             TextEdit textEdit = new TextEdit(range, "");
-            xx.getCompletionItem().setAdditionalTextEdits(List.of(textEdit));
-            completionItems.add(xx);
-
-//            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+            initFuncCompletionItem.getCompletionItem().setAdditionalTextEdits(List.of(textEdit));
+            completionItems.add(initFuncCompletionItem);
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         }
         this.sort(context, node, completionItems, ruleContext);
 
         return completionItems;
+    }
+
+    private int getEndPosWithoutNewLine(Token token) {
+        int end = token.textRangeWithMinutiae().endOffset();
+        MinutiaeList minutiaeList = token.trailingMinutiae();
+        int size = minutiaeList.size();
+        if (size == 0) {
+            return end;
+        }
+        Minutiae lastMinutiae = minutiaeList.get(size - 1);
+        if (lastMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+            return size == 1 ? token.textRange().startOffset() : end - 1;
+        }
+        return end;
     }
 
     @Override
