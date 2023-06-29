@@ -15,14 +15,13 @@
  */
 package org.ballerinalang.langserver.inlayhint;
 
-import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -149,13 +148,13 @@ public class InlayHintProvider {
         } else if (invokableNode.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             ClientResourceAccessActionNode resourceAccessActionNode = (ClientResourceAccessActionNode) invokableNode;
             Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(resourceAccessActionNode);
-            List<ParameterSymbol> parameterSymbols = ((BallerinaResourceMethodSymbol) symbol.get()).typeDescriptor()
+            List<ParameterSymbol> parameterSymbols = ((ResourceMethodSymbol) symbol.get()).typeDescriptor()
                     .params().get();
             return Pair.of(parameterSymbols, Optional.empty());
         } else if (invokableNode.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
             RemoteMethodCallActionNode methodCallActionNode = (RemoteMethodCallActionNode) invokableNode;
             Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(methodCallActionNode);
-            List<ParameterSymbol> parameterSymbols = ((BallerinaMethodSymbol) symbol.get()).typeDescriptor()
+            List<ParameterSymbol> parameterSymbols = ((MethodSymbol) symbol.get()).typeDescriptor()
                     .params().get();
             return Pair.of(parameterSymbols, Optional.empty());
         } else if (invokableNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
