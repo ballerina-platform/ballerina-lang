@@ -721,6 +721,21 @@ type Bar3 record {|
     byte a = 100;
 |};
 
+type Foo3 record {
+    int x = 10;
+    int y = 20;
+};
+
+type Bar4 record {
+    int a = 30;
+    int b = 40;
+};
+
+type Baz2 record {
+    *Foo3;
+    *Bar4;
+};
+
 function testTypeInclusionWithOpenRecord() {
     R1 r1 = {f : "hello"};
     assert("hello", r1.f);
@@ -729,4 +744,12 @@ function testTypeInclusionWithOpenRecord() {
     Bar3 b3 = {};
     assert(100, b3.a);
     assert(101, b3.h);
+}
+
+function testWithMultipleTypeInclusions() {
+    Baz2 baz = {};
+    assert(10, baz.x);
+    assert(20, baz.y);
+    assert(30, baz.a);
+    assert(40, baz.b);
 }
