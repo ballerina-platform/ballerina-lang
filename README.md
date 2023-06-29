@@ -38,7 +38,7 @@ the source code.
 
 You can use one of the following options to try out Ballerina.
 
-* [Set up Ballerina](https://ballerina.io/learn/install-ballerina/set-up-ballerina/)
+* [Set up Ballerina](https://ballerina.io/learn/get-started/)
 * [Ballerina Playground](https://play.ballerina.io/)
 
 You can use following resources to learn Ballerina.
@@ -52,7 +52,7 @@ For instructions on downloading and installing, see [Ballerina Downloads](https:
 
 ### Installation options
 
-For more installation options, see [Installation options](https://ballerina.io/learn/install-ballerina/installation-options/).
+For more installation options, see [Installation options](https://ballerina.io/downloads/installation-options/).
 
 ### Get the VS Code extension
 
