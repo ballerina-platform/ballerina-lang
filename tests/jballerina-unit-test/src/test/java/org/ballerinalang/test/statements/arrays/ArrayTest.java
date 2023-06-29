@@ -27,13 +27,13 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -197,13 +197,13 @@ public class ArrayTest {
         Assert.assertEquals(arr.toString(), "[{\"b1\":\"B1\"},{\"b1\":\"B1\"},{\"b1\":\"B1\"},{\"b1\":\"B1\"}]");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: " +
+    @Test(expectedExceptions = BLangTestException.class, expectedExceptionsMessageRegExp = ".*error: " +
             "\\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}.*")
     public void testArraysOfCyclicDependentTypes3() {
         BRunUtil.invoke(compileResult, "testArraysOfCyclicDependentTypes3");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: " +
+    @Test(expectedExceptions = BLangTestException.class, expectedExceptionsMessageRegExp = ".*error: " +
             "\\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}.*")
     public void testArraysOfCyclicDependentTypes4() {
         BRunUtil.invoke(compileResult, "testArraysOfCyclicDependentTypes4");

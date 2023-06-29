@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -39,6 +40,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitSpaces;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitTabs;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitValue;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitVarRef;
+import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitVarRefs;
 import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
 
 /**
@@ -47,6 +49,8 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  * @since 1.2.0
  */
 class InstructionEmitter {
+
+    private InstructionEmitter() {}
 
     static String emitInstructions(List<? extends BIRInstruction> instructions, int tabs) {
 
@@ -124,9 +128,24 @@ class InstructionEmitter {
             case NEW_TABLE:
                 return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
             default:
-                throw new IllegalStateException("Not an instruction");
+                return emitBIRInstruction(ins.getClass().getSimpleName(), ((BIRAbstractInstruction) ins).lhsOp,
+                        ((BIRAbstractInstruction) ins).getRhsOperands(), tabs);
 
         }
+    }
+
+    private static String emitBIRInstruction(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += ";";
+        return str;
     }
 
     private static String emitInsConstantLoad(BIRNonTerminator.ConstantLoad ins, int tabs) {

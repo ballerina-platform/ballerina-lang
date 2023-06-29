@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.ValueConverter;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.
