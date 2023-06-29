@@ -1,7 +1,5 @@
 public class Listener {
 
-    private int port = 0;
-
     public function 'start() returns error? {
         return self.startEndpoint();
     }
@@ -38,3 +36,13 @@ public class Listener {
         return ();
     }
 }
+
+public type ListenerType object {
+    *Listener;
+};
+
+public type ListenerTypeDef object {
+    *ListenerType;
+};
+
+public ListenerTypeDef listener1 =  check new Listener(8080);

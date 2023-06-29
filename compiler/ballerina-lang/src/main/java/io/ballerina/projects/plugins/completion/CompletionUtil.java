@@ -15,7 +15,6 @@
  */
 package io.ballerina.projects.plugins.completion;
 
-import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -46,14 +45,8 @@ public class CompletionUtil {
      * @return {@link TypeSymbol} extracted type descriptor
      */
     public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
-        if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
-            return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
-        }
         if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
             TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
-            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
-                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
-            }
             TypeSymbol rawType = typeRef.typeDescriptor();
             if (rawType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
                 return getRawType(rawType);
