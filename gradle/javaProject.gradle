@@ -142,7 +142,6 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
-    jvmArgs = [ '-Xmx2048m' ]
     it.effort = "max"
     it.reportLevel = "low"
     it.reports {
@@ -196,9 +195,9 @@ check {
 }
 
 task jacocoMergeExec(type: JacocoReport) {
-    executionData = fileTree("$buildDir/jacoco/").matching {
-        include "**.exec"
-    } as FileCollection
+//    executionData = fileTree("$buildDir/jacoco/").matching {
+//        include "**.exec"
+//    } as FileCollection
 }
 
 publishing {
