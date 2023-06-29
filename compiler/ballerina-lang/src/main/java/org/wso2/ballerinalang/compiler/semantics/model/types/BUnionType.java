@@ -402,7 +402,7 @@ public class BUnionType extends BType implements UnionType {
     public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
-                    BType refType = getReferredType(type);
+                    BType refType = getReferredType(type, false);
                     if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
                         return ((BUnionType) refType).memberTypes.stream();
                     }
@@ -410,14 +410,18 @@ public class BUnionType extends BType implements UnionType {
                 }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static BType getReferredType(BType type) {
+    public static BType getReferredType(BType type) {
+        return getReferredType(type, true);
+    }
+
+    private static BType getReferredType(BType type, boolean effectiveType) {
         BType constraint = type;
 
         if (type.tag == TypeTags.TYPEREFDESC) {
-            return getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType, effectiveType);
         }
 
-        if (type.tag == TypeTags.INTERSECTION) {
+        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
             return getReferredType(((BIntersectionType) type).effectiveType);
         }
 
