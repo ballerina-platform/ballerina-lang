@@ -19,13 +19,11 @@
 package io.ballerina.runtime.profiler.codegen;
 
 import io.ballerina.runtime.profiler.Main;
-import io.ballerina.runtime.profiler.util.Constants;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import static io.ballerina.runtime.profiler.util.Constants.STRAND;
-
 
 /**
  * This class is used as a custom class visitor for the ballerina profiler.

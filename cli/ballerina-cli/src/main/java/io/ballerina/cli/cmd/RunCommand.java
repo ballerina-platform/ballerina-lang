@@ -101,7 +101,7 @@ public class RunCommand implements BLauncherCmd {
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
-    @CommandLine.Option(names = "--profile", description = "profiles the jar", hidden = true)
+    @CommandLine.Option(names = "--profile", description = "enables the ballerina profiler", hidden = true)
     private Boolean enableProfiler = false;
     private String output;
 

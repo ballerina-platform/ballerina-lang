@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static io.ballerina.runtime.profiler.ui.FrontEnd.getSiteData;
+import static io.ballerina.runtime.profiler.util.Constants.OUT;
 
 /**
  * This class contains the HTTP server of the ballerina profiler.
@@ -35,7 +36,7 @@ import static io.ballerina.runtime.profiler.ui.FrontEnd.getSiteData;
  */
 public class HTTPServer {
     public static void initializeHTMLExport() throws IOException {
-        System.out.printf(" ○ Output: " + Constants.ANSI_YELLOW
+        OUT.printf(" ○ Output: " + Constants.ANSI_YELLOW
                 + "target/bin/ProfilerOutput.html" + Constants.ANSI_RESET + "%n");
         String content = readData();
         String htmlData = getSiteData(content);
@@ -45,14 +46,14 @@ public class HTTPServer {
             fileWriter = new FileWriter(fileName, StandardCharsets.UTF_8);
             fileWriter.write(htmlData);
         } catch (IOException e) {
-            System.out.printf(e + "%n");
+            OUT.printf(e + "%n");
         } finally {
             if (fileWriter != null) {
                 try {
                     fileWriter.close();
                 } catch (IOException e) {
                     // Handle the exception if closing the writer fails
-                    System.out.printf(e + "%n");
+                    OUT.printf(e + "%n");
                 }
             }
         }

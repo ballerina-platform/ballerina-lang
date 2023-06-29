@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.runtime.profiler.util.Constants.OUT;
+
 /**
  * This class contains the JSON parser of the ballerina profiler.
  *
@@ -76,7 +78,7 @@ public class JSONParser {
             myWriter.write(parsedJson); // Write the parsed json string to the file
             myWriter.flush(); // Flush the writer
         } catch (IOException e) {
-            System.out.printf("An error occurred.%n"); // Print an error message
+            OUT.printf("An error occurred.%n"); // Print an error message
         }
     }
 
@@ -156,7 +158,7 @@ public class JSONParser {
             jsonObject.put("value", totalTime); // Add the total time as the value
             writer(jsonObject.toString()); // write the json object to a file
         } catch (Exception | Error throwable) {
-            System.out.printf(throwable + "%n");
+            OUT.printf(throwable + "%n");
         }
     }
 

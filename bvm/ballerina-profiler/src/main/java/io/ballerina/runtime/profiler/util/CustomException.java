@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.profiler.util;
 
+import static io.ballerina.runtime.profiler.util.Constants.OUT;
+
 /**
  * This class is used as a custom exception class.
  *
@@ -25,14 +27,14 @@ package io.ballerina.runtime.profiler.util;
  */
 public class CustomException extends Exception {
     public CustomException(String message) {
-        System.out.printf(message + "\n");
+        OUT.printf(message + "\n");
     }
 
     public CustomException(Throwable cause) {
-        System.out.printf(cause + "\n");
+        OUT.printf(cause + "\n");
     }
 
     public CustomException(String message, Throwable cause) {
-        System.out.printf(message + cause + "\n");
+        OUT.printf(message + cause + "\n");
     }
 }
