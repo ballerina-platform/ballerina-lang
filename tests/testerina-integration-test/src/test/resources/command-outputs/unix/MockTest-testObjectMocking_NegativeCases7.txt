@@ -7,9 +7,7 @@ Running Tests with Coverage
 
 	object_mocking
 
-****************************************************
 testMockInvalidStream has failed.
-****************************************************
 
 
 		Test execution time :*****ms

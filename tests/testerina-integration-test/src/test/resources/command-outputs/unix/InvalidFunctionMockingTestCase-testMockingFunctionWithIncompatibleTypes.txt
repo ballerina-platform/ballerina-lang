@@ -5,9 +5,7 @@ Running Tests
 
 	incompatible_type_mock
 
-****************************************************
 functionMockingTest has failed.
-****************************************************
 
 
 		Test execution time :*****ms

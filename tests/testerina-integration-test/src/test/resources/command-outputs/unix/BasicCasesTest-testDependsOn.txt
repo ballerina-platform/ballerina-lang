@@ -8,17 +8,17 @@ Running Tests with Coverage
 		Test execution time :*****ms
 
 		[pass] test1
+		[pass] testAddingValues#0
+		[pass] testAddingValues#1
+		[pass] testAddingValues#2
 		[pass] test2
+		[pass] testAddingValuesDependant
 		[pass] test3
 		[pass] test4
 		[pass] testWithBefore1
 		[pass] testWithBefore2
 		[pass] testWithBefore3
 		[pass] testWithBefore4
-		[pass] testAddingValues#0
-		[pass] testAddingValues#1
-		[pass] testAddingValues#2
-		[pass] testAddingValuesDependant
 
 
 		12 passing

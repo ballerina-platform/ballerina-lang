@@ -105,6 +105,9 @@ function executeTests() returns error? {
 
 function executeTest(TestFunction testFunction) returns error? {
     if !testFunction.enabled {
+        lock {
+            testFunction.isExecutionDone = true;
+        }
         conMgr.releaseWorker();
         return;
     }
@@ -116,6 +119,9 @@ function executeTest(TestFunction testFunction) returns error? {
             println("\n" + testFunction.name + " has failed.\n");
         }
         enableExit();
+        lock {
+            testFunction.isExecutionDone = true;
+        }
         conMgr.releaseWorker();
         return;
     }
@@ -345,7 +351,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
         TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
         if afterGroupFunctions != () && groupStatusRegistry.lastExecuted('group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                getShouldSkip()|| groupStatusRegistry.getSkipAfterGroup('group));
+                getShouldSkip() || groupStatusRegistry.getSkipAfterGroup('group));
             if err is ExecutionError {
                 enableExit();
                 printExecutionError(err, "after test group function for the test");

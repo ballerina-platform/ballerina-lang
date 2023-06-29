@@ -5,9 +5,7 @@ Running Tests with Coverage
 
 	function_mocking
 
-****************************************************
 testFunctionMock3 has failed.
-****************************************************
 
 
 		Test execution time :*****ms

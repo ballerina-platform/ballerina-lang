@@ -8,9 +8,7 @@ Running Tests
 
 	dependson-skip-test.bal
 
-****************************************************
 test2 has failed.
-****************************************************
 
 
 		Test execution time :*****ms

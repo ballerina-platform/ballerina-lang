@@ -5,9 +5,7 @@ Running Tests with Coverage
 
 	non_public_field_mock
 
-****************************************************
 testNonPublicMemberFieldMock has failed.
-****************************************************
 
 
 		Test execution time :*****ms

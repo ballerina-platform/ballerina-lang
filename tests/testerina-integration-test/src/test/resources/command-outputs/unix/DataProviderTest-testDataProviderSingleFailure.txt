@@ -7,9 +7,7 @@ Running Tests with Coverage
 
 	dataproviders
 
-****************************************************
 testDividingValuesNegative:2 has failed.
-****************************************************
 
 
 		Test execution time :*****ms
@@ -27,9 +25,9 @@ testDividingValuesNegative:2 has failed.
 				callableName: testDividingValuesNegative moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 191
 				callableName: testDividingValuesNegative$lambda14$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 17
 			",functionName="testDividingValuesNegative")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 507
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 279
-				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 268
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 460
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 232
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 221
 			
 
 
