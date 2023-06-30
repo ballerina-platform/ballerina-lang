@@ -507,6 +507,7 @@ public class SemTypeResolver {
             case XML:
                 return resolveXmlTypeDesc(td, semtypeEnv, mod, depth, defn);
             case TYPEDESC:
+            case FUTURE:
             default:
                 // TODO: semType: support. e.g. TYPEDESC
                 throw new UnsupportedOperationException("Constrained type not implemented: " + typeKind);
