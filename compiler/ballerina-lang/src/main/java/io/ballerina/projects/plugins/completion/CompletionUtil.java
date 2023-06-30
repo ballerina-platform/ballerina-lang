@@ -15,10 +15,6 @@
  */
 package io.ballerina.projects.plugins.completion;
 
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-
 /**
  * Util class for completion providers.
  *
@@ -36,24 +32,4 @@ public class CompletionUtil {
     public static String getPlaceHolderText(int index) {
         return "${" + index + "}";
     }
-
-    /**
-     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
-     * type descriptor.
-     *
-     * @param typeDescriptor type descriptor to evaluate
-     * @return {@link TypeSymbol} extracted type descriptor
-     */
-    public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
-        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
-            TypeSymbol rawType = typeRef.typeDescriptor();
-            if (rawType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                return getRawType(rawType);
-            }
-            return rawType;
-        }
-        return typeDescriptor;
-    }
-    
 }

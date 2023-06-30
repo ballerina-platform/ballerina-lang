@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.completion.CompletionContext;
 import io.ballerina.projects.plugins.completion.CompletionException;
 import io.ballerina.projects.plugins.completion.CompletionProvider;
-import io.ballerina.projects.plugins.completion.CompletionUtil;
 import io.ballerina.tools.text.LinePosition;
 
 import java.util.ArrayList;
@@ -149,8 +148,7 @@ public class CompletionManager {
                     if (listenerType.typeKind() == TypeDescKind.UNION) {
                         return ((UnionTypeSymbol) listenerType).memberTypeDescriptors()
                                 .stream()
-                                .filter(memberType -> 
-                                        CompletionUtil.getRawType(memberType).typeKind() == TypeDescKind.OBJECT)
+                                .filter(memberType -> memberType.typeKind() == TypeDescKind.OBJECT)
                                 .findAny();
                     }
                     return Optional.of(listenerType);
