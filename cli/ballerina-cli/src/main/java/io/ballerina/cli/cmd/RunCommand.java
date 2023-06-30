@@ -22,6 +22,8 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
@@ -34,11 +36,17 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +101,10 @@ public class RunCommand implements BLauncherCmd {
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
+    @CommandLine.Option(names = "--profile", description = "enables the ballerina profiler", hidden = true)
+    private Boolean enableProfiler = false;
+    private String output;
+
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
@@ -108,8 +120,8 @@ public class RunCommand implements BLauncherCmd {
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
-            "    bal run [--offline]\n" +
-            "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
+                    "    bal run [--offline]\n" +
+                    "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -210,19 +222,73 @@ public class RunCommand implements BLauncherCmd {
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
-
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                // clean target dir for projects
+        TaskExecutor.TaskBuilder taskBuilder = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
-//                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new RunExecutableTask(args, outStream, errStream))
-                .build();
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()));
 
-        taskExecutor.executeTasks(project);
+        if (this.enableProfiler) {
+            taskBuilder
+                    .addTask(new CreateExecutableTask(outStream, this.output))
+                    .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                    .build()
+                    .executeTasks(project);
+            try {
+                initiateProfiler(project, args);
+            } catch (Throwable throwable) {
+
+            }
+        } else {
+            taskBuilder
+                    .addTask(new RunExecutableTask(args, outStream, errStream))
+                    .build()
+                    .executeTasks(project);
+        }
+    }
+
+    private void initiateProfiler(Project project, String[] args) throws java.io.IOException, InterruptedException {
+        String[] profilerCommand;
+        String profilerArguments = String.join(" ", args);
+        String profilerSource = Paths.get(System.getenv("BALLERINA_HOME")
+                , "bre", "lib", "ballerina-profiler-1.0.jar").toString();
+        Path sourcePath = Path.of(profilerSource);
+        Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
+        StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
+        Files.copy(sourcePath, targetPath, copyOption);
+        if (args.length == 0) {
+            profilerCommand = new String[]{
+                    "java",
+                    "-jar",
+                    "Profiler.jar",
+                    "--file",
+                    "[" + project.currentPackage().packageName() + ".jar" + "]"
+            };
+        } else {
+            profilerCommand = new String[]{
+                    "java",
+                    "-jar",
+                    "Profiler.jar",
+                    "--file",
+                    "[" + project.currentPackage().packageName() + ".jar" + "]",
+                    "--args",
+                    "[" + profilerArguments + "]"
+            };
+        }
+        ProcessBuilder profilerProcessBuilder = new ProcessBuilder(profilerCommand);
+        profilerProcessBuilder.directory(new File(project.targetDir() + "/bin"));
+        profilerProcessBuilder.redirectErrorStream(true);
+        Process profilerProcess = profilerProcessBuilder.start();
+        InputStream processInputStream = profilerProcess.getInputStream();
+        if (processInputStream != null) {
+            try (InputStreamReader inputStreamReader = new InputStreamReader(
+                    processInputStream,
+                    java.nio.charset.StandardCharsets.UTF_8
+            );
+                 BufferedReader profilerReader = new BufferedReader(inputStreamReader)) {
+                profilerReader.lines().forEach(System.out::println);
+            }
+        }
+        profilerProcess.waitFor();
     }
 
     @Override
