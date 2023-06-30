@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -74,9 +73,8 @@ public class TypeNarrower extends BLangNodeVisitor {
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
+    private SemTypeResolver semTypeResolver;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
-    private static final boolean semtypeActive =
-            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
@@ -84,6 +82,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.semTypeResolver = SemTypeResolver.getInstance(context);
     }
 
     public static TypeNarrower getInstance(CompilerContext context) {
@@ -91,7 +90,6 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (typeNarrower == null) {
             typeNarrower = new TypeNarrower(context);
         }
-
         return typeNarrower;
     }
 
@@ -426,17 +424,10 @@ public class TypeNarrower extends BLangNodeVisitor {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
             finiteType.addValue(expr);
         }
-        setSemType(finiteType);
+        semTypeResolver.setSemTypeIfEnabled(finiteType);
         finiteTypeSymbol.type = finiteType;
+
         return finiteType;
-    }
-
-    private void setSemType(BFiniteType finiteType) {
-        if (!semtypeActive) {
-            return;
-        }
-
-        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     private void narrowTypeForEqualOrNotEqual(BLangBinaryExpr binaryExpr, BLangExpression lhsExpr,

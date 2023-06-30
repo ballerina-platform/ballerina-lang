@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -148,7 +147,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATO
  * @since 0.94
  */
 public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.AnalyzerData, BType> {
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
+    public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
@@ -158,13 +157,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final Types types;
 
     private final SymbolEnter symbolEnter;
+    private final TypeResolver typeResolver;
+    private final SemTypeResolver semTypeResolver;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangMissingNodesHelper missingNodesHelper;
     private final Unifier unifier;
     private final SemanticAnalyzer semanticAnalyzer;
     private final Stack<String> anonTypeNameSuffixes;
-    private static final boolean semtypeActive =
-            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -184,6 +183,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.typeResolver = TypeResolver.getInstance(context);
+        this.semTypeResolver = SemTypeResolver.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
@@ -558,33 +559,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         validateDistinctType(typeNode, resultType);
-        resolveSemType(typeNode, env, resultType);
+        semTypeResolver.resolveSemTypeIfEnabled(typeNode, env, resultType);
 
         typeNode.setBType(resultType);
         return resultType;
     }
 
-    private void resolveSemType(BLangType typeNode, SymbolEnv env, BType resultType) {
-        if (!semtypeActive) {
-            return;
-        }
-
-        if (typeNode.semType != null) {
-            // For type definitions, we will have the semType resolved already
-            resultType.setSemtype(typeNode.semType);
-        } else {
-            try {
-                SemType s = symbolEnter.resolveTypeDescSubset(env.enclPkg.semtypeEnv, env.enclPkg.modTable, null, 0,
-                        typeNode);
-                resultType.setSemtype(s);
-            } catch (UnsupportedOperationException e) {
-                // Do nothing
-                // TODO: semType: remove once all types are supported
-            }
-        }
-    }
-
-    private void validateDistinctType(BLangType typeNode, BType type) {
+    public void validateDistinctType(BLangType typeNode, BType type) {
         if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
             dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
         }
@@ -1448,18 +1429,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {
             finiteType.addValue(expressionOrLiteral);
         }
-        setSemType(finiteType);
+        semTypeResolver.setSemTypeIfEnabled(finiteType);
         finiteTypeSymbol.type = finiteType;
 
         return finiteType;
-    }
-
-    private void setSemType(BFiniteType finiteType) {
-        if (!semtypeActive) {
-            return;
-        }
-
-        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     @Override
@@ -1591,7 +1564,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return constrainedType;
     }
 
-    private void validateXMLConstraintType(BType type, Location pos) {
+    public void validateXMLConstraintType(BType type, Location pos) {
         BType constraintType = Types.getReferredType(type);
         int constrainedTag = constraintType.tag;
 
@@ -1628,6 +1601,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangUserDefinedType userDefinedTypeNode, AnalyzerData data) {
+        String name = userDefinedTypeNode.typeName.value;
+        BType type;
+
         // 1) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         //    if not use the current package scope.
@@ -1753,7 +1729,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (env.logErrors && symbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
-                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)) {
+                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)
+                    && typeResolver.isNotUnknownTypeRef(userDefinedTypeNode)) {
                 dlog.error(userDefinedTypeNode.pos, data.diagCode, typeName);
             }
             return symTable.semanticError;
@@ -1761,16 +1738,25 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         userDefinedTypeNode.symbol = symbol;
 
-        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+        type = symbol.type;
+        boolean isCloneableTypeDef = type.tag == TypeTags.UNION && types.isCloneableType((BUnionType) type);
+
+        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)
+                && !isCloneableTypeDef) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
             referenceType.flags |= symbol.type.flags;
             referenceType.tsymbol.flags |= symbol.type.flags;
             return referenceType;
         }
-        return symbol.type;
+
+        if (type.getKind() != TypeKind.OTHER) {
+            return type;
+        }
+
+        return typeResolver.validateModuleLevelDef(name, pkgAlias, typeName, userDefinedTypeNode);
     }
 
-    private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
+    public ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
                                                             AnalyzerData data, BSymbol varSym) {
         for (int i = 0; i < params.size(); i++) {
             BLangSimpleVariable param = params.get(i);
@@ -2440,7 +2426,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
+    public BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
                                                           Location pos,
                                                           LinkedHashSet<BType> constituentBTypes,
                                                           boolean isAlreadyDefinedDetailType, SymbolEnv env) {
@@ -2484,7 +2470,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return intersectionType;
     }
 
-    private BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
+    public BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
                                            BType lhsType, BType rhsType, SymbolEnv env) {
         if (lhsType == symTable.readonlyType) {
             return rhsType;
@@ -2497,7 +2483,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
     }
 
-    void validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
+    boolean validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
         int inferTypedescParamCount = 0;
         BVarSymbol paramWithInferredTypedescDefault = null;
         Location inferDefaultLocation = null;
@@ -2515,25 +2501,26 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (inferTypedescParamCount > 1) {
             dlog.error(pos, DiagnosticErrorCode.MULTIPLE_INFER_TYPEDESC_PARAMS);
-            return;
+            return false;
         }
 
         if (paramWithInferredTypedescDefault == null) {
-            return;
+            return true;
         }
 
         if (retType == null) {
             dlog.error(inferDefaultLocation,
-                       DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
-            return;
+                    DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+            return false;
         }
 
         if (unifier.refersInferableParamName(paramWithInferredTypedescDefault.name.value, retType)) {
-            return;
+            return true;
         }
 
         dlog.error(inferDefaultLocation,
-                   DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+                DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+        return false;
     }
 
     private boolean isModuleLevelVar(BSymbol symbol) {
@@ -2680,7 +2667,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
     }
 
-    private static class ParameterizedTypeInfo {
+    /**
+     * @since 2.0.0
+     */
+    public static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;
 

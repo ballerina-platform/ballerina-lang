@@ -46,6 +46,7 @@ checkstyleMain {
     exclude 'io/ballerina/projects/internal/bala/BalaJson.java'
     exclude 'io/ballerina/projects/internal/bala/PackageJson.java'
     exclude 'io/ballerina/projects/internal/bala/CompilerPluginJson.java'
+    exclude 'io/ballerina/projects/internal/bala/BalToolJson.java'
     exclude 'org/ballerinalang/toml/model/Module.java'
     exclude 'org/ballerinalang/toml/model/Bala.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
@@ -53,6 +54,7 @@ checkstyleMain {
     exclude 'io/ballerina/projects/internal/model/BalaJson.java'
     exclude 'io/ballerina/projects/internal/model/PackageJson.java'
     exclude 'io/ballerina/projects/internal/model/CompilerPluginToml.java'
+    exclude 'io/ballerina/projects/internal/model/BalToolToml.java'
     exclude 'io/ballerina/compiler/api/Types.java'
     exclude 'io/ballerina/compiler/api/TypeBuilder.java'
 }
@@ -71,9 +73,11 @@ processResources {
     include 'dependencies-toml-schema.json'
     include 'old-dependencies-toml-schema.json'
     include 'settings-toml-schema.json'
+    include 'bal-tools-toml-schema.json'
     filter { String line -> line.replace('${project.version}', "${project.version}")}
     filter { String line -> line.replace('${short.version}', "${project.version}")}
     filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
+    filter { String line -> line.replace('${apiDocs.version}', "${project.apiDocsVersion}")}
 }
 
 ext.moduleName = 'ballerina.lang'

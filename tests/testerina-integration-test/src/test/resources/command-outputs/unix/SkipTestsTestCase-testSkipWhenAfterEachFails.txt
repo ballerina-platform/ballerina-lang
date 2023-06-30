@@ -8,7 +8,10 @@ Running Tests
 
 	skip-when-afterEach-fails.bal
 	[fail] afterEach[after each test function for the test]:
-	     / by zero
+	    error("{ballerina}DivisionByZero",message=" / by zero")
+			callableName: afterEach  fileName: skip-when-afterEach-fails.bal lineNumber: 30
+			callableName: afterEach$lambda2$  fileName: skip-when-afterEach-fails.bal lineNumber: 54
+		
 		[pass] test1
 
 

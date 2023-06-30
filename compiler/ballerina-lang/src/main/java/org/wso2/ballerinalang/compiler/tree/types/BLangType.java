@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import io.ballerina.types.Definition;
-import io.ballerina.types.SemType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -39,7 +38,6 @@ public abstract class BLangType extends BLangNode implements TypeNode {
     public boolean grouped;
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
     public Definition defn;
-    public SemType semType; // TODO: SemType: this is temporary
 
     @Override
     public boolean isNullable() {

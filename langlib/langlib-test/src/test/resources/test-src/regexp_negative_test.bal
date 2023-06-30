@@ -204,62 +204,62 @@ public function testInvalidRegexpPatternSyntax3() returns error? {
 public function testNegativeEmptyCharClass1() returns error? {
     string pattern = "[]";
     anydata|error result = trap re `${pattern}`;
-    check assertEqualMessage(result, "Invalid insertion in regular expression: Empty character class disallowed");
+    check assertEqualMessage(result, "empty character class disallowed in insertion substring '[]'");
 }
 
 public function testNegativeEmptyCharClass2() returns error? {
     anydata|error result = trap re `(abc${"[]"})`;
-    check assertEqualMessage(result, "Invalid insertion in regular expression: Empty character class disallowed");
+    check assertEqualMessage(result, "empty character class disallowed in insertion substring '[]'");
 }
 
 public function testNegativeEmptyCharClass3() returns error? {
     anydata|error result = trap regexp:fromString("(([abc])|([]))");
-    check assertEqualMessage(result, "Failed to parse regular expression: Empty character class disallowed");
+    check assertEqualMessage(result, "Failed to parse regular expression: empty character class disallowed in '(([abc])|([]))'");
 }
 
 public function testNegativeDuplicateFlags1() returns error? {
-    anydata|error result = trap re `${"(?i-i:ABC))"}`;
-    check assertEqualMessage(result, "Invalid insertion in regular expression: duplicate flag 'i'");
+    anydata|error result = trap re `${"(?i-i:ABC)"}`;
+    check assertEqualMessage(result, "duplicate flag 'i' in insertion substring '(?i-i:ABC)'");
 }
 
 public function testNegativeDuplicateFlags2() returns error? {
-    anydata|error result = trap re `ABC${"(?ims-xi:ABC))"}(?-:)`;
-    check assertEqualMessage(result, "Invalid insertion in regular expression: duplicate flag 'i'");
+    anydata|error result = trap re `ABC${"(?ims-xi:ABC)"}(?-:)`;
+    check assertEqualMessage(result, "duplicate flag 'i' in insertion substring '(?ims-xi:ABC)'");
 }
 
 public function testNegativeDuplicateFlags3() returns error? {
-    anydata|error result = regexp:fromString("(?ms-ims:ABC))");
-    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'm'");
+    anydata|error result = regexp:fromString("(?ms-ims:ABC)");
+    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'm' in '(?ms-ims:ABC)'");
 }
 
 public function testNegativeDuplicateFlags4() returns error? {
     anydata|error result = regexp:fromString("(?imi:(ABC))");
-    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'i'");
+    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'i' in '(?imi:(ABC))'");
 }
 
 public function testNegativeDuplicateFlags5() returns error? {
     anydata|error result = regexp:fromString("(?-imi:(ABC))");
-    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'i'");
+    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'i' in '(?-imi:(ABC))'");
 }
 
 public function testNegativeInvalidFlags1() returns error? {
-    anydata|error result = trap re `${"(?i-mk:ABC))"}`;
-    check assertEqualMessage(result, "Invalid insertion in regular expression: invalid flag in regular expression");
+    anydata|error result = trap re `${"(?i-mk:ABC)"}`;
+    check assertEqualMessage(result, "invalid flag 'k' in insertion substring '(?i-mk:ABC)'");
 }
 
 public function testNegativeInvalidFlags2() returns error? {
     anydata|error result = trap re `ABC${"(?lms-xi:ABC))"}(?-:)`;
-    check assertEqualMessage(result, "Invalid insertion in regular expression: invalid flag in regular expression");
+    check assertEqualMessage(result, "invalid flag 'l' in insertion substring '(?lms-xi:ABC))'");
 }
 
 public function testNegativeInvalidFlags3() returns error? {
     anydata|error result = regexp:fromString("(?ls-ims:ABC))");
-    check assertEqualMessage(result, "Failed to parse regular expression: invalid flag in regular expression");
+    check assertEqualMessage(result, "Failed to parse regular expression: invalid flag 'l' in '(?ls-ims:ABC))'");
 }
 
 public function testNegativeInvalidFlags4() returns error? {
     anydata|error result = regexp:fromString("(?ii-mk:ABC))");
-    check assertEqualMessage(result, "Failed to parse regular expression: invalid flag in regular expression");
+    check assertEqualMessage(result, "Failed to parse regular expression: invalid flag 'k' in '(?ii-mk:ABC))'");
 }
 
 function assertEqualMessage(anydata|error actual, anydata|error expected) returns error? {

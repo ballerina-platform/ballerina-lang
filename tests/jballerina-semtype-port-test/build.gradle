@@ -18,7 +18,7 @@ dependencies {
 description = 'JBallerina Semtyp port - Unit Test Module'
 
 test {
-    systemProperty "ballerina.semtype.test.suite", "true"
+    systemProperty "ballerina.experimental.semtype.test.suite", "true"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -336,6 +335,10 @@ public class StaticMethods {
         }
     }
 
+    public static long acceptIntErrorUnionReturnWhichThrowsUncheckedException() throws RuntimeException {
+        return 5;
+    }
+
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
         switch (flag) {
@@ -384,7 +387,7 @@ public class StaticMethods {
                                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static TupleValueImpl getArrayValue() throws BallerinaException {
+    public static TupleValueImpl getArrayValue() throws BError {
         String name = null;
         String type = null;
         try {
@@ -394,8 +397,9 @@ public class StaticMethods {
                     add(PredefinedTypes.TYPE_STRING);
                 }
             }));
-        } catch (BallerinaException e) {
-            throw new BallerinaException("Error occurred while creating ArrayValue.", e);
+        } catch (BError e) {
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error occurred while creating ArrayValue."), e);
         }
     }
 
@@ -787,5 +791,27 @@ public class StaticMethods {
 
     public static BString getResourceTwo(Environment env, BObject client, BTypedesc recordType) {
         return StringUtils.fromString("getResourceTwo");
+    }
+
+    public static void getStringWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        BString output = StringUtils.fromString("Hello World!");
+        balFuture.complete(output);
+    }
+
+    public static void getIntWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        long output = 7;
+        balFuture.complete(output);
+    }
+
+    public static void getMapValueWithBalEnv(Environment env, BString name, long age,
+                                             MapValue<BString, Object> results) {
+        Future balFuture = env.markAsync();
+        BMap<BString, Object> output = ValueCreator.createMapValue();
+        output.put(StringUtils.fromString("name"), name);
+        output.put(StringUtils.fromString("age"), age);
+        output.put(StringUtils.fromString("results"), results);
+        balFuture.complete(output);
     }
 }

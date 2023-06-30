@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -26,7 +27,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BStructureType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -178,7 +178,8 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
             }
         }
         if (structError) {
-            throw new BallerinaException("error in constructing the xml element from struct type data");
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "error in constructing the xml element from struct type data"));
         }
     }
 
