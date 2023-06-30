@@ -3026,13 +3026,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.RIGHT_DOUBLE_ARROW;
         } else if (parentCtx == ParserRuleContext.SELECT_CLAUSE) {
             STToken nextToken = this.tokenReader.peek(lookahead);
-            switch (nextToken.kind) {
-                case ON_KEYWORD:
-                case CONFLICT_KEYWORD:
-                    nextContext = ParserRuleContext.ON_CONFLICT_CLAUSE;
-                    break;
-                default:
-                    nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
+            STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
+            if (BallerinaParser.isOnConflictClauseStart(nextToken.kind, nextNextToken.kind)) {
+                nextContext = ParserRuleContext.ON_CONFLICT_CLAUSE;
+            } else {
+                nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
             }
         } else if (parentCtx == ParserRuleContext.JOIN_CLAUSE) {
             nextContext = ParserRuleContext.ON_CLAUSE;
@@ -3043,7 +3041,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
             STToken nextToken = this.tokenReader.peek(lookahead);
             STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
-            if (nextToken.kind == SyntaxKind.ON_KEYWORD && nextNextToken.kind == SyntaxKind.FAIL_KEYWORD) {
+            if (BallerinaParser.isOnFailCheckStart(nextToken.kind, nextNextToken.kind)) {
                 nextContext = ParserRuleContext.ON_FAIL_CHECK;
             } else {
                 nextContext = ParserRuleContext.CHECKING_EXPRESSION_END;

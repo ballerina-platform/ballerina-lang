@@ -6014,6 +6014,7 @@ public class BallerinaParser extends AbstractParser {
             case DO_KEYWORD:
             case COLON_TOKEN:
             case ON_KEYWORD:
+            case FAIL_KEYWORD:
             case CONFLICT_KEYWORD:
             case LIMIT_KEYWORD:
             case JOIN_KEYWORD:
@@ -7181,7 +7182,7 @@ public class BallerinaParser extends AbstractParser {
         STNode expr =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         STNode onFailCheck = STNodeFactory.createEmptyNode();
-        if (peek().kind == SyntaxKind.ON_KEYWORD && getNextNextToken().kind == SyntaxKind.FAIL_KEYWORD) {
+        if (isOnFailCheckStart(peek().kind, getNextNextToken().kind)) {
             onFailCheck = parseOnFailCheck();
         }
 
@@ -12369,8 +12370,7 @@ public class BallerinaParser extends AbstractParser {
      * @return On conflict clause node
      */
     private STNode parseOnConflictClause(boolean isRhsExpr) {
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.ON_KEYWORD && nextToken.kind != SyntaxKind.CONFLICT_KEYWORD) {
+        if (!isOnConflictClauseStart(peek().kind, getNextNextToken().kind)) {
             return STNodeFactory.createEmptyNode();
         }
 
@@ -12380,6 +12380,16 @@ public class BallerinaParser extends AbstractParser {
         endContext();
         STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createOnConflictClauseNode(onKeyword, conflictKeyword, expr);
+    }
+
+    protected static boolean isOnConflictClauseStart(SyntaxKind firstTokenKind, SyntaxKind secondTokenKind) {
+        return firstTokenKind == SyntaxKind.ON_KEYWORD ?
+                secondTokenKind == SyntaxKind.CONFLICT_KEYWORD : firstTokenKind == SyntaxKind.CONFLICT_KEYWORD;
+    }
+
+    protected static boolean isOnFailCheckStart(SyntaxKind firstTokenKind, SyntaxKind secondTokenKind) {
+        return firstTokenKind == SyntaxKind.ON_KEYWORD ?
+                secondTokenKind == SyntaxKind.FAIL_KEYWORD : firstTokenKind == SyntaxKind.FAIL_KEYWORD;
     }
 
     /**
