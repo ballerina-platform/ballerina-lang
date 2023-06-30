@@ -1666,6 +1666,12 @@ public class BIRPackageSymbolEnter {
                     if (Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
                         objectSymbol.flags |= Flags.ANONYMOUS;
                     }
+                    if (Symbols.isFlagOn(flags, Flags.DISTINCT)) {
+                        objectSymbol.flags |= Flags.DISTINCT;
+                    }
+                    if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
+                        objectSymbol.flags |= Flags.ISOLATED;
+                    }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
                     addShapeCP(objectType, cpI);
