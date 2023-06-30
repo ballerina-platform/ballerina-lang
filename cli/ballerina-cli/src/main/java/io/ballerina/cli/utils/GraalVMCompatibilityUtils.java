@@ -100,7 +100,9 @@ public class GraalVMCompatibilityUtils {
             if (platform.isPresent() && !AnyTarget.ANY.code().equals(platform.get().getKey())) {
                 Boolean isGraalVMCompatible = platform.get().getValue().graalvmCompatible();
                 if (isGraalVMCompatible == null) {
-                    nonVerifiedDependencies.add(dependency);
+                    if (!platform.get().getValue().dependencies().isEmpty()) {
+                        nonVerifiedDependencies.add(dependency);
+                    }
                 } else if (!isGraalVMCompatible) {
                     nonGraalVMCompatibleDependencies.add(dependency);
                 }
@@ -144,9 +146,9 @@ public class GraalVMCompatibilityUtils {
             return null;
         }
         StringBuilder warning = new StringBuilder(
-                String.format("************************************************************%n" +
-                        "* WARNING: Some dependencies may not be GraalVM compatible.*%n" +
-                        "************************************************************%n%n" +
+                String.format("*************************************************************%n" +
+                        "* WARNING: Some dependencies may not be GraalVM compatible. *%n" +
+                        "*************************************************************%n%n" +
                         "The following Ballerina dependencies in your project could pose compatibility issues " +
                         "with GraalVM.%n"));
         if (!nonVerifiedDependencies.isEmpty()) {
@@ -183,7 +185,7 @@ public class GraalVMCompatibilityUtils {
     private static String getDependencyDetail(ResolvedPackageDependency dependency) {
         StringBuilder dependencyDetail = new StringBuilder("\t" + dependency.packageInstance().descriptor().toString());
         if (PackageDependencyScope.TEST_ONLY.equals(dependency.scope())) {
-            dependencyDetail.append(" [").append(PackageDependencyScope.TEST_ONLY.getValue()).append("]");
+            dependencyDetail.append(" [scope=").append(PackageDependencyScope.TEST_ONLY.getValue()).append("]");
         }
         return dependencyDetail.toString();
     }

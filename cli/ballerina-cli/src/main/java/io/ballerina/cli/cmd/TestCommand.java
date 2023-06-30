@@ -224,16 +224,6 @@ public class TestCommand implements BLauncherCmd {
             sticky = false;
         }
 
-
-        if (nativeImage == null) {
-            nativeImage = false;
-        }
-
-        if (!nativeImage && graalVMBuildOptions != null) {
-            this.outStream.println("WARNING: --graalvm-build-options flag is ignored since --graalvm flag is not " +
-                    "provided");
-        }
-
         // load project
         Project project;
 
@@ -327,12 +317,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
-        }
-
         if (project.buildOptions().nativeImage() && project.buildOptions().codeCoverage()) {
             this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina native test");
+        }
+
+        if (!project.buildOptions().nativeImage() && !project.buildOptions().graalVMBuildOptions().isEmpty()) {
+            this.outStream.println("WARNING: Additional GraalVM build options are ignored since graalvm " +
+                    "flag is not set");
         }
 
         Iterable<Module> originalModules = project.currentPackage().modules();

@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.structs;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -110,21 +110,21 @@ public class StructNegativeTest {
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",
-          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptions = {BLangTestException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitField() {
         BRunUtil.invoke(result2, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
-          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptions = {BLangTestException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitArrayField() {
         BRunUtil.invoke(result2, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
-          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptions = {BLangTestException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitLastField() {
         BRunUtil.invoke(result2, "testGetNonInitLastAttribute");
