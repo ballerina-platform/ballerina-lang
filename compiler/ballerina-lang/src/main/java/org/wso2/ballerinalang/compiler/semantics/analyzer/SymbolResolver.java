@@ -1610,7 +1610,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ?
-                    Types.getReferredType(tempSymbol.type, false).tsymbol : tempSymbol;
+                    Types.getReferredType(tempSymbol.type).tsymbol : tempSymbol;
+            // Tsymbol of the effective type can be null for invalid intersections and `xml & readonly` intersections
+            if (refSymbol == null) {
+                refSymbol = tempSymbol;
+            }
 
             NodeKind envNodeKind = data.env.node.getKind();
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -2437,7 +2441,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, 0, Names.EMPTY, pkgId, null, owner, pos, VIRTUAL);
 
         BIntersectionType intersectionType =
-                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType);
+                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType, effectiveType.flags);
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }

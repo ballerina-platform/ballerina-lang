@@ -1467,6 +1467,7 @@ public class TypeResolver {
             }
         }
         intersectionType.effectiveType = effectiveType;
+        intersectionType.flags |= effectiveType.flags;
 
         if ((intersectionType.flags & Flags.READONLY) == Flags.READONLY) {
             if (types.isInherentlyImmutableType(effectiveType)) {
@@ -1519,7 +1520,12 @@ public class TypeResolver {
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = symResolver.lookupMainSpaceSymbolInPackage(td.pos, symEnv, pkgAlias, typeName);
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ?
-                    Types.getReferredType(tempSymbol.type, false).tsymbol : tempSymbol;
+                    Types.getReferredType(tempSymbol.type).tsymbol : tempSymbol;
+            // Tsymbol of the effective type can be null for invalid intersections and `xml & readonly` intersections
+            if (refSymbol == null) {
+                refSymbol = tempSymbol;
+            }
+
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
             } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && symEnv.node.getKind() == NodeKind.FUNCTION) {

@@ -914,7 +914,7 @@ public class ImmutableTypeCloner {
         }};
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentTypes,
-                                                                   effectiveType, Flags.READONLY);
+                                                                   effectiveType, Flags.READONLY | effectiveType.flags);
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }
