@@ -638,6 +638,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
         recordDefaultFPLoad.lhsOp.accept(this);
         writeType(recordDefaultFPLoad.enclosedType);
+        buf.writeInt(addStringCPEntry(recordDefaultFPLoad.fieldName));
     }
 
     // Positions
