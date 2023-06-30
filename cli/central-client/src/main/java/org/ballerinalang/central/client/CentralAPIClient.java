@@ -22,8 +22,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import okhttp3.Authenticator;
 import okhttp3.Cache;
 import okhttp3.Call;
+import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -130,6 +132,8 @@ public class CentralAPIClient {
     private String accessToken;
     protected PrintStream outStream;
     private final boolean verboseEnabled;
+    private final String proxyUsername;
+    private final String proxyPassword;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -137,6 +141,18 @@ public class CentralAPIClient {
         this.proxy = proxy;
         this.accessToken = accessToken;
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
+        this.proxyUsername = "";
+        this.proxyPassword = "";
+    }
+    public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
+                            String accessToken) {
+        this.outStream = System.out;
+        this.baseUrl = baseUrl;
+        this.proxy = proxy;
+        this.accessToken = accessToken;
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
+        this.proxyUsername = proxyUsername;
+        this.proxyPassword = proxyPassword;
     }
 
     /**
@@ -1261,11 +1277,27 @@ public class CentralAPIClient {
      * @return the client
      */
     protected OkHttpClient getClient() {
-        return new OkHttpClient.Builder()
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
                 .build();
+
+        if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
+            Authenticator proxyAuthenticator = (route, response) -> {
+                if (response.request().header("Proxy-Authorization") != null) {
+                    return null; // Give up, we've already attempted to authenticate.
+                }
+                String credential = Credentials.basic(this.proxyUsername, this.proxyPassword);
+                return response.request().newBuilder()
+                        .header("Proxy-Authorization", credential)
+                        .build();
+            };
+            okHttpClient = okHttpClient.newBuilder()
+                    .proxyAuthenticator(proxyAuthenticator)
+                    .build();
+        }
+        return okHttpClient;
     }
 
     /**
