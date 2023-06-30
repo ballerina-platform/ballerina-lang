@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -101,7 +102,7 @@ public class InlayHintProvider {
             for (int argumentIndex = 0; argumentIndex < argList.size(); argumentIndex++) {
                 //Find the inlay-hint location for the argument
                 NonTerminalNode argument = argList.get(argumentIndex);
-                if (argument.kind() != SyntaxKind.POSITIONAL_ARG) {
+                if (argument.kind() != SyntaxKind.POSITIONAL_ARG && argument.kind() != SyntaxKind.REST_ARG) {
                     break;
                 }
                 LineRange lineRange = inlayHintLocations.get(argument);
@@ -148,9 +149,9 @@ public class InlayHintProvider {
         } else if (invokableNode.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             ClientResourceAccessActionNode resourceAccessActionNode = (ClientResourceAccessActionNode) invokableNode;
             Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(resourceAccessActionNode);
-            List<ParameterSymbol> parameterSymbols = ((ResourceMethodSymbol) symbol.get()).typeDescriptor()
-                    .params().get();
-            return Pair.of(parameterSymbols, Optional.empty());
+            FunctionTypeSymbol typeSymbol = ((ResourceMethodSymbol) symbol.get()).typeDescriptor();
+            return symbol.map(methodSymbol -> Pair.of(typeSymbol.params().orElse(Collections.emptyList()),
+                            typeSymbol.restParam())).orElse(Pair.of(Collections.emptyList(), Optional.empty()));
         } else if (invokableNode.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
             RemoteMethodCallActionNode methodCallActionNode = (RemoteMethodCallActionNode) invokableNode;
             Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(methodCallActionNode);
@@ -192,8 +193,9 @@ public class InlayHintProvider {
                     .map(CommonUtil::getRawType).findFirst();
         }
         Optional<MethodSymbol> methodSymbol = ((ClassSymbol) symbol.get()).initMethod();
-        List<ParameterSymbol> parameterSymbols = methodSymbol.get().typeDescriptor().params().get();
-        return Pair.of(parameterSymbols, Optional.empty());
+        return symbol.map(typeSymbol -> Pair.of(methodSymbol.get().typeDescriptor().params()
+                        .orElse(Collections.emptyList()), methodSymbol.get().typeDescriptor().restParam()))
+                .orElse(Pair.of(Collections.emptyList(), Optional.empty()));
     }
 
     private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForFunctionCall(
@@ -331,6 +333,11 @@ public class InlayHintProvider {
         @Override
         public void visit(PositionalArgumentNode positionalArgumentNode) {
             argumentList.add(positionalArgumentNode);
+        }
+
+        @Override
+        public void visit(RestArgumentNode restArgumentNode) {
+            argumentList.add(restArgumentNode);
         }
 
         private void findInlayHintLocationsFromArgs(SeparatedNodeList<FunctionArgumentNode> argumentNodes,
