@@ -4,7 +4,7 @@
     "character": 25
   },
   "source": "function_def/source/source27.bal",
-  "description": "",
+  "description": "init function completion in object constructor",
   "items": [
     {
       "label": "init function",

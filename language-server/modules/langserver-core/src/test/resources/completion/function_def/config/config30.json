@@ -4,7 +4,7 @@
     "character": 12
   },
   "source": "function_def/source/source29.bal",
-  "description": "",
+  "description": "init function completion in class definition",
   "items": [
     {
       "label": "init function",
