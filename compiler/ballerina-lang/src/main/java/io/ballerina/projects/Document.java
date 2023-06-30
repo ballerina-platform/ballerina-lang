@@ -35,7 +35,7 @@ public class Document {
     }
 
     public static Document from(DocumentConfig documentConfig, Module module) {
-        DocumentContext documentContext = DocumentContext.from(documentConfig,false);
+        DocumentContext documentContext = DocumentContext.from(documentConfig, false);
         return new Document(documentContext, module);
     }
 

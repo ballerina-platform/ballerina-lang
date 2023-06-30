@@ -86,7 +86,7 @@ public class PackageConfig {
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
                                  dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
-                                 DependencyGraph.emptyGraph(), packageMd,false);
+                                 DependencyGraph.emptyGraph(), packageMd, false);
     }
 
     public static PackageConfig from(PackageId packageId,
