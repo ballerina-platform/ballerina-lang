@@ -102,7 +102,7 @@ public class InlayHintProvider {
             for (int argumentIndex = 0; argumentIndex < argList.size(); argumentIndex++) {
                 //Find the inlay-hint location for the argument
                 NonTerminalNode argument = argList.get(argumentIndex);
-                if (argument.kind() != SyntaxKind.POSITIONAL_ARG && argument.kind() != SyntaxKind.REST_ARG) {
+                if (argument.kind() == SyntaxKind.NAMED_ARG) {
                     break;
                 }
                 LineRange lineRange = inlayHintLocations.get(argument);
@@ -151,38 +151,45 @@ public class InlayHintProvider {
             Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(resourceAccessActionNode);
             FunctionTypeSymbol typeSymbol = ((ResourceMethodSymbol) symbol.get()).typeDescriptor();
             return symbol.map(methodSymbol -> Pair.of(typeSymbol.params().orElse(Collections.emptyList()),
-                            typeSymbol.restParam())).orElse(Pair.of(Collections.emptyList(), Optional.empty()));
+                    typeSymbol.restParam())).orElse(Pair.of(Collections.emptyList(), Optional.empty()));
         } else if (invokableNode.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
             RemoteMethodCallActionNode methodCallActionNode = (RemoteMethodCallActionNode) invokableNode;
             Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(methodCallActionNode);
-            List<ParameterSymbol> parameterSymbols = ((MethodSymbol) symbol.get()).typeDescriptor()
-                    .params().get();
-            return Pair.of(parameterSymbols, Optional.empty());
+            FunctionTypeSymbol typeSymbol = ((MethodSymbol) symbol.get()).typeDescriptor();
+            return symbol.map(methodSymbol -> Pair.of(typeSymbol.params().orElse(Collections.emptyList()),
+                    typeSymbol.restParam())).orElse(Pair.of(Collections.emptyList(), Optional.empty()));
         } else if (invokableNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
-            return getParameterSymbolsForNewExpressions(context, invokableNode);
+            return getParameterSymbolsForImplicitExpressions(context, invokableNode);
         } else if (invokableNode.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
-            return getParameterSymbolsForNewExpressions(context, invokableNode);
+            return getParameterSymbolsForExplicitExpressions(context, invokableNode);
         } else {
             FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) invokableNode;
             return getParameterSymbolsForFunctionCall(context, functionCallExpressionNode);
         }
     }
 
-    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForNewExpressions(
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForImplicitExpressions(
             InlayHintContext context,
             NonTerminalNode node) {
-        Optional<TypeSymbol> symbol;
-        if (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
-            ImplicitNewExpressionNode implicitNode = (ImplicitNewExpressionNode) node;
-            symbol = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.typeOf(implicitNode))
-                    .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
-        } else {
-            ExplicitNewExpressionNode explicitNode = (ExplicitNewExpressionNode) node;
-            symbol = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.typeOf(explicitNode))
-                    .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
-        }
+        ImplicitNewExpressionNode implicitNode = (ImplicitNewExpressionNode) node;
+        Optional<TypeSymbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(implicitNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        return getNewExpressionSymbols(symbol);
+    }
+
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForExplicitExpressions(
+            InlayHintContext context,
+            NonTerminalNode node) {
+        ExplicitNewExpressionNode explicitNode = (ExplicitNewExpressionNode) node;
+        Optional<TypeSymbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(explicitNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        return getNewExpressionSymbols(symbol);
+    }
+
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getNewExpressionSymbols(
+            Optional<TypeSymbol> symbol) {
         if (symbol.isEmpty()) {
             return Pair.of(Collections.emptyList(), Optional.empty());
         }
@@ -192,7 +199,10 @@ public class InlayHintProvider {
                             CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
                     .map(CommonUtil::getRawType).findFirst();
         }
-        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) symbol.get()).initMethod();
+        Optional<MethodSymbol> methodSymbol = symbol.flatMap(typeSymbol -> ((ClassSymbol) typeSymbol).initMethod());
+        if (methodSymbol.isEmpty()) {
+            return Pair.of(Collections.emptyList(), Optional.empty());
+        }
         return symbol.map(typeSymbol -> Pair.of(methodSymbol.get().typeDescriptor().params()
                         .orElse(Collections.emptyList()), methodSymbol.get().typeDescriptor().restParam()))
                 .orElse(Pair.of(Collections.emptyList(), Optional.empty()));
