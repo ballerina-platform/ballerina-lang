@@ -87,6 +87,9 @@ function testRegExpValueWithCharacterClass() {
     
     string:RegExp x9 = re `abc\[a-z\]A-Z${"abc"}`;
     assertEquality("abc\\[a-z\\]A-Zabc", x9.toString());
+    
+    string:RegExp x10 = re `\[${"a"}\]`;
+    assertEquality("\\[a\\]", x10.toString());
 }
 
 function testRegExpValueWithCharacterClass2() {
