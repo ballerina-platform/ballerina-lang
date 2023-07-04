@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -148,12 +149,20 @@ public class CompletionManager {
                     if (listenerType.typeKind() == TypeDescKind.UNION) {
                         return ((UnionTypeSymbol) listenerType).memberTypeDescriptors()
                                 .stream()
-                                .filter(memberType -> memberType.typeKind() == TypeDescKind.OBJECT)
+                                .filter(memberType -> getRawType(memberType).typeKind() == TypeDescKind.OBJECT)
                                 .findAny();
                     }
                     return Optional.of(listenerType);
                 }).filter(listenerType -> listenerType.isPresent() && listenerType.get().getModule().isPresent())
                 .map(listenerType -> listenerType.get().getModule().get()).collect(Collectors.toList());
+    }
+
+    private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 
     private boolean isInServiceBodyNodeContext(CompletionContext context, Node referenceNode) {

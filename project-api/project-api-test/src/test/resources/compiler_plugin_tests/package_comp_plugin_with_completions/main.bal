@@ -15,11 +15,11 @@ public class Listener {
         return err;
     }
 
-    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    public function attach(Service s, string[]|string? name = ()) returns error? {
         return self.register(s, name);
     }
 
-    public function detach(service object {} s) returns error? {
+    public function detach(Service s) returns error? {
         return ();
     }
 
@@ -30,7 +30,7 @@ public class Listener {
         return ();
     }
 
-    function register(service object {} s, string[]|string? name) returns error? {
+    function register(Service s, string[]|string? name) returns error? {
         return ();
     }
 
@@ -38,3 +38,7 @@ public class Listener {
         return ();
     }
 }
+
+public type Service distinct service object {
+
+};
