@@ -395,10 +395,43 @@ public function testDeprecatedAnonStructAsStructField() {
     _ = employee5.address.line02;   // warning
 }
 
-public function testDeprecatedAnonRecordFieldWithVarRef() {
-    int experience = 2;
-    Job job1 = {title: "SE", experience};  // warning
+type Company record {
+    int companyId;
 
-    var details = {experience: 1};
-    Job job2 = {title: "SE", ...details};  // warning
+    @deprecated
+    string name;
+
+    @deprecated
+    string city;
+
+    @deprecated
+    string country;
+};
+
+public function testDeprecatedAnonRecordFieldInInitialization() {
+     Job _ = {
+        title: "SE",
+        experience: 1  // warning
+    };
+
+    int experience = 2;
+    Job _ = {
+        title: "SE",
+        experience  // warning
+    };
+
+    var details = {experience: 2};
+    Job _ = {
+        title: "SE",
+        ...details  // warning
+    };
+
+    string city = "Berlin";
+    var companyDetails = {country: "Germany"};
+    Company _ = {
+        companyId: 1,
+        name: "Foo",    // warning
+        city: city,     // warning
+        ...companyDetails   // warning
+    };
 }

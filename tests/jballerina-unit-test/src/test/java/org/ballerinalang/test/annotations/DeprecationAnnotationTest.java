@@ -110,10 +110,13 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee5.address' is deprecated",
                 395, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'line02' is deprecated", 395, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "unused variable 'job1'", 400, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experience' is deprecated", 400, 30);
-        BAssertUtil.validateWarning(compileResult, i++, "unused variable 'job2'", 403, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experience' is deprecated", 403, 33);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experience' is deprecated", 414, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experience' is deprecated", 420, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experience' is deprecated", 426, 12);
+
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Company.name' is deprecated", 433, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Company.city' is deprecated", 434, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Company.country' is deprecated", 435, 12);
         Assert.assertEquals(compileResult.getWarnCount(), i);
     }
 
