@@ -132,7 +132,7 @@ jobs:
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" gradle.properties
 
       - name: Build Module
-        run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue -x :project-api-tests:test
+        run: ./gradlew clean build --stacktrace --scan --console=plain --continue -x :project-api-tests:test
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}

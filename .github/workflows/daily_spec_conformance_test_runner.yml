@@ -32,7 +32,7 @@ jobs:
 
       - name: Run spec-conformance-tests
         run: |
-          ./gradlew ballerina-spec-conformance-tests:test --configure-on-demand --no-daemon
+          ./gradlew ballerina-spec-conformance-tests:test --configure-on-demand
 
       - name: Spec conformance report
         uses: actions/upload-artifact@v3
