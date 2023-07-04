@@ -402,12 +402,15 @@ public class Type {
             ObjectType objType = new ObjectType();
             objType.name = objectTypeSymbol.getName().isPresent() ? objectTypeSymbol.getName().get() : "";
             objectTypeSymbol.fieldDescriptors().forEach((name, field) -> {
-                Type objField = new Type();
-                objField.name = name;
-                objField.description = documentation.isPresent() ? documentation.get().parameterMap().get(name) : "";
-                objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
-                        isTypeInclusion, module);
-                objType.memberTypes.add(objField);
+                if (field.qualifiers().contains(Qualifier.PUBLIC)) {
+                    Type objField = new Type();
+                    objField.name = name;
+                    objField.description = documentation.isPresent() ?
+                            documentation.get().parameterMap().get(name) : "";
+                    objField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation,
+                            parentTypeRefSymbol, isTypeInclusion, module);
+                    objType.memberTypes.add(objField);
+                }
             });
             List<FunctionType> functionTypes = new ArrayList<>();
             objectTypeSymbol.methods().forEach((methodName, methodSymbol) -> {
