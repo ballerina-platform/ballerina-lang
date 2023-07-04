@@ -49,6 +49,8 @@ public class TreeGenConfig {
 
     private static final String TREE_GEN_CONFIG_PROPERTIES = "treegen_config.properties";
 
+    public static final String TEMPLATE_CONFIG_DATA_KEY = "template.config.data";
+
     private final Properties props;
     private static TreeGenConfig instance = new TreeGenConfig(loadConfig());
 

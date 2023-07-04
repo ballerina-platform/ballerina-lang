@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.internal.treegen.targets.node;
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNode;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
+import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
 import io.ballerinalang.compiler.internal.treegen.targets.Target;
@@ -50,16 +51,16 @@ public abstract class AbstractNodeTarget extends Target {
     protected abstract List<String> getImportClasses(SyntaxNode syntaxNode);
 
     @Override
-    public List<SourceText> execute(SyntaxTree syntaxTree) {
+    public List<SourceText> execute(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
         return syntaxTree.nodes()
                 .stream()
-                .map(this::generateNodeClass)
+                .map(syntaxNode -> generateNodeClass(syntaxNode, templateConfig))
                 .map(treeNodeClass -> getSourceText(treeNodeClass, getOutputDir(), getClassName(treeNodeClass)))
                 .collect(Collectors.toList());
     }
 
-    private TreeNodeClass generateNodeClass(SyntaxNode syntaxNode) {
+    private TreeNodeClass generateNodeClass(SyntaxNode syntaxNode, TemplateConfig templateConfig) {
         List<String> importClassList = getImportClasses(syntaxNode);
-        return convertToTreeNodeClass(syntaxNode, getPackageName(), importClassList);
+        return convertToTreeNodeClass(syntaxNode, getPackageName(), importClassList, templateConfig);
     }
 }

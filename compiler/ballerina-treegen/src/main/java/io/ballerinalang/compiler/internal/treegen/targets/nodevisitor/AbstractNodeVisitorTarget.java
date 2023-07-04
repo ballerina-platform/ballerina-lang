@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
+import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeVisitorClass;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
@@ -53,22 +54,22 @@ public abstract class AbstractNodeVisitorTarget extends Target {
     }
 
     @Override
-    public List<SourceText> execute(SyntaxTree syntaxTree) {
-        TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree);
+    public List<SourceText> execute(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
+        TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree, templateConfig);
         return Collections.singletonList(
                 getSourceText(treeNodeVisitorClass, getOutputDir(), getClassName()));
     }
 
-    private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree) {
+    private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
         return new TreeNodeVisitorClass(getPackageName(), getClassName(),
-                getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree));
+                getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree, templateConfig));
     }
 
-    private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree) {
+    private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
         return syntaxTree.nodes()
                 .stream()
                 .map(syntaxNode -> convertToTreeNodeClass(syntaxNode,
-                        getPackageName(), new ArrayList<>()))
+                        getPackageName(), new ArrayList<>(), templateConfig))
                 .collect(Collectors.toList());
     }
 

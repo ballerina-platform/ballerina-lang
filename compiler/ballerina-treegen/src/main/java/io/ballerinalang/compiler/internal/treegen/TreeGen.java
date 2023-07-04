@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.treegen;
 
 import com.google.gson.Gson;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
+import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
 import io.ballerinalang.compiler.internal.treegen.targets.Target;
 import io.ballerinalang.compiler.internal.treegen.targets.node.ExternalNodeTarget;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_TREE_DESCRIPTOR_KEY;
+import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.TEMPLATE_CONFIG_DATA_KEY;
 
 /**
  * The driver of the treegen tool.
@@ -57,11 +59,12 @@ public class TreeGen {
         TreeGenConfig config = TreeGenConfig.getInstance();
         // 2) Get the syntax tree model by parsing the descriptor
         SyntaxTree syntaxTree = getSyntaxTree(config);
+        TemplateConfig templateConfig = getTemplateConfig(config);
         // 3) Initialize the registered source code generation targets
         List<Target> targetList = populateAvailableTargets(config);
         // 4) Run above targets and write the content to files
         targetList.stream()
-                .map(target -> target.execute(syntaxTree))
+                .map(target -> target.execute(syntaxTree, templateConfig))
                 .flatMap(Collection::stream)
                 .forEach(TreeGen::writeSourceTextFile);
     }
@@ -96,6 +99,23 @@ public class TreeGen {
             throw new TreeGenException("Syntax tree descriptor is not available. file-name: " + jsonFilePath);
         }
         return syntaxTreeStream;
+    }
+
+    private static TemplateConfig getTemplateConfig(TreeGenConfig config) {
+        try (InputStreamReader reader = new InputStreamReader(getTemplateConfigStream(config), StandardCharsets.UTF_8)) {
+            return new Gson().fromJson(reader, TemplateConfig.class);
+        } catch (Throwable e) {
+            throw new TreeGenException("Failed to parse the template config. Reason: " + e.getMessage(), e);
+        }
+    }
+
+    private static InputStream getTemplateConfigStream(TreeGenConfig config) {
+        String jsonFilePath = config.getOrThrow(TEMPLATE_CONFIG_DATA_KEY);
+        InputStream templateConfigStream = TreeGen.class.getClassLoader().getResourceAsStream(jsonFilePath);
+        if (Objects.isNull(templateConfigStream)) {
+            throw new TreeGenException("Template config data is not available. file-name: " + jsonFilePath);
+        }
+        return templateConfigStream;
     }
 
     private static void writeSourceTextFile(SourceText sourceText) {
