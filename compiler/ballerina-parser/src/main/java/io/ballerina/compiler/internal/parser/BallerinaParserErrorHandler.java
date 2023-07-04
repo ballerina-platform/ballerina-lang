@@ -1222,7 +1222,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     if (isKeyword(currentCtx)) {
                         SyntaxKind expectedTokenKind = getExpectedKeywordKind(currentCtx);
                         hasMatch = nextToken.kind == expectedTokenKind ||
-                                BallerinaParser.isKeywordMatch(expectedTokenKind, nextToken);
+                                BallerinaParser.isKeywordMatch(nextToken, expectedTokenKind);
                         break;
                     }
 
@@ -1354,6 +1354,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_KEYWORD:
             case MAP_KEYWORD:
             case COLLECT_KEYWORD:
+            case ASCENDING_KEYWORD:
+            case DESCENDING_KEYWORD:
                 return true;
             default:
                 return false;

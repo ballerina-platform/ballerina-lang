@@ -482,6 +482,8 @@ public enum ParserRuleContext {
     NOT_IS_KEYWORD("!is"),
     RE_KEYWORD("re"),
     GROUP_KEYWORD("group"),
+    ASCENDING_KEYWORD("ascending"),
+    DESCENDING_KEYWORD("descending"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

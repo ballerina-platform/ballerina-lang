@@ -6059,12 +6059,20 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
-            case IDENTIFIER_TOKEN:
-                return isContextualKeyword(nextToken)
-                        || isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)
-                        || isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, nextToken);
             default:
-                return isSimpleType(tokenKind);
+                return isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD,
+                                                SyntaxKind.JOIN_KEYWORD,
+                                                SyntaxKind.OUTER_KEYWORD,
+                                                SyntaxKind.ORDER_KEYWORD,
+                                                SyntaxKind.BY_KEYWORD,
+                                                SyntaxKind.ASCENDING_KEYWORD,
+                                                SyntaxKind.DESCENDING_KEYWORD,
+                                                SyntaxKind.LIMIT_KEYWORD,
+                                                SyntaxKind.GROUP_KEYWORD,
+                                                SyntaxKind.COLLECT_KEYWORD,
+                                                SyntaxKind.CONFLICT_KEYWORD,
+                                                SyntaxKind.EQUALS_KEYWORD)
+                        || isSimpleType(tokenKind);
         }
     }
 
@@ -9176,7 +9184,12 @@ public class BallerinaParser extends AbstractParser {
             case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
             default:
-                if (isClauseStartContextualKeyword(nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD,
+                                            SyntaxKind.JOIN_KEYWORD,
+                                            SyntaxKind.ORDER_KEYWORD,
+                                            SyntaxKind.LIMIT_KEYWORD,
+                                            SyntaxKind.GROUP_KEYWORD,
+                                            SyntaxKind.COLLECT_KEYWORD)) {
                     return parseAsyncSendAction(expression, rightArrow, name);
                 }
 
@@ -9184,7 +9197,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
         }
     }
-
     private STNode parseAsyncSendAction(STNode expression, STNode rightArrow, STNode peerWorker) {
         return STNodeFactory.createAsyncSendActionNode(expression, rightArrow, peerWorker);
     }
@@ -10948,9 +10960,18 @@ public class BallerinaParser extends AbstractParser {
             case IN_KEYWORD:
                 return true;
             default:
-                return isContextualKeyword(nextToken)
-                        || isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)
-                        || isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, nextToken)
+                return isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD,
+                                                SyntaxKind.JOIN_KEYWORD,
+                                                SyntaxKind.OUTER_KEYWORD,
+                                                SyntaxKind.ORDER_KEYWORD,
+                                                SyntaxKind.BY_KEYWORD,
+                                                SyntaxKind.ASCENDING_KEYWORD,
+                                                SyntaxKind.DESCENDING_KEYWORD,
+                                                SyntaxKind.LIMIT_KEYWORD,
+                                                SyntaxKind.GROUP_KEYWORD,
+                                                SyntaxKind.COLLECT_KEYWORD,
+                                                SyntaxKind.CONFLICT_KEYWORD,
+                                                SyntaxKind.EQUALS_KEYWORD)
                         || !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
@@ -11986,37 +12007,27 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
             case SELECT_KEYWORD:
                 return true;
-            case IDENTIFIER_TOKEN:
-                return isContextualKeyword(token);
             default:
-                return false;
+                return isKeywordMatch(token, SyntaxKind.WHERE_KEYWORD,
+                                            SyntaxKind.JOIN_KEYWORD,
+                                            SyntaxKind.OUTER_KEYWORD,
+                                            SyntaxKind.ORDER_KEYWORD,
+                                            SyntaxKind.BY_KEYWORD,
+                                            SyntaxKind.ASCENDING_KEYWORD,
+                                            SyntaxKind.DESCENDING_KEYWORD,
+                                            SyntaxKind.LIMIT_KEYWORD,
+                                            SyntaxKind.GROUP_KEYWORD,
+                                            SyntaxKind.COLLECT_KEYWORD);
         }
     }
 
-    public static boolean isContextualKeyword(STToken nextToken) {
-        return isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.ORDER_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.BY_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken);
-    }
-
-    private static boolean isClauseStartContextualKeyword(STToken nextToken) {
-        return isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.ORDER_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken);
-    }
-
-    static boolean isKeywordMatch(SyntaxKind syntaxKind, STToken token) {
-        return token.kind == SyntaxKind.IDENTIFIER_TOKEN && syntaxKind.stringValue().equals(token.text());
+    static boolean isKeywordMatch(STToken token, SyntaxKind... syntaxKinds) {
+        for (SyntaxKind s : syntaxKinds) {
+            if (s.stringValue().equals(token.text())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -12042,34 +12053,32 @@ public class BallerinaParser extends AbstractParser {
             case ON_KEYWORD:
                 return null;
             default:
-                if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.COLLECT_KEYWORD)) {
                     return parseCollectClause(isRhsExpr);
                 }
 
-                if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.GROUP_KEYWORD)) {
                     return parseGroupByClause(isRhsExpr);
                 }
 
-                if (isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD)) {
                     return parseWhereClause(isRhsExpr);
                 }
 
-                if (isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.LIMIT_KEYWORD)) {
                     return parseLimitClause(isRhsExpr);
                 }
 
-                if (isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
-                        || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.JOIN_KEYWORD, SyntaxKind.OUTER_KEYWORD)) {
                     return parseJoinClause(isRhsExpr);
                 }
 
-                if (isKeywordMatch(SyntaxKind.ORDER_KEYWORD, nextToken)
-                        || isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)
-                        || isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.ORDER_KEYWORD, SyntaxKind.ASCENDING_KEYWORD,
+                        SyntaxKind.DESCENDING_KEYWORD)) {
                     return parseOrderByClause(isRhsExpr);
                 }
 
-                if (isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.CONFLICT_KEYWORD)) {
                     return null;
                 }
 
@@ -12097,7 +12106,7 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         }
 
-        if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.COLLECT_KEYWORD)) {
             // this is to treat "collect" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.COLLECT_KEYWORD);
         }
@@ -12116,7 +12125,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.JOIN_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.JOIN_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.JOIN_KEYWORD)) {
             // this is to treat "join" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.JOIN_KEYWORD);
         }
@@ -12134,7 +12143,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.EQUALS_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.EQUALS_KEYWORD)) {
             // this is to treat "equals" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.EQUALS_KEYWORD);
         }
@@ -12165,10 +12174,8 @@ public class BallerinaParser extends AbstractParser {
             case ON_KEYWORD:
                 return true;
             default:
-                if (isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, token)) {
-                    return true;
-                }
-                return isValidExprRhsStart(token.kind, SyntaxKind.NONE);
+                return isKeywordMatch(token, SyntaxKind.CONFLICT_KEYWORD)
+                        || isValidExprRhsStart(token.kind, SyntaxKind.NONE);
         }
     }
 
@@ -12228,7 +12235,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.WHERE_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.WHERE_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.WHERE_KEYWORD)) {
             // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.WHERE_KEYWORD);
         }
@@ -12237,8 +12244,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getKeyword(STToken token, SyntaxKind kind) {
-        return STNodeFactory.createToken(kind, token.leadingMinutiae(), token.trailingMinutiae(),
-                token.diagnostics());
+        return STNodeFactory.createToken(kind, token.leadingMinutiae(), token.trailingMinutiae(), token.diagnostics());
     }
 
     /**
@@ -12251,7 +12257,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.LIMIT_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.LIMIT_KEYWORD)) {
             // this is to treat "limit" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.LIMIT_KEYWORD);
         }
@@ -12306,7 +12312,7 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         }
 
-        if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.GROUP_KEYWORD)) {
             // this is to treat "group" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.GROUP_KEYWORD);
         }
@@ -12326,7 +12332,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.ORDER_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.ORDER_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.ORDER_KEYWORD)) {
             // this is to treat "order" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.ORDER_KEYWORD);
         }
@@ -12344,7 +12350,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.BY_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.BY_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.BY_KEYWORD)) {
             // this is to treat "by" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.BY_KEYWORD);
         }
@@ -12462,8 +12468,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return true;
             default:
-                if (isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)
-                        || isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)) {
+                if (isKeywordMatch(nextToken, SyntaxKind.ASCENDING_KEYWORD, SyntaxKind.DESCENDING_KEYWORD)) {
                     return false;
                 }
                 return isQueryClauseStartToken(nextToken);
@@ -12477,11 +12482,14 @@ public class BallerinaParser extends AbstractParser {
             case DO_KEYWORD:
             case FROM_KEYWORD:
                 return true;
-            case IDENTIFIER_TOKEN:
-                return isClauseStartContextualKeyword(nextToken)
-                        || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken);
             default:
-                return false;
+                return isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD,
+                                                SyntaxKind.JOIN_KEYWORD,
+                                                SyntaxKind.ORDER_KEYWORD,
+                                                SyntaxKind.LIMIT_KEYWORD,
+                                                SyntaxKind.GROUP_KEYWORD,
+                                                SyntaxKind.COLLECT_KEYWORD,
+                                                SyntaxKind.OUTER_KEYWORD);
         }
     }
 
@@ -12572,10 +12580,10 @@ public class BallerinaParser extends AbstractParser {
 
         if (nextToken.kind == SyntaxKind.ASCENDING_KEYWORD || nextToken.kind == SyntaxKind.DESCENDING_KEYWORD) {
             orderDirection = consume();
-        } else if (isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)) {
+        } else if (isKeywordMatch(nextToken, SyntaxKind.ASCENDING_KEYWORD)) {
             // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
             orderDirection = getKeyword(consume(), SyntaxKind.ASCENDING_KEYWORD);
-        } else if (isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)) {
+        } else if (isKeywordMatch(nextToken, SyntaxKind.DESCENDING_KEYWORD)) {
             // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
             orderDirection = getKeyword(consume(), SyntaxKind.DESCENDING_KEYWORD);
         } else {
@@ -12626,7 +12634,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOnConflictClause(boolean isRhsExpr) {
         STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.ON_KEYWORD && isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)) {
+        if (nextToken.kind != SyntaxKind.ON_KEYWORD && !isKeywordMatch(nextToken, SyntaxKind.CONFLICT_KEYWORD)) {
             return STNodeFactory.createEmptyNode();
         }
 
@@ -12648,7 +12656,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.CONFLICT_KEYWORD) {
             return consume();
         }
-        if (isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, token)) {
+        if (isKeywordMatch(token, SyntaxKind.CONFLICT_KEYWORD)) {
             // this is to treat "conflict" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.CONFLICT_KEYWORD);
         }
@@ -12690,7 +12698,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OUTER_KEYWORD) {
             outerKeyword = consume();
-        } else if (isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)) {
+        } else if (isKeywordMatch(nextToken, SyntaxKind.OUTER_KEYWORD)) {
             outerKeyword = getKeyword(consume(), SyntaxKind.OUTER_KEYWORD);
         } else {
             outerKeyword = STNodeFactory.createEmptyNode();
