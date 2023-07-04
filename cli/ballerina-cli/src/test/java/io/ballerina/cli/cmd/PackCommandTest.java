@@ -95,17 +95,14 @@ public class PackCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pack a Standalone Ballerina file")
-    public void testPackStandaloneFile() {
+    public void testPackStandaloneFile() throws IOException {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
-        try {
-            packCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                    .contains("'-c' or '--compile' can only be used with a Ballerina package."));
-        }
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains(" bal pack can only be used with a Ballerina package."));
     }
 
     @Test(description = "Pack a package with platform libs")
@@ -358,5 +355,17 @@ public class PackCommandTest extends BaseCommandTest {
                 .resolve("package_plugin_code_modify_user_template").resolve("main.bal"));
         Assert.assertFalse(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
                 "returns error? {\n}"));
+    }
+
+    @Test(description = "Pack a library package with platform libraries")
+    public void testPackProjectWithPlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("WARNING: Package is not verified with GraalVM."));
     }
 }

@@ -22,7 +22,7 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <!-- Ballerina BIR Spec Test Cases. -->
-    <test name="ballerina-bir-spec-test-suite" parallel="false">
+    <test name="ballerina-bir-spec-test-suite">
         <classes>
             <class name="org.ballerinalang.birspec.BIRSpecTest"/>
         </classes>

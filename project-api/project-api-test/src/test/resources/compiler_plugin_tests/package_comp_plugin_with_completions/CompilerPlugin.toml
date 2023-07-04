@@ -1,0 +1,5 @@
+[plugin]
+class = "io.ballerina.plugins.completions.CompilerPluginWithCompletionProviders"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/compiler-plugin-with-completion-providers-1.0.0.jar"

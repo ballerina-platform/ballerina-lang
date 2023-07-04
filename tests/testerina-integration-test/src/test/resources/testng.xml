@@ -22,7 +22,7 @@ under the License.
 <suite name="testerina-intg-test-suite">
 
     <!-- ballerina.test Related Test Cases. -->
-    <test name="testerina-intg-tests" parallel="false">
+    <test name="testerina-intg-tests">
         <parameter name="enableTesterinaTests" value="true" />
         <groups>
             <run>
