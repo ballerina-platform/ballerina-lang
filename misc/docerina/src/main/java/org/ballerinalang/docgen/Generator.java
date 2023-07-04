@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
@@ -59,6 +60,7 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -78,8 +80,10 @@ import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.FunctionKind;
 import org.ballerinalang.docgen.generator.model.Listener;
+import org.ballerinalang.docgen.generator.model.MapType;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Record;
+import org.ballerinalang.docgen.generator.model.TableType;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.generator.model.types.FunctionType;
@@ -99,6 +103,11 @@ public class Generator {
     private static final String EMPTY_STRING = "";
     private static final String RETURN_PARAM_NAME = "return";
     public static final String REST_FIELD_DESCRIPTION = "Rest field";
+    public static final String LISTENER_START_METHOD_NAME = "'start";
+    public static final String LISTENER_ATTACH_METHOD_NAME = "attach";
+    public static final String LISTENER_DETACH_METHOD_NAME = "detach";
+    public static final String LISTENER_IMMEDIATE_STOP_METHOD_NAME = "immediateStop";
+    public static final String LISTENER_GRACEFUL_STOP_METHOD_NAME = "gracefulStop";
 
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.
@@ -171,10 +180,12 @@ public class Generator {
 
         String typeName = typeDefinition.typeName().text();
         Optional<MetadataNode> metaDataNode = typeDefinition.metadata();
-        if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
+        SyntaxKind syntaxKind = typeDefinition.typeDescriptor().kind();
+
+        if (syntaxKind.equals(SyntaxKind.RECORD_TYPE_DESC)) {
             module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.OBJECT_TYPE_DESC)) {
             ObjectTypeDescriptorNode objectTypeDescriptorNode =
                     (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
             BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
@@ -184,7 +195,7 @@ public class Generator {
             } else {
                 module.objectTypes.add(bObj);
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.UNION_TYPE_DESC)) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (unionType.memberTypes.stream().allMatch(type ->
                     (type.category != null && type.category.equals("errors")) ||
@@ -193,20 +204,20 @@ public class Generator {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
                         Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module)));
             } else {
-                module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
+                module.unionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
                         typeName, metaDataNode, semanticModel, module));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        } else if (syntaxKind.equals(SyntaxKind.SIMPLE_NAME_REFERENCE) ||
+                syntaxKind.equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (refType.category.equals("errors")) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
                         refType));
             } else {
-                module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                        semanticModel, module));
+                module.simpleNameReferenceTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName,
+                        metaDataNode, semanticModel, module));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.ERROR_TYPE_DESC) {
             Type detailType = null;
@@ -219,7 +230,7 @@ public class Generator {
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.OBJECT_TYPE_DESC) {
             ObjectTypeDescriptorNode objectTypeDescriptorNode = (ObjectTypeDescriptorNode)
@@ -233,7 +244,7 @@ public class Generator {
             } else {
                 module.objectTypes.add(bObj);
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.PARENTHESISED_TYPE_DESC) {
             ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
@@ -242,7 +253,7 @@ public class Generator {
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
@@ -259,7 +270,7 @@ public class Generator {
                 bType.isAnonymousUnionType = true;
                 module.types.add(bType);
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.ERROR_TYPE_DESC)) {
             ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
                     (ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor();
             Type type = null;
@@ -268,24 +279,48 @@ public class Generator {
                         semanticModel, module);
             }
             module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
-            module.types.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
+        } else if (syntaxKind.equals(SyntaxKind.TUPLE_TYPE_DESC)) {
+            module.tupleTypes.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.TABLE_TYPE_DESC)) {
+            module.tableTypes.add(getTableTypeModel((TableTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.MAP_TYPE_DESC)) {
+            module.mapTypes.add(getMapTypeModel((MapTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.INTERSECTION_TYPE_DESC)) {
             addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
                     metaDataNode, semanticModel, module);
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
-            module.types.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
-            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel,
-                    module));
+        } else if (syntaxKind.equals(SyntaxKind.TYPEDESC_TYPE_DESC)) {
+            module.typeDescriptorTypes.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.
+                            typeDescriptor(), typeName, metaDataNode, semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.INT_TYPE_DESC)) {
+            module.integerTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.DECIMAL_TYPE_DESC)) {
+            module.decimalTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.XML_TYPE_DESC)) {
+            module.xmlTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.FUNCTION_TYPE_DESC)) {
+            module.functionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.ANYDATA_TYPE_DESC)) {
+            module.anyDataTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.STRING_TYPE_DESC)) {
+            module.stringTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.ANY_TYPE_DESC)) {
+            module.anyTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.ARRAY_TYPE_DESC)) {
+            module.arrayTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
+        } else if (syntaxKind.equals(SyntaxKind.STREAM_TYPE_DESC)) {
+            module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                    semanticModel, module));
         } else {
             return false;
         }
@@ -403,7 +438,7 @@ public class Generator {
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
-        module.types.add(bType);
+        module.intersectionTypes.add(bType);
     }
 
     private static BType getTupleTypeModel(TupleTypeDescriptorNode typeDescriptor, String tupleTypeName,
@@ -442,6 +477,28 @@ public class Generator {
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
+    }
+
+    private static MapType getMapTypeModel(MapTypeDescriptorNode typeDescriptor, String typeName,
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
+                                           Module module) {
+        Type type = typeDescriptor.mapTypeParamsNode().isMissing()
+                ? null : Type.fromNode(typeDescriptor, semanticModel, module);
+
+        return new MapType(typeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), type);
+    }
+
+    private static TableType getTableTypeModel(TableTypeDescriptorNode typeDescriptor, String typeName,
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
+                                           Module module) {
+        Type rowParameterType = typeDescriptor.rowTypeParameterNode().isMissing()
+                ? null : Type.fromNode(typeDescriptor, semanticModel, module);
+        Type keyConstraintType = typeDescriptor.keyConstraintNode().isEmpty()
+                ? null : Type.fromNode(typeDescriptor.keyConstraintNode().get(), semanticModel, module);
+
+        return new TableType(typeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), rowParameterType, keyConstraintType);
     }
 
     private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel,
@@ -485,11 +542,36 @@ public class Generator {
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
-                || name.equals("Listener")) {
+                || isListenerModel(functions)) {
             return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
             return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
+    }
+
+    private static boolean isListenerModel(List<Function> classFunctions) {
+        boolean isStartIncluded = false;
+        boolean isAttachIncluded = false;
+        boolean isDetachIncluded = false;
+        boolean isGracefulStopIncluded = false;
+        boolean isImmediateStopIncluded = false;
+
+        for (Function function : classFunctions) {
+            if (function.name.equals(LISTENER_START_METHOD_NAME)) {
+                isStartIncluded = true;
+            } else if (function.name.equals(LISTENER_ATTACH_METHOD_NAME)) {
+                isAttachIncluded = true;
+            } else if (function.name.equals(LISTENER_DETACH_METHOD_NAME)) {
+                isDetachIncluded = true;
+            } else if (function.name.equals(LISTENER_GRACEFUL_STOP_METHOD_NAME)) {
+                isGracefulStopIncluded = true;
+            } else if (function.name.equals(LISTENER_IMMEDIATE_STOP_METHOD_NAME)) {
+                isImmediateStopIncluded = true;
+            }
+        }
+
+        return isStartIncluded && isAttachIncluded && isDetachIncluded && isGracefulStopIncluded &&
+                isImmediateStopIncluded;
     }
 
     private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
