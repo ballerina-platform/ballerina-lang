@@ -172,10 +172,6 @@ test {
         events "failed"
         exceptionFormat "full"
     }
-
-    jacoco {
-        destinationFile = file("$buildDir/jacoco/jacoco.exec")
-    }
 }
 
 jacocoTestReport {
@@ -195,7 +191,8 @@ check {
     dependsOn createJavadoc
 }
 
-task jacocoMergeExec(type: JacocoReport) {
+task jacocoMergeExec(type: JacocoMerge) {
+    destinationFile = file("$buildDir/jacoco/jacoco.exec")
     executionData = fileTree("$buildDir/jacoco/").matching {
         include "**.exec"
     } as FileCollection
