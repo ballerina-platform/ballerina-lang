@@ -6051,7 +6051,6 @@ public class BallerinaParser extends AbstractParser {
             case IN_KEYWORD:
             case FROM_KEYWORD:
             case LET_KEYWORD:
-            case SELECT_KEYWORD:
             case DO_KEYWORD:
             case COLON_TOKEN:
             case ON_KEYWORD:
@@ -6071,7 +6070,8 @@ public class BallerinaParser extends AbstractParser {
                                                 SyntaxKind.GROUP_KEYWORD,
                                                 SyntaxKind.COLLECT_KEYWORD,
                                                 SyntaxKind.CONFLICT_KEYWORD,
-                                                SyntaxKind.EQUALS_KEYWORD)
+                                                SyntaxKind.EQUALS_KEYWORD,
+                                                SyntaxKind.SELECT_KEYWORD)
                         || isSimpleType(tokenKind);
         }
     }
@@ -9181,7 +9181,6 @@ public class BallerinaParser extends AbstractParser {
             case FROM_KEYWORD:
             case ON_KEYWORD:
             case LET_KEYWORD:
-            case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
             default:
                 if (isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD,
@@ -9189,7 +9188,8 @@ public class BallerinaParser extends AbstractParser {
                                             SyntaxKind.ORDER_KEYWORD,
                                             SyntaxKind.LIMIT_KEYWORD,
                                             SyntaxKind.GROUP_KEYWORD,
-                                            SyntaxKind.COLLECT_KEYWORD)) {
+                                            SyntaxKind.COLLECT_KEYWORD,
+                                            SyntaxKind.SELECT_KEYWORD)) {
                     return parseAsyncSendAction(expression, rightArrow, name);
                 }
 
@@ -12005,7 +12005,6 @@ public class BallerinaParser extends AbstractParser {
         switch (token.kind) {
             case FROM_KEYWORD:
             case LET_KEYWORD:
-            case SELECT_KEYWORD:
                 return true;
             default:
                 return isKeywordMatch(token, SyntaxKind.WHERE_KEYWORD,
@@ -12017,7 +12016,8 @@ public class BallerinaParser extends AbstractParser {
                                             SyntaxKind.DESCENDING_KEYWORD,
                                             SyntaxKind.LIMIT_KEYWORD,
                                             SyntaxKind.GROUP_KEYWORD,
-                                            SyntaxKind.COLLECT_KEYWORD);
+                                            SyntaxKind.COLLECT_KEYWORD,
+                                            SyntaxKind.SELECT_KEYWORD);
         }
     }
 
@@ -12046,13 +12046,15 @@ public class BallerinaParser extends AbstractParser {
                 return parseFromClause(isRhsExpr, allowActions);
             case LET_KEYWORD:
                 return parseLetClause(isRhsExpr, allowActions);
-            case SELECT_KEYWORD:
-                return parseSelectClause(isRhsExpr, allowActions);
             case DO_KEYWORD:
             case SEMICOLON_TOKEN:
             case ON_KEYWORD:
                 return null;
             default:
+                if (isKeywordMatch(nextToken, SyntaxKind.SELECT_KEYWORD)) {
+                    return parseSelectClause(isRhsExpr, allowActions);
+                }
+
                 if (isKeywordMatch(nextToken, SyntaxKind.COLLECT_KEYWORD)) {
                     return parseCollectClause(isRhsExpr);
                 }
@@ -12477,7 +12479,6 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isQueryClauseStartToken(STToken nextToken) {
         switch (nextToken.kind) {
-            case SELECT_KEYWORD:
             case LET_KEYWORD:
             case DO_KEYWORD:
             case FROM_KEYWORD:
@@ -12489,7 +12490,8 @@ public class BallerinaParser extends AbstractParser {
                                                 SyntaxKind.LIMIT_KEYWORD,
                                                 SyntaxKind.GROUP_KEYWORD,
                                                 SyntaxKind.COLLECT_KEYWORD,
-                                                SyntaxKind.OUTER_KEYWORD);
+                                                SyntaxKind.OUTER_KEYWORD,
+                                                SyntaxKind.SELECT_KEYWORD);
         }
     }
 
@@ -12617,10 +12619,16 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.SELECT_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.SELECT_KEYWORD);
-            return parseSelectKeyword();
         }
+
+        if (isKeywordMatch(token, SyntaxKind.SELECT_KEYWORD)) {
+            // this is to treat "select" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.SELECT_KEYWORD);
+        }
+
+        recover(token, ParserRuleContext.SELECT_KEYWORD);
+        return parseSelectKeyword();
+
     }
 
     /**
