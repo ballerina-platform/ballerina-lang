@@ -319,7 +319,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.QUERY_EXPRESSION);
 
         STNode intermediateClause = null;
-        if (!isEndOfIntermediateClause(peek().kind)) {
+        if (!isEndOfIntermediateClause(peek())) {
             intermediateClause = parseIntermediateClause(true, allowActions);
         }
 
@@ -11904,7 +11904,7 @@ public class BallerinaParser extends AbstractParser {
         STNode intermediateClause;
         STNode selectClause = null;
         STNode collectClause = null;
-        while (!isEndOfIntermediateClause(peek().kind)) {
+        while (!isEndOfIntermediateClause(peek())) {
             intermediateClause = parseIntermediateClause(isRhsExpr, allowActions);
             if (intermediateClause == null) {
                 break;
@@ -11993,7 +11993,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private static boolean isContextualKeyword(STToken nextToken) {
+    public static boolean isContextualKeyword(STToken nextToken) {
         return isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)
                 || isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
                 || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)
@@ -12142,8 +12142,8 @@ public class BallerinaParser extends AbstractParser {
         return parseEqualsKeyword();
     }
 
-    private boolean isEndOfIntermediateClause(SyntaxKind tokenKind) {
-        switch (tokenKind) {
+    private boolean isEndOfIntermediateClause(STToken token) {
+        switch (token.kind) {
             case CLOSE_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case CLOSE_BRACKET_TOKEN:
@@ -12163,10 +12163,12 @@ public class BallerinaParser extends AbstractParser {
             case FINAL_KEYWORD:
             case DO_KEYWORD:
             case ON_KEYWORD:
-            case CONFLICT_KEYWORD:
                 return true;
             default:
-                return isValidExprRhsStart(tokenKind, SyntaxKind.NONE);
+                if (isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, token)) {
+                    return true;
+                }
+                return isValidExprRhsStart(token.kind, SyntaxKind.NONE);
         }
     }
 
@@ -12455,13 +12457,15 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfOrderKeys(STToken nextToken) {
         switch (nextToken.kind) {
             case COMMA_TOKEN:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
                 return false;
             case SEMICOLON_TOKEN:
             case EOF_TOKEN:
                 return true;
             default:
+                if (isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)
+                        || isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)) {
+                    return false;
+                }
                 return isQueryClauseStartToken(nextToken);
         }
     }
@@ -12622,7 +12626,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOnConflictClause(boolean isRhsExpr) {
         STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.ON_KEYWORD && nextToken.kind != SyntaxKind.CONFLICT_KEYWORD) {
+        if (nextToken.kind != SyntaxKind.ON_KEYWORD && isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)) {
             return STNodeFactory.createEmptyNode();
         }
 
