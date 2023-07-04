@@ -96,9 +96,9 @@ public class TreeNodeClass {
         return syntaxKind;
     }
 
-    public String createdYear() {return createdYear;}
+    public String createdYear() { return createdYear; }
 
-    public String since() {return since;}
+    public String since() { return since; }
 
     public String externalClassName() {
         return externalClassName;

@@ -102,7 +102,8 @@ public class TreeGen {
     }
 
     private static TemplateConfig getTemplateConfig(TreeGenConfig config) {
-        try (InputStreamReader reader = new InputStreamReader(getTemplateConfigStream(config), StandardCharsets.UTF_8)) {
+        try (InputStreamReader reader =
+                     new InputStreamReader(getTemplateConfigStream(config), StandardCharsets.UTF_8)) {
             return new Gson().fromJson(reader, TemplateConfig.class);
         } catch (Throwable e) {
             throw new TreeGenException("Failed to parse the template config. Reason: " + e.getMessage(), e);
