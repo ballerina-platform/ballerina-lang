@@ -17,35 +17,32 @@
  */
 package io.ballerinalang.compiler.internal.treegen.model.json;
 
-import java.util.HashMap;
-import java.util.List;
-
 /**
- * TemplateConfig.
+ * TemplateNodeConfig.
  *
  * @since 2.8.0
  */
-public class TemplateConfig {
+public class TemplateNodeConfig {
 
-    private final List<TemplateNodeConfig> nodes;
-    private HashMap<String, TemplateNodeConfig> nodeMap;
+    private final String name;
+    private String createdYear;
+    private String since;
 
-    public TemplateConfig(List<TemplateNodeConfig> nodes) {
-        this.nodes = nodes;
+    public TemplateNodeConfig(String name, String createdYear, String since) {
+        this.name = name;
+        this.createdYear = createdYear;
+        this.since = since;
     }
 
-    public TemplateNodeConfig getNode(String name) {
-        populateMap();
-        return nodeMap.get(name);
+    public String getCreatedYear() {
+        return createdYear;
     }
 
-    private void populateMap() {
-        if (nodeMap != null) {
-            return;
-        }
-        nodeMap = new HashMap<>();
-        for (TemplateNodeConfig node : nodes) {
-            nodeMap.put(node.getName(), node);
-        }
+    public String getSince() {
+        return since;
+    }
+
+    public String getName() {
+        return name;
     }
 }

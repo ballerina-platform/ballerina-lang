@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
 public class ReAtomCharOrEscapeNode extends NonTerminalNode {
 
@@ -70,7 +70,7 @@ public class ReAtomCharOrEscapeNode extends NonTerminalNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2.0.0
+     * @since 2201.3.0
      */
     public static class ReAtomCharOrEscapeNodeModifier {
         private final ReAtomCharOrEscapeNode oldNode;

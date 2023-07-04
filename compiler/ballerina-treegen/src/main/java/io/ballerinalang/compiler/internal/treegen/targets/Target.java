@@ -25,6 +25,7 @@ import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNode;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeAttribute;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
 import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
+import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.Field;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 
@@ -64,10 +65,10 @@ public abstract class Target {
                                                    String packageName,
                                                    List<String> importClassNameList,
                                                    TemplateConfig templateConfig) {
+        TemplateNodeConfig nodeConfig = templateConfig.getNode(syntaxNode.getName());
         TreeNodeClass nodeClass = new TreeNodeClass(packageName,
                 syntaxNode.getName(), syntaxNode.isAbstract(), syntaxNode.getBase(),
-                getFields(syntaxNode), syntaxNode.getKind(), templateConfig.getCreatedYear(),
-                templateConfig.getSince());
+                getFields(syntaxNode), syntaxNode.getKind(), nodeConfig);
 
         // TODO Can we pass this as part of the constructor
         nodeClass.addImports(importClassNameList);
