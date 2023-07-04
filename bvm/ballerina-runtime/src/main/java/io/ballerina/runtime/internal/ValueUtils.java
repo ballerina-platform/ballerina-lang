@@ -61,25 +61,29 @@ public class ValueUtils {
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
         try {
-            MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
-            BRecordType type = (BRecordType) TypeUtils.getReferredType(recordValue.getType());
-            Map<String, FPValue> defaultValues = type.getDefaultValues();
-            if (defaultValues.isEmpty()) {
-                return recordValue;
-            }
-            for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
-                recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call(
-                        new Object[] {Scheduler.getStrand()}));
-            }
-            return recordValue;
+            return getPopulatedRecordValue(valueCreator, recordTypeName);
         } catch (BError e) {
             // If record type definition not found, get it from test module.
             String testLookupKey = ValueCreator.getLookupKey(packageId, true);
             if (ValueCreator.containsValueCreator(testLookupKey)) {
-                return ValueCreator.getValueCreator(testLookupKey).createRecordValue(recordTypeName);
+                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName);
             }
             throw e;
         }
+    }
+
+    private static MapValue<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName) {
+        MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
+        BRecordType type = (BRecordType) TypeUtils.getReferredType(recordValue.getType());
+        Map<String, FPValue> defaultValues = type.getDefaultValues();
+        if (defaultValues.isEmpty()) {
+            return recordValue;
+        }
+        for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
+            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call(
+                    new Object[] {Scheduler.getStrand()}));
+        }
+        return recordValue;
     }
 
     /**
