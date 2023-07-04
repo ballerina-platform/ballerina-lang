@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.NonCatProperty;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -311,6 +312,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private boolean hasOtherTypeInArgs(Object[] args) {
         BType constraint;
         BType bType;
+        BTypeSymbol bTypeSymbol;
         for (Object arg : args) {
             if (arg instanceof BType) {
                 switch (((BType) arg).getKind()) {
@@ -366,21 +368,30 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                         }
                         break;
                     case RECORD:
-                        bType = ((BRecordType) arg).tsymbol.type;
-                        if (bType.getKind() == TypeKind.OTHER) {
-                            return true;
+                        bTypeSymbol = ((BRecordType) arg).tsymbol;
+                        if (bTypeSymbol != null) {
+                            bType = bTypeSymbol.type;
+                            if (bType != null && bType.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
                         }
                         break;
                     case ARRAY:
-                        bType = ((BArrayType) arg).tsymbol.type;
-                        if (bType.getKind() == TypeKind.OTHER) {
-                            return true;
+                        bTypeSymbol =  ((BArrayType) arg).tsymbol;
+                        if (bTypeSymbol != null) {
+                            bType = bTypeSymbol.type;
+                            if (bType != null && bType.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
                         }
                         break;
                     case ERROR:
-                        bType = ((BErrorType) arg).tsymbol.type;
-                        if (bType.getKind() == TypeKind.OTHER) {
-                            return true;
+                        bTypeSymbol = ((BErrorType) arg).tsymbol;
+                        if (bTypeSymbol != null) {
+                            bType = bTypeSymbol.type;
+                            if (bType != null && bType.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
                         }
                         break;
                     default:
