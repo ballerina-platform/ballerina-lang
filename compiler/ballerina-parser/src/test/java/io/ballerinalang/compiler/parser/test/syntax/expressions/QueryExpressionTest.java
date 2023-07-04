@@ -228,7 +228,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testQueryWithOnConflictAndLimitClauseRecovery() {
-        test("from int a in b select c on d", "query-expr/query_expr_assert_47.json");
+        testFile("query-expr/query_expr_source_47.bal", "query-expr/query_expr_assert_47.json");
         test("from int a in b select c conflict d", "query-expr/query_expr_assert_48.json");
         test("from int a in b limit select", "query-expr/query_expr_assert_49.json");
         test("from int a in b limit select conflict", "query-expr/query_expr_assert_50.json");

@@ -512,6 +512,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBracedExpressionNode.createUnlinkedFacade();
     }
 
+    /**
+     * @deprecated Use {@link #createCheckExpressionNode(SyntaxKind, Token, ExpressionNode, OnFailCheckNode)} instead.
+     */
+    @Deprecated
+    public static CheckExpressionNode createCheckExpressionNode(
+            SyntaxKind kind,
+            Token checkKeyword,
+            ExpressionNode expression) {
+        return createCheckExpressionNode(
+                kind,
+                checkKeyword,
+                expression,
+                null);
+    }
+
     public static CheckExpressionNode createCheckExpressionNode(
             SyntaxKind kind,
             Token checkKeyword,
