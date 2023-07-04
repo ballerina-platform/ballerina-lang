@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -54,6 +56,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -2203,6 +2206,17 @@ public class JvmInstructionGen {
 
     private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
         jvmTypeGen.loadType(this.mv, inst.enclosedType);
+        this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
+        this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
+        this.loadVar(inst.lhsOp.variableDcl);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, inst.enclosedType.tsymbol.pkgID,
+                (SelectivelyImmutableReferenceType) inst.enclosedType);
+        if (immutableType.isEmpty()) {
+            return;
+        }
+        BRecordType effectiveType = (BRecordType) immutableType.get().effectiveType;
+        jvmTypeGen.loadType(this.mv, effectiveType);
         this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
         this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
         this.loadVar(inst.lhsOp.variableDcl);
