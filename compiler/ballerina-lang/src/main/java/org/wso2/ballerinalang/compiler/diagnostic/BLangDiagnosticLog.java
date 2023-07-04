@@ -38,13 +38,19 @@ import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.NonCatProperty;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -304,6 +310,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     private boolean hasOtherTypeInArgs(Object[] args) {
         BType constraint;
+        BType bType;
         for (Object arg : args) {
             if (arg instanceof BType) {
                 switch (((BType) arg).getKind()) {
@@ -325,6 +332,21 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                             }
                         }
                         break;
+                    case STREAM:
+                        constraint = ((BStreamType) arg).getConstraint();
+                        if (constraint.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                        break;
+                    case XML:
+                        if (!(arg instanceof BXMLSubType)) {
+                            constraint = ((BXMLType) arg).constraint;
+                            if (constraint.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
+                            break;
+                        }
+                        break;
                     case TABLE:
                         constraint = ((BTableType) arg).getConstraint();
                         if (constraint.getKind() == TypeKind.OTHER) {
@@ -340,6 +362,24 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                     case TYPEDESC:
                         constraint = ((BTypedescType) arg).getConstraint();
                         if (constraint.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                        break;
+                    case RECORD:
+                        bType = ((BRecordType) arg).tsymbol.type;
+                        if (bType.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                        break;
+                    case ARRAY:
+                        bType = ((BArrayType) arg).tsymbol.type;
+                        if (bType.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                        break;
+                    case ERROR:
+                        bType = ((BErrorType) arg).tsymbol.type;
+                        if (bType.getKind() == TypeKind.OTHER) {
                             return true;
                         }
                         break;
