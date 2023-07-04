@@ -68,7 +68,7 @@ public class ValueUtils {
                 return recordValue;
             }
             for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
-                recordValue.put(StringUtils.fromString(field.getKey()), field.getValue().call(
+                recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call(
                         new Object[] {Scheduler.getStrand()}));
             }
             return recordValue;
