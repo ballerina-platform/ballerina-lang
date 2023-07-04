@@ -24,12 +24,10 @@ package io.ballerinalang.compiler.internal.treegen.model.json;
  */
 public class TemplateNodeConfig {
 
-    private final String name;
     private String createdYear;
     private String since;
 
-    public TemplateNodeConfig(String name, String createdYear, String since) {
-        this.name = name;
+    public TemplateNodeConfig(String createdYear, String since) {
         this.createdYear = createdYear;
         this.since = since;
     }
@@ -40,9 +38,5 @@ public class TemplateNodeConfig {
 
     public String getSince() {
         return since;
-    }
-
-    public String getName() {
-        return name;
     }
 }

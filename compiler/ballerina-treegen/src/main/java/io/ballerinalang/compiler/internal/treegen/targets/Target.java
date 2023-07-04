@@ -24,7 +24,6 @@ import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNode;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeAttribute;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.Field;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
@@ -34,6 +33,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -57,15 +57,16 @@ public abstract class Target {
         this.config = config;
     }
 
-    public abstract List<SourceText> execute(SyntaxTree syntaxTree, TemplateConfig templateConfig);
+    public abstract List<SourceText> execute(SyntaxTree syntaxTree,
+                                             HashMap<String, TemplateNodeConfig> templateConfig);
 
     protected abstract String getTemplateName();
 
     protected TreeNodeClass convertToTreeNodeClass(SyntaxNode syntaxNode,
                                                    String packageName,
                                                    List<String> importClassNameList,
-                                                   TemplateConfig templateConfig) {
-        TemplateNodeConfig nodeConfig = templateConfig.getNode(syntaxNode.getName());
+                                                   HashMap<String, TemplateNodeConfig> templateConfig) {
+        TemplateNodeConfig nodeConfig = templateConfig.get(syntaxNode.getName());
         TreeNodeClass nodeClass = new TreeNodeClass(packageName,
                 syntaxNode.getName(), syntaxNode.isAbstract(), syntaxNode.getBase(),
                 getFields(syntaxNode), syntaxNode.getKind(), nodeConfig);

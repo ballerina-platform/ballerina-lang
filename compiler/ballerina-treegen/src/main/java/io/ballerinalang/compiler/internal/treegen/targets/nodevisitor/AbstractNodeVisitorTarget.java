@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
+import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeVisitorClass;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
@@ -27,6 +27,7 @@ import io.ballerinalang.compiler.internal.treegen.targets.Target;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,18 +55,20 @@ public abstract class AbstractNodeVisitorTarget extends Target {
     }
 
     @Override
-    public List<SourceText> execute(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
+    public List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String, TemplateNodeConfig> templateConfig) {
         TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree, templateConfig);
         return Collections.singletonList(
                 getSourceText(treeNodeVisitorClass, getOutputDir(), getClassName()));
     }
 
-    private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
+    private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree,
+                                                          HashMap<String, TemplateNodeConfig> templateConfig) {
         return new TreeNodeVisitorClass(getPackageName(), getClassName(),
                 getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree, templateConfig));
     }
 
-    private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree, TemplateConfig templateConfig) {
+    private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree,
+                                                    HashMap<String, TemplateNodeConfig> templateConfig) {
         return syntaxTree.nodes()
                 .stream()
                 .map(syntaxNode -> convertToTreeNodeClass(syntaxNode,

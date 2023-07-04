@@ -18,8 +18,9 @@
 package io.ballerinalang.compiler.internal.treegen;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateConfig;
+import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
 import io.ballerinalang.compiler.internal.treegen.targets.Target;
 import io.ballerinalang.compiler.internal.treegen.targets.node.ExternalNodeTarget;
@@ -37,10 +38,12 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,7 +62,7 @@ public class TreeGen {
         TreeGenConfig config = TreeGenConfig.getInstance();
         // 2) Get the syntax tree model by parsing the descriptor
         SyntaxTree syntaxTree = getSyntaxTree(config);
-        TemplateConfig templateConfig = getTemplateConfig(config);
+        HashMap<String, TemplateNodeConfig> templateConfig = getTemplateConfig(config);
         // 3) Initialize the registered source code generation targets
         List<Target> targetList = populateAvailableTargets(config);
         // 4) Run above targets and write the content to files
@@ -101,10 +104,12 @@ public class TreeGen {
         return syntaxTreeStream;
     }
 
-    private static TemplateConfig getTemplateConfig(TreeGenConfig config) {
+    private static HashMap<String, TemplateNodeConfig> getTemplateConfig(TreeGenConfig config) {
         try (InputStreamReader reader =
                      new InputStreamReader(getTemplateConfigStream(config), StandardCharsets.UTF_8)) {
-            return new Gson().fromJson(reader, TemplateConfig.class);
+
+            Type mapType = new TypeToken<HashMap<String, TemplateNodeConfig>>() { }.getType();
+            return new Gson().fromJson(reader, mapType);
         } catch (Throwable e) {
             throw new TreeGenException("Failed to parse the template config. Reason: " + e.getMessage(), e);
         }
