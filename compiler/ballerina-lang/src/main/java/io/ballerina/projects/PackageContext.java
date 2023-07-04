@@ -102,7 +102,8 @@ class PackageContext {
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
         Map<ModuleId, ModuleContext> moduleContextMap = new HashMap<>();
         for (ModuleConfig moduleConfig : packageConfig.otherModules()) {
-            moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig));
+            moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig,
+                    packageConfig.isSyntaxTreeDisabled()));
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),

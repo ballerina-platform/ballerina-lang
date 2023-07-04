@@ -451,7 +451,7 @@ public class Package {
          * @return Package.Modifier which contains the updated package
          */
         public Modifier addModule(ModuleConfig moduleConfig) {
-            ModuleContext newModuleContext = ModuleContext.from(this.project, moduleConfig);
+            ModuleContext newModuleContext = ModuleContext.from(this.project, moduleConfig, false);
             this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
             return this;
         }
