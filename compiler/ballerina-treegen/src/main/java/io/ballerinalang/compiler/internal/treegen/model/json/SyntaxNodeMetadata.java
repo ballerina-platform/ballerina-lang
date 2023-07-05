@@ -18,16 +18,16 @@
 package io.ballerinalang.compiler.internal.treegen.model.json;
 
 /**
- * TemplateNodeConfig.
+ * Represents metadata related to a syntax node as per the syntax_node_metadata.json.
  *
  * @since 2201.8.0
  */
-public class TemplateNodeConfig {
+public class SyntaxNodeMetadata {
 
-    private String createdYear;
-    private String since;
+    private final String createdYear;
+    private final String since;
 
-    public TemplateNodeConfig(String createdYear, String since) {
+    public SyntaxNodeMetadata(String createdYear, String since) {
         this.createdYear = createdYear;
         this.since = since;
     }

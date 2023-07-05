@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.treegen.model.template;
 
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class TreeNodeClass {
                          String superClassName,
                          List<Field> fields,
                          String syntaxKind,
-                         TemplateNodeConfig templateNodeConfig) {
+                         SyntaxNodeMetadata nodeMetadata) {
         this.packageName = packageName;
         this.isAbstract = isAbstract;
         this.superClassName = superClassName;
@@ -62,8 +62,8 @@ public class TreeNodeClass {
         this.fields = fields;
         this.syntaxKind = syntaxKind;
 
-        this.createdYear = templateNodeConfig == null ? "2020" : templateNodeConfig.getCreatedYear();
-        this.since = templateNodeConfig == null ? "2.0.0" : templateNodeConfig.getSince();
+        this.createdYear = nodeMetadata == null ? "2020" : nodeMetadata.getCreatedYear();
+        this.since = nodeMetadata == null ? "2.0.0" : nodeMetadata.getSince();
 
         this.externalClassName = className;
         this.internalClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + className;

@@ -18,8 +18,8 @@
 package io.ballerinalang.compiler.internal.treegen.targets.nodevisitor;
 
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeVisitorClass;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
@@ -55,20 +55,20 @@ public abstract class AbstractNodeVisitorTarget extends Target {
     }
 
     @Override
-    public List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String, TemplateNodeConfig> templateConfig) {
+    public List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String, SyntaxNodeMetadata> templateConfig) {
         TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree, templateConfig);
         return Collections.singletonList(
                 getSourceText(treeNodeVisitorClass, getOutputDir(), getClassName()));
     }
 
     private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree,
-                                                          HashMap<String, TemplateNodeConfig> templateConfig) {
+                                                          HashMap<String, SyntaxNodeMetadata> templateConfig) {
         return new TreeNodeVisitorClass(getPackageName(), getClassName(),
                 getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree, templateConfig));
     }
 
     private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree,
-                                                    HashMap<String, TemplateNodeConfig> templateConfig) {
+                                                    HashMap<String, SyntaxNodeMetadata> templateConfig) {
         return syntaxTree.nodes()
                 .stream()
                 .map(syntaxNode -> convertToTreeNodeClass(syntaxNode,

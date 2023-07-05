@@ -19,8 +19,8 @@ package io.ballerinalang.compiler.internal.treegen;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.targets.SourceText;
 import io.ballerinalang.compiler.internal.treegen.targets.Target;
 import io.ballerinalang.compiler.internal.treegen.targets.node.ExternalNodeTarget;
@@ -47,8 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_NODE_METADATA_KEY;
 import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.SYNTAX_TREE_DESCRIPTOR_KEY;
-import static io.ballerinalang.compiler.internal.treegen.TreeGenConfig.TEMPLATE_CONFIG_DATA_KEY;
 
 /**
  * The driver of the treegen tool.
@@ -62,12 +62,13 @@ public class TreeGen {
         TreeGenConfig config = TreeGenConfig.getInstance();
         // 2) Get the syntax tree model by parsing the descriptor
         SyntaxTree syntaxTree = getSyntaxTree(config);
-        HashMap<String, TemplateNodeConfig> templateConfig = getTemplateConfig(config);
-        // 3) Initialize the registered source code generation targets
+        // 3) Get the syntax node metadata by parsing the metadata descriptor
+        HashMap<String, SyntaxNodeMetadata> nodeMetadataMap = getNodeMetadataMap(config);
+        // 4) Initialize the registered source code generation targets
         List<Target> targetList = populateAvailableTargets(config);
-        // 4) Run above targets and write the content to files
+        // 5) Run above targets and write the content to files
         targetList.stream()
-                .map(target -> target.execute(syntaxTree, templateConfig))
+                .map(target -> target.execute(syntaxTree, nodeMetadataMap))
                 .flatMap(Collection::stream)
                 .forEach(TreeGen::writeSourceTextFile);
     }
@@ -104,24 +105,23 @@ public class TreeGen {
         return syntaxTreeStream;
     }
 
-    private static HashMap<String, TemplateNodeConfig> getTemplateConfig(TreeGenConfig config) {
+    private static HashMap<String, SyntaxNodeMetadata> getNodeMetadataMap(TreeGenConfig config) {
         try (InputStreamReader reader =
-                     new InputStreamReader(getTemplateConfigStream(config), StandardCharsets.UTF_8)) {
-
-            Type mapType = new TypeToken<HashMap<String, TemplateNodeConfig>>() { }.getType();
+                     new InputStreamReader(getNodeMetadataMapStream(config), StandardCharsets.UTF_8)) {
+            Type mapType = new TypeToken<HashMap<String, SyntaxNodeMetadata>>() { }.getType();
             return new Gson().fromJson(reader, mapType);
         } catch (Throwable e) {
-            throw new TreeGenException("Failed to parse the template config. Reason: " + e.getMessage(), e);
+            throw new TreeGenException("Failed to parse syntax node metadata. Reason: " + e.getMessage(), e);
         }
     }
 
-    private static InputStream getTemplateConfigStream(TreeGenConfig config) {
-        String jsonFilePath = config.getOrThrow(TEMPLATE_CONFIG_DATA_KEY);
-        InputStream templateConfigStream = TreeGen.class.getClassLoader().getResourceAsStream(jsonFilePath);
-        if (Objects.isNull(templateConfigStream)) {
-            throw new TreeGenException("Template config data is not available. file-name: " + jsonFilePath);
+    private static InputStream getNodeMetadataMapStream(TreeGenConfig config) {
+        String jsonFilePath = config.getOrThrow(SYNTAX_NODE_METADATA_KEY);
+        InputStream nodeMetadataMapStream = TreeGen.class.getClassLoader().getResourceAsStream(jsonFilePath);
+        if (Objects.isNull(nodeMetadataMapStream)) {
+            throw new TreeGenException("Syntax node metadata is not available. file-name: " + jsonFilePath);
         }
-        return templateConfigStream;
+        return nodeMetadataMapStream;
     }
 
     private static void writeSourceTextFile(SourceText sourceText) {

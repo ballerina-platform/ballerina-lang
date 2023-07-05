@@ -23,8 +23,8 @@ import com.github.mustachejava.MustacheFactory;
 import io.ballerinalang.compiler.internal.treegen.TreeGenConfig;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNode;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeAttribute;
+import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxNodeMetadata;
 import io.ballerinalang.compiler.internal.treegen.model.json.SyntaxTree;
-import io.ballerinalang.compiler.internal.treegen.model.json.TemplateNodeConfig;
 import io.ballerinalang.compiler.internal.treegen.model.template.Field;
 import io.ballerinalang.compiler.internal.treegen.model.template.TreeNodeClass;
 
@@ -57,19 +57,19 @@ public abstract class Target {
         this.config = config;
     }
 
-    public abstract List<SourceText> execute(SyntaxTree syntaxTree,
-                                             HashMap<String, TemplateNodeConfig> templateConfig);
+    public abstract List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String,
+            SyntaxNodeMetadata> nodeMetadataMap);
 
     protected abstract String getTemplateName();
 
     protected TreeNodeClass convertToTreeNodeClass(SyntaxNode syntaxNode,
                                                    String packageName,
                                                    List<String> importClassNameList,
-                                                   HashMap<String, TemplateNodeConfig> templateConfig) {
-        TemplateNodeConfig nodeConfig = templateConfig.get(syntaxNode.getName());
+                                                   HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
+        SyntaxNodeMetadata nodeMetadata = nodeMetadataMap.get(syntaxNode.getName());
         TreeNodeClass nodeClass = new TreeNodeClass(packageName,
                 syntaxNode.getName(), syntaxNode.isAbstract(), syntaxNode.getBase(),
-                getFields(syntaxNode), syntaxNode.getKind(), nodeConfig);
+                getFields(syntaxNode), syntaxNode.getKind(), nodeMetadata);
 
         // TODO Can we pass this as part of the constructor
         nodeClass.addImports(importClassNameList);
