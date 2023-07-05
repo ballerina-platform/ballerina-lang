@@ -10971,7 +10971,8 @@ public class BallerinaParser extends AbstractParser {
                                                 SyntaxKind.GROUP_KEYWORD,
                                                 SyntaxKind.COLLECT_KEYWORD,
                                                 SyntaxKind.CONFLICT_KEYWORD,
-                                                SyntaxKind.EQUALS_KEYWORD)
+                                                SyntaxKind.EQUALS_KEYWORD,
+                                                SyntaxKind.SELECT_KEYWORD)
                         || !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
