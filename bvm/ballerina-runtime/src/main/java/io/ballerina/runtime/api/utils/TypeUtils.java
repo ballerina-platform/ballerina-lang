@@ -144,7 +144,6 @@ public class TypeUtils {
     public static boolean isSameType(Type sourceType, Type targetType) {
         return TypeChecker.isSameType(sourceType, targetType);
     }
-
     /**
      * Retrieve the referred type if a given type is a type reference type.
      *
@@ -152,11 +151,22 @@ public class TypeUtils {
      * @return the referred type if provided with a type reference type, else returns the original type
      */
     public static Type getReferredType(Type type) {
+        return getReferredType(type, true);
+    }
+
+    /**
+     * Retrieve the referred type if a given type is a type reference type.
+     *
+     * @param type type to retrieve referred
+     * @param effectiveType whether to get the effective type or not
+     * @return the referred type if provided with a type reference type, else returns the original type
+     */
+    public static Type getReferredType(Type type, boolean effectiveType) {
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            return getReferredType(((ReferenceType) type).getReferredType());
+            return getReferredType(((ReferenceType) type).getReferredType(), effectiveType);
         }
         
-        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+        if (effectiveType && type.getTag() == TypeTags.INTERSECTION_TAG) {
             return getReferredType(((IntersectionType) type).getEffectiveType());
         }
 
