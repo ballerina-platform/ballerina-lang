@@ -272,6 +272,9 @@
                             {
                               "kind": "LET_CLAUSE",
                               "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_SELECT_CLAUSE"
+                              ],
                               "children": [
                                 {
                                   "kind": "LET_KEYWORD",
@@ -400,7 +403,6 @@
                                         },
                                         {
                                           "kind": "TYPED_BINDING_PATTERN",
-                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -419,14 +421,21 @@
                                             },
                                             {
                                               "kind": "CAPTURE_BINDING_PATTERN",
-                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "isMissing": true,
-                                                  "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_MISSING_IDENTIFIER"
+                                                  "value": "select",
+                                                  "leadingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": "        "
+                                                    }
+                                                  ],
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
                                                   ]
                                                 }
                                               ]
@@ -443,15 +452,10 @@
                                         },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",
-                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
-                                              ]
+                                              "value": "name"
                                             }
                                           ]
                                         }
@@ -470,25 +474,14 @@
                       "children": [
                         {
                           "kind": "SELECT_KEYWORD",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "        "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "isMissing": true
                         },
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "name"
+                              "isMissing": true
                             }
                           ]
                         }

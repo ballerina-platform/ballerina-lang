@@ -83,33 +83,31 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ORDER_BY_CLAUSE",
+              "kind": "WHERE_CLAUSE",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "ORDER_KEYWORD",
+                  "kind": "WHERE_KEYWORD",
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_MISSING_ORDER_KEYWORD"
+                    "ERROR_MISSING_WHERE_KEYWORD"
                   ]
                 },
                 {
-                  "kind": "BY_KEYWORD",
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_ORDER_KEY"
-                  ],
-                  "trailingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "by",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
                 }
               ]
             }

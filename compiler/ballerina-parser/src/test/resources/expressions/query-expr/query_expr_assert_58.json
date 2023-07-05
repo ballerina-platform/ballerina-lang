@@ -85,6 +85,9 @@
             {
               "kind": "JOIN_CLAUSE",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SELECT_CLAUSE"
+              ],
               "children": [
                 {
                   "kind": "JOIN_KEYWORD",
@@ -167,15 +170,39 @@
                       ]
                     },
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "kind": "BINARY_EXPRESSION",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "select",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PLUS_TOKEN",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
+                            "ERROR_MISSING_BINARY_OPERATOR"
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "g"
+                            }
                           ]
                         }
                       ]
@@ -197,7 +224,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
+                            "ERROR_MISSING_EXPRESSION"
                           ]
                         }
                       ]
@@ -215,19 +242,14 @@
       "children": [
         {
           "kind": "SELECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
+          "isMissing": true
         },
         {
           "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "g"
+              "isMissing": true
             }
           ]
         }

@@ -85,6 +85,9 @@
             {
               "kind": "LIMIT_CLAUSE",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SELECT_CLAUSE"
+              ],
               "children": [
                 {
                   "kind": "LIMIT_KEYWORD",
@@ -97,15 +100,10 @@
                 },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_IDENTIFIER"
-                      ]
+                      "value": "select"
                     }
                   ]
                 }
@@ -117,22 +115,17 @@
     },
     {
       "kind": "SELECT_CLAUSE",
-      "hasDiagnostics": true,
       "children": [
         {
-          "kind": "SELECT_KEYWORD"
+          "kind": "SELECT_KEYWORD",
+          "isMissing": true
         },
         {
           "kind": "SIMPLE_NAME_REFERENCE",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_EXPRESSION"
-              ]
+              "isMissing": true
             }
           ]
         }

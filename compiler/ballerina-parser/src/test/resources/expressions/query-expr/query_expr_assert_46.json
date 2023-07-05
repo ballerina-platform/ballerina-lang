@@ -1,10 +1,8 @@
 {
   "kind": "QUERY_EXPRESSION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_PIPELINE",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
@@ -80,11 +78,9 @@
         },
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ORDER_BY_CLAUSE",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ORDER_KEYWORD",
@@ -106,32 +102,22 @@
                 },
                 {
                   "kind": "LIST",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ORDER_KEY",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                              "value": "ascending",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
                               ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "ASCENDING_KEYWORD",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
                             }
                           ]
                         }

@@ -4,11 +4,9 @@
   "children": [
     {
       "kind": "QUERY_PIPELINE",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "FROM_KEYWORD",
@@ -64,14 +62,15 @@
             },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_IDENTIFIER"
+                  "value": "select",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
                   ]
                 }
               ]
@@ -86,14 +85,14 @@
     },
     {
       "kind": "SELECT_CLAUSE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SELECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SELECT_KEYWORD"
           ]
         },
         {
