@@ -257,10 +257,7 @@ public class ToolCommand implements BLauncherCmd {
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException e) {
-                errStream.println("unexpected error occurred while pulling tool:" + e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            } catch (ProjectException e) {
+            } catch (CentralClientException | ProjectException e) {
                 errStream.println("unexpected error occurred while pulling tool:" + e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
             }
@@ -313,15 +310,20 @@ public class ToolCommand implements BLauncherCmd {
         if (tool.isEmpty()) {
             CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not found. " +
                     "Run 'bal tool pull " + toolId + ":" + version + "' to fetch and set as the active version.",
-                    TOOL_USE_USAGE_TEXT, false);
+                    null, false);
             CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        Optional<DistSpecificToolsManifest.Tool> currentActiveTool = distSpecificToolsManifest.getActiveTool(toolId);
+        if (currentActiveTool.isPresent() && currentActiveTool.get().version().equals(tool.get().version())) {
+            outStream.println("tool '" + toolId + ":" + version + "' is the current active version.");
             return;
         }
 
         distSpecificToolsManifest.setActiveToolVersion(toolId, version);
         distSpecificToolsToml.modify(distSpecificToolsManifest);
 
-        outStream.println("tool '" + toolId + ":" + version + "' is set as the active version.");
+        outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
     }
 
     private void handleListCommand() {
@@ -441,10 +443,10 @@ public class ToolCommand implements BLauncherCmd {
 
         SemanticVersion currentDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
         SemanticVersion toolDistVersion = getToolDistVersionFromCentralCache();
-        if (toolDistVersion.greaterThan(currentDistVersion)) {
+        if (!isCompatibleWithLocalDistVersion(currentDistVersion, toolDistVersion)) {
             errStream.println("tool is built with distribution version " + toolDistVersion + " which is greater than " +
-                    "the current dist version " + currentDistVersion + ". " +
-                    "please update the distribution to the latest version and try again.");
+                    "the current dist version " + currentDistVersion + ". please update the distribution to update "
+                    + toolDistVersion.minor() + " or greater and and try again.");
         } else if (isToolVersionAlreadyActive(toolId, version)) {
             outStream.println(toolId + ":" + version + " is already active.");
         } else {
@@ -470,16 +472,20 @@ public class ToolCommand implements BLauncherCmd {
                     if (isValidDistSpecificTomlFile(fileName)) {
                         // if the tool distribution version is greater than dist-toml distribution version do not add
                         SemanticVersion distTomlDistVersion = getSemVerFromDistSpecificTomlFile(fileName);
-                        if (toolDistVersion.greaterThan(distTomlDistVersion)) {
+                        if (!isCompatibleWithLocalDistVersion(distTomlDistVersion, toolDistVersion)) {
                             return;
                         }
                         BalToolsToml distToolsToml = BalToolsToml.from(path);
                         DistSpecificToolsManifest inactiveDistSpecificToolsManifest = DistSpecificToolsManifestBuilder
                                 .from(distToolsToml).build();
 
-                        // the tool should be active in other distributions only if there are no other versions
-                        //  of the tool available
-                        boolean isActive = inactiveDistSpecificToolsManifest.tools().get(toolId).isEmpty();
+                        // the tool should be active in other distributions if,
+                        // 1. there are no other versions of the tool available OR,
+                        // 2. dist-<version>.toml refers to a patch with the same minor version as the current version
+                        Map<String, DistSpecificToolsManifest.Tool> toolVersions =
+                                inactiveDistSpecificToolsManifest.tools().get(toolId);
+                        boolean isActive = (null == toolVersions) || toolVersions.isEmpty()
+                                || distTomlDistVersion.minor() == currentDistVersion.minor();
                         inactiveDistSpecificToolsManifest.addTool(toolId, org, name, version, isActive);
                         distToolsToml.modify(inactiveDistSpecificToolsManifest);
                     }
@@ -741,15 +747,13 @@ public class ToolCommand implements BLauncherCmd {
                 .from(distSpecificToolsToml).build();
         if (distSpecificToolsManifest.tools().containsKey(toolId)) {
             Map<String, DistSpecificToolsManifest.Tool> toolVersions = distSpecificToolsManifest.tools().get(toolId);
-            if (toolVersions.containsKey(version) && toolVersions.get(version).active()) {
-                return true;
-            }
+            return toolVersions.containsKey(version) && toolVersions.get(version).active();
         }
         return false;
     }
 
     private boolean isValidDistSpecificTomlFile(String fileName) {
-        if (!fileName.startsWith(DIST_TOOL_TOML_PREFIX) || fileName.endsWith(TOML_EXT)) {
+        if (!fileName.startsWith(DIST_TOOL_TOML_PREFIX) || !fileName.endsWith(TOML_EXT)) {
             return false;
         }
         try {
@@ -772,5 +776,11 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(ANY_PLATFORM);
         PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
         return SemanticVersion.from(packageJson.getBallerinaVersion());
+    }
+
+    private boolean isCompatibleWithLocalDistVersion(SemanticVersion localDistVersion,
+                                                     SemanticVersion toolDistVersion) {
+        return localDistVersion.major() == toolDistVersion.major()
+                && localDistVersion.minor() >= toolDistVersion.minor();
     }
 }

@@ -123,8 +123,8 @@ public class BalToolUtil {
             GENCACHE_COMMAND);
 
     public static boolean isToolCommand(String commandName) {
-        // TODO: if openapi was to be pushed as a tool, here it will be ignored and openapi in distribution will be used
-        //  instead. Need to look into possible solutions.
+        //  TODO: if openapi was to be pushed as a tool, here it will be ignored and openapi in distribution will be
+        //   used instead. Need to look into possible solutions.
         return Stream.of(options, coreCommands, packageCommands, otherCommands, hiddenCommands)
                 .flatMap(List::stream).noneMatch(commandName::equals);
     }
@@ -313,7 +313,8 @@ public class BalToolUtil {
             PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
             SemanticVersion toolDistVersion = SemanticVersion.from(packageJson.getBallerinaVersion());
             SemanticVersion localDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-            return localDistVersion.greaterThanOrEqualTo(toolDistVersion);
+            return localDistVersion.major() == toolDistVersion.major()
+                    && localDistVersion.minor() >= toolDistVersion.minor();
         }
         return false;
     }

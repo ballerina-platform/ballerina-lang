@@ -62,6 +62,13 @@ public class DistSpecificToolsManifest implements BalToolsManifest {
         return Optional.empty();
     }
 
+    public Optional<Tool> getActiveTool(String id) {
+        if (tools.containsKey(id)) {
+            return tools.get(id).values().stream().filter(Tool::active).findFirst();
+        }
+        return Optional.empty();
+    }
+
     public void setActiveToolVersion(String id, String version) {
         if (tools.containsKey(id)) {
             flipCurrentActiveToolVersion(id);
