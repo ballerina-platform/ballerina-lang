@@ -30,5 +30,6 @@ public class ContextualKeywordTest extends AbstractMiscTest {
     public void testAggregationKeywords() {
         testFile("contextual-keyword/keyword_source_01.bal", "contextual-keyword/keyword_assert_01.json");
         testFile("contextual-keyword/keyword_source_02.bal", "contextual-keyword/keyword_assert_02.json");
+        testFile("contextual-keyword/keyword_source_03.bal", "contextual-keyword/keyword_assert_03.json");
     }
 }

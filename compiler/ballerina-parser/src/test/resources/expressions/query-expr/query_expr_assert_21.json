@@ -84,7 +84,6 @@
           "children": [
             {
               "kind": "FROM_CLAUSE",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FROM_KEYWORD",
@@ -140,14 +139,15 @@
                 },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_IDENTIFIER"
+                      "value": "where",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
                       ]
                     }
                   ]
@@ -156,14 +156,14 @@
             },
             {
               "kind": "WHERE_CLAUSE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "WHERE_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_WHERE_KEYWORD"
                   ]
                 },
                 {
