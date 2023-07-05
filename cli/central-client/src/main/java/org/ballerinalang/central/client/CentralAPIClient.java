@@ -1159,7 +1159,7 @@ public class CentralAPIClient {
             ResponseBody responseBody = searchResponse.body();
             body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
             if (body.isPresent()) {
-                MediaType contentType = body.get().contentType() != null ? body.get().contentType() : null;
+                MediaType contentType = body.get().contentType();
                 if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
                     return new Gson().toJsonTree(body.get().string());
