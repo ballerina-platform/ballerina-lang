@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -59,9 +60,11 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -164,7 +167,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     /**
      * Set the error count.
-     * 
+     *
      * @param errorCount Error count
      */
     public void setErrorCount(int errorCount) {
@@ -215,7 +218,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     /**
      * Report a diagnostic for a given package.
-     * 
+     *
      * @param pkgId Package ID of the diagnostic associated with
      * @param diagnostic the diagnostic to be logged
      */
@@ -255,6 +258,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
+        // Allow other type if that is included in the only diagnostic.
         if (errorCount > 1 && hasOtherTypeInArgs(args)) {
             return;
         }
@@ -372,6 +376,13 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                         if (bTypeSymbol != null) {
                             bType = bTypeSymbol.type;
                             if (bType != null && bType.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
+                        }
+                        LinkedHashMap<String, BField> fields = ((BRecordType) arg).fields;
+                        for (Map.Entry<String, BField> entry : fields.entrySet()) {
+                            BField bField = entry.getValue();
+                            if (bField.getType().getKind() == TypeKind.OTHER) {
                                 return true;
                             }
                         }
