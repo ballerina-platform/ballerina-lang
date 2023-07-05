@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.treegen.model.json;
 /**
  * TemplateNodeConfig.
  *
- * @since 2.8.0
+ * @since 2201.8.0
  */
 public class TemplateNodeConfig {
 
