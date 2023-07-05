@@ -17,7 +17,16 @@
         "character": 34
       },
       "label": {
-        "left": "name: "
+        "left": "hello: "
+      }
+    },
+    {
+      "position": {
+        "line": 8,
+        "character": 42
+      },
+      "label": {
+        "left": "...name: "
       }
     }
   ],

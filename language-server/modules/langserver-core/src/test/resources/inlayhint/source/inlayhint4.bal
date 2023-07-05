@@ -5,11 +5,11 @@ type Company record {
 
 type Employee record {
     string name;
-    string age;
+    int age;
 };
 
 public isolated client class EmpDetails {
-    isolated remote function addDetails(Company company, Employee employee) {
+    isolated remote function addDetails(Company company, Employee... employee) {
 
     }
 }
