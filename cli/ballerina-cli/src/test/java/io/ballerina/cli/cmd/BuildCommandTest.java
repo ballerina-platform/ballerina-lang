@@ -1250,4 +1250,56 @@ public class BuildCommandTest extends BaseCommandTest {
                 "Missing testingExecutionDuration field in build time logs");
         Assert.assertTrue(buildLog.contains("totalDuration"), "Missing totalDuration field in build time logs");
     }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfJavaImportedProject() throws IOException {
+        // Project contains only dist provided Java dependencies
+        Path projectPath = this.testResources.resolve("validJava11Project");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0") &&
+                    !buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfJava11Project() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") &&
+                    buildLog.contains("sameera/myproject:0.1.0") &&
+                    buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfAnyProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0")
+                    && !buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
+    }
 }
