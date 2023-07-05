@@ -18,7 +18,10 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -142,8 +145,24 @@ public class CompletionManager {
             return Collections.emptyList();
         }
         List<TypeSymbol> listenerTypes = ((ServiceDeclarationSymbol) serviceSymbol.get()).listenerTypes();
-        return listenerTypes.stream().filter(listenerType -> listenerType.getModule().isPresent())
-                .map(listenerType -> listenerType.getModule().get()).collect(Collectors.toList());
+        return listenerTypes.stream().map(listenerType -> {
+                    if (listenerType.typeKind() == TypeDescKind.UNION) {
+                        return ((UnionTypeSymbol) listenerType).memberTypeDescriptors()
+                                .stream()
+                                .filter(memberType -> getRawType(memberType).typeKind() == TypeDescKind.OBJECT)
+                                .findAny();
+                    }
+                    return Optional.of(listenerType);
+                }).filter(listenerType -> listenerType.isPresent() && listenerType.get().getModule().isPresent())
+                .map(listenerType -> listenerType.get().getModule().get()).collect(Collectors.toList());
+    }
+
+    private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 
     private boolean isInServiceBodyNodeContext(CompletionContext context, Node referenceNode) {
