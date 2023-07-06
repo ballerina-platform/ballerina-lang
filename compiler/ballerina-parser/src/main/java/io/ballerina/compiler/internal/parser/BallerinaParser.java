@@ -4311,7 +4311,7 @@ public class BallerinaParser extends AbstractParser {
                 annots = parseOptionalAnnotations();
                 break;
             default:
-                if (isStatementStartingToken(nextToken.kind)) {
+                if (isStatementStartingToken(nextToken)) {
                     break;
                 }
 
@@ -4498,7 +4498,7 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseErrorTypeDescOrErrorBP(getAnnotations(annots));
             default:
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isValidExpressionStart(nextToken, 1)) {
                     // These are expressions that are definitely not types.
                     reportInvalidQualifierList(qualifiers);
                     return parseStatementStartWithExpr(getAnnotations(annots));
@@ -5114,8 +5114,6 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 return parseBasicLiteral();
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression(isRhsExpr, allowActions);
             case CHECK_KEYWORD:
@@ -5183,6 +5181,11 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             default:
+                if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN
+                        && !isKeywordMatch(nextToken, SyntaxKind.SELECT_KEYWORD)) {
+                    return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, isInConditionalExpr);
+                }
+
                 if (isSimpleTypeInExpression(nextToken.kind)) {
                     return parseSimpleTypeInTerminalExpr();
                 }
@@ -5742,7 +5745,7 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
                 return SyntaxKind.XML_STEP_EXPRESSION;
             default:
-                if (isValidExpressionStart(nextToken.kind, lookahead)) {
+                if (isValidExpressionStart(nextToken, lookahead)) {
                     break;
                 }
                 return SyntaxKind.XML_STEP_EXPRESSION;
@@ -12987,13 +12990,13 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Check whether the parser reached to a valid expression start.
      *
-     * @param nextTokenKind  Kind of the next immediate token.
+     * @param nextToken      Kind of the next immediate token.
      * @param nextTokenIndex Index to the next token.
      * @return <code>true</code> if this is a start of a valid expression. <code>false</code> otherwise
      */
-    private boolean isValidExpressionStart(SyntaxKind nextTokenKind, int nextTokenIndex) {
+    private boolean isValidExpressionStart(STToken nextToken, int nextTokenIndex) {
         nextTokenIndex++;
-        switch (nextTokenKind) {
+        switch (nextToken.kind) {
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
             case STRING_LITERAL_TOKEN:
@@ -13006,7 +13009,7 @@ public class BallerinaParser extends AbstractParser {
                 if (nextNextTokenKind == SyntaxKind.PIPE_TOKEN || nextNextTokenKind == SyntaxKind.BITWISE_AND_TOKEN) {
                     // e.g. -2|0 t1;
                     nextTokenIndex++;
-                    return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
+                    return isValidExpressionStart(peek(nextTokenIndex), nextTokenIndex);
                 }
 
                 return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN ||
@@ -13014,6 +13017,21 @@ public class BallerinaParser extends AbstractParser {
                         nextNextTokenKind == SyntaxKind.CLOSE_BRACKET_TOKEN ||
                         isValidExprRhsStart(nextNextTokenKind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case IDENTIFIER_TOKEN:
+                if (isKeywordMatch(nextToken, SyntaxKind.WHERE_KEYWORD,
+                        SyntaxKind.JOIN_KEYWORD,
+                        SyntaxKind.OUTER_KEYWORD,
+                        SyntaxKind.ORDER_KEYWORD,
+                        SyntaxKind.BY_KEYWORD,
+                        SyntaxKind.ASCENDING_KEYWORD,
+                        SyntaxKind.DESCENDING_KEYWORD,
+                        SyntaxKind.LIMIT_KEYWORD,
+                        SyntaxKind.GROUP_KEYWORD,
+                        SyntaxKind.COLLECT_KEYWORD,
+                        SyntaxKind.CONFLICT_KEYWORD,
+                        SyntaxKind.EQUALS_KEYWORD,
+                        SyntaxKind.SELECT_KEYWORD)) {
+                    return false;
+                }
                 return isValidExprRhsStart(peek(nextTokenIndex).kind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
@@ -13038,7 +13056,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
-                return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
+                return isValidExpressionStart(peek(nextTokenIndex), nextTokenIndex);
             case TABLE_KEYWORD:
             case MAP_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.FROM_KEYWORD;
@@ -13424,7 +13442,7 @@ public class BallerinaParser extends AbstractParser {
             case PIPE_TOKEN:
                 return parsePipeToken();
             default:
-                if (isEndOfWaitFutureExprList(nextToken.kind) || !isValidExpressionStart(nextToken.kind, 1)) {
+                if (isEndOfWaitFutureExprList(nextToken.kind) || !isValidExpressionStart(nextToken, 1)) {
                     return null;
                 }
 
@@ -14056,7 +14074,7 @@ public class BallerinaParser extends AbstractParser {
             return parseOnFailClause();
         }
 
-        if (isEndOfRegularCompoundStmt(nextToken.kind)) {
+        if (isEndOfRegularCompoundStmt(nextToken)) {
             return STNodeFactory.createEmptyNode();
         }
 
@@ -14064,20 +14082,20 @@ public class BallerinaParser extends AbstractParser {
         return parseOptionalOnFailClause();
     }
 
-    private boolean isEndOfRegularCompoundStmt(SyntaxKind nodeKind) {
-        switch (nodeKind) {
+    private boolean isEndOfRegularCompoundStmt(STToken node) {
+        switch (node.kind) {
             case CLOSE_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
             case AT_TOKEN:
             case EOF_TOKEN:
                 return true;
             default:
-                return isStatementStartingToken(nodeKind);
+                return isStatementStartingToken(node);
         }
     }
 
-    private boolean isStatementStartingToken(SyntaxKind nodeKind) {
-        switch (nodeKind) {
+    private boolean isStatementStartingToken(STToken node) {
+        switch (node.kind) {
             case FINAL_KEYWORD:
 
                 // Statement starts other than var-decl
@@ -14118,12 +14136,12 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 // Var-decl-stmt start
-                if (isTypeStartingToken(nodeKind)) {
+                if (isTypeStartingToken(node.kind)) {
                     return true;
                 }
 
                 // Expression-stmt start
-                if (isValidExpressionStart(nodeKind, 1)) {
+                if (isValidExpressionStart(node, 1)) {
                     return true;
                 }
 
@@ -15686,7 +15704,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode basicLiteral = parseBasicLiteral();
                 return parseTypedBindingPatternOrExprRhs(basicLiteral, allowAssignment);
             default:
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isValidExpressionStart(nextToken, 1)) {
                     reportInvalidQualifierList(qualifiers);
                     return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
@@ -15915,7 +15933,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode basicLiteral = parseBasicLiteral();
                 return parseTypeDescOrExprRhs(basicLiteral);
             default:
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isValidExpressionStart(nextToken, 1)) {
                     reportInvalidQualifierList(qualifiers);
                     return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
@@ -17043,7 +17061,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             default:
-                if ((!isTypedBindingPattern && isValidExpressionStart(nextToken.kind, 1)) ||
+                if ((!isTypedBindingPattern && isValidExpressionStart(nextToken, 1)) ||
                         isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
                     break;
                 }
@@ -17689,7 +17707,7 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 return parseTupleMember();
             default:
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isValidExpressionStart(nextToken, 1)) {
                     reportInvalidQualifierList(qualifiers);
                     return parseExpression(false);
                 }
@@ -17829,7 +17847,7 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 return parseTupleMember();
             default:
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isValidExpressionStart(nextToken, 1)) {
                     return parseExpression(false);
                 }
 
@@ -18875,7 +18893,7 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN:
                 return parseRestBindingOrSpreadMember();
             default:
-                if (isValidExpressionStart(nextToken.kind, 1)) {
+                if (isValidExpressionStart(nextToken, 1)) {
                     return parseExpression();
                 }
 
