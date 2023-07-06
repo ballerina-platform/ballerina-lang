@@ -259,6 +259,9 @@ function testNeverRestFieldType() {
 
     record {||} a3 = {};
     record {|int x;never...; |} copy4 = a3;
+
+    record {|never?...; |} a4 = {};
+    record {never i?;} _ = a4;
 }
 
 never N = check error("Error"); // error

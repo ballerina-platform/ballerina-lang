@@ -3502,6 +3502,11 @@ public class Types {
                 if (!Symbols.isOptional(lhsField.symbol) || isInvalidNeverField(lhsField, rhsType)) {
                     return false;
                 }
+
+                if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsField.type, unresolvedTypes)) {
+                    return false;
+                }
+
                 continue;
             }
             if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {
