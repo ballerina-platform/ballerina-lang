@@ -56,7 +56,7 @@ public class TypeUtils {
     }
 
     public static boolean isValueType(Type type) {
-        Type referredType = TypeUtils.getReferredType(type);
+        Type referredType = TypeUtils.getConclusiveType(type);
         switch (referredType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
@@ -151,26 +151,28 @@ public class TypeUtils {
      * @return the referred type if provided with a type reference type, else returns the original type
      */
     public static Type getReferredType(Type type) {
-        return getReferredType(type, true);
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return getReferredType(((ReferenceType) type).getReferredType());
+        }
+        return type;
     }
 
     /**
-     * Retrieve the referred type if a given type is a type reference type.
+     * Retrieve the conclusive type if a given type is a type reference type or an intersection.
      *
      * @param type type to retrieve referred
-     * @param effectiveType whether to get the effective type or not
-     * @return the referred type if provided with a type reference type, else returns the original type
+     * @return the conclusive type if provided with a type reference type or an intersection,
+     * else returns the original type
      */
-    public static Type getReferredType(Type type, boolean effectiveType) {
+    public static Type getConclusiveType(Type type) {
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            return getReferredType(((ReferenceType) type).getReferredType(), effectiveType);
+            return getConclusiveType(((ReferenceType) type).getReferredType());
         }
         
-        if (effectiveType && type.getTag() == TypeTags.INTERSECTION_TAG) {
-            return getReferredType(((IntersectionType) type).getEffectiveType());
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return getConclusiveType(((IntersectionType) type).getEffectiveType());
         }
 
         return type;
     }
-
 }

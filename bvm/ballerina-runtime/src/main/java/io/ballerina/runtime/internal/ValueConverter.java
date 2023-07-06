@@ -88,7 +88,7 @@ public class ValueConverter {
                     ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
         }
 
-        Type sourceType = TypeUtils.getReferredType(TypeChecker.getType(value));
+        Type sourceType = TypeUtils.getConclusiveType(TypeChecker.getType(value));
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
@@ -105,7 +105,7 @@ public class ValueConverter {
         }
 
         Object newValue;
-        Type matchingType = TypeUtils.getReferredType(convertibleType);
+        Type matchingType = TypeUtils.getConclusiveType(convertibleType);
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -164,7 +164,7 @@ public class ValueConverter {
     }
 
     private static Type getTargetFromTypeDesc(Type targetType) {
-        Type referredType = TypeUtils.getReferredType(targetType);
+        Type referredType = TypeUtils.getConclusiveType(targetType);
         if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
             return ((TypedescType) referredType).getConstraint();
         }

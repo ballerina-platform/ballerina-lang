@@ -63,7 +63,7 @@ public class ObjectMock {
      * @return mock object of provided type
      */
     public static BObject mock(BTypedesc bTypedesc, ObjectValue objectValue) {
-        ObjectType objectValueType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
+        ObjectType objectValueType = (ObjectType) TypeUtils.getConclusiveType(objectValue.getType());
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValueType.getMethods().length == 0 &&
@@ -141,7 +141,7 @@ public class ObjectMock {
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFunctionName(functionName,
-                ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getMethods())) {
+                ((ObjectType) TypeUtils.getConclusiveType(genericMock.getType())).getMethods())) {
             String detail = "invalid function name '" + functionName + " ' provided";
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
@@ -163,7 +163,7 @@ public class ObjectMock {
     public static BError validateFieldName(String fieldName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFieldName(fieldName,
-                ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getFields())) {
+                ((ObjectType) TypeUtils.getConclusiveType(genericMock.getType())).getFields())) {
             String detail = "invalid field name '" + fieldName + "' provided";
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
@@ -188,7 +188,7 @@ public class ObjectMock {
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
         for (MethodType attachedFunction :
-                ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getMethods()) {
+                ((ObjectType) TypeUtils.getConclusiveType(genericMock.getType())).getMethods()) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
@@ -205,7 +205,7 @@ public class ObjectMock {
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
                 for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
-                    Type paramType = TypeUtils.getReferredType(attachedFunction.getType().getParameters()[i].type);
+                    Type paramType = TypeUtils.getConclusiveType(attachedFunction.getType().getParameters()[i].type);
                     if (paramType instanceof UnionType) {
                         Object arg = it.next();
                         boolean isTypeAvailable = false;
@@ -265,7 +265,7 @@ public class ObjectMock {
             }
             functionName = null;
         }
-        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(genericMock.getType());
+        ObjectType objectType = (ObjectType) TypeUtils.getConclusiveType(genericMock.getType());
         if (functionName != null) {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
@@ -326,7 +326,7 @@ public class ObjectMock {
                 break;
             }
             if (!validateReturnValue(functionName, returnVals.getValues()[i],
-                    ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getMethods())) {
+                    ((ObjectType) TypeUtils.getConclusiveType(genericMock.getType())).getMethods())) {
                 String detail = "return value provided at position '" + i
                         + "' does not match the return type of function '" + functionName + "()'";
                 return ErrorCreator.createError(
@@ -380,7 +380,7 @@ public class ObjectMock {
     private static boolean validateUnionValue(Object returnVal, UnionType functionReturnType) {
         List<Type> memberTypes = functionReturnType.getMemberTypes();
         for (Type memberType : memberTypes) {
-            if (TypeUtils.getReferredType(memberType).getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (TypeUtils.getConclusiveType(memberType).getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
                 if (validateParameterizedValue(returnVal, ((ParameterizedType) memberType))) {
                     return true;
                 }
@@ -401,10 +401,10 @@ public class ObjectMock {
      * @return whether the return value is valid
      */
     private static boolean validateStreamValue(Object returnVal, StreamType streamType) {
-        Type sourceType = TypeUtils.getReferredType(getType(returnVal));
+        Type sourceType = TypeUtils.getConclusiveType(getType(returnVal));
         if (sourceType.getTag() == TypeTags.STREAM_TAG) {
-            Type targetConstrainedType = TypeUtils.getReferredType(streamType.getConstrainedType());
-            Type targetCompletionType = TypeUtils.getReferredType(streamType.getCompletionType());
+            Type targetConstrainedType = TypeUtils.getConclusiveType(streamType.getConstrainedType());
+            Type targetCompletionType = TypeUtils.getConclusiveType(streamType.getCompletionType());
             // Update the target stream constrained type if it is a parameterized type
             if (targetConstrainedType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
                 targetConstrainedType = ((ParameterizedType) targetConstrainedType).getParamValueType();
@@ -433,7 +433,7 @@ public class ObjectMock {
             String functionName, Object returnVal, MethodType[] attachedFunctions) {
         for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
-                Type functionReturnType = TypeUtils.getReferredType(
+                Type functionReturnType = TypeUtils.getConclusiveType(
                         attachedFunction.getType().getReturnParameterType());
                 switch (functionReturnType.getTag()) {
                     case TypeTags.UNION_TAG:
@@ -490,8 +490,8 @@ public class ObjectMock {
                     // validate the equivalence of the parameter types
                     for (int i = 0; i < parameters.length; i++) {
                         Type paramTypeAttachedFunc =
-                                TypeUtils.getReferredType(attachedFunction.getType().getParameters()[i].type);
-                        Type paramType = TypeUtils.getReferredType(parameters[i].type);
+                                TypeUtils.getConclusiveType(attachedFunction.getType().getParameters()[i].type);
+                        Type paramType = TypeUtils.getConclusiveType(parameters[i].type);
                         if (paramTypeAttachedFunc instanceof UnionType) {
                             if (!(paramType instanceof UnionType)) {
                                 String detail = "incompatible parameter type provided at position " + (i + 1) + " in" +

@@ -306,7 +306,7 @@ public class JsonUtils {
             return null;
         }
         Type sourceType = TypeChecker.getType(value);
-        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
+        if (TypeUtils.getConclusiveType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
                 jsonType)) {
             return value;
         }
@@ -323,7 +323,7 @@ public class JsonUtils {
     private static Object getJsonObject(Object value, List<TypeValuePair> unresolvedValues, Type jsonType,
                                     Type sourceType) {
         Object newValue;
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = TypeUtils.getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -339,7 +339,7 @@ public class JsonUtils {
                 break;
             case TypeTags.TABLE_TAG:
                 BTable bTable = (BTable) value;
-                Type constrainedType = TypeUtils.getReferredType(((TableType) sourceType).getConstrainedType());
+                Type constrainedType = TypeUtils.getConclusiveType(((TableType) sourceType).getConstrainedType());
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {

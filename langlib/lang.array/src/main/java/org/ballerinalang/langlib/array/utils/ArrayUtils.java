@@ -70,7 +70,7 @@ public class ArrayUtils {
     }
 
     public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
-        switch (TypeUtils.getReferredType(arrType).getTag()) {
+        switch (TypeUtils.getConclusiveType(arrType).getTag()) {
             case TypeTags.ARRAY_TAG:
                 return BArray::get;
             case TypeTags.TUPLE_TAG:
@@ -81,7 +81,7 @@ public class ArrayUtils {
     }
 
     public static void checkIsArrayOnlyOperation(Type arrType, String op) {
-        if (TypeUtils.getReferredType(arrType).getTag() != TypeTags.ARRAY_TAG) {
+        if (TypeUtils.getConclusiveType(arrType).getTag() != TypeTags.ARRAY_TAG) {
             throw createOpNotSupportedError(arrType, op);
         }
     }
@@ -93,7 +93,7 @@ public class ArrayUtils {
     }
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getConclusiveType(arr.getType());
         TupleType tupleType = (TupleType) arrType;
         List<Type> memTypes = new ArrayList<>();
         List<Type> tupleTypes = tupleType.getTupleTypes();

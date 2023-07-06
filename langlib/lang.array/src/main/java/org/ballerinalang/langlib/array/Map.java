@@ -56,13 +56,13 @@ public class Map {
                                                                       ARRAY_VERSION, "map");
 
     public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
-        Type elemType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
+        Type elemType = ((FunctionType) TypeUtils.getConclusiveType(func.getType())).getReturnType();
         Type retArrType = TypeCreator.createArrayType(elemType);
         BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getConclusiveType(arr.getType());
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 getFn = BArray::get;

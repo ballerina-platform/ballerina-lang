@@ -254,7 +254,7 @@ public class CliProvider implements ConfigProvider {
     private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
         List<Object> matchingValues = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            switch (TypeUtils.getReferredType(type).getTag()) {
+            switch (TypeUtils.getConclusiveType(type).getTag()) {
                 case TypeTags.BYTE_TAG:
                     convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
                     break;
@@ -305,7 +305,7 @@ public class CliProvider implements ConfigProvider {
 
     private boolean containsSupportedMembers(BUnionType unionType) {
         for (Type memberType : unionType.getMemberTypes()) {
-            if (!isCliSupported(TypeUtils.getReferredType(memberType).getTag())) {
+            if (!isCliSupported(TypeUtils.getConclusiveType(memberType).getTag())) {
                 return false;
             }
         }
