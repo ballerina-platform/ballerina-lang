@@ -141,11 +141,12 @@ public class PackageCompilation {
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
         ModuleContext moduleContext = this.rootPackageContext.moduleContext(moduleId);
-        // We check whether the particular module compilation state equal to the typecheck phase here. 
+        // We check whether the particular module compilation state equal to the COMPILED/LIBRARY_GENERATED phase here.
         // If the states do not match, then this is a illegal state exception.
-        if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
+        ModuleCompilationState state = moduleContext.compilationState();
+        if (state != ModuleCompilationState.COMPILED && state != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
             throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
-                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
+                    "compilation state '" + state.name() + "'. " +
                     "This is an internal error which will be fixed in a later release.");
         }
 
@@ -154,6 +155,10 @@ public class PackageCompilation {
 
     public CodeActionManager getCodeActionManager() {
         return compilerPluginManager.getCodeActionManager();
+    }
+    
+    public CompletionManager getCompletionManager() {
+        return compilerPluginManager.getCompletionManager();
     }
 
     CompilerPluginManager compilerPluginManager() {

@@ -148,6 +148,7 @@ public class SymbolTable {
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BType invokableType = new BInvokableType(null, null, null, null);
+    public final BType empty = new BType(TypeTags.EMPTY, null);
 
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
@@ -1141,6 +1142,13 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
                                                      BUILTIN);
+
+        BInvokableTypeSymbol typeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
+                rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos, BUILTIN);
+
+        typeSymbol.returnType = retType;
+        opType.tsymbol = typeSymbol;
+
         rootScope.define(name, symbol);
     }
 

@@ -222,7 +222,7 @@ public class ErrorVariableDefinitionTest {
     public void testLocalErrorType() {
         BRunUtil.invoke(result, "testLocalErrorType");
     }
-
+    
     @Test
     public void testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection() {
         BRunUtil.invoke(result, "testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection");

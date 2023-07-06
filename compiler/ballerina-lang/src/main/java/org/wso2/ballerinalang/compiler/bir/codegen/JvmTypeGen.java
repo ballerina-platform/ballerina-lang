@@ -227,14 +227,15 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
-            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
-                String name = typeDef.internalName.value;
-                generateTypeField(cw, name);
-                generateTypedescField(cw, name);
+            BType bType = typeDef.type;
+            int bTypeTag = bType.tag;
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+                continue;
             }
-            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            String name = typeDef.internalName.value;
+            generateTypeField(cw, name);
+            generateTypedescField(cw, name);
         }
     }
 
@@ -984,7 +985,7 @@ public class JvmTypeGen {
             } else {
                 mv.visitInsn(ICONST_0);
             }
-            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.originalName.value);
             if (bInvokableSymbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
