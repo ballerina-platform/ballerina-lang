@@ -19,6 +19,7 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.DistSpecificToolsManifest;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.central.client.model.Tool;
 
@@ -46,7 +47,7 @@ public class PrintUtils {
      *
      * @param tools       List of tools
      */
-    public static void printLocalTools(List<BalToolsManifest.Tool> tools, String terminalWidth) {
+    public static void printLocalTools(List<DistSpecificToolsManifest.Tool> tools, String terminalWidth) {
         int rightMargin = 3;
         int width = Integer.parseInt(terminalWidth) - rightMargin;
         int maxToolIdNameLength = 0;
@@ -63,9 +64,10 @@ public class PrintUtils {
 
         printListLocalTableHeader(toolIdColWidth, versionColWidth);
 
-        for (BalToolsManifest.Tool tool: tools) {
+        for (DistSpecificToolsManifest.Tool tool: tools) {
+            String activeIndicator = tool.active() ? "* " : "  ";
             printInCLI("|" + tool.id(), toolIdColWidth);
-            printInCLI(tool.version(), versionColWidth);
+            printInCLI(activeIndicator + tool.version(), versionColWidth);
             outStream.println();
         }
         outStream.println();

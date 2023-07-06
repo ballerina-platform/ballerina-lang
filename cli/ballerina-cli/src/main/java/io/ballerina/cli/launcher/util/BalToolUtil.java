@@ -24,7 +24,6 @@ import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.DistPackedToolsManifest;
 import io.ballerina.projects.DistSpecificToolsManifest;
 import io.ballerina.projects.GlobalToolsManifest;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalaFiles;
@@ -94,6 +93,7 @@ import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
@@ -154,6 +154,8 @@ public class BalToolUtil {
 
         Path centralBalaDirPath = userHomeDirPath.resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
+        Path distributionBalaDirPath = Path.of(System.getProperty(BALLERINA_HOME), "repo", BALA_DIR_NAME);
+
         BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
         DistSpecificToolsManifest distSpecificToolsManifest =
                 DistSpecificToolsManifestBuilder.from(distSpecificToolsToml).build();
@@ -164,9 +166,12 @@ public class BalToolUtil {
                             .filter(DistSpecificToolsManifest.Tool::active)
                             .findFirst();
             if (tool.isPresent()) {
-                File libsDir = centralBalaDirPath.resolve(Path.of(
-                        tool.get().org(), tool.get().name(), tool.get().version(), ANY_PLATFORM, TOOL, LIBS)).toFile();
-                return findJarFiles(libsDir);
+                Path toolDirPath = Path.of(
+                        tool.get().org(), tool.get().name(), tool.get().version(), ANY_PLATFORM, TOOL);
+                if (distributionBalaDirPath.resolve(toolDirPath).resolve(BAL_TOOL_TOML).toFile().isFile())  {
+                    return findJarFiles(distributionBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
+                }
+                return findJarFiles(centralBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
             }
             return Collections.emptyList();
         }
@@ -264,7 +269,7 @@ public class BalToolUtil {
                     versions.forEach(versionPath -> {
                         try {
                             String version = versionPath.getFileName().toString();
-                            PackageVersion.from(version);
+                            SemanticVersion.from(version);
                             if (isToolDistVersionCompatibleWithLocalDistVersion(versionPath)) {
                                 GlobalToolsManifest.Tool globTool = globalToolsManifest.tools().get(id);
                                 distSpecificToolsManifest.addTool(id, globTool.org(), globTool.name(), version, false);
@@ -298,7 +303,7 @@ public class BalToolUtil {
                     })
                     .map(SemanticVersion::toString);
 
-            latestVersion.ifPresent(s -> distSpecificToolsManifest.tools().get(toolId).get(s).setActive(true));
+            latestVersion.ifPresent(v -> distSpecificToolsManifest.setActiveToolVersion(toolId, v));
         });
     }
 

@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a dist<version>.toml file.
@@ -48,7 +49,24 @@ public class DistSpecificToolsManifest implements BalToolsManifest {
         if (!tools.containsKey(id)) {
             tools.put(id, new HashMap<>());
         }
+        if (active) {
+            flipCurrentActiveToolVersion(id);
+        }
         tools.get(id).put(version, new Tool(id, org, name, version, active));
+    }
+
+    public Optional<Tool> getTool(String id, String version) {
+        if (tools.containsKey(id)) {
+            return Optional.ofNullable(tools.get(id).get(version));
+        }
+        return Optional.empty();
+    }
+
+    public void setActiveToolVersion(String id, String version) {
+        if (tools.containsKey(id)) {
+            flipCurrentActiveToolVersion(id);
+            tools.get(id).get(version).setActive(true);
+        }
     }
 
     public void removeTool(String id) {
@@ -62,6 +80,10 @@ public class DistSpecificToolsManifest implements BalToolsManifest {
         if (tools.containsKey(id)) {
             tools.get(id).remove(version);
         }
+    }
+
+    private void flipCurrentActiveToolVersion(String id) {
+        tools.get(id).forEach((k, v) -> v.setActive(false));
     }
 
     @Override

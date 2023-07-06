@@ -9,7 +9,5 @@ OPTIONS
            Print the usage details of tool list command.
 
 DESCRIPTION
-       List the tool-id and the version of all locally available tools.
-
-       When multiple versions of the same tool exist, the latest version
-       will be listed.
+       List the tool-id and the version of all tools installed in the local
+       environment.

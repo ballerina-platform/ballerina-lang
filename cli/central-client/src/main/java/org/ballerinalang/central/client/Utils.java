@@ -35,6 +35,7 @@ import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.central.client.exceptions.BalaAccessErrorException;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
@@ -154,7 +155,7 @@ public class Utils {
             }
         } catch (IOException e) {
             downloadBody.ifPresent(ResponseBody::close);
-            throw new PackageAlreadyExistsException(
+            throw new BalaAccessErrorException(
                     logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
         }
 
