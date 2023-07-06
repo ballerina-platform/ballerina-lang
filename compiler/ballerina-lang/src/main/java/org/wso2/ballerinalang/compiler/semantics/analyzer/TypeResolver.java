@@ -238,7 +238,6 @@ public class TypeResolver {
                     updateIsCyclicFlag(type);
                 }
                 updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
-                handleDistinctDefinitionOfErrorIntersection(typeDefinition, type);
             }
             resolvingTypes.clear();
             resolvingModuleDefs.clear();
@@ -439,10 +438,8 @@ public class TypeResolver {
         return potentialIntersectionType;
     }
 
-    private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition,
+    private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition, BSymbol typeDefSymbol,
                                                              BType definedType) {
-        BSymbol typeDefSymbol = typeDefinition.symbol;
-
         if (definedType.tag == TypeTags.INTERSECTION &&
                 ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
             boolean distinctFlagPresentInTypeDef = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
@@ -451,7 +448,8 @@ public class TypeResolver {
             int numberOfDistinctConstituentTypes = 0;
             BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
             for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
-                BType type = Types.getReferredType(constituentType.getBType());
+                BType type = Types.getReferredType(
+                        types.getTypeWithEffectiveIntersectionTypes(constituentType.getBType()));
 
                 if (type.getKind() == TypeKind.ERROR) {
                     if (constituentType.flagSet.contains(Flag.DISTINCT)) {
@@ -1887,7 +1885,7 @@ public class TypeResolver {
         }
 
         symEnter.handleDistinctDefinition(typeDefinition, typeDefSymbol, resolvedType, effectiveDefinedType);
-        resolvedType = typeDefSymbol.type; // update the distinct type
+        handleDistinctDefinitionOfErrorIntersection(typeDefinition, typeDefSymbol, resolvedType);
 
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
         // Reset public flag when set on a non public type.
