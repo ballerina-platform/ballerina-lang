@@ -173,6 +173,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TUPLE_AND_EXPRESSION_SIZE_DOES_NOT_MATCH("BCE2136", "tuple.and.expression.size.does.not.match"),
     CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD("BCE2137",
             "cannot.specify.named.argument.for.field.of.included.record.when.arg.specified.for.included.record"),
+    CYCLIC_TYPE_REFERENCE_NOT_YET_SUPPORTED("BCE2138", "cyclic.type.reference.not.yet.supported"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -421,6 +422,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
+    FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -804,8 +806,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4047", "invalid.error.query.construct.map.type"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4048",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
-    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4049", "future.expression.expected")
-;
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4049", "future.expression.expected"),
+    USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
+            "BCE4050", "user.defined.functions.not.allowed.with.aggregated.variables"),
+    SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
+            "BCE4051", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
+    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4052", "seq.arg.followed.by.another.seq.arg"),
+    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4053", "query.construct.types.cannot.be.used.with.collect"),
+    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4054", "variable.is.sequenced.more.than.once"),
+    INVALID_GROUPING_KEY_TYPE("BCE4055", "invalid.grouping.key.type"),
+    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4056", "named.arg.not.allowed.for.rest.param")
     ;
 
     private String diagnosticId;

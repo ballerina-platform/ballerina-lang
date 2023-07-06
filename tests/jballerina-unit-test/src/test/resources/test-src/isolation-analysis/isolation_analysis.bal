@@ -543,6 +543,54 @@ function testIsolatedFunctionWithSelfAsCapturedVariable() {
     assertEquality(false, b.compare());
 }
 
+isolated function testIsolatedFPCallInIsolatedFunction() {
+    var f = isolatedFunctionWithOnlyLocalVars;
+    int r = f();
+    assertEquality(4, r);
+
+    isolated function () returns int g = isolatedFunctionWithOnlyLocalVars;
+    assertEquality(4, g());
+
+    BoundMethodTestClass h = new;
+    isolated function () returns int m = h.isolatedFn;
+    int v = m();
+    assertEquality(10, v);
+
+    FunctionFieldTestClass i = new;
+    var if1 = i.f1;
+    int w = if1();
+    assertEquality(123, w);
+
+    i.testFunctionFieldFPCall();
+}
+
+isolated class BoundMethodTestClass {
+    isolated function testBoundMethodFPCall() {
+        var f = self.isolatedFn;
+        int v = f();
+        assertEquality(10, v);
+    }
+
+    public function nonIsolatedFn() {
+    }
+
+    public isolated function isolatedFn() returns int => 10;
+}
+
+public class FunctionFieldTestClass {
+    public final isolated function () returns int f1 = () => 123;
+    private final isolated function () returns string f2 = () => "hello";
+
+    isolated function testFunctionFieldFPCall() {
+        isolated function () returns int f1 = self.f1;
+        assertEquality(123, f1());
+
+        var f2 = self.f2;
+        string r = f2();
+        assertEquality("hello", r);
+    }
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
