@@ -139,6 +139,33 @@
       "filterText": "descending",
       "insertText": "descending",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "group by",
+      "insertText": "group by ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "group by",
+      "insertText": "group by ${1:var} ${2:item} = ${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "collect",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "collect",
+      "insertText": "collect ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -357,4 +357,9 @@ public class LangLibDecimalTest {
     public void testQuantizeFunctionWithInvalidOutput() {
         BRunUtil.invoke(compileResult, "testQuantizeFunctionWithInvalidOutput");
     }
+
+    @Test
+    public void testAvg() {
+        BRunUtil.invoke(compileResult, "testAvg");
+    }
 }

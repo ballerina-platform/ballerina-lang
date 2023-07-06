@@ -10,7 +10,7 @@
   {
     "description": "Call function f",
     "code": "f()",
-    "stdout": "panic: Error {}\n",
+    "stdout": "panic: Error {}\nat f()\n",
     "error": "InvokerPanicException"
   },
   {

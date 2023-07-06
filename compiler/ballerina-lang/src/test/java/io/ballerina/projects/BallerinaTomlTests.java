@@ -63,6 +63,7 @@ public class BallerinaTomlTests {
         PackageManifest.Platform platform = packageManifest.platform("java11");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
+        Assert.assertEquals(platform.graalvmCompatible().booleanValue(), true);
         for (Map<String, Object> library : platformDependencies) {
             Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));
@@ -187,6 +188,13 @@ public class BallerinaTomlTests {
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'build-options': expected 'OBJECT', found 'ARRAY'");
+    }
+
+    @Test(description = "Test graalvmBuildOptions parsed properly")
+    public void testBallerinaTomlWithGraalvmBuildOptions() throws IOException {
+        BuildOptions buildOptions =
+                getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
+        Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
     }
 
     @Test(description = "Platform libs should be given as [[platform.java11.dependency]], " +
@@ -576,5 +584,11 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
         return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+    }
+
+    static BuildOptions getBuildOptions(Path tomlPath) throws IOException {
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).buildOptions();
     }
 }

@@ -437,7 +437,6 @@ public class JvmValueGen {
     }
 
     private void createTypeDescConstructorWithAnnotations(ClassWriter cw, String name) {
-
         String descriptor = TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
         mv.visitCode();

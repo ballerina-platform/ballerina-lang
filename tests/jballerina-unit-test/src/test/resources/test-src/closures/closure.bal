@@ -739,6 +739,80 @@ function errorConstructorWithClosureTest() {
      assert(<string[]>["array","text"],  <anydata>checkpanic errorDetail["arrayParam"]);
 }
 
+public type Obj1 object {
+};
+
+public class Foo {
+    function fooFunc() {
+    }
+}
+
+function testLevelsWithForEach1() returns Obj1 {
+    Obj1 refObj = object {
+        function info(Foo foo, stream<int, error?> s) returns error? {
+            check s.forEach(function(int j) {
+                int[] arr = [];
+                arr.forEach(function(int i) {
+                    foo.fooFunc();
+                });
+            });
+        }
+    };
+    return refObj;
+}
+
+public type Obj2 object {
+    function addAll(int[] arr1, int[] arr2) returns int;
+};
+
+public type Obj3 object {
+    function addAll(int[] arr1, int[] arr2, int[] arr3, int[] arr4) returns int;
+};
+
+function testLevelsWithForEach2() returns Obj2 {
+    Obj2 refObj = object {
+        function addAll(int[] arr1, int[] arr2) returns int {
+            int x = 0;
+            arr1.forEach(function(int j) {
+                arr2.forEach(function(int i) {
+                    x += i + j;
+                });
+            });
+            return x;
+        }
+    };
+    return refObj;
+}
+
+function testLevelsWithForEach3() returns Obj3 {
+    Obj3 refObj = object {
+        function addAll(int[] arr1, int[] arr2, int[] arr3, int[] arr4) returns int {
+            int x = 0;
+            arr1.forEach(function(int j) {
+                arr2.forEach(function(int i) {
+                    arr3.forEach(function(int k) {
+                        arr4.forEach(function(int l) {
+                            x += i + j + k + l;
+                        });
+                    });
+                });
+            });
+            return x;
+        }
+    };
+    return refObj;
+}
+
+function test30() {
+    _ = testLevelsWithForEach1();
+    Obj2 obj = testLevelsWithForEach2();
+    int x = obj.addAll([1,2,3], [4]);
+    assert(x, 18);
+    Obj3 obj3 = testLevelsWithForEach3();
+    int y = obj3.addAll([1,2,3], [4,5], [6], [7]);
+    assert(y, 117);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
             return;

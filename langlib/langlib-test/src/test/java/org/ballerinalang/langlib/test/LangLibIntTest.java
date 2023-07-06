@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -150,7 +150,7 @@ public class LangLibIntTest {
     public Object[] functionProvider() {
         return new String[] {"testToHexStringNonPositives", "testLangLibCallOnIntSubTypes",
                 "testLangLibCallOnFiniteType", "testIntOverflow", "testIntOverflowWithSum",
-                "testIntNonOverflowWithSum", "testIntRange", "testIntRangeDec", "testZeroStepIntRangeError"};
+                "testIntNonOverflowWithSum", "testIntRange", "testIntRangeDec", "testZeroStepIntRangeError", "testAvg"};
     }
 
 }

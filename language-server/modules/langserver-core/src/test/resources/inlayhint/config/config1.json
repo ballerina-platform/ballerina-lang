@@ -1,0 +1,106 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 34
+    },
+    "end": {
+      "line": 26,
+      "character": 45
+    }
+  },
+  "source": "source/inlayhint.bal",
+  "result": [
+    {
+      "position": {
+        "line": 1,
+        "character": 34
+      },
+      "label": {
+        "left": "firstName: "
+      }
+    },
+    {
+      "position": {
+        "line": 1,
+        "character": 41
+      },
+      "label": {
+        "left": "lastName: "
+      }
+    },
+    {
+      "position": {
+        "line": 5,
+        "character": 48
+      },
+      "label": {
+        "left": "startIndex: "
+      }
+    },
+    {
+      "position": {
+        "line": 5,
+        "character": 50
+      },
+      "label": {
+        "left": "endIndex: "
+      }
+    },
+    {
+      "position": {
+        "line": 19,
+        "character": 9
+      },
+      "label": {
+        "left": "arg1: "
+      }
+    },
+    {
+      "position": {
+        "line": 19,
+        "character": 17
+      },
+      "label": {
+        "left": "...restArg: "
+      }
+    },
+    {
+      "position": {
+        "line": 20,
+        "character": 29
+      },
+      "label": {
+        "left": "param1: "
+      }
+    },
+    {
+      "position": {
+        "line": 20,
+        "character": 34
+      },
+      "label": {
+        "left": "params: "
+      }
+    },
+    {
+      "position": {
+        "line": 24,
+        "character": 6
+      },
+      "label": {
+        "left": "...rest: "
+      }
+    },
+    {
+      "position": {
+        "line": 26,
+        "character": 29
+      },
+      "label": {
+        "left": "param1: "
+      }
+    }
+  ],
+  "description": "inlay hints for function calls and langLib functions"
+}

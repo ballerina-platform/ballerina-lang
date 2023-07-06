@@ -41,7 +41,8 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = INIT_COMMAND, description = "Create a Init Ballerina project")
+@CommandLine.Command(name = INIT_COMMAND, description = "This command is deprecated and will be removed in a future " +
+        "release. Use `bal new .` instead")
 public class InitCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -70,6 +71,8 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
+        errStream.println("WARNING: This command is deprecated and will be removed in a future release. " +
+                "Use `bal new .` instead");
         // If help flag is given print the help message.
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INIT_COMMAND);
@@ -168,7 +171,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Initialize a Ballerina project in current directory");
+        out.append(BLauncherCmd.getCommandUsageInfo(INIT_COMMAND));
     }
 
     @Override

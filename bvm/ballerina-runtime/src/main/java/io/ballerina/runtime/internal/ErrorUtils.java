@@ -23,17 +23,17 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.
@@ -94,97 +94,97 @@ public class ErrorUtils {
         // stack overflow exceptions in addition to error value.
         // In the future, if we need to trap more exception types, we need to check instance of each exception and
         // handle accordingly.
-        BError error = createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+        BError error = createError(ErrorReasons.STACK_OVERFLOW_ERROR);
         error.setStackTrace(throwable.getStackTrace());
         return (ErrorValue) error;
     }
 
     public static ErrorValue createCancelledFutureError() {
-        return (ErrorValue) createError(BallerinaErrorReasons.FUTURE_CANCELLED);
+        return (ErrorValue) createError(ErrorReasons.FUTURE_CANCELLED);
     }
 
     public static BError createIntOverflowError() {
-        throw createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INT_RANGE_OVERFLOW_ERROR));
+        throw createError(ErrorReasons.NUMBER_OVERFLOW,
+                ErrorHelper.getErrorDetails(ErrorCodes.INT_RANGE_OVERFLOW_ERROR));
     }
 
     public static BError createIntOverflowError(BString errorMsg) {
-        throw createError(errorMsg, BLangExceptionHelper.getErrorDetails(RuntimeErrors.INT_RANGE_OVERFLOW_ERROR));
+        throw createError(errorMsg, ErrorHelper.getErrorDetails(ErrorCodes.INT_RANGE_OVERFLOW_ERROR));
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
-        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                          BLangExceptionHelper.getErrorDetails(RuntimeErrors.TYPE_CAST_ERROR,
+        throw createError(ErrorReasons.TYPE_CAST_ERROR,
+                          ErrorHelper.getErrorDetails(ErrorCodes.TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
 
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType, String detailMessage) {
-        return createError(BallerinaErrorReasons.TYPE_CAST_ERROR, BLangExceptionHelper.getErrorMessage(
-                RuntimeErrors.TYPE_CAST_ERROR, TypeChecker.getType(sourceVal), targetType)
+        return createError(ErrorReasons.TYPE_CAST_ERROR, ErrorHelper.getErrorMessage(
+                ErrorCodes.TYPE_CAST_ERROR, TypeChecker.getType(sourceVal), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }
 
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
-        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                          BLangExceptionHelper.getErrorDetails(RuntimeErrors.J_TYPE_CAST_ERROR,
+        throw createError(ErrorReasons.TYPE_CAST_ERROR,
+                          ErrorHelper.getErrorDetails(ErrorCodes.J_TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
     }
 
     public static BError createJToBTypeCastError(Object sourceVal, Type targetType) {
-        throw createError(BLangExceptionHelper.
-                getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
+        throw createError(ErrorHelper.
+                getErrorMessage(ErrorCodes.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
     }
 
     public static BError createJToBTypeCastError(Object value) {
-        throw createError(BLangExceptionHelper.
-                getErrorMessage(RuntimeErrors.J_TYPE_ASSIGNABLE_ERROR, value));
+        throw createError(ErrorHelper.
+                getErrorMessage(ErrorCodes.J_TYPE_ASSIGNABLE_ERROR, value));
     }
 
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
-        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                          BLangExceptionHelper.getErrorDetails(
-                                  RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+        throw createError(ErrorReasons.NUMBER_CONVERSION_ERROR,
+                          ErrorHelper.getErrorDetails(
+                                  ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
     public static BError createNumericConversionError(Object inputValue, Type inputType, Type targetType) {
-        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+        throw createError(ErrorReasons.NUMBER_CONVERSION_ERROR,
+                ErrorHelper.getErrorDetails(ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                         inputType, inputValue, targetType));
     }
 
     public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {
-        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
+        throw createError(ErrorReasons.OPERATION_NOT_SUPPORTED_ERROR,
+                ErrorHelper.getErrorDetails(ErrorCodes.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
     }
 
     public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
-        throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorDetails(
-                RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
+        throw createError(ErrorReasons.UNORDERED_TYPES_ERROR, ErrorHelper.getErrorDetails(
+                ErrorCodes.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
     }
 
     public static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
+        return createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                ErrorHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
     public static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorMessage(
+        return createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                ErrorHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }
 
     public static BError createInvalidDecimalError(String value) {
-        throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
+        throw createError(ErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
+                ErrorHelper.getErrorDetails(ErrorCodes.UNSUPPORTED_DECIMAL_VALUE, value));
     }
 
     public static BError createInvalidFractionDigitsError() {
         throw createError(getModulePrefixedReason(FLOAT_LANG_LIB,
-                BallerinaErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_FRACTION_DIGITS));
+                ErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
+                ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
     }
 }

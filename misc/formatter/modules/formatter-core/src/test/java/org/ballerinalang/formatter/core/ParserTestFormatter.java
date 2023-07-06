@@ -84,11 +84,14 @@ public class ParserTestFormatter extends FormatterTest {
                 "receive_action_source_01.bal", // issue #26376
                 "doc_source_21.bal", // issue #28172
                 "module_var_decl_source_18.bal", // issue #31307
-                "match_stmt_source_21.bal", // issue #35240
-                "func_params_source_27.bal", // issue #35240
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
                 "service_decl_source_20.bal",
+
+                // The following tests are disabled due to tokens merging together after formatting. issue #35240
+                "query_expr_source_121.bal", "query_expr_source_123.bal", "query_expr_source_124.bal",
+                "query_expr_source_126.bal", "match_stmt_source_21.bal",
+                "func_params_source_27.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
@@ -182,7 +185,11 @@ public class ParserTestFormatter extends FormatterTest {
                 "client_resource_access_action_source_05.bal", "client_resource_access_action_source_06.bal",
                 "resiliency_source_05.bal", "regexp_constructor_source_26.bal", "regexp_constructor_source_28.bal",
                 "regexp_constructor_source_44.bal", "regexp_constructor_source_47.bal",
-                "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal");
+                "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal",
+                "query_expr_source_101.bal", "query_expr_source_105.bal", "query_expr_source_94.bal",
+                "query_expr_source_116.bal", "query_expr_source_117.bal", "query_expr_source_118.bal",
+                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal"
+        );
     }
 
     @DataProvider(name = "test-file-provider")

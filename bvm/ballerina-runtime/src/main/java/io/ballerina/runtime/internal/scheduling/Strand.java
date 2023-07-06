@@ -144,6 +144,7 @@ public class Strand {
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
+        trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
     }
 
@@ -189,8 +190,10 @@ public class Strand {
     public void removeCurrentTrxContext() {
         if (!this.trxContexts.isEmpty()) {
             this.currentTrxContext = this.trxContexts.pop();
+            globalProps.put(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
             return;
         }
+        globalProps.remove(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
         this.currentTrxContext = null;
     }
 
