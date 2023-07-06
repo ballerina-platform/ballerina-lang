@@ -1,2 +1,2 @@
-# Force LF end of line
-* text=auto eol=lf
+# Ensure all Java files use LF.
+*.java eol=lf
