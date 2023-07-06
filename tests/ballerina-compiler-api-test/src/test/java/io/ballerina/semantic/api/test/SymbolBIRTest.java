@@ -364,7 +364,6 @@ public class SymbolBIRTest {
     }
 
     static class SymbolInfo {
-
         private String name;
         private SymbolKind kind;
 
@@ -443,11 +442,9 @@ public class SymbolBIRTest {
     public void testObjectTypeSymbolDefQualifiers() {
         Project project = BCompileUtil.loadProject("test-src/object_symbol_qualifiers.bal");
         Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
         Document srcFile = getDocumentForSingleSource(project);
-
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        
         Optional<Symbol> symbol = model.symbol(srcFile, from(19, 20));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), TYPE);
