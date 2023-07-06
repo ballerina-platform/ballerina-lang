@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.context;
 
 import org.slf4j.Logger;
@@ -48,17 +48,19 @@ public class Utils {
      * @param ports    The port values that needs to be checked
      * @param timeout  The timeout waiting for the port to open
      * @param verbose  if verbose is set to true,
-     * @param address host address
+     * @param hostName The hostname that needs to be checked
      * @throws RuntimeException if the port is not opened within the timeout
      */
-    public static void waitForPortsToOpen(int[] ports, long timeout, boolean verbose, InetAddress address)
+    public static void waitForPortsToOpen(int[] ports, long timeout, boolean verbose, String hostName)
             throws RuntimeException {
-        for (int port : ports) {
+
+        Arrays.stream(ports).parallel().forEach(port -> {
             long startTime = System.currentTimeMillis();
             boolean isPortOpen = false;
             while (!isPortOpen && (System.currentTimeMillis() - startTime) < timeout) {
                 Socket socket = null;
                 try {
+                    InetAddress address = InetAddress.getByName(hostName);
                     socket = new Socket(address, port);
                     isPortOpen = socket.isConnected();
                     if (isPortOpen) {
@@ -87,7 +89,7 @@ public class Utils {
             if (!isPortOpen) {
                 throw new RuntimeException("Port '" + port + "' is not open");
             }
-        }
+        });
     }
 
     /**
@@ -95,12 +97,11 @@ public class Utils {
      *
      * @param ports   - http ports values
      * @param timeout - max time to wait
-     *
      */
-    public static void waitForPortsToClose(int[] ports, int timeout, InetAddress address) {
-        for (int port : ports) {
+    public static void waitForPortsToClose(int[] ports, int timeout) {
+        Arrays.stream(ports).parallel().forEach(port -> {
             long time = System.currentTimeMillis() + timeout;
-            boolean portOpen = Utils.isPortOpen(port, address);
+            boolean portOpen = Utils.isPortOpen(port);
             while (portOpen && System.currentTimeMillis() < time) {
                 // wait until server shutdown is completed
                 try {
@@ -108,24 +109,38 @@ public class Utils {
                 } catch (InterruptedException ignored) {
                     //ignore
                 }
-                portOpen = Utils.isPortOpen(port, address);
+                portOpen = Utils.isPortOpen(port);
             }
             if (portOpen) {
                 throw new RuntimeException("Port '" + port + "' not closed properly when stopping server");
             }
+        });
+    }
+
+    /**
+     * Check whether given port is in use or not.
+     *
+     * @param port - port number
+     * @throws BallerinaTestException if port is already in use
+     */
+    public static void checkPortAvailability(int port) throws BallerinaTestException {
+
+        //check whether http port is already occupied
+        if (isPortOpen(port)) {
+            throw new BallerinaTestException("Unable to start ballerina server on port " +
+                    (port) + " : Port already in use");
         }
     }
 
     /**
      * Check whether given ports are in use or not.
      *
-     * @param ports   - http ports values
-     * @param address
+     * @param ports - http ports values
      */
-    public static void checkPortsAvailability(int[] ports, InetAddress address) {
+    public static void checkPortsAvailability(int[] ports) {
 
         Arrays.stream(ports).parallel().forEach(port -> {
-            if (isPortOpen(port, address)) {
+            if (isPortOpen(port)) {
                 throw new RuntimeException("Unable to start ballerina server on port " +
                         (port) + " : Port already in use");
             }
@@ -136,13 +151,13 @@ public class Utils {
      * Check whether the provided port is open.
      *
      * @param port The port that needs to be checked
-     * @param address The host address
      * @return true if the port is open and false otherwise
      */
-    private static boolean isPortOpen(int port, InetAddress address) {
+    private static boolean isPortOpen(int port) {
         Socket socket = null;
         boolean isPortOpen;
         try {
+            InetAddress address = InetAddress.getLocalHost();
             socket = new Socket(address, port);
             isPortOpen = socket.isConnected();
             if (isPortOpen) {
@@ -194,7 +209,7 @@ public class Utils {
                 File newFile = new File(entryName);
                 if (!newFile.getCanonicalPath().startsWith(new File(extractedDir).getCanonicalPath())) {
                     throw new BallerinaTestException("Arbitrary File Write attack attempted via an archive file. " +
-                                                             "File name: " + newFile.getName());
+                            "File name: " + newFile.getName());
                 }
 
                 boolean fileCreated = false;
