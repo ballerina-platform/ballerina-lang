@@ -67,6 +67,10 @@ public class BuildOptions {
         return this.compilationOptions.offlineBuild();
     }
 
+    public boolean disableSyntaxTree() {
+        return this.compilationOptions.disableSyntaxTree();
+    }
+
     public boolean sticky() {
         return this.compilationOptions.sticky();
     }
@@ -246,6 +250,11 @@ public class BuildOptions {
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
+            return this;
         }
 
         public BuildOptionsBuilder setTestReport(Boolean value) {
