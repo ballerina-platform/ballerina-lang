@@ -698,7 +698,7 @@ public class CentralAPIClient {
 
             // Unauthorized access token
             if (packagePullResponse.code() == HTTP_UNAUTHORIZED) {
-                handleUnauthorizedResponse(body);
+                handleUnauthorizedResponse(body, pkgPullResBodyContent);
             }
 
             if (body.isPresent()) {
@@ -1488,6 +1488,7 @@ public class CentralAPIClient {
      *
      * @param org  org name
      * @param body response body
+     * @param responseBody error message
      * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
@@ -1502,6 +1503,29 @@ public class CentralAPIClient {
             } else {
                 throw new CentralClientException("unauthorized access token for organization: '" + org +
                         "'. check access token set in 'Settings.toml' file.");
+            }
+        }
+    }
+
+    /**
+     * Handle unauthorized response.
+     *
+     * @param body response body
+     * @param responseBody error message
+     * @throws IOException            when accessing response body
+     * @throws CentralClientException with unauthorized error message
+     */
+    private void handleUnauthorizedResponse(Optional<ResponseBody> body, String responseBody)
+            throws IOException, CentralClientException {
+        if (body.isPresent()) {
+            Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+            if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                Error error = new Gson().fromJson(responseBody, Error.class);
+                throw new CentralClientException("unauthorized access token. " +
+                        "check access token set in 'Settings.toml' file. reason: " + error.getMessage());
+            } else {
+                throw new CentralClientException("unauthorized access token. " +
+                        "check access token set in 'Settings.toml' file.");
             }
         }
     }
