@@ -82,6 +82,10 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         } else if (this.withinReturnKWContext(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         } else if (node.parent().kind() == SyntaxKind.OBJECT_FIELD) {
+            /* Covers the completions for init function in object constructor or class definition
+             * eg: object { function <cursor> }
+             *     object { public function <cursor> }
+             */
             SnippetCompletionItem initFuncCompletionItem =
                     new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get());
             Token funcKW = node.functionKeyword();
@@ -99,6 +103,11 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     private int getEndPosWithoutNewLine(Token token) {
+        /* Purpose of this method to handle the following scenario specially
+         * eg: object { function<cursor> }
+         * If we have single trailing minutiae, and it is a new line, then we need to consider `function` keyword as
+         * an existing token.
+         */
         int end = token.textRangeWithMinutiae().endOffset();
         MinutiaeList minutiaeList = token.trailingMinutiae();
         int size = minutiaeList.size();
