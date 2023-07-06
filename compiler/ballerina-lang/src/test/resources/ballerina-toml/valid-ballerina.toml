@@ -9,6 +9,10 @@ repository= "https://github.com/ballerina-platform/ballerina-lang"
 distribution= "slbeta2"
 visibility= "private"
 
+
+[platform.java11]
+graalvmCompatible = true
+
 [[platform.java11.dependency]]
 path = "../dummy-jars/toml4j.txt"
 artifactId = "toml4j"

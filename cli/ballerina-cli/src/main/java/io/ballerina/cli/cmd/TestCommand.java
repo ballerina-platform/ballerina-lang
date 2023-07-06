@@ -110,13 +110,14 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                boolean nativeImage) {
+                boolean nativeImage, String graalVMBuildOptions) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.nativeImage = nativeImage;
         this.offline = true;
+        this.graalVMBuildOptions = graalVMBuildOptions;
     }
 
     @CommandLine.Option(names = {"--offline"}, description = "Run package tests")
@@ -190,6 +191,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
+
+    @CommandLine.Option(names = "--graalvm-build-options", description = "additional build options for native image " +
+            "generation")
+    private String graalVMBuildOptions;
+
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
@@ -311,12 +317,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
-        }
-
         if (project.buildOptions().nativeImage() && project.buildOptions().codeCoverage()) {
             this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina native test");
+        }
+
+        if (!project.buildOptions().nativeImage() && !project.buildOptions().graalVMBuildOptions().isEmpty()) {
+            this.outStream.println("WARNING: Additional GraalVM build options are ignored since graalvm " +
+                    "flag is not set");
         }
 
         Iterable<Module> originalModules = project.currentPackage().modules();
@@ -365,7 +372,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
-                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
 
         if (targetDir != null) {

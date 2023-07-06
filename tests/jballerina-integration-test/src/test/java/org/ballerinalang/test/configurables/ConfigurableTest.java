@@ -117,6 +117,14 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
+    public void testConfigurableModuleStructureWithTestAPI() throws BallerinaTestException {
+        LogLeecher testLog1 = new LogLeecher("4 passing");
+        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
+                new LogLeecher[]{testLog1}, testFileLocation + "/testModuleStructureProject");
+        testLog1.waitForText(5000);
+    }
+
+    @Test
     public void testFileEnvVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
@@ -128,7 +136,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testDataEnvVariableBasedConfigurableNegative() throws BallerinaTestException {
-        LogLeecher errorLeecher1 = new LogLeecher("warning: invalid toml file :", ERROR);
+        LogLeecher errorLeecher1 = new LogLeecher("warning: invalid TOML file :", ERROR);
         LogLeecher errorLeecher2 = new LogLeecher("[BAL_CONFIG_DATA:(1:11,1:12)] missing new line", ERROR);
         LogLeecher errorLeecher3 = new LogLeecher("[BAL_CONFIG_DATA:(1:22,1:24)] missing new line", ERROR);
         LogLeecher errorLeecher4 = new LogLeecher("[BAL_CONFIG_DATA:(1:36,1:39)] missing new line", ERROR);

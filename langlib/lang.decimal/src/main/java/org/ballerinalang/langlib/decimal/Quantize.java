@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.decimal;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,7 +40,7 @@ public class Quantize {
     public static BDecimal quantize(BDecimal x, BDecimal y) {
         BigDecimal quantizeValue = x.value().setScale(y.value().scale(), RoundingMode.HALF_EVEN);
         if (quantizeValue.precision() > MAX_DIGITS_IN_SIGNIFICAND) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.QUANTIZE_ERROR);
+            throw ErrorCreator.createError(ErrorReasons.QUANTIZE_ERROR);
         }
         return ValueCreator.createDecimalValue(quantizeValue);
     }

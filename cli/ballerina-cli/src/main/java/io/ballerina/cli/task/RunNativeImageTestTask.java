@@ -516,6 +516,11 @@ public class RunNativeImageTestTask implements Task {
                 nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
+        String graalVMBuildOptions = currentPackage.project().buildOptions().graalVMBuildOptions();
+        nativeArgs.add(graalVMBuildOptions);
+
+        // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
+        // use it as an argument.
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
                 .toString(), Charset.defaultCharset())) {
             nativeArgumentWriter.write(String.join(" ", nativeArgs));

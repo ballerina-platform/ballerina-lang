@@ -2067,18 +2067,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSelectClauseNode.createUnlinkedFacade();
     }
 
+    public static CollectClauseNode createCollectClauseNode(
+            Token collectKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(collectKeyword, "collectKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stCollectClauseNode = STNodeFactory.createCollectClauseNode(
+                collectKeyword.internalNode(),
+                expression.internalNode());
+        return stCollectClauseNode.createUnlinkedFacade();
+    }
+
     public static QueryExpressionNode createQueryExpressionNode(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause,
+            ClauseNode resultClause,
             OnConflictClauseNode onConflictClause) {
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(selectClause, "selectClause must not be null");
+        Objects.requireNonNull(resultClause, "resultClause must not be null");
 
         STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
                 getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
-                selectClause.internalNode(),
+                resultClause.internalNode(),
                 getOptionalSTNode(onConflictClause));
         return stQueryExpressionNode.createUnlinkedFacade();
     }
@@ -3034,6 +3046,39 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode(),
                 getOptionalSTNode(orderDirection));
         return stOrderKeyNode.createUnlinkedFacade();
+    }
+
+    public static GroupByClauseNode createGroupByClauseNode(
+            Token groupKeyword,
+            Token byKeyword,
+            SeparatedNodeList<Node> groupingKey) {
+        Objects.requireNonNull(groupKeyword, "groupKeyword must not be null");
+        Objects.requireNonNull(byKeyword, "byKeyword must not be null");
+        Objects.requireNonNull(groupingKey, "groupingKey must not be null");
+
+        STNode stGroupByClauseNode = STNodeFactory.createGroupByClauseNode(
+                groupKeyword.internalNode(),
+                byKeyword.internalNode(),
+                groupingKey.underlyingListNode().internalNode());
+        return stGroupByClauseNode.createUnlinkedFacade();
+    }
+
+    public static GroupingKeyVarDeclarationNode createGroupingKeyVarDeclarationNode(
+            TypeDescriptorNode typeDescriptor,
+            BindingPatternNode simpleBindingPattern,
+            Token equalsToken,
+            ExpressionNode expression) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(simpleBindingPattern, "simpleBindingPattern must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stGroupingKeyVarDeclarationNode = STNodeFactory.createGroupingKeyVarDeclarationNode(
+                typeDescriptor.internalNode(),
+                simpleBindingPattern.internalNode(),
+                equalsToken.internalNode(),
+                expression.internalNode());
+        return stGroupingKeyVarDeclarationNode.createUnlinkedFacade();
     }
 
     public static OnFailClauseNode createOnFailClauseNode(

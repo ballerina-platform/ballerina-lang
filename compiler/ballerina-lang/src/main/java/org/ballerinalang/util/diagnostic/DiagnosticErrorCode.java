@@ -422,6 +422,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
+    FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -798,7 +799,17 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
             "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
     EMPTY_REGEXP_STRING_DISALLOWED("BCE4044", "empty.regexp.string.disallowed"),
-    UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class")
+    UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class"),
+    USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
+            "BCE4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
+    SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
+            "BCE4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
+    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4048", "seq.arg.followed.by.another.seq.arg"),
+
+    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4049", "query.construct.types.cannot.be.used.with.collect"),
+    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4050", "variable.is.sequenced.more.than.once"),
+    INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
+    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param")
     ;
 
     private String diagnosticId;

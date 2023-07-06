@@ -128,7 +128,7 @@ public class ToolCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-list-with-args.txt"));
     }
 
-    @Test(description = "Test tool remove with more than one arguments")
+    @Test(description = "Test tool remove with more than one argument")
     public void testToolRemoveSubCommandWithTooManyArgs() throws IOException {
         ToolCommand toolCommand = new ToolCommand(printStream, printStream, false);
         new CommandLine(toolCommand).parseArgs("remove", "arg1", "arg2");
@@ -171,6 +171,24 @@ public class ToolCommandTest extends BaseCommandTest {
         toolCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-version.txt"));
+    }
+
+    @Test(description = "Test tool search with more than one argument")
+    public void testToolSearchSubCommandWithTooManyArgs() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, printStream, false);
+        new CommandLine(toolCommand).parseArgs("search", "arg1", "arg2");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-search-with-too-many-args.txt"));
+    }
+
+    @Test(description = "Test tool search with more than no arguments")
+    public void testToolSearchSubCommandWithNoArgs() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, printStream, false);
+        new CommandLine(toolCommand).parseArgs("search");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-search-with-no-args.txt"));
     }
 
     @DataProvider(name = "invalidToolIds")
