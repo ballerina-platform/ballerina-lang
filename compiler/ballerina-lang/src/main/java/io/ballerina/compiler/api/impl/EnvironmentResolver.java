@@ -42,8 +42,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
@@ -57,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -737,6 +741,34 @@ public class EnvironmentResolver extends BaseVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         this.acceptNodes(bLangArrowFunction.params, this.symbolEnv);
         this.acceptNode(bLangArrowFunction.body, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, groupByClause.getPosition())) {
+            return;
+        }
+        this.scope = groupByClause.env;
+        this.acceptNodes(groupByClause.getGroupingKeyList(), groupByClause.env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, collectClause.getPosition())) {
+            return;
+        }
+        this.scope = collectClause.env;
+        this.acceptNode(collectClause.expression, collectClause.env);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        this.acceptNode(invocation.invocation, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+        this.acceptNode((BLangNode) groupingKeyClause.getGroupingKey(), this.symbolEnv);
     }
 
     private void acceptNodes(List<? extends BLangNode> nodes, SymbolEnv env) {

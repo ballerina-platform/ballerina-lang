@@ -195,39 +195,6 @@ do
     BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
 
-# Add bal tool jar files to the class path
-bal_version_file="$HOME/.ballerina/ballerina-version"
-if [ -e "$bal_version_file" ]; then
-bal_version=$(sed -n '1s/[^-]*-\(.*\)/\1/p' $bal_version_file)
-    BAL_TOOLS_FILE="$HOME/.ballerina/.config/dist-$bal_version.toml"
-    if [ -e "$BAL_TOOLS_FILE" ]; then
-        while IFS='=' read -r line; do
-            if echo "$line" | grep -q '\[.*tool.*\]'; then
-                read -r line
-                while [ ! -z "$line" ] && ! echo "$line" | grep -q '\[.*tool.*\]'; do
-                    if echo "$line" | grep -q "org ="; then
-                        org=$(echo "$line" | cut -d '"' -f 2)
-                    fi
-                    if echo "$line" | grep -q "name ="; then
-                        name=$(echo "$line" | cut -d '"' -f 2)
-                    fi
-                    if echo "$line" | grep -q "version ="; then
-                        version=$(echo "$line" | cut -d '"' -f 2)
-                    fi
-                    read -r line
-                done
-                if [ ! -z "$org" ] && [ ! -z "$name" ] && [ ! -z "$version" ]; then
-                    for jar_file in "$HOME/.ballerina/repositories/central.ballerina.io/bala/$org/$name/$version/any/tool/libs"/*.jar; do
-                        BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":"$jar_file"
-                        done
-                fi
-                org=""
-                name=""
-            fi
-        done < "$BAL_TOOLS_FILE"
-    fi
-fi
-
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
@@ -251,7 +218,6 @@ BALLERINA_CLASSPATH=$BALLERINA_CLASSPATH:$BALLERINA_CLASSPATH_EXT
 CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
                -Xms256m -Xmx1024m \
                -XX:+HeapDumpOnOutOfMemoryError \
-               -XX:HeapDumpPath="'$(pwd)'" \
                $JAVA_OPTS \
                -classpath "$BALLERINA_CLASSPATH" \
                -Dballerina.home="$BALLERINA_HOME" \

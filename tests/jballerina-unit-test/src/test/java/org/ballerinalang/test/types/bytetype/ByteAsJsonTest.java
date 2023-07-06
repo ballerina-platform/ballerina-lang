@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class ByteAsJsonTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible" +
                     " types: expected 'byte', found 'int'.*")
@@ -54,7 +54,7 @@ public class ByteAsJsonTest {
         BRunUtil.invoke(result, "testInherentTypeViolationForArray");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"invalid map insertion: expected value of type 'byte', found 'int'.*")
     public void testInherentTypeViolationForMap() {

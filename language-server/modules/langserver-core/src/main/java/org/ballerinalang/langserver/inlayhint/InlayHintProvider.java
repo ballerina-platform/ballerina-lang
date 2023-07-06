@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -28,8 +29,12 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.InlayHintContext;
@@ -38,9 +43,10 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -62,30 +68,46 @@ public class InlayHintProvider {
         List<NonTerminalNode> invokableNodeList = invokableNodeFinder.getInvokableNodeList();
         List<InlayHint> inlayHints = new ArrayList<>();
 
-        for (NonTerminalNode node : invokableNodeList) {
+        for (NonTerminalNode invokableNode : invokableNodeList) {
             InlayHintArgumentTypeFinder argumentTypeFinder = new InlayHintArgumentTypeFinder();
-            node.accept(argumentTypeFinder);
+            invokableNode.accept(argumentTypeFinder);
 
             // Get the argument list
             List<NonTerminalNode> argList = argumentTypeFinder.getArgumentList();
             if (argList.isEmpty()) {
-                return Collections.emptyList();
+                continue;
             }
-            List<LineRange> commaList = argumentTypeFinder.getCommaList();
-            List<ParameterSymbol> parameterSymbols = getParameterSymbols(context, node);
+            Map<NonTerminalNode, LineRange> inlayHintLocations = argumentTypeFinder.getInlayHintLocations();
+            Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> parameterSymbols =
+                    getParameterSymbolsForInvokableNode(context, invokableNode);
 
-            for (int i = 0; i < commaList.size(); i++) {
-                LineRange lineRange = commaList.get(i);
+            for (int argumentIndex = 0; argumentIndex < argList.size(); argumentIndex++) {
+                //Find the inlay-hint location for the argument
+                NonTerminalNode argument = argList.get(argumentIndex);
+                if (argument.kind() != SyntaxKind.POSITIONAL_ARG) {
+                    break;
+                }
+                LineRange lineRange = inlayHintLocations.get(argument);
+                if (lineRange == null) {
+                    return Collections.emptyList();
+                }
                 int startLine = lineRange.endLine().line();
                 int startChar = lineRange.endLine().offset();
-
                 Position position = new Position(startLine, startChar);
 
-                if (parameterSymbols.size() <= i || parameterSymbols.get(i).getName().isEmpty()) {
-                    continue;
+                //Find the corresponding parameter symbol for the argument and create inlay-hint
+                if (parameterSymbols.getLeft().size() <= argumentIndex) {
+                    if (parameterSymbols.getRight().isPresent()
+                            && parameterSymbols.getRight().get().getName().isPresent()) {
+                        String label = "..." + parameterSymbols.getRight().get().getName().get();
+                        InlayHint inlayHint = new InlayHint(position, Either.forLeft(label + ": "));
+                        inlayHints.add(inlayHint);
+                    }
+                    break;
+                } else if (parameterSymbols.getLeft().get(argumentIndex).getName().isEmpty()) {
+                    break;
                 }
-                String label = parameterSymbols.get(i).getName().get();
-
+                String label = parameterSymbols.getLeft().get(argumentIndex).getName().get();
                 InlayHint inlayHint = new InlayHint(position, Either.forLeft(label + ": "));
                 inlayHints.add(inlayHint);
             }
@@ -93,68 +115,69 @@ public class InlayHintProvider {
         return inlayHints;
     }
 
-    private static List<ParameterSymbol> getParameterSymbols(InlayHintContext context,
-                                                             NonTerminalNode node) {
-        if (node.kind() == SyntaxKind.METHOD_CALL) {
-            MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) node;
-            Optional<FunctionTypeSymbol> libFunctions = TypeResolverUtil
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForInvokableNode(
+            InlayHintContext context,
+            NonTerminalNode invokableNode) {
+        if (invokableNode.kind() == SyntaxKind.METHOD_CALL) {
+            MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) invokableNode;
+            Optional<FunctionTypeSymbol> libFunction = TypeResolverUtil
                     .findMethodInLangLibFunctions(methodCallExpressionNode, context);
-            if (libFunctions.isEmpty() || libFunctions.get().params().isEmpty()) {
-                return Collections.emptyList();
+            if (libFunction.isEmpty() || libFunction.get().params().isEmpty()) {
+                return Pair.of(Collections.emptyList(), Optional.empty());
             }
             // Since the method is a lang-lib function, skip the first parameter
-            return libFunctions.get().params().get().stream().skip(1).collect(Collectors.toList());
+            return Pair.of(libFunction.get().params().get().stream().skip(1).collect(Collectors.toList()),
+                    libFunction.get().restParam());
         } else {
-            FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) node;
-            return getFunctionCallParameterSymbols(context, functionCallExpressionNode);
+            FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) invokableNode;
+            return getParameterSymbolsForFunctionCall(context, functionCallExpressionNode);
         }
     }
 
-    private static List<ParameterSymbol> getFunctionCallParameterSymbols(InlayHintContext context,
-                                                                         FunctionCallExpressionNode node) {
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForFunctionCall(
+            InlayHintContext context,
+            FunctionCallExpressionNode node) {
         LineRange lineRange = node.lineRange();
         List<Symbol> visibleSymbols = context.visibleSymbols(new Position(
                 lineRange.startLine().line(), lineRange.startLine().offset()));
-        List<FunctionSymbol> functionSymbols = new ArrayList<>();
-        List<ParameterSymbol> parameterSymbols = new ArrayList<>();
+        List<FunctionSymbol> functionSymbols;
+        String functionName;
+        if (node.functionName().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            functionName = ((QualifiedNameReferenceNode) node.functionName()).identifier().text();
+            functionSymbols = visibleSymbols.stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
+                    .map(symbol -> (ModuleSymbol) symbol)
+                    .filter(moduleSymbol -> moduleSymbol.getName().isPresent())
+                    .filter(moduleSymbol -> moduleSymbol.getName().get().equals(
+                            ((QualifiedNameReferenceNode) node.functionName()).modulePrefix().toString().strip()))
+                    .findFirst()
+                    .map(ModuleSymbol::functions)
+                    .orElse(Collections.emptyList());
 
-        for (Node child : node.children()) {
-            if (child.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                functionSymbols = visibleSymbols.stream()
-                        .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
-                        .map(symbol -> (ModuleSymbol) symbol)
-                        .filter(moduleSymbol -> moduleSymbol.getName().isPresent())
-                        .filter(moduleSymbol -> moduleSymbol.getName().get().equals(
-                                ((QualifiedNameReferenceNode) child).modulePrefix().toString().strip()))
-                        .findFirst()
-                        .map(ModuleSymbol::functions)
-                        .orElse(Collections.emptyList());
-                parameterSymbols = getFunctionCallParams(functionSymbols,
-                        ((QualifiedNameReferenceNode) child).identifier().text());
-            }
-        }
-
-        if (functionSymbols.isEmpty()) {
+        } else if (node.functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             functionSymbols = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
                     .map(symbol -> (FunctionSymbol) symbol).collect(Collectors.toList());
-            parameterSymbols = getFunctionCallParams(functionSymbols, node.functionName().toString());
+            functionName = ((SimpleNameReferenceNode) node.functionName()).name().text();
+        } else {
+            return Pair.of(Collections.emptyList(), Optional.empty());
         }
-        return parameterSymbols;
+        return findParameterSymbols(functionSymbols, functionName);
     }
 
-    private static List<ParameterSymbol> getFunctionCallParams(List<FunctionSymbol> functionSymbols,
-                                                               String functionName) {
-        return functionSymbols.stream()
-                .filter(functionSymbol -> functionSymbol.getName().isPresent())
-                .filter(functionSymbol -> functionSymbol.getName().get().equals(functionName.strip()))
-                .map(functionSymbol -> SymbolUtil.getTypeDescriptor(functionSymbol).get())
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> findParameterSymbols(
+            List<FunctionSymbol> functionSymbols,
+            String functionName) {
+        Optional<FunctionTypeSymbol> functionTypeSymbol = functionSymbols.stream()
+                .filter(functionSymbol -> functionSymbol.getName().isPresent()
+                        && functionSymbol.getName().get().equals(functionName.strip()))
+                .findFirst()
+                .flatMap(SymbolUtil::getTypeDescriptor)
                 .filter(typeDescriptor -> typeDescriptor instanceof FunctionTypeSymbol)
-                .map(typeDescriptor -> (FunctionTypeSymbol) typeDescriptor)
-                .filter(functionTypeSymbol -> functionTypeSymbol.params().isPresent())
-                .map(functionTypeSymbol -> functionTypeSymbol.params().get())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .map(typeDescriptor -> (FunctionTypeSymbol) typeDescriptor);
+
+        return functionTypeSymbol.map(symbol -> Pair.of(symbol.params().orElse(Collections.emptyList()),
+                symbol.restParam())).orElse(Pair.of(Collections.emptyList(), Optional.empty()));
     }
 
     /**
@@ -186,7 +209,7 @@ public class InlayHintProvider {
      */
     private static class InlayHintArgumentTypeFinder extends NodeVisitor {
         List<NonTerminalNode> argumentList = new ArrayList<>();
-        List<LineRange> commaList = new ArrayList<>();
+        Map<NonTerminalNode, LineRange> inlayHintLocations = new HashMap<>();
 
         public InlayHintArgumentTypeFinder() {
         }
@@ -195,37 +218,43 @@ public class InlayHintProvider {
             return argumentList;
         }
 
-        public List<LineRange> getCommaList() {
-            return commaList;
+        public Map<NonTerminalNode, LineRange> getInlayHintLocations() {
+            return inlayHintLocations;
         }
 
         @Override
         public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-            commaList.add(functionCallExpressionNode.openParenToken().lineRange());
-            for (Node child : functionCallExpressionNode.children()) {
-                if (child.kind() == SyntaxKind.COMMA_TOKEN) {
-                    commaList.add(child.lineRange());
-                } else {
-                    child.accept(this);
-                }
-            }
+            findInlayHintLocationsFromArgs(functionCallExpressionNode.arguments(),
+                    functionCallExpressionNode.openParenToken());
         }
 
         @Override
         public void visit(MethodCallExpressionNode methodCallExpressionNode) {
-            commaList.add(methodCallExpressionNode.openParenToken().lineRange());
-            for (Node child : methodCallExpressionNode.children()) {
-                if (child.kind() == SyntaxKind.COMMA_TOKEN) {
-                    commaList.add(child.lineRange());
-                } else {
-                    child.accept(this);
-                }
-            }
+            findInlayHintLocationsFromArgs(methodCallExpressionNode.arguments(),
+                    methodCallExpressionNode.openParenToken());
         }
 
         @Override
         public void visit(PositionalArgumentNode positionalArgumentNode) {
             argumentList.add(positionalArgumentNode);
+        }
+
+        private void findInlayHintLocationsFromArgs(SeparatedNodeList<FunctionArgumentNode> argumentNodes,
+                                                    Token openParenToken) {
+            for (int i = 0; i < argumentNodes.size(); i++) {
+                FunctionArgumentNode argumentNode = argumentNodes.get(i);
+                argumentNode.accept(this);
+                if (!argumentList.contains(argumentNode)) {
+                    continue;
+                }
+                if (i == 0) {
+                    inlayHintLocations.put(argumentNode,
+                            openParenToken.lineRange());
+                    continue;
+                }
+                inlayHintLocations.put(argumentNode,
+                        argumentNodes.getSeparator(i - 1).lineRange());
+            }
         }
     }
 }

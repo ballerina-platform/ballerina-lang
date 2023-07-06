@@ -25,6 +25,10 @@ public class SnippetContext {
 
     public SnippetContext() {
     }
+    
+    public SnippetContext(int start) {
+        this.placeholderCount = start;
+    }
 
     public int incrementAndGetPlaceholderCount() {
         return ++placeholderCount;

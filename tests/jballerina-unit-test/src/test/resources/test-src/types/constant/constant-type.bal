@@ -19,7 +19,7 @@ const int CI2 = 2 * 1;
 const int CI3 = CI2;
 const float CF3 = 10.0 + 2.0;
 const float CF4 = 10.0 * 2.0;
-// const byte CBT = 10 * 2; // Uncomment after fixing #33889
+const byte CBT = 10 * 2;
 const decimal CD = 10.0 + 4;
 const boolean CB = !(true);
 const string CS = "C" + "S";
@@ -42,7 +42,7 @@ function testTypesOfSimpleConstants() {
     TYPE1 t1 = CI3;
     TYPE2 t2 = CF4;
     TYPE3 t3 = CD;
-//  TYPE4 t4 = CBT; // Uncomment after fixing #33889
+    TYPE4 t4 = CBT;
     TYPE5 t5 = CB;
     TYPE6 t6 = CS;
 
@@ -64,7 +64,7 @@ function testTypesOfSimpleConstants() {
     assertEqual(t1, 2);
     assertEqual(t2, 20.0);
     assertEqual(t3, 14.0d);
-//  assertEqual(t4, 20); // Uncomment after fixing #33889
+    assertEqual(t4, 20);
     assertEqual(t5, false);
     assertEqual(t6, "CS");
 }
@@ -77,7 +77,7 @@ const map<float> CMF1 = {a : 0.11, b : 2.12};
 const map<map<float>> CMF2 = {c : {d : 0.11, e : 2.12}, f : CMF1};
 const map<decimal> CMD1 = {a : 0.11, b : 2.12};
 const map<map<decimal>> CMD2 = {c : {d : 0.11, e : 2.12}, f : CMD1};
-const map<byte> CMBT = {a : 127, b : 255}; // Uncomment after fixing #33889
+const map<byte> CMBT = {a : 127, b : 255};
 const map<boolean> CMB1 = {a : true, b : false};
 const map<string> CMS1 = {a : "C", b : "S"};
 const map<map<string>> CMS3 = {a : {e : "C", f : "S"}, b : {g : "C", h : "S"}};
@@ -169,7 +169,7 @@ function testTypesOfConstantMaps() {
     TYPE7 t7 = CMI4;
     TYPE8 t8 = CMF1;
     TYPE9 t9 = CMD1;
-//  TYPE10 t10 = CMBT; // Uncomment after fixing #33889
+    TYPE10 t10 = CMBT;
     TYPE11 t11 = CMB1;
     TYPE12 t12 = CMS1;
     TYPE13 t13 = CN2;
@@ -179,7 +179,7 @@ function testTypesOfConstantMaps() {
     assertEqual(CMI4 is TYPE7, true);
     assertEqual(CMF1 is TYPE8, true);
     assertEqual(CMD1 is TYPE9, true);
-    // assertEqual(CMBT is TYPE10, true); // Uncomment after fixing #33889
+    assertEqual(CMBT is TYPE10, true);
     assertEqual(CMB1 is TYPE11, true);
     assertEqual(CMS1 is TYPE12, true);
     assertEqual(empty is TYPE15, true);
@@ -187,7 +187,7 @@ function testTypesOfConstantMaps() {
     assertEqual(t7, {a : {b : {a : 1}}, b : {a : {a : 1}, CMI2 : {b : 2, c : 3}, c : {d : 1}}});
     assertEqual(t8, {a : 0.11, b : 2.12});
     assertEqual(t9, {a : 0.11d, b : 2.12d});
-    // assertEqual(t10, {a : 127, b : 255}); // Uncomment after fixing #33889
+    assertEqual(t10, {a : 127, b : 255});
     assertEqual(t11, {a : true, b : false});
     assertEqual(t12, {a : "C", b : "S"});
     assertEqual(t13, {CN1 : {a : ()}});
@@ -260,9 +260,8 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type " +
-                                    "'record {| readonly (record {| 1 a; 2 b; |} & readonly & readonly) a; " +
-                                    "readonly (record {| 3 a; |} & readonly & readonly) b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {|" +
+        " readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly'");
 }
 
 type AA boolean;

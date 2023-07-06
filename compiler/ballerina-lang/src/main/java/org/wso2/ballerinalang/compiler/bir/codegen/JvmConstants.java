@@ -217,14 +217,11 @@ public class JvmConstants {
     public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
-    public static final String BAL_ERROR_REASONS =
-            "io/ballerina/runtime/internal/util/exceptions/BallerinaErrorReasons";
-    public static final String RUNTIME_ERRORS = "io/ballerina/runtime/internal/util/exceptions/RuntimeErrors";
-    public static final String BLANG_EXCEPTION_HELPER =
-            "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
+    public static final String ERROR_REASONS = "io/ballerina/runtime/internal/errors/ErrorReasons";
+    public static final String ERROR_CODES = "io/ballerina/runtime/internal/errors/ErrorCodes";
+    public static final String ERROR_HELPER = "io/ballerina/runtime/internal/errors/ErrorHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
-    public static final String RUNTIME_REGISTRY_CLASS =
-            "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
+    public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
 
@@ -283,8 +280,6 @@ public class JvmConstants {
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 
     // exception classes
-    public static final String BLANG_RUNTIME_EXCEPTION =
-            "io/ballerina/runtime/internal/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
     public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";
