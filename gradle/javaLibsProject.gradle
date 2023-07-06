@@ -42,8 +42,6 @@ dependencies {
     dist "com.sun.mail:javax.mail:${project.javaxMailVersion}"
     dist "io.netty:netty-buffer:${project.nettyBufferVersion}"
     dist "io.netty:netty-common:${project.nettyCommonVersion}"
-    dist "io.netty:netty-handler-proxy:${project.nettyHandlerProxyVersion}"
-    dist "io.netty:netty-handler:${project.nettyHandlerVersion}"
     dist "io.netty:netty-resolver:${project.nettyResolverVersion}"
     dist "io.netty:netty-transport:${project.nettyTransportVersion}"
     dist "org.wso2.carbon.messaging:org.wso2.carbon.messaging:${project.wso2CarbonMessagingVersion}"
