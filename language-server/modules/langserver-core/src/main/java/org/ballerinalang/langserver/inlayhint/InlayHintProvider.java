@@ -112,7 +112,8 @@ public class InlayHintProvider {
                 Position position = new Position(startLine, startChar);
 
                 if (argument.kind() == SyntaxKind.REST_ARG) {
-                    if (parameterSymbols.getRight().isEmpty()) {
+                    if (parameterSymbols.getRight().isEmpty() ||
+                            parameterSymbols.getRight().get().getName().get().startsWith("$")) {
                         break;
                     }
                     String label = "..." + parameterSymbols.getRight().get().getName().get();
@@ -130,8 +131,9 @@ public class InlayHintProvider {
                         inlayHints.add(inlayHint);
                     }
                     break;
-                } else if (parameterSymbols.getLeft().get(argumentIndex).getName().isEmpty()) {
-                    break;
+                } else if (parameterSymbols.getLeft().get(argumentIndex).getName().isEmpty()
+                        || parameterSymbols.getLeft().get(argumentIndex).getName().get().startsWith("$")) {
+                    continue;
                 }
                 String label = parameterSymbols.getLeft().get(argumentIndex).getName().get();
                 InlayHint inlayHint = new InlayHint(position, Either.forLeft(label + ": "));
@@ -170,14 +172,14 @@ public class InlayHintProvider {
                     .orElse(Pair.of(Collections.emptyList(), Optional.empty()));
         } else if (invokableNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION || invokableNode.kind() ==
                 SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
-            return getParameterSymbolsForNewExpressions(context, invokableNode);
+            return getParameterSymbolsForNewExpression(context, invokableNode);
         } else {
             FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) invokableNode;
             return getParameterSymbolsForFunctionCall(context, functionCallExpressionNode);
         }
     }
 
-    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForNewExpressions(
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForNewExpression(
             InlayHintContext context,
             NonTerminalNode node) {
         Optional<TypeSymbol> symbol = context.currentSemanticModel()
