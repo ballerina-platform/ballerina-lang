@@ -55,24 +55,24 @@ public abstract class AbstractNodeVisitorTarget extends Target {
     }
 
     @Override
-    public List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String, SyntaxNodeMetadata> templateConfig) {
-        TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree, templateConfig);
+    public List<SourceText> execute(SyntaxTree syntaxTree, HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
+        TreeNodeVisitorClass treeNodeVisitorClass = generateNodeVisitorClass(syntaxTree, nodeMetadataMap);
         return Collections.singletonList(
                 getSourceText(treeNodeVisitorClass, getOutputDir(), getClassName()));
     }
 
     private TreeNodeVisitorClass generateNodeVisitorClass(SyntaxTree syntaxTree,
-                                                          HashMap<String, SyntaxNodeMetadata> templateConfig) {
+                                                          HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
         return new TreeNodeVisitorClass(getPackageName(), getClassName(),
-                getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree, templateConfig));
+                getSuperClassName(), getImportClasses(), generateNodeClasses(syntaxTree, nodeMetadataMap));
     }
 
     private List<TreeNodeClass> generateNodeClasses(SyntaxTree syntaxTree,
-                                                    HashMap<String, SyntaxNodeMetadata> templateConfig) {
+                                                    HashMap<String, SyntaxNodeMetadata> nodeMetadataMap) {
         return syntaxTree.nodes()
                 .stream()
                 .map(syntaxNode -> convertToTreeNodeClass(syntaxNode,
-                        getPackageName(), new ArrayList<>(), templateConfig))
+                        getPackageName(), new ArrayList<>(), nodeMetadataMap))
                 .collect(Collectors.toList());
     }
 
