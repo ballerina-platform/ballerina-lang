@@ -65,6 +65,7 @@ public class LSPackageLoader {
         if (lsPackageLoader == null) {
             lsPackageLoader = new LSPackageLoader(context);
         }
+
         return lsPackageLoader;
     }
 

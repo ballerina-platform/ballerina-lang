@@ -78,9 +78,7 @@ public class RecordUtil {
 
         String detail = fields.stream().map(field -> {
             RawTypeSymbolWrapper<RecordTypeSymbol> wrapper = field.getTypeSymbolWrapper();
-            if (recordField.getTypeSymbolWrapper().getRawType().getName().isPresent()) {
-                return NameUtil.getModifiedTypeName(context, wrapper.getRawType()) + "." + name;
-            } else if (wrapper.getBroaderType().getName().isPresent()) {
+            if (wrapper.getBroaderType().getName().isPresent()) {
                 return NameUtil.getModifiedTypeName(context, wrapper.getBroaderType()) + "." + name;
             } else {
                 return "(" + wrapper.getRawType().signature() + ")." + name;

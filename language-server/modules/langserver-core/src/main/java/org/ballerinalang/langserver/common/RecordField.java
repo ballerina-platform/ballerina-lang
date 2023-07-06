@@ -31,9 +31,9 @@ public class RecordField {
     String name;
     RecordFieldSymbol fieldSymbol;
     RawTypeSymbolWrapper<RecordTypeSymbol> typeSymbolWrapper;
-    
+
     public RecordField(String name, RecordFieldSymbol fieldSymbol,
-                RawTypeSymbolWrapper<RecordTypeSymbol> typeSymbolWrapper) {
+                       RawTypeSymbolWrapper<RecordTypeSymbol> typeSymbolWrapper) {
         this.name = name;
         this.fieldSymbol = fieldSymbol;
         this.typeSymbolWrapper = typeSymbolWrapper;
@@ -88,4 +88,3 @@ public class RecordField {
         }
     }
 }
-
