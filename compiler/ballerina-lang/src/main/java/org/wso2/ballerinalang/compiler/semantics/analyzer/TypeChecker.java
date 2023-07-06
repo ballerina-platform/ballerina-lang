@@ -788,32 +788,32 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         return literalValueType;
                     }
                     return symTable.semanticError;
-                } else if (expectedType.tag == TypeTags.FLOAT) {
+                }
+            } else if (expectedType.tag == TypeTags.FLOAT) {
                     if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                         data.resultType = symTable.semanticError;
                         return symTable.semanticError;
                     }
                     return symTable.floatType;
-                } else if (expectedType.tag == TypeTags.FINITE) {
-                    BFiniteType finiteType = (BFiniteType) expectedType;
-                    for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
-                        if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
-                            BType valueType = setLiteralValueAndGetType(literalExpr, symTable.getTypeFromTag(tag), data);
-                            setLiteralValueForFiniteType(literalExpr, valueType, data);
-                            return valueType;
-                        }
+            } else if (expectedType.tag == TypeTags.FINITE) {
+                BFiniteType finiteType = (BFiniteType) expectedType;
+                for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
+                    if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
+                        BType valueType = setLiteralValueAndGetType(literalExpr, symTable.getTypeFromTag(tag), data);
+                        setLiteralValueForFiniteType(literalExpr, valueType, data);
+                        return valueType;
                     }
-                } else if (expectedType.tag == TypeTags.UNION) {
-                    BUnionType unionType = (BUnionType) expectedType;
-                    for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
-                        BType unionMember =
-                                getAndSetAssignableUnionMember(literalExpr, unionType, symTable.getTypeFromTag(tag), data);
-                        if (unionMember == symTable.floatType &&
-                                !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-                            return symTable.semanticError;
-                        } else if (unionMember != symTable.noType) {
-                            return unionMember;
-                        }
+                }
+            } else if (expectedType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) expectedType;
+                for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
+                    BType unionMember =
+                            getAndSetAssignableUnionMember(literalExpr, unionType, symTable.getTypeFromTag(tag), data);
+                    if (unionMember == symTable.floatType &&
+                            !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+                        return symTable.semanticError;
+                    } else if (unionMember != symTable.noType) {
+                        return unionMember;
                     }
                 }
             }
