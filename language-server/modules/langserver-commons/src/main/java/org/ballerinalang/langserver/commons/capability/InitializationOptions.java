@@ -33,11 +33,6 @@ public interface InitializationOptions {
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
 
     /**
-     * Whether the client supports rename popup.
-     */
-    String KEY_RENAME_SUPPORT = "supportRenamePopup";
-
-    /**
      * Whether the client supports {@link org.eclipse.lsp4j.Position} based rename popup.
      */
     String KEY_POSITIONAL_RENAME_SUPPORT = "supportPositionalRenamePopup";
@@ -65,13 +60,6 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableSemanticTokens();
-
-    /**
-     * Returns if the client supports rename popup.
-     *
-     * @return True if supported, false otherwise
-     */
-    boolean isRefactorRenameSupported();
 
     /**
      * Returns if the client supports {@link org.eclipse.lsp4j.Position} based rename.
