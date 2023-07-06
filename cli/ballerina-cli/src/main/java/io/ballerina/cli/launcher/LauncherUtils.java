@@ -17,7 +17,10 @@
  */
 package io.ballerina.cli.launcher;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BalToolUtil;
 import io.ballerina.runtime.api.values.BError;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -26,6 +29,9 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+
+import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -91,5 +97,73 @@ public class LauncherUtils {
         char[] c = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
+    }
+
+    static String generateGeneralHelp(Map<String, CommandLine> subCommands) {
+        StringBuilder helpBuilder = new StringBuilder();
+        helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
+        helpBuilder.append("\n\n   Tool Commands:");
+        subCommands.keySet().stream()
+                .filter(BalToolUtil::isToolCommand)
+                .sorted()
+                .forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder));
+        return helpBuilder.toString();
+    }
+
+    static String generateCommandHelp(String commandName, Map<String, CommandLine> subCommands) {
+        if (!BalToolUtil.isToolCommand(commandName)) {
+            return BLauncherCmd.getCommandUsageInfo(commandName);
+        }
+        StringBuilder commandUsageInfo = new StringBuilder();
+        BLauncherCmd cmd = subCommands.get(commandName).getCommand();
+        cmd.printLongDesc(commandUsageInfo);
+        return commandUsageInfo.toString();
+    }
+
+    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder) {
+        String commandName = command.getCommandName();
+        BLauncherCmd bCmd = (BLauncherCmd) command.getCommandSpec().userObject();
+        CommandLine.Command annotation = bCmd.getClass().getAnnotation(CommandLine.Command.class);
+        String commandDescription = "";
+        if (annotation != null) {
+            String[] descValues = annotation.description();
+            if (descValues != null && descValues.length > 0) {
+                // wrapLength, indent selected to match `ballerina-help.help` formatting
+                commandDescription = wrapString(descValues[0], 64, 24);
+            }
+        }
+        stringBuilder.append("\n")
+                .append("        ")
+                .append(String.format("%-15s %s", commandName, commandDescription));
+    }
+
+    static String wrapString(String str, int wrapLength, int indent) {
+        StringBuilder wrappedStr = new StringBuilder();
+        int i = 0;
+        while (i < str.length()) {
+            if (Character.isWhitespace(str.charAt(i))) {
+                i++;
+                continue;
+            }
+            if (i > 0) {
+                wrappedStr.append("\n");
+                wrappedStr.append(" ".repeat(indent));
+            }
+            int lineEnd = Math.min(i + wrapLength, str.length());
+            if (lineEnd < str.length() && !Character.isWhitespace(str.charAt(lineEnd))) {
+                // find the last whitespace character before the maximum line length
+                int lastWhitespace = str.lastIndexOf(' ', lineEnd);
+                if (lastWhitespace > i) {
+                    lineEnd = lastWhitespace;
+                }
+            }
+            wrappedStr.append(str, i, lineEnd);
+            i = lineEnd;
+            // skip any whitespace characters at the beginning of the next line
+            while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
+                i++;
+            }
+        }
+        return wrappedStr.toString();
     }
 }

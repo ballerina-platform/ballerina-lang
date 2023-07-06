@@ -160,6 +160,22 @@ public class BalToolUtil {
         DistSpecificToolsManifest distSpecificToolsManifest =
                 DistSpecificToolsManifestBuilder.from(distSpecificToolsToml).build();
 
+        // we load all tool jars for the help, default commands and --help, -h options
+        if (HELP_COMMAND.equals(commandName)) {
+            return distSpecificToolsManifest.tools().values().stream()
+                    .flatMap(map -> map.values().stream())
+                    .filter(DistSpecificToolsManifest.Tool::active)
+                    .map(tool1 -> {
+                        Path toolDirPath = Path.of(tool1.org(), tool1.name(), tool1.version(), ANY_PLATFORM, TOOL);
+                        if (distributionBalaDirPath.resolve(toolDirPath).resolve(BAL_TOOL_TOML).toFile().isFile())  {
+                            return findJarFiles(distributionBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
+                        }
+                        return findJarFiles(centralBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
+                    })
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+        }
+
         if (distSpecificToolsManifest.tools().containsKey(commandName)) {
             Optional<DistSpecificToolsManifest.Tool> tool =
                     distSpecificToolsManifest.tools().get(commandName).values().stream()
