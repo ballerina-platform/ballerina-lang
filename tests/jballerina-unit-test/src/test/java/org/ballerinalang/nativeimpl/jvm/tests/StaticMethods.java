@@ -602,7 +602,7 @@ public class StaticMethods {
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
+        Type type = TypeUtils.getConclusiveType(TypeChecker.getType(value));
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:

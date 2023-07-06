@@ -50,7 +50,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 public class MapLibUtils {
 
     public static Type getFieldType(Type mapType, String funcName) {
-        mapType = TypeUtils.getReferredType(mapType);
+        mapType = TypeUtils.getConclusiveType(mapType);
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 return ((MapType) mapType).getConstrainedType();
@@ -77,7 +77,7 @@ public class MapLibUtils {
     }
 
     public static void validateRecord(BMap m) {
-        Type type = TypeUtils.getReferredType(m.getType());
+        Type type = TypeUtils.getConclusiveType(m.getType());
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
@@ -103,7 +103,7 @@ public class MapLibUtils {
     }
 
     public static void validateRequiredFieldForRecord(BMap m, String k) {
-        Type type = TypeUtils.getReferredType(m.getType());
+        Type type = TypeUtils.getConclusiveType(m.getType());
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
         }

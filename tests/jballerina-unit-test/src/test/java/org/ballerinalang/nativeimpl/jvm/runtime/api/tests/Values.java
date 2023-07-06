@@ -419,7 +419,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getConclusiveType(typedesc.getDescribingType());
         BArray arrayValue = ValueCreator.createArrayValue(arrayType);
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
@@ -428,7 +428,7 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getConclusiveType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -438,7 +438,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BTupleType tupleType = (BTupleType) TypeUtils.getConclusiveType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {

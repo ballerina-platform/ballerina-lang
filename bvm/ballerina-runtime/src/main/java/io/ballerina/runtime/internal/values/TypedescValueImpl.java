@@ -32,7 +32,7 @@ import io.ballerina.runtime.internal.types.BTypedescType;
 
 import java.util.Map;
 
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getConclusiveType;
 
 /**
  * <p>
@@ -86,7 +86,7 @@ public class TypedescValueImpl implements TypedescValue {
 
     @Override
     public Object instantiate(Strand s) {
-        Type referredType = getReferredType(this.describingType);
+        Type referredType = getConclusiveType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG || referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             return instantiate(s, new MappingInitialValueEntry[0]);
         }
@@ -96,7 +96,7 @@ public class TypedescValueImpl implements TypedescValue {
 
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
-        Type referredType = getReferredType(this.describingType);
+        Type referredType = getConclusiveType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG) {
             return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {

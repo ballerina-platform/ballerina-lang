@@ -125,7 +125,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getConclusiveType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
 import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
 import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_END;
@@ -146,7 +146,7 @@ public class TypeChecker {
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
-        Type sourceType = TypeUtils.getReferredType(getType(sourceVal));
+        Type sourceType = getConclusiveType(getType(sourceVal));
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;
         }
@@ -297,7 +297,7 @@ public class TypeChecker {
             return true;
         }
 
-        if (TypeUtils.getReferredType(sourceType).getTag() == TypeTags.XML_TAG && !targetType.isReadOnly()) {
+        if (getConclusiveType(sourceType).getTag() == TypeTags.XML_TAG && !targetType.isReadOnly()) {
             XmlValue val = (XmlValue) sourceVal;
             if (val.getNodeType() == XmlNodeType.SEQUENCE) {
                 return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(), false, null);
@@ -433,8 +433,8 @@ public class TypeChecker {
             return false;
         }
 
-        Type lhsType = TypeUtils.getReferredType(getType(lhsValue));
-        Type rhsType = TypeUtils.getReferredType(getType(rhsValue));
+        Type lhsType = getConclusiveType(getType(lhsValue));
+        Type rhsType = getConclusiveType(getType(rhsValue));
 
         switch (lhsType.getTag()) {
             case TypeTags.FLOAT_TAG:
@@ -667,8 +667,8 @@ public class TypeChecker {
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                        List<TypePair> unresolvedTypes) {
-        sourceType = getReferredType(sourceType);
-        targetType = getReferredType(targetType);
+        sourceType = getConclusiveType(sourceType);
+        targetType = getConclusiveType(targetType);
 
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
@@ -812,7 +812,7 @@ public class TypeChecker {
     private static boolean checkIsUnionType(Type sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         TypePair pair = new TypePair(sourceType, targetType);
         if (unresolvedTypes.contains(pair)) {
             return true;
@@ -839,7 +839,7 @@ public class TypeChecker {
 
     private static boolean checkIsMapType(Type sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
         Type targetConstrainedType = targetType.getConstrainedType();
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
                 return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
@@ -856,7 +856,7 @@ public class TypeChecker {
     private static boolean checkIsMapType(Object sourceVal, Type sourceType, BMapType targetType,
                                           List<TypePair> unresolvedTypes) {
         Type targetConstrainedType = targetType.getConstrainedType();
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
                 return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
@@ -898,7 +898,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsXMLType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         int sourceTag = sourceType.getTag();
         if (sourceTag == TypeTags.FINITE_TYPE_TAG) {
             return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -924,11 +924,11 @@ public class TypeChecker {
     }
 
     private static Type getRecursiveTargetConstraintType(BXmlType target) {
-        Type targetConstraint = TypeUtils.getReferredType(target.constraint);
+        Type targetConstraint = getConclusiveType(target.constraint);
         // TODO: Revisit and check why xml<xml<constraint>>> on chained iteration
         while (targetConstraint.getTag() == TypeTags.XML_TAG) {
             target = (BXmlType) targetConstraint;
-            targetConstraint = TypeUtils.getReferredType(target.constraint);
+            targetConstraint = getConclusiveType(target.constraint);
         }
         return targetConstraint;
     }
@@ -945,7 +945,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsStreamType(Type sourceType, BStreamType targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() != TypeTags.STREAM_TAG) {
             return false;
         }
@@ -956,7 +956,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsTableType(Type sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
@@ -1030,7 +1030,7 @@ public class TypeChecker {
 
     private static boolean checkIsJSONType(Type sourceType, List<TypePair> unresolvedTypes) {
         BJsonType jsonType = (BJsonType) TYPE_JSON;
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(sourceType, jsonType);
@@ -1100,7 +1100,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsRecordType(Type sourceType, BRecordType targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsRecordType((BRecordType) sourceType, targetType, unresolvedTypes);
@@ -1124,7 +1124,7 @@ public class TypeChecker {
         // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
         // vice-versa is allowed.
         if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
-                TypeUtils.getReferredType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
+                getConclusiveType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
             return false;
         }
 
@@ -1258,7 +1258,7 @@ public class TypeChecker {
 
     private static boolean checkIsRecordType(Object sourceVal, Type sourceType, BRecordType targetType,
                                              List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsRecordType((MapValue) sourceVal, (BRecordType) sourceType, targetType, unresolvedTypes);
@@ -1280,7 +1280,7 @@ public class TypeChecker {
         // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
         // vice-versa is allowed.
         if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
-                TypeUtils.getReferredType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
+                getConclusiveType(sourceRecordType.restFieldType).getTag() != TypeTags.NEVER_TAG)) {
             return false;
         }
 
@@ -1298,7 +1298,7 @@ public class TypeChecker {
             Field targetField = targetFieldEntry.getValue();
             Field sourceField = sourceFields.get(fieldName);
 
-            if (TypeUtils.getReferredType(targetField.getFieldType()).getTag() == TypeTags.NEVER_TAG &&
+            if (getConclusiveType(targetField.getFieldType()).getTag() == TypeTags.NEVER_TAG &&
                     containsInvalidNeverField(sourceField, sourceRecordType)) {
                 return false;
             }
@@ -1385,7 +1385,7 @@ public class TypeChecker {
     }
 
     private static boolean containsNeverType(Type fieldType) {
-        fieldType = TypeUtils.getReferredType(fieldType);
+        fieldType = getConclusiveType(fieldType);
         int fieldTag = fieldType.getTag();
         if (fieldTag == TypeTags.NEVER_TAG) {
             return true;
@@ -1393,7 +1393,7 @@ public class TypeChecker {
         if (fieldTag == TypeTags.UNION_TAG) {
             List<Type> memberTypes = ((BUnionType) fieldType).getOriginalMemberTypes();
             for (Type member : memberTypes) {
-                if (TypeUtils.getReferredType(member).getTag() == TypeTags.NEVER_TAG) {
+                if (getConclusiveType(member).getTag() == TypeTags.NEVER_TAG) {
                     return true;
                 }
             }
@@ -1459,7 +1459,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsArrayType(Type sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         int sourceTypeTag = sourceType.getTag();
 
         if (sourceTypeTag == TypeTags.UNION_TAG) {
@@ -1569,7 +1569,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsTupleType(Type sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         int sourceTypeTag = sourceType.getTag();
 
         if (sourceTypeTag == TypeTags.UNION_TAG) {
@@ -1592,7 +1592,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsAnyType(Type sourceType) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.ERROR_TAG:
             case TypeTags.READONLY_TAG:
@@ -1612,7 +1612,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsFiniteType(Type sourceType, BFiniteType targetType) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
@@ -1626,7 +1626,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsFutureType(Type sourceType, BFutureType targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() != TypeTags.FUTURE_TAG) {
             return false;
         }
@@ -1641,7 +1641,7 @@ public class TypeChecker {
 
     private static boolean checkObjectEquivalency(Object sourceVal, Type sourceType, BObjectType targetType,
                                                   List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() != TypeTags.OBJECT_TYPE_TAG && sourceType.getTag() != TypeTags.SERVICE_TAG) {
             return false;
         }
@@ -1872,7 +1872,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsFunctionType(Type sourceType, BFunctionType targetType) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() != TypeTags.FUNCTION_POINTER_TAG) {
             return false;
         }
@@ -1910,7 +1910,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsServiceType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
             return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
         }
@@ -1924,7 +1924,7 @@ public class TypeChecker {
     }
     
     public static boolean isInherentlyImmutableType(Type sourceType) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (isSimpleBasicType(sourceType)) {
             return true;
         }
@@ -2060,7 +2060,7 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, Type sourceType) {
         // All the value types are immutable
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         if (value == null || sourceType.getTag() < TypeTags.NULL_TAG ||
                 sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
@@ -2325,7 +2325,7 @@ public class TypeChecker {
     }
 
     private static XmlNodeType getXmlNodeType(Type type) {
-        switch (TypeUtils.getReferredType(type).getTag()) {
+        switch (getConclusiveType(type).getTag()) {
             case TypeTags.XML_ELEMENT_TAG:
                 return XmlNodeType.ELEMENT;
             case TypeTags.XML_COMMENT_TAG:
@@ -2360,7 +2360,7 @@ public class TypeChecker {
             return;
         }
 
-        Type referredType = TypeUtils.getReferredType(targetType);
+        Type referredType = getConclusiveType(targetType);
         switch (referredType.getTag()) {
             case TypeTags.UNION_TAG:
                 for (Type memberType : ((UnionType) referredType).getMemberTypes()) {
@@ -2410,14 +2410,14 @@ public class TypeChecker {
     }
 
     public static boolean isNumericType(Type type) {
-        type = TypeUtils.getReferredType(type);
+        type = getConclusiveType(type);
         return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
     }
 
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
                                                   List<TypeValuePair> unresolvedValues,
                                                   boolean allowNumericConversion) {
-        sourceType = TypeUtils.getReferredType(sourceType);
+        sourceType = getConclusiveType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
@@ -2428,8 +2428,8 @@ public class TypeChecker {
                         unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
-                BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(arr.getType());
-                switch (TypeUtils.getReferredType(arrayType.getElementType()).getTag()) {
+                BArrayType arrayType = (BArrayType) getConclusiveType(arr.getType());
+                switch (getConclusiveType(arrayType.getElementType()).getTag()) {
                     case TypeTags.INT_TAG:
                     case TypeTags.FLOAT_TAG:
                     case TypeTags.DECIMAL_TAG:
@@ -2620,7 +2620,7 @@ public class TypeChecker {
 
     private static boolean checkIsLikeJSONType(Object sourceValue, Type sourceType, BJsonType targetType,
                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        Type referredSourceType = TypeUtils.getReferredType(sourceType);
+        Type referredSourceType = getConclusiveType(sourceType);
         switch (referredSourceType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 ArrayValue source = (ArrayValue) sourceValue;
@@ -2760,7 +2760,7 @@ public class TypeChecker {
             return false;
         }
         TableValueImpl tableValue = (TableValueImpl) sourceValue;
-        BTableType sourceType = (BTableType) TypeUtils.getReferredType(tableValue.getType());
+        BTableType sourceType = (BTableType) getConclusiveType(tableValue.getType());
         if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
             return false;
         }
@@ -2787,7 +2787,7 @@ public class TypeChecker {
                                                      List<TypeValuePair> unresolvedValues,
                                                      boolean allowNumericConversion) {
         if (targetType.valueSpace.size() == 1) {
-            Type valueType = TypeUtils.getReferredType(getType(targetType.valueSpace.iterator().next()));
+            Type valueType = getConclusiveType(getType(targetType.valueSpace.iterator().next()));
             if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
                 return checkIsLikeOnValue(null, sourceValue, sourceType, valueType, unresolvedValues,
                         allowNumericConversion, null);
@@ -2806,8 +2806,8 @@ public class TypeChecker {
     protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
                                                boolean allowNumericConversion) {
         Type valueSpaceItemType = getType(valueSpaceItem);
-        int sourceTypeTag = TypeUtils.getReferredType(sourceType).getTag();
-        int valueSpaceItemTypeTag = TypeUtils.getReferredType(valueSpaceItemType).getTag();
+        int sourceTypeTag = getConclusiveType(sourceType).getTag();
+        int valueSpaceItemTypeTag = getConclusiveType(valueSpaceItemType).getTag();
         if (valueSpaceItemTypeTag > TypeTags.DECIMAL_TAG) {
             return valueSpaceItemTypeTag == sourceTypeTag &&
                     (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
@@ -2890,7 +2890,7 @@ public class TypeChecker {
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        Type sourceTypeReferredType = TypeUtils.getReferredType(getType(sourceValue));
+        Type sourceTypeReferredType = getConclusiveType(getType(sourceValue));
         if (sourceValue == null || sourceTypeReferredType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
@@ -2909,7 +2909,7 @@ public class TypeChecker {
     }
 
     static boolean isSimpleBasicType(Type type) {
-        return TypeUtils.getReferredType(type).getTag() < TypeTags.NULL_TAG;
+        return getConclusiveType(type).getTag() < TypeTags.NULL_TAG;
     }
 
     /**
@@ -2934,8 +2934,8 @@ public class TypeChecker {
 
     private static boolean checkValueEquals(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues,
                                             Type lhsValType, Type rhsValType) {
-        lhsValType = TypeUtils.getReferredType(lhsValType);
-        rhsValType = TypeUtils.getReferredType(rhsValType);
+        lhsValType = getConclusiveType(lhsValType);
+        rhsValType = getConclusiveType(rhsValType);
         int lhsValTypeTag = lhsValType.getTag();
         int rhsValTypeTag = rhsValType.getTag();
 
@@ -3095,9 +3095,9 @@ public class TypeChecker {
         }
 
         boolean isLhsKeyedTable =
-                ((BTableType) TypeUtils.getReferredType(lhsTable.getType())).getFieldNames().length > 0;
+                ((BTableType) getConclusiveType(lhsTable.getType())).getFieldNames().length > 0;
         boolean isRhsKeyedTable =
-                ((BTableType) TypeUtils.getReferredType(rhsTable.getType())).getFieldNames().length > 0;
+                ((BTableType) getConclusiveType(rhsTable.getType())).getFieldNames().length > 0;
 
         Object[] lhsTableValues = lhsTable.values().toArray();
         Object[] rhsTableValues = rhsTable.values().toArray();
@@ -3265,7 +3265,7 @@ public class TypeChecker {
     }
 
     static boolean isStructuredType(Type type) {
-        Type referredType = TypeUtils.getReferredType(type);
+        Type referredType = getConclusiveType(type);
         switch (referredType.getTag()) {
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
@@ -3435,7 +3435,7 @@ public class TypeChecker {
         List<Type> nonFiniteTypes = new ArrayList<>();
         Set<Object> combinedValueSpace = new HashSet<>();
         for (Type memberType: memberTypes) {
-            Type referredType = TypeUtils.getReferredType(memberType);
+            Type referredType = getConclusiveType(memberType);
             if (referredType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                 combinedValueSpace.addAll(((BFiniteType) referredType).getValueSpace());
             } else {
@@ -3486,8 +3486,8 @@ public class TypeChecker {
         if (isSameType(sourceType, targetType)) {
             return true;
         }
-        int sourceTag = TypeUtils.getReferredType(sourceType).getTag();
-        int targetTag = TypeUtils.getReferredType(targetType).getTag();
+        int sourceTag = getConclusiveType(sourceType).getTag();
+        int targetTag = getConclusiveType(targetType).getTag();
         if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
             return true;
         }
@@ -3555,7 +3555,7 @@ public class TypeChecker {
             FunctionType initFuncType = generatedInitMethod.getType();
             // Todo: check defaultable params of the init func as well
             boolean noParams = initFuncType.getParameters().length == 0;
-            boolean nilReturn = TypeUtils.getReferredType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
+            boolean nilReturn = getConclusiveType(initFuncType.getReturnType()).getTag() == TypeTags.NULL_TAG;
             return noParams && nilReturn;
         }
     }

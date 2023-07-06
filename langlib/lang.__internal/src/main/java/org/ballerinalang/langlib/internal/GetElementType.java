@@ -46,7 +46,7 @@ public class GetElementType {
     }
 
     private static BTypedesc getElementTypeDescValue(Type type) {
-        type = TypeUtils.getReferredType(type);
+        type = TypeUtils.getConclusiveType(type);
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
                 return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());

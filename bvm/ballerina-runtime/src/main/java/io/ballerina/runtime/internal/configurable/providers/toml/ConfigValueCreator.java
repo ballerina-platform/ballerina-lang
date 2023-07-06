@@ -79,7 +79,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.is
 public class ConfigValueCreator {
 
     public Object createValue(TomlNode tomlValue, Type type) {
-        if (isSimpleType(TypeUtils.getReferredType(type).getTag())) {
+        if (isSimpleType(TypeUtils.getConclusiveType(type).getTag())) {
             return createPrimitiveValue(tomlValue, type);
         }
         return createStructuredValue(tomlValue, type);
@@ -141,7 +141,7 @@ public class ConfigValueCreator {
             Object value;
             Type type = Utils.getTupleElementType(tupleTypes, i, tupleType);
             TomlValueNode valueNode = elements.get(i);
-            if (isSimpleType(TypeUtils.getReferredType(type).getTag())) {
+            if (isSimpleType(TypeUtils.getConclusiveType(type).getTag())) {
                 value = createBalValue(type, valueNode);
             } else {
                 value = createStructuredValue(valueNode, type);
@@ -153,7 +153,7 @@ public class ConfigValueCreator {
 
     private BArray createArrayValue(TomlNode tomlValue, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
-        if (isSimpleType(TypeUtils.getReferredType(elementType).getTag())) {
+        if (isSimpleType(TypeUtils.getConclusiveType(elementType).getTag())) {
             tomlValue = getValueFromKeyValueNode(tomlValue);
             return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
         } else {
@@ -163,7 +163,7 @@ public class ConfigValueCreator {
 
     private BArray getNonSimpleTypeArray(TomlNode tomlValue, ArrayType arrayType,
                                          Type elementType) {
-        switch (TypeUtils.getReferredType(elementType).getTag()) {
+        switch (TypeUtils.getConclusiveType(elementType).getTag()) {
             case TypeTags.XML_ATTRIBUTES_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -225,13 +225,13 @@ public class ConfigValueCreator {
 
     private Object getElementValue(Type elementType, TomlNode tomlValueNode) {
         Object balValue;
-        Type refElementType = TypeUtils.getReferredType(elementType);
+        Type refElementType = TypeUtils.getConclusiveType(elementType);
         switch (refElementType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) refElementType;
                 balValue = createArrayFromSimpleTomlValue(
                         (TomlArrayValueNode) tomlValueNode, arrayType,
-                        TypeUtils.getReferredType(arrayType.getElementType()));
+                        TypeUtils.getConclusiveType(arrayType.getElementType()));
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
@@ -331,7 +331,7 @@ public class ConfigValueCreator {
 
     private Object createBalValue(Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
-        switch (TypeUtils.getReferredType(type).getTag()) {
+        switch (TypeUtils.getConclusiveType(type).getTag()) {
             case TypeTags.BYTE_TAG:
                 return ((Long) tomlValue).intValue();
             case TypeTags.DECIMAL_TAG:
@@ -372,7 +372,7 @@ public class ConfigValueCreator {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
         Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, null, new HashSet<>(),
                 new ArrayList<>(), false);
-        Type type = getEffectiveType(TypeUtils.getReferredType(convertibleType));
+        Type type = getEffectiveType(TypeUtils.getConclusiveType(convertibleType));
         if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;
         }

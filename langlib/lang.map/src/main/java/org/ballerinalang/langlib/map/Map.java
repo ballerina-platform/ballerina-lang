@@ -54,7 +54,7 @@ public class Map {
 
     public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
         MapType newMapType =
-                TypeCreator.createMapType(((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType());
+                TypeCreator.createMapType(((FunctionType) TypeUtils.getConclusiveType(func.getType())).getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);

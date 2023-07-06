@@ -120,7 +120,7 @@ public class TypeReference {
 
     public static Boolean validateRecordType(BTypedesc typedesc) {
         BRecordType recordType =
-                (BRecordType) (TypeUtils.getReferredType(typedesc.getDescribingType()));
+                (BRecordType) (TypeUtils.getConclusiveType(typedesc.getDescribingType()));
         if (recordType.getRestFieldType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("record type API provided a non type reference" +
                     " type."));

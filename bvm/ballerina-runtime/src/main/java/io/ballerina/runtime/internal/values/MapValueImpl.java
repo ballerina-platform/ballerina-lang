@@ -63,7 +63,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getConclusiveType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
@@ -109,13 +109,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public MapValueImpl(Type type) {
         super();
         this.type = type;
-        this.referredType = getReferredType(type);
+        this.referredType = getConclusiveType(type);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
         this.type = type;
-        this.referredType = getReferredType(type);
+        this.referredType = getConclusiveType(type);
         populateInitialValues(initialValues);
     }
 
@@ -266,7 +266,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
 
         String errMessage = "";
-        switch (getReferredType(getType()).getTag()) {
+        switch (getConclusiveType(getType()).getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 errMessage = "Invalid update of record field: ";
                 break;
