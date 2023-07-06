@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 19,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source10.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "TestRecord2.field1",
+      "sortText": "K",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field3",
+      "kind": "Field",
+      "detail": "TestRecord2.field3",
+      "sortText": "K",
+      "insertText": "field3: ${1:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "TestRecord2.field2",
+      "sortText": "K",
+      "insertText": "field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill TestRecord2 Required Fields",
+      "kind": "Property",
+      "detail": "TestRecord2",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "TestRecord2",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec1",
+      "kind": "Variable",
+      "detail": "TestRecord1",
+      "sortText": "F",
+      "filterText": "rec1",
+      "insertText": "...rec1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

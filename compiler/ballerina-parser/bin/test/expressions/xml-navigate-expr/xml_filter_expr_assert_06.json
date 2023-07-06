@@ -1,0 +1,182 @@
+{
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "x",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "XML_FILTER_EXPRESSION",
+          "children": [
+            {
+              "kind": "XML_FILTER_EXPRESSION",
+              "children": [
+                {
+                  "kind": "XML_FILTER_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "XML_NAME_PATTERN_CHAIN",
+                      "children": [
+                        {
+                          "kind": "DOT_LT_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "ASTERISK_TOKEN"
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
+                            {
+                              "kind": "ASTERISK_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "GT_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "XML_NAME_PATTERN_CHAIN",
+                  "children": [
+                    {
+                      "kind": "DOT_LT_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_ATOMIC_NAME_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            },
+                            {
+                              "kind": "COLON_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "c"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "ASTERISK_TOKEN"
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "XML_ATOMIC_NAME_PATTERN",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d"
+                            },
+                            {
+                              "kind": "COLON_TOKEN"
+                            },
+                            {
+                              "kind": "ASTERISK_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "GT_TOKEN"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "XML_NAME_PATTERN_CHAIN",
+              "children": [
+                {
+                  "kind": "DOT_LT_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "ASTERISK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "y"
+        }
+      ]
+    }
+  ]
+}

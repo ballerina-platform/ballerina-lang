@@ -1,0 +1,3 @@
+[myOrg..test_module.file..]
+byteVar = 42
+booleanVar = true

@@ -1,0 +1,13 @@
+{
+  "organization": "asmaj",
+  "name": "package_refresh_bala",
+  "version": "0.1.0",
+  "export": [
+    "package_refresh_bala"
+  ],
+  "ballerina_version": "slbeta4",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2021R1",
+  "platform": "any",
+  "template": false
+}

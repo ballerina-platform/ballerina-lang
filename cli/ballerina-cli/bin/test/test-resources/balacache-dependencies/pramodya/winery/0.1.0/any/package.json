@@ -1,0 +1,13 @@
+{
+  "organization": "pramodya",
+  "name": "winery",
+  "version": "0.1.0",
+  "export": [
+    "winery"
+  ],
+  "ballerina_version": "2201.0.1-rc3.1",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2022R1",
+  "platform": "any",
+  "template": false
+}

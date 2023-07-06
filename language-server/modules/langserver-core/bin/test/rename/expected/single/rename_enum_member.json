@@ -1,0 +1,57 @@
+{
+  "source": {
+    "file": "testSource.bal"
+  },
+  "position": {
+    "line": 24,
+    "character": 4
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "testSource.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 24,
+              "character": 4
+            },
+            "end": {
+              "line": 24,
+              "character": 7
+            }
+          },
+          "newText": "DARK_RED"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 17
+            },
+            "end": {
+              "line": 28,
+              "character": 20
+            }
+          },
+          "newText": "DARK_RED"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 29,
+              "character": 11
+            },
+            "end": {
+              "line": 29,
+              "character": 14
+            }
+          },
+          "newText": "DARK_RED"
+        }
+      ]
+    }
+  }
+}

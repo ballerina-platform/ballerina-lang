@@ -1,0 +1,203 @@
+[
+  {
+    "description": "Remove public keyword for a object field in a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tint n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed from object field 'n'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add public keyword for a object field in a class",
+    "oldCode": "public class counter{\n\tint n;\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "message": "'public' qualifier is added to object field 'n'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove Final keyword for a object field in a class",
+    "oldCode": "public class counter{\n\tfinal int n;\n}",
+    "newCode": "public class counter{\n\tint n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "removed",
+                      "versionImpact": "patch",
+                      "message": "'final' qualifier is removed from object field 'n'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add final keyword for a object field in a class",
+    "oldCode": "public class counter{\n\tint n;\n}",
+    "newCode": "public class counter{\n\tfinal int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'final' qualifier is added to object field 'n'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add final and public keyword for a object field in a class",
+    "oldCode": "public class counter{\n\tint n;\n}",
+    "newCode": "public class counter{\n\tpublic final int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "object field",
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "message": "'public' qualifier is added to object field 'n'"
+                    },
+                    {
+                      "kind": "object field",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'final' qualifier is added to object field 'n'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

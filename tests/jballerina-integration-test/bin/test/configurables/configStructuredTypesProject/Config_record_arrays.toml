@@ -1,0 +1,72 @@
+[[personArray]]
+name = "manu"
+id = 11
+address.city="New York"
+address.country.name="USA"
+
+[[personArray]]
+name = "hinduja"
+id = 12
+address.city="London"
+address.country.name="UK"
+
+[[personArray1]]
+name = "waruna"
+id = 700
+address.city="Abu Dhabi"
+address.country.name="UAE"
+
+[[personArray1]]
+name = "manu"
+id = 701
+address.city="Mumbai"
+address.country.name="India"
+
+[[personArray2]]
+name = "gabilan"
+id = 900
+address.city="Abu Dhabi"
+address.country.name="UAE"
+
+[[personArray2]]
+name = "hinduja"
+id = 901
+address.city="Mumbai"
+address.country.name="India"
+
+
+[[configRecordArray.imported_records.personArray]]
+name = "waruna"
+id = 111
+address.city="Abu Dhabi"
+address.country.name="UAE"
+
+[[configRecordArray.imported_records.personArray]]
+name = "manu"
+id = 122
+address.city="Mumbai"
+address.country.name="India"
+
+[[configRecordArray.imported_records.personArray1]]
+name = "manu"
+id = 800
+address.city="New York"
+address.country.name="USA"
+
+[[configRecordArray.imported_records.personArray1]]
+name = "hinduja"
+id = 801
+address.city="London"
+address.country.name="UK"
+
+[[configRecordArray.imported_records.personArray2]]
+name = "riyafa"
+id = 1000
+address.city="New York"
+address.country.name="USA"
+
+[[configRecordArray.imported_records.personArray2]]
+name = "waruna"
+id = 1001
+address.city="London"
+address.country.name="UK"

@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 4,
+    "character": 15
+  },
+  "source": {
+    "file": "projectls/defmodsource2.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for the testDefaultModuleFunction1\n  \n  \n---  \n  \n### Parameters  \n  \n`DefaultModRecord1` ***param1*** : Parameter1 Description   \n`module1:TestRecord1` ***param2*** : Parameter2 Description  \n`lsmod2:Mod2Record1` ***param3*** : Parameter3 Description "
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 278,
+    "character": 16
+  },
+  "source": {
+    "file": "hover.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "`MapArray` arr"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

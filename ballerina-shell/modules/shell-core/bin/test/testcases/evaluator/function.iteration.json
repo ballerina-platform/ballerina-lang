@@ -1,0 +1,51 @@
+[
+  {
+    "description": "Define a map named words.",
+    "code": "map<string> words = { a: \"ant\", b: \"bear\", c: \"cat\", d: \"dear\", e: \"elephant\" };"
+  },
+  {
+    "description": "Define a map named words - get value.",
+    "code": "words.length()",
+    "expr": "5"
+  },
+  {
+    "description": "Define toUpper helper function.",
+    "code": "function toUpper(string value) returns string { return value.toUpperAscii(); }"
+  },
+  {
+    "description": "Map should map each item to a function.",
+    "code": "words.map(toUpper)",
+    "expr": "{\"a\":\"ANT\",\"b\":\"BEAR\",\"c\":\"CAT\",\"d\":\"DEAR\",\"e\":\"ELEPHANT\"}"
+  },
+  {
+    "description": "Define a array named numbers.",
+    "code": "int[] numbers = [-5, -3, 2, 7, 12];"
+  },
+  {
+    "description": "For each should iterate over each item.",
+    "code": "numbers.forEach(function(int i) { println(i); });",
+    "stdout": "-5\n-3\n2\n7\n12\n"
+  },
+  {
+    "description": "Filter should filter items meeting a condition.",
+    "code": "int[] positive = numbers.filter(function (int i) returns boolean { return i >= 0; })"
+  },
+  {
+    "description": "Filter should filter items meeting a condition - get value.",
+    "code": "positive",
+    "expr": "[2,7,12]"
+  },
+  {
+    "description": "Define a map named examScores.",
+    "code": "map<int> examScores = { \"Jack\": 80, \"Tom\": 65, \"Anne\": 90, \"John\": 50 };"
+  },
+  {
+    "description": "Define a helper function named sum.",
+    "code": "function sum(int accumulator, int currentValue) returns int { return accumulator + currentValue; }"
+  },
+  {
+    "description": "Functional iteration operators can be chained.",
+    "code": "examScores.entries().filter((entry) => entry[1] >= 60).map(  function ([string, int] entry) returns [string, string] { string grade; if entry[1] >= 90 {      grade = \"A\"; } else if entry[1] >= 80 {     grade = \"B\"; } else if entry[1] >= 70 {     grade = \"C\"; } else {     grade = \"D\"; } return [entry[0], grade];  }).forEach(function ([string, string] entry) { println(\"Student: \", entry[0], \" Grade: \", entry[1]);  });",
+    "stdout": "Student: Jack Grade: B\nStudent: Tom Grade: D\nStudent: Anne Grade: A\n"
+  }
+]

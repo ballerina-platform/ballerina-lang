@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 0,
+        "character": 0
+      },
+      "end": {
+        "line": 6,
+        "character": 1
+      }
+    }
+  },
+  "source": "updateDocumentationSource3.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 37
+                  }
+                },
+                "newText": "# Description\n#\n# + a - Parameter Description"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

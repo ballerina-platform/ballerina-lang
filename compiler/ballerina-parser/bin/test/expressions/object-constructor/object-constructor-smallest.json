@@ -1,0 +1,32 @@
+{
+  "kind": "OBJECT_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "OBJECT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
+}

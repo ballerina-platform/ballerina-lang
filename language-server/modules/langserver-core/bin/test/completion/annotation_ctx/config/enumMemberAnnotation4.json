@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 12,
+    "character": 14
+  },
+  "source": "annotation_ctx/source/enumMemberAnnotation4.bal",
+  "items": [
+    {
+      "label": "sourceConstAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceConstAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceConstAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceConstAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

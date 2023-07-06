@@ -1,0 +1,297 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ballerina Toml Spec",
+  "description": "Schema for Ballerina Toml",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "package": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_.]*$",
+          "maxLength": 256,
+          "message": {
+            "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods",
+            "maxLength": "invalid 'name' under [package]: maximum length of 'name' is 256 characters"
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!_).+",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "(^(?!.*__).*$|^lang.*)",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have consecutive underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?![0-9]).+",
+              "message": {
+                "pattern": "invalid 'name' under [package]: 'name' cannot have initial numeric characters"
+              }
+            }
+          ]
+        },
+        "org": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]*$",
+          "maxLength": 256,
+          "message": {
+            "pattern": "invalid 'org' under [package]: 'org' can only contain alphanumerics and underscores",
+            "maxLength": "invalid 'org' under [package]: maximum length of 'org' is 256 characters"
+          },
+          "allOf": [
+            {
+              "type": "string",
+              "pattern": "^(?!_).+",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have initial underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": ".*(?<!_)$",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have trailing underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!.*__).*$",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have consecutive underscore characters"
+              }
+            },
+            {
+              "type": "string",
+              "pattern": "^(?![0-9]).+",
+              "message": {
+                "pattern": "invalid 'org' under [package]: 'org' cannot have initial numeric characters"
+              }
+            }
+          ]
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "message": {
+            "pattern": "invalid 'version' under [package]: 'version' should be compatible with semver"
+          }
+        },
+        "license": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "repository": {
+          "type": "string"
+        },
+        "export": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "distribution": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "pattern": "^private$",
+          "message": {
+            "pattern": "invalid 'visibility' under [package]: 'visibility' can only have value 'private'"
+          }
+        },
+        "icon": {
+          "type": "string",
+          "pattern": ".*.png$",
+          "message": {
+            "pattern": "invalid 'icon' under [package]: 'icon' can only have 'png' images"
+          }
+        },
+        "template": {
+          "type": "boolean"
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "java11": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dependency": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "artifactId": {
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "repository": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+          ],
+          "message": {
+            "required": "cannot find '${property}' under 'platform.java11'"
+          }
+        }
+      },
+      "required": [
+        "java11"
+      ],
+      "message": {
+        "required": "cannot find '${property}' under 'platform'"
+      }
+    },
+    "dependency": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "org": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]*$",
+            "maxLength": 256,
+            "message": {
+              "pattern": "invalid 'org' under [[dependency]]: 'org' can only contain alphanumerics and underscores",
+              "maxLength": "invalid 'org' under [[dependency]]: maximum length of 'org' is 256 characters"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_.]*$",
+            "maxLength": 256,
+            "message": {
+              "pattern": "invalid 'name' under [[dependency]]: 'name' can only contain alphanumerics, underscores and periods",
+              "maxLength": "invalid 'name' under [[dependency]]: maximum length of 'name' is 256 characters"
+            }
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+            "message": {
+              "pattern": "invalid 'version' under [[dependency]]: 'version' should be compatible with semver"
+            }
+          },
+          "repository": {
+            "type": "string",
+            "pattern": "^local$",
+            "message": {
+              "pattern": "invalid 'repository' under [dependency]: 'repository' can only have the value 'local'"
+            }
+          }
+        },
+        "required": [
+          "org",
+          "name",
+          "version"
+        ],
+        "message": {
+          "required": "'${property}' under [[dependency]] is missing"
+        }
+      }
+    },
+    "build-options": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "observabilityIncluded": {
+          "type": "boolean"
+        },
+        "offline": {
+          "type": "boolean"
+        },
+        "skipTests": {
+          "type": "boolean"
+        },
+        "testReport": {
+          "type": "boolean"
+        },
+        "codeCoverage": {
+          "type": "boolean"
+        },
+        "cloud": {
+          "type": "string"
+        },
+        "taintCheck": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

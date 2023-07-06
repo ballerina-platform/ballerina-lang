@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "sample_project"
+version = "1.0.0"

@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 20,
+    "character": 38
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source32b.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "employee",
+      "kind": "Variable",
+      "detail": "Employee",
+      "sortText": "B",
+      "insertText": "employee",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

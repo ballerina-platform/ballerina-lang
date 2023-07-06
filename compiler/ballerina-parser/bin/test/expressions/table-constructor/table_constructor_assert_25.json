@@ -1,0 +1,87 @@
+{
+  "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN",
+      "hasDiagnostics": true,
+      "leadingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "hasDiagnostics": true,
+            "children": [
+              {
+                "kind": "IDENTIFIER_TOKEN",
+                "hasDiagnostics": true,
+                "diagnostics": [
+                  "ERROR_INVALID_TOKEN"
+                ],
+                "value": "foo"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "MAPPING_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "k1"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "v1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
+}

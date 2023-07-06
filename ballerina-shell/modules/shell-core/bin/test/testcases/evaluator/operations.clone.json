@@ -1,0 +1,23 @@
+[
+  {
+    "description": "Define types.",
+    "code": "type Address record { string country; string state; string city; string street; }; type Person record { string name; int age; boolean married; float salary; Address address; };"
+  },
+  {
+    "description": "Define address.",
+    "code": "Address address = { country: \"USA\", state: \"NC\", city: \"Raleigh\", street: \"Daniels St\" };"
+  },
+  {
+    "description": "Define person.",
+    "code": "Person person = { name: \"Alex\", age: 24, married: false, salary: 8000.0, address: address };"
+  },
+  {
+    "description": "Clone operation.",
+    "code": "Person result = person.clone();"
+  },
+  {
+    "description": "Check reference equality.",
+    "code": "result !== person",
+    "expr": "true"
+  }
+]

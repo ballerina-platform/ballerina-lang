@@ -1,0 +1,60 @@
+{
+  "position": {
+    "line": 20,
+    "character": 23
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source71.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "B.field1",
+      "sortText": "K",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...a",
+      "kind": "Variable",
+      "detail": "A",
+      "sortText": "F",
+      "filterText": "a",
+      "insertText": "...a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field3",
+      "kind": "Field",
+      "detail": "B.field3",
+      "sortText": "K",
+      "insertText": "field3: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "B.field2",
+      "sortText": "K",
+      "insertText": "field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill B Required Fields",
+      "kind": "Property",
+      "detail": "B",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field1: ${1:0},\nfield3: ${2:0},\nfield2: ${3:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

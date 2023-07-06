@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 1,
+    "character": 21
+  },
+  "source": "add_conditional_default_in_positional_argument.bal",
+  "description": "Test the code action in positional argument context",
+  "expected": [
+    {
+      "title": "Add conditional default value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 25
+            },
+            "end": {
+              "line": 1,
+              "character": 25
+            }
+          },
+          "newText": " ?: 0"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+NAME
+       ballerina-home - Print the path of the current Ballerina distribution
+
+SYNOPSIS
+       bal home
+
+
+DESCRIPTION
+       Print the path of current Ballerina Distribution in use.
+
+
+EXAMPLES
+       Print the Ballerina distribution, which is currently configured.
+          $ bal home

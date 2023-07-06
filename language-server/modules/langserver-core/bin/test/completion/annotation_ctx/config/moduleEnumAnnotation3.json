@@ -1,0 +1,63 @@
+{
+  "position": {
+    "line": 13,
+    "character": 9
+  },
+  "source": "annotation_ctx/source/moduleEnumAnnotation3.bal",
+  "items": [
+    {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "typeAnnotation3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "typeAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

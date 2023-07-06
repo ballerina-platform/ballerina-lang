@@ -1,0 +1,48 @@
+{
+  "position": {
+    "line": 9,
+    "character": 17
+  },
+  "source": "project/main.bal",
+  "description": "Import module code action when one alias and one module available with given module prefix",
+  "expected": [
+    {
+      "title": "Change module prefix to 'arr'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 15
+            },
+            "end": {
+              "line": 9,
+              "character": 20
+            }
+          },
+          "newText": "arr"
+        }
+      ]
+    },
+    {
+      "title": "Import module 'ballerina/lang.array'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    }
+  ]
+}

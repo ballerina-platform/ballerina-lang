@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 251,
+    "character": 8
+  },
+  "source": {
+    "file": "hover.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "`int` testInt"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

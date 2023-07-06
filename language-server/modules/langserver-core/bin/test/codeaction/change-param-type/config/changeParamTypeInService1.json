@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 25
+  },
+  "source": "changeParamTypeInService.bal",
+  "expected": [
+    {
+      "title": "Change parameter \u0027page\u0027 type to \u0027int\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 32
+            },
+            "end": {
+              "line": 3,
+              "character": 38
+            }
+          },
+          "newText": "int"
+        }
+      ]
+    }
+  ]
+}

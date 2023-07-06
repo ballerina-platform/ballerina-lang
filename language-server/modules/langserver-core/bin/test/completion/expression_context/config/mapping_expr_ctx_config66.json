@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 7,
+    "character": 21
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source66.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "personTable",
+      "kind": "Field",
+      "detail": "TableRec.personTable",
+      "sortText": "K",
+      "insertText": "personTable: table [${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill TableRec Required Fields",
+      "kind": "Property",
+      "detail": "TableRec",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "personTable: table [${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...t",
+      "kind": "Variable",
+      "detail": "TableRec",
+      "sortText": "AB",
+      "filterText": "t",
+      "insertText": "...t",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

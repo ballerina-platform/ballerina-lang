@@ -1,0 +1,5 @@
+Compiling source
+	wso2/emptyProjWithCompilerPlugin:0.1.0
+
+Creating bala
+	target\bala\wso2-emptyProjWithCompilerPlugin-any-0.1.0.bala

@@ -1,0 +1,4 @@
+[test_module.util.foo]
+intVar = 89
+stringVar = "Hello World!"
+

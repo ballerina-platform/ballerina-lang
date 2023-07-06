@@ -1,0 +1,29 @@
+[
+  {
+    "source": "int intValue = 99;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["intValue"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string helloWorld = \"Hello world\"",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["helloWorld"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function cube(int n) returns int { return n * n * n;}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["cube"]},
+      "consoleOut":""
+    }
+  }
+]

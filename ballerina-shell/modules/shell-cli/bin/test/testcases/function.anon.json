@@ -1,0 +1,15 @@
+[
+  {
+    "description": "Define anonymous function.",
+    "code": "function (string, string) returns string concat = function (string x, string y) returns string { return x + y; };"
+  },
+  {
+    "description": "Use concat function.",
+    "code": "concat(\"Hello \", \"World!\")",
+    "expr": "\"Hello World!\""
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

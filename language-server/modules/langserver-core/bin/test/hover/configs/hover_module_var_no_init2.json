@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 209,
+    "character": 41
+  },
+  "source": {
+    "file": "hover.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for module variable with no init  \n  \n---  \n  \n`int` modVar2"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

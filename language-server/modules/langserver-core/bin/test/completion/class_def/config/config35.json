@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 3,
+    "character": 19
+  },
+  "source": "class_def/source/source35.bal",
+  "items": [
+    {
+      "label": "key",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "key",
+      "insertText": "key",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="debugger-intg-test-suite">
+
+    <!-- Ballerina debug related test cases. -->
+    <test name="debugger-intg-tests" parallel="false">
+        <parameter name="enableDebuggerTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+        <classes>
+            <!--Remote Debugging Tests-->
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaRunRemoteDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaTestRemoteDebugTest"/>
+
+            <!--Debug engaging tests for ballerina commands -->
+            <class name="org.ballerinalang.debugger.test.adapter.run.SingleBalFileRunDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
+
+            <!--Debug Variables Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableQueryTest"/>
+
+            <!--Debugger Expression Evaluation Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.PackageEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.PackageEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>
+
+            <!--Other tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugTerminationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LogPointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.RecursiveDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.BreakpointVerificationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.completions.DebugCompletionTest"/>
+
+            <!--Debugger RunInTerminal Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.runinterminal.SingleFileRunInTerminalTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.runinterminal.ProjectBasedRunInTerminalTest"/>
+        </classes>
+    </test>
+</suite>

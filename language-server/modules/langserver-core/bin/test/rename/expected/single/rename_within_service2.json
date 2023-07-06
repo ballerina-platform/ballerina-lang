@@ -1,0 +1,44 @@
+{
+  "source": {
+    "file": "rename_within_service.bal"
+  },
+  "position": {
+    "line": 23,
+    "character": 19
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "rename_within_service.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 4
+            },
+            "end": {
+              "line": 16,
+              "character": 7
+            }
+          },
+          "newText": "baz"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 16
+            },
+            "end": {
+              "line": 23,
+              "character": 19
+            }
+          },
+          "newText": "baz"
+        }
+      ]
+    }
+  }
+}

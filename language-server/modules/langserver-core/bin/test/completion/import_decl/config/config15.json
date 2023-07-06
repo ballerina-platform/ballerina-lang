@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 1,
+    "character": 17
+  },
+  "source": "import_decl/source/lsproject/modules/module3/main6.bal",
+  "items": [
+    {
+      "label": "hierarchy.module4",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "hierarchy.module4",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "module2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

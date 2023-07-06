@@ -1,0 +1,4 @@
+[package]
+org = "test_org"
+name = "record_object_fields_project"
+version = "1.0.0"

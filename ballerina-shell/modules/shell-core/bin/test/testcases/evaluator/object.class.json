@@ -1,0 +1,33 @@
+[
+  {
+    "description": "Define a class.",
+    "code": "class Person { public string name = \"\"; public int age = 0; public Person? parent = (); private string email = \"default@abc.com\"; string address = \"No 20, Palm grove\"; }"
+  },
+  {
+    "description": "Create a new object I.",
+    "code": "Person p1 = new;"
+  },
+  {
+    "description": "Create a new object I - get value.",
+    "code": "p1.age",
+    "expr": "0"
+  },
+  {
+    "description": "Create a new object II.",
+    "code": "Person p2 = new ();"
+  },
+  {
+    "description": "Create a new object II - get value.",
+    "code": "p2.age",
+    "expr": "0"
+  },
+  {
+    "description": "Create a new object III.",
+    "code": "Person p3 = new Person();"
+  },
+  {
+    "description": "Create a new object III - get value.",
+    "code": "p3.age",
+    "expr": "0"
+  }
+]

@@ -1,0 +1,7 @@
+[test_module.util.foo]
+intVar = 56
+stringVar = "green"
+
+[myOrg.test_module.util.foo]
+intVar = 78
+stringVar = "blue"

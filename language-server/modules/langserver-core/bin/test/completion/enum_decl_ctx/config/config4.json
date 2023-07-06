@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 6,
+    "character": 27
+  },
+  "source": "enum_decl_ctx/source/projectls/enum_member_source2.bal",
+  "items": [
+    {
+      "label": "super",
+      "kind": "Variable",
+      "detail": "\"SUPER\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "C",
+      "insertText": "super",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

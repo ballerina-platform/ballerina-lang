@@ -1,0 +1,171 @@
+{
+  "source": "schema1.json",
+  "expected": {
+    "platform.java11.dependency": {
+      "path": {
+        "label": "path",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "path=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "groupId": {
+        "label": "groupId",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "groupId=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "scope": {
+        "label": "scope",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "scope=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "artifactId": {
+        "label": "artifactId",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "artifactId=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "version": {
+        "label": "version",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "version=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "build-options": {
+      "cloud": {
+        "label": "cloud",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "cloud=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "offline": {
+        "label": "offline",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "offline=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "testReport": {
+        "label": "testReport",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "testReport=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "taintCheck": {
+        "label": "taintCheck",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "taintCheck=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "skipTests": {
+        "label": "skipTests",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "skipTests=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "codeCoverage": {
+        "label": "codeCoverage",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "codeCoverage=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "observabilityIncluded": {
+        "label": "observabilityIncluded",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "observabilityIncluded=${1:false}",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "package": {
+      "license": {
+        "label": "license",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertText": "license=[${1:}]",
+        "insertTextFormat": "Snippet"
+      },
+      "keywords": {
+        "label": "keywords",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertText": "keywords=[${1:}]",
+        "insertTextFormat": "Snippet"
+      },
+      "org": {
+        "label": "org",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "org=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "name": {
+        "label": "name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "repository": {
+        "label": "repository",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "repository=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "version": {
+        "label": "version",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "version=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "export": {
+        "label": "export",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertText": "export=[${1:}]",
+        "insertTextFormat": "Snippet"
+      },
+      "authors": {
+        "label": "authors",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertText": "authors=[${1:}]",
+        "insertTextFormat": "Snippet"
+      }
+    }
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "source": "schema2.json",
+  "expected": {
+    "cloud.config.files": {
+      "mount_path": {
+        "label": "mount_path",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "mount_path=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "file": {
+        "label": "file",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "file=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.deployment.probes.liveness": {
+      "path": {
+        "label": "path",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "path=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "port": {
+        "label": "port",
+        "kind": "Snippet",
+        "detail": "Number",
+        "sortText": "A",
+        "insertText": "port=${1:0}",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.config.secrets": {
+      "secret_name": {
+        "label": "secret_name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "secret_name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "name": {
+        "label": "name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "key_ref": {
+        "label": "key_ref",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "key_ref=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.deployment": {
+      "external_accessible": {
+        "label": "external_accessible",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "external_accessible=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "min_memory": {
+        "label": "min_memory",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "min_memory=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "min_cpu": {
+        "label": "min_cpu",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "min_cpu=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "cloud.deployment.probes": {
+        "label": "cloud.deployment.probes",
+        "kind": "Snippet",
+        "detail": "Table",
+        "sortText": "B",
+        "insertText": "[cloud.deployment.probes]",
+        "insertTextFormat": "Snippet"
+      },
+      "internal_domain_name": {
+        "label": "internal_domain_name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "internal_domain_name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "max_cpu": {
+        "label": "max_cpu",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "max_cpu=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "cloud.deployment.autoscaling": {
+        "label": "cloud.deployment.autoscaling",
+        "kind": "Snippet",
+        "detail": "Table",
+        "sortText": "B",
+        "insertText": "[cloud.deployment.autoscaling]",
+        "insertTextFormat": "Snippet"
+      },
+      "cloud.deployment.storage": {
+        "label": "cloud.deployment.storage",
+        "kind": "Snippet",
+        "detail": "Table",
+        "sortText": "B",
+        "insertText": "[cloud.deployment.storage]",
+        "insertTextFormat": "Snippet"
+      },
+      "max_memory": {
+        "label": "max_memory",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "max_memory=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.config.envs": {
+      "config_name": {
+        "label": "config_name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "config_name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "name": {
+        "label": "name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "key_ref": {
+        "label": "key_ref",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "key_ref=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.deployment.autoscaling": {
+      "memory": {
+        "label": "memory",
+        "kind": "Snippet",
+        "detail": "Number",
+        "sortText": "A",
+        "insertText": "memory=${1:0}",
+        "insertTextFormat": "Snippet"
+      },
+      "enable": {
+        "label": "enable",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertText": "enable=${1:false}",
+        "insertTextFormat": "Snippet"
+      },
+      "min_replicas": {
+        "label": "min_replicas",
+        "kind": "Snippet",
+        "detail": "Number",
+        "sortText": "A",
+        "insertText": "min_replicas=${1:0}",
+        "insertTextFormat": "Snippet"
+      },
+      "cpu": {
+        "label": "cpu",
+        "kind": "Snippet",
+        "detail": "Number",
+        "sortText": "A",
+        "insertText": "cpu=${1:0}",
+        "insertTextFormat": "Snippet"
+      },
+      "max_replicas": {
+        "label": "max_replicas",
+        "kind": "Snippet",
+        "detail": "Number",
+        "sortText": "A",
+        "insertText": "max_replicas=${1:0}",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.deployment.probes.readiness": {
+      "path": {
+        "label": "path",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "path=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "port": {
+        "label": "port",
+        "kind": "Snippet",
+        "detail": "Number",
+        "sortText": "A",
+        "insertText": "port=${1:0}",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "cloud.deployment.storage.volumes": {
+      "size": {
+        "label": "size",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "size=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "name": {
+        "label": "name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "local_path": {
+        "label": "local_path",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "local_path=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "container.image.user": {
+      "run_as": {
+        "label": "run_as",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "run_as=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "container.image": {
+      "name": {
+        "label": "name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "name=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "container.image.user": {
+        "label": "container.image.user",
+        "kind": "Snippet",
+        "detail": "Table",
+        "sortText": "B",
+        "insertText": "[container.image.user]",
+        "insertTextFormat": "Snippet"
+      },
+      "tag": {
+        "label": "tag",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "tag=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "repository": {
+        "label": "repository",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "repository=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      },
+      "base": {
+        "label": "base",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertText": "base=\"${1:}\"",
+        "insertTextFormat": "Snippet"
+      }
+    }
+  }
+}

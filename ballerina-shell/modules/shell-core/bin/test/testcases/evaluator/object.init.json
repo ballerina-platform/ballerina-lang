@@ -1,0 +1,46 @@
+[
+  {
+    "description": "Define help function.",
+    "code": "function validateAge(int age) returns int|error { if (age > 0 && age < 100) { return age; } error invalidAge = error(\"The age should be between 0-100\"); return invalidAge; }"
+  },
+  {
+    "description": "Define a class.",
+    "code": "class Person { public string name; private int age; function init(string name, int age) returns error? { self.name = name; self.age = check validateAge(age); } }"
+  },
+  {
+    "description": "Create a new object I.",
+    "code": "Person|error p1 = new(\"John\", 25);"
+  },
+  {
+    "description": "Create a new object I - get value.",
+    "code": "p1 is Person",
+    "expr": "true"
+  },
+  {
+    "description": "Verify object I.",
+    "code": "Person p1_p = <Person> checkpanic p1;"
+  },
+  {
+    "description": "Verify object I - get value.",
+    "code": "p1_p.name",
+    "expr": "\"John\""
+  },
+  {
+    "description": "Create a new object II.",
+    "code": "Person|error p2 = new(\"Sam\", -20);"
+  },
+  {
+    "description": "Create a new object II - get value.",
+    "code": "p2 is Person",
+    "expr": "false"
+  },
+  {
+    "description": "Verify object II.",
+    "code": "error p2_e = <error> p2;"
+  },
+  {
+    "description": "Verify object II - get value.",
+    "code": "p2_e.message()",
+    "expr": "\"The age should be between 0-100\""
+  }
+]

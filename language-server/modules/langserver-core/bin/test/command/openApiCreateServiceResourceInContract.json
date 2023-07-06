@@ -1,0 +1,7 @@
+{
+  "arguments": {
+    "node.line": 27,
+    "node.column": 8,
+    "resource.path": "/pets/{petId}"
+  }
+}

@@ -1,0 +1,4 @@
+import b
+
+function testFunction() {
+}

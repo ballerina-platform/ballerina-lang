@@ -1,0 +1,70 @@
+{
+  "source": {
+    "file": "main.bal"
+  },
+  "position": {
+    "line": 4,
+    "character": 11
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "main.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 22
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": " as mod1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 11
+            }
+          },
+          "newText": "mod1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 32
+            },
+            "end": {
+              "line": 4,
+              "character": 39
+            }
+          },
+          "newText": "mod1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 19
+            },
+            "end": {
+              "line": 14,
+              "character": 26
+            }
+          },
+          "newText": "mod1"
+        }
+      ]
+    }
+  }
+}

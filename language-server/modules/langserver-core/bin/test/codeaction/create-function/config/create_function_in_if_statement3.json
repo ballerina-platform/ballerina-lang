@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 1,
+    "character": 7
+  },
+  "source": "create_function_in_if_statement3.bal",
+  "expected": [
+    {
+      "title": "Create function 'foo(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 1
+            },
+            "end": {
+              "line": 4,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction foo() returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_if_statement3.bal",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 7
+          },
+          "end": {
+            "line": 1,
+            "character": 12
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 1.0,
+              "character": 7.0
+            },
+            "end": {
+              "line": 1.0,
+              "character": 12.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

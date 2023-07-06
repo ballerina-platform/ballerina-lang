@@ -1,0 +1,148 @@
+[
+  {
+    "description": "Define newArrayDeque.",
+    "code": "function newArrayDeque() returns handle = @java:Constructor { 'class: \"java.util.ArrayDeque\" } external;"
+  },
+  {
+    "description": "Define newArrayDequeWithInitialCapacity.",
+    "code": "function newArrayDequeWithInitialCapacity(int numElements) returns handle = @java:Constructor { 'class: \"java.util.ArrayDeque\", paramTypes: [\"int\"] } external;"
+  },
+  {
+    "description": "Define createRandomUUID static method.",
+    "code": "function createRandomUUID() returns handle = @java:Method { name: \"randomUUID\", 'class: \"java.util.UUID\" } external;"
+  },
+  {
+    "description": "Define offer method.",
+    "code": "function offer(handle receiver, handle e) returns boolean = @java:Method { 'class: \"java.util.ArrayDeque\" } external;"
+  },
+  {
+    "description": "Define poll method.",
+    "code": "function poll(handle receiver) returns handle = @java:Method { 'class: \"java.util.ArrayDeque\" } external;"
+  },
+  {
+    "description": "Define pi field getter.",
+    "code": "function pi() returns float = @java:FieldGet { name: \"PI\", 'class: \"java/lang/Math\" } external;"
+  },
+  {
+    "description": "Define splitString that returns java array.",
+    "code": "function splitString(handle receiver, handle regex) returns handle = @java:Method { name: \"split\", 'class: \"java/lang/String\" } external;"
+  },
+  {
+    "description": "Define function with var args.",
+    "code": "function asList(int... values) returns handle = @java:Method { name: \"asList\", 'class: \"java.util.Arrays\" } external;"
+  },
+  {
+    "description": "Define newStringBuffer.",
+    "code": "function newStringBuffer(handle str) returns handle = @java:Constructor { 'class: \"java.lang.StringBuffer\", paramTypes: [\"java.lang.String\"] } external;"
+  },
+  {
+    "description": "Define appendString which takes a String.",
+    "code": "function appendString(handle receiver, handle str) returns handle = @java:Method { name: \"append\", 'class: \"java.lang.StringBuffer\", paramTypes: [\"java.lang.String\"] } external;"
+  },
+  {
+    "description": "Define appendString which takes a String Buffer.",
+    "code": "function appendStringBuffer(handle receiver, handle strBuffer) returns handle = @java:Method { name: \"append\", 'class: \"java.lang.StringBuffer\", paramTypes: [\"java.lang.StringBuffer\"] } external;"
+  },
+  {
+    "description": "Define loadClass which may return an error.",
+    "code": "function loadClass(handle className) returns handle|error = @java:Method { name: \"forName\", 'class: \"java.lang.Class\" } external;"
+  },
+  {
+    "description": "Create array deque.",
+    "code": "var arrayDeque = newArrayDeque();"
+  },
+  {
+    "description": "Create array deque - get value.",
+    "code": "arrayDeque",
+    "expr": "[]"
+  },
+  {
+    "description": "Create array deque with capacity.",
+    "code": "var arrayDequeWithCapacity = newArrayDequeWithInitialCapacity(10);"
+  },
+  {
+    "description": "Create array deque with capacity - get value.",
+    "code": "arrayDequeWithCapacity",
+    "expr": "[]"
+  },
+  {
+    "description": "Create uuid.",
+    "code": "var uuid = createRandomUUID();"
+  },
+  {
+    "description": "Create uuid - get value.",
+    "code": "typeof uuid",
+    "expr": "typedesc handle"
+  },
+  {
+    "description": "Append strings to array.",
+    "code": "_ = offer(arrayDeque, java:fromString(\"John\")); _ = offer(arrayDeque, java:fromString(\"Jane\")); _ = offer(arrayDeque, java:fromString(\"Peter\"));"
+  },
+  {
+    "description": "Poll and see.",
+    "code": "var nextInLineHandle = poll(arrayDeque);"
+  },
+  {
+    "description": "Poll and see - get value.",
+    "code": "nextInLineHandle",
+    "expr": "John"
+  },
+  {
+    "description": "Convert polled to ballerina string.",
+    "code": "string? nextInLine = java:toString(nextInLineHandle);"
+  },
+  {
+    "description": "Convert polled to ballerina string - get value.",
+    "code": "nextInLine",
+    "expr": "\"John\""
+  },
+  {
+    "description": "Use java field getter.",
+    "code": "float l = 2.0 * pi() * 4.0;"
+  },
+  {
+    "description": "Use java field getter - get value.",
+    "code": "l",
+    "expr": "25.132741228718345"
+  },
+  {
+    "description": "Use java var args method.",
+    "code": "var javaList = asList(1, 2, 42);"
+  },
+  {
+    "description": "Use java var args method - get value.",
+    "code": "javaList",
+    "expr": "[1, 2, 42]"
+  },
+  {
+    "description": "Create string buffers.",
+    "code": "var strBuffer = newStringBuffer(java:fromString(\"Ballerina is \")); var strBufferToAppend = newStringBuffer(java:fromString(\"and \"));"
+  },
+  {
+    "description": "Append strings/string buffers using overloads.",
+    "code": " _ = appendString(strBuffer, java:fromString(\"awesome \")); _ = appendString(strBufferToAppend, java:fromString(\"fun.\")); _ = appendStringBuffer(strBuffer, strBufferToAppend);"
+  },
+  {
+    "description": "Append strings/string buffers using overloads - get value.",
+    "code": " java:toString(strBuffer);",
+    "expr": "\"Ballerina is awesome and fun.\""
+  },
+  {
+    "description": "Catch java exceptions.",
+    "code": "handle|error classOrError = loadClass(java:fromString(\"a.b.c.z.SomeClass\"));"
+  },
+  {
+    "description": "Catch java exceptions - get value.",
+    "code": "classOrError is error",
+    "expr": "true"
+  },
+  {
+    "description": "Catch java runtime exceptions.",
+    "code": "boolean|error e = trap offer(arrayDeque, java:createNull());"
+  },
+  {
+    "description": "Catch java runtime exceptions - get value.",
+    "code": "e is error",
+    "expr": "true"
+  }
+]

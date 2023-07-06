@@ -1,0 +1,10 @@
+{
+  "organization": "samjs",
+  "name": "a",
+  "version": "1.0.0",
+  "ballerina_version": "slalpha3",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "v2020-12-17",
+  "platform": "any",
+  "template": false
+}

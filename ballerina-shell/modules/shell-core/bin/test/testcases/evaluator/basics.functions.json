@@ -1,0 +1,47 @@
+[
+  {
+    "description": "Define function.",
+    "code": "function printValue(string value) { println(value); }"
+  },
+  {
+    "description": "Define function with no return.",
+    "code": "function add(int a, int b) returns int { return a + b; }"
+  },
+  {
+    "description": "Define function with return and side-effect.",
+    "code": "function printAndReturnValue(string s) returns string { string t = \"Hello \".concat(s); println(t); return t; }"
+  },
+  {
+    "description": "Use function.",
+    "code": "printValue(\"This is a sample text\");",
+    "stdout": "This is a sample text\n"
+  },
+  {
+    "description": "Get return value.",
+    "code": "add(5, 6);",
+    "expr": "11"
+  },
+  {
+    "description": "Define function with double underscore.",
+    "code": "function __add(int a, int b) returns int { return a + b; }"
+  },
+  {
+    "description": "Get return value for function name starts with double underscore.",
+    "code": "__add(2, 3);",
+    "expr": "5"
+  },
+  {
+    "description": "Ignore return value.",
+    "code": "_ = printAndReturnValue(\"World\");",
+    "stdout": "Hello World\n"
+  },
+  {
+    "description": "Define function.",
+    "code": "function subtract(int m, int n) returns int { \n    return m - n;\n\n}\n\npublic function test() returns int{  \n    int x = subtract(2, 1);\n    return x;\n}"
+  },
+  {
+    "description": "Test functions",
+    "code": "test();",
+    "expr": "1"
+  }
+]

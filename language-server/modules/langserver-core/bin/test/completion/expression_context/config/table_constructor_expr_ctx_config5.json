@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 7,
+    "character": 45
+  },
+  "source": "expression_context/source/table_constructor_expr_ctx_source5.bal",
+  "items": [
+    {
+      "label": "firstname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "firstname",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lastname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "lastname",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "salary",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BG",
+      "insertText": "salary",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

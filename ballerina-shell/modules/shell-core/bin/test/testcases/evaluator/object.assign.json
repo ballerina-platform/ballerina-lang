@@ -1,0 +1,19 @@
+[
+  {
+    "description": "Define a Person class.",
+    "code": "class Person {  public int age = 0;  public string name = \"\"; public function getName() returns string { return self.name;  } }"
+  },
+  {
+    "description": "Define an Employee class.",
+    "code": "class Employee { public int age; public string name; public string address;\n public function init(int age, string name, string address) { self.age = age; self.name = name; self.address = address; } public function getName() returns string { return self.name + \" Doe\"; } public function getAge() returns int { return self.age; }\n}"
+  },
+  {
+    "description": "Invoke person method.",
+    "code": "Person p1 = new Employee(50, \"John\", \"street1\");"
+  },
+  {
+    "description": "Invoke person method - get value.",
+    "code": "p1.getName()",
+    "expr": "\"John Doe\""
+  }
+]

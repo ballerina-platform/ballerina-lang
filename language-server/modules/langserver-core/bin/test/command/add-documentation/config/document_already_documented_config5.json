@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 33,
+        "character": 0
+      },
+      "end": {
+        "line": 43,
+        "character": 1
+      }
+    }
+  },
+  "source": "document_already_documented1.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 33,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 33,
+                    "character": 40
+                  }
+                },
+                "newText": "# A service to obtain a greeting message"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

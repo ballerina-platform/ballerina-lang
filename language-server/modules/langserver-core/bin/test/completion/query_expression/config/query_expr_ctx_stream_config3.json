@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 4,
+    "character": 22
+  },
+  "source": "query_expression/source/query_expr_ctx_stream_source3.bal",
+  "items": [
+    {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "from",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

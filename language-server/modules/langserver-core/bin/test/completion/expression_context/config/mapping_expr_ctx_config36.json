@@ -1,0 +1,51 @@
+{
+  "position": {
+    "line": 7,
+    "character": 27
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source36.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "optionalInt",
+      "kind": "Field",
+      "detail": "module1:TestRecord1.optionalInt",
+      "sortText": "K",
+      "insertText": "optionalInt: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field1",
+      "kind": "Field",
+      "detail": "module1:TestRecord1.rec1Field1",
+      "sortText": "K",
+      "insertText": "rec1Field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field2",
+      "kind": "Field",
+      "detail": "module1:TestRecord1.rec1Field2",
+      "sortText": "K",
+      "insertText": "rec1Field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "module1:TestRecord1",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

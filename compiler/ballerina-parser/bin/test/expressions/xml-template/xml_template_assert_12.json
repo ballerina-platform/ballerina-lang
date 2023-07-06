@@ -1,0 +1,435 @@
+{
+  "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FUNCTION_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "XML_ELEMENT",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "XML_ELEMENT_START_TAG",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "XML_ATTRIBUTE",
+                                      "children": [
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_ATTRIBUTE_VALUE",
+                                          "children": [
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "value": "\u0026#56;"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "b"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_ATTRIBUTE_VALUE",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "hasDiagnostics": true,
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE"
+                                                  ],
+                                                  "value": "\u0026#5a6;"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "c"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_ATTRIBUTE_VALUE",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "hasDiagnostics": true,
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE"
+                                                  ],
+                                                  "value": "\u0026#x5a6"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "XML_ATTRIBUTE",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "XML_SIMPLE_NAME",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "d"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "EQUAL_TOKEN"
+                                        },
+                                        {
+                                          "kind": "XML_ATTRIBUTE_VALUE",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "hasDiagnostics": true,
+                                              "children": [
+                                                {
+                                                  "kind": "XML_TEXT_CONTENT",
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE"
+                                                  ],
+                                                  "value": "\u0026hello"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "DOUBLE_QUOTE_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "XML_ELEMENT_END_TAG",
+                              "children": [
+                                {
+                                  "kind": "LT_TOKEN"
+                                },
+                                {
+                                  "kind": "SLASH_TOKEN"
+                                },
+                                {
+                                  "kind": "XML_SIMPLE_NAME",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "GT_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

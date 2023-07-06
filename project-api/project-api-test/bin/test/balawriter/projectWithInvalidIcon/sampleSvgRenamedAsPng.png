@@ -1,0 +1,19 @@
+<svg version="1.2" baseProfile="tiny-ps" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+	<title>New Project</title>
+	<defs>
+		<image  width="200" height="200" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAAAXNSR0IB2cksfwAAAANQTFRFAAAAp3o92gAAAAF0Uk5TAEDm2GYAAAAcSURBVHic7cGBAAAAAMOg+VNf4QBVAQAAAAB8BhRQAAHaoBD5AAAAAElFTkSuQmCC"/>
+	</defs>
+	<style>
+		tspan { white-space:pre }
+		.txt0 { font-size: 24px;fill: #000000;font-weight: 400;font-family: "DejaVuSans", "DejaVu Sans" } 
+	</style>
+	<use id="Background" href="#img1" x="0" y="0" />
+	<text id="Sample  SVG renamed as PNG 01" style="transform: matrix(1,0,0,1,7,107)" >
+		<tspan x="0" y="0" class="txt0">S</tspan><tspan  y="0" class="txt0">a</tspan><tspan  y="0" class="txt0">m</tspan><tspan  y="0" class="txt0">p</tspan><tspan  y="0" class="txt0">l</tspan><tspan  y="0" class="txt0">e</tspan><tspan  y="0" class="txt0"> </tspan><tspan  y="0" class="txt0">
+</tspan>
+		<tspan x="0" y="28.8" class="txt0">S</tspan><tspan  y="28.8" class="txt0">V</tspan><tspan  y="28.8" class="txt0">G</tspan><tspan  y="28.8" class="txt0"> </tspan><tspan  y="28.8" class="txt0">r</tspan><tspan  y="28.8" class="txt0">e</tspan><tspan  y="28.8" class="txt0">n</tspan><tspan  y="28.8" class="txt0">a</tspan><tspan  y="28.8" class="txt0">m</tspan><tspan  y="28.8" class="txt0">e</tspan><tspan  y="28.8" class="txt0">d</tspan><tspan  y="28.8" class="txt0">
+</tspan>
+		<tspan x="0" y="57.6" class="txt0">a</tspan><tspan  y="57.6" class="txt0">s</tspan><tspan  y="57.6" class="txt0"> </tspan><tspan  y="57.6" class="txt0">P</tspan><tspan  y="57.6" class="txt0">N</tspan><tspan  y="57.6" class="txt0">G</tspan><tspan  y="57.6" class="txt0"> </tspan><tspan  y="57.6" class="txt0">0</tspan><tspan  y="57.6" class="txt0">1</tspan><tspan  y="57.6" class="txt0">
+</tspan>
+	</text>
+</svg>

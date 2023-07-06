@@ -1,0 +1,49 @@
+{
+    "position": {
+        "line": 406,
+        "character": 52
+    },
+    "source": "expressions/expressions.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "new(int field1, int field2)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 8,
+                                    "second": 14
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`field1**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 20,
+                                    "second": 26
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`field2**"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

@@ -1,0 +1,52 @@
+{
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source26.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Employee.name",
+      "sortText": "K",
+      "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "salary",
+      "kind": "Field",
+      "detail": "Employee.salary",
+      "sortText": "AG",
+      "insertText": "salary: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Employee Required Fields",
+      "kind": "Property",
+      "detail": "Employee",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}},\nsalary: ${3:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...testFunction()",
+      "kind": "Function",
+      "detail": "Employee",
+      "sortText": "AC",
+      "filterText": "testFunction",
+      "insertText": "...testFunction()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

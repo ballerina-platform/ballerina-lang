@@ -1,0 +1,8 @@
+[plugin]
+class = "io.samjs.plugins.lifecycle.CompilationEventPlugin"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/function-node-analyzer-compiler-plugin-1.0.0.jar"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/diagnostic-utils-lib-1.0.0.jar"

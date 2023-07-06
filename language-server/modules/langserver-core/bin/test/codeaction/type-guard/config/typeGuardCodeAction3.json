@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 5,
+    "character": 6
+  },
+  "source": "typeGuard.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "int|error apple = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 19
+            },
+            "end": {
+              "line": 5,
+              "character": 19
+            }
+          },
+          "newText": "\n    if apple is int {\n\n    }"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

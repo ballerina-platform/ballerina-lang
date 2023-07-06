@@ -1,0 +1,25 @@
+{
+  "kind": "PANIC_STATEMENT",
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "BOOLEAN_LITERAL",
+      "children": [
+        {
+          "kind": "TRUE_KEYWORD"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 2,
+    "character": 26
+  },
+  "source": "import_decl/source/source13.bal",
+  "items": [
+    {
+      "label": "as",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "as",
+      "insertText": "as ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 8,
+    "character": 10
+  },
+  "source": "service_decl/source/source8.bal",
+  "items": [
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "on",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

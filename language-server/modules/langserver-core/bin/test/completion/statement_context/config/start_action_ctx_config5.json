@@ -1,0 +1,401 @@
+{
+  "position": {
+    "line": 2,
+    "character": 39
+  },
+  "source": "statement_context/source/start_action_ctx_source5.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "MAX_VALUE",
+      "kind": "Variable",
+      "detail": "9223372036854775807",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `int`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MIN_VALUE",
+      "kind": "Variable",
+      "detail": "-9223372036854775808",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `int`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED32_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "2147483647",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed32`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "SIGNED32_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED32_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "-2147483648",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed32`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "SIGNED32_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED16_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "32767",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed16`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "SIGNED16_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED16_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "-32768",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed16`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "SIGNED16_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED8_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "127",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Signed8`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "SIGNED8_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SIGNED8_MIN_VALUE",
+      "kind": "Variable",
+      "detail": "-128",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Minimum value of type `Signed8`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "SIGNED8_MIN_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED32_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "4294967295",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned32`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "UNSIGNED32_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED16_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "65535",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned16`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "UNSIGNED16_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSIGNED8_MAX_VALUE",
+      "kind": "Variable",
+      "detail": "255",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Maximum value of type `Unsigned8`."
+        }
+      },
+      "sortText": "BC",
+      "insertText": "UNSIGNED8_MAX_VALUE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed32",
+      "kind": "TypeParameter",
+      "detail": "Signed32",
+      "documentation": {
+        "left": "Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.\nThis allows an int between -2^31 and 2^31 - 1 inclusive,\ni.e., between -2,147,483,648 and 2,147,483,647 inclusive."
+      },
+      "sortText": "BN",
+      "insertText": "Signed32",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed16",
+      "kind": "TypeParameter",
+      "detail": "Signed16",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 16 bits using two's complement.\nThis allows an int between -2^15 and 2^15 - 1 inclusive,\ni.e., between -32,768 and 32,767 inclusive."
+      },
+      "sortText": "BN",
+      "insertText": "Signed16",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed8",
+      "kind": "TypeParameter",
+      "detail": "Signed8",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 8 bits using two's complement.\nThis allows an int between -2^7 and 2^7 - 1 inclusive,\ni.e., between -128 and 127 inclusive."
+      },
+      "sortText": "BN",
+      "insertText": "Signed8",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned32",
+      "kind": "TypeParameter",
+      "detail": "Unsigned32",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 32 bits.\nThis allows an int between 0 and 2^32 - 1 inclusive,\ni.e., between 0 and 4,294,967,295 inclusive."
+      },
+      "sortText": "BN",
+      "insertText": "Unsigned32",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned16",
+      "kind": "TypeParameter",
+      "detail": "Unsigned16",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 16 bits.\nThis allows an int between 0 and 2^16 - 1 inclusive,\ni.e., between 0 and 65,535 inclusive."
+      },
+      "sortText": "BN",
+      "insertText": "Unsigned16",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned8",
+      "kind": "TypeParameter",
+      "detail": "Unsigned8",
+      "documentation": {
+        "left": "Built-in subtype that allows non-negative integers that can be represented in 8 bits.\nThis allows an int between 0 and 2^8 - 1 inclusive,\ni.e., between 0 and 255 inclusive.\nThis is the same as `byte`."
+      },
+      "sortText": "BN",
+      "insertText": "Unsigned8",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "abs(int n)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the absolute value of an int value.\n\n```ballerina\nint n = -25;\nn.abs() ⇒ 25\nint:abs(-30) ⇒ 30\n```\n  \n**Params**  \n- `int` n: int value to be operated on  \n  \n**Return** `int`   \n- absolute value of parameter `n`  \n  \n"
+        }
+      },
+      "sortText": "AAA",
+      "filterText": "abs",
+      "insertText": "abs(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "sum(int... ns)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns sum of zero or more int values.\n\n```ballerina\nint:sum(10, 20, 30, 40) ⇒ 100\nint[] marks = [50, 65, 78, 95];\nint:sum(...marks) ⇒ 288\nint num = 24;\nnum.sum(38, 15, 97, 27) ⇒ 201\n```\n  \n**Params**  \n- `int[]` ns: int values to sum  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
+        }
+      },
+      "sortText": "AAA",
+      "filterText": "sum",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "max(int n, int... ns)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the maximum of one or more int values.\n\n```ballerina\nint:max(50, 20, 30, 70, 65) ⇒ 70\n[int, int, int] scores = [52, 95, 76];\nint:max(...scores) ⇒ 95\nint n = 18;\nn.max(25, 30, 4, 15) ⇒ 30\n```\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "AAA",
+      "filterText": "max",
+      "insertText": "max(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "min(int n, int... ns)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the minimum of one or more int values.\n\n```ballerina\nint:min(45, 25, 30, 75, 50) ⇒ 25\n[int, int, int, int] points = [21, 12, 48, 14];\nint:min(...points) ⇒ 12\nint m = 23;\nm.min(12, 43, 7, 19) ⇒ 7\n```\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "AAA",
+      "filterText": "min",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromString(string s)",
+      "kind": "Function",
+      "detail": "int|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the integer of a string that represents in decimal.\n\nReturns error if parameter `s` is not the decimal representation of an integer.\nThe first character may be `+` or `-`.\nThis is the inverse of function ``value:toString`` applied to an `int`.\n\n```ballerina\nint:fromString(\"76\") ⇒ 76\nint:fromString(\"-120\") ⇒ -120\nint:fromString(\"0xFFFF\") ⇒ error\n```\n  \n**Params**  \n- `string` s: string representation of a integer value  \n  \n**Return** `int|error`   \n- int representation of the argument or error  \n  \n"
+        }
+      },
+      "sortText": "AAA",
+      "filterText": "fromString",
+      "insertText": "fromString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toHexString(int n)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns representation of an integer as hexdecimal string.\n\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n\n```ballerina\n26.toHexString() ⇒ 1a\nint:toHexString(-158) ⇒ -9e\n```\n  \n**Params**  \n- `int` n: int value  \n  \n**Return** `string`   \n- hexadecimal string representation of int value  \n  \n"
+        }
+      },
+      "sortText": "AE",
+      "filterText": "toHexString",
+      "insertText": "toHexString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromHexString(string s)",
+      "kind": "Function",
+      "detail": "int|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the integer that a string value represents in hexadecimal.\n\nBoth uppercase A-F and lowercase a-f are allowed.\nIt may start with an optional `+` or `-` sign.\nNo `0x` or `0X` prefix is allowed.\nReturns an error if the parameter `s` is not in an allowed format.\n\n```ballerina\nint:fromHexString(\"1A5F\") ⇒ 6751\nint:fromHexString(\"-2b4a\") ⇒ -11082\nint:fromHexString(\"1Y4K\") ⇒ error\n```\n  \n**Params**  \n- `string` s: hexadecimal string representation of int value  \n  \n**Return** `int|error`   \n- int value or error  \n  \n"
+        }
+      },
+      "sortText": "AAA",
+      "filterText": "fromHexString",
+      "insertText": "fromHexString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "avg(int n, int... ns)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the average of its arguments.\nThe result is returned as a decimal.\n\n```ballerina\nint:avg(10, 20, 30, 40) ⇒ 25.0\n```\n  \n**Params**  \n- `int` n: first int value  \n- `int[]` ns: other int values  \n  \n**Return** `decimal`   \n- average of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "AE",
+      "filterText": "avg",
+      "insertText": "avg(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "range(int rangeStart, int rangeEnd, int step)",
+      "kind": "Function",
+      "detail" : "object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};}",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value" :"**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns an iterable object that iterates over a range of integers.\nThe integers returned by the iterator belong to the set S,\nwhere S is `{ rangeStart + step*i such that i >= 0 }`.\nWhen `step > 0`, the members of S that are `< rangeEnd` are returned in increasing order.\nWhen `step < 0`, the members of S that are `> rangeEnd` are returned in decreasing order.\nWhen `step = 0`, the function panics.  \n**Params**  \n- `int` rangeStart: the first integer to be returned by the iterator  \n- `int` rangeEnd: the exclusive limit on the integers returned by the iterator  \n- `int` step: the difference between successive integers returned by the iterator;\na positive value gives an increasing sequence; a negative value gives\na decreasing sequence  \n  \n**Return** `object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};}`   \n- an iterable object  \n  \n"
+        }
+      },
+      "sortText": "AE",
+      "filterText": "range",
+      "insertText": "range(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

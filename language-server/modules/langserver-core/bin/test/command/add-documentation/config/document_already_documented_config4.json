@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 22,
+        "character": 0
+      },
+      "end": {
+        "line": 31,
+        "character": 1
+      }
+    }
+  },
+  "source": "document_already_documented1.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 22,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 28,
+                    "character": 24
+                  }
+                },
+                "newText": "# Returns a value given some string\n#\n# + content - Parameter Description  \n# + round - Parameter Description\n# + return - Return Value Description"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

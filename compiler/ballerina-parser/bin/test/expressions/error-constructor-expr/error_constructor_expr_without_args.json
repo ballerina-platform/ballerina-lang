@@ -1,0 +1,23 @@
+{
+  "kind": "ERROR_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_ARG_WITHIN_PARENTHESIS"
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 5,
+    "character": 39
+  },
+  "source": "convert_to_readonly_clone_source2.bal",
+  "expected": [
+    {
+      "title": "Convert to Readonly Clone",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 31
+            },
+            "end": {
+              "line": 5,
+              "character": 54
+            }
+          },
+          "newText": "(let int test \u003d 23 in {}).cloneReadOnly()"
+        }
+      ]
+    }
+  ]
+}

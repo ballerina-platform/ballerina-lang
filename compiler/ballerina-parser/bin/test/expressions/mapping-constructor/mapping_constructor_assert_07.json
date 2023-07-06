@@ -1,0 +1,98 @@
+{
+  "kind": "MAPPING_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "COLON_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_COLON_TOKEN"
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "c",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "COLON_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_COLON_TOKEN"
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 17,
+    "character": 24
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source28a.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

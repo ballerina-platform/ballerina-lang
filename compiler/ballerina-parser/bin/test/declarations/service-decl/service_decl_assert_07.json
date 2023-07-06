@@ -1,0 +1,94 @@
+{
+  "kind": "SERVICE_DECLARATION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "SERVICE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "echoService",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "SLASH_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        },
+        {
+          "kind": "SLASH_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "bar",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ON_KEYWORD",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_ON_KEYWORD",
+        "ERROR_MISSING_EXPRESSION"
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

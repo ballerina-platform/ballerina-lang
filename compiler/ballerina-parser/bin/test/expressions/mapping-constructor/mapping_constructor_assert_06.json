@@ -1,0 +1,43 @@
+{
+  "kind": "MAPPING_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+      ]
+    }
+  ]
+}

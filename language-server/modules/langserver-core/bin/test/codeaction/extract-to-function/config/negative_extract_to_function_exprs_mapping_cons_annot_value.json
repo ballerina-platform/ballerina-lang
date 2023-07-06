@@ -1,0 +1,19 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 4
+    },
+    "end": {
+      "line": 5,
+      "character": 1
+    }
+  },
+  "source": "extract_to_function_exprs_mapping_constructor.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for expressions, mapping constructor in annot value in annotation"
+}

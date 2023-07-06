@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 13,
+    "character": 12
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source38.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fField2",
+      "kind": "Field",
+      "detail": "Internal.fField2",
+      "sortText": "K",
+      "insertText": "fField2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fField1",
+      "kind": "Field",
+      "detail": "Internal.fField1",
+      "sortText": "K",
+      "insertText": "fField1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Internal Required Fields",
+      "kind": "Property",
+      "detail": "Internal",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "fField2: ${1:0},\nfField1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

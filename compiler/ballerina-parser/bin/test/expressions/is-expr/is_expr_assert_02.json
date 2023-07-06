@@ -1,0 +1,65 @@
+{
+  "kind": "TYPE_TEST_EXPRESSION",
+  "children": [
+    {
+      "kind": "TYPE_TEST_EXPRESSION",
+      "children": [
+        {
+          "kind": "NUMERIC_LITERAL",
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+              "value": "3",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "IS_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "IS_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "DECIMAL_TYPE_DESC",
+      "children": [
+        {
+          "kind": "DECIMAL_KEYWORD"
+        }
+      ]
+    }
+  ]
+}

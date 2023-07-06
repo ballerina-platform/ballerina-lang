@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 1,
+    "character": 17
+  },
+  "source": "add_check_codeaction_source1.bal",
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 17
+            },
+            "end": {
+              "line": 1,
+              "character": 17
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 22
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ]
+}

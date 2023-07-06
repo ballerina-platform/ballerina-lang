@@ -1,0 +1,156 @@
+{
+  "kind": "MAPPING_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "name"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "John"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "parent"
+            },
+            {
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "MAPPING_CONSTRUCTOR",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "SPECIFIC_FIELD",
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL_TOKEN",
+                              "value": "name"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COLON_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "STRING_LITERAL",
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL_TOKEN",
+                              "value": "Doe"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SPECIFIC_FIELD",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "age"
+                        },
+                        {
+                          "kind": "COLON_TOKEN"
+                        },
+                        {
+                          "kind": "NUMERIC_LITERAL",
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                              "value": "20"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "source": {
+    "file": "main.bal"
+  },
+  "position": {
+    "line": 0,
+    "character": 19
+  },
+  "prepareRename": {
+    "valid": false
+  },
+  "result": {
+    "changes": {}
+  }
+}

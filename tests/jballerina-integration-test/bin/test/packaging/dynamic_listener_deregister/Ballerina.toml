@@ -1,0 +1,4 @@
+[package]
+org = "integration_tests"
+name = "dynamic_listener_deregister"
+version= "0.1.0"

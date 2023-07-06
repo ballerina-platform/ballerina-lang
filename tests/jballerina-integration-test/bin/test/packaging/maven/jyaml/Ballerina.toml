@@ -1,0 +1,9 @@
+[package]
+org= "jo"
+name="tests"
+version= "0.1.0"
+
+[[platform.java11.dependency]]
+groupId = "org.yaml"
+artifactId = "snakeyaml"
+version = "2.0"

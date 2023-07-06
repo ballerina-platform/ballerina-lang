@@ -1,0 +1,20 @@
+ports = [9090, 9091, 9092]
+url = "http://google.com"
+[userPortal.users.admin]
+
+age = 25
+username = "Bob"
+[[userPortal.users.users]]
+
+age = 56
+username = "John"
+[[userPortal.users.users]]
+
+age = 14
+username = "Tom"
+[[userPortal.users.users]]
+
+age = 27
+username = "Anna"
+[ballerina.log]
+format = "json"

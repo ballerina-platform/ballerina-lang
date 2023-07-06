@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 19,
+    "character": 26
+  },
+  "source": "typedesc_context/source/function_typedesc22.bal",
+  "items": [
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Z",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Z",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

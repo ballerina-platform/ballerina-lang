@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2020, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+This software is the property of WSO2 Inc. and its suppliers, if any.
+Dissemination of any information or reproduction of any material contained
+herein is strictly forbidden, unless permitted by WSO2 in accordance with
+the WSO2 Commercial License available at http://wso2.com/licenses.
+For specific language governing the permissions and limitations under
+this license, please see the license as well as any agreement you’ve
+entered into with WSO2 governing the purchase of this software and any
+-->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="language-server-data-mapper-test-suite">
+    <test name="language-server-data-mapper-tests" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.datamapper.codeaction.*"/>
+        </packages>
+    </test>
+</suite>

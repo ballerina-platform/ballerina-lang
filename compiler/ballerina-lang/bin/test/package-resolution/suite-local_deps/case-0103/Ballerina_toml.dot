@@ -1,0 +1,4 @@
+digraph "BallerinaToml" {
+    "ballerinax/github:1.0.0" [repo = local]
+    "samjs/c:0.5.1" [repo = local]
+}

@@ -1,0 +1,57 @@
+{
+  "kind": "FIELD_ACCESS",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "INDEXED_EXPRESSION",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "x"
+            }
+          ]
+        },
+        {
+          "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACKET_TOKEN",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "DOT_TOKEN"
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "y"
+        }
+      ]
+    }
+  ]
+}

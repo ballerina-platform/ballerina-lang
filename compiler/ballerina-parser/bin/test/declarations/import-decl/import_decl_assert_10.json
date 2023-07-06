@@ -1,0 +1,37 @@
+{
+  "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
+    }
+  ]
+}

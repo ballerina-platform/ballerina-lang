@@ -1,0 +1,6 @@
+[package]
+# Name of the package
+org = "testorg"
+name = "objectpkg"
+version = "1.0.0"
+export = ["objectpkg", "objectpkg.org_foo", "objectpkg.org_foo_bar"]

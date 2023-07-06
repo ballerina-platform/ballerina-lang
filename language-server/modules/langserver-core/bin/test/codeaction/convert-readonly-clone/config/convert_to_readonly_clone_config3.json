@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 6,
+    "character": 47
+  },
+  "source": "convert_to_readonly_clone_source3.bal",
+  "expected": [
+    {
+      "title": "Convert to Readonly Clone",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 31
+            },
+            "end": {
+              "line": 6,
+              "character": 69
+            }
+          },
+          "newText": "(testValue \u003e 2000 ? {x: 1234} : {x: 23}).cloneReadOnly()"
+        }
+      ]
+    }
+  ]
+}

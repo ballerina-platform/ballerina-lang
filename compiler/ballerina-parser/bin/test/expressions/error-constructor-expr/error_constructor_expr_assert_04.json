@@ -1,0 +1,63 @@
+{
+  "kind": "ERROR_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "NAMED_ARG",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_ERROR_MESSAGE_IN_ERROR_CONSTRUCTOR"
+          ],
+          "children": [
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "message",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "error message"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
+}

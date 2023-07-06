@@ -1,0 +1,17 @@
+{
+  "kind": "NIL_LITERAL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "OPEN_PAREN_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OPEN_PAREN_TOKEN"
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
+}

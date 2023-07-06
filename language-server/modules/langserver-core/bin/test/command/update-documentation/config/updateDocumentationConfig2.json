@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 0,
+        "character": 0
+      },
+      "end": {
+        "line": 8,
+        "character": 2
+      }
+    }
+  },
+  "source": "updateDocumentationSource2.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 28
+                  }
+                },
+                "newText": "# Description\n#\n# + name - Name of the student  \n# + id - Field Description  \n# + vals - field description"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

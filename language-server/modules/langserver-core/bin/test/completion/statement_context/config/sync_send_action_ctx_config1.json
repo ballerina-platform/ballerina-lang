@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 3,
+    "character": 27
+  },
+  "source": "statement_context/source/sync_send_action_ctx_source1.bal",
+  "items": [
+    {
+      "label": "w2",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "B",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

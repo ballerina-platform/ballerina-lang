@@ -1,0 +1,71 @@
+[
+  {
+    "description": "An enum is defined using a module enum declaration.",
+    "code": "enum Color { RED, GREEN, BLUE}"
+  },
+  {
+    "description": "Helper function to concat 2 strings.",
+    "code": "function concat(string str1, string str2) returns string {return str1 + \" and \" + str2; }"
+  },
+  {
+    "description": "An enum member can explicitly specify an associated expression.",
+    "code": "enum Language {EN=\"english\", TA=\"tamil\", SI=\"sinhala\"}"
+  },
+  {
+    "description": "An enum declaration can consist of a combination of members.",
+    "code": "enum Bands { QUEEN, PF = \"Pink \" + \"Floyd\"}"
+  },
+  {
+    "description": "An enum member can be used in the same way as a string constant.",
+    "code": "string skyColor = BLUE;"
+  },
+  {
+    "description": "An enum member can be used in the same way as a string constant - get value.",
+    "code": "skyColor",
+    "expr": "\"BLUE\""
+  },
+  {
+    "description": "Enums can be treated as strings.",
+    "code": "string concatenated = concat(QUEEN, PF);"
+  },
+  {
+    "description": "Enums can be treated as strings - get value.",
+    "code": "concatenated",
+    "expr": "\"QUEEN and Pink Floyd\""
+  },
+  {
+    "description": "Helper function to get the enum value.",
+    "code": "function getLanguage(string symbol) returns Language { match symbol { \"e\" => { return EN; } \"t\" => { return TA; } } return SI; }"
+  },
+  {
+    "description": "Enum type can be used as a type.",
+    "code": "Language language = getLanguage(\"e\");"
+  },
+  {
+    "description": "Enum type can be used as a type - get value.",
+    "code": "language",
+    "expr": "\"english\""
+  },
+  {
+    "description": "Enum value can be used as a type assigned by a string.",
+    "code": "Language sinhala = \"sinhala\";"
+  },
+  {
+    "description": "Enum value can be used as a type assigned by a string - get value.",
+    "code": "sinhala",
+    "expr": "\"sinhala\""
+  },
+  {
+    "description": "Enum value can be used as a type.",
+    "code": "Language english = \"english\";"
+  },
+  {
+    "description": "Enum value can be used as a type - get value.",
+    "code": "english",
+    "expr": "\"english\""
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

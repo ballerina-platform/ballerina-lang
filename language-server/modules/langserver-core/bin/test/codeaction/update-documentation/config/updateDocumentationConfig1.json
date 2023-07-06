@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 5,
+    "character": 37
+  },
+  "source": "updateDocumentation1.bal",
+  "expected": [
+    {
+      "title": "Update documentation",
+      "kind": "refactor",
+      "command": {
+        "title": "Update documentation",
+        "command": "UPDATE_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 1,
+                "character": 0
+              },
+              "end": {
+                "line": 7,
+                "character": 1
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

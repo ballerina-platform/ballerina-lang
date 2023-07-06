@@ -1,0 +1,19 @@
+{
+  "position": {
+    "line": 1,
+    "character": 31
+  },
+  "source": "expression_context/source/function_call_expression_ctx_source19.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "arg2 = ...",
+      "kind": "Snippet",
+      "detail": "arg2 = \"\"",
+      "sortText": "AR",
+      "filterText": "arg2",
+      "insertText": "arg2 = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

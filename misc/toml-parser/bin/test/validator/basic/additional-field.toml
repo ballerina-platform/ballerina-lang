@@ -1,0 +1,11 @@
+name = "hello"
+add = "wwwe"
+
+
+[table]
+name = "hello"
+add = "wew"
+
+[table.subtable]
+name = "hii"
+add = "www"

@@ -1,0 +1,53 @@
+{
+  "position": {
+    "line": 5,
+    "character": 14
+  },
+  "source": "xml_typedesc_context/source/source4.bal",
+  "items": [
+    {
+      "label": "Element",
+      "kind": "TypeParameter",
+      "detail": "Element",
+      "documentation": {
+        "left": "Type for singleton elements.\nBuilt-in subtype of xml."
+      },
+      "sortText": "G",
+      "insertText": "Element",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ProcessingInstruction",
+      "kind": "TypeParameter",
+      "detail": "Processinginstruction",
+      "documentation": {
+        "left": "Type for singleton processing instructions.\nBuilt-in subtype of xml."
+      },
+      "sortText": "G",
+      "insertText": "ProcessingInstruction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Comment",
+      "kind": "TypeParameter",
+      "detail": "Comment",
+      "documentation": {
+        "left": "Type for singleton comments.\nBuilt-in subtype of xml."
+      },
+      "sortText": "G",
+      "insertText": "Comment",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Text",
+      "kind": "TypeParameter",
+      "detail": "Text",
+      "documentation": {
+        "left": "Type for zero or more text characters.\nBuilt-in subtype of xml.\nAdjacent xml text items are automatically concatenated,\nso an xml sequence belongs to this type if it is a singleton test sequence\nor the empty sequence."
+      },
+      "sortText": "G",
+      "insertText": "Text",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

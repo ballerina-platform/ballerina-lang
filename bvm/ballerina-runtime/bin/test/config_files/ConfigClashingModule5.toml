@@ -1,0 +1,7 @@
+[rootOrg.test_module.util.foo]
+intVar = 11
+stringVar = "white"
+
+[test_module.util.foo]
+intVar = 99
+stringVar = "black"

@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ballerina Toml Spec",
+  "description": "Schema for Ballerina Toml",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "package": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_.]*$",
+          "message": {
+            "pattern": "invalid 'name' under [package]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+          }
+        },
+        "org": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]*$",
+          "message": {
+            "pattern": "invalid 'org' under [package]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+          }
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "message": {
+            "pattern": "invalid 'version' under [package]: 'version' should be compatible with semver"
+          }
+        },
+        "license": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "repository": {
+          "type": "string"
+        },
+        "export": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "org",
+        "version"
+      ],
+      "message": {
+        "required": "'${property}' under [package] is missing"
+      }
+    },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "java11": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dependency": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "artifactId": {
+                    "type": "string"
+                  },
+                  "groupId": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "dependency"
+          ],
+          "message": {
+            "required": "cannot find '${property}' under 'platform.java11'"
+          }
+        }
+      },
+      "required": [
+        "java11"
+      ],
+      "message": {
+        "required": "cannot find '${property}' under 'platform'"
+      }
+    },
+    "build-options": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "observabilityIncluded": {
+          "type": "boolean"
+        },
+        "offline": {
+          "type": "boolean"
+        },
+        "skipTests": {
+          "type": "boolean"
+        },
+        "testReport": {
+          "type": "boolean"
+        },
+        "codeCoverage": {
+          "type": "boolean"
+        },
+        "cloud": {
+          "type": "string"
+        },
+        "taintCheck": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

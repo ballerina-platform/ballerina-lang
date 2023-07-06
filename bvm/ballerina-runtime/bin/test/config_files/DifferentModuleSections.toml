@@ -1,0 +1,19 @@
+a = "value a"
+
+[test_module]
+b = "value b"
+
+[rootOrg.test_module]
+c = "value c"
+
+[test_module.util.foo]
+a = "value a"
+b = "value b"
+
+[rootOrg.test_module.util.foo]
+c = "value c"
+
+[myOrg.mod12]
+a = "value a"
+b = "value b"
+c = "value c"

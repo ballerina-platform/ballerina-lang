@@ -1,0 +1,34 @@
+{
+  "kind": "INDEXED_EXPRESSION",
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "position": {
+    "line": 8,
+    "character": 37
+  },
+  "source": "statement_context/source/start_action_ctx_source6.bal",
+  "items": [
+    {
+      "label": "getStringResult()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "CA",
+      "filterText": "getStringResult",
+      "insertText": "getStringResult()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "CA",
+      "filterText": "main",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

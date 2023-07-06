@@ -1,0 +1,45 @@
+NAME
+       ballerina-graph - Print the dependency graph
+
+SYNOPSIS
+       bal graph [OPTIONS] [<package>|<source-file>]
+
+
+DESCRIPTION
+       Resolve the dependencies of the current package and print the
+       dependency graph in the console.
+
+       This produces the textual representation of the dependency graph
+       using the DOT graph language.
+
+
+OPTIONS
+       --dump-raw-graphs
+          Print all intermediate graphs created in the dependency resolution process.
+          This produces the textual representation of the dependency graph
+          using the DOT graph language.
+
+       --offline
+           Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches will fail
+           otherwise.
+
+       --sticky
+       	   Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option is
+       	   ignored.
+
+       --target-dir <path>
+           Target directory path.
+
+
+EXAMPLES
+       Print the dependency graph of the current package.
+           $ bal graph
+
+       Print the dependency graph of a single '.bal' file.
+           $ bal graph app.bal
+
+       Print the dependency graph of the 'app' package from a different
+       directory.
+           $ bal graph <app-package-path>

@@ -1,0 +1,4 @@
+import ballerina/
+
+function testFunction() {
+}

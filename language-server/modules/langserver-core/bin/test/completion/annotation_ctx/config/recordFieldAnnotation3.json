@@ -1,0 +1,72 @@
+{
+  "position": {
+    "line": 20,
+    "character": 13
+  },
+  "source": "annotation_ctx/source/recordFieldAnnotation3.bal",
+  "items": [
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "recordFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "recordFieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "fieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "recordFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "recordFieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

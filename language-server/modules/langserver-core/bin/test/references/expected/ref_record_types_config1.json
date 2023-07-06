@@ -1,0 +1,50 @@
+{
+  "source": {
+    "file": "projectls/modules/lsmod1/source1.bal"
+  },
+  "position": {
+    "line": 5,
+    "character": 15
+  },
+  "result": [
+    {
+      "uri": "projectls/modules/lsmod1/source1.bal",
+      "range": {
+        "start": {
+          "line": 5,
+          "character": 12
+        },
+        "end": {
+          "line": 5,
+          "character": 19
+        }
+      }
+    },
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 35
+        },
+        "end": {
+          "line": 6,
+          "character": 42
+        }
+      }
+    },
+    {
+      "uri": "projectls/union_types.bal",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 28
+        },
+        "end": {
+          "line": 4,
+          "character": 35
+        }
+      }
+    }
+  ]
+}

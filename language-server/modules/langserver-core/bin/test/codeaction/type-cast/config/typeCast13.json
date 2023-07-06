@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 120,
+    "character": 21
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 120,
+              "character": 19
+            },
+            "end": {
+              "line": 120,
+              "character": 19
+            }
+          },
+          "newText": "\u003cMyRecord\u003e"
+        }
+      ]
+    }
+  ]
+}

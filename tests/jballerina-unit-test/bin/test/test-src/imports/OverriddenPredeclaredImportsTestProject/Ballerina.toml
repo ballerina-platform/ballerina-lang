@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "overridden_predeclared_imports"
+version = "0.1.0"

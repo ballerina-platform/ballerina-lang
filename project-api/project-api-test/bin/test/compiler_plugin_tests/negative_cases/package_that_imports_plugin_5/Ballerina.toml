@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "package_that_imports_plugin_5"
+version = "0.1.0"

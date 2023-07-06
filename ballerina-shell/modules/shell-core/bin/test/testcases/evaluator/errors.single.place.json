@@ -1,0 +1,36 @@
+[
+  {
+    "description": "Define InvalidAccountIDError.",
+    "code": "type InvalidAccountIDError error;"
+  },
+  {
+    "description": "Define AccountNotFoundError.",
+    "code": "type AccountNotFoundError error;"
+  },
+  {
+    "description": "Define ACCOUNT_NOT_FOUND.",
+    "code": "const ACCOUNT_NOT_FOUND = \"AccountNotFound\";"
+  },
+  {
+    "description": "Define INVALID_ACCOUNT_ID.",
+    "code": "const INVALID_ACCOUNT_ID = \"InvalidAccountID\";"
+  },
+  {
+    "description": "Define parse.",
+    "code": "function parse(string num) returns int|error { return 'int:fromString(num); }"
+  },
+  {
+    "description": "Define getAccountBalance.",
+    "code": "function getAccountBalance(int accountID) returns int { do { if (accountID < 0) { InvalidAccountIDError invalidAccoundIdError = error InvalidAccountIDError(INVALID_ACCOUNT_ID, accountID = accountID); fail invalidAccoundIdError; } else if (accountID > 100) { AccountNotFoundError accountNotFoundError = error AccountNotFoundError(ACCOUNT_NOT_FOUND, accountID = accountID); fail accountNotFoundError; } } on fail InvalidAccountIDError|AccountNotFoundError e { println(\"Error caught: \", e.message(),\", Account ID: \", e.detail()[\"accountID\"]); } return 600; }"
+  },
+  {
+    "description": "Use methods.",
+    "code": "int negResult = getAccountBalance(-1);",
+    "stdout": "Error caught: InvalidAccountID, Account ID: -1\n"
+  },
+  {
+    "description": "Use methods.",
+    "code": "int invalidResult = getAccountBalance(200);",
+    "stdout": "Error caught: AccountNotFound, Account ID: 200\n"
+  }
+]

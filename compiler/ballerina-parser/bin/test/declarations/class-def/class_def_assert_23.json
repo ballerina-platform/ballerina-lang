@@ -1,0 +1,162 @@
+{
+  "kind": "TYPE_DEFINITION",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "TYPE_KEYWORD"
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "Foo"
+    },
+    {
+      "kind": "OBJECT_TYPE_DESC",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "OBJECT_KEYWORD"
+        },
+        {
+          "kind": "OPEN_BRACE_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "OBJECT_FIELD",
+              "children": [
+                {
+                  "kind": "METADATA",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "READONLY_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "OBJECT_FIELD",
+              "children": [
+                {
+                  "kind": "METADATA",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "READONLY_KEYWORD"
+                },
+                {
+                  "kind": "READONLY_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "OBJECT_FIELD",
+              "children": [
+                {
+                  "kind": "METADATA",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "READONLY_KEYWORD"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "OBJECT_FIELD",
+              "children": [
+                {
+                  "kind": "METADATA",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "INTERSECTION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "READONLY_KEYWORD"
+                    },
+                    {
+                      "kind": "BITWISE_AND_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

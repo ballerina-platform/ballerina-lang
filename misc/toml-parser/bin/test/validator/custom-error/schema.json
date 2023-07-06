@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Ballerina Manifest Spec",
+    "description": "Schema for Ballerina Manifest",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "message" : {
+                        "type" : "invalid type",
+                        "maxLength": "Custom message for exceeding max length goes here"
+                    }
+                },
+                "org": {
+                    "type": "string",
+                    "pattern": "^[a-z]+$",
+                    "minLength": 3,
+                    "message" : {
+                        "pattern" : "org can only contain a-z chars",
+                        "minLength": "Custom message for min length goes here"
+                    }
+                },
+                "version": {
+                    "type": "string",
+                    "pattern": "^(?!\\s*$).+"
+                },
+                "port": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "message" : {
+                        "minimum" : "port should be positive int"
+                    }
+                },
+                "capacity": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "message" : {
+                        "maximum" : "max capacity is 5"
+                    }
+                },
+                "repository": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "exported": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": ["name","org"],
+            "message" : {
+                "required" : "field '${property}' is required",
+                "additionalProperties" : "field '${property}' is not supported"
+            }
+        }
+    }
+}

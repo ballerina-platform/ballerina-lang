@@ -1,0 +1,35 @@
+{
+  "line": 57,
+  "character": 30,
+  "expected": {
+    "title": "Generate mapping function",
+    "edits": [
+      {"range":{
+        "start":{
+          "line":57,
+          "character":30
+        },
+        "end":{
+          "line":57,
+          "character":36
+        }
+      },
+        "newText": "mapApplicantToAddress(appl_1)"
+      },
+      {"range":{
+        "start":{
+          "line":62,
+          "character":0
+        },
+        "end":{
+          "line":62,
+          "character":1
+        }
+      },
+        "newText":"\nfunction mapApplicantToAddress (Applicant applicant) returns Address {\n// Some record fields might be missing in the AI based mapping.\n\tAddress address = {city: applicant.applying_student.city, country: []};\n\treturn address;\n}\n"
+      }
+    ]
+  }
+}
+
+

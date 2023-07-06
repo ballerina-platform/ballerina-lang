@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 5,
+    "character": 18
+  },
+  "source": "typedesc_context/source/error_typedesc3.bal",
+  "items": [
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

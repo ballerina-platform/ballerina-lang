@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 2,
+    "character": 8
+  },
+  "source": "on_fail_codeaction_for_check_stmt_source1a.bal",
+  "expected": [
+    {
+      "title": "Surround with do/on-fail",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 27
+            }
+          },
+          "newText": "do {\n\t    int i \u003d \n\t        check checkError();\n    } on fail var e {\n    \t\n    }"
+        }
+      ]
+    }
+  ]
+}

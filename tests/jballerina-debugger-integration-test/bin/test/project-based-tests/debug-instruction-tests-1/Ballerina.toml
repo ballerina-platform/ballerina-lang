@@ -1,0 +1,4 @@
+[package]
+org = "debug_test_resources"
+name = "debug_instructions_1"
+version = "0.0.1"

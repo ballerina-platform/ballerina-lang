@@ -1,0 +1,41 @@
+{
+  "kind": "LET_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LET_KEYWORD",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_LET_VARIABLE_DECLARATION"
+      ],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "IN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "E2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "position": {
+    "line": 11,
+    "character": 16
+  },
+  "source": "service_decl/source/source5.bal",
+  "items": [
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "A",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "sortText": "A",
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "sortText": "A",
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "A",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "A",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "source": {
+    "file": "modules/module2/module2.bal"
+  },
+  "position": {
+    "line": 4,
+    "character": 13
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "main.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 12
+            },
+            "end": {
+              "line": 6,
+              "character": 18
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 20
+            },
+            "end": {
+              "line": 8,
+              "character": 26
+            }
+          },
+          "newText": "Student"
+        }
+      ],
+      "mod_alias.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 9
+            },
+            "end": {
+              "line": 3,
+              "character": 15
+            }
+          },
+          "newText": "Student"
+        }
+      ],
+      "modules/module1/module1.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 20
+            },
+            "end": {
+              "line": 5,
+              "character": 26
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 50
+            },
+            "end": {
+              "line": 7,
+              "character": 56
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 39
+            },
+            "end": {
+              "line": 11,
+              "character": 45
+            }
+          },
+          "newText": "Student"
+        }
+      ],
+      "modules/module2/module2.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 6
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 13
+            },
+            "end": {
+              "line": 4,
+              "character": 19
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 30,
+              "character": 36
+            },
+            "end": {
+              "line": 30,
+              "character": 42
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 32,
+              "character": 24
+            },
+            "end": {
+              "line": 32,
+              "character": 30
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 24
+            },
+            "end": {
+              "line": 33,
+              "character": 30
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 34,
+              "character": 24
+            },
+            "end": {
+              "line": 34,
+              "character": 30
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 24
+            },
+            "end": {
+              "line": 35,
+              "character": 30
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 36,
+              "character": 24
+            },
+            "end": {
+              "line": 36,
+              "character": 30
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 37,
+              "character": 24
+            },
+            "end": {
+              "line": 37,
+              "character": 30
+            }
+          },
+          "newText": "Student"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 46,
+              "character": 26
+            },
+            "end": {
+              "line": 46,
+              "character": 32
+            }
+          },
+          "newText": "Student"
+        }
+      ]
+    }
+  }
+}

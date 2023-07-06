@@ -1,0 +1,47 @@
+engineer = { name = "waruna" }
+
+student = { name = "riyafa" }
+
+employee = { name = "manu", id = 101 }
+
+employee1 = { name = "riyafa", id = 999 }
+
+officer = { name = "gabilan", id = 101 }
+
+manager = { name = "hinduja", id = 107 }
+
+teacher = { name = "gabilan", id = 888 }
+
+farmer = { name = "waruna", id = 999 }
+
+person = { name = "waruna", id = 10, address = { city = "San Francisco", country = { name = "USA" } } }
+
+person2 = { name = "manu", id = 11, address = { city = "Nugegoda" } }
+
+person3 = { name = "riyafa", id = 12 }
+
+lecturer = { name = "hinduja", department1 = { name = "IT" }, department2 = { name = "Finance" }, department3 = { name = "HR" } }
+
+lawyer = { name = "riyafa", address1 = { city = "Colombo" }, address2 = { city = "Kandy" }, address3 = { city = "Galle" } }
+
+lecturer2 = { name = "hinduja", department1 = { name = "IT" }, department2 = { name = "Finance" }, department3 = { name = "HR" } }
+
+lawyer2 = { name = "riyafa", place1 = { city = "Colombo" }, place2 = { city = "Kandy" }, place3 = { city = "Galle" } }
+
+configRecordType.imported_records.doctor = { name = "waruna" }
+
+configRecordType.imported_records.student = { name = "riyafa" }
+
+configRecordType.imported_records.employee = { name = "manu", id = 101 }
+
+configRecordType.imported_records.employee1 = { name = "waruna", id = 404 }
+
+configRecordType.imported_records.officer = { name = "gabilan", id = 101 }
+
+configRecordType.imported_records.manager = { name = "hinduja", id = 107 }
+
+configRecordType.imported_records.teacher = { name = "hinduja", id = 11 }
+
+configRecordType.imported_records.farmer = { name = "manu", id = 22 }
+
+configRecordType.imported_records.person = { name = "hinduja", id = 100, address = { city = "Kandy", country = { name = "Sri Lanka" } } }

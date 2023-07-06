@@ -1,0 +1,5 @@
+Compiling source
+	user/LibraryProject:0.1.0
+
+Creating bala
+	target\bala\user-LibraryProject-any-0.1.0.bala

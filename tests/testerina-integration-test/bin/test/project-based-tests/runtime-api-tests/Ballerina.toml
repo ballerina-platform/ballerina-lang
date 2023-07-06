@@ -1,0 +1,9 @@
+[package]
+org = "testorg"
+name = "runtime_api"
+version = "1.0.0"
+
+[[platform.java11.dependency]]
+path = "./libs/interops.jar"
+
+

@@ -1,0 +1,42 @@
+[
+  {
+    "description": "Define variable.",
+    "code": "int total = 99;"
+  },
+  {
+    "description": "Define constant.",
+    "code": "const int COUNT = -1;"
+  },
+  {
+    "description": "Define final variable.",
+    "code": "final int status = 1;"
+  },
+  {
+    "description": "Print variable value.",
+    "code": "println(total);",
+    "stdout": "99\n"
+  },
+  {
+    "description": "Get constant value.",
+    "code": "COUNT",
+    "expr": "-1"
+  },
+  {
+    "description": "Define and output boolean variable.",
+    "code": "boolean available = false;"
+  },
+  {
+    "description": "Define and output boolean variable - get value.",
+    "code": "available",
+    "expr": "false"
+  },
+  {
+    "description": "define variable moduleVar.",
+    "code": "function multiply(int m, int n) returns int { return m * n;} int moduleVar = 10; public function evaluate() returns int{  int x = multiply(2, 1);    return x;}"
+  },
+  {
+    "description": "check module variable declaration.",
+    "code": "moduleVar",
+    "expr": 10
+  }
+]

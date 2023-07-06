@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 14,
+    "character": 16
+  },
+  "source": "statement_context/source/match_stmt_ctx_source19.bal",
+  "items": [
+    {
+      "label": "if",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "if",
+      "insertText": "if",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+connectors = [
+  { org = "ballerina", module = "nats", version= "2.0.0", name = "Producer"},
+  { org = "ballerina", module = "email", version= "2.0.0", name = "SmtpClient"},
+  { org = "ballerina", module = "email", version= "2.0.0", name = "PopClient"},
+  { org = "ballerina", module = "email", version= "2.0.0", name = "ImapClient"},
+]

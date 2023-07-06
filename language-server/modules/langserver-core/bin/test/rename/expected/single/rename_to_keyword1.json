@@ -1,0 +1,93 @@
+{
+  "source": {
+    "file": "testSource.bal"
+  },
+  "position": {
+    "line": 32,
+    "character": 30
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {},
+    "documentChanges": [
+      {
+        "textDocument": {
+          "version": null,
+          "uri": "testSource.bal"
+        },
+        "edits": [
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 32,
+                "character": 26
+              },
+              "end": {
+                "line": 32,
+                "character": 32
+              }
+            },
+            "newText": "\u0027int"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 32,
+                "character": 26
+              },
+              "end": {
+                "line": 32,
+                "character": 32
+              }
+            },
+            "newText": "int"
+          },
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 33,
+                "character": 7
+              },
+              "end": {
+                "line": 33,
+                "character": 13
+              }
+            },
+            "newText": "\u0027int"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 33,
+                "character": 7
+              },
+              "end": {
+                "line": 33,
+                "character": 13
+              }
+            },
+            "newText": "int"
+          }
+        ]
+      }
+    ],
+    "changeAnnotations": {
+      "quoted": {
+        "label": "Quoted Rename",
+        "needsConfirmation": true,
+        "description": "Rename to keyword with a quote"
+      },
+      "unquoted": {
+        "label": "Un-quoted Rename",
+        "needsConfirmation": true,
+        "description": "Rename to keyword without a quote"
+      }
+    }
+  }
+}

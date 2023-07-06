@@ -1,0 +1,59 @@
+{
+  "kind": "ERROR_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN",
+      "hasDiagnostics": true,
+      "leadingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "hasDiagnostics": true,
+            "children": [
+              {
+                "kind": "TYPE_KEYWORD",
+                "hasDiagnostics": true,
+                "diagnostics": [
+                  "ERROR_INVALID_TOKEN"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "message"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "description": "Imports int module.",
+    "code": "import ballerina/lang.'int;"
+  },
+  {
+    "description": "Define parsing function.",
+    "code": "function parse(string num) returns int|error { return 'int:fromString(num); }"
+  },
+  {
+    "description": "Define scaling function.",
+    "code": "function scale(string num) returns int|error { int x = check parse(num); return x * 10; }"
+  },
+  {
+    "description": "Pass values to function I.",
+    "code": "parse(\"12\");",
+    "expr": "12"
+  },
+  {
+    "description": "Pass values to function II.",
+    "code": "parse(\"invalid\");",
+    "expr": "error(\"{ballerina/lang.int}NumberParsingError\",message=\"'string' value 'invalid' cannot be converted to 'int'\")"
+  },
+  {
+    "description": "Pass values to function III.",
+    "code": "scale(\"12\");",
+    "expr": "120"
+  },
+  {
+    "description": "Pass values to function IV.",
+    "code": "scale(\"Invalid\");",
+    "expr": "error(\"{ballerina/lang.int}NumberParsingError\",message=\"'string' value 'Invalid' cannot be converted to 'int'\")"
+  }
+]

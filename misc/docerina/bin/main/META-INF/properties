@@ -1,0 +1,1 @@
+ballerina.version=${short.version}

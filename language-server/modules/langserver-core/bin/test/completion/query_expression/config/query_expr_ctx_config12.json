@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 6,
+    "character": 43
+  },
+  "source": "query_expression/source/query_expr_ctx_source12.bal",
+  "items": [
+    {
+      "label": "in",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "filterText": "in",
+      "insertText": "in ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+[package]
+org="testorg"
+name="testerrorproject"
+version="1.0.0"

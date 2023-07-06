@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 24,
+        "character": 4
+      },
+      "end": {
+        "line": 24,
+        "character": 43
+      }
+    }
+  },
+  "source": "commonDocumentation.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 24,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 24,
+                    "character": 4
+                  }
+                },
+                "newText": "# Description.\n    "
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

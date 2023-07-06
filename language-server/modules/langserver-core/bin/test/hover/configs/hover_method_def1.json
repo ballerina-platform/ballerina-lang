@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 47,
+    "character": 20
+  },
+  "source": {
+    "file": "hover.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Test Description2 for testMethodDecl\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***a*** : a Parameter Description2  \n  \n---  \n  \n### Return  \n`int` : Return Value Description2"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

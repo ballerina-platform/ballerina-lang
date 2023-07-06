@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 2,
+    "character": 23
+  },
+  "source": "on_fail_for_match_check_stmt.bal",
+  "expected": [
+    {
+      "title": "Create on fail clause",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 4
+            }
+          },
+          "newText": " on fail var e {\n   \t\n   }"
+        }
+      ]
+    }
+  ]
+}

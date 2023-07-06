@@ -1,0 +1,35 @@
+{
+  "arguments": {
+    "node.line": 15,
+    "node.column": 9,
+    "resource.path": "/pets/{petId}",
+    "resource.parameter": "petId",
+    "resource.method": "GET"
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 29,
+                    "character": 71
+                  },
+                  "end": {
+                    "line": 29,
+                    "character": 71
+                  }
+                },
+                "newText": ", string petId"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

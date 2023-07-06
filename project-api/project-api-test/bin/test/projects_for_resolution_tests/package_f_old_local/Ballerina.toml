@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "package_f_local"
+version = "0.1.0"

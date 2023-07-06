@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 22,
+    "character": 20
+  },
+  "source": "createUndefinedFunctionInRecord.bal",
+  "expected": [
+    {
+      "title": "Create function 'createListener(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 24,
+              "character": 1
+            },
+            "end": {
+              "line": 24,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createListener(Car myCar) returns module1:Listener {\n    return new (0);\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInRecord.bal",
+        "range": {
+          "start": {
+            "line": 22,
+            "character": 20
+          },
+          "end": {
+            "line": 22,
+            "character": 41
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 22.0,
+              "character": 20.0
+            },
+            "end": {
+              "line": 22.0,
+              "character": 41.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

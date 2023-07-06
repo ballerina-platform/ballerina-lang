@@ -1,0 +1,103 @@
+[
+  {
+    "description": "Change made on Listener expression list  in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new udp:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "service listener expression",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "service listener expression is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the port number of a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new udp:Listener(8000){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "service listener expression",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "service listener expression is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the hardcoded port number into a variable reference",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "int port = 8080;\nservice /demo on new udp:Listener(port){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "service listener expression",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "service listener expression is modified"
+                }
+              ]
+            },
+            {
+              "kind": "module variable",
+              "type": "new",
+              "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

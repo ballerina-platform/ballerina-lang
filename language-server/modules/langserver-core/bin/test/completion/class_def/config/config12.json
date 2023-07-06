@@ -1,0 +1,91 @@
+{
+  "position": {
+    "line": 3,
+    "character": 13
+  },
+  "source": "class_def/source/source12.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "remote",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "remote",
+      "insertText": "remote",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "resource",
+      "insertText": "resource ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remote function <name>();",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "remote_function",
+      "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "function",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "transactional",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "client",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:accessor} ${2:path}(${3})${4} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Code to Cloud Draft Spec",
+    "description": "Schema for C2C Cloud file",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "first": {
+            "type": "boolean",
+            "default": false
+        },
+        "second": {
+            "type": "string",
+            "default": "hello"
+        },
+        "third": {
+            "type": "boolean",
+            "default": true
+        }
+    }
+}

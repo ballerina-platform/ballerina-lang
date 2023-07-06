@@ -1,0 +1,19 @@
+{
+  "id": "W01",
+  "name": "Front Window",
+  "dimensions": {
+    "width": 10,
+    "height": 15
+  },
+  "checked": false,
+  "colors": [
+    {
+      "id": 1,
+      "name": "Blue"
+    },
+    {
+      "id": 2,
+      "name": "Yellow"
+    }
+  ]
+}

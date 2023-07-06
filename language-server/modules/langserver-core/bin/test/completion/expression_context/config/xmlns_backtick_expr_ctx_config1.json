@@ -1,0 +1,20 @@
+{
+  "position": {
+    "line": 4,
+    "character": 24
+  },
+  "source": "expression_context/source/xmlns_backtick_expr_ctx_source1.bal",
+  "items": [
+    {
+      "label": "ns0",
+      "kind": "Variable",
+      "detail": "xmlns",
+      "documentation": {
+        "left": "http://ballerina.com/aa"
+      },
+      "sortText": "B",
+      "insertText": "ns0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

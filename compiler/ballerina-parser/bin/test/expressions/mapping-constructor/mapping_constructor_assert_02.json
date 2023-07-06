@@ -1,0 +1,90 @@
+{
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "age"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "NUMERIC_LITERAL",
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                  "value": "20"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "name"
+                }
+              ]
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL_TOKEN",
+                  "value": "Supun"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "address"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
+}

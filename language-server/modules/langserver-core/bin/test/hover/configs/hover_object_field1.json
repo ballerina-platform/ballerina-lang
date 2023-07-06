@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "hover.bal"
+  },
+  "position": {
+    "line": 232,
+    "character": 13
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Query string"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

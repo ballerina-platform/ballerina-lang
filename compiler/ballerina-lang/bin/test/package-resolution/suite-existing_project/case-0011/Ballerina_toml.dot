@@ -1,0 +1,3 @@
+digraph "BallerinaToml" {
+    "ballerina/io:1.3.0-beta.2" [repo = local]
+}

@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 8,
+    "character": 4
+  },
+  "source": "implementAllInService.bal",
+  "expected": [
+    {
+      "title": "Implement all",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 0
+            },
+            "end": {
+              "line": 10,
+              "character": 0
+            }
+          },
+          "newText": "\n    function getId() returns int {\n        return 0;\n    }\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 0
+            },
+            "end": {
+              "line": 10,
+              "character": 0
+            }
+          },
+          "newText": "\n    function getName() returns string {\n        return \"\";\n    }\n"
+        }
+      ]
+    }
+  ]
+}

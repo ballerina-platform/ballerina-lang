@@ -1,0 +1,15 @@
+[
+  {
+    "description": "Define a class.",
+    "code": "class Person { public int age; public string firstName; public string lastName; function init(int age, string firstName, string lastName) { self.age = age; self.firstName = firstName; self.lastName = lastName; } function getFullName() returns string { return self.firstName + \" \" + self.lastName; } }"
+  },
+  {
+    "description": "Invoke object method.",
+    "code": "Person p1 = new (5, \"John\", \"Doe\");"
+  },
+  {
+    "description": "Invoke object method - get value.",
+    "code": "p1.getFullName()",
+    "expr": "\"John Doe\""
+  }
+]

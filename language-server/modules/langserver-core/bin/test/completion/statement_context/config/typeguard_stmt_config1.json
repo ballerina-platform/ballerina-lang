@@ -1,0 +1,139 @@
+{
+  "position": {
+    "line": 2,
+    "character": 10
+  },
+  "source": "statement_context/source/typeguard_stmt_source1.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n\n```ballerina\njson student = {name: \"Jo\", subjects: [\"CS1212\", \"CS2021\"]};\njson[] subjects = check student.subjects.ensureType();\nsubjects ⇒ [\"CS1212\",\"CS2021\"]\nanydata vowel = \"I\";\nvowel.ensureType(string:Char) ⇒ I;\nvowel.ensureType(int) ⇒ error\n```\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "typeguard",
+      "kind": "Snippet",
+      "detail": "Destructure the variable myVar with typeguard",
+      "sortText": "CR",
+      "insertText": "if myVar is string {\n\t${1}\n} else if myVar is int {\n\t${2}\n} else if myVar is boolean {\n\t${3}\n} else if myVar is myErr1 {\n\t${4}\n} else {\n\t${5}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 10
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "cloneReadOnly()",
+      "kind": "Function",
+      "detail": "value:CloneableType & readonly",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] & readonly immutableClone = arr.cloneReadOnly();\nimmutableClone ⇒ [1,2,3,4]\nimmutableClone is readonly ⇒ true \n```\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneReadOnly",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "value:CloneableType",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] clone = arr.clone();\nclone ⇒ [1,2,3,4]\narr === clone ⇒ false\n```\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "clone",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "last(value:Type... vs)",
+      "kind": "Function",
+      "detail": "value:Type",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the last argument.\n\n```ballerina\nvalue:last(1, 2, 3) ⇒ 3\n```\n  \n**Params**  \n- `value:Type[]` vs: rest of the arguments  \n  \n**Return** `value:Type`   \n- last argument  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "last",
+      "insertText": "last(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "count(any|error... vs)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the number of arguments.\n\n```ballerina\nvalue:count(1, 2, 3) ⇒ 3\n```\n  \n  \n  \n**Return** `int`   \n- number of arguments  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "count",
+      "insertText": "count(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "first(any|error... vs)",
+      "kind": "Function",
+      "detail": "value:Type",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the first argument.\n\n```ballerina\nvalue:first(1, 2, 3) ⇒ 1\n```\n  \n**Params**  \n- `(any|error)[]` vs: rest of the arguments  \n  \n**Return** `value:Type`   \n- first argument  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "first",
+      "insertText": "first(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

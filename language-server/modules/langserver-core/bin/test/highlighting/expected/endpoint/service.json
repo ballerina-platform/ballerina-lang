@@ -1,0 +1,18 @@
+{
+  "source": {
+    "file": "service.bal"
+  },
+  "result": [
+    {
+      "line": 5,
+      "token": "WzQzLCA2LCAwXQ=="
+    },{
+      "line": 6,
+      "token": "WzIxLCA2LCAwXQ=="
+    },
+    {
+      "line":8,
+      "token":"WzIwLCA4LCAwXQ=="
+    }
+  ]
+}

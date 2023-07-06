@@ -1,0 +1,198 @@
+{
+  "position": {
+    "line": 3,
+    "character": 54
+  },
+  "source": "annotation_decl/source/source7.bal",
+  "items": [
+    {
+      "label": "source",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source",
+      "insertText": "source",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "type",
+      "insertText": "type ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "class",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object function",
+      "insertText": "object function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service remote function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "service remote function",
+      "insertText": "service remote function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameter",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "parameter",
+      "insertText": "parameter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "return",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "return",
+      "insertText": "return",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "record",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object field",
+      "insertText": "object field",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "record field",
+      "insertText": "record field",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "field",
+      "insertText": "field",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source annotation",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source annotation",
+      "insertText": "source annotation",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source external",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source external",
+      "insertText": "source external",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source var",
+      "insertText": "source var",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source const",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source const",
+      "insertText": "source const",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source listener",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source listener",
+      "insertText": "source listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source worker",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source worker",
+      "insertText": "source worker",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "source client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "source client",
+      "insertText": "source client",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

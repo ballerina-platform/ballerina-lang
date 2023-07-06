@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "hover.bal"
+  },
+  "position": {
+    "line": 185,
+    "character": 16
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for TestEnum1"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

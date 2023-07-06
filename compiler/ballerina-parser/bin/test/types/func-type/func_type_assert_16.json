@@ -1,0 +1,198 @@
+{
+  "kind": "MODULE_PART",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "FUNCTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "OBJECT_TYPE_DESC",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "OBJECT_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_OBJECT_KEYWORD"
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_BRACE_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                          ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "OBJECT_FIELD",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "METADATA",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "LIST",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "ANNOTATION",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT"
+                                          ],
+                                          "children": [
+                                            {
+                                              "kind": "AT_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "a"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_TYPE_DESC"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_FIELD_NAME"
+                                  ]
+                                },
+                                {
+                                  "kind": "SEMICOLON_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}

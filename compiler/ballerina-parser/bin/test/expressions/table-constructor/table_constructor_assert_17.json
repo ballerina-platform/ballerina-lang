@@ -1,0 +1,82 @@
+{
+  "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "KEY_SPECIFIER",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "KEY_KEYWORD"
+        },
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            },
+            {
+              "kind": "COMMA_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            },
+            {
+              "kind": "COMMA_TOKEN"
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
+}

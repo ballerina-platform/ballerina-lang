@@ -1,0 +1,1365 @@
+{
+  "source": {
+    "file": "project1/main.bal"
+  },
+  "result": [
+    {
+      "right": {
+        "name": "User",
+        "kind": "Class",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 39,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "email",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 7,
+                "character": 4
+              },
+              "end": {
+                "line": 7,
+                "character": 17
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 7,
+                "character": 4
+              },
+              "end": {
+                "line": 7,
+                "character": 17
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "userName",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 8,
+                "character": 4
+              },
+              "end": {
+                "line": 8,
+                "character": 20
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 8,
+                "character": 4
+              },
+              "end": {
+                "line": 8,
+                "character": 20
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "address",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 9,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 26
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 9,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 26
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "init",
+            "kind": "Constructor",
+            "range": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 20,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 20,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getAddress",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 22,
+                "character": 4
+              },
+              "end": {
+                "line": 26,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 22,
+                "character": 4
+              },
+              "end": {
+                "line": 26,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getEmail",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 28,
+                "character": 4
+              },
+              "end": {
+                "line": 30,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 28,
+                "character": 4
+              },
+              "end": {
+                "line": 30,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getType",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 32,
+                "character": 4
+              },
+              "end": {
+                "line": 34,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 32,
+                "character": 4
+              },
+              "end": {
+                "line": 34,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getUserName",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 36,
+                "character": 4
+              },
+              "end": {
+                "line": 38,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 36,
+                "character": 4
+              },
+              "end": {
+                "line": 38,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "Item",
+        "kind": "Class",
+        "range": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 58,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 42,
+            "character": 0
+          },
+          "end": {
+            "line": 58,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "code",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 16
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 44,
+                "character": 4
+              },
+              "end": {
+                "line": 44,
+                "character": 16
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "init",
+            "kind": "Constructor",
+            "range": {
+              "start": {
+                "line": 46,
+                "character": 4
+              },
+              "end": {
+                "line": 51,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 46,
+                "character": 4
+              },
+              "end": {
+                "line": 51,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getCode",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 4
+              },
+              "end": {
+                "line": 57,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 53,
+                "character": 4
+              },
+              "end": {
+                "line": 57,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "main",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 60,
+            "character": 0
+          },
+          "end": {
+            "line": 75,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 60,
+            "character": 0
+          },
+          "end": {
+            "line": 75,
+            "character": 1
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "service /abc/users ",
+        "kind": "Object",
+        "range": {
+          "start": {
+            "line": 77,
+            "character": 0
+          },
+          "end": {
+            "line": 94,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 77,
+            "character": 0
+          },
+          "end": {
+            "line": 94,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "post:/",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 79,
+                "character": 4
+              },
+              "end": {
+                "line": 81,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 79,
+                "character": 4
+              },
+              "end": {
+                "line": 81,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "post:{id}",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 83,
+                "character": 4
+              },
+              "end": {
+                "line": 85,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 83,
+                "character": 4
+              },
+              "end": {
+                "line": 85,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "post:register/{id}",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 87,
+                "character": 4
+              },
+              "end": {
+                "line": 89,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 87,
+                "character": 4
+              },
+              "end": {
+                "line": 89,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "get:user/{id}",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 91,
+                "character": 4
+              },
+              "end": {
+                "line": 93,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 91,
+                "character": 4
+              },
+              "end": {
+                "line": 93,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "service /abc/items ",
+        "kind": "Object",
+        "range": {
+          "start": {
+            "line": 96,
+            "character": 0
+          },
+          "end": {
+            "line": 108,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 96,
+            "character": 0
+          },
+          "end": {
+            "line": 108,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "post:add",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 97,
+                "character": 4
+              },
+              "end": {
+                "line": 99,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 97,
+                "character": 4
+              },
+              "end": {
+                "line": 99,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "get:item",
+            "kind": "Function",
+            "range": {
+              "start": {
+                "line": 101,
+                "character": 4
+              },
+              "end": {
+                "line": 103,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 101,
+                "character": 4
+              },
+              "end": {
+                "line": 103,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "service ",
+        "kind": "Object",
+        "range": {
+          "start": {
+            "line": 111,
+            "character": 0
+          },
+          "end": {
+            "line": 120,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 111,
+            "character": 0
+          },
+          "end": {
+            "line": 120,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "onDatagram",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 112,
+                "character": 4
+              },
+              "end": {
+                "line": 115,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 112,
+                "character": 4
+              },
+              "end": {
+                "line": 115,
+                "character": 5
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "processDataAndGetToken",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 117,
+                "character": 4
+              },
+              "end": {
+                "line": 119,
+                "character": 5
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 117,
+                "character": 4
+              },
+              "end": {
+                "line": 119,
+                "character": 5
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "deprecatedFunction",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 123,
+            "character": 0
+          },
+          "end": {
+            "line": 129,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 123,
+            "character": 0
+          },
+          "end": {
+            "line": 129,
+            "character": 1
+          }
+        },
+        "tags": [
+          "Deprecated"
+        ],
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "MyType",
+        "kind": "Struct",
+        "range": {
+          "start": {
+            "line": 131,
+            "character": 0
+          },
+          "end": {
+            "line": 134,
+            "character": 3
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 131,
+            "character": 0
+          },
+          "end": {
+            "line": 134,
+            "character": 3
+          }
+        },
+        "children": [
+          {
+            "name": "arg1",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 132,
+                "character": 4
+              },
+              "end": {
+                "line": 132,
+                "character": 13
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 132,
+                "character": 4
+              },
+              "end": {
+                "line": 132,
+                "character": 13
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "arg2",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 133,
+                "character": 4
+              },
+              "end": {
+                "line": 133,
+                "character": 16
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 133,
+                "character": 4
+              },
+              "end": {
+                "line": 133,
+                "character": 16
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "ObjectType",
+        "kind": "Interface",
+        "range": {
+          "start": {
+            "line": 136,
+            "character": 0
+          },
+          "end": {
+            "line": 138,
+            "character": 2
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 136,
+            "character": 0
+          },
+          "end": {
+            "line": 138,
+            "character": 2
+          }
+        },
+        "children": [
+          {
+            "name": "attach",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 137,
+                "character": 4
+              },
+              "end": {
+                "line": 137,
+                "character": 29
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 137,
+                "character": 4
+              },
+              "end": {
+                "line": 137,
+                "character": 29
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "OtherType",
+        "kind": "TypeParameter",
+        "range": {
+          "start": {
+            "line": 140,
+            "character": 0
+          },
+          "end": {
+            "line": 140,
+            "character": 22
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 140,
+            "character": 0
+          },
+          "end": {
+            "line": 140,
+            "character": 22
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "modVar1 ",
+        "kind": "Variable",
+        "range": {
+          "start": {
+            "line": 142,
+            "character": 0
+          },
+          "end": {
+            "line": 142,
+            "character": 43
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 142,
+            "character": 0
+          },
+          "end": {
+            "line": 142,
+            "character": 43
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "myConst",
+        "kind": "Constant",
+        "range": {
+          "start": {
+            "line": 146,
+            "character": 0
+          },
+          "end": {
+            "line": 146,
+            "character": 41
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 146,
+            "character": 0
+          },
+          "end": {
+            "line": 146,
+            "character": 41
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "KIND",
+        "kind": "Enum",
+        "range": {
+          "start": {
+            "line": 148,
+            "character": 0
+          },
+          "end": {
+            "line": 151,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 148,
+            "character": 0
+          },
+          "end": {
+            "line": 151,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "KIND1",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 149,
+                "character": 4
+              },
+              "end": {
+                "line": 149,
+                "character": 9
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 149,
+                "character": 4
+              },
+              "end": {
+                "line": 149,
+                "character": 9
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "KIND2",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 150,
+                "character": 4
+              },
+              "end": {
+                "line": 150,
+                "character": 9
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 150,
+                "character": 4
+              },
+              "end": {
+                "line": 150,
+                "character": 9
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "ballerina ",
+        "kind": "Variable",
+        "range": {
+          "start": {
+            "line": 153,
+            "character": 0
+          },
+          "end": {
+            "line": 153,
+            "character": 41
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 153,
+            "character": 0
+          },
+          "end": {
+            "line": 153,
+            "character": 41
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "bal",
+        "kind": "Namespace",
+        "range": {
+          "start": {
+            "line": 155,
+            "character": 0
+          },
+          "end": {
+            "line": 155,
+            "character": 23
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 155,
+            "character": 0
+          },
+          "end": {
+            "line": 155,
+            "character": 23
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "xmlns \"http://ballerina.io\"",
+        "kind": "Namespace",
+        "range": {
+          "start": {
+            "line": 157,
+            "character": 0
+          },
+          "end": {
+            "line": 157,
+            "character": 28
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 157,
+            "character": 0
+          },
+          "end": {
+            "line": 157,
+            "character": 28
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "myListener",
+        "kind": "Object",
+        "range": {
+          "start": {
+            "line": 159,
+            "character": 0
+          },
+          "end": {
+            "line": 159,
+            "character": 57
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 159,
+            "character": 0
+          },
+          "end": {
+            "line": 159,
+            "character": 57
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "AnnotationType1",
+        "kind": "Struct",
+        "range": {
+          "start": {
+            "line": 161,
+            "character": 0
+          },
+          "end": {
+            "line": 165,
+            "character": 3
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 161,
+            "character": 0
+          },
+          "end": {
+            "line": 165,
+            "character": 3
+          }
+        },
+        "children": [
+          {
+            "name": "prop1",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 162,
+                "character": 4
+              },
+              "end": {
+                "line": 162,
+                "character": 17
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 162,
+                "character": 4
+              },
+              "end": {
+                "line": 162,
+                "character": 17
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "prop2",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 163,
+                "character": 4
+              },
+              "end": {
+                "line": 163,
+                "character": 17
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 163,
+                "character": 4
+              },
+              "end": {
+                "line": 163,
+                "character": 17
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "...string",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 164,
+                "character": 4
+              },
+              "end": {
+                "line": 164,
+                "character": 15
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 164,
+                "character": 4
+              },
+              "end": {
+                "line": 164,
+                "character": 15
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "AnnotationType2",
+        "kind": "Struct",
+        "range": {
+          "start": {
+            "line": 167,
+            "character": 0
+          },
+          "end": {
+            "line": 169,
+            "character": 3
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 167,
+            "character": 0
+          },
+          "end": {
+            "line": 169,
+            "character": 3
+          }
+        },
+        "children": [
+          {
+            "name": "prop1",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 168,
+                "character": 4
+              },
+              "end": {
+                "line": 168,
+                "character": 18
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 168,
+                "character": 4
+              },
+              "end": {
+                "line": 168,
+                "character": 18
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "MyAnnotation1",
+        "kind": "Property",
+        "range": {
+          "start": {
+            "line": 171,
+            "character": 0
+          },
+          "end": {
+            "line": 171,
+            "character": 66
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 171,
+            "character": 0
+          },
+          "end": {
+            "line": 171,
+            "character": 66
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "MyAnnotation2",
+        "kind": "Property",
+        "range": {
+          "start": {
+            "line": 173,
+            "character": 0
+          },
+          "end": {
+            "line": 173,
+            "character": 65
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 173,
+            "character": 0
+          },
+          "end": {
+            "line": 173,
+            "character": 65
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "MyObjectType",
+        "kind": "Interface",
+        "range": {
+          "start": {
+            "line": 175,
+            "character": 0
+          },
+          "end": {
+            "line": 178,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 175,
+            "character": 0
+          },
+          "end": {
+            "line": 178,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "function1",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 176,
+                "character": 4
+              },
+              "end": {
+                "line": 176,
+                "character": 32
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 176,
+                "character": 4
+              },
+              "end": {
+                "line": 176,
+                "character": 32
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "function2",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 177,
+                "character": 4
+              },
+              "end": {
+                "line": 177,
+                "character": 32
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 177,
+                "character": 4
+              },
+              "end": {
+                "line": 177,
+                "character": 32
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    }
+  ]
+}

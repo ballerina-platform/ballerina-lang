@@ -1,0 +1,24 @@
+{
+  "kind": "TABLE_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
+}

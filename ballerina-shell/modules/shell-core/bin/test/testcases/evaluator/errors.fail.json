@@ -1,0 +1,33 @@
+[
+  {
+    "description": "Define constants.",
+    "code": "const ACCOUNT_NOT_FOUND = \"AccountNotFound\";\nconst INVALID_ACCOUNT_ID = \"InvalidAccountID\";"
+  },
+  {
+    "description": "Define function that returns an error.",
+    "code": "function getAccountBalance(int accountID) returns int|error { if (accountID < 0) { error invalidAccoundIdError = error(INVALID_ACCOUNT_ID, accountID = accountID); fail invalidAccoundIdError; } else if (accountID > 100) { error accountNotFoundError = error(ACCOUNT_NOT_FOUND, accountID = accountID); fail accountNotFoundError; } return 600; }"
+  },
+  {
+    "description": "Get result which is an error.",
+    "code": "int|error negResult = getAccountBalance(-1);"
+  },
+  {
+    "description": "Get result which is an error - get value.",
+    "code": "negResult is error;",
+    "expr": "true"
+  },
+  {
+    "description": "View error message.",
+    "code": "negResult",
+    "expr": "error(\"InvalidAccountID\",accountID=-1)"
+  },
+  {
+    "description": "Get result which is an error.",
+    "code": "int|error invalidResult = getAccountBalance(200);"
+  },
+  {
+    "description": "View error message.",
+    "code": "invalidResult",
+    "expr": "error(\"AccountNotFound\",accountID=200)"
+  }
+]

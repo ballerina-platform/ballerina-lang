@@ -1,0 +1,38 @@
+[
+  {
+    "description": "Define function which may return an error.",
+    "code": "function getAccountBalance(int accountID) returns int|error { if (accountID < 0) {  return error(\"Invalid account ID\", accountID = accountID); } else if (accountID > 100) { return error(\"Account not found\", accountID = accountID); }  return 600; }"
+  },
+  {
+    "description": "Define simple error.",
+    "code": "error simpleError = error(\"Simple error occurred\");"
+  },
+  {
+    "description": "Define simple error - get value.",
+    "code": "simpleError.message()",
+    "expr": "\"Simple error occurred\""
+  },
+  {
+    "description": "Get result which is an error.",
+    "code": "int|error result = getAccountBalance(-1);"
+  },
+  {
+    "description": "Get result which is an error - get value.",
+    "code": "result is error;",
+    "expr": "true"
+  },
+  {
+    "description": "Cast result to an error.",
+    "code": "error err_res = <error> result; println(\"Error: \", err_res.message(), \", Account ID: \", err_res.detail()[\"accountID\"]);",
+    "stdout": "Error: Invalid account ID, Account ID: -1\n"
+  },
+  {
+    "description": "Define error with a cause.",
+    "code": "error displayError = error(\"Failed to get account balance\", err_res);"
+  },
+  {
+    "description": "View error cause.",
+    "code": "displayError.cause();",
+    "expr": "error(\"Invalid account ID\",accountID=-1)"
+  }
+]

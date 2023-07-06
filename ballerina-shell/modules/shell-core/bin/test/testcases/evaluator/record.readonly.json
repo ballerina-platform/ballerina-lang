@@ -1,0 +1,63 @@
+[
+  {
+    "description": "Define Details.",
+    "code": "type Details record {| int id; string country; |};"
+  },
+  {
+    "description": "Define Employee.",
+    "code": "type Employee record {| string department; readonly Details details; |};"
+  },
+  {
+    "description": "Define Identifier.",
+    "code": "type Identifier record {| readonly int id; readonly string[] codes; |};"
+  },
+  {
+    "description": "Define variables - immutableDetails.",
+    "code": "Details & readonly immutableDetails = { id: 112233, country: \"Sri Lanka\" };"
+  },
+  {
+    "description": "Define variables - empOne.",
+    "code": "Employee empOne = { department: \"IT\", details: immutableDetails };"
+  },
+  {
+    "description": "Define variables - empTwo.",
+    "code": "Employee empTwo = { department: \"finance\", details: { id: 212141, country: \"USA\" } }"
+  },
+  {
+    "description": "Define variables - details.",
+    "code": "Details details = empTwo.details;"
+  },
+  {
+    "description": "Define variables - identifier.",
+    "code": "Identifier identifier = { id: 1234, codes: [\"AS\", \"KL\"] };"
+  },
+  {
+    "description": "Define variables - readonlyValue.",
+    "code": "readonly readonlyValue = identifier"
+  },
+  {
+    "description": "Define variables - anyEmployee.",
+    "code": "record { string department; Details details; } anyEmployee = empOne;"
+  },
+  {
+    "description": "View empTwo readonly status.",
+    "code": "empTwo.isReadOnly()",
+    "expr": "false"
+  },
+  {
+    "description": "View details readonly status.",
+    "code": "details.isReadOnly()",
+    "expr": "true"
+  },
+  {
+    "description": "View identifier readonly status.",
+    "code": "identifier.isReadOnly()",
+    "expr": "true"
+  },
+  {
+    "description": "Update readonly - panic.",
+    "code": "anyEmployee.details = { id: 222288, country: \"Sri Lanka\" };",
+    "stdout": "panic: {ballerina/lang.map}InherentTypeViolation {\"message\":\"cannot update 'readonly' field 'details' in record of type 'Employee'\"}\n",
+    "error": "InvokerPanicException"
+  }
+]

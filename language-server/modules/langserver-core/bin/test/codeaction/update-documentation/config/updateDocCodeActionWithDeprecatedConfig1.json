@@ -1,0 +1,32 @@
+{
+  "position": {
+    "line": 7,
+    "character": 17
+  },
+  "source": "updateDocCodeActionWithDeprecated1.bal",
+  "expected": [
+    {
+      "title": "Update documentation",
+      "kind": "refactor",
+      "command": {
+        "title": "Update documentation",
+        "command": "UPDATE_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 3,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 5
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

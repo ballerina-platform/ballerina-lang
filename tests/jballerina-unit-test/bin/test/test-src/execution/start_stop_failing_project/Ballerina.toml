@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "start_stop_failing_project"
+version= "0.1.0"

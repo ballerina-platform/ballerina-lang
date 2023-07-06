@@ -1,0 +1,57 @@
+[
+  {
+    "description": "Define Details.",
+    "code": "type Details record {| string name; int id; |};"
+  },
+  {
+    "description": "Define Student.",
+    "code": "type Student record {| int 'class; Details details; map<int> marks; |};"
+  },
+  {
+    "description": "Define addEntryToMap.",
+    "code": "function addEntryToMap(map<string|int> m, string key, string|int value) { m[key] = value; }"
+  },
+  {
+    "description": "Define immutable Details",
+    "code": "Details & readonly immutableDetails = { name: \"May\", id: 112233 };"
+  },
+  {
+    "description": "Define immutable Student &",
+    "code": "Student & readonly student = { 'class: 12, details: immutableDetails, marks: { math: 80, physics: 85, chemistry: 75 } };"
+  },
+  {
+    "description": "Create anytype variable and clone it.",
+    "code": "map<string|int> m1 = {stringVal: \"str\", intVal: 1}; map<string|int> m2 = m1.cloneReadOnly();"
+  },
+  {
+    "description": "Check reference eq of clone.",
+    "code": "m1 === m2",
+    "expr": "false"
+  },
+  {
+    "description": "Clone immutable and check ref eq.",
+    "code": "map<string|int> m3 = m2.cloneReadOnly();"
+  },
+  {
+    "description": "Clone immutable and check ref eq - get value.",
+    "code": "m2 === m3",
+    "expr": "true"
+  },
+  {
+    "description": "Create anytype of string/int but only with string.",
+    "code": "map<string|int> m5 = {valueType: \"map\", constraint: \"string\"};"
+  },
+  {
+    "description": "Clone and check for type.",
+    "code": "var immutableClonedVal = m5.cloneReadOnly();"
+  },
+  {
+    "description": "Clone and check for type - get value.",
+    "code": "immutableClonedVal is map<string>",
+    "expr": "true"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

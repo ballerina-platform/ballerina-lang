@@ -1,0 +1,28 @@
+[
+  {
+    "description": "Define a Person type.",
+    "code": "type Person object { public int age; public string firstName; public string lastName; function getFullName() returns string; function checkAndModifyAge(int condition, int a); };"
+  },
+  {
+    "description": "Define a Employee class.",
+    "code": "class Employee { public int age; public string firstName; public string lastName; function init(int age, string firstName, string lastName) { self.age = age; self.firstName = firstName; self.lastName = lastName; } function getFullName() returns string { return self.firstName + \" \" + self.lastName; } function checkAndModifyAge(int condition, int a) { if (self.age < condition) { self.age = a; } }\n}"
+  },
+  {
+    "description": "Create new person object.",
+    "code": "Person p = new Employee(5, \"John\", \"Doe\");"
+  },
+  {
+    "description": "Create new person object - get value.",
+    "code": "p.getFullName()",
+    "expr": "\"John Doe\""
+  },
+  {
+    "description": "Run instance method.",
+    "code": "p.checkAndModifyAge(10, 50);"
+  },
+  {
+    "description": "Run instance method - get value.",
+    "code": "p.age",
+    "expr": "50"
+  }
+]

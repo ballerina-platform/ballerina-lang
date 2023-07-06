@@ -1,0 +1,14 @@
+{
+  "kind": "INT_TYPE_DESC",
+  "children": [
+    {
+      "kind": "INT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    }
+  ]
+}

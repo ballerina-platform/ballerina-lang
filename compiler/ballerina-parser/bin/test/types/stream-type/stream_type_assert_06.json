@@ -1,0 +1,85 @@
+{
+  "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "STREAM_TYPE_DESC",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "STREAM_KEYWORD"
+            },
+            {
+              "kind": "STREAM_TYPE_PARAMS",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_COMMA_TOKEN"
+                  ]
+                },
+                {
+                  "kind": "ERROR_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "ERROR_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

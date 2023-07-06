@@ -1,0 +1,37 @@
+[
+  {
+    "description": "Define variable.",
+    "code": "int total = 99;"
+  },
+  {
+    "description": "Define constant.",
+    "code": "const int COUNT = -1;"
+  },
+  {
+    "description": "Define final variable.",
+    "code": "final int status = 1;"
+  },
+  {
+    "description": "Print variable value.",
+    "code": "println(total);",
+    "stdout": "99\n"
+  },
+  {
+    "description": "Get constant value.",
+    "code": "COUNT",
+    "expr": "-1"
+  },
+  {
+    "description": "Define and output boolean variable.",
+    "code": "boolean available = false;"
+  },
+  {
+    "description": "Define and output boolean variable - get value.",
+    "code": "available",
+    "expr": "false"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

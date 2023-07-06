@@ -1,0 +1,19 @@
+{
+  "source": {
+    "file": "ifelse.bal"
+  },
+  "result": [
+    {
+      "line": 6,
+      "token": "WzIwLCAxLCAwXQ=="
+    },
+    {
+      "line":8,
+      "token":"WzIwLCAxLCAwXQ=="
+    },
+    {
+      "line": 10,
+      "token": "WzIwLCAxLCAwLCA0NiwgMSwgMF0="
+    }
+  ]
+}

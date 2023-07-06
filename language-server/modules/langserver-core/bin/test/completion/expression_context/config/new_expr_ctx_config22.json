@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 12,
+    "character": 31
+  },
+  "source": "expression_context/source/new_expr_ctx_source22.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "arg2 = ...",
+      "kind": "Snippet",
+      "detail": "arg2 = \"\"",
+      "sortText": "AR",
+      "filterText": "arg2",
+      "insertText": "arg2 = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "arg3 = ...",
+      "kind": "Snippet",
+      "detail": "arg3 = {line: 0, offset: 0}",
+      "sortText": "AR",
+      "filterText": "arg3",
+      "insertText": "arg3 = ${1:{line: 0, offset: 0\\}}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

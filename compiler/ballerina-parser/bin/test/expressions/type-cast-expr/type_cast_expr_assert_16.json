@@ -1,0 +1,31 @@
+{
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "INT_TYPE_DESC",
+      "children": [
+        {
+          "kind": "INT_KEYWORD"
+        }
+      ]
+    },
+    {
+      "kind": "GT_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "description": "Define a helper class.",
+    "code": "type Controller object { int id; string[] codes;  function getId() returns string; };"
+  },
+  {
+    "description": "Define a readonly class.",
+    "code": "readonly class MainController { int id; string[] codes; function init(int id, readonly & string[] codes) { self.id = id; self.codes = codes; } function getId() returns string { return string `Main: ${self.id}`; }}"
+  },
+  {
+    "description": "Create readonly variable.",
+    "code": "MainController mc = new MainController(123, [\"AB\"]); Controller & readonly immutableController = mc;"
+  },
+  {
+    "description": "Create readonly variable - get value.",
+    "code": "immutableController.getId()",
+    "expr": "\"Main: 123\""
+  },
+  {
+    "description": "Check for type of variable.",
+    "code": "Controller controller = immutableController;"
+  },
+  {
+    "description": "Check for type of variable - get value.",
+    "code": "controller is readonly & Controller",
+    "expr": "true"
+  }
+]

@@ -1,0 +1,7 @@
+[dilhashanazeer.simpleconfigs]
+itemCode = "item12393"
+discount = 4.5
+testMode = false
+
+[dilhashanazeer.simpleconfigs.mod1]
+nameVal = "hello new"

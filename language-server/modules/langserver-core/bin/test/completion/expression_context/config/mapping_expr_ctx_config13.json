@@ -1,0 +1,34 @@
+{
+  "position": {
+    "line": 9,
+    "character": 12
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source13.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec2Field1",
+      "kind": "Field",
+      "detail": "module1:TestRecord2.rec2Field1",
+      "sortText": "K",
+      "insertText": "rec2Field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec3Field2",
+      "kind": "Field",
+      "detail": "module1:TestRecord2.rec3Field2",
+      "sortText": "K",
+      "insertText": "rec3Field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

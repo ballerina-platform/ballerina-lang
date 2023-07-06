@@ -1,0 +1,69 @@
+{
+  "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "MAP_TYPE_DESC",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "MAP_KEYWORD"
+            },
+            {
+              "kind": "TYPE_PARAMETER",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_TYPE_DESC"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

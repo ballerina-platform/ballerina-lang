@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Define divide function.",
+    "code": "function divide(int a, int b) returns int { return a / b; }"
+  },
+  {
+    "description": "Divide by zero and assign error.",
+    "code": "int|error result = trap divide(1, 0);"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

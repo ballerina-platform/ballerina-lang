@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "jsonutils"
+version = "1.1.0"

@@ -1,0 +1,83 @@
+{
+  "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IMPORT_ORG_NAME",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SLASH_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SLASH_TOKEN"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "IMPORT_PREFIX",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "AS_KEYWORD",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_AS_KEYWORD"
+          ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
+    }
+  ]
+}

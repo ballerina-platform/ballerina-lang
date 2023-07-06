@@ -1,0 +1,19 @@
+[
+  {
+    "description": "Define stock keeper.",
+    "code": "class StockKeeper { int requestCount = 0; int amount = 0; public function add(int n) { lock {  self.amount += n; }  self.requestCount += 1; } }"
+  },
+  {
+    "description": "Define stock keeper.",
+    "code": "StockKeeper stockKeeper = new;"
+  },
+  {
+    "description": "Start workers and wait function definition.",
+    "code": "function start_w() { @strand { thread:\"any\" } worker w1 { foreach var i in 1 ... 1000 { stockKeeper.add(25); } } @strand { thread:\"any\" } worker w2 { foreach var i in 1 ... 1000 {  stockKeeper.add(25); } } _ = wait { w1, w2 }; println(\"Amount: \", stockKeeper.amount); }"
+  },
+  {
+    "description": "View amount.",
+    "code": "start_w()",
+    "stdout": "Amount: 50000\n"
+  }
+]

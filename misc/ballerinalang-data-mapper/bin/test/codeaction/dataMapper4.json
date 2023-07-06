@@ -1,0 +1,33 @@
+{
+  "line": 58,
+  "character": 18,
+  "expected": {
+    "title": "Generate mapping function",
+    "edits": [
+      {"range":{
+        "start":{
+          "line":58,
+          "character":18
+        },
+        "end":{
+          "line":58,
+          "character":19
+        }
+      },
+        "newText":"mapSupplierToUser(s)"
+      },
+      {"range":{
+        "start":{
+          "line":63,
+          "character":0
+        },
+        "end":{
+          "line":63,
+          "character":1
+        }
+      },
+        "newText":"\nfunction mapSupplierToUser (Supplier supplier) returns User {\n// Some record fields might be missing in the AI based mapping.\n\tUser user = {ID: supplier.supplier_details.id, email: supplier.email, user: {age: supplier.supplier_details.age, id: supplier.id, name: supplier.supplier_details.name}};\n\treturn user;\n}\n"
+      }
+    ]
+  }
+}

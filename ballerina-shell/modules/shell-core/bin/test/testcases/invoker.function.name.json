@@ -1,0 +1,11 @@
+[
+  {
+    "description": "Function.",
+    "input": "function a() { }"
+  },
+  {
+    "description": "Variable with same name.",
+    "input": "int a = 100",
+    "error": "InvokerPanicException"
+  }
+]

@@ -1,0 +1,4 @@
+[package]
+org = "test_org"
+name = "docerina_project"
+version = "1.0.0"

@@ -1,0 +1,41 @@
+[
+  {
+    "description": "Define Gender.",
+    "code": "type Gender \"male\"|\"female\";"
+  },
+  {
+    "description": "Define Person.",
+    "code": "type Person record { string fname; string lname = \"\"; Gender gender; int age?; };"
+  },
+  {
+    "description": "Define variables - john.",
+    "code": "Person john = {fname: \"John\", gender: \"male\"};"
+  },
+  {
+    "description": "Define variables - john.",
+    "code": "john",
+    "expr": "{\"fname\":\"John\",\"lname\":\"\",\"gender\":\"male\"}"
+  },
+  {
+    "description": "Access optional field.",
+    "code": "john?.age"
+  },
+  {
+    "description": "Set value and access optional field.",
+    "code": "john.age = 25;"
+  },
+  {
+    "description": "Set value and access optional field - get value.",
+    "code": "john?.age",
+    "expr": "25"
+  },
+  {
+    "description": "Define variables - jane.",
+    "code": "Person jane = {fname: \"Jane\", lname: \"Doe\", gender: \"female\"};"
+  },
+  {
+    "description": "Define variables - jane - get value.",
+    "code": "jane",
+    "expr": "{\"fname\":\"Jane\",\"lname\":\"Doe\",\"gender\":\"female\"}"
+  }
+]

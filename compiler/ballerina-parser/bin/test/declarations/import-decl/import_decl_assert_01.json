@@ -1,0 +1,32 @@
+{
+  "kind": "IMPORT_DECLARATION",
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

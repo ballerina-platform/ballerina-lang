@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 11,
+    "character": 34
+  },
+  "source": "annotation_ctx/source/returnTypeDescAnnotation4.bal",
+  "items": [
+    {
+      "label": "returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "returnAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "returnAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

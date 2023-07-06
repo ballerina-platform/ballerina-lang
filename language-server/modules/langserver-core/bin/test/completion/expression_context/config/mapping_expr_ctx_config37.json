@@ -1,0 +1,132 @@
+{
+  "position": {
+    "line": 46,
+    "character": 19
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source37.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "node",
+      "kind": "Field",
+      "detail": "MyConfig.node",
+      "sortText": "K",
+      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isAlive",
+      "kind": "Field",
+      "detail": "MyConfig.isAlive",
+      "sortText": "K",
+      "insertText": "isAlive: ${1:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "err1",
+      "kind": "Field",
+      "detail": "MyConfig.err1",
+      "sortText": "K",
+      "insertText": "err1: error(\"\", message = ${1:\"\"})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myXML",
+      "kind": "Field",
+      "detail": "MyConfig.myXML",
+      "sortText": "K",
+      "insertText": "myXML: ${1:xml ``}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "keywords",
+      "kind": "Field",
+      "detail": "MyConfig.keywords",
+      "sortText": "K",
+      "insertText": "keywords: [${1:[]}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "credentials",
+      "kind": "Field",
+      "detail": "MyConfig.credentials",
+      "sortText": "K",
+      "insertText": "credentials: {ip: ${1:\"\"}, port: ${2:0}, username: ${3:\"\"}, files: ${4:new ()}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record2",
+      "kind": "Field",
+      "detail": "MyConfig.record2",
+      "sortText": "K",
+      "insertText": "record2: {f1: ${1:0}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record1",
+      "kind": "Field",
+      "detail": "MyConfig.record1",
+      "sortText": "K",
+      "insertText": "record1: {}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myMap",
+      "kind": "Field",
+      "detail": "MyConfig.myMap",
+      "sortText": "K",
+      "insertText": "myMap: ${1:{}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myTable",
+      "kind": "Field",
+      "detail": "MyConfig.myTable",
+      "sortText": "K",
+      "insertText": "myTable: table [${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myError",
+      "kind": "Field",
+      "detail": "MyConfig.myError",
+      "sortText": "K",
+      "insertText": "myError: error(\"\")",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "randomNum",
+      "kind": "Field",
+      "detail": "MyConfig.randomNum",
+      "sortText": "K",
+      "insertText": "randomNum: ${1:error(\"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill MyConfig Required Fields",
+      "kind": "Property",
+      "detail": "MyConfig",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${4:false},\nerr1: error(\"\", message = ${5:\"\"}),\nmyXML: ${6:xml ``},\nkeywords: [${7:[]}],\ncredentials: {ip: ${8:\"\"}, port: ${9:0}, username: ${10:\"\"}, files: ${11:new ()}},\nrecord2: {f1: ${12:0}},\nrecord1: {},\nmyMap: ${13:{}},\nmyTable: table [${14:}],\nmyError: error(\"\"),\nrandomNum: ${15:error(\"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...config",
+      "kind": "Variable",
+      "detail": "MyConfig",
+      "sortText": "AB",
+      "filterText": "config",
+      "insertText": "...config",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

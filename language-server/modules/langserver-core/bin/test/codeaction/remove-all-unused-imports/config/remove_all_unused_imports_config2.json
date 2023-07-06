@@ -1,0 +1,8 @@
+{
+  "position": {
+    "line": 0,
+    "character": 35
+  },
+  "source": "remove_all_unused_imports_source2.bal",
+  "expected": []
+}

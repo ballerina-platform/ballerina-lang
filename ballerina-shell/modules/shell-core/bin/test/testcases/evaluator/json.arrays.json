@@ -1,0 +1,52 @@
+[
+  {
+    "description": "Create JSON array.",
+    "code": "json j1 = [1, false, null, \"foo\", {first: \"John\", last: \"Pala\"}];"
+  },
+  {
+    "description": "Create JSON array - get value.",
+    "code": "j1.toJsonString()",
+    "expr": "\"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]\""
+  },
+  {
+    "description": "Access Json Array.",
+    "code": "json[] j2 = <json[]>j1; json j3 = j2[4];"
+  },
+  {
+    "description": "Access Json Array - get value.",
+    "code": "j3.toJsonString()",
+    "expr": "\"{\"first\":\"John\", \"last\":\"Pala\"}\""
+  },
+  {
+    "description": "Modify JSON array.",
+    "code": "j2[4] = 8.00;"
+  },
+  {
+    "description": "Modify JSON array - get value.",
+    "code": "j1.toJsonString()",
+    "expr": "\"[1, false, null, \"foo\", 8.0]\""
+  },
+  {
+    "description": "Create map<json>.",
+    "code": "map<json> p = { fname: \"John\", lname: \"Stallone\", family: [ {fname: \"Peter\", lname: \"Stallone\"}, {fname: \"Emma\", lname: \"Stallone\"}, {fname: \"Jena\", lname: \"Stallone\"}, {fname: \"Paul\", lname: \"Stallone\"} ] };"
+  },
+  {
+    "description": "Change internal values.",
+    "code": "json[] family = <json[]>p[\"family\"]; map<json> member2 = <map<json>>family[2]; member2[\"fname\"] = \"Alisha\";"
+  },
+  {
+    "description": "Change internal values - get value.",
+    "code": "p.toJsonString()",
+    "expr": "\"{\"fname\":\"John\", \"lname\":\"Stallone\", \"family\":[{\"fname\":\"Peter\", \"lname\":\"Stallone\"}, {\"fname\":\"Emma\", \"lname\":\"Stallone\"}, {\"fname\":\"Alisha\", \"lname\":\"Stallone\"}, {\"fname\":\"Paul\", \"lname\":\"Stallone\"}]}\""
+  },
+  {
+    "description": "Length of JSON array.",
+    "code": "family.length()",
+    "expr": "4"
+  },
+  {
+    "description": "Loop over array.",
+    "code": "int i = 0; while (i < family.length()) { println(family[i].toJsonString()); i = i + 1; }",
+    "stdout": "{\"fname\":\"Peter\", \"lname\":\"Stallone\"}\n{\"fname\":\"Emma\", \"lname\":\"Stallone\"}\n{\"fname\":\"Alisha\", \"lname\":\"Stallone\"}\n{\"fname\":\"Paul\", \"lname\":\"Stallone\"}\n"
+  }
+]

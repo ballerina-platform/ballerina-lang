@@ -1,0 +1,441 @@
+{
+  "position": {
+    "line": 3,
+    "character": 37
+  },
+  "source": "listener_decl/source/source5.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "mod:Listener",
+      "sortText": "A",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mod",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "T",
+      "filterText": "mod",
+      "insertText": "mod",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "test",
+      "insertText": "test1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test as test1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "transaction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new(int port)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
+        }
+      },
+      "sortText": "C",
+      "insertText": "new(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "E",
+      "filterText": "new",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "V",
+      "filterText": "check",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "V",
+      "filterText": "checkpanic",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "V",
+      "filterText": "trap",
+      "insertText": "trap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
+    },
+    {
+      "label": "decimal",
+      "kind": "TypeParameter",
+      "detail": "Decimal",
+      "sortText": "S",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "TypeParameter",
+      "detail": "Xml",
+      "sortText": "S",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "TypeParameter",
+      "detail": "Boolean",
+      "sortText": "S",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "TypeParameter",
+      "detail": "Future",
+      "sortText": "S",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "TypeParameter",
+      "detail": "Int",
+      "sortText": "S",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "TypeParameter",
+      "detail": "Float",
+      "sortText": "S",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "S",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "TypeParameter",
+      "detail": "String",
+      "sortText": "S",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "sortText": "S",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "lang",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

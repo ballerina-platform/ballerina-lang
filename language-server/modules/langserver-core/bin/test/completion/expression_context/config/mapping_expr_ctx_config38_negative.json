@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 12,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source38_negative.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c",
+      "kind": "Variable",
+      "detail": "Outer",
+      "sortText": "B",
+      "insertText": "c",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

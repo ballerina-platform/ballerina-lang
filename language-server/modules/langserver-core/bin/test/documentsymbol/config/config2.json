@@ -1,0 +1,632 @@
+{
+  "source": {
+    "file": "project1/modules/types/types.bal"
+  },
+  "result": [
+    {
+      "right": {
+        "name": "UserType",
+        "kind": "Enum",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 2,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "ADMIN",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 4
+              },
+              "end": {
+                "line": 1,
+                "character": 9
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1,
+                "character": 4
+              },
+              "end": {
+                "line": 1,
+                "character": 9
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "CUSTOMER",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 11
+              },
+              "end": {
+                "line": 1,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1,
+                "character": 11
+              },
+              "end": {
+                "line": 1,
+                "character": 19
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "SELLER",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 1,
+                "character": 21
+              },
+              "end": {
+                "line": 1,
+                "character": 27
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 1,
+                "character": 21
+              },
+              "end": {
+                "line": 1,
+                "character": 27
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "STATE",
+        "kind": "Enum",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        },
+        "children": [
+          {
+            "name": "SOUTH",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 5,
+                "character": 4
+              },
+              "end": {
+                "line": 5,
+                "character": 9
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 5,
+                "character": 4
+              },
+              "end": {
+                "line": 5,
+                "character": 9
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "WEST",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 5,
+                "character": 11
+              },
+              "end": {
+                "line": 5,
+                "character": 15
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 5,
+                "character": 11
+              },
+              "end": {
+                "line": 5,
+                "character": 15
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "NORTH",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 5,
+                "character": 17
+              },
+              "end": {
+                "line": 5,
+                "character": 22
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 5,
+                "character": 17
+              },
+              "end": {
+                "line": 5,
+                "character": 22
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "EAST",
+            "kind": "EnumMember",
+            "range": {
+              "start": {
+                "line": 5,
+                "character": 24
+              },
+              "end": {
+                "line": 5,
+                "character": 28
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 5,
+                "character": 24
+              },
+              "end": {
+                "line": 5,
+                "character": 28
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "Address",
+        "kind": "Struct",
+        "range": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 2
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 8,
+            "character": 0
+          },
+          "end": {
+            "line": 13,
+            "character": 2
+          }
+        },
+        "children": [
+          {
+            "name": "addressLine1",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 9,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 24
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 9,
+                "character": 4
+              },
+              "end": {
+                "line": 9,
+                "character": 24
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "addressLine2",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 10,
+                "character": 4
+              },
+              "end": {
+                "line": 10,
+                "character": 24
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 10,
+                "character": 4
+              },
+              "end": {
+                "line": 10,
+                "character": 24
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "state",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 11,
+                "character": 16
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 11,
+                "character": 4
+              },
+              "end": {
+                "line": 11,
+                "character": 16
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "postalCode",
+            "kind": "Field",
+            "range": {
+              "start": {
+                "line": 12,
+                "character": 4
+              },
+              "end": {
+                "line": 12,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 12,
+                "character": 4
+              },
+              "end": {
+                "line": 12,
+                "character": 19
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "User",
+        "kind": "Interface",
+        "range": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 2
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 15,
+            "character": 0
+          },
+          "end": {
+            "line": 20,
+            "character": 2
+          }
+        },
+        "children": [
+          {
+            "name": "getUserName",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 16,
+                "character": 4
+              },
+              "end": {
+                "line": 16,
+                "character": 49
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 16,
+                "character": 4
+              },
+              "end": {
+                "line": 16,
+                "character": 49
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getEmail",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 17,
+                "character": 4
+              },
+              "end": {
+                "line": 17,
+                "character": 46
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 17,
+                "character": 4
+              },
+              "end": {
+                "line": 17,
+                "character": 46
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getType",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 18,
+                "character": 4
+              },
+              "end": {
+                "line": 18,
+                "character": 47
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 18,
+                "character": 4
+              },
+              "end": {
+                "line": 18,
+                "character": 47
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "getAddress",
+            "kind": "Method",
+            "range": {
+              "start": {
+                "line": 19,
+                "character": 4
+              },
+              "end": {
+                "line": 19,
+                "character": 49
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 19,
+                "character": 4
+              },
+              "end": {
+                "line": 19,
+                "character": 49
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "right": {
+        "name": "AnotherItem ",
+        "kind": "Variable",
+        "range": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 26
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 22,
+            "character": 0
+          },
+          "end": {
+            "line": 22,
+            "character": 26
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "code",
+        "kind": "Variable",
+        "range": {
+          "start": {
+            "line": 23,
+            "character": 4
+          },
+          "end": {
+            "line": 23,
+            "character": 16
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 23,
+            "character": 4
+          },
+          "end": {
+            "line": 23,
+            "character": 16
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "init",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 25,
+            "character": 4
+          },
+          "end": {
+            "line": 30,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 25,
+            "character": 4
+          },
+          "end": {
+            "line": 30,
+            "character": 5
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "getCode",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 32,
+            "character": 4
+          },
+          "end": {
+            "line": 36,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 32,
+            "character": 4
+          },
+          "end": {
+            "line": 36,
+            "character": 5
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "deprecatedFunction",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 1
+          }
+        },
+        "tags": [
+          "Deprecated"
+        ],
+        "children": []
+      }
+    }
+  ]
+}

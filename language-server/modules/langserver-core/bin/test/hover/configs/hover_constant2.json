@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "hover.bal"
+  },
+  "position": {
+    "line": 209,
+    "character": 22
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for CONST1"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Define anonymous function.",
+    "code": "function (string, string) returns string concat = function (string x, string y) returns string { return x + y; };"
+  },
+  {
+    "description": "Use concat function.",
+    "code": "concat(\"Hello \", \"World!\")",
+    "expr": "\"Hello World!\""
+  },
+  {
+    "description": "Define anonymous function with var.",
+    "code": "var obj = object { function demo() returns int => 42; };"
+  },
+  {
+    "description": "Use defined function.",
+    "code": "obj.demo();",
+    "expr": "42"
+  }
+]

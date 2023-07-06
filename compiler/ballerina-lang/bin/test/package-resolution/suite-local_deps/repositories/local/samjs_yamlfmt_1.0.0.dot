@@ -1,0 +1,3 @@
+digraph "samjs/yamlfmt:1.0.0" {
+    "samjs/yamlfmt:1.0.0" -> "samjs/yaml:1.0.0"
+}

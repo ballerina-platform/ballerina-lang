@@ -1,0 +1,10 @@
+[
+  {
+    "description": "Define final variable",
+    "input": "final int t = 0"
+  },
+  {
+    "description": "Try to assign to final variable",
+    "input": "t = 100"
+  }
+]

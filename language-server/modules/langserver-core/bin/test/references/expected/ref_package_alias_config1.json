@@ -1,0 +1,63 @@
+{
+  "source": {
+    "file": "projectls/union_types.bal"
+  },
+  "position": {
+    "line": 0,
+    "character": 19
+  },
+  "result": [
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 17
+        },
+        "end": {
+          "line": 0,
+          "character": 23
+        }
+      }
+    },
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 28
+        },
+        "end": {
+          "line": 6,
+          "character": 34
+        }
+      }
+    },
+    {
+      "uri": "projectls/union_types.bal",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 17
+        },
+        "end": {
+          "line": 0,
+          "character": 23
+        }
+      }
+    },
+    {
+      "uri": "projectls/union_types.bal",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 21
+        },
+        "end": {
+          "line": 4,
+          "character": 27
+        }
+      }
+    }
+  ]
+}

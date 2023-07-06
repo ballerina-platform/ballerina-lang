@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 3,
+    "character": 16
+  },
+  "source": "createVariableNegative2.bal",
+  "expected": [
+    {
+      "title": "Create variable"
+    }
+  ]
+}

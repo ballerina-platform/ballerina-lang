@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 8,
+    "character": 6
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source25.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "lname",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "CA",
+      "insertText": "lname",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "index",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "CA",
+      "insertText": "index",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "name",
+      "insertText": "name()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "position": {
+    "line": 14,
+    "character": 22
+  },
+  "source": "extractToLocalVariableExprsWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract To Local Variable",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract To Local Variable",
+          "extractToLocalVariableExprsWithQuickPick.bal",
+          {
+            "3.14": [
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 8
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 8
+                  }
+                },
+                "newText": "float var1 = 3.14;\n        "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 25
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "3.14 * 3": [
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 8
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 8
+                  }
+                },
+                "newText": "float var1 = 3.14 * 3;\n        "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 29
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "3.14 * 3 * 4": [
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 8
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 8
+                  }
+                },
+                "newText": "float var1 = 3.14 * 3 * 4;\n        "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 33
+                  }
+                },
+                "newText": "var1"
+              }
+            ]
+          },
+          {
+            "3.14": {
+              "line": 15,
+              "character": 21
+            },
+            "3.14 * 3": {
+              "line": 15,
+              "character": 21
+            },
+            "3.14 * 3 * 4": {
+              "line": 15,
+              "character": 21
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

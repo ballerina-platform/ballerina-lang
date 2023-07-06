@@ -1,0 +1,79 @@
+{
+  "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "MAP_TYPE_DESC",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "MAP_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "TYPE_PARAMETER",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_LT_TOKEN"
+                  ]
+                },
+                {
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_GT_TOKEN"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

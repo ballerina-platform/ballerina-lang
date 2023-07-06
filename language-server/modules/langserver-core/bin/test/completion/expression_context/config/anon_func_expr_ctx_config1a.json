@@ -1,0 +1,63 @@
+{
+  "position": {
+    "line": 6,
+    "character": 26
+  },
+  "source": "expression_context/source/anon_func_expr_ctx_source1a.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "transactional",
+      "insertText": "transactional",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "client",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

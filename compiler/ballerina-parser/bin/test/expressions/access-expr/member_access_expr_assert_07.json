@@ -1,0 +1,74 @@
+{
+  "kind": "METHOD_CALL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "FIELD_ACCESS",
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
+            }
+          ]
+        },
+        {
+          "kind": "DOT_TOKEN"
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "bar"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "DOT_TOKEN"
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "baz"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
+}

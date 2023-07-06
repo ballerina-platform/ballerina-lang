@@ -1,0 +1,65 @@
+[
+  {
+    "description": "Define InvalidAccountTypeErrorData.",
+    "code": "type InvalidAccountTypeErrorData record { string accountType; };"
+  },
+  {
+    "description": "Define InvalidAccountTypeError.",
+    "code": "type InvalidAccountTypeError error<InvalidAccountTypeErrorData>;"
+  },
+  {
+    "description": "Define getTypeId.",
+    "code": "function getTypeId(string accountType) returns int|InvalidAccountTypeError { match accountType { \"checking\" => { return 1; } \"savings\" => { return 2; } } return error InvalidAccountTypeError(\"Invalid account type\", accountType = accountType); }"
+  },
+  {
+    "description": "Define AccountErrorData.",
+    "code": "type AccountErrorData record { int accountID; };"
+  },
+  {
+    "description": "Define AccountTransferErrorData.",
+    "code": "type AccountTransferErrorData record { int fromAccountId; int toAccountId; };"
+  },
+  {
+    "description": "Define AccountError.",
+    "code": "type AccountError distinct error<AccountErrorData>;"
+  },
+  {
+    "description": "Define InvalidAccountIdError.",
+    "code": "type InvalidAccountIdError distinct AccountError;"
+  },
+  {
+    "description": "Define AccountNotFoundError.",
+    "code": "type AccountNotFoundError distinct AccountError;"
+  },
+  {
+    "description": "Define getAccountBalance.",
+    "code": "function getAccountBalance(int accountID) returns int|AccountError { if (accountID < 0) { return error InvalidAccountIdError(\"Invalid account Id\", accountID = accountID); } else if (accountID > 100) { return error AccountNotFoundError(\"Account not found\", accountID = accountID); } return 600; }"
+  },
+  {
+    "description": "Define AccountTransferError.",
+    "code": "type AccountTransferError error<AccountTransferErrorData>;"
+  },
+  {
+    "description": "Define transferToAccount.",
+    "code": "function transferToAccount(int fromAccountId, int toAccountId, int amount) returns AccountTransferError? { var result = getAccountBalance(fromAccountId); if (result is error) { return error AccountTransferError(\"Account transfer failed\", result, fromAccountId = fromAccountId, toAccountId = toAccountId); } else { } }"
+  },
+  {
+    "description": "Use getTypeId method.",
+    "code": "int|InvalidAccountTypeError result = getTypeId(\"Joined\");"
+  },
+  {
+    "description": "View getTypeId error.",
+    "code": "result",
+    "expr": "error(\"Invalid account type\",accountType=\"Joined\")"
+  },
+  {
+    "description": "View getAccountBalance error.",
+    "code": "getAccountBalance(-1);",
+    "expr": "error InvalidAccountIdError&AccountError (\"Invalid account Id\",accountID=-1)"
+  },
+  {
+    "description": "View transferToAccount error.",
+    "code": "transferToAccount(-1, 90, 1000);",
+    "expr": "error(\"Account transfer failed\",error InvalidAccountIdError&AccountError (\"Invalid account Id\",accountID=-1),fromAccountId=-1,toAccountId=90)"
+  }
+]

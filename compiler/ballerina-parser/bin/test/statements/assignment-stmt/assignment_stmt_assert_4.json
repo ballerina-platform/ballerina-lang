@@ -1,0 +1,32 @@
+{
+  "kind": "INVALID_EXPRESSION_STATEMENT",
+  "hasDiagnostics": true,
+  "diagnostics": [
+    "ERROR_INVALID_EXPRESSION_STATEMENT"
+  ],
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
+    }
+  ]
+}

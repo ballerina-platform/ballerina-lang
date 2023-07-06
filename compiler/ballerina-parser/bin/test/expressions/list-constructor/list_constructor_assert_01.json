@@ -1,0 +1,15 @@
+{
+  "kind": "LIST_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
+}

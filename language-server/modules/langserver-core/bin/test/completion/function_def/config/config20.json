@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 12,
+    "character": 23
+  },
+  "source": "function_def/source/source20.bal",
+  "items": [
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

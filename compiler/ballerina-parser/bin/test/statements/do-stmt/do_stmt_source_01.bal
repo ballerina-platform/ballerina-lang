@@ -1,0 +1,4 @@
+public function foo() {
+    do {
+    }
+}

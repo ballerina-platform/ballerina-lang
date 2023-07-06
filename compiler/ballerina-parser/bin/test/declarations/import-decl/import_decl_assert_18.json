@@ -1,0 +1,56 @@
+{
+  "kind": "IMPORT_DECLARATION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IMPORT_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
+        },
+        {
+          "kind": "DOT_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        },
+        {
+          "kind": "DOT_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

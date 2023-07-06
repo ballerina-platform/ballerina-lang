@@ -1,0 +1,15 @@
+{
+  "source": {
+    "file": "object.bal"
+  },
+  "result": [
+    {
+      "line":7,
+      "token":"WzI0LCA4LCAwXQ=="
+    },
+    {
+      "line": 13,
+      "token": "WzIwLCA5LCAwXQ=="
+    }
+  ]
+}

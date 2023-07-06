@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 17,
+    "character": 17
+  },
+  "source": "query_expression/source/query_expr_ctx_join_clause_source7a.bal",
+  "items": [
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "on",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

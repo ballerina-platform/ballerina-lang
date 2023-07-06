@@ -1,0 +1,50 @@
+[
+  {
+    "description": "Imports modules.",
+    "code": "import ballerina/lang.'decimal; import ballerina/lang.'float; import ballerina/lang.'int;"
+  },
+  {
+    "description": "Define Person.",
+    "code": "type Person record { string name; int age; };"
+  },
+  {
+    "description": "Define Employee.",
+    "code": "type Employee record { string name; int age; int empNo; };"
+  },
+  {
+    "description": "Define convertEmployeeToPerson.",
+    "code": "function convertEmployeeToPerson(Employee emp) { Person|error res = emp.cloneWithType(Person); if (res is Person) { println(\"Employee to Person, name: \", res[\"name\"]); } else { println(\"Error occurred on conversion\"); } }"
+  },
+  {
+    "description": "Define convertAnydataMapToPerson.",
+    "code": "function convertAnydataMapToPerson(map<anydata> m) { Person|error res = m.cloneWithType(Person); if (res is Person) { println(\"map<anydata> to Person, name: \", res[\"name\"]); } else { println(\"Error occurred on conversion: \", res.detail()); } }"
+  },
+  {
+    "description": "Define createNumericValues.",
+    "code": "function createNumericValues() { string s1 = \"45\"; string s2 = \"abc\"; string s3 = \"12.3\"; string s4 = \"8\"; int|error res1 = 'int:fromString(s1); if (res1 is int) { println(\"int value: \", res1); } else { println(\"error: \", res1.detail()); } res1 = 'int:fromString(s2); if (res1 is int) { println(\"int value: \", res1); } else { println(\"error: \", res1.detail()); } float|error res2 = 'float:fromString(s3); if (res2 is float) { println(\"float value: \", res2); } else { println(\"error: \", res2.detail()); } decimal|error res3 = 'decimal:fromString(s4); if (res3 is decimal) { println(\"decimal value: \", res3); } else { println(\"error: \", res3.detail()); } }"
+  },
+  {
+    "description": "Define variables",
+    "code": "Employee emp = {name: \"Jack Sparrow\", age: 54, empNo: 100}; map<anydata> m = {name: \"Hector Barbossa\", age: 54, empNo: 100}; map<anydata> n = {name: \"Elizabeth Swann\"};"
+  },
+  {
+    "description": "Convert employee to person",
+    "code": "convertEmployeeToPerson(emp);",
+    "stdout": "Employee to Person, name: Jack Sparrow\n"
+  },
+  {
+    "description": "Convert anydata to person",
+    "code": "convertAnydataMapToPerson(m);",
+    "stdout": "map<anydata> to Person, name: Hector Barbossa\n"
+  },
+  {
+    "description": "Convert anydata to person with error",
+    "code": "convertAnydataMapToPerson(n);",
+    "stdout": "Error occurred on conversion: {\"message\":\"'map<anydata>' value cannot be converted to 'Person': \n\t\tmissing required field 'age' of type 'int' in record 'Person'\"}\n"
+  },
+  {
+    "description": "Attempt to convert strings to numeric types",
+    "code": "createNumericValues();",
+    "stdout": "int value: 45\nerror: {\"message\":\"'string' value 'abc' cannot be converted to 'int'\"}\nfloat value: 12.3\ndecimal value: 8\n"
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 11,
+    "character": 23
+  },
+  "source": "extract_type_in_fn_body3.bal",
+  "expected": [
+    {
+      "title": "Extract type",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 3
+            },
+            "end": {
+              "line": 3,
+              "character": 3
+            }
+          },
+          "newText": "\n\ntype Record1 record {\n    int id;\n    string text;\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 33
+            }
+          },
+          "newText": "Record1"
+        }
+      ]
+    }
+  ]
+}

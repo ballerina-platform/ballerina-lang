@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 2,
+    "character": 8
+  },
+  "source": "on_fail_codeaction_for_fail_stmt_source2.bal",
+  "expected": [
+    {
+      "title": "Surround with do/on-fail",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 8
+            },
+            "end": {
+              "line": 2,
+              "character": 33
+            }
+          },
+          "newText": "do {\n\t        fail error(\"Test error\");\n        } on fail var e {\n        \t\n        }"
+        }
+      ]
+    }
+  ]
+}

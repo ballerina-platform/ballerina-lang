@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 7,
+    "character": 9
+  },
+  "source": "statement_context/source/onfail_clause_ctx_source2b.bal",
+  "items": [
+    {
+      "label": "fail",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "fail",
+      "insertText": "fail ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

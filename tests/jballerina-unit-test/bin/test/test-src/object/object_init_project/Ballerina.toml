@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "object_init_project"
+version = "1.0.0"

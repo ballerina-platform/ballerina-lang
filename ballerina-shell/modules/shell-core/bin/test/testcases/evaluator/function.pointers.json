@@ -1,0 +1,24 @@
+[
+  {
+    "description": "Define function named add.",
+    "code": "function add(int v1, int v2) returns int {return v1 + v2;}"
+  },
+  {
+    "description": "Define function named multiply.",
+    "code": "function multiply(int v1, int v2) returns int {return v1 * v2;}"
+  },
+  {
+    "description": "Define function taking in function pointer.",
+    "code": "function process(function (int, int) returns int func, int v1, int v2) returns int {return func(v1, v2);}"
+  },
+  {
+    "description": "Process add function.",
+    "code": "process(add, 1, 2)",
+    "expr": "3"
+  },
+  {
+    "description": "Process multiply function.",
+    "code": "process(multiply, 3, 4)",
+    "expr": "12"
+  }
+]

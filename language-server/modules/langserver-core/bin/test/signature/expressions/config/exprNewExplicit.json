@@ -1,0 +1,58 @@
+{
+  "position": {
+    "line": 72,
+    "character": 28
+  },
+  "source": "expressions/expressions.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "new(any arg1, string arg2)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "**Description**  \nCreate a new Stub"
+            }
+          },
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 8,
+                  "second": 12
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`any`arg1**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 21,
+                  "second": 25
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`string`arg2**"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 1
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

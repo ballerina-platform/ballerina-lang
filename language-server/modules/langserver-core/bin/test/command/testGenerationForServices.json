@@ -1,0 +1,88 @@
+{
+    "cases": [
+        {
+            "arguments": {
+                "node.line": 4,
+                "node.column": 23
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [
+                    "httpServiceUri"
+                ],
+                "functions": [
+                    "testHttpService"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 9,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [
+                    "httpsServiceUri"
+                ],
+                "functions": [
+                    "testHttpsService"
+                ],
+                "services": []
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 14,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [
+                    "wsServiceUri"
+                ],
+                "functions": [
+                    "testWsService"
+                ],
+                "services": [
+                    "callbackWsServiceService"
+                ]
+            }
+        },
+        {
+            "arguments": {
+                "node.line": 24,
+                "node.column": 20
+            },
+            "expected": {
+                "imports": [
+                    "ballerina/test",
+                    "ballerina/log",
+                    "ballerina/http"
+                ],
+                "globals": [
+                    "wssServiceUri"
+                ],
+                "functions": [
+                    "testWssService"
+                ],
+                "services": [
+                    "callbackWssServiceService"
+                ]
+            }
+        }
+    ]
+}

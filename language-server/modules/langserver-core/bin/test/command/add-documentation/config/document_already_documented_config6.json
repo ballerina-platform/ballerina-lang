@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 36,
+        "character": 4
+      },
+      "end": {
+        "line": 42,
+        "character": 5
+      }
+    }
+  },
+  "source": "document_already_documented1.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 36,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 39,
+                    "character": 44
+                  }
+                },
+                "newText": "# Given the name of a person, this will return the greeting to be used\n    #\n    # + name - Name of person\n    # + return - Greeting message to be used"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

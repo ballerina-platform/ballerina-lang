@@ -1,0 +1,87 @@
+{
+  "position": {
+    "line": 17,
+    "character": 11
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source72.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...b",
+      "kind": "Variable",
+      "detail": "B",
+      "sortText": "AB",
+      "filterText": "b",
+      "insertText": "...b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "B.field1",
+      "sortText": "K",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...a",
+      "kind": "Variable",
+      "detail": "A",
+      "sortText": "F",
+      "filterText": "a",
+      "insertText": "...a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...getB(int field1, string field2, string field3)",
+      "kind": "Function",
+      "detail": "B",
+      "sortText": "AC",
+      "filterText": "getB",
+      "insertText": "...getB(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...getA(int field1, string field2)",
+      "kind": "Function",
+      "detail": "A",
+      "sortText": "G",
+      "filterText": "getA",
+      "insertText": "...getA(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field3",
+      "kind": "Field",
+      "detail": "B.field3",
+      "sortText": "K",
+      "insertText": "field3: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "B.field2",
+      "sortText": "K",
+      "insertText": "field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill B Required Fields",
+      "kind": "Property",
+      "detail": "B",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field1: ${1:0},\nfield3: ${2:0},\nfield2: ${3:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

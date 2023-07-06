@@ -1,0 +1,8 @@
+[dilhashanazeer.complexconfigs]
+prices = [748, 930]
+itemNames = ["item1", "item2", "item3"]
+myVal = "hello"
+
+[dilhashanazeer.complexconfigs.person]
+name = "john"
+age = 25

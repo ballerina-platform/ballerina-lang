@@ -1,0 +1,178 @@
+{
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "TYPE_CAST_EXPRESSION",
+      "children": [
+        {
+          "kind": "LT_TOKEN"
+        },
+        {
+          "kind": "TYPE_CAST_PARAM",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ANNOTATION",
+                  "children": [
+                    {
+                      "kind": "AT_TOKEN"
+                    },
+                    {
+                      "kind": "QUALIFIED_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "foo"
+                        },
+                        {
+                          "kind": "COLON_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "SPECIFIC_FIELD",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "b"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "ANNOTATION",
+                  "children": [
+                    {
+                      "kind": "AT_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACE_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "CLOSE_BRACE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "GT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "d"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 26,
+    "character": 18
+  },
+  "source": "extract_to_function_exprs_field_access_expr.bal",
+  "description": "Extract to function for expressions, cursor inside the method arguments in method call expression method",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 1
+            },
+            "end": {
+              "line": 28,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n    return 12;\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 26,
+              "character": 17
+            },
+            "end": {
+              "line": 26,
+              "character": 19
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_field_access_expr.bal",
+          {
+            "line": 26,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

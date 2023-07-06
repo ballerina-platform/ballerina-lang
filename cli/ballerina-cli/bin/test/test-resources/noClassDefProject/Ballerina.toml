@@ -1,0 +1,8 @@
+[package]
+org = "foo"
+name = "aoc21"
+distribution = "slbeta3"
+
+[build-options]
+dumpBuildTime = true
+observabilityIncluded = false

@@ -1,0 +1,33 @@
+{
+  "line": 36,
+  "character": 20,
+  "expected": {
+    "title": "Generate mapping function",
+    "edits": [
+      {"range":{
+        "start":{
+          "line":36,
+          "character":20
+        },
+        "end":{
+          "line":36,
+          "character":24
+        }
+      },
+        "newText":"mapStudentToPerson(john)"
+      },
+      {"range":{
+        "start":{
+          "line":40,
+          "character":0
+        },
+        "end":{
+          "line":40,
+          "character":1
+        }
+      },
+        "newText":"\nfunction mapStudentToPerson (Student student) returns Person {\n// Some record fields might be missing in the AI based mapping.\n\tPerson person = {age: student.age, name: student.name, address: {}, contact_person: []};\n\treturn person;\n}\n"
+      }
+    ]
+  }
+}

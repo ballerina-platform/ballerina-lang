@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 3,
+        "character": 4
+      },
+      "end": {
+        "line": 10,
+        "character": 5
+      }
+    }
+  },
+  "source": "updateDocumentationWithDeprecatedSource2.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 31
+                  }
+                },
+                "newText": "# This is a test method within a class\n    #\n    # + b - parameter description\n    # # Deprecated\n    # This method is deprecated"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

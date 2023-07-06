@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 0,
+    "character": 16
+  },
+  "source": "import_decl/source/lsproject2/modules/module3/main2.bal",
+  "items": [
+    {
+      "label": "transaction.join",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "'transaction.'join",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "'client",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

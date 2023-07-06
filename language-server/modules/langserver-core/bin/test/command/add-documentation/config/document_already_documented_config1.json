@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 1,
+        "character": 0
+      },
+      "end": {
+        "line": 8,
+        "character": 1
+      }
+    }
+  },
+  "source": "document_already_documented1.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 5,
+                    "character": 31
+                  }
+                },
+                "newText": "# Given the last used ID, this will return the next ID to be used\n# for required purposes\n#\n# + lastId - Last used ID\n# + return - Next ID to be used"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

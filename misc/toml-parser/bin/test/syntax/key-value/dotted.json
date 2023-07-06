@@ -1,0 +1,1647 @@
+{
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "no quote"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "key"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "quoted key"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "#Should come to the tree but give error with semantic analyzer"
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "site"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "google.com"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "BOOLEAN",
+              "children": [
+                {
+                  "kind": "TRUE_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "type",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "fruit"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "orange"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "type",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "fruit"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "skin",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "thin"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "orange"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "skin",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "thick"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "color",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "red"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "orange"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "color",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "orange"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "foo"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "bar",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "value": "test"
+                },
+                {
+                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "table"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "hi",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hii"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "DOUBLE_QUOTE_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "foo bar"
+                                },
+                                {
+                                  "kind": "DOUBLE_QUOTE_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "boo"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "table"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "hello"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "child",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "new"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "cloud"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "config"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "envs"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "config_name"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "module-foo"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "FOO"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "cloud"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "config"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "envs"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "bar"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "config_name"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "module-bar"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "key"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "BAR"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "root"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "first"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "DOT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "second",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "value"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "first"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "DOT_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "third",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "value1"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN",
+      "leadingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

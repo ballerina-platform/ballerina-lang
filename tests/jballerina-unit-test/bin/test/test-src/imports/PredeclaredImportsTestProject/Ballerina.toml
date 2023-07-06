@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "predeclared_imports"
+version = "0.1.0"

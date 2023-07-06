@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 5,
+    "character": 20
+  },
+  "source": "module_xml_namespace_decl/source/source6.bal",
+  "items": [
+    {
+      "label": "as",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "as",
+      "insertText": "as ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

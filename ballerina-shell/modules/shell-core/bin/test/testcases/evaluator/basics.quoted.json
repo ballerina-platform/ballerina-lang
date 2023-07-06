@@ -1,0 +1,127 @@
+[
+  {
+    "description": "Define function named function.",
+    "code": "function 'function(int val) returns int { return val + 1; }"
+  },
+  {
+    "description": "Define function with unicode identifier.",
+    "code": "function 'get_ɱȇşşağę_for_\\#(int val) returns string { return val.toString() + \" is a numeric value\" ; }"
+  },
+  {
+    "description": "Define quoted identifier in type def.",
+    "code": "type 'Person_\\{name\\&Ȧɢέ\\} record {| string 'first\\ name; int 'Ȧɢέ; |};"
+  },
+  {
+    "description": "Use quoted typedef.",
+    "code": "'Person_\\{name\\&Ȧɢέ\\} person = {'first\\ name: \"Tom\", 'Ȧɢέ:25}"
+  },
+  {
+    "description": "Get quoted typedef - get value.",
+    "code": "person",
+    "expr": "{\"first name\":\"Tom\",\"Ȧɢέ\":25}"
+  },
+  {
+    "description": "Define normal type def.",
+    "code": "type Person record {| string 'first\\ name; int 'Ȧɢέ; |};"
+  },
+  {
+    "description": "Create variable named int.",
+    "code": "int 'int = 1;"
+  },
+  {
+    "description": "Call variable named int - get value.",
+    "code": "'int",
+    "expr": "1"
+  },
+  {
+    "description": "Use quoted function.",
+    "code": "int i = 'function('int)"
+  },
+  {
+    "description": "Get quoted function - get value.",
+    "code": "i",
+    "expr": "2"
+  },
+  {
+    "description": "Define variable starting with digit.",
+    "code": "int '1PlusI = 1 + i;"
+  },
+  {
+    "description": "Get variable starting with digit.",
+    "code": "'1PlusI",
+    "expr": "3"
+  },
+  {
+    "description": "Use \\ to escape in quoted ids.",
+    "code": "int '\\{add\\#5\\} = 5 + i;"
+  },
+  {
+    "description": "Get variable output - get value",
+    "code": "'\\{add\\#5\\}",
+    "expr": "7"
+  },
+  {
+    "description": "Use unicode in name.",
+    "code": "string 'üňĩćőđę_ňāɱȇ = \"John doe\";"
+  },
+  {
+    "description": "Use unicode in name - get value.",
+    "code": "'üňĩćőđę_ňāɱȇ",
+    "expr": "\"John doe\""
+  },
+  {
+    "description": "Invoke function with unicode.",
+    "code": "'get_ɱȇşşağę_for_\\#('int);",
+    "expr": "\"1 is a numeric value\""
+  },
+  {
+    "description": "Define variable using type.",
+    "code": "Person person2 = {'first\\ name: \"Tom\", 'Ȧɢέ:25};"
+  },
+  {
+    "description": "Define variable using type - get value.",
+    "code": "person2.'Ȧɢέ",
+    "expr": "25"
+  },
+  {
+    "description": "Member access of escaped name.",
+    "code": "person2[\"first name\"]",
+    "expr": "\"Tom\""
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{2324} = \"Jane doe\";"
+  },
+  {
+    "description": "Get unicode with escape in name - get value.",
+    "code": "'unicode_\\u{2324}",
+    "expr": "\"Jane doe\""
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{2324}\\u{2324} = \"Jane doe\";"
+  },
+  {
+    "description": "Get unicode with escape in name - get value.",
+    "code": "'unicode_\\u{2324}\\u{2324}",
+    "expr": "\"Jane doe\""
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{2324}\\u{2324}_name = \"Jane doe\""
+  },
+  {
+    "description": "Use unicode with escape in name - get value.",
+    "code": "'unicode_\\u{2324}\\u{2324}_name",
+    "expr": "\"Jane doe\""
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{1F600} = \"John doe\";"
+  },
+  {
+    "description": "Get unicode with escape in name - get value.",
+    "code": "'unicode_\\u{1F600}",
+    "expr": "\"John doe\""
+  }
+]

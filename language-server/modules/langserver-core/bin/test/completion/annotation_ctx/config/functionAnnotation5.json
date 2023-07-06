@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 3,
+    "character": 4
+  },
+  "source": "annotation_ctx/source/functionAnnotation5.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "bar",
+      "kind": "Field",
+      "detail": "module1:AnnotationType.bar",
+      "sortText": "K",
+      "insertText": "bar: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "foo",
+      "kind": "Field",
+      "detail": "module1:AnnotationType.foo",
+      "sortText": "K",
+      "insertText": "foo: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill module1:AnnotationType Required Fields",
+      "kind": "Property",
+      "detail": "module1:AnnotationType",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "foo: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

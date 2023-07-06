@@ -1,0 +1,53 @@
+{
+  "kind": "EXPLICIT_NEW_EXPRESSION",
+  "children": [
+    {
+      "kind": "NEW_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
+        }
+      ]
+    },
+    {
+      "kind": "PARENTHESIZED_ARG_LIST",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": [
+            {
+              "kind": "POSITIONAL_ARG",
+              "children": [
+                {
+                  "kind": "NUMERIC_LITERAL",
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                      "value": "10"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    }
+  ]
+}

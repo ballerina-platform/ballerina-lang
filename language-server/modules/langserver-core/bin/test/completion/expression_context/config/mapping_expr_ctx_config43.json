@@ -1,0 +1,52 @@
+{
+  "position": {
+    "line": 12,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source43.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "endLine",
+      "kind": "Field",
+      "detail": "Range.endLine",
+      "sortText": "K",
+      "insertText": "endLine: {line: ${1:0}, offset: ${2:0}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "startLine",
+      "kind": "Field",
+      "detail": "Range.startLine",
+      "sortText": "K",
+      "insertText": "startLine: {line: ${1:0}, offset: ${2:0}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Range Required Fields",
+      "kind": "Property",
+      "detail": "Range",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "endLine: {line: ${1:0}, offset: ${2:0}},\nstartLine: {line: ${3:0}, offset: ${4:0}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...range",
+      "kind": "Variable",
+      "detail": "Range",
+      "sortText": "AB",
+      "filterText": "range",
+      "insertText": "...range",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

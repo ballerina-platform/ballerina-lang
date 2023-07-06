@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "hover.bal"
+  },
+  "position": {
+    "line": 198,
+    "character": 8
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for the TestAnnotation1"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

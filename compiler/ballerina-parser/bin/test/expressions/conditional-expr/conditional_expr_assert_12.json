@@ -1,0 +1,15 @@
+{
+  "kind": "SIMPLE_NAME_REFERENCE",
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": "  "
+        }
+      ]
+    }
+  ]
+}

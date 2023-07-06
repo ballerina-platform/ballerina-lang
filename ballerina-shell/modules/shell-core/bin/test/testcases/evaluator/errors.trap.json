@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Define divide function.",
+    "code": "function divide(int a, int b) returns int { return a / b; }"
+  },
+  {
+    "description": "Divide by zero and assign error.",
+    "code": "int|error result = trap divide(1, 0);"
+  },
+  {
+    "description": "View error.",
+    "code": "result",
+    "expr": "error(\"{ballerina}DivisionByZero\",message=\" / by zero\")"
+  },
+  {
+    "description": "Directly view trapped value.",
+    "code": "trap divide(1, 0);",
+    "expr": "error(\"{ballerina}DivisionByZero\",message=\" / by zero\")"
+  }
+]

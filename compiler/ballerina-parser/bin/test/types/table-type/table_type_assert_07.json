@@ -1,0 +1,60 @@
+{
+  "kind": "TYPE_DEFINITION",
+  "children": [
+    {
+      "kind": "TYPE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "myType",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "TABLE_TYPE_DESC",
+      "children": [
+        {
+          "kind": "TABLE_KEYWORD"
+        },
+        {
+          "kind": "TYPE_PARAMETER",
+          "children": [
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
+            },
+            {
+              "kind": "GT_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

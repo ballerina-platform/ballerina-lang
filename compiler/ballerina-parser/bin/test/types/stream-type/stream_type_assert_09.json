@@ -1,0 +1,79 @@
+{
+  "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "STREAM_TYPE_DESC",
+          "children": [
+            {
+              "kind": "STREAM_KEYWORD"
+            },
+            {
+              "kind": "STREAM_TYPE_PARAMS",
+              "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
+                {
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "hasDiagnostics": true,
+              "value": "a",
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
+                    "children": [
+                      {
+                        "kind": "GT_TOKEN",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_INVALID_TOKEN"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

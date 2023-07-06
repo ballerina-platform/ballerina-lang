@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "hover.bal"
+  },
+  "position": {
+    "line": 120,
+    "character": 10
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Test Error type definition"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

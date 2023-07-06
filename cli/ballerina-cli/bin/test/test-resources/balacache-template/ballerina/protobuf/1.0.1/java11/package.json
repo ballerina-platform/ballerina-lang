@@ -1,0 +1,30 @@
+{
+  "organization": "ballerina",
+  "name": "protobuf",
+  "version": "1.0.1",
+  "licenses": [
+    "Apache-2.0"
+  ],
+  "authors": [
+    "Ballerina"
+  ],
+  "source_repository": "https://github.com/ballerina-platform/module-ballerina-protobuf",
+  "keywords": [
+    "wrappers"
+  ],
+  "export": [
+    "protobuf",
+    "protobuf.types.timestamp",
+    "protobuf.types.wrappers"
+  ],
+  "ballerina_version": "slbeta4",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2021R1",
+  "platform": "java11",
+  "platformDependencies": [
+    {
+      "path": "platform/java11/protobuf-native-1.0.1.jar"
+    }
+  ],
+  "template": true
+}

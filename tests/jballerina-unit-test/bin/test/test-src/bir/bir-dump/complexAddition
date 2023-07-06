@@ -1,0 +1,47 @@
+public complexAddition function() -> () {
+    %0(RETURN) ();
+    %1(LOCAL) int;
+    %3(LOCAL) int;
+    %5(TEMP) int;
+    %7(LOCAL) int;
+    %11(TEMP) boolean;
+    %12(LOCAL) int;
+    %16(TEMP) int;
+
+    bb0 {
+        %1 = ConstLoad 3;
+        %5 = ConstLoad 2;
+        %3 = %1 + %5;
+        %7 = ConstLoad 1;
+        %5 = ConstLoad 3;
+        %11 = %3 > %5;
+        %11? bb1 : bb2;
+    }
+    bb1 {
+        %5 = %7 + %3;
+        %16 = ConstLoad 1;
+        %12 = %5 + %16;
+        %5 = ConstLoad 4;
+        %11 = %12 > %5;
+        %11? bb2 : bb2;
+    }
+    bb2 {
+        %16 = ConstLoad 1;
+        %11 = %1 > %16;
+        %11? bb3 : bb4;
+    }
+    bb3 {
+        %5 = ConstLoad 1;
+        %1 = %1 - %5;
+        GOTO bb4;
+    }
+    bb4 {
+        %0 = ConstLoad 0;
+        GOTO bb5;
+    }
+    bb5 {
+        return;
+    }
+
+
+}

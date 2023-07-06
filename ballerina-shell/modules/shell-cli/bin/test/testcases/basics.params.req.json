@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Define function.",
+    "code": "function calculate(int a, int b, int c) returns int { return a + 2 * b + 3 * c; }"
+  },
+  {
+    "description": "Use function.",
+    "code": "calculate(5, 6, 7);",
+    "expr": "38"
+  },
+  {
+    "description": "Use with named args.",
+    "code": "calculate(5, c = 7, b = 6);",
+    "expr": "38"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

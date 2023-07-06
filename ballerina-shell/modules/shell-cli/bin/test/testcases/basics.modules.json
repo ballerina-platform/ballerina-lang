@@ -1,0 +1,38 @@
+[
+  {
+    "description": "Imports module with dot.",
+    "code": "import ballerina/lang.'float;"
+  },
+  {
+    "description": "Imports module with prefix.",
+    "code": "import ballerina/lang.'int as intlib;"
+  },
+  {
+    "description": "Use imported prefixed module.",
+    "code": "intlib:fromString(\"1212\");",
+    "expr": "1212"
+  },
+  {
+    "description": "Use imported dotted module.",
+    "code": "'float:fromString(\"1212.23\");",
+    "expr": "1212.23"
+  },
+  {
+    "description": "Fails on non existing module import.",
+    "code": "import org/no.module.name;",
+    "expr": "| Import resolution failed. Module not found."
+  },
+  {
+    "description": "Import with io prefix.",
+    "code": "import ballerina/lang.'int as io;"
+  },
+  {
+    "description": "Import different module with io prefix.",
+    "code": "import ballerina/io;",
+    "expr": "| The import prefix was already used by another import."
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

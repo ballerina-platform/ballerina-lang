@@ -1,0 +1,44 @@
+[
+  {
+    "description": "Add a new field in module type definition\n",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\n};\n",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n\tstring id;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change a field type in module type definition\n",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\nint id;\n};\n",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n\tString id;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove a field from module type definition\n",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\nint id;\n};\n",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the order of the field in module type definition\n",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\n};\n",
+    "newCode": "type Person record {\n\tint age;\n\tString name;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add default value \n",
+    "oldCode": "type Person record {\n\tstring name;\n};\n",
+    "newCode": "type Person record {\n\tstring name=”Hello”;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove default value\n",
+    "oldCode": "type Person record {\n\tstring name=”Hello”;\n\t};\n",
+    "newCode": "type Person record {\n\tstring name;\n\t};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify default value\n",
+    "oldCode": "type Person record {\n\tstring name=”Helo”;\n\t};\n",
+    "newCode": "type Person record {\n\tstring name=”Hi”;\n\t};\n",
+    "expectedOutput": {}
+  }
+]

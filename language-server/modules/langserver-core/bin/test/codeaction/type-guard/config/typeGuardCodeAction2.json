@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 4,
+    "character": 6
+  },
+  "source": "typeGuard.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 4
+            }
+          },
+          "newText": "error? bar = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 13
+            },
+            "end": {
+              "line": 4,
+              "character": 13
+            }
+          },
+          "newText": "\n    if bar is error {\n\n    }"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

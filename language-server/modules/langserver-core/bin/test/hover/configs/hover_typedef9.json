@@ -1,0 +1,21 @@
+{
+  "source": {
+    "file": "hover.bal"
+  },
+  "position": {
+    "line": 221,
+    "character": 11
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for TestRecordType2\n  \n  \n---  \n  \n### Fields  \n  \n`int` ***field1*** : field1 Parameter Description   \n`int` ***field2*** : field2 Parameter Description  \n`int` ***field3*** : field2 Parameter Description  \n`int...`"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

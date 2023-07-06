@@ -1,0 +1,24 @@
+[
+  {
+    "description": "Error value object",
+    "code": "error(\"whoops\")",
+    "expr": "error(\"whoops\")"
+  },
+  {
+    "description": "Fail error value",
+    "code": "fail error(\"whoops\")",
+    "stdout": "fail: whoops {}\n"
+  },
+  {
+    "description": "Panic error value",
+    "code": "panic error(\"whoops\")",
+    "stdout": "panic: whoops {}\n",
+    "error": "InvokerPanicException"
+  },
+  {
+    "description": "Runtime error.",
+    "code": "1/0",
+    "stdout": "panic: {ballerina}DivisionByZero {\"message\":\" / by zero\"}\n",
+    "error": "InvokerPanicException"
+  }
+]

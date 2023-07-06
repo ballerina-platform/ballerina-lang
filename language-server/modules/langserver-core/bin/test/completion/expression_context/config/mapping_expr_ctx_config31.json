@@ -1,0 +1,51 @@
+{
+  "position": {
+    "line": 20,
+    "character": 42
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source31.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "address",
+      "kind": "Field",
+      "detail": "Person.address",
+      "sortText": "K",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Person.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "Person.age",
+      "sortText": "K",
+      "insertText": "age: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Person Required Fields",
+      "kind": "Property",
+      "detail": "Person",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}},\nname: ${4:\"\"},\nage: ${5:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

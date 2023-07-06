@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "projectls/transactions.bal"
+  },
+  "position": {
+    "line": 1,
+    "character": 23
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 26,
+          "character": 0
+        },
+        "end": {
+          "line": 39,
+          "character": 1
+        }
+      },
+      "uri": "repo/bala/ballerina/lang.error/0.0.0/any/modules/lang.error/retriable.bal"
+    }
+  ]
+}

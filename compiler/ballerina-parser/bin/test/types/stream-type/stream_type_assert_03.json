@@ -1,0 +1,60 @@
+{
+  "kind": "TYPE_DEFINITION",
+  "children": [
+    {
+      "kind": "TYPE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "mysteam",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "STREAM_TYPE_DESC",
+      "children": [
+        {
+          "kind": "STREAM_KEYWORD"
+        },
+        {
+          "kind": "STREAM_TYPE_PARAMS",
+          "children": [
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD"
+                }
+              ]
+            },
+            {
+              "kind": "GT_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

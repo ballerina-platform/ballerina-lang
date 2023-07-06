@@ -1,0 +1,36 @@
+{
+  "position": {
+    "line": 9,
+    "character": 21
+  },
+  "source": "typedesc_context/source/object_typedesc1.bal",
+  "items": [
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

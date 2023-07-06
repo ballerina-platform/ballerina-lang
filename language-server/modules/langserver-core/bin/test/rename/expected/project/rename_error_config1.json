@@ -1,0 +1,74 @@
+{
+  "source": {
+    "file": "modules/module2/types.bal"
+  },
+  "position": {
+    "line": 0,
+    "character": 15
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "modules/module2/types.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 12
+            },
+            "end": {
+              "line": 0,
+              "character": 21
+            }
+          },
+          "newText": "Mod2Error"
+        }
+      ],
+      "modules/module1/types.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 38
+            },
+            "end": {
+              "line": 8,
+              "character": 47
+            }
+          },
+          "newText": "Mod2Error"
+        }
+      ],
+      "types.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 37
+            },
+            "end": {
+              "line": 7,
+              "character": 46
+            }
+          },
+          "newText": "Mod2Error"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 25
+            },
+            "end": {
+              "line": 8,
+              "character": 34
+            }
+          },
+          "newText": "Mod2Error"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "UNARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "NUMERIC_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+          "value": "3"
+        }
+      ]
+    }
+  ]
+}

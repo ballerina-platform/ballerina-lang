@@ -1,0 +1,41 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 2,
+        "character": 4
+      },
+      "end": {
+        "line": 3,
+        "character": 5
+      }
+    }
+  },
+  "source": "addResourceFunctionDocumentation.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 4
+                  }
+                },
+                "newText": "# Description.\n    #\n    # + id - parameter description  \n    # + path - parameter description  \n    # + caller - parameter description  \n    # + req - parameter description\n    "
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 16
+  },
+  "source": "remove_unreachable_code4.bal",
+  "expected": [
+    {
+      "title": "Remove unreachable code",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 12
+            },
+            "end": {
+              "line": 4,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

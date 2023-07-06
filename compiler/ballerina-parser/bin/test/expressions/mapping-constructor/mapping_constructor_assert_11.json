@@ -1,0 +1,80 @@
+{
+  "kind": "MAPPING_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "QUALIFIED_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                },
+                {
+                  "kind": "COLON_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
+}

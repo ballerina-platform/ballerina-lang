@@ -1,0 +1,4 @@
+ballerina: invalid tool version. Invalid version: '1.1'. Unexpected character 'EOI(null)' at position '3', expecting '[DOT]'
+
+USAGE:
+    bal tool remove <tool-id>:[<version>]

@@ -1,0 +1,81 @@
+{
+  "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_TABLE_KEYWORD"
+      ]
+    },
+    {
+      "kind": "KEY_SPECIFIER",
+      "children": [
+        {
+          "kind": "KEY_KEYWORD"
+        },
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "MAPPING_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
+}

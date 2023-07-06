@@ -1,0 +1,50 @@
+{
+  "source": {
+    "file": "projectls/error_types.bal"
+  },
+  "position": {
+    "line": 8,
+    "character": 8
+  },
+  "result": [
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 5
+        },
+        "end": {
+          "line": 8,
+          "character": 12
+        }
+      }
+    },
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 29
+        },
+        "end": {
+          "line": 14,
+          "character": 36
+        }
+      }
+    },
+    {
+      "uri": "projectls/error_types.bal",
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 17
+        },
+        "end": {
+          "line": 15,
+          "character": 24
+        }
+      }
+    }
+  ]
+}

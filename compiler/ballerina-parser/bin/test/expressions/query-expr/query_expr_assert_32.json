@@ -1,0 +1,180 @@
+{
+  "kind": "QUERY_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "QUERY_CONSTRUCT_TYPE",
+      "children": [
+        {
+          "kind": "TABLE_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "KEY_SPECIFIER",
+          "children": [
+            {
+              "kind": "KEY_KEYWORD"
+            },
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "FROM_CLAUSE",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SELECT_CLAUSE"
+          ],
+          "children": [
+            {
+              "kind": "FROM_KEYWORD",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_FROM_KEYWORD"
+              ]
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "foo",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "IN_KEYWORD",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IN_KEYWORD"
+              ]
+            },
+            {
+              "kind": "TABLE_CONSTRUCTOR",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "TABLE_KEYWORD",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_TABLE_KEYWORD"
+                  ]
+                },
+                {
+                  "kind": "KEY_SPECIFIER",
+                  "children": [
+                    {
+                      "kind": "KEY_KEYWORD"
+                    },
+                    {
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_BRACKET_TOKEN"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "SELECT_CLAUSE",
+      "children": [
+        {
+          "kind": "SELECT_KEYWORD",
+          "isMissing": true
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true
+        }
+      ]
+    }
+  ]
+}

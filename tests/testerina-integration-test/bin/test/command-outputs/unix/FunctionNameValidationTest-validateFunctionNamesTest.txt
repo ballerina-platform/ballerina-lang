@@ -1,0 +1,15 @@
+Compiling source
+	intg_tests/validate_function_names:0.0.0
+
+Running Tests with Coverage
+
+	validate_function_names
+		[pass] validateFunctionName
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	validate-function-names/target/report/test_results.json

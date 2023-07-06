@@ -1,0 +1,12 @@
+[envVarPkg]
+booleanVar = false
+decimalVar = 12.34
+floatVar = 23.1
+intVar = 22
+stringVar = "this should get overridden"
+
+booleanArr = [true, false, false, true]
+decimalArr = [9.1, 8.2, 7.3]
+floatArr = [1.9, 2.8, 3.7]
+intArr = [1, 9, 2, 8]
+stringArr = ["this", "should", "get", "overridden"]

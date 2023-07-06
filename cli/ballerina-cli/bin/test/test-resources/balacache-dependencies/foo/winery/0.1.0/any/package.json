@@ -1,0 +1,43 @@
+{
+  "organization": "foo",
+  "name": "winery",
+  "version": "0.1.0",
+  "licenses": [
+    "MIT",
+    "Apache-2.0"
+  ],
+  "authors": [
+    "jo@wso2.com",
+    "pramodya@wso2.com"
+  ],
+  "source_repository": "https://github.com/ballerinalang/ballerina",
+  "keywords": [
+    "ballerina",
+    "security",
+    "crypto"
+  ],
+  "export": [
+    "winery",
+    "winery.services"
+  ],
+  "include": [
+    "**/include-file.*",
+    "**/*module-include/file",
+    "**/*-module-include-dir"
+  ],
+  "visibility": "private",
+  "icon": "docs/samplePng01.png",
+  "ballerina_version": "2201.2.0-SNAPSHOT",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2022R2",
+  "platform": "java11",
+  "platformDependencies": [
+    {
+      "path": "platform/java11/ballerina-io-1.0.0-java.txt",
+      "artifactId": "ldap",
+      "groupId": "ballerina",
+      "version": "1.0.0"
+    }
+  ],
+  "template": true
+}

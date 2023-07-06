@@ -1,0 +1,234 @@
+{
+  "source": "sources/diag_project/modules/module1/main.bal",
+  "items": {
+    "diag_project/main.bal": [
+      {
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 0,
+            "character": 21
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2003"
+        },
+        "message": "cannot resolve module 'ballerina/iox'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2011"
+        },
+        "message": "undefined function 'println'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2000"
+        },
+        "message": "undefined module 'iox'"
+      }
+    ],
+    "diag_project/modules/module2/main.bal": [
+      {
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 0,
+            "character": 21
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2003"
+        },
+        "message": "cannot resolve module 'ballerina/iox'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2011"
+        },
+        "message": "undefined function 'println'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2000"
+        },
+        "message": "undefined module 'iox'"
+      }
+    ],
+    "diag_project/modules/module1/main.bal": [
+      {
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 0,
+            "character": 21
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2003"
+        },
+        "message": "cannot resolve module 'ballerina/iox'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2011"
+        },
+        "message": "undefined function 'println'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2000"
+        },
+        "message": "undefined module 'iox'"
+      }
+    ],
+    "diag_project/modules/module3/main.bal": [
+      {
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 0,
+            "character": 21
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2003"
+        },
+        "message": "cannot resolve module 'ballerina/iox'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2011"
+        },
+        "message": "undefined function 'println'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 4
+          },
+          "end": {
+            "line": 5,
+            "character": 31
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE2000"
+        },
+        "message": "undefined module 'iox'"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 0
+          },
+          "end": {
+            "line": 6,
+            "character": 1
+          }
+        },
+        "severity": "Error",
+        "code": {
+          "left": "BCE0002"
+        },
+        "message": "missing semicolon token"
+      }
+    ]
+  }
+}

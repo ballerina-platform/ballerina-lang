@@ -1,0 +1,199 @@
+{
+  "position": {
+    "line": 3,
+    "character": 18
+  },
+  "source": "import_decl/source/source11.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "lang.object",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'object;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'boolean;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.xml",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'xml;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.test;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.array;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'transaction;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "jballerina.java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.string",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'string;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.future",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'future;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.value;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.float",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'float;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.decimal",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'decimal;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.table",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'table;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.stream",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'stream;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'error;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.typedesc",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'typedesc;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.map",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'map;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.int",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'int;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.runtime;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.'function;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "lang.regexp;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "kind": "EXPLICIT_NEW_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "NEW_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
+        }
+      ]
+    },
+    {
+      "kind": "PARENTHESIZED_ARG_LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_OPEN_PAREN_TOKEN"
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    }
+  ]
+}

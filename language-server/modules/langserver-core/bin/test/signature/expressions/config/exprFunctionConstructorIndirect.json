@@ -1,0 +1,60 @@
+{
+    "position": {
+        "line": 114,
+        "character": 27
+    },
+    "source": "expressions/expressions.bal",
+	"expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "MyError(string message?, error cause?, string... )",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nCustom Error"
+                        }
+                    },
+                    "parameters": [
+                        {
+                            "label": {
+                                "left": "string message?"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`string`message?**: "
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "left": "error cause?"
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`error`cause?**: "
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "left": "string... "
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`string...`**: "
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 0
+        },
+        "jsonrpc": "2.0"
+    }
+}

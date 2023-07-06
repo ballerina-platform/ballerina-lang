@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 1,
+    "character": 7
+  },
+  "source": {
+    "file": "hover_classdef.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "A student class    \n  \n---  \n  \n### Methods  \n  \n+ `public function getName() returns string`  \nGet Name  \n  \n+ `public function getId() returns int`  \nGet ID  \n"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

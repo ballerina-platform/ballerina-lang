@@ -1,0 +1,18 @@
+Compiling source
+	foo/package_a:0.1.0
+
+Resolving dependencies
+
+digraph "foo/package_a:0.1.0" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+Generating executable
+	target\bin\package_a.jar

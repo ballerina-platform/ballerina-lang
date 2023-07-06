@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 8,
+    "character": 17
+  },
+  "source": {
+    "file": "projectls/modules/lsmod1/source1.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for mod1Src1Function1\n  \n  \n---  \n  \n### Parameters  \n  \n`bMod:TestRecord1` ***param1*** : Parameter Description    \n`Mod1Record1` ***param2*** : Parameter Description  \n`lsmod2:Mod2Record1` ***param3*** : Parameter Description"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

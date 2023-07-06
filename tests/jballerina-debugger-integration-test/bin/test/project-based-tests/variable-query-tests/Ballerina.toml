@@ -1,0 +1,4 @@
+[package]
+org = "debug_test_resources"
+name = "variable_query_tests"
+version = "0.0.1"

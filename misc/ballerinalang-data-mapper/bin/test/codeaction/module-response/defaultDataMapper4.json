@@ -1,0 +1,33 @@
+{
+  "line": 18,
+  "character": 28,
+  "expected": {
+    "title": "Generate mapping function",
+    "edits": [
+      {"range":{
+        "start":{
+          "line":18,
+          "character":28
+        },
+        "end":{
+          "line":18,
+          "character":47
+        }
+      },
+        "newText":"mapPersonToGrades(check module2:getPerson())"
+      },
+      {"range":{
+        "start":{
+          "line":22,
+          "character":0
+        },
+        "end":{
+          "line":22,
+          "character":1
+        }
+      },
+        "newText":"\nfunction mapPersonToGrades (module2:Person person) returns module1:Grades {\n// Some record fields might be missing in the AI based mapping.\n\tmodule1:Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}\n"
+      }
+    ]
+  }
+}

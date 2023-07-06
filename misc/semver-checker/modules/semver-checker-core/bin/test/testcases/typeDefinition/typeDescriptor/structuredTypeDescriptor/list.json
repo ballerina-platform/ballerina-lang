@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Change type descriptor array value\n",
+    "oldCode": "public type Age [3];",
+    "newCode": "public type Age [4];",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add element to array\n",
+    "oldCode": "public type Age [3];\n",
+    "newCode": "public type Age [3,4];\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add different type element to array",
+    "oldCode": "public type Age [3];\n",
+    "newCode": "public type Age [3,\"4\"];",
+    "expectedOutput": {}
+  },
+  {
+    "description": " Change array element type\n",
+    "oldCode": "public type Age [3];",
+    "newCode": "public type Age [\"3\"];",
+    "expectedOutput": {}
+  }
+]

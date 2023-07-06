@@ -1,0 +1,24 @@
+{
+    "line": 2,
+    "character": 19,
+    "expected": [
+        {
+            "title": "Mark 'sensitiveInput' as untainted",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 2,
+                            "character": 19
+                        },
+                        "end": {
+                            "line": 2,
+                            "character": 26
+                        }
+                    },
+                    "newText": "\u003c@untainted\u003e  args[0]"
+                }
+            ]
+        }
+    ]
+}

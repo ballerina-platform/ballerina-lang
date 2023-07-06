@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 6,
+    "character": 19
+  },
+  "source": "statement_context/source/xmlns_ctx_source6.bal",
+  "items": [
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "\"HELLO WORLD\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "C",
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

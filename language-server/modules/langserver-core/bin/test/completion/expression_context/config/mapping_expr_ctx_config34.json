@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 9,
+    "character": 16
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source34.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Ba2",
+      "kind": "Field",
+      "detail": "Bar.Ba2",
+      "sortText": "K",
+      "insertText": "Ba2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Ba1",
+      "kind": "Field",
+      "detail": "Bar.Ba1",
+      "sortText": "K",
+      "insertText": "Ba1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Bar Required Fields",
+      "kind": "Property",
+      "detail": "Bar",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "Ba2: ${1:\"\"},\nBa1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

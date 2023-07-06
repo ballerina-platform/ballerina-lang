@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 2,
+    "character": 14
+  },
+  "source": {
+    "file": "hover_escaped_identifier_source1.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "`int` a\\\\\\\\b"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

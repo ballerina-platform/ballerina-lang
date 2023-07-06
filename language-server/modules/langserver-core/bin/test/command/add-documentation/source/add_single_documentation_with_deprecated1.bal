@@ -1,0 +1,4 @@
+@deprecated
+function myFunc() {
+
+}

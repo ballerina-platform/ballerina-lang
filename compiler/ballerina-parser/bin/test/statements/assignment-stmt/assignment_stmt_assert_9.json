@@ -1,0 +1,69 @@
+{
+  "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "pkg"
+        },
+        {
+          "kind": "COLON_TOKEN",
+          "hasDiagnostics": true,
+          "leadingMinutiae": [
+            {
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
+                "children": [
+                  {
+                    "kind": "COLON_TOKEN",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_INVALID_TOKEN"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EQUAL_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

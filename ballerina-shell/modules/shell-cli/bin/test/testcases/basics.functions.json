@@ -1,0 +1,33 @@
+[
+  {
+    "description": "Define function.",
+    "code": "function printValue(string value) { println(value); }"
+  },
+  {
+    "description": "Define function with no return.",
+    "code": "function add(int a, int b) returns int { return a + b; }"
+  },
+  {
+    "description": "Define function with return and side-effect.",
+    "code": "function printAndReturnValue(string s) returns string { string t = \"Hello \".concat(s); println(t); return t; }"
+  },
+  {
+    "description": "Use function.",
+    "code": "printValue(\"This is a sample text\");",
+    "stdout": "This is a sample text\n"
+  },
+  {
+    "description": "Get return value.",
+    "code": "add(5, 6);",
+    "expr": "11"
+  },
+  {
+    "description": "Ignore return value.",
+    "code": "_ = printAndReturnValue(\"World\");",
+    "stdout": "Hello World\n"
+  },
+  {
+    "description": "Exit terminal.",
+    "code": "/exit"
+  }
+]

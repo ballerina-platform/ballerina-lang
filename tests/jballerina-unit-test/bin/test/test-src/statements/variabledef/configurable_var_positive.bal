@@ -1,0 +1,76 @@
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+type UserInfo record {|
+    string username;
+    anydata password;
+|};
+
+type Person record {|
+    readonly UserInfo user;
+|};
+
+configurable anydata var1 = 2;
+configurable anydata[] arrayVar = ?;
+
+configurable UserInfo admin = ?;
+configurable Person person = ?;
+
+configurable map<anydata> & readonly mapVar = ?;
+
+configurable table<map<anydata>> tableVar1 = ?;
+configurable table<Person> key(user) tableVar2 = ?;
+
+configurable string|int|Person unionVar1 = ?;
+configurable anydata|Person unionVar2 = ?;
+
+enum HttpVersion {
+    HTTP_1_1,
+    HTTP_2
+}
+
+type ClientConfiguration record {|
+    HttpVersion httpVersion?;
+    map<anydata> customHeaders;
+|};
+
+configurable table<ClientConfiguration> tableVar = ?;
+
+type Parent record {|
+    string name;
+    Parent child?;
+|};
+
+configurable Parent p = ?;
+
+type CyclicUnion int|CyclicUnion[];
+
+configurable CyclicUnion unionVar = ?;
+
+configurable [int, string, float, decimal, anydata] a = ?;
+
+type Student record {|
+    () field1 = ();
+    string? field2 = "default value";
+|};
+
+configurable () nilVar = ();
+configurable ()[] nilArr = [];
+configurable string? nilUnion = "abc";
+configurable map<()> nilMap = {};
+configurable Student nilRecord1 = ?;
+configurable Student nilRecord2 = {field1: (), field2: "abc"};
+configurable table<map<()>> nilTable = table [];

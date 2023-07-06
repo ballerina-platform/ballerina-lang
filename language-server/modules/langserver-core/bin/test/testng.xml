@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="language-server-core-test-suite">
+    <test name="language-server-core-tests" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.langserver.definition.*"/>
+            <package name="org.ballerinalang.langserver.extensions.*"/>
+            <package name="org.ballerinalang.langserver.hover.*"/>
+            <package name="org.ballerinalang.langserver.references.*"/>
+            <package name="org.ballerinalang.langserver.rename.*"/>
+            <package name="org.ballerinalang.langserver.signature.*"/>
+            <package name="org.ballerinalang.langserver.workspace.*"/>
+            <package name="org.ballerinalang.langserver.formatting.*"/>
+            <package name="org.ballerinalang.langserver.rangeformat.*"/>
+            <package name="org.ballerinalang.langserver.codeaction.*"/>
+            <package name="org.ballerinalang.langserver.codelenses.*"/>
+            <package name="org.ballerinalang.langserver.completion.*"/>
+            <package name="org.ballerinalang.langserver.diagnostics.*"/>
+            <package name="org.ballerinalang.langserver.command.*"/>
+            <package name="org.ballerinalang.langserver.foldingrange.*"/>
+            <package name="org.ballerinalang.langserver.common.utils.*"/>
+            <package name="org.ballerinalang.langserver.packages.*"/>
+            <package name="org.ballerinalang.langserver.stnode.*"/>
+            <package name="org.ballerinalang.langserver.execpositions.*"/>
+            <package name="org.ballerinalang.langserver.toml.ballerinatoml.completion.*"/>
+            <package name="org.ballerinalang.langserver.semantictokens.*"/>
+            <package name="org.ballerinalang.langserver.documentsymbol.*"/>
+            <package name="org.ballerinalang.langserver.performance.*"/>
+            <package name="org.ballerinalang.langserver.workspace.*"/>
+            <package name="org.ballerinalang.langserver.exprscheme.*"/>
+            <package name="org.ballerinalang.langserver.eventsync.*"/>
+            <package name="org.ballerinalang.langserver.lspackageloader.*"/>
+            <package name="org.ballerinalang.langserver.inlayhint.*"/>
+        </packages>
+        <classes>
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeLocateTest"/>
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxApiCallsGenTest"/>
+        </classes>
+    </test>
+</suite>

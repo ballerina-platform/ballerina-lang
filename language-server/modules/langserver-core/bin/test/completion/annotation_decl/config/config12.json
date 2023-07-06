@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 3,
+    "character": 61
+  },
+  "source": "annotation_decl/source/source12.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "field",
+      "insertText": "field",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

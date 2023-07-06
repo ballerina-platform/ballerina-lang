@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 129,
+    "character": 25
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 129,
+              "character": 24
+            },
+            "end": {
+              "line": 129,
+              "character": 24
+            }
+          },
+          "newText": "\u003cfuture\u003cstring\u003e\u003e"
+        }
+      ]
+    }
+  ]
+}

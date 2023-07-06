@@ -1,0 +1,3 @@
+digraph "BallerinaToml" {
+    "samtest/io:1.5.1" [repo = local]
+}

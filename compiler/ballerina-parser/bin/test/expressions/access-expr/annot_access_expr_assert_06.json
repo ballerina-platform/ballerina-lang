@@ -1,0 +1,45 @@
+{
+  "kind": "ANNOT_ACCESS",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ANNOT_CHAINING_TOKEN"
+    },
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        },
+        {
+          "kind": "COLON_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
+    }
+  ]
+}

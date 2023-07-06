@@ -1,0 +1,22 @@
+[package]
+org = "testorg"
+name = "selectively_immutable_qux"
+version = "1.0.0"
+
+[[dependency]]
+org = "testorg"
+name = "selectively_immutable_foo"
+version = "1.0.0"
+repository = "local"
+
+[[dependency]]
+org = "testorg"
+name = "selectively_immutable_bar"
+version = "1.0.0"
+repository = "local"
+
+[[dependency]]
+org = "testorg"
+name = "selectively_immutable_baz"
+version = "1.0.0"
+repository = "local"

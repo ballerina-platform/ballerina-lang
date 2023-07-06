@@ -1,0 +1,38 @@
+{
+  "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "ELVIS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
+    }
+  ]
+}

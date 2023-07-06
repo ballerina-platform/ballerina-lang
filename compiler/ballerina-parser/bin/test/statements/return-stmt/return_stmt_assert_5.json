@@ -1,0 +1,32 @@
+{
+  "kind": "RETURN_STATEMENT",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "NUMERIC_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
+    }
+  ]
+}
