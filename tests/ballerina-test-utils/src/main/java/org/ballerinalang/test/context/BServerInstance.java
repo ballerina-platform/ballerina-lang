@@ -28,12 +28,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -64,7 +59,7 @@ public class BServerInstance implements BServer {
 
     static {
         try {
-            address = InetAddress.getByName(agentHost);
+            address = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
@@ -89,7 +84,7 @@ public class BServerInstance implements BServer {
     private void configureAgentArgs() throws BallerinaTestException {
         String balAgent = Paths.get(System.getProperty(BALLERINA_AGENT_PATH)).toString();
 
-        if (balAgent == null || balAgent.isEmpty()) {
+        if (balAgent.isEmpty()) {
             throw new BallerinaTestException("Cannot start server, Ballerina agent not provided");
         }
 
