@@ -111,6 +111,16 @@ public class InlayHintProvider {
                 int startChar = lineRange.endLine().offset();
                 Position position = new Position(startLine, startChar);
 
+                if (argument.kind() == SyntaxKind.REST_ARG) {
+                    if (parameterSymbols.getRight().isEmpty()) {
+                        break;
+                    }
+                    String label = "..." + parameterSymbols.getRight().get().getName().get();
+                    InlayHint inlayHint = new InlayHint(position, Either.forLeft(label + ": "));
+                    inlayHints.add(inlayHint);
+                    break;
+                }
+
                 //Find the corresponding parameter symbol for the argument and create inlay-hint
                 if (parameterSymbols.getLeft().size() <= argumentIndex) {
                     if (parameterSymbols.getRight().isPresent()
@@ -158,52 +168,40 @@ public class InlayHintProvider {
                     .map(typeSymbol -> Pair.of(typeSymbol.params().orElse(Collections.emptyList()),
                             typeSymbol.restParam()))
                     .orElse(Pair.of(Collections.emptyList(), Optional.empty()));
-        } else if (invokableNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
-            return getParameterSymbolsForImplicitExpressions(context, invokableNode);
-        } else if (invokableNode.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
-            return getParameterSymbolsForExplicitExpressions(context, invokableNode);
+        } else if (invokableNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION || invokableNode.kind() ==
+                SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
+            return getParameterSymbolsForNewExpressions(context, invokableNode);
         } else {
             FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) invokableNode;
             return getParameterSymbolsForFunctionCall(context, functionCallExpressionNode);
         }
     }
 
-    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForImplicitExpressions(
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForNewExpressions(
             InlayHintContext context,
             NonTerminalNode node) {
         Optional<TypeSymbol> symbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(node))
                 .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
-        return getNewExpressionSymbols(symbol);
-    }
-
-    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForExplicitExpressions(
-            InlayHintContext context,
-            NonTerminalNode node) {
-        Optional<TypeSymbol> symbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.typeOf(node))
-                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
-        return getNewExpressionSymbols(symbol);
-    }
-
-    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getNewExpressionSymbols(
-            Optional<TypeSymbol> symbol) {
         if (symbol.isEmpty()) {
             return Pair.of(Collections.emptyList(), Optional.empty());
         }
-        if (symbol.get().typeKind() == TypeDescKind.UNION) {
-            symbol = ((UnionTypeSymbol) symbol.get()).memberTypeDescriptors().stream()
+        return getParametersOfNewExpression(symbol.get());
+    }
+
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParametersOfNewExpression(
+            TypeSymbol symbol) {
+        if (symbol.typeKind() == TypeDescKind.UNION) {
+            symbol = ((UnionTypeSymbol) symbol).memberTypeDescriptors().stream()
                     .filter(typeSymbol ->
                             CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
-                    .map(CommonUtil::getRawType).findFirst();
+                    .map(CommonUtil::getRawType).findFirst().get();
         }
-        Optional<MethodSymbol> methodSymbol = symbol.flatMap(typeSymbol -> ((ClassSymbol) typeSymbol).initMethod());
-        if (methodSymbol.isEmpty()) {
-            return Pair.of(Collections.emptyList(), Optional.empty());
-        }
-        return symbol.map(typeSymbol -> Pair.of(methodSymbol.get().typeDescriptor().params()
-                        .orElse(Collections.emptyList()), methodSymbol.get().typeDescriptor().restParam()))
-                .orElse(Pair.of(Collections.emptyList(), Optional.empty()));
+        TypeSymbol typeSymbol = CommonUtil.getRawType(symbol);
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) typeSymbol).initMethod();
+        return methodSymbol.map(value -> Pair.of(value.typeDescriptor().params()
+                .orElse(Collections.emptyList()), value.typeDescriptor().restParam())).orElseGet(() ->
+                Pair.of(Collections.emptyList(), Optional.empty()));
     }
 
     private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForFunctionCall(
