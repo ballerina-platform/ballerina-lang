@@ -648,9 +648,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
-        errStream.println("setting user directory");
+
         System.setProperty("user.dir", packageDir.toString());
-        errStream.println(System.getProperty("user.dir"));
         BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         try {
@@ -659,7 +658,7 @@ public class NewCommandTest extends BaseCommandTest {
             errStream.println(e.getDetailedMessages().toString());
         }
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("Generating executable"));;
+        Assert.assertTrue(buildLog.contains("Generating executable"));
     }
 
     @Test
