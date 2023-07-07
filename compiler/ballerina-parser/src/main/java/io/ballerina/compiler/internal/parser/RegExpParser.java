@@ -427,6 +427,9 @@ public class RegExpParser extends AbstractParser {
                     return STNodeFactory.createToken(SyntaxKind.ESCAPED_MINUS_TOKEN, minusToken.leadingMinutiae(),
                             minusToken.trailingMinutiae());
                 }
+                if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                    this.tokenReader.startMode(ParserMode.RE_CHAR_CLASS);
+                }
                 return parseReEscape();
             default:
                 STNode consumedToken = consume();
