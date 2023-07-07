@@ -2715,7 +2715,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return fieldNames;
     }
 
-    private String getKeyValueFieldName(BLangRecordKeyValueField field) {
+    String getKeyValueFieldName(BLangRecordKeyValueField field) {
         BLangRecordKey key = field.key;
         if (key.computedKey) {
             return null;
