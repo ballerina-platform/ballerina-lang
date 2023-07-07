@@ -93,7 +93,7 @@ import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
-import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
@@ -167,7 +167,7 @@ public class BalToolUtil {
                     .filter(DistSpecificToolsManifest.Tool::active)
                     .map(tool1 -> {
                         Path toolDirPath = Path.of(tool1.org(), tool1.name(), tool1.version(), ANY_PLATFORM, TOOL);
-                        if (distributionBalaDirPath.resolve(toolDirPath).resolve(BAL_TOOL_TOML).toFile().isFile())  {
+                        if (distributionBalaDirPath.resolve(toolDirPath).resolve(BAL_TOOL_JSON).toFile().isFile())  {
                             return findJarFiles(distributionBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
                         }
                         return findJarFiles(centralBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
@@ -184,7 +184,7 @@ public class BalToolUtil {
             if (tool.isPresent()) {
                 Path toolDirPath = Path.of(
                         tool.get().org(), tool.get().name(), tool.get().version(), ANY_PLATFORM, TOOL);
-                if (distributionBalaDirPath.resolve(toolDirPath).resolve(BAL_TOOL_TOML).toFile().isFile())  {
+                if (distributionBalaDirPath.resolve(toolDirPath).resolve(BAL_TOOL_JSON).toFile().isFile())  {
                     return findJarFiles(distributionBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
                 }
                 return findJarFiles(centralBalaDirPath.resolve(toolDirPath).resolve(LIBS).toFile());
