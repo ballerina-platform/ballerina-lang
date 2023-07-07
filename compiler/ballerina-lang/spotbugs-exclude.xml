@@ -458,6 +458,10 @@
         </OR>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.repositories.FileSystemRepository" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
+    </Match>
+    <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
     </Match>
 </FindBugsFilter>
