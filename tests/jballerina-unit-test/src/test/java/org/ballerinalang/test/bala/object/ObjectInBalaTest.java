@@ -41,6 +41,7 @@ public class ObjectInBalaTest {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_two");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_utils");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/bir_test_project");
 
         result = BCompileUtil.compile("test-src/bala/test_bala/object/test_objects.bal");
     }
@@ -551,6 +552,21 @@ public class ObjectInBalaTest {
         BRunUtil.invoke(result, "testObjectInclusionWithMethodWithParameters");
     }
 
+    @Test (description = "Negative test to verify object qualifiers load properly from BIR")
+    public void testDistinctIsolatedObjectsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: 'bir/objs:0.1.0:Bar' will not be matched to 'bir/objs:0.1.0:Foo'", 4, 20);
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: 'bir/objs:0.1.0:Foo' will not be matched to 'bir/objs:0.1.0:Bar'", 8, 20);
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: 'bir/objs:0.1.0:Xyz' will not be matched to 'bir/objs:0.1.0:Qux'", 12, 20);
+        BAssertUtil.validateError(result, i, 
+                "incompatible types: 'bir/objs:0.1.0:Qux' will not be matched to 'bir/objs:0.1.0:Xyz'", 16, 20);
+        Assert.assertEquals(result.getErrorCount(), 4);
+    }
+    
     @AfterClass
     public void tearDown() {
         result = null;
