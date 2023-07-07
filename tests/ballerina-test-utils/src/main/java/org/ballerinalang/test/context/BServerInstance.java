@@ -64,7 +64,7 @@ public class BServerInstance implements BServer {
 
     static {
         try {
-            address = InetAddress.getLocalHost();
+            address = InetAddress.getByName(agentHost);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
