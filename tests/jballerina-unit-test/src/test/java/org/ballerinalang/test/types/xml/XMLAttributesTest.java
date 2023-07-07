@@ -288,8 +288,14 @@ public class XMLAttributesTest {
         }
     }
 
+    @Test
+    public void testAttributesInEmptyXMLSequence() {
+        BRunUtil.invoke(xmlAttrProgFile, "testAttributesInEmptyXMLSequence");
+    }
+
     @AfterClass
     public void tearDown() {
         xmlAttrProgFile = null;
     }
+
 }
