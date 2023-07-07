@@ -19,19 +19,14 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BalToolsManifest;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
-import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
-import io.ballerina.toml.validator.TomlValidator;
-import io.ballerina.toml.validator.schema.Schema;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
@@ -60,73 +55,6 @@ public abstract class BalToolsManifestBuilder {
     }
 
     abstract BalToolsManifest parseAsBalToolsManifest();
-
-//    private BalToolsManifest parseAsBalToolsManifest() {
-//        if (balToolsToml.isEmpty() || balToolsToml.get().toml().rootNode().entries().isEmpty()) {
-//            return BalToolsManifest.from();
-//        }
-//        validateBalToolsTomlAgainstSchema();
-//        Map<String, BalToolsManifest.Tool> tools = getTools();
-//        return BalToolsManifest.from(tools);
-//    }
-
-    private void validateBalToolsTomlAgainstSchema() {
-        if (balToolsToml.isEmpty()) {
-            return;
-        }
-        TomlValidator balToolsTomlValidator;
-        try {
-            balToolsTomlValidator = new TomlValidator(
-                    Schema.from(FileUtils.readFileAsString("bal-tools-toml-schema.json")));
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read the bal-tools.toml validator schema file.");
-        }
-        balToolsTomlValidator.validate(balToolsToml.get().toml());
-    }
-
-//    private Map<String, BalToolsManifest.Tool> getTools() {
-//        if (balToolsToml.isEmpty()) {
-//            return new HashMap<>();
-//        }
-//
-//        TomlTableNode tomlTableNode = balToolsToml.get().toml().rootNode();
-//
-//        if (tomlTableNode.entries().isEmpty()) {
-//            return new HashMap<>();
-//        }
-//
-//        TopLevelNode toolEntries = tomlTableNode.entries().get("tool");
-//        if (toolEntries == null || toolEntries.kind() == TomlType.NONE) {
-//            return new HashMap<>();
-//        }
-//
-//        Map<String, BalToolsManifest.Tool> tools = new HashMap<>();
-//        if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
-//            TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
-//
-//            for (TomlTableNode toolNode : toolTableArray.children()) {
-//                String id = getStringValueFromToolNode(toolNode, "id");
-//                String org = getStringValueFromToolNode(toolNode, "org");
-//                String name = getStringValueFromToolNode(toolNode, "name");
-//                String version = getStringValueFromToolNode(toolNode, "version");
-//
-//                // If id, org or name, one of the value is null, ignore tool record
-//                if (id == null || org == null || name == null) {
-//                    continue;
-//                }
-//
-//                if (version != null) {
-//                    try {
-//                        PackageVersion.from(version);
-//                    } catch (ProjectException ignore) {
-//                        continue;
-//                    }
-//                }
-//                tools.put(id, new BalToolsManifest.Tool(id, org, name, version));
-//            }
-//        }
-//        return tools;
-//    }
 
     String getStringValueFromToolNode(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);

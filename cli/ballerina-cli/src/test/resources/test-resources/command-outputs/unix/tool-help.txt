@@ -22,9 +22,10 @@ TOOL COMMANDS
         The following is a list of available subcommands:
 
         pull        Pull a tool from Ballerina Central.
-        list        List all the tools available locally.
+        use         Set a tool version as the active version.
+        list        List all tools in the local environment.
         search      Search Ballerina Central for tools.
-        remove      Remove a tool.
+        remove      Remove a tool from the local environment.
 
 EXAMPLES
        Pull a tool from Ballerina Central.
@@ -33,13 +34,16 @@ EXAMPLES
        Pull a specific version of a tool from Ballerina Central.
            $ bal tool pull openapi:1.5.0
 
+       Set a tool version as the active version.
+           $ bal tool use openapi:1.3.0
+
        List all the tools available locally.
            $ bal tool list
 
        Search Ballerina Central for tools.
            $ bal tool search openapi
 
-       Remove a specific version of previously pulled tool.
+       Remove a specific version of the previously pulled tool.
            $ bal tool remove openapi:1.5.0
 
        Remove all the versions of a previously pulled tool.

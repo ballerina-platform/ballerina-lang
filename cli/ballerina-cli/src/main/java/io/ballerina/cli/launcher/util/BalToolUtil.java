@@ -219,7 +219,6 @@ public class BalToolUtil {
             return;
         }
 
-        // TODO: check if the distPackedToolsTomlPath name is correct
         Path distPackedToolsTomlPath = Path.of(System.getProperty(BALLERINA_HOME), BAL_TOOLS_TOML);
         Path globalToolsTomlPath = Path.of(
                 System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
@@ -304,7 +303,7 @@ public class BalToolUtil {
         });
     }
 
-    private static void setLatestVersionToActive(DistSpecificToolsManifest distSpecificToolsManifest) {
+    public static void setLatestVersionToActive(DistSpecificToolsManifest distSpecificToolsManifest) {
         distSpecificToolsManifest.tools().forEach((toolId, toolVersions)-> {
             Optional<String> latestVersion = toolVersions.values().stream()
                     .map(tool -> SemanticVersion.from(tool.version()))
