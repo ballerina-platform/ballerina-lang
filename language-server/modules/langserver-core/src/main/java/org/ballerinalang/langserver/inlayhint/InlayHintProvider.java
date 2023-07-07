@@ -133,7 +133,7 @@ public class InlayHintProvider {
                     break;
                 } else if (parameterSymbols.getLeft().get(argumentIndex).getName().isEmpty()
                         || parameterSymbols.getLeft().get(argumentIndex).getName().get().startsWith("$")) {
-                    continue;
+                    break;
                 }
                 String label = parameterSymbols.getLeft().get(argumentIndex).getName().get();
                 InlayHint inlayHint = new InlayHint(position, Either.forLeft(label + ": "));
