@@ -153,14 +153,22 @@ public class WaitActionsNegativeTest {
                 "cannot use an alternate wait action within a multiple wait action", 117, 27);
         BAssertUtil.validateError(resultNegative, index++,
                 "cannot use an alternate wait action within a multiple wait action", 117, 58);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 119, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 120, 48);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 121, 27);
+        BAssertUtil.validateError(resultNegative, index++,
+                "cannot use an alternate wait action within a multiple wait action", 121, 72);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 132, 38);
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 136, 38);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<boolean>|future<boolean>)'", 133, 48);
+                " found '(future<boolean>|future<boolean>)'", 137, 48);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 134, 27);
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 138, 27);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<boolean>|future<boolean>)'", 134, 40);
+                " found '(future<boolean>|future<boolean>)'", 138, 40);
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Wait actions negative test error count");
     }
 
