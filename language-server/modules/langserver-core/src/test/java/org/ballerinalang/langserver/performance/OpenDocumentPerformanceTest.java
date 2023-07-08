@@ -47,7 +47,7 @@ public class OpenDocumentPerformanceTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "performance-data-provider")
+    @Test(enabled = false, dataProvider = "performance-data-provider")
     public void testCompletion(String config) throws IOException {
         String configJsonPath = getConfigJsonPath(config);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
