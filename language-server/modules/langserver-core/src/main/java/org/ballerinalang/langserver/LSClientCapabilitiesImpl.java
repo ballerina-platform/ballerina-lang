@@ -157,7 +157,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         boolean enablePositionalRenameSupport = positionalRenameSupport != null && 
                 Boolean.parseBoolean(String.valueOf(positionalRenameSupport));
         initializationOptions.setSupportPositionalRenamePopup(enablePositionalRenameSupport);
-        
+
+        Object inlayHintsSupport = initOptions.get(InitializationOptions.KEY_ENABLE_INLAY_HINTS);
+        boolean enableInlayHintsSupport = inlayHintsSupport != null &&
+                Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
+        initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
+
         return initializationOptions;
     }
 
@@ -208,6 +213,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean supportQuickPick = false;
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
+        private boolean enableInlayHints = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -253,5 +259,13 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             this.supportQuickPick = supportQuickPick;
         }
 
+        @Override
+        public boolean isEnableInlayHints() {
+            return enableInlayHints;
+        }
+
+        public void setEnableInlayHints(boolean enableInlayHints) {
+            this.enableInlayHints = enableInlayHints;
+        }
     }
 }
