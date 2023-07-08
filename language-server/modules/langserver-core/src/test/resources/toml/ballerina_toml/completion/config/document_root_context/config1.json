@@ -6,7 +6,7 @@
   "source": "source/project1/Ballerina.toml",
   "items": [
     {
-      "label": "platform.java11",
+      "label": "platform.java17",
       "kind": "Snippet",
       "detail": "Table",
       "sortText": "C",
