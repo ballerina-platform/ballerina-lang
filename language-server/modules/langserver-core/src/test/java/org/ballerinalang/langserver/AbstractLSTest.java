@@ -17,11 +17,13 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.gson.Gson;
 import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
+import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -29,6 +31,7 @@ import org.mockito.Mockito;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -43,15 +46,19 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractLSTest {
 
+    private static final Gson GSON = new Gson();
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project1", "main.bal", "project2", "main.bal");
     private static final Map<String, String> LOCAL_PROJECTS =
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
     private static final List<LSPackageLoader.ModuleInfo> REMOTE_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> LOCAL_PACKAGES = new ArrayList<>();
+    private static final List<org.ballerinalang.central.client.model.Package> CENTRAL_PACKAGES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
 
     private LSPackageLoader lsPackageLoader;
+
+    private CentralPackageDescriptorLoader descriptorLoader;
 
     private BallerinaLanguageServer languageServer;
 
@@ -66,6 +73,8 @@ public abstract class AbstractLSTest {
             LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
+            FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
+            CENTRAL_PACKAGES.addAll(GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages());
         } catch (Exception e) {
             //ignore
         } finally {
@@ -94,9 +103,14 @@ public abstract class AbstractLSTest {
 
     public void setUp() {
         this.lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
+        this.descriptorLoader = Mockito.mock(CentralPackageDescriptorLoader.class, Mockito.withSettings().stubOnly());
+        languageServer.getServerContext().put(
+                CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, descriptorLoader);
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
         Mockito.when(this.lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
         Mockito.when(this.lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
+        Mockito.when(this.descriptorLoader.getCentralPackages(Mockito.any())).thenReturn(CENTRAL_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getCentralPackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
@@ -120,6 +134,10 @@ public abstract class AbstractLSTest {
         if (this.lsPackageLoader != null) {
             Mockito.reset(this.lsPackageLoader);
             this.lsPackageLoader = null;
+        }
+        if (this.descriptorLoader != null) {
+            Mockito.reset(this.descriptorLoader);
+            this.descriptorLoader = null;
         }
     }
 

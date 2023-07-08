@@ -22,6 +22,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
@@ -31,6 +32,8 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.central.client.model.Tool;
+import org.ballerinalang.central.client.model.ToolSearchResult;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -48,6 +51,7 @@ import java.util.stream.Stream;
 import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
 import static io.ballerina.cli.cmd.Constants.TOML_EXT;
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
+import static io.ballerina.cli.utils.PrintUtils.printTools;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
@@ -144,8 +148,8 @@ public class ToolCommand implements BLauncherCmd {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_LIST_COMMAND);
             } else if (argList.get(0).equals(TOOL_REMOVE_COMMAND)) {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_REMOVE_COMMAND);
-//            } else if (argList.get(0).equals(TOOL_SEARCH_COMMAND)) {
-//                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_SEARCH_COMMAND);
+            } else if (argList.get(0).equals(TOOL_SEARCH_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_SEARCH_COMMAND);
             } else {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
             }
@@ -167,9 +171,9 @@ public class ToolCommand implements BLauncherCmd {
             case TOOL_LIST_COMMAND:
                 handleListCommand();
                 break;
-//            case TOOL_SEARCH_COMMAND:
-//                handleSearchCommand();
-//                break;
+            case TOOL_SEARCH_COMMAND:
+                handleSearchCommand();
+                break;
             case TOOL_REMOVE_COMMAND:
                 handleRemoveCommand();
                 break;
@@ -263,22 +267,22 @@ public class ToolCommand implements BLauncherCmd {
         PrintUtils.printLocalTools(tools, RepoUtils.getTerminalWidth());
     }
 
-//    private void handleSearchCommand() {
-//        if (argList.size() < 2) {
-//            CommandUtil.printError(this.errStream, "no keyword given.", TOOL_SEARCH_USAGE_TEXT, false);
-//            CommandUtil.exitError(this.exitWhenFinish);
-//            return;
-//        }
-//        if (argList.size() > 2) {
-//            CommandUtil.printError(
-//                    this.errStream, "too many arguments.", TOOL_SEARCH_USAGE_TEXT, false);
-//            CommandUtil.exitError(this.exitWhenFinish);
-//            return;
-//        }
-//
-//        String searchArgs = argList.get(1);
-//        searchToolsInCentral(searchArgs);
-//    }
+    private void handleSearchCommand() {
+        if (argList.size() < 2) {
+            CommandUtil.printError(this.errStream, "no keyword given.", TOOL_SEARCH_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (argList.size() > 2) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments.", TOOL_SEARCH_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        String searchArgs = argList.get(1);
+        searchToolsInCentral(searchArgs);
+    }
 
     private void handleRemoveCommand() {
         if (argList.size() < 2) {
@@ -517,46 +521,49 @@ public class ToolCommand implements BLauncherCmd {
         return ProjectUtils.deleteDirectory(toolPath);
     }
 
-//    /**
-//     * Search for tools in central.
-//     *
-//     * @param keyword search keyword.
-//     */
-//    private void searchToolsInCentral(String keyword) {
-//        try {
-//            Settings settings;
-//            try {
-//                settings = RepoUtils.readSettings();
-//                // Ignore Settings.toml diagnostics in the search command
-//            } catch (SettingsTomlException e) {
-//                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-//                settings = Settings.from();
-//            }
-//            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-//                    initializeProxy(settings.getProxy()),
-//                    getAccessTokenOfCLI(settings));
-//            ToolSearchResult toolSearchResult = client.searchTool(keyword,
-//                    JvmTarget.JAVA_17.code(),
-//                    RepoUtils.getBallerinaVersion());
-//
-//            List<Tool> tools = toolSearchResult.getTools();
-//            if (tools != null && tools.size() > 0) {
-//                printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
-//            } else {
-//                outStream.println("no tools found.");
-//            }
-//        } catch (CentralClientException e) {
-//            String errorMessage = e.getMessage();
-//            if (null != errorMessage && !"".equals(errorMessage.trim())) {
-//                // removing the error stack
-//                if (errorMessage.contains("\n\tat")) {
-//                    errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
-//                }
-//                CommandUtil.printError(this.errStream, errorMessage, null, false);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//            }
-//        }
-//    }
+    /**
+     * Search for tools in central.
+     *
+     * @param keyword search keyword.
+     */
+    private void searchToolsInCentral(String keyword) {
+        try {
+            Settings settings;
+            try {
+                settings = RepoUtils.readSettings();
+                // Ignore Settings.toml diagnostics in the search command
+            } catch (SettingsTomlException e) {
+                // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                settings = Settings.from();
+            }
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(), getAccessTokenOfCLI(settings));
+            ToolSearchResult toolSearchResult = client.searchTool(keyword,
+                    JvmTarget.JAVA_11.code(),
+                    RepoUtils.getBallerinaVersion());
+
+            List<Tool> tools = toolSearchResult.getTools();
+            if (tools != null && tools.size() > 0) {
+                printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
+            } else {
+                outStream.println("no tools found.");
+            }
+        } catch (CentralClientException e) {
+            String errorMessage = e.getMessage();
+            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                // removing the error stack
+                if (errorMessage.contains("\n\tat")) {
+                    errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
+                }
+                CommandUtil.printError(this.errStream, errorMessage, null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            } else {
+                CommandUtil.printError(this.errStream, "error while searching for tools.", null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+        }
+    }
 
     private boolean isToolLocallyAvailable(String toolId, String version) {
         if (version.equals(Names.EMPTY.getValue())) {
