@@ -205,3 +205,8 @@ function testListConstructorSpreadOp() {
     int[] y2 = [...x2, 4];
     int[] y3 = [...y1, 5];
 }
+
+function testTypeofSymbol(error result) {
+    string errPrefix = "Payload binding failed: ";
+    var errMsg = result.detail()["message"];
+}

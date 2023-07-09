@@ -8746,7 +8746,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType bType, AnalyzerData data) {
         BType type = Types.getReferredType(bType);
         if (type.tag == TypeTags.MAP) {
-            BType constraint = Types.getReferredType(((BMapType) type).constraint);
+            // TODO remove doing `getReferredType` here since this unwraps the referred type. #40958
+            BType constraint = Types.getReferredType(((BMapType) type).constraint, false);
             return accessExpr.isLValue ? constraint : types.addNilForNillableAccessType(constraint);
         }
 

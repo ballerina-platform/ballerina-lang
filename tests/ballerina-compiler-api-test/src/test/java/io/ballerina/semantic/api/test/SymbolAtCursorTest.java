@@ -18,6 +18,8 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -40,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -332,5 +335,17 @@ public class SymbolAtCursorTest {
                 {33, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {35, 8, TYPE_REFERENCE, DiagnosticState.VALID},
         };
+    }
+
+    @Test
+    public void testTypeOfSymbol() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_basic_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(210, 8)).get();
+        assertEquals(symbol.kind(), VARIABLE);
+        AbstractTypeSymbol typeSymbol = (AbstractTypeSymbol) ((BallerinaVariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), INTERSECTION);
     }
 }

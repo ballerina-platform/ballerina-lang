@@ -2229,6 +2229,7 @@ public class Types {
 
 
     public BType getTypeWithEffectiveIntersectionTypes(BType bType) {
+        // TODO Can remove this method since this unwraps the referred type and intersection type. #40958
         BType type = getReferredType(bType, false);
         BType effectiveType = null;
         if (type.tag == TypeTags.INTERSECTION) {
