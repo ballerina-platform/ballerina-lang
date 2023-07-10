@@ -332,14 +332,17 @@ public class LargeMethodOptimizer {
             splitNow = setArrayElementGivenLhsOp(birOperands, newBBInsList, handleArrayOperand,
                     bb.terminator.lhsOp, splitFuncEnv.splitFuncTempVars);
             if (splitNow) {
-                BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
-                newBB.instructions.addAll(newBBInsList);
-                newBB.terminator = new BIRTerminator.GOTO(null, bb.terminator.thenBB, bb.terminator.scope);
-                bb.terminator.thenBB = newBB;
-                splitFuncEnv.splitFuncNewBBList.add(newBB);
                 splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
+                BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
+                splitFuncEnv.splitFuncBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
+                newBB.instructions.addAll(newBBInsList);
+                newBB.terminator = new BIRTerminator.GOTO(null, splitFuncEnv.splitFuncBB, bb.terminator.scope);
+                splitFuncEnv.splitFuncCorrectTerminatorBBs.add(newBB);
+                bb.terminator.thenBB = newBB; // change the current BB's terminator to new BB where ins are put
+                splitFuncEnv.splitFuncNewBBList.add(newBB);
+            } else {
+                splitFuncEnv.splitFuncBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
             }
-            splitFuncEnv.splitFuncBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
 
             if (bb.terminator.kind == InstructionKind.BRANCH) {
                 splitFuncEnv.splitOkay = false;
