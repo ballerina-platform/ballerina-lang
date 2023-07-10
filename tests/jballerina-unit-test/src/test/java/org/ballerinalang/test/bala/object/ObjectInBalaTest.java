@@ -566,6 +566,12 @@ public class ObjectInBalaTest {
                 "incompatible types: 'bir/objs:0.1.0:Qux' will not be matched to 'bir/objs:0.1.0:Xyz'", 16, 20);
         Assert.assertEquals(result.getErrorCount(), 4);
     }
+
+    @Test
+    public void testObjectTypeAssignability() {
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_positive.bal");
+        BRunUtil.invoke(result, "testObjectTypeAssignability");
+    }
     
     @AfterClass
     public void tearDown() {
