@@ -278,10 +278,7 @@ public class AnnotationTests {
         Assert.assertEquals(mapValue.size(), 1);
         Assert.assertEquals(mapValue.get("i").value, 1L);
         BType type = constAttachmentSymbol.attachmentValueSymbol.type;
-        Assert.assertEquals(type.tag, TypeTags.INTERSECTION);
-        BIntersectionType intersectionType = (BIntersectionType) type;
-        BType effectiveType = intersectionType.effectiveType;
-        Assert.assertEquals(effectiveType.tag, TypeTags.RECORD);
+        Assert.assertEquals(type.tag, TypeTags.RECORD);
 
         params = detachMethod.symbol.params;
         annotationAttachmentSymbols = params.get(0).getAnnotations();
@@ -303,8 +300,6 @@ public class AnnotationTests {
             Assert.assertEquals(mapValue.size(), 1);
             Assert.assertTrue(members.remove(mapValue.get("i").value));
             type = constAttachmentSymbol.attachmentValueSymbol.type;
-            Assert.assertEquals(type.tag, TypeTags.INTERSECTION);
-            type = ((BIntersectionType) type).effectiveType;
             Assert.assertEquals(type.tag, TypeTags.RECORD);
         }
     }

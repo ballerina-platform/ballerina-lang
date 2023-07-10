@@ -85,6 +85,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.function.BiFunction;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -666,8 +667,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (resolvedType.getKind() == TypeKind.INTERSECTION && isListOrMapping(type.tag)) {
-            expr.setBType(((BIntersectionType) resolvedType).effectiveType);
+        if (resolvedType.getKind() == TypeKind.RECORD && isListOrMapping(type.tag)) {
+            expr.setBType(resolvedType);
             symbol.type = resolvedType;
             symbol.literalType = resolvedType;
             symbol.value.type = resolvedType;
@@ -845,9 +846,23 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         createTypeDefinition(recordType, pos, env);
-        BIntersectionType intersectionType = ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                recordType, env, symTable, anonymousModelHelper, names, new HashSet<>());
-        return intersectionType;
+        updateRecordFields(recordType, pos, env);
+        recordType.tsymbol.flags |= Flags.READONLY;
+        recordType.flags |= Flags.READONLY;
+        return recordType;
+    }
+
+    private void updateRecordFields(BRecordType recordType, Location pos, SymbolEnv env) {
+        BTypeSymbol structureSymbol = recordType.tsymbol;
+        for (BField field : recordType.fields.values()) {
+            field.type = ImmutableTypeCloner.getImmutableType(pos, types, field.type, env,
+                    pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
+                    new HashSet<>());
+            Name fieldName = field.symbol.name;
+            field.symbol = new BVarSymbol(field.symbol.flags | Flags.READONLY, fieldName,
+                    pkgID, field.type, structureSymbol, pos, SOURCE);
+            structureSymbol.scope.define(fieldName, field.symbol);
+        }
     }
 
     private boolean populateRecordFields(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,

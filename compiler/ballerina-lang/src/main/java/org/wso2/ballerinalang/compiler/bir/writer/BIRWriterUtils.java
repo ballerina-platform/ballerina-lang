@@ -220,17 +220,22 @@ public class BIRWriterUtils {
     }
 
     public static BIRNode.ConstValue getBIRConstantVal(BLangConstantValue constValue) {
-        int tag = constValue.type.tag;
+        BType refferedType = Types.getReferredType(constValue.type);
+        int tag = refferedType.tag;
+        boolean isIntersection = false;
         if (tag == TypeTags.INTERSECTION) {
-            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
-            tag = constValue.type.tag;
+            refferedType = ((BIntersectionType) refferedType).effectiveType;
+            tag = refferedType.tag;
+            isIntersection = true;
         }
 
         if (tag == TypeTags.RECORD) {
             Map<String, BIRNode.ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new BIRNode.ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
+            return isIntersection ?
+                    new BIRNode.ConstValue(mapConstVal, ((BRecordType) refferedType).getIntersectionType().get())
+                    : new BIRNode.ConstValue(mapConstVal, refferedType);
         }
 
         if (tag == TypeTags.TUPLE) {
@@ -239,9 +244,11 @@ public class BIRWriterUtils {
             for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
-            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+            return isIntersection ?
+                    new BIRNode.ConstValue(tupleConstVal, ((BTupleType) refferedType).getIntersectionType().get())
+                    : new BIRNode.ConstValue(tupleConstVal, refferedType);
         }
 
-        return new BIRNode.ConstValue(constValue.value, constValue.type);
+        return new BIRNode.ConstValue(constValue.value, refferedType);
     }
 }
