@@ -1286,9 +1286,12 @@ public class ProjectUtils {
         Path balaPath = balaDirPath.resolve(
                 ProjectUtils.getRelativeBalaPath(org, name, version, null));
         if (!Files.exists(balaPath)) {
-            // If bala for any platform not exist check for specific platform
-            balaPath = balaDirPath.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_17.code()));
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                balaPath = balaDirPath.resolve(ProjectUtils.getRelativeBalaPath(org, name, version, jvmTarget.code()));
+                if (Files.exists(balaPath)) {
+                    break;
+                }
+            }
         }
         return balaPath;
     }
