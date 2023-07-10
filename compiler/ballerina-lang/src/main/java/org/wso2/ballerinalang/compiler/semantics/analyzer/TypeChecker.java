@@ -4723,12 +4723,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean checkBinaryBitwiseOperations(BLangExpression valueExpr) {
+        if (valueExpr.getKind() == NodeKind.GROUP_EXPR) {
+            return checkBinaryBitwiseOperations(((BLangGroupExpr) valueExpr).expression);
+        }
         if (valueExpr.getKind() == NodeKind.BINARY_EXPR
                 && ((BLangBinaryExpr) valueExpr).opKind == OperatorKind.BITWISE_OR) {
             return true;
-        }
-        if (valueExpr.getKind() == NodeKind.GROUP_EXPR) {
-            return checkBinaryBitwiseOperations(((BLangGroupExpr) valueExpr).expression);
         }
         return false;
     }
