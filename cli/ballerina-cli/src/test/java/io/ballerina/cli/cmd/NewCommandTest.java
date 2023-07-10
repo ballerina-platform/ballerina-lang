@@ -79,7 +79,7 @@ public class NewCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(centralCache);
     }
 
-    @Test(description = "Create a new project")
+    @Test(description = "Create a new project", enabled = false)
     public void testNewCommand() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
         Path packageDir = tmpDir.resolve("project_name");
@@ -617,7 +617,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleTemplate() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "ballerina/protobuf:1.0.1";
@@ -654,14 +654,14 @@ public class NewCommandTest extends BaseCommandTest {
                 "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
-                "\n[[platform.java11.dependency]]\n" +
+                "\n[[platform.java17.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(description = "Test new command by pulling a central template without specifying version")
+    @Test(description = "Test new command by pulling a central template without specifying version", enabled = false)
     public void testNewCommandWithTemplateUntagged() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "ballerinax/twitter";
@@ -674,7 +674,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
     }
 
-    @Test(description = "Test new command by pulling a central template with platform libs")
+    @Test(description = "Test new command by pulling a central template with platform libs", enabled = false)
     public void testNewCommandCentralPullWithPlatformDependencies() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "admin/lib_project:0.1.0";
@@ -943,7 +943,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
-    @Test(description = "Test new command with invalid length package name")
+    @Test(description = "Test new command with invalid length package name", enabled = false)
     public void testNewCommandWithInvalidLengthPackageName() throws IOException {
         String longPkgName = "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"

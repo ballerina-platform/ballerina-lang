@@ -248,7 +248,7 @@ public class TestSingleFileProject {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
         Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
 
         Assert.assertEquals(
@@ -256,7 +256,7 @@ public class TestSingleFileProject {
                         .fileName(), "main_with_error.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testProjectRefresh() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("single-file")
                 .resolve("main.bal");

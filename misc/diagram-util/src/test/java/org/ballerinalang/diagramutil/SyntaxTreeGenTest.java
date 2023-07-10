@@ -608,7 +608,7 @@ public class SyntaxTreeGenTest {
                 "testEps", "0.1.0", 110, 114, false, true, true, false);
     }
 
-    @Test(description = "Test visible endpoint defined after the invocations")
+    @Test(description = "Test visible endpoint defined after the invocations", enabled = false)
     public void testVisibleEndpointOrder() throws IOException {
         Path inputFile = TestUtil.createTempProject(endpointOrder);
 

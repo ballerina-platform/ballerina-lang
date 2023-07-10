@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,7 +50,6 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.1
  */
-@PrepareForTest({LSPackageLoader.class})
 public class LSPackageLoaderTest extends AbstractLSTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("lspackageloader");

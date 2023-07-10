@@ -94,12 +94,12 @@ public class TestBalaWriter {
         Target target = new Target(project.sourceRoot());
         Path balaPath = target.getBalaPath();
         // invoke write bala method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
         Assert.assertTrue(emitResult.successful());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java11-0.1.0.bala")),
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java17-0.1.0.bala")),
                         String.valueOf(balaExportPath));
 
         // bala.json
@@ -148,7 +148,7 @@ public class TestBalaWriter {
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
-            Assert.assertEquals(packageJson.getPlatform(), "java11");
+            Assert.assertEquals(packageJson.getPlatform(), "java17");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
 
             Assert.assertEquals(packageJson.getBallerinaVersion(), RepoUtils.getBallerinaShortVersion());
@@ -240,12 +240,12 @@ public class TestBalaWriter {
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
         // Check if platform dependencies exists
-        Path platformDependancy = balaExportPath.resolve("platform").resolve("java11")
+        Path platformDependancy = balaExportPath.resolve("platform").resolve("java17")
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
         // Check if test scoped platform dependencies not exists
-        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java11")
+        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java17")
                 .resolve("ballerina-io-1.2.0-java.txt");
         Assert.assertFalse(testScopePlatformDependancy.toFile().exists());
 
@@ -305,7 +305,7 @@ public class TestBalaWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // invoke write bala method
@@ -358,7 +358,7 @@ public class TestBalaWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
         // invoke write bala method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // unzip bala
@@ -433,7 +433,7 @@ public class TestBalaWriter {
         Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
 
 //        // invoke write bala method
@@ -450,7 +450,7 @@ public class TestBalaWriter {
 
         Target target = new Target(buildProject.sourceRoot());
         // invoke write bala method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
 
         // Check whether there are any diagnostics
@@ -491,7 +491,7 @@ public class TestBalaWriter {
         Target target = new Target(buildProject.sourceRoot());
         Path balaPath = target.getBalaPath();
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
         Assert.assertTrue(emitResult.successful());
 
@@ -645,7 +645,11 @@ public class TestBalaWriter {
     @AfterMethod(alwaysRun = true)
     public void cleanup(ITestContext ctx) {
         ProjectUtils.deleteDirectory(this.tmpDir);
-        Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter(PACKAGE_PATH));
+        String pkgPathParam = ctx.getCurrentXmlTest().getParameter(PACKAGE_PATH);
+        if (pkgPathParam == null) {
+            return;
+        }
+        Path packagePath = Path.of(pkgPathParam);
         ProjectUtils.deleteDirectory(packagePath.resolve(TARGET_DIR_NAME));
         ProjectUtils.deleteDirectory(packagePath.resolve(BALA_DIR_NAME));
     }

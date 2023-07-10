@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -161,5 +162,11 @@ public class MultiplyOperationTest {
     @Test
     public void testDecimalMultiplicationUnderflow() {
         BRunUtil.invoke(result, "testDecimalMultiplicationUnderflow");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

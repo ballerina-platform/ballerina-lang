@@ -24,8 +24,11 @@ dependencies {
    implementation project(':ballerina-cli')
    implementation project(':ballerina-lang')
    implementation project(':docerina')
-   testCompile 'junit:junit'
+   testImplementation 'junit:junit'
    compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
+}
+
+checkstyleMain {
 }
 
 description = 'Ballerina - Docerina gradle Plugin'
