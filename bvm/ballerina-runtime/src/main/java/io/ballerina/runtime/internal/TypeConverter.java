@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -33,6 +34,9 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
@@ -44,9 +48,6 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -127,9 +128,9 @@ public class TypeConverter {
                 return anyToByte(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
             default:
-                throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                        BLangExceptionHelper.getErrorDetails(
-                                                          RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                throw ErrorCreator.createError(ErrorReasons.NUMBER_CONVERSION_ERROR,
+                        ErrorHelper.getErrorDetails(
+                                                          ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }
     }
@@ -317,8 +318,10 @@ public class TypeConverter {
                 return getConvertibleFiniteType(inputValue, (BFiniteType) targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getConvertibleType(inputValue, ((BTypeReferenceType) targetType).getReferredType(), varName,
-                        unresolvedValues, errors, allowNumericConversion);
+                Type referredType = ((BTypeReferenceType) targetType).getReferredType();
+                Type convertibleType = getConvertibleType(inputValue, referredType, varName, unresolvedValues, errors,
+                        allowNumericConversion);
+                return referredType == convertibleType ? targetType : convertibleType;
             case TypeTags.TYPEDESC_TAG:
                 return getConvertibleType(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
                         unresolvedValues, errors, allowNumericConversion);
@@ -634,6 +637,12 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
+        int targetSize = targetType.getSize();
+        long sourceSize = source.getLength();
+        if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize < sourceSize) {
+            addErrorMessage(0, errors, "element count exceeds the target array size '" + targetSize + "'");
+            return false;
+        }
         Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
@@ -642,8 +651,6 @@ public class TypeConverter {
                 return true;
             }
         }
-        int targetSize = targetType.getSize();
-        long sourceSize = source.getLength();
         if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
             addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
                     "type '" + targetType + "' does not have a filler value");

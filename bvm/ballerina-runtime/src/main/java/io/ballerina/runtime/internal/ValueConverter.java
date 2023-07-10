@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
@@ -42,11 +41,15 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,12 +75,7 @@ public class ValueConverter {
     }
 
     public static Object convert(Object value, Type targetType) {
-        try {
-            return convert(value, targetType, new HashSet<>());
-        } catch (BallerinaException e) {
-            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                    StringUtils.fromString(e.getDetail()));
-        }
+        return convert(value, targetType, new HashSet<>());
     }
 
     private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {
@@ -86,16 +84,16 @@ public class ValueConverter {
             if (getTargetFromTypeDesc(targetType).isNilable()) {
                 return null;
             }
-            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+            throw createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                    ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
         }
 
         Type sourceType = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
-            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType));
+            throw createError(ErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR,
+                    ErrorHelper.getErrorMessage(ErrorCodes.CYCLIC_VALUE_REFERENCE, sourceType));
         }
         unresolvedValues.add(typeValuePair);
 
@@ -111,14 +109,14 @@ public class ValueConverter {
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap((BMap<?, ?>) value, matchingType, unresolvedValues);
+                newValue = convertMap((BMap<?, ?>) value, matchingType, convertibleType, unresolvedValues);
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((BArray) value, matchingType, unresolvedValues);
+                newValue = convertArray((BArray) value, matchingType, convertibleType, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
-                newValue = convertTable((BTable<?, ?>) value, matchingType, unresolvedValues);
+                newValue = convertTable((BTable<?, ?>) value, matchingType, convertibleType, unresolvedValues);
                 break;
             default:
                 if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
@@ -173,7 +171,8 @@ public class ValueConverter {
         return targetType;
     }
 
-    private static Object convertMap(BMap<?, ?> map, Type targetType, Set<TypeValuePair> unresolvedValues) {
+    private static Object convertMap(BMap<?, ?> map, Type targetType, Type targetRefType,
+                                     Set<TypeValuePair> unresolvedValues) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
@@ -185,7 +184,7 @@ public class ValueConverter {
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                     count++;
                 }
-                return ValueCreator.createMapValue((MapType) targetType, initialValues);
+                return new MapValueImpl<>(targetRefType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
                 Type restFieldType = recordType.getRestFieldType();
@@ -193,10 +192,8 @@ public class ValueConverter {
                 for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
-                return convertToRecord(map, unresolvedValues, recordType, restFieldType,
+                return convertToRecord(map, unresolvedValues, targetRefType, restFieldType,
                         targetTypeField);
-            case TypeTags.INTERSECTION_TAG:
-                return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues);
             default:
                 break;
         }
@@ -205,14 +202,14 @@ public class ValueConverter {
     }
 
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, Set<TypeValuePair> unresolvedValues,
-                                                         RecordType recordType,
-                                                         Type restFieldType, Map<String, Type> targetTypeField) {
+                                                         Type recordRefType, Type restFieldType,
+                                                         Map<String, Type> targetTypeField) {
         Map<String, Object> valueMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        return ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
+        return ValueCreator.createRecordValue(recordRefType.getPackage(), recordRefType.getName(), valueMap);
     }
 
     private static Object convertRecordEntry(Set<TypeValuePair> unresolvedValues,
@@ -222,7 +219,8 @@ public class ValueConverter {
         return convert(entry.getValue(), fieldType, unresolvedValues);
     }
 
-    private static Object convertArray(BArray array, Type targetType, Set<TypeValuePair> unresolvedValues) {
+    private static Object convertArray(BArray array, Type targetType, Type targetRefType,
+                                       Set<TypeValuePair> unresolvedValues) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) targetType;
@@ -231,7 +229,7 @@ public class ValueConverter {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
                     arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return ValueCreator.createArrayValue(arrayType, arrayValues);
+                return new ArrayValueImpl(targetRefType, arrayType.getSize(), arrayValues);
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) targetType;
                 int minLen = tupleType.getTupleTypes().size();
@@ -241,7 +239,7 @@ public class ValueConverter {
                     Object newValue = convert(array.get(i), elementType, unresolvedValues);
                     tupleValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return ValueCreator.createTupleValue(tupleType, array.size(), tupleValues);
+                return new TupleValueImpl(targetRefType, tupleValues);
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
                 Object[] tableValues = new Object[array.size()];
@@ -252,12 +250,8 @@ public class ValueConverter {
                 }
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
-                BArray fieldNames;
-                fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                return ValueCreator.createTableValue(tableType, data, fieldNames);
-            case TypeTags.INTERSECTION_TAG:
-                return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),
-                        unresolvedValues);
+                BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+                return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
             default:
                 break;
         }
@@ -266,7 +260,7 @@ public class ValueConverter {
     }
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
-                                       Set<TypeValuePair> unresolvedValues) {
+                                       Type targetRefType, Set<TypeValuePair> unresolvedValues) {
         TableType tableType = (TableType) targetType;
         Object[] tableValues = new Object[bTable.size()];
         int count = 0;
@@ -276,8 +270,7 @@ public class ValueConverter {
         }
         BArray data = ValueCreator.createArrayValue(tableValues,
                 TypeCreator.createArrayType(tableType.getConstrainedType()));
-        BArray fieldNames;
-        fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-        return ValueCreator.createTableValue(tableType, data, fieldNames);
+        BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+        return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 }

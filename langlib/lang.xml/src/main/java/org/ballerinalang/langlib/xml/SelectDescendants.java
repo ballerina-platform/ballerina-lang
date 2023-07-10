@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import org.wso2.ballerinalang.util.Lists;
 
 /**
@@ -47,7 +47,7 @@ public class SelectDescendants {
             String qname = qnames.getString(0);
             return (BXml) xml.descendants(Lists.of(qname));
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
         return null;
     }

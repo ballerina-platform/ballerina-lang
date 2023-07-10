@@ -144,6 +144,7 @@ public class Strand {
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
+        trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
     }
 
@@ -189,8 +190,10 @@ public class Strand {
     public void removeCurrentTrxContext() {
         if (!this.trxContexts.isEmpty()) {
             this.currentTrxContext = this.trxContexts.pop();
+            globalProps.put(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
             return;
         }
+        globalProps.remove(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
         this.currentTrxContext = null;
     }
 
@@ -478,10 +481,10 @@ public class Strand {
         try {
             for (FunctionFrame frame : strandFrames) {
                 if (noPickedYieldStatus) {
-                    yieldStatus = frame.getYieldStatus();
+                    yieldStatus = frame.yieldStatus;
                     noPickedYieldStatus = false;
                 }
-                String yieldLocation = frame.getYieldLocation();
+                String yieldLocation = frame.yieldLocation;
                 frameStackTrace.append(stringPrefix).append(yieldLocation);
                 frameStackTrace.append("\n");
                 stringPrefix = "\t\t  \t";

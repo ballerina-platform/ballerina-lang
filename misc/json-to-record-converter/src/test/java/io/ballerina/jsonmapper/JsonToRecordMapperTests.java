@@ -134,6 +134,11 @@ public class JsonToRecordMapperTests {
     private final Path sample13Json = RES_DIR.resolve(JSON_DIR)
             .resolve("sample_13.json");
 
+    private final Path sample14Json = RES_DIR.resolve(JSON_DIR)
+            .resolve("sample_14.json");
+    private final Path sample14Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_14.bal");
+
     private final Path singleBalFile = RES_DIR.resolve(PROJECT_DIR).resolve(SOURCE_DIR)
             .resolve("singleFileProject").resolve("SingleBalFile.bal");
 
@@ -398,6 +403,26 @@ public class JsonToRecordMapperTests {
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3SpecialCharBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for nested JSON with same recurring field")
+    public void testForJsonWithRecurringFieldName() throws IOException {
+        String jsonFileContent = Files.readString(sample14Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null, null)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample14Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for nested JSON with same recurring field to generate inline record")
+    public void testForJsonWithRecurringFieldNameToGenerateInlineRecord() throws IOException {
+        String jsonFileContent = Files.readString(sample14Json);
+        List<JsonToRecordMapperDiagnostic> diagnostics =
+                JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null).getDiagnostics();
+        String diagnosticMessage = "Proper inline record cannot be generated due to the nested structure " +
+                "of the JSON. This will cause infinite record nesting.";
+        Assert.assertEquals(diagnostics.size(), 1);
+        Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
     }
 
     @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
