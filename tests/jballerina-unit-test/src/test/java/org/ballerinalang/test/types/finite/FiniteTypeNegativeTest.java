@@ -247,9 +247,6 @@ public class FiniteTypeNegativeTest {
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'float'",
                 297, 12);
         Assert.assertEquals(resultNegativeTwo.getErrorCount(), i);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'int'",
-                297, 12);
-        Assert.assertEquals(resultNegativeTwo.getErrorCount(), i, "Error count mismatch");
     }
 
     @AfterClass
