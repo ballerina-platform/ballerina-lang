@@ -80,7 +80,7 @@ public class TypeOfRegressionTest {
                 "test-src/regression-tests/typeof_resource_path_action.bal");
 
         Optional<TypeSymbol> type = model.typeOf(LineRange.from("typeof_resource_path_action.bal",
-                LinePosition.from(20, 23), LinePosition.from(20, 30)));
+                LinePosition.from(20, 31), LinePosition.from(20, 38)));
         assertTrue(type.isEmpty());
     }
 }

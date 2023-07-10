@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import testorg/testproject as tp;
 
 public function main() returns error? {
-    http:Client cl= check new("");
-    cl->/"path1"/path2/.post();
+    tp:Client cl= check new("");
+    cl->path1/"id1"/path2/"id2".post();
 }

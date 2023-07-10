@@ -184,7 +184,8 @@ public class SymbolBIRTest {
                 "Annot", "Detail", "Service", "FnTypeA", "FnTypeB", "Address"));
 
         
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human", 
+                "Client", "Response"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
