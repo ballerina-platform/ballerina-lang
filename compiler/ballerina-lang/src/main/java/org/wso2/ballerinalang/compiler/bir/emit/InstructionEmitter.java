@@ -50,6 +50,8 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  */
 class InstructionEmitter {
 
+    private static final byte ARRAY_VALUE_COUNT = 10;
+
     private InstructionEmitter() {}
 
     static String emitInstructions(List<? extends BIRInstruction> instructions, int tabs) {
@@ -237,8 +239,18 @@ class InstructionEmitter {
         str += "[";
         str += emitVarRef(ins.sizeOp);
         str += "]";
+        str += "{";
+        str += emitArrayValues(ins.values);
+        str += "}";
         str += ";";
         return str;
+    }
+
+    private static String emitArrayValues(List<BIRNode.BIRListConstructorEntry> values) {
+        BIROperand[] valueOperands = values.stream().map(x -> x.exprOp).limit(ARRAY_VALUE_COUNT)
+                .toArray(BIROperand[]::new);
+        String result = emitVarRefs(valueOperands);
+        return values.size() > ARRAY_VALUE_COUNT ? result + ",..." : result;
     }
 
     private static String emitInsNewError(BIRNonTerminator.NewError ins, int tabs) {
