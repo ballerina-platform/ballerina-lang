@@ -405,15 +405,15 @@ public class BIRPackageSymbolEnter {
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol =
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
-                                             this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
-                                             Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
+                        this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
+                        Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
         invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         boolean isResourceFunction = dataInStream.readBoolean();
-        
+
         if (this.currentStructure != null) {
             BType attachedType = Types.getReferredType(this.currentStructure.type);
 
@@ -583,8 +583,8 @@ public class BIRPackageSymbolEnter {
 
         defineMarkDownDocAttachment(symbol, docBytes);
         defineAnnotAttachmentSymbols(dataInStream,
-                                     (isClass || isEnum || symbol.tag == SymTag.TYPE_DEF) ? (Annotatable) symbol :
-                                             null);
+                (isClass || isEnum || symbol.tag == SymTag.TYPE_DEF) ? (Annotatable) symbol :
+                        null);
 
         if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
             type.tsymbol.name = symbol.name;
@@ -704,7 +704,7 @@ public class BIRPackageSymbolEnter {
 
         for (int i = 0; i < attachPointCount; i++) {
             attachPoints.add(AttachPoint.getAttachmentPoint(getStringCPEntryValue(dataInStream),
-                                                            dataInStream.readBoolean()));
+                    dataInStream.readBoolean()));
         }
 
         BType annotationType = readBType(dataInStream);
@@ -1112,6 +1112,7 @@ public class BIRPackageSymbolEnter {
      * @since 0.970.0
      */
     private static class BIRPackageSymbolEnv {
+
         PackageID requestedPackageId;
         Map<Integer, byte[]> unparsedBTypeCPs = new HashMap<>();
         BPackageSymbol pkgSymbol;
@@ -1631,47 +1632,27 @@ public class BIRPackageSymbolEnter {
                     }
                     return finiteType;
                 case TypeTags.OBJECT:
-                    boolean service = inputStream.readByte() == 1;
-
                     pkgCpIndex = inputStream.readInt();
                     pkgId = getPackageId(pkgCpIndex);
 
                     String objName = getStringCPEntryValue(inputStream);
-                    var objFlags = (inputStream.readBoolean() ? Flags.CLASS : 0) | Flags.PUBLIC;
-                    objFlags = inputStream.readBoolean() ? objFlags | Flags.CLIENT : objFlags;
+                    long objSymFlags = inputStream.readLong();
                     BObjectTypeSymbol objectSymbol;
 
-                    if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
-                        objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
-                                                                 env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                 symTable.builtinPos, COMPILED_SOURCE, false);
+                    if (Symbols.isFlagOn(objSymFlags, Flags.CLASS)) {
+                        objectSymbol = Symbols.createClassSymbol(objSymFlags, names.fromString(objName),
+                                env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                symTable.builtinPos, COMPILED_SOURCE, false);
                     } else {
-                        objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
-                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                  symTable.builtinPos, COMPILED_SOURCE);
+                        objectSymbol = Symbols.createObjectSymbol(objSymFlags, names.fromString(objName),
+                                env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                                symTable.builtinPos, COMPILED_SOURCE);
                     }
 
                     objectSymbol.scope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
                     objectType = new BObjectType(objectSymbol);
-
-                    if (service) {
-                        objectType.flags |= Flags.SERVICE;
-                        objectSymbol.flags |= Flags.SERVICE;
-                    }
-                    if (isImmutable(flags)) {
-                        objectSymbol.flags |= Flags.READONLY;
-                    }
-                    if (Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
-                        objectSymbol.flags |= Flags.ANONYMOUS;
-                    }
-                    if (Symbols.isFlagOn(flags, Flags.DISTINCT)) {
-                        objectSymbol.flags |= Flags.DISTINCT;
-                    }
-                    if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
-                        objectSymbol.flags |= Flags.ISOLATED;
-                    }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
                     addShapeCP(objectType, cpI);
