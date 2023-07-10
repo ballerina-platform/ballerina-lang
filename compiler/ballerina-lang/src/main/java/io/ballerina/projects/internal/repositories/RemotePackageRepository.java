@@ -278,12 +278,8 @@ public class RemotePackageRepository implements PackageRepository {
         if (!updatedRequests.isEmpty()) {
             try {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
-                PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
-                        packageResolutionRequest, JvmTarget.JAVA_17.code(),
-                        RepoUtils.getBallerinaVersion());
-
                 Collection<PackageMetadataResponse> remotePackages =
-                        fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);
+                        fromPackageResolutionResponse(updatedRequests, packageResolutionRequest);
                 // Merge central requests and local requests
                 // Here we will pick the latest package from remote or local
                 return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
@@ -346,29 +342,42 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     private Collection<PackageMetadataResponse> fromPackageResolutionResponse(
-            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
-        // List<PackageResolutionResponse.Package> resolved = packageResolutionResponse.resolved();
+            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionRequest packageResolutionRequest)
+            throws CentralClientException {
         List<PackageMetadataResponse> response = new ArrayList<>();
-        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
-            // find response from server
-            // checked in resolved group
-            Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
-                    .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
-                            p.org().equals(resolutionRequest.orgName().value())).findFirst();
-            // If we found a match we will add it to response
-            if (match.isPresent()) {
-                PackageVersion version = PackageVersion.from(match.get().version());
-                DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
-                PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
-                        resolutionRequest.packageName(),
-                        version, match.get().getDeprecated(), match.get().getDeprecateMessage());
-                PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
-                        packageDescriptor,
-                        dependencies);
-                response.add(responseDescriptor);
-            } else {
-                // If the package is not in resolved we assume the package is unresolved
-                response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
+        Set<ResolutionRequest> resolvedRequests = new HashSet<>();
+        JvmTarget[] values = JvmTarget.values();
+        for (int i = 0; i < values.length; i++) {
+            JvmTarget jvmTarget = values[i];
+            PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+                    packageResolutionRequest, jvmTarget.code(), RepoUtils.getBallerinaVersion());
+            for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+                if (resolvedRequests.contains(resolutionRequest)) {
+                    continue;
+                }
+                // find response from server
+                // checked in resolved group
+                Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
+                        .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
+                                p.org().equals(resolutionRequest.orgName().value())).findFirst();
+                // If we found a match we will add it to response
+                if (match.isPresent()) {
+                    PackageVersion version = PackageVersion.from(match.get().version());
+                    DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
+                    PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
+                            resolutionRequest.packageName(),
+                            version, match.get().getDeprecated(), match.get().getDeprecateMessage());
+                    PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
+                            packageDescriptor,
+                            dependencies);
+                    response.add(responseDescriptor);
+                    resolvedRequests.add(resolutionRequest);
+                } else {
+                    if (i == values.length - 1) {
+                        // If the package is not in resolved we assume the package is unresolved
+                        response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
+                    }
+                }
             }
         }
         return response;
