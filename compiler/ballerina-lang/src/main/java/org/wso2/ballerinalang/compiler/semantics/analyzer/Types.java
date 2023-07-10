@@ -5988,13 +5988,12 @@ public class Types {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.INT:
-                // TODO : Fix this, Issue : #21542
-//            case TypeTags.SIGNED32_INT:
-//            case TypeTags.SIGNED16_INT:
-//            case TypeTags.SIGNED8_INT:
-//            case TypeTags.UNSIGNED32_INT:
-//            case TypeTags.UNSIGNED16_INT:
-//            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
@@ -6003,21 +6002,32 @@ public class Types {
 //            case TypeTags.CHAR_STRING:
             case TypeTags.NIL:
             case TypeTags.UNION:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
                 return true;
             case TypeTags.MAP:
                 return isAllowedConstantType(((BMapType) type).constraint);
-//            case TypeTags.RECORD:
-//                for (BField field : ((BRecordType) type).fields.values()) {
-//                    if (!isAllowedConstantType(field.type)) {
-//                        return false;
-//                    }
-//                }
-//                return true;
+            case TypeTags.RECORD:
+                for (BField field : ((BRecordType) type).fields.values()) {
+                    if (field.symbol.isDefaultable || !isAllowedConstantType(field.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.ARRAY:
+                return isAllowedConstantType(((BArrayType) type).eType);
+            case TypeTags.TUPLE:
+                for (BType memberType : ((BTupleType) type).getTupleTypes()) {
+                    if (!isAllowedConstantType(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.FINITE:
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.getBType());
-//            case TypeTags.INTERSECTION:
-//                return isAllowedConstantType(((BIntersectionType) type).effectiveType);
+            case TypeTags.INTERSECTION:
+                return isAllowedConstantType(((BIntersectionType) type).effectiveType);
             case TypeTags.TYPEREFDESC:
                 return isAllowedConstantType(((BTypeReferenceType) type).referredType);
             default:

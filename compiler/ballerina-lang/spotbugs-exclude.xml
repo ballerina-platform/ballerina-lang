@@ -454,4 +454,10 @@
         <Class name="io.ballerina.compiler.api.impl.util.SymbolUtils" />
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.projects.plugins.completion.CompletionUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
 </FindBugsFilter>
