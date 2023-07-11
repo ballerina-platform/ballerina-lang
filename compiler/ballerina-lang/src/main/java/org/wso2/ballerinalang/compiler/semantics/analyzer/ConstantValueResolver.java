@@ -565,12 +565,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env) {
-        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new Stack<>());
+        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new Stack<>(), false);
     }
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env,
-                                                                Stack<String> anonTypeNameSuffixes) {
+                                                                Stack<String> anonTypeNameSuffixes,
+                                                                boolean isSourceOnlyAnon) {
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
 
@@ -580,6 +581,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         this.anonTypeNameSuffixes = anonTypeNameSuffixes;
         updateConstantType(constantSymbol, expression, env);
+        BLangTypeDefinition typeDefinition = createdTypeDefinitions.get(constantSymbol.type.tsymbol);
+        if (isSourceOnlyAnon && typeDefinition != null) {
+            typeDefinition.symbol.flags |= Flags.SOURCE_ANNOTATION;
+        }
         return value;
     }
 
