@@ -41,8 +41,6 @@ public class MapConstantNegativeTest {
         validateError(compileResult, i++, "cannot update constant value", 34, 5);
         validateError(compileResult, i++, "invalid usage of record literal: duplicate key 'a'", 39, 34);
         validateError(compileResult, i++, "illegal cyclic reference '[B1]'", 46, 1);
-        validateError(compileResult, i++, "cannot declare a constant with type 'A1', expected a subtype of 'anydata'" +
-                " that is not 'never'", 46, 7);
         validateError(compileResult, i++, "ambiguous type '(map<float>|map<decimal>)'", 48, 41);
         validateError(compileResult, i++, "incompatible mapping constructor expression for type " +
                 "'(map<string>|map<boolean>)'", 49, 42);

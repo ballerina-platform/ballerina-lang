@@ -272,6 +272,11 @@ public class MapConstantTest {
     }
 
     @Test
+    public void testRecordAsExpectedType() {
+        BRunUtil.invoke(compileResult, "testRecordAsExpectedType");
+    }
+
+    @Test
     public void testUnionAsExpectedType() {
         BRunUtil.invoke(compileResult, "testUnionAsExpectedType");
     }

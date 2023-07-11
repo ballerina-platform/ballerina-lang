@@ -267,6 +267,28 @@ function testConstMapWithComputedField() {
     assertEqual(X.toString(), "{\"a\":\"A\",\"b\":\"B\"}");
 }
 
+
+const map<string> CONST1 = {a: "a"};
+
+type Foo record {
+   CONST1 x;
+   int i;
+};
+
+const Foo F1 = {x: {a : "a"}, i: 1};
+const record{|CONST1 x; int i;|} F2 = {x: {a : "a"}, i: 1};
+
+Foo f1 = {x: {a : "a"}, i: 1};
+Foo f2 = {x: CONST1, i: 1};
+
+function testRecordAsExpectedType() {
+    assertEqual(F1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+    assertEqual(F2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+
+    assertEqual(f1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+    assertEqual(f2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+}
+
 const map<float>|map<decimal> mUnion1 = {a: 1, b: 2.0f};
 const map<int>|map<float>|map<decimal> mUnion2 = {a: 1, b: 2.0, c: 3d};
 
