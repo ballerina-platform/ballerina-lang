@@ -173,8 +173,9 @@ public class LargeMethodOptimizer {
         // populating ListConstructorEntry array elements at runtime using jMethodCalls
         // creating method calls
         Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands =  new HashMap<>();
+        Set<BIROperand> arrayValuesOperands = new HashSet<>();
         List<BIRNonTerminator> globalAndArgVarIns = getGlobalAndArgVarIns(parentFuncTempVars, arrayIns,
-                handleArrayOperand, birOperands);
+                handleArrayOperand, birOperands, arrayValuesOperands);
 
         // add the constant load array size operand instruction
         parentFuncEnv.parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
@@ -182,7 +183,7 @@ public class LargeMethodOptimizer {
 
         splitParentFuncForPeriodicSplits(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                 bbs, newArrayInsBBNum, newArrayInsNumInRelevantBB,
-                handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv);
+                handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv, arrayValuesOperands);
 
         parentFuncEnv.parentFuncNewInsList.addAll(globalAndArgVarIns);
         parentFuncEnv.parentFuncNewInsList.add(newLargeArrayIns);
@@ -219,13 +220,14 @@ public class LargeMethodOptimizer {
                                                          BIRNonTerminator.NewArray arrayIns,
                                                          BIROperand handleArrayOperand,
                                                          Map<BIROperand, BIRListConstructorEntryWithIndex>
-                                                                 birOperands) {
+                                                                 birOperands, Set<BIROperand> arrayValuesOperands) {
         List<BIRNonTerminator> globalAndArgVarIns = new ArrayList<>();
         int arrIndex = 0;
         for (BIRNode.BIRListConstructorEntry value : arrayIns.values) {
             BIRVariableDcl arrElementVarDcl = value.exprOp.variableDcl;
             if (isTempOrSyntheticVar(arrElementVarDcl)) {
                 birOperands.put(value.exprOp, new BIRListConstructorEntryWithIndex(value, arrIndex));
+                arrayValuesOperands.add(value.exprOp);
             } else {
                 setArrayElement(globalAndArgVarIns, handleArrayOperand, value.exprOp, value, arrIndex,
                         parentFuncTempVars);
@@ -259,6 +261,28 @@ public class LargeMethodOptimizer {
         parentFuncEnv.parentFuncNewInsList.add(callHandleArray);
     }
 
+    private Set<BIRAbstractInstruction> getSplitPoints(List<BIRBasicBlock> bbs, Set<BIROperand> arrayValuesOperands) {
+        Set<BIRAbstractInstruction> insSplitPoints = new HashSet<>();
+        for (int bbIndex = bbs.size() - 2; bbIndex >= 0; bbIndex--) {
+            BIRBasicBlock bb = bbs.get(bbIndex);
+            populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bb.terminator);
+            List<BIRNonTerminator> bbInstructions = bb.instructions;
+            for (int insIndex = bbInstructions.size() - 1; insIndex >= 0; insIndex--) {
+                populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbInstructions.get(insIndex));
+            }
+        }
+        return insSplitPoints;
+    }
+
+    private void populateInsSplitPoints(Set<BIROperand> arrayValuesOperands, Set<BIRAbstractInstruction> insSplitPoints,
+                                        BIRAbstractInstruction ins) {
+        BIROperand insLhsOp = ins.lhsOp;
+        if (insLhsOp != null && arrayValuesOperands.contains(insLhsOp)) {
+            arrayValuesOperands.remove(insLhsOp);
+            insSplitPoints.add(ins);
+        }
+    }
+
     private void splitParentFuncForPeriodicSplits(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
                                                   boolean fromAttachedFunction,
                                                   List<BIRBasicBlock> bbs,
@@ -266,7 +290,8 @@ public class LargeMethodOptimizer {
                                                   BIRVariableDcl handleArray, BIROperand handleArrayOperand,
                                                   Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
                                                   SplitFuncEnv splitFuncEnv,
-                                                  ParentFuncEnv parentFuncEnv) {
+                                                  ParentFuncEnv parentFuncEnv, Set<BIROperand> arrayValuesOperands) {
+        Set<BIRAbstractInstruction> insSplitPoints = getSplitPoints(bbs, arrayValuesOperands);
         boolean splitNow;
         for (int bbIndex = 0; bbIndex < bbs.size() - 1; bbIndex++) {
             BIRBasicBlock bb = bbs.get(bbIndex);
@@ -299,7 +324,7 @@ public class LargeMethodOptimizer {
                 splitFuncEnv.periodicSplitInsCount++;
                 populateSplitFuncArgsAndLocalVarList(splitFuncEnv, bbIns);
                 splitNow = setArrayElementGivenLhsOp(birOperands, splitFuncEnv.splitFuncNewInsList, handleArrayOperand,
-                        bbIns.lhsOp, splitFuncEnv.splitFuncTempVars);
+                        bbIns.lhsOp, splitFuncEnv.splitFuncTempVars, insSplitPoints, bbIns);
 
                 // create split func if needed
                 if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD && splitFuncEnv.splitOkay
@@ -330,7 +355,7 @@ public class LargeMethodOptimizer {
 
             List<BIRNonTerminator> newBBInsList = new ArrayList<>();
             splitNow = setArrayElementGivenLhsOp(birOperands, newBBInsList, handleArrayOperand,
-                    bb.terminator.lhsOp, splitFuncEnv.splitFuncTempVars);
+                    bb.terminator.lhsOp, splitFuncEnv.splitFuncTempVars, insSplitPoints, bb.terminator);
             if (splitNow) {
                 splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
                 BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
@@ -577,8 +602,10 @@ public class LargeMethodOptimizer {
 
     private boolean setArrayElementGivenLhsOp(Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
                                               List<BIRNonTerminator> newInsList, BIROperand handleArrayOperand,
-                                              BIROperand insLhsOp, TempVarsForArraySplit tempVars) {
-        if (insLhsOp != null && birOperands.containsKey(insLhsOp)) {
+                                              BIROperand insLhsOp, TempVarsForArraySplit tempVars,
+                                              Set<BIRAbstractInstruction> insSplitPoints,
+                                              BIRAbstractInstruction currIns) {
+        if (insSplitPoints.contains(currIns)) {
             BIRListConstructorEntryWithIndex listConstructorEntryWithIndex = birOperands.get(insLhsOp);
             BIRNode.BIRListConstructorEntry listConstructorEntry = listConstructorEntryWithIndex.listConstructorEntry;
             int arrayIndex = listConstructorEntryWithIndex.index;
