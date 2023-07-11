@@ -2715,7 +2715,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return fieldNames;
     }
 
-    private String getKeyValueFieldName(BLangRecordKeyValueField field) {
+    String getKeyValueFieldName(BLangRecordKeyValueField field) {
         BLangRecordKey key = field.key;
         if (key.computedKey) {
             return null;
@@ -6395,7 +6395,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
+        if (funcSymbol != symTable.notFoundSymbol && isNotFunction(funcSymbol)) {
+            dlog.error(iExpr.pos, DiagnosticErrorCode.FUNCTION_CALL_SYNTAX_NOT_DEFINED, funcSymbol.type);
+            iExpr.argExprs.forEach(arg -> checkExpr(arg, data));
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        if (funcSymbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(funcName)) {
                 dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);
             }

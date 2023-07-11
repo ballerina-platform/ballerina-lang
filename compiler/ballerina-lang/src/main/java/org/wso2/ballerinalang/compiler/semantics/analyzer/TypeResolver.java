@@ -238,7 +238,6 @@ public class TypeResolver {
                     updateIsCyclicFlag(type);
                 }
                 updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
-                handleDistinctDefinitionOfErrorIntersection(typeDefinition, type);
             }
             resolvingTypes.clear();
             resolvingModuleDefs.clear();
@@ -445,10 +444,9 @@ public class TypeResolver {
         return type.tag == TypeTags.INTERSECTION ? Types.getEffectiveType(type).tag : type.tag;
     }
 
-    private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition,
+    private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition, BSymbol typeDefSymbol,
                                                              BType definedType) {
         BType referenceConstraintType = Types.getReferredType(definedType);
-        BSymbol typeDefSymbol = typeDefinition.symbol;
 
         if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
                 ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
@@ -458,7 +456,8 @@ public class TypeResolver {
             int numberOfDistinctConstituentTypes = 0;
             BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
             for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
-                BType type = Types.getReferredType(constituentType.getBType());
+                BType type = Types.getReferredType(
+                        types.getTypeWithEffectiveIntersectionTypes(constituentType.getBType()));
 
                 if (type.getKind() == TypeKind.ERROR) {
                     if (constituentType.flagSet.contains(Flag.DISTINCT)) {
@@ -1906,6 +1905,7 @@ public class TypeResolver {
         boolean isErrorIntersection = isErrorIntersection(resolvedType);
         if (isErrorIntersection && effectiveDefinedType.tag == TypeTags.ERROR) {
             symEnter.populateSymbolNameOfErrorIntersection(resolvedType, typeDefinition.name.value);
+            handleDistinctDefinitionOfErrorIntersection(typeDefinition, typeDefSymbol, resolvedType);
         }
 
         boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
@@ -1919,7 +1919,6 @@ public class TypeResolver {
         }
 
         symEnter.handleDistinctDefinition(typeDefinition, typeDefSymbol, resolvedType, referenceConstraintType);
-        resolvedType = typeDefSymbol.type; // update the distinct type
 
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
         // Reset public flag when set on a non public type.

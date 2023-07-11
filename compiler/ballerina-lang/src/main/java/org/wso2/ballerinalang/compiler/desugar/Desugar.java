@@ -887,7 +887,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangType typeNode;
                 switch (memberType.tag) {
                     case TypeTags.RECORD:
-                         typeNode = constant.associatedTypeDefinition.typeNode;
+                        typeNode = constant.associatedTypeDefinition.typeNode;
                         break;
                     case TypeTags.TUPLE:
                         typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
@@ -5894,7 +5894,8 @@ public class Desugar extends BLangNodeVisitor {
                         continue;
                     }
                 } else {
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = spreadOpType.tag == TypeTags.INTERSECTION ?
+                            (BTupleType) ((BIntersectionType) spreadOpType).effectiveType : (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         i += spreadOpTuple.getMembers().size();
                         continue;

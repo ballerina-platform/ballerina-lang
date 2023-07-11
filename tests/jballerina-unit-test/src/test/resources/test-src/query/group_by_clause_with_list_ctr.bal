@@ -920,6 +920,21 @@ function testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause5() {
     assertEquality([{id: 1, lname: "George", deptName: "HR"}, {id: 2, lname: "Fonseka", deptName: "Operations"}], res);
 }
 
+type Foo record {
+    int id;
+    string name;
+};
+
+function testGroupByVarAndSelectWithNonGroupingKeysWithJoinClause1() {
+    Foo[] f = [{id: 1, name: "a"}, {id: 1, name: "b"}];
+    var r = from var {id: id1, name: name1} in f
+        join var {id: id2, name: name2} in f
+        on id1 equals id2
+        group by id1, id2
+        select [name2];
+    assertEquality([["a", "b", "a", "b"]], r);
+}
+
 function testGroupByVarDefsAndSelectWithGroupingKeysWithOrderbyClause1() {
     var personList = [{id: 1, fname: "Alex", lname: "George"},
                         {id: 3, fname: "Ranjan", lname: "Fonseka"},
