@@ -137,15 +137,27 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 320, 50);
         validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', found '(T3|T4)[]'",
                 339, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T4'", 343, 13);
         validateError(negativeResult, i++, "incompatible types: expected '(int[]|string[])', found '(int|string)[]'",
                 359, 24);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', " +
+                "found 'string'", 359, 75);
         validateError(negativeResult, i++, "incompatible types: expected '(int[]|string[])', found '(int|boolean)[]'",
                 363, 24);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', " +
+                "found 'boolean'", 363, 75);
         validateError(negativeResult, i++, 
                 "incompatible types: expected '(string[]|decimal[])', found '(int|float)[]'",
                 367, 28);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', " +
+                "found 'int'", 367, 75);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', " +
+                "found 'float'", 367, 79);
         validateError(negativeResult, i++, "incompatible types: expected '(table<FooType>|table<BarType>)', " +
                         "found 'table<(FooType|BarType)> key(id)'", 371, 39);
+        validateError(negativeResult, i++, "incompatible types: expected 'FooType', " +
+                "found 'BarType'", 372, 60);
         validateError(negativeResult, i++, "ambiguous type '[string:Char, string]'", 376, 78);
         validateError(negativeResult, i++, "incompatible types: expected 'boolean', " +
                 "found 'T3'", 382, 11);
@@ -161,6 +173,16 @@ public class QueryActionOrExprTest {
                 388, 16);
         validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', " +
                 "found '(T4|T2|T1)[]'", 394, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T4'", 396, 26);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T2'", 398, 13);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3OrT4'",
+                398, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T1'", 400, 12);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
+                400, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -465,7 +465,6 @@ public class QueryTypeChecker extends TypeChecker {
                 if (actualQueryType.tag != TypeTags.SEMANTIC_ERROR) {
                     types.checkType(queryExpr, actualQueryType,
                             BUnionType.create(null, new LinkedHashSet<>(expTypes)));
-                    return;
                 }
             }
             errorTypes.forEach(expType -> checkExpr(selectExp, env, expType, data));
