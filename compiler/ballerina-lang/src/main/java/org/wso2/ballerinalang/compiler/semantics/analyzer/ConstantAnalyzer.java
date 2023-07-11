@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -153,19 +152,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case NOT:
                 analyzeExpr(unaryExpr.expr);
                 return;
-            default:
-                dlog.error(unaryExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
-    }
-
-    public void visit(BLangListConstructorExpr listConstructorExpr) {
-        for (BLangExpression expr : listConstructorExpr.exprs) {
-            analyzeExpr(expr);
-        }
-    }
-
-    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
-        analyzeExpr(spreadOpExpr.expr);
     }
 
     void analyzeExpr(BLangExpression expr) {
@@ -173,8 +160,6 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case LITERAL:
             case NUMERIC_LITERAL:
             case RECORD_LITERAL_EXPR:
-            case LIST_CONSTRUCTOR_EXPR:
-            case LIST_CONSTRUCTOR_SPREAD_OP:
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:

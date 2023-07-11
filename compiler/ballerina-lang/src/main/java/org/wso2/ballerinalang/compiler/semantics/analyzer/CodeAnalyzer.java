@@ -1749,10 +1749,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 BLangExpression expr = varNode.expr;
                 return expr != null && isValidContextForInferredArray(node.parent) &&
                         isValidVariableForInferredArray(expr);
-            case CONSTANT:
-                BLangConstant constant = (BLangConstant) node;
-                return constant.expr != null && isValidContextForInferredArray(node.parent) &&
-                        isValidVariableForInferredArray(constant.expr);
             default:
                 return false;
         }
