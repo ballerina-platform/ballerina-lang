@@ -16,6 +16,12 @@
 
 import bir/objs;
 
+objs:Qux quxMod = isolated service object {
+    public isolated function execute() returns anydata|error {
+         return "qux";
+    }
+};
+
 function f1(objs:Foo foo) {
     assertTrue(foo is objs:Foo);
 }
@@ -75,6 +81,7 @@ function testObjectTypeAssignability() {
         }
     };
     f6(qux);
+    f6(quxMod);
 }
 
 function assertTrue(anydata actual) {
