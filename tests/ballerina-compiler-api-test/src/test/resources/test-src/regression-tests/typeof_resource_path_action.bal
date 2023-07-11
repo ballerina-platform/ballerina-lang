@@ -17,6 +17,6 @@
 import testorg/testproject as tp;
 
 public function main() returns error? {
-    tp:Client cl= check new("");
+    tp:Client cl = check new("");
     cl->path1/"id1"/path2/"id2".post();
 }
