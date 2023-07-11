@@ -403,3 +403,43 @@ function transform2(T1 t1) returns T2 => {
 };
 
 function returnBool() returns boolean => true;
+
+type Foo record {
+    Baz[] a;
+};
+
+type Bar record {
+    (Baz|Qux)[]|int[] b;
+};
+
+type Baz record {
+    string c;
+};
+
+type Qux record {
+    string c;
+    int d?;
+};
+
+type Baar record {
+    (Baz|Qux)[]|Quux[] b;
+};
+
+type Quux record {
+    string c;
+    int d;
+};
+
+function transformFoo1(Foo foo) returns Bar => {
+    b: from var _ in foo.a
+        select {
+           c: "str"
+        }
+};
+
+function transformFoo2(Foo foo) returns Baar => {
+    b: from var _ in foo.a
+        select {
+           c: "str"
+        }
+};

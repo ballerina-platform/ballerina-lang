@@ -183,6 +183,8 @@ public class QueryActionOrExprTest {
                 "found 'T1'", 400, 12);
         validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
                 400, 16);
+        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 435, 16);
+        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 442, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
