@@ -79,11 +79,17 @@ public class ValueUtils {
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
+        Strand strand = getCurrentStrand();
         for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
             recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call(
-                    new Object[] {Scheduler.getStrand()}));
+                    new Object[] {strand}));
         }
         return recordValue;
+    }
+
+    private static Strand getCurrentStrand() {
+        Strand strand = Scheduler.getStrandNoException();
+        return strand == null ? ValueCreator.getMainStrand() : strand;
     }
 
     /**

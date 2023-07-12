@@ -845,7 +845,7 @@ public class BIRGen extends BLangNodeVisitor {
             // temp value in the type and keep it
 
             setScopeAndEmit(
-                    new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
+                    new BIRNonTerminator.RecordDefaultFPLoad(lambdaExpr.pos, lhsOp, targetType,
                             getFieldName(funcName.value, targetType.tsymbol.name.value)));
         }
         this.env.targetOperand = lhsOp;

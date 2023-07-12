@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.CONST_LOAD;
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_CALL;
+import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.TYPE_CAST;
 
 /**
  * Remove redundant default function calls for record value creation.
@@ -98,8 +99,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
                     }
                     BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
                     lastBB = lastBB != null ? lastBB : basicBlock;
-                    if (defaultFunction.basicBlocks.size() == 2 && firstBB.instructions.size() == 1 &&
-                            firstBB.instructions.get(0).kind == CONST_LOAD) {
+                    if (defaultFunction.basicBlocks.size() == 2 && containsOnlyConstantLoad(firstBB)) {
                         BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad)
                                 firstBB.instructions.get(0);
                         BIRNonTerminator.ConstantLoad newConstLoad =
@@ -118,6 +118,18 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             }
         } else if (fpRemoved  && valueCreated) {
             resetBasicBlock(basicBlock);
+        }
+    }
+
+    private boolean containsOnlyConstantLoad(BIRNode.BIRBasicBlock firstBB) {
+        switch (firstBB.instructions.size()) {
+            case 1:
+                return firstBB.instructions.get(0).kind == CONST_LOAD;
+            case 2:
+                return firstBB.instructions.get(0).kind == CONST_LOAD &&
+                        firstBB.instructions.get(1).kind == TYPE_CAST;
+            default:
+                return false;
         }
     }
 

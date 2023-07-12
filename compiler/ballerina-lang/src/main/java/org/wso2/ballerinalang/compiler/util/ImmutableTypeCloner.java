@@ -611,9 +611,7 @@ public class ImmutableTypeCloner {
         setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
                     unresolvedTypes);
 
-        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol,
-                                                                                    recordTypeNode, env);
-        typeDefinition.pos = pos;
+        TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol,recordTypeNode, env);
         return immutableRecordIntersectionType;
     }
 

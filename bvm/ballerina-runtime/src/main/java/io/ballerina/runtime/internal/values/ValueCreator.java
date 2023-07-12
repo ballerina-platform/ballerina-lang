@@ -46,6 +46,15 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
 public abstract class ValueCreator {
 
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
+    private static Strand mainStrand = null;
+
+    public static void setMainStrand(Strand strand) {
+        mainStrand = strand;
+    }
+
+    public static Strand getMainStrand() {
+        return mainStrand;
+    }
 
     public static void addValueCreator(String orgName, String moduleName, String moduleVersion, boolean isTestPkg,
                                        ValueCreator valueCreator) {

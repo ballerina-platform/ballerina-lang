@@ -354,8 +354,8 @@ public class JvmValueGen {
         jvmRecordGen.createAndSplitGetKeysMethod(cw, fields, className);
         this.createRecordPopulateInitialValuesMethod(cw, className);
 
-        this.createRecordConstructor(cw, INIT_TYPEDESC, className);
-        this.createRecordConstructor(cw, TYPE_PARAMETER, className);
+        this.createRecordConstructor(cw, INIT_TYPEDESC, className, typeDef, recordType);
+        this.createRecordConstructor(cw, TYPE_PARAMETER, className, typeDef, recordType);
         this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
@@ -409,9 +409,15 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className) {
+    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className,
+                                         BIRNode.BIRTypeDefinition typedef, BRecordType recordType) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, argumentClass, null, null);
         mv.visitCode();
+        if (!JvmCodeGenUtil.isAnonType(typedef)) {
+            for (BField field : recordType.fields.values()) {
+                JvmCodeGenUtil.generateDiagnosticPos(field.pos, mv);
+            }
+        }
 
         // load super
         mv.visitVarInsn(ALOAD, 0);
@@ -419,6 +425,14 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 1);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, JVM_INIT_METHOD, argumentClass, false);
+
+        if (!JvmCodeGenUtil.isAnonType(typedef)) {
+            Label label = new Label();
+            if (typedef.pos != null && typedef.pos.lineRange().endLine().line() != 0x80000000) {
+                mv.visitLabel(label);
+                mv.visitLineNumber(typedef.pos.lineRange().endLine().line() + 1, label);
+            }
+        }
 
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, RECORD_INIT_WRAPPER_NAME, className);

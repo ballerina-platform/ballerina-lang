@@ -646,6 +646,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         lambdaFunction.function = function;
         lambdaFunction.setBType(function.getBType());
         lambdaFunction.capturedClosureEnv = env;
+        lambdaFunction.pos = function.pos;
         return lambdaFunction;
     }
 

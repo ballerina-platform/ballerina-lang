@@ -42,8 +42,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -603,6 +605,11 @@ public class JvmCodeGenUtil {
             // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
             mv.visitLineNumber(pos.lineRange().startLine().line() + 1, label);
         }
+    }
+
+    public static boolean isAnonType(BIRNode.BIRTypeDefinition typedef) {
+        return typedef.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX) ||
+                Symbols.isFlagOn(typedef.type.flags, Flags.ANONYMOUS);
     }
 
     private static BirScope getLastScope(BIRAbstractInstruction instruction, String funcName, LabelGenerator labelGen,

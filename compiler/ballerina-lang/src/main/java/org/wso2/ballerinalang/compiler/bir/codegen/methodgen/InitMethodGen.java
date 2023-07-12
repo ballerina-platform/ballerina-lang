@@ -151,6 +151,13 @@ public class InitMethodGen {
         mv.visitCode();
         String methodDesc;
 
+        //set main strand
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+        mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "setMainStrand",  SET_STRAND, false);
+
         //load strand as first arg
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
