@@ -263,8 +263,13 @@ public class LargeMethodOptimizer {
 
     private Map<BIRAbstractInstruction, List<BIROperand>> getSplitPoints(List<BIRBasicBlock> bbs,
                                                                    Set<BIROperand> arrayValuesOperands) {
+        // Split points means the places which is eligible for a split. i.e. we can split the parent function by
+        // moving instructions and terminators until this one (including this) to a new function.
+        // Criteria for choosing split point is as follows. We go from bottom to top searching for array value operands
+        // in both rhs and lhs. If we find one that is a split point unless we find that previously in the same BB.
         Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints = new HashMap<>();
         for (int bbIndex = bbs.size() - 2; bbIndex >= 0; bbIndex--) {
+            Set<BIROperand> operandsInSameBB = new HashSet<>();
             BIRBasicBlock bb = bbs.get(bbIndex);
             List<BIRNonTerminator> bbInstructions = bb.instructions;
             int lastInsNum;
@@ -272,10 +277,11 @@ public class LargeMethodOptimizer {
                 lastInsNum = bbInstructions.size() - 2;
             } else {
                 lastInsNum = bbInstructions.size() - 1;
-                populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bb.terminator);
+                populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bb.terminator, operandsInSameBB);
             }
             for (int insIndex = lastInsNum; insIndex >= 0; insIndex--) {
-                populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbInstructions.get(insIndex));
+                populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbInstructions.get(insIndex),
+                        operandsInSameBB);
             }
         }
         return insSplitPoints;
@@ -283,29 +289,30 @@ public class LargeMethodOptimizer {
 
     private void populateInsSplitPoints(Set<BIROperand> arrayValuesOperands,
                                         Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints,
-                                        BIRAbstractInstruction ins) {
+                                        BIRAbstractInstruction ins, Set<BIROperand> operandsInSameBB) {
         BIROperand insLhsOp = ins.lhsOp;
-        if (insLhsOp != null && arrayValuesOperands.contains(insLhsOp)) {
-            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, insLhsOp);
+        if (insLhsOp != null) {
+            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, insLhsOp, operandsInSameBB);
         }
         for (BIROperand rhsOperand : ins.getRhsOperands()) {
-            if (arrayValuesOperands.contains(rhsOperand)) {
-                addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, rhsOperand);
-            }
+            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, rhsOperand, operandsInSameBB);
         }
     }
 
     private void addOperandToInsSplitPoints(Set<BIROperand> arrayValuesOperands,
                                             Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints,
-                                            BIRAbstractInstruction ins, BIROperand insLhsOp) {
-        arrayValuesOperands.remove(insLhsOp);
-        if (insSplitPoints.containsKey(ins)) {
-            List<BIROperand> operandList = insSplitPoints.get(ins);
-            operandList.add(insLhsOp);
-        } else {
-            List<BIROperand> operandList = new ArrayList<>();
-            operandList.add(insLhsOp);
-            insSplitPoints.put(ins, operandList);
+                                            BIRAbstractInstruction ins, BIROperand insOperand,
+                                            Set<BIROperand> operandsInSameBB) {
+        if (arrayValuesOperands.contains(insOperand) && !operandsInSameBB.contains(insOperand)) {
+            operandsInSameBB.add(insOperand);
+            if (insSplitPoints.containsKey(ins)) {
+                List<BIROperand> operandList = insSplitPoints.get(ins);
+                operandList.add(insOperand);
+            } else {
+                List<BIROperand> operandList = new ArrayList<>();
+                operandList.add(insOperand);
+                insSplitPoints.put(ins, operandList);
+            }
         }
     }
 
