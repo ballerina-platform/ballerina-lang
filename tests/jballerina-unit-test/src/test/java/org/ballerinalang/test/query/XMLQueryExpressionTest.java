@@ -73,10 +73,8 @@ public class XMLQueryExpressionTest {
                 "found 'xml:ProcessingInstruction'", 51, 16);
         validateError(negativeResult, index++,
                 "incompatible types: expected '(xml:Element|error)', found '(xml<xml:Element>|error)'", 81, 27);
-         validateError(negativeResult, index++,
-                 "ambiguous type '[xml:Element, xml]'", 88, 16);
-         validateError(negativeResult, index++,
-                 "ambiguous type '[xml:Element, xml]'", 99, 16);
+         validateError(negativeResult, index++, "ambiguous type '[xml:Element, xml]'", 88, 16);
+         validateError(negativeResult, index++, "ambiguous type '[xml:Element, xml]'", 99, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

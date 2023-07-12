@@ -341,7 +341,7 @@ public class QueryTypeChecker extends TypeChecker {
                 case TypeTags.ARRAY:
                     BType elementType = ((BArrayType) type).eType;
                     selectType = checkExprSilent(selectExp, env, elementType, data);
-                    if (selectType.tag == TypeTags.SEMANTIC_ERROR) {
+                    if (selectType == symTable.semanticError) {
                         errorTypes.add(elementType);
                         continue;
                     }
@@ -352,7 +352,7 @@ public class QueryTypeChecker extends TypeChecker {
                     BType tableConstraint = types.getSafeType(((BTableType) type).constraint,
                             true, true);
                     selectType = checkExprSilent(selectExp, env, tableConstraint, data);
-                    if (selectType.tag == TypeTags.SEMANTIC_ERROR) {
+                    if (selectType == symTable.semanticError) {
                         errorTypes.add(tableConstraint);
                         continue;
                     }
@@ -362,7 +362,7 @@ public class QueryTypeChecker extends TypeChecker {
                     BType streamConstraint = types.getSafeType(((BStreamType) type).constraint,
                             true, true);
                     selectType = checkExprSilent(selectExp, env, streamConstraint, data);
-                    if (selectType.tag == TypeTags.SEMANTIC_ERROR) {
+                    if (selectType == symTable.semanticError) {
                         errorTypes.add(streamConstraint);
                         continue;
                     }
@@ -378,7 +378,7 @@ public class QueryTypeChecker extends TypeChecker {
                     memberTypeList.add(new BTupleMember(memberType, varSymbol));
                     BTupleType newExpType = new BTupleType(null, memberTypeList);
                     selectType = checkExprSilent(selectExp, env, newExpType, data);
-                    if (selectType.tag == TypeTags.SEMANTIC_ERROR) {
+                    if (selectType == symTable.semanticError) {
                         errorTypes.add(newExpType);
                         continue;
                     }
@@ -391,7 +391,7 @@ public class QueryTypeChecker extends TypeChecker {
                 case TypeTags.XML_PI:
                 case TypeTags.XML_TEXT:
                     selectType = checkExprSilent(selectExp, env, type, data);
-                    if (selectType.tag == TypeTags.SEMANTIC_ERROR) {
+                    if (selectType == symTable.semanticError) {
                         errorTypes.add(type);
                         continue;
                     }
@@ -462,7 +462,7 @@ public class QueryTypeChecker extends TypeChecker {
         } else {
             if (errorTypes.size() > 1) {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
-                if (actualQueryType.tag != TypeTags.SEMANTIC_ERROR) {
+                if (actualQueryType != symTable.semanticError) {
                     types.checkType(queryExpr, actualQueryType,
                             BUnionType.create(null, new LinkedHashSet<>(expTypes)));
                 }

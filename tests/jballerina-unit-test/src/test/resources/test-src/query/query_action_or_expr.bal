@@ -985,12 +985,9 @@ type Student record {
     float gpa;
 };
 
-function calGraduationYear(int year) returns int {
-    return year + 5;
-}
+function calGraduationYear(int year) returns int => year + 5;
 
 function getBestStudents() returns any|error {
-
     Student s1 = {firstName: "Martin", lastName: "Sadler", intakeYear: 1990, gpa: 3.5};
     Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001, gpa: 1.9};
     Student s3 = {firstName: "Michelle", lastName: "Guthrie", intakeYear: 2002, gpa: 3.7};
@@ -1002,7 +999,7 @@ function getBestStudents() returns any|error {
         let string degreeName = "Bachelor of Medicine", int graduationYear = calGraduationYear(student.intakeYear)
         order by student.gpa descending
         limit 2
-        select {name: student.firstName + " " + student.lastName, degree: degreeName, graduationYear: graduationYear};
+        select {name: student.firstName + " " + student.lastName, degree: degreeName, graduationYear};
 }
 
 function testQueryActionOrExprWithAnyOrErrResultType() {
