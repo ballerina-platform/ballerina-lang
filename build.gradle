@@ -58,11 +58,6 @@ subprojects {
 
 }
 
-buildScan {
-    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-    termsOfServiceAgree = 'yes'
-}
-
 dependencies {
     constraints {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
