@@ -4693,7 +4693,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : rhsFields) {
             String key = keyVal.key.value;
             BLangExpression valueExpr = keyVal.valueExpr;
-            if (valueExpr != null && checkBinaryBitwiseOperations(valueExpr)) {
+            if (valueExpr != null && isBinaryBitwiseOperatorExpr(valueExpr)) {
                 dlog.error(valueExpr.pos,
                         DiagnosticErrorCode.CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION);
                 data.resultType = symTable.semanticError;
@@ -4722,9 +4722,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private boolean checkBinaryBitwiseOperations(BLangExpression valueExpr) {
+    private boolean isBinaryBitwiseOperatorExpr(BLangExpression valueExpr) {
         if (valueExpr.getKind() == NodeKind.GROUP_EXPR) {
-            return checkBinaryBitwiseOperations(((BLangGroupExpr) valueExpr).expression);
+            return isBinaryBitwiseOperatorExpr(((BLangGroupExpr) valueExpr).expression);
         }
         if (valueExpr.getKind() == NodeKind.BINARY_EXPR
                 && ((BLangBinaryExpr) valueExpr).opKind == OperatorKind.BITWISE_OR) {
