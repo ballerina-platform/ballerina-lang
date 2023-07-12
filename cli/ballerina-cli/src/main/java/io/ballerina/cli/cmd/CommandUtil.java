@@ -75,6 +75,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
@@ -239,7 +240,7 @@ public class CommandUtil {
                 templateBalToolJson = gson.fromJson(fileReader, BalToolJson.class);
             } catch (IOException e) {
                 printError(errStream,
-                        "Error while reading the bal-tool json file: " + e.getMessage(),
+                        "Error while reading the " + BAL_TOOL_JSON + " file: " + e.getMessage(),
                         null,
                         false);
                 getRuntime().exit(1);
