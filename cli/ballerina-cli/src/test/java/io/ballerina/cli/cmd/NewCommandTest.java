@@ -568,7 +568,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Test packing the package
         Files.copy(testResources.resolve("test-jar-files").resolve("tool-test.jar"),
                 packageDir.resolve(TOOL_DIR).resolve("tool-test.jar"));
-        String newToolTomlContent = toolTomlContent + "path = \"tool" + File.separator + "tool-test.jar\"\n";
+        String newToolTomlContent = toolTomlContent + "path = \"tool/tool-test.jar\"\n";
         Files.writeString(packageDir.resolve(ProjectConstants.BAL_TOOL_TOML), newToolTomlContent);
         System.setProperty("user.dir", packageDir.toString());
         PackCommand packCommand = new PackCommand(packageDir, printStream, printStream, false, true);
