@@ -80,6 +80,8 @@ dependencies {
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
 
+    dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
+    dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
     dist "org.ow2.asm:asm:${project.ow2AsmVersion}"
     dist "org.ow2.asm:asm-analysis:${project.ow2AsmAnalysisVersion}"
     dist "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
