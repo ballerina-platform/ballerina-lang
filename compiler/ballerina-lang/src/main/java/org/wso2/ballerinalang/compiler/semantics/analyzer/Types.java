@@ -7272,7 +7272,7 @@ public class Types {
     }
 
     public boolean isMappingConstructorCompatibleType(BType type) {
-        return Types.getReferredType(type).tag == TypeTags.RECORD
-                || Types.getReferredType(type).tag == TypeTags.MAP;
+        int tag = getReferredType(type).tag;
+        return tag == TypeTags.RECORD || tag == TypeTags.MAP;
     }
 }

@@ -39,7 +39,7 @@ public class MapConstantNegativeTest {
         validateError(compileResult, i++, "incompatible types: expected 'string', found 'other'", 20, 27);
         validateError(compileResult, i++, "expression is not a constant expression", 20, 38);
         validateError(compileResult, i++, "cannot update constant value", 34, 5);
-        validateError(compileResult, i++, "invalid usage of record literal: duplicate key 'a'", 39, 34);
+        validateError(compileResult, i++, "invalid record constructor: duplicate key 'a'", 39, 34);
         validateError(compileResult, i++, "illegal cyclic reference '[B1]'", 46, 1);
         validateError(compileResult, i++, "cannot declare a constant with type 'A1', expected a subtype of 'anydata'" +
                 " that is not 'never'", 46, 7);
@@ -56,11 +56,11 @@ public class MapConstantNegativeTest {
         CompileResult compileResult1 = BCompileUtil.compile(
                 "test-src/types/constant/constant_map_spread_field_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b'", 21, 46);
-        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b'", 22, 36);
-        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b'", 23, 33);
-        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b'", 24, 36);
-        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'c'", 24, 36);
+        BAssertUtil.validateError(compileResult1, i++, "invalid record constructor: duplicate key 'b'", 21, 46);
+        BAssertUtil.validateError(compileResult1, i++, "invalid record constructor: duplicate key 'b'", 22, 36);
+        BAssertUtil.validateError(compileResult1, i++, "invalid record constructor: duplicate key 'b'", 23, 33);
+        BAssertUtil.validateError(compileResult1, i++, "invalid record constructor: duplicate key 'b'", 24, 36);
+        BAssertUtil.validateError(compileResult1, i++, "invalid record constructor: duplicate key 'c'", 24, 36);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 }

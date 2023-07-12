@@ -542,6 +542,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    /**
+     * This method is similar to reportIncompatibleMappingConstructorError method in TypeChecker.java.
+     */
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
         if (expType == symTable.semanticError) {
             return;
@@ -2070,8 +2073,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                            BRecordTypeSymbol recordSymbol) {
         Name fieldName = Names.fromString(key);
         if (fields.containsKey(key)) {
-            dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL, TypeKind.RECORD.typeName(),
-                    key);
+            dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR, TypeKind.RECORD.typeName(), key);
             return false;
         }
         long flags = recordSymbol.flags | Flags.REQUIRED;
