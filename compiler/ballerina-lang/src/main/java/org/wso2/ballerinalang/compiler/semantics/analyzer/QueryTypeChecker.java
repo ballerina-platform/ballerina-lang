@@ -459,7 +459,7 @@ public class QueryTypeChecker extends TypeChecker {
         if (!possibleSelectTypes.isEmpty() && !possibleResolvedTypes.isEmpty()) {
             selectTypes.addAll(possibleSelectTypes);
             resolvedTypes.addAll(possibleResolvedTypes);
-        } else {
+        } else if (!errorTypes.isEmpty()) {
             if (errorTypes.size() > 1) {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
                 if (actualQueryType != symTable.semanticError) {
@@ -467,7 +467,11 @@ public class QueryTypeChecker extends TypeChecker {
                             BUnionType.create(null, new LinkedHashSet<>(expTypes)));
                 }
             }
-            errorTypes.forEach(expType -> checkExpr(selectExp, env, expType, data));
+            errorTypes.forEach(expType -> {
+                checkExpr(selectExp, env, expType, data);
+                selectExp.typeChecked = false;
+            });
+            selectExp.typeChecked = true;
         }
     }
     

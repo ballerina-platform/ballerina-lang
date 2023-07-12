@@ -183,8 +183,17 @@ public class QueryActionOrExprTest {
                 "found 'T1'", 400, 12);
         validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
                 400, 16);
-        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 435, 16);
-        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 442, 16);
+        validateError(negativeResult, i++, "a type compatible with mapping constructor expressions not " +
+                "found in type 'int'", 439, 16);
+        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 439, 16);
+        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 446, 16);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 'd'", 446, 16);
+        validateError(negativeResult, i++, "incompatible types: expected '(boolean[]|float[])', " +
+                "found 'record {| string c; |}[]'", 452, 8);
+        validateError(negativeResult, i++, "a type compatible with mapping constructor expressions not " +
+                "found in type 'boolean'", 453, 16);
+        validateError(negativeResult, i++, "a type compatible with mapping constructor expressions not " +
+                "found in type 'float'", 453, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -430,6 +430,10 @@ type Quux record {
     int d;
 };
 
+type Xyz record {
+    boolean[]|float[] b;
+};
+
 function transformFoo1(Foo foo) returns Bar => {
     b: from var _ in foo.a
         select {
@@ -438,6 +442,13 @@ function transformFoo1(Foo foo) returns Bar => {
 };
 
 function transformFoo2(Foo foo) returns Baar => {
+    b: from var _ in foo.a
+        select {
+           c: "str"
+        }
+};
+
+function transformFoo3(Foo foo) returns Xyz => {
     b: from var _ in foo.a
         select {
            c: "str"
