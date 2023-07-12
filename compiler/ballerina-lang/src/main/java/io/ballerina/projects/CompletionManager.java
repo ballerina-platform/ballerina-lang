@@ -173,7 +173,6 @@ public class CompletionManager {
     private boolean isInServiceBodyNodeContext(CompletionContext context,
                                                Node referenceNode) {
         Optional<LinePosition> cursorPosition = context.cursorPosition();
-        Node nodeAtCursor = context.nodeAtCursor();
         if (referenceNode.kind() != SyntaxKind.SERVICE_DECLARATION
                 || cursorPosition.isEmpty()) {
             return false;
@@ -193,7 +192,7 @@ public class CompletionManager {
         }
 
         ServiceDeclarationContextValidator validator = new ServiceDeclarationContextValidator(context);
-        validator.visitNode(nodeAtCursor);
+        validator.visitNode(context.nodeAtCursor());
         return validator.isValidContext();
     }
 
