@@ -569,9 +569,12 @@ public class LargeMethodOptimizer {
             if (!splitFuncEnv.splitFuncCorrectTerminatorBBs.contains(basicBlock)) {
                 BIRTerminator terminator = basicBlock.terminator;
                 Map<Integer, BIRBasicBlock> changedBBs = splitFuncEnv.splitFuncChangedBBs;
-                if (terminator.thenBB != null
-                        && changedBBs.containsKey(terminator.thenBB.number)) {
-                    terminator.thenBB = changedBBs.get(terminator.thenBB.number);
+                if (terminator.thenBB != null) {
+                    if (changedBBs.containsKey(terminator.thenBB.number)) {
+                        terminator.thenBB = changedBBs.get(terminator.thenBB.number);
+                    } else {
+                        terminator.thenBB = splitFuncEnv.returnBB;
+                    }
                 }
 
                 switch (terminator.getKind()) {
@@ -580,6 +583,8 @@ public class LargeMethodOptimizer {
                                 ((BIRTerminator.GOTO) terminator).targetBB.number)) {
                             ((BIRTerminator.GOTO) terminator).targetBB = changedBBs.get(
                                     ((BIRTerminator.GOTO) terminator).targetBB.number);
+                        } else {
+                            ((BIRTerminator.GOTO) terminator).targetBB = splitFuncEnv.returnBB;
                         }
                         break;
                     case BRANCH:
