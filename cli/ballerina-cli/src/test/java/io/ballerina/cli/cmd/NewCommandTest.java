@@ -79,7 +79,7 @@ public class NewCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(centralCache);
     }
 
-    @Test(description = "Create a new project", enabled = false)
+    @Test(description = "Create a new project")
     public void testNewCommand() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
         Path packageDir = tmpDir.resolve("project_name");
@@ -943,7 +943,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
-    @Test(description = "Test new command with invalid length package name", enabled = false)
+    @Test(description = "Test new command with invalid length package name")
     public void testNewCommandWithInvalidLengthPackageName() throws IOException {
         String longPkgName = "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
