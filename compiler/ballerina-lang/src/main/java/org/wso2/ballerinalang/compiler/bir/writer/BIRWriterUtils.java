@@ -244,9 +244,7 @@ public class BIRWriterUtils {
             for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
-            return isIntersection ?
-                    new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValType).getIntersectionType().get())
-                    : new BIRNode.ConstValue(tupleConstVal, constValType);
+            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValType).getIntersectionType().get());
         }
 
         return new BIRNode.ConstValue(constValue.value, constValType);
