@@ -172,9 +172,17 @@ public class CommandUtil {
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
         //First we will check for a bala that match any platform
-        String platform = findPlatform(balaPath);
-        balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, platform));
+        String platform = ANY_PLATFORM;
+        if (!Files.exists(balaPath)) {
+            for (JvmTarget supportedPlatform : JvmTarget.values()) {
+                balaPath = balaCache.resolve(
+                        ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, supportedPlatform.code()));
+                if (Files.exists(balaPath)) {
+                    platform = supportedPlatform.code();
+                    break;
+                }
+            }
+        }
         if (!Files.exists(balaPath)) {
             CommandUtil.printError(errStream,
                     "unable to find the bala: " + balaPath,
@@ -368,12 +376,18 @@ public class CommandUtil {
             //First we will check for a bala that match any platform
             Path balaPath = balaCache.resolve(
                     ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-            String platform = findPlatform(balaPath);
-            balaPath = balaCache.resolve(
-                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
             if (Files.exists(balaPath)) {
                 return balaPath;
             } else {
+                //If there is no bala that match 'any' platform, we will check for a bala that matches one of the
+                // supported platform
+                for (JvmTarget supportedPlatform : JvmTarget.values()) {
+                    balaPath = balaCache.resolve(
+                            ProjectUtils.getRelativeBalaPath(orgName, packageName, version, supportedPlatform.code()));
+                    if (Files.exists(balaPath)) {
+                        return balaPath;
+                    }
+                }
                 return null;
             }
         } else {
@@ -712,23 +726,6 @@ public class CommandUtil {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Find the platform of the module for a given template.
-     *
-     * @param balaPath path to the module
-     * @return platform - platform of the module
-     */
-    public static String findPlatform(Path balaPath) {
-        String platform = "";
-        if (!Files.exists(balaPath)) {
-            //If bala for any platform not exist check for specific platform
-            platform = JvmTarget.JAVA_17.code();
-        } else {
-            platform = ANY_PLATFORM;
-        }
-        return platform;
     }
 
     /**

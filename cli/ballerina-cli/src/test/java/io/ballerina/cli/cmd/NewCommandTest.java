@@ -617,7 +617,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultiModuleTemplate() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "ballerina/protobuf:1.0.1";
@@ -654,7 +654,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
-                "\n[[platform.java17.dependency]]\n" +
+                "\n[[platform.java11.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
@@ -674,7 +674,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
     }
 
-    @Test(description = "Test new command by pulling a central template with platform libs", enabled = false)
+    @Test(description = "Test new command by pulling a central template with platform libs")
     public void testNewCommandCentralPullWithPlatformDependencies() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "admin/lib_project:0.1.0";
