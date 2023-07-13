@@ -41,8 +41,6 @@ public class MapConstantNegativeTest {
         validateError(compileResult, i++, "cannot update constant value", 34, 5);
         validateError(compileResult, i++, "invalid usage of finite literal: duplicate key 'a'", 39, 34);
         validateError(compileResult, i++, "illegal cyclic reference '[B1]'", 46, 1);
-        validateError(compileResult, i++, "cannot declare a constant with type 'A1', expected a subtype of 'anydata'" +
-                " that is not 'never'", 46, 7);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

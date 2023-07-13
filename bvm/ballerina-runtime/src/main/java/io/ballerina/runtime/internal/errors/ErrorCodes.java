@@ -145,10 +145,14 @@ public enum ErrorCodes implements DiagnosticCode {
     REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE("regexp.invalid.unicode.general.category.value", "RUNTIME_0117"),
     REGEXP_INVALID_UNICODE_PROPERTY_VALUE("regexp.invalid.unicode.property.value", "RUNTIME_0118"),
     REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED("regexp.empty.character.class.disallowed", "RUNTIME_0119"),
-    REGEXP_INVALID_HEX_DIGIT("regexp.invalid.hex.digit", "RUNTIME_0120");
 
-    private String errorMsgKey;
-    private String errorCode;
+    REGEXP_INVALID_HEX_DIGIT("regexp.invalid.hex.digit", "RUNTIME_0120"),
+    CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
+                                                               "RUNTIME_0121"),
+    EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122");
+
+    private final String errorMsgKey;
+    private final String errorCode;
 
     ErrorCodes(String errorMessageKey, String errorCode) {
         this.errorMsgKey = errorMessageKey;
