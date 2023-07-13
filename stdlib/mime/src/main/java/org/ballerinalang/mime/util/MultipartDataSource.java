@@ -45,8 +45,10 @@ import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.LEFT_ANGLE_BRACKET;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.RIGHT_ANGLE_BRACKET;
 
 /**
  * Act as multipart encoder.
@@ -59,7 +61,6 @@ public class MultipartDataSource implements RefValue {
     private ObjectValue parentEntity;
     private String boundaryString;
     private OutputStream outputStream;
-    private static final String DASH_BOUNDARY = "--";
     private static final String CRLF_POST_DASH = "\r\n--";
     private static final String CRLF_PRE_DASH = "--\r\n";
     private static final String CRLF = "\r\n";
@@ -93,16 +94,10 @@ public class MultipartDataSource implements RefValue {
             if (childParts == null) {
                 return;
             }
-            boolean firstPart = true;
             for (int i = 0; i < childParts.size(); i++) {
                 ObjectValue childPart = (ObjectValue) childParts.getRefValue(i);
                 // Write leading boundary string
-                if (firstPart) {
-                    firstPart = false;
-                    writer.write(DASH_BOUNDARY);
-                } else {
-                    writer.write(CRLF_POST_DASH);
-                }
+                writer.write(CRLF_POST_DASH);
                 writer.write(parentBoundaryString);
                 writer.write(CRLF);
                 checkForNestedParts(writer, childPart);
@@ -172,7 +167,8 @@ public class MultipartDataSource implements RefValue {
         
         Object contentId = bodyPart.get(CONTENT_ID_FIELD);
         if (contentId != null && !contentId.toString().isEmpty()) {
-            httpHeaders.set(CONTENT_ID, contentId.toString());
+            // Content-ID should be enclosed with angle brackets
+            httpHeaders.set(CONTENT_ID, LEFT_ANGLE_BRACKET + contentId.toString() + RIGHT_ANGLE_BRACKET);
         }
         Iterator<Map.Entry<String, String>> iterator = httpHeaders.iteratorAsString();
         while (iterator.hasNext()) {

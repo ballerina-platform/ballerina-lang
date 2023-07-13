@@ -31,18 +31,22 @@ import org.jvnet.mimepull.Header;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.MimeConstants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
+import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_PARAM;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_VALUE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
+import static org.ballerinalang.mime.util.MimeConstants.SLASH;
+import static org.ballerinalang.mime.util.MimeConstants.TOKEN_SPECIAL;
 
 /**
  * Utility methods for parsing headers.
@@ -173,8 +177,16 @@ public class HeaderUtil {
                 for (String key : keys) {
                     String paramValue = (String) map.get(key);
                     if (index == keys.length - 1) {
+                        if (paramValue.contains(SLASH)) {
+                            paramValue = DOUBLE_QUOTE + paramValue + DOUBLE_QUOTE;
+                        }
                         headerValue.append(key).append(ASSIGNMENT).append(paramValue);
                     } else {
+                        // Make the value a quoted string if it contains special characters which are not supported
+                        // in a token.
+                        if (containsSpecialCharacters(paramValue)) {
+                            paramValue = DOUBLE_QUOTE + paramValue + DOUBLE_QUOTE;
+                        }
                         headerValue.append(key).append(ASSIGNMENT).append(paramValue).append(SEMICOLON);
                         index = index + 1;
                     }
@@ -182,6 +194,11 @@ public class HeaderUtil {
             }
         }
         return headerValue.toString();
+    }
+
+    public static boolean containsSpecialCharacters(String headerValue) {
+        return IntStream.range(0, headerValue.length()).anyMatch(
+                i -> TOKEN_SPECIAL.contains(Character.toString(headerValue.charAt(i))));
     }
 
     public static boolean isMultipart(String contentType) {
