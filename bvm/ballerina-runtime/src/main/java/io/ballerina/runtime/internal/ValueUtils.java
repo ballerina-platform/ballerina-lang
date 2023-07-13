@@ -18,31 +18,42 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.scheduling.AsyncFunctionCallback;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
 /**
  * Class @{@link ValueUtils} provides utils to create Ballerina Values.
@@ -50,6 +61,8 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ValueUtils {
+
+    private static final PrintStream outStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
@@ -72,24 +85,92 @@ public class ValueUtils {
         }
     }
 
-    private static MapValue<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName) {
+    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName) {
         MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
         BRecordType type = (BRecordType) TypeUtils.getReferredType(recordValue.getType());
-        Map<String, FPValue> defaultValues = type.getDefaultValues();
+        return populateDefaultValues(recordValue, type);
+    }
+
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
-        Strand strand = getCurrentStrand();
-        for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
-            recordValue.populateInitialValue(StringUtils.fromString(field.getKey()), field.getValue().call(
-                    new Object[] {strand}));
+        Strand strand = Scheduler.getStrandNoException();
+        if (strand == null) {
+            populateInitialValuesWithNoStrand(recordValue, type);
+        } else {
+            for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
+                recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
+                        field.getValue().call(new Object[]{strand}));
+            }
         }
         return recordValue;
     }
 
-    private static Strand getCurrentStrand() {
-        Strand strand = Scheduler.getStrandNoException();
-        return strand == null ? ValueCreator.getMainStrand() : strand;
+    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, BRecordType recordType) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = recordType.getDefaultValues();
+        String[] fields = defaultValues.keySet().toArray(new String[0]);
+        invokeFPAsyncIterativelyWithNoStrand(recordValue, defaultValues, fields, "default",
+                ValueCreator.getMainStrand().getMetadata(), defaultValues.size(), o -> {
+        }, ValueCreator.getMainStrand().scheduler);
+    }
+
+    public static void invokeFPAsyncIterativelyWithNoStrand(BMap<BString, Object> recordValue,
+                                                            Map<String, BFunctionPointer<Object, ?>> defaultValues,
+                                                            String[] fields, String strandName, StrandMetadata metadata,
+                                                            int noOfIterations, Consumer<Object> futureResultConsumer,
+                                                            Scheduler scheduler) {
+        if (noOfIterations <= 0) {
+            return;
+        }
+        AtomicInteger callCount = new AtomicInteger(0);
+        Semaphore sem = new Semaphore(1);
+        scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations, callCount,
+                futureResultConsumer, scheduler, sem);
+    }
+
+    private static void scheduleNextFunction(BMap<BString, Object> recordValue,
+                                             Map<String, BFunctionPointer<Object, ?>> defaultValues, String[] fields,
+                                             String strandName, StrandMetadata metadata, int noOfIterations,
+                                             AtomicInteger callCount, Consumer<Object> futureResultConsumer,
+                                             Scheduler scheduler, Semaphore sem) {
+        BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
+        Type retType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
+        FutureValue future = scheduler.createFuture(null, null, null, retType, strandName, metadata);
+        AsyncFunctionCallback callback = new AsyncFunctionCallback(null) {
+            @Override
+            public void notifySuccess(Object result) {
+                futureResultConsumer.accept(getFutureResult());
+                sem.release();
+                int i = callCount.incrementAndGet();
+                recordValue.populateInitialValue(StringUtils.fromString(fields[i]), result);
+                if (i != noOfIterations) {
+                    scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations,
+                            callCount, futureResultConsumer, scheduler, sem);
+                }
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+            }
+        };
+
+        invokeFunctionPointerAsync(func, retType, future, callback, scheduler, strandName, metadata, sem);
+    }
+
+    private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Type returnType, FutureValue future,
+                                                   AsyncFunctionCallback callback, Scheduler scheduler,
+                                                   String strandName, StrandMetadata metadata, Semaphore sem) {
+        future.callback = callback;
+        callback.setFuture(future);
+        try {
+            sem.acquire();
+        } catch (InterruptedException e) {
+            RuntimeUtils.printCrashLog(e);
+        }
+        scheduler.scheduleFunction(new Object[1], func, null, returnType, strandName, metadata);
     }
 
     /**
@@ -270,7 +351,7 @@ public class ValueUtils {
      * @param inherentType Inherent type of the value
      * @return     typedesc with the suitable type
      */
-    public static BTypedesc getTypedescValue(Boolean readOnly, BValue value, TypedescValueImpl inherentType) {
+    public static BTypedesc getTypedescValue(boolean readOnly, BValue value, TypedescValueImpl inherentType) {
         if (readOnly) {
             TypedescValueImpl typedesc = (TypedescValueImpl) createSingletonTypedesc(value);
             typedesc.annotations = inherentType.annotations;
