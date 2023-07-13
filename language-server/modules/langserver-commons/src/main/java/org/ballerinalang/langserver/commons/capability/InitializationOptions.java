@@ -48,6 +48,11 @@ public interface InitializationOptions {
     String KEY_ENABLE_LIGHTWEIGHT_MODE = "enableLightWeightMode";
 
     /**
+     * Where the client supports inlay hints.
+     */
+    String KEY_ENABLE_INLAY_HINTS = "enableInlayHints";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -80,4 +85,11 @@ public interface InitializationOptions {
      * @return True if enabled, false otherwise
      */
     boolean isEnableLightWeightMode();
+
+    /**
+     * Returns if the client supports inlay hints.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableInlayHints();
 }
