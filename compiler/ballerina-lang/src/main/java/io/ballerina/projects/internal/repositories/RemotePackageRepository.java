@@ -382,11 +382,9 @@ public class RemotePackageRepository implements PackageRepository {
                             dependencies);
                     response.add(responseDescriptor);
                     resolvedRequests.add(resolutionRequest);
-                } else {
-                    if (i == values.length - 1) {
-                        // If the package is not in resolved we assume the package is unresolved
-                        response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
-                    }
+                } else if (i == values.length - 1) {
+                    // If the package is not in resolved for all jvm platforms we assume the package is unresolved
+                    response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
                 }
             }
         }
