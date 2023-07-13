@@ -924,10 +924,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case MODULE_ENUM_NAME:
                 case ENUM_MEMBER_NAME:
                 case NAMED_ARG_BINDING_PATTERN:
-                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                    hasMatch = (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN
+                            && !isContextualKeyword(nextToken));
                     break;
                 case IMPORT_PREFIX:
-                    hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN ||
+                    hasMatch = (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN
+                            && !isContextualKeyword(nextToken)) ||
                             BallerinaParser.isPredeclaredPrefix(nextToken.kind);
                     break;
                 case QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX:
@@ -1117,7 +1119,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case PEER_WORKER_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.FUNCTION_KEYWORD ||
-                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                            (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN
+                                    && !isContextualKeyword(nextToken));
                     break;
                 case LEFT_ARROW_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.LEFT_ARROW_TOKEN;
@@ -6231,5 +6234,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             default:
                 return false;
         }
+    }
+
+    private boolean isContextualKeyword(STToken token) {
+        return BallerinaParser.isKeywordMatch(token, SyntaxKind.SELECT_KEYWORD, SyntaxKind.WHERE_KEYWORD,
+                SyntaxKind.JOIN_KEYWORD, SyntaxKind.OUTER_KEYWORD, SyntaxKind.EQUALS_KEYWORD, SyntaxKind.ORDER_KEYWORD,
+                SyntaxKind.BY_KEYWORD, SyntaxKind.ASCENDING_KEYWORD, SyntaxKind.DESCENDING_KEYWORD,
+                SyntaxKind.LIMIT_KEYWORD, SyntaxKind.CONFLICT_KEYWORD, SyntaxKind.GROUP_KEYWORD,
+                SyntaxKind.COLLECT_KEYWORD);
     }
 }
