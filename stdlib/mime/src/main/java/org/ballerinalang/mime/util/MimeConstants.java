@@ -171,7 +171,6 @@ public class MimeConstants {
     public static final String ASSIGNMENT = "=";
     public static final String DOUBLE_QUOTE = "\"";
     public static final String TOKEN_SPECIAL = "\" ()<>@,;:/[]?=\\\"\"";
-    public static final String SLASH = "/";
     public static final String PARSER_ERROR = "failed to parse: ";
     public static final String CONTENT_DISPOSITION_FILE_NAME = "filename";
     public static final String CONTENT_DISPOSITION_NAME = "name";

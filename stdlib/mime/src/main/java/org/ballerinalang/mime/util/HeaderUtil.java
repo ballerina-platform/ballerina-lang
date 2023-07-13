@@ -45,7 +45,6 @@ import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_PARAM;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_VALUE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
-import static org.ballerinalang.mime.util.MimeConstants.SLASH;
 import static org.ballerinalang.mime.util.MimeConstants.TOKEN_SPECIAL;
 
 /**
