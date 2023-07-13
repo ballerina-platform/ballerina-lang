@@ -277,7 +277,12 @@ public class LargeMethodOptimizer {
                 lastInsNum = bbInstructions.size() - 2;
             } else {
                 lastInsNum = bbInstructions.size() - 1;
-                populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bb.terminator, operandsInSameBB);
+                BIRTerminator bbTerminator = bb.terminator;
+                if (bbTerminator.kind != InstructionKind.BRANCH) {
+                    // branch terminators are omitted from terminators because its boolean operand appear
+                    // in a preceding instruction before the terminator. There we can do the split
+                    populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbTerminator, operandsInSameBB);
+                }
             }
             for (int insIndex = lastInsNum; insIndex >= 0; insIndex--) {
                 populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbInstructions.get(insIndex),
