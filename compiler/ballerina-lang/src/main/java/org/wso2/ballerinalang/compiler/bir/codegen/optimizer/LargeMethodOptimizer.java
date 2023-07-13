@@ -394,8 +394,7 @@ public class LargeMethodOptimizer {
                 BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                 splitFuncEnv.splitFuncBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                 newBB.instructions.addAll(newBBInsList);
-                newBB.terminator = new BIRTerminator.GOTO(null, splitFuncEnv.splitFuncBB, bb.terminator.scope);
-                splitFuncEnv.splitFuncCorrectTerminatorBBs.add(newBB);
+                newBB.terminator = new BIRTerminator.GOTO(null, bb.terminator.thenBB, bb.terminator.scope);
                 bb.terminator.thenBB = newBB; // change the current BB's terminator to new BB where ins are put
                 splitFuncEnv.splitFuncNewBBList.add(newBB);
             } else {
@@ -477,19 +476,20 @@ public class LargeMethodOptimizer {
         splitFuncEnv.splitFuncBB.instructions.addAll(splitFuncEnv.splitFuncNewInsList);
 
         BIRBasicBlock exitBB = splitFuncEnv.returnBB;
-        splitFuncEnv.splitFuncBBId = BIRGenUtils.renumberBasicBlock(splitFuncEnv.splitFuncBBId, exitBB);
         exitBB.terminator = new BIRTerminator.Return(null);
         splitFuncEnv.splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, bbIns.scope);
         splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
         splitFuncEnv.splitFuncNewBBList.add(splitFuncEnv.splitFuncBB);
+
+        fixTerminatorBBsInPeriodicSplitFunc(splitFuncEnv);
+
+        splitFuncEnv.splitFuncBBId = BIRGenUtils.renumberBasicBlock(splitFuncEnv.splitFuncBBId, exitBB);
         splitFuncEnv.splitFuncNewBBList.add(exitBB);
         splitBirFunc.basicBlocks = splitFuncEnv.splitFuncNewBBList;
         newlyAddingFunctions.add(splitBirFunc);
 
-        fixTerminatorBBsInPeriodicSplitFunc(splitFuncEnv, splitBirFunc);
         fixErrorTableInPeriodicSplitFunc(splitFuncEnv, splitBirFunc);
         fixLocalVarStartAndEndBBsInPeriodicSplitFunc(splitFuncEnv, splitBirFunc);
-
 
         // now we need to call this function from parent func
         List<BIROperand> args = new ArrayList<>();
@@ -557,6 +557,7 @@ public class LargeMethodOptimizer {
     }
 
     private void fixErrorTableInPeriodicSplitFunc(SplitFuncEnv splitFuncEnv, BIRFunction splitBirFunc) {
+        // TODO: may need to consider if the targetBB number is out of range like terminators
         Map<Integer, BIRBasicBlock> changedBBs = splitFuncEnv.splitFuncChangedBBs;
         for (BIRErrorEntry birErrorEntry : splitBirFunc.errorTable) {
             if (changedBBs.containsKey(birErrorEntry.trapBB.number)) {
@@ -571,8 +572,10 @@ public class LargeMethodOptimizer {
         }
     }
 
-    private void fixTerminatorBBsInPeriodicSplitFunc(SplitFuncEnv splitFuncEnv, BIRFunction splitBirFunc) {
-        for (BIRBasicBlock basicBlock : splitBirFunc.basicBlocks) {
+    private void fixTerminatorBBsInPeriodicSplitFunc(SplitFuncEnv splitFuncEnv) {
+        List<BIRBasicBlock> bbList = splitFuncEnv.splitFuncNewBBList;
+        BIRBasicBlock beforeLastBB = null;
+        for (BIRBasicBlock basicBlock : bbList) {
             if (!splitFuncEnv.splitFuncCorrectTerminatorBBs.contains(basicBlock)) {
                 BIRTerminator terminator = basicBlock.terminator;
                 Map<Integer, BIRBasicBlock> changedBBs = splitFuncEnv.splitFuncChangedBBs;
@@ -580,7 +583,10 @@ public class LargeMethodOptimizer {
                     if (changedBBs.containsKey(terminator.thenBB.number)) {
                         terminator.thenBB = changedBBs.get(terminator.thenBB.number);
                     } else {
-                        terminator.thenBB = splitFuncEnv.returnBB;
+                        if (beforeLastBB == null) {
+                            beforeLastBB = getBeforeLastBB(splitFuncEnv);
+                        }
+                        terminator.thenBB = beforeLastBB;
                     }
                 }
 
@@ -591,7 +597,10 @@ public class LargeMethodOptimizer {
                             ((BIRTerminator.GOTO) terminator).targetBB = changedBBs.get(
                                     ((BIRTerminator.GOTO) terminator).targetBB.number);
                         } else {
-                            ((BIRTerminator.GOTO) terminator).targetBB = splitFuncEnv.returnBB;
+                            if (beforeLastBB == null) {
+                                beforeLastBB = getBeforeLastBB(splitFuncEnv);
+                            }
+                            ((BIRTerminator.GOTO) terminator).targetBB = beforeLastBB;
                         }
                         break;
                     case BRANCH:
@@ -610,6 +619,20 @@ public class LargeMethodOptimizer {
                 }
             }
         }
+        if (beforeLastBB != null) {
+            bbList.add(beforeLastBB);
+        }
+    }
+
+    private BIRBasicBlock getBeforeLastBB(SplitFuncEnv splitFuncEnv) {
+        BIRBasicBlock beforeLastBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
+        BIRNonTerminator.ConstantLoad constantLoad = new BIRNonTerminator.ConstantLoad(
+                splitFuncEnv.returnBB.terminator.pos, new Name("()"), symbolTable.nilType,
+                splitFuncEnv.returnOperand);
+        beforeLastBB.instructions.add(constantLoad);
+        beforeLastBB.terminator = new BIRTerminator.GOTO(null, splitFuncEnv.returnBB,
+                splitFuncEnv.returnBB.terminator.scope);
+        return beforeLastBB;
     }
 
     private void populateSplitFuncArgsAndLocalVarList(SplitFuncEnv splitFuncEnv, BIRAbstractInstruction bbIns) {
