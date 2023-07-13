@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_U
 public class LargeMethodOptimizer {
 
     private static final Name DEFAULT_WORKER_NAME = new Name("function");
+    private static final String OBJECT_INITIALIZATION_FUNCTION_NAME = "$init$";
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
     private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 2;
@@ -283,6 +284,19 @@ public class LargeMethodOptimizer {
                     // in a preceding instruction before the terminator. There we can do the split
                     populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbTerminator, operandsInSameBB);
                 }
+                if (bbTerminator.kind == InstructionKind.CALL) {
+                    // When arrays have new objects created inside them, the object is created in one instruction
+                    // and it is initialized/populated later by passing it as an argument to the $init$ function
+                    // hence spilt function should be created after such function call
+                    // only in this case we have to consider RHS operands (only function arguments)
+                    BIRTerminator.Call callIns = (BIRTerminator.Call) bbTerminator;
+                    if (callIns.name.value.equals(OBJECT_INITIALIZATION_FUNCTION_NAME)) {
+                        for (BIROperand arg : callIns.args) {
+                            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, callIns, arg,
+                                    operandsInSameBB);
+                        }
+                    }
+                }
             }
             for (int insIndex = lastInsNum; insIndex >= 0; insIndex--) {
                 populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbInstructions.get(insIndex),
@@ -298,9 +312,6 @@ public class LargeMethodOptimizer {
         BIROperand insLhsOp = ins.lhsOp;
         if (insLhsOp != null) {
             addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, insLhsOp, operandsInSameBB);
-        }
-        for (BIROperand rhsOperand : ins.getRhsOperands()) {
-            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, rhsOperand, operandsInSameBB);
         }
     }
 
