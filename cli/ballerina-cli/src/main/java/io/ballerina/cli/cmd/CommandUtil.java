@@ -275,7 +275,7 @@ public class CommandUtil {
                 destDir = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleDirName);
                 Files.createDirectories(destDir);
             }
-            Files.walkFileTree(moduleRoot, new FileUtils.Copy(moduleRoot, destDir));
+            Files.walkFileTree(moduleRoot, new FileUtils.Copy(moduleRoot, destDir, templatePkgName, packageName));
 
             // Copy Module.md
             Path moduleMdSource = moduleMdDirRoot.resolve(moduleDir).resolve(ProjectConstants.MODULE_MD_FILE_NAME);
