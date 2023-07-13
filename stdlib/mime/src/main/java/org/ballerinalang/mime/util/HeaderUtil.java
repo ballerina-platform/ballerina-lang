@@ -175,18 +175,10 @@ public class HeaderUtil {
             String[] keys = (String[]) map.getKeys();
             if (keys.length != 0) {
                 for (String key : keys) {
-                    String paramValue = (String) map.get(key);
+                    String paramValue = getHeaderParamValue(map, key);
                     if (index == keys.length - 1) {
-                        if (paramValue.contains(SLASH)) {
-                            paramValue = DOUBLE_QUOTE + paramValue + DOUBLE_QUOTE;
-                        }
                         headerValue.append(key).append(ASSIGNMENT).append(paramValue);
                     } else {
-                        // Make the value a quoted string if it contains special characters which are not supported
-                        // in a token.
-                        if (containsSpecialCharacters(paramValue)) {
-                            paramValue = DOUBLE_QUOTE + paramValue + DOUBLE_QUOTE;
-                        }
                         headerValue.append(key).append(ASSIGNMENT).append(paramValue).append(SEMICOLON);
                         index = index + 1;
                     }
@@ -196,7 +188,17 @@ public class HeaderUtil {
         return headerValue.toString();
     }
 
-    public static boolean containsSpecialCharacters(String headerValue) {
+    private static String getHeaderParamValue(MapValue map, String key) {
+        String paramValue = (String) map.get(key);
+        // Make the value a quoted string if it contains special characters which are not supported
+        // in a token.
+        if (containsSpecialCharacters(paramValue)) {
+            paramValue = DOUBLE_QUOTE + paramValue + DOUBLE_QUOTE;
+        }
+        return paramValue;
+    }
+
+    private static boolean containsSpecialCharacters(String headerValue) {
         return IntStream.range(0, headerValue.length()).anyMatch(
                 i -> TOKEN_SPECIAL.contains(Character.toString(headerValue.charAt(i))));
     }
