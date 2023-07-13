@@ -2606,11 +2606,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.semanticError;
     }
 
-    private boolean isMappingConstructorCompatibleType(BType type) {
-        return Types.getReferredType(type).tag == TypeTags.RECORD
-                || Types.getReferredType(type).tag == TypeTags.MAP;
-    }
-
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType,
                                                            AnalyzerData data) {
         if (expType == symTable.semanticError) {
@@ -2648,7 +2643,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // case where there is at least one type with which we can use mapping constructors, but this particular
         // mapping constructor is incompatible, we give an incompatible mapping constructor error.
         for (BType bType : memberTypes) {
-            if (isMappingConstructorCompatibleType(bType)) {
+            if (types.isMappingConstructorCompatibleType(bType)) {
                 dlog.error(mappingConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_MAPPING_CONSTRUCTOR,
                         unionType);
                 return;
@@ -2715,7 +2710,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return fieldNames;
     }
 
-    private String getKeyValueFieldName(BLangRecordKeyValueField field) {
+    String getKeyValueFieldName(BLangRecordKeyValueField field) {
         BLangRecordKey key = field.key;
         if (key.computedKey) {
             return null;
@@ -6395,7 +6390,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
+        if (funcSymbol != symTable.notFoundSymbol && isNotFunction(funcSymbol)) {
+            dlog.error(iExpr.pos, DiagnosticErrorCode.FUNCTION_CALL_SYNTAX_NOT_DEFINED, funcSymbol.type);
+            iExpr.argExprs.forEach(arg -> checkExpr(arg, data));
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        if (funcSymbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(funcName)) {
                 dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);
             }

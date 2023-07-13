@@ -331,7 +331,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("BCE2577", "invalid.record.literal.in.binding.pattern"),
-    DUPLICATE_KEY_IN_RECORD_LITERAL("BCE2578", "duplicate.key.in.record.literal"),
+    DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR("BCE2578", "duplicate.key.in.mapping.constructor"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("BCE2579", "duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("BCE2580", "duplicate.key.in.record.literal.spread.op"),
     POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP(
@@ -422,6 +422,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
+    FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),

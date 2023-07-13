@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -31,6 +32,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -54,6 +56,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     Path testResources;
     Path centralCache;
+    private PrintStream errStream = System.err;
 
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
@@ -615,6 +618,47 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("docs").resolve("icon.png")));
         Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
+    @Test(description = "Test pulling a central template and replacing the template name in module imports")
+    public void testNewCommandCentralTemplateReplaceImports() throws IOException {
+        String templateArg = "testorg/centralSample:1.0.2";
+        String packageName = "central_sample";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"1.0.2\"\n" +
+                "export = [\"central_sample\"]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+
+        String mainContent = readFileAsString(packageDir.resolve("main.bal"));
+        Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(readOutput().contains("Created new package"));
+
+        System.setProperty("user.dir", packageDir.toString());
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            errStream.println(e.getDetailedMessages().toString());
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"));
     }
 
     @Test

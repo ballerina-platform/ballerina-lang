@@ -61,7 +61,7 @@ public class DeprecatedAnnotationTest {
 
     @Test(description = "Test @deprecated annotation for module-level union type definitions")
     public void testDeprecatedUnionTypeDef() {
-        List<BType> bTypes = testModule.types;
+        List<BType> bTypes = testModule.unionTypes;
         BType depBType = null;
         BType nonDepBType = null;
 
@@ -83,7 +83,7 @@ public class DeprecatedAnnotationTest {
 
     @Test(description = "Test @deprecated annotation for module-level finite type definitions")
     public void testDeprecatedFiniteTypeDef() {
-        List<BType> bTypes = testModule.types;
+        List<BType> bTypes = testModule.unionTypes;
         BType depFiniteType = null;
         BType nonDepFiniteType = null;
 
