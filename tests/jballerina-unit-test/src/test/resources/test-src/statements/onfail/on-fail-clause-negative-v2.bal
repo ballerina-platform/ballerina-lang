@@ -1119,3 +1119,43 @@ public function testUnInitVars64() returns error? {
 function getErrorOrIntArr() returns int[]|error {
     return getError();
 }
+
+public function testUnInitVars65() returns error? {
+    int resultInt;
+    do {
+        resultInt = check getErrorOrInt();
+    } on fail {
+        resultInt = check getErrorOrInt();
+    }
+    resultInt += 1;
+}
+
+public function testUnInitVars66() returns error? {
+    int resultInt;
+    do {
+        resultInt = check getErrorOrInt();
+        do {
+            resultInt = check getErrorOrInt();
+        } on fail {
+        }
+    } on fail {
+        resultInt = check getErrorOrInt();
+    }
+    resultInt += 1;
+}
+
+public function testUnInitVars67() returns error? {
+    int resultInt1;
+    int resultInt2;
+    do {
+        resultInt1 = check getErrorOrInt();
+        do {
+            resultInt2 = check getErrorOrInt();
+        } on fail {
+        }
+    } on fail {
+        resultInt1 = check getErrorOrInt();
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+}

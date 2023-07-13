@@ -978,7 +978,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // If the control flow is interrupted inside the 'onfail' block,
         // only the results of the 'do' block are relevant after the execution
         // of the entire 'stmt-with-on-fail' statement.
-        if (onFailResult.flowTerminated) {
+        if (onFailResult.flowTerminated || onFailResult.possibleFailureReached) {
             this.uninitializedVars = doResult.uninitializedVars;
         } else if (doResult.definiteFailureReached) {
             this.uninitializedVars = onFailResult.uninitializedVars;
