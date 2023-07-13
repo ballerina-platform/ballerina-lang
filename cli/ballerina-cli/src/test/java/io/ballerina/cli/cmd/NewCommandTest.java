@@ -661,7 +661,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
-    @Test(description = "Test new command by pulling a central template without specifying version", enabled = false)
+    @Test(description = "Test new command by pulling a central template without specifying version")
     public void testNewCommandWithTemplateUntagged() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "ballerinax/twitter";
