@@ -105,11 +105,15 @@ public class RemotePackageRepository implements PackageRepository {
 
         // If environment is online pull from central
         if (!options.offline()) {
-            for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+            for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
+                String supportedPlatform = SUPPORTED_PLATFORMS[i];
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                             RepoUtils.getBallerinaVersion(), true);
                 } catch (CentralClientException e) {
+                    if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
+                        continue;
+                    }
                     boolean enableOutputStream =
                             Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
                     if (enableOutputStream) {
@@ -119,6 +123,7 @@ public class RemotePackageRepository implements PackageRepository {
 
                     }
                 }
+
             }
         }
 
