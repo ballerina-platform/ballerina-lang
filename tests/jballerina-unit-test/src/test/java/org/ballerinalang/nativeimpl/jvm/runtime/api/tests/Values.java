@@ -80,6 +80,7 @@ public class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
+    private static final Module errorModule = new Module("testorg", "values.errors", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
@@ -486,5 +487,11 @@ public class Values {
             paramNames.add(i, StringUtils.fromString(parameters[i].name));
         }
         return paramNames;
+    }
+
+    public static BError getErrorValue(BString errorTypeName) {
+        BString errorMsg = StringUtils.fromString("error message!");
+        return ErrorCreator.createError(errorModule, errorTypeName.getValue(), errorTypeName,
+                ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
     }
 }
