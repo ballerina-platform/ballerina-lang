@@ -177,6 +177,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         CommandUtil.setPrintStream(errStream);
+        boolean isPackageFound = false;
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
                 Settings settings;
@@ -203,15 +204,20 @@ public class PullCommand implements BLauncherCmd {
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
+                isPackageFound = true;
+                break;
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
             } catch (CentralClientException e) {
-                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
+              // Ignore exception since we need to try next java platform as well
             }
         }
 
+        if (!isPackageFound) {
+            errStream.println("package not found: " + packageName);
+            CommandUtil.exitError(this.exitWhenFinish);
+        }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
