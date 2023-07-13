@@ -9,8 +9,9 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
@@ -39,6 +40,11 @@ public class RunCommandTest extends BaseCommandTest {
     static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
             "log_creator_combined_plugin/compiler-plugin.txt");
 
+    @BeforeSuite
+    public void setupSuite() throws IOException {
+        Files.createDirectories(logFile.getParent());
+        Files.writeString(logFile, "");
+    }
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -56,8 +62,6 @@ public class RunCommandTest extends BaseCommandTest {
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
-        Files.createDirectories(logFile.getParent());
-        Files.writeString(logFile, "");
     }
 
     @Test(description = "Run a valid ballerina file")
@@ -376,7 +380,7 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
     }
 
-    @AfterClass
+    @AfterSuite
     public void cleanUp() throws IOException {
         Files.deleteIfExists(logFile);
         Files.deleteIfExists(logFile.getParent());
