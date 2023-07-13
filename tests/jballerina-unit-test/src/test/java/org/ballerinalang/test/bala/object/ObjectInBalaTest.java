@@ -557,13 +557,13 @@ public class ObjectInBalaTest {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_negative.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, 
-                "incompatible types: 'bir/objs:0.1.0:Bar' will not be matched to 'bir/objs:0.1.0:Foo'", 20, 20);
+                "incompatible types: 'bir/objs:0.1.0:Bar' will not be matched to 'bir/objs:0.1.0:Foo'", 20, 9);
         BAssertUtil.validateError(result, i++, 
-                "incompatible types: 'bir/objs:0.1.0:Foo' will not be matched to 'bir/objs:0.1.0:Bar'", 24, 20);
+                "incompatible types: 'bir/objs:0.1.0:Foo' will not be matched to 'bir/objs:0.1.0:Bar'", 24, 9);
         BAssertUtil.validateError(result, i++, 
-                "incompatible types: 'bir/objs:0.1.0:Xyz' will not be matched to 'bir/objs:0.1.0:Qux'", 28, 20);
+                "incompatible types: 'bir/objs:0.1.0:Xyz' will not be matched to 'bir/objs:0.1.0:Qux'", 28, 9);
         BAssertUtil.validateError(result, i, 
-                "incompatible types: 'bir/objs:0.1.0:Qux' will not be matched to 'bir/objs:0.1.0:Xyz'", 32, 20);
+                "incompatible types: 'bir/objs:0.1.0:Qux' will not be matched to 'bir/objs:0.1.0:Xyz'", 32, 9);
         Assert.assertEquals(result.getErrorCount(), 4);
     }
 

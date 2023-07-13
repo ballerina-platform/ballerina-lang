@@ -17,20 +17,17 @@
 import bir/objs;
 
 function f1(objs:Bar bar) {
-    assertEquality(bar is objs:Foo, false);
+    _ = bar is objs:Foo;
 }
 
 function f2(objs:Foo foo) {
-    assertEquality(foo is objs:Bar, false);
+    _ = foo is objs:Bar;
 }
 
 function f3(objs:Xyz xyz) {
-    assertEquality(xyz is objs:Qux, false);
+    _ = xyz is objs:Qux;
 }
 
 function f4(objs:Qux qux) {
-    assertEquality(qux is objs:Xyz, false);
-}
-
-function assertEquality(any|error actual, any|error expected) {
+    _ = qux is objs:Xyz;
 }
