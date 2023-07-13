@@ -415,7 +415,8 @@ public class CommandUtil {
 
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
             throws CentralClientException {
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+        for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
+            String supportedPlatform = SUPPORTED_PLATFORMS[i];
             Settings settings;
             try {
                 settings = readSettings();
@@ -428,8 +429,15 @@ public class CommandUtil {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings));
-            client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
-                    RepoUtils.getBallerinaVersion(), false);
+            try {
+                client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
+                        RepoUtils.getBallerinaVersion(), false);
+            } catch (CentralClientException e) {
+                if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
+                    continue;
+                }
+                throw e;
+            }
         }
     }
 
