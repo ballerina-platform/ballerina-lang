@@ -362,21 +362,14 @@
                                         },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "IDENTIFIER_TOKEN",
-                                              "value": "select",
-                                              "leadingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "        "
-                                                }
-                                              ],
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_IDENTIFIER"
                                               ]
                                             }
                                           ]
@@ -393,14 +386,20 @@
                     },
                     {
                       "kind": "SELECT_CLAUSE",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "SELECT_KEYWORD",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_SELECT_KEYWORD"
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "        "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
                           ]
                         },
                         {

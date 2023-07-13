@@ -85,9 +85,6 @@
             {
               "kind": "LIMIT_CLAUSE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_SELECT_CLAUSE"
-              ],
               "children": [
                 {
                   "kind": "LIMIT_KEYWORD",
@@ -100,15 +97,14 @@
                 },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "select",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]
@@ -124,45 +120,19 @@
       "children": [
         {
           "kind": "SELECT_KEYWORD",
-          "isMissing": true
-        },
-        {
-          "kind": "SIMPLE_NAME_REFERENCE",
-          "children": [
+          "trailingMinutiae": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ]
-        }
-      ]
-    },
-    {
-      "kind": "ON_CONFLICT_CLAUSE",
-      "hasDiagnostics": true,
-      "children": [
-        {
-          "kind": "ON_KEYWORD",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_ON_KEYWORD"
-          ]
-        },
-        {
-          "kind": "CONFLICT_KEYWORD"
         },
         {
           "kind": "SIMPLE_NAME_REFERENCE",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_EXPRESSION"
-              ]
+              "value": "conflict"
             }
           ]
         }
