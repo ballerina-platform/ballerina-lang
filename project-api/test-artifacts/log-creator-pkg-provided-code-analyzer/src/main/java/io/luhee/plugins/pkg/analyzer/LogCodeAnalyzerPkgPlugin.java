@@ -46,7 +46,9 @@ public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
     }
 
 
-
+    /***
+     * A package provided code analyzer which adds a log statement to the beginning of the file.
+     */
     public static class LogCodeAnalyzer extends CodeAnalyzer {
         @Override
         public void init(CodeAnalysisContext analysisContext) {
@@ -59,6 +61,9 @@ public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
 
     }
 
+    /***
+     * A package provided code analyzer which adds a log statement to the beginning of the file.
+     */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
         @Override

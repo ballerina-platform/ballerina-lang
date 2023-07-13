@@ -29,8 +29,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 
 
 /***
@@ -46,7 +45,9 @@ public class LogCodeModifierInBuiltPlugin extends CompilerPlugin {
     }
 
 
-
+    /***
+     * A in-built code modifier which adds a log statement to the beginning of the file.
+     */
     public static class LogCodeModifier extends CodeModifier {
         @Override
         public void init(CodeModifierContext modifierContext) {
@@ -59,6 +60,9 @@ public class LogCodeModifierInBuiltPlugin extends CompilerPlugin {
 
     }
 
+    /***
+     * A in-built code modifier which adds a log statement to the beginning of the file.
+     */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
         @Override

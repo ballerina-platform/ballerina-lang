@@ -19,8 +19,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
-import io.ballerina.projects.plugins.CodeModifier;
-import io.ballerina.projects.plugins.CodeModifierContext;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
@@ -31,8 +29,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 
 /***
@@ -48,6 +44,10 @@ public class LogCodeAnalyzerInBuiltPlugin extends CompilerPlugin {
         pluginContext.addCodeAnalyzer(new LogCodeAnalyzer());
     }
 
+    /***
+     * A in-built code analyzer which adds a log statement to the beginning of the file.
+     */
+
     public static class LogCodeAnalyzer extends CodeAnalyzer {
 
         @Override
@@ -60,6 +60,9 @@ public class LogCodeAnalyzerInBuiltPlugin extends CompilerPlugin {
         }
     }
 
+    /***
+     * A in-built code analyzer which adds a log statement to the beginning of the file.
+     */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
         @Override

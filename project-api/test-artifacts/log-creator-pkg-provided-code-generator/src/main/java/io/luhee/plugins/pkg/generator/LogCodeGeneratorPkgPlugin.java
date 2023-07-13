@@ -29,8 +29,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 
 
 /***
@@ -47,7 +46,9 @@ public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
     }
 
 
-
+    /***
+     * A package provided code generator which adds a log statement to the beginning of the file.
+     */
     public static class LogCodeGenerator extends CodeGenerator {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
@@ -60,6 +61,9 @@ public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
 
     }
 
+    /***
+     * A package provided code generator which adds a log statement to the beginning of the file.
+     */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
         @Override

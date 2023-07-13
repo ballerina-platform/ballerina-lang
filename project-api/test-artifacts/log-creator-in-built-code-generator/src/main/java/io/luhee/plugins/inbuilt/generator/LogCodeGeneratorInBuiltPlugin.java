@@ -19,8 +19,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CodeGenerator;
 import io.ballerina.projects.plugins.CodeGeneratorContext;
-import io.ballerina.projects.plugins.CodeModifier;
-import io.ballerina.projects.plugins.CodeModifierContext;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
@@ -31,8 +29,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 
 
 /***
@@ -47,8 +44,9 @@ public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
         pluginContext.addCodeGenerator(new LogCodeGenerator());
     }
 
-
-
+    /***
+     * A in-built code generator which adds a log statement to the beginning of the file.
+     */
     public static class LogCodeGenerator extends CodeGenerator {
         @Override
         public void init(CodeGeneratorContext generatorContext) {
@@ -61,6 +59,9 @@ public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
 
     }
 
+    /***
+     * A in-built code generator which adds a log statement to the beginning of the file.
+     */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
         @Override
