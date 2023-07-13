@@ -1749,6 +1749,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 BLangExpression expr = varNode.expr;
                 return expr != null && isValidContextForInferredArray(node.parent) &&
                         isValidVariableForInferredArray(expr);
+            case CONSTANT:
+                BLangConstant constant = (BLangConstant) node;
+                return constant.expr != null && isValidContextForInferredArray(node.parent) &&
+                        isValidVariableForInferredArray(constant.expr);
             default:
                 return false;
         }
@@ -3335,12 +3339,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangGroupByClause node, AnalyzerData data) {
-
+        node.groupingKeyList.forEach(value -> analyzeNode(value, data));
     }
 
     @Override
     public void visit(BLangGroupingKey node, AnalyzerData data) {
-
+        analyzeNode((BLangNode) node.getGroupingKey(), data);
     }
 
     @Override
