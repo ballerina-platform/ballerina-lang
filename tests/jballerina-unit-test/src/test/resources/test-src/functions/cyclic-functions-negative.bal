@@ -14,14 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-final readonly & map<json|error> func = {
+final readonly & map<json> func = {
     "f1": f1()
 };
 
 public isolated function testFunc() {
-    json|error? f = func["f1"];
+    json _ = func["f1"];
 }
 
 public isolated function f1() {
-    json|error res = testFunc();
+    var _ = testFunc();
+}
+
+type Func isolated function ();
+
+final readonly & map<Func> func1 = {
+    "f1": f2
+};
+
+public isolated function testFunc1() {
+    Func? _ = func1["f1"];
+}
+
+public isolated function f2() {
+    var _ = testFunc1();
 }

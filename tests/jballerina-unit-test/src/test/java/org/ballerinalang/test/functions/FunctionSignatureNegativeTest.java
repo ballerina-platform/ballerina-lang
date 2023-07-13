@@ -147,6 +147,7 @@ public class FunctionSignatureNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/functions/cyclic-functions-negative.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, "illegal cyclic reference '[func, f1, testFunc]'", 17, 1);
+        BAssertUtil.validateError(result, i++, "illegal cyclic reference '[func1, f2, testFunc1]'", 31, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
