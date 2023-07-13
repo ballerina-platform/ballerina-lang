@@ -82,6 +82,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.function.BiFunction;
 
@@ -581,10 +582,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         this.anonTypeNameSuffixes = anonTypeNameSuffixes;
         updateConstantType(constantSymbol, expression, env);
-        BLangTypeDefinition typeDefinition = createdTypeDefinitions.get(constantSymbol.type.tsymbol);
-        if (isSourceOnlyAnon && typeDefinition != null) {
-            typeDefinition.symbol.flags |= Flags.SOURCE_ANNOTATION;
-        }
+        Optional.ofNullable(isSourceOnlyAnon ? createdTypeDefinitions.get(constantSymbol.type.tsymbol) : null)
+                .ifPresent(typeDefinition -> typeDefinition.symbol.flags |= Flags.SOURCE_ANNOTATION);
         return value;
     }
 
