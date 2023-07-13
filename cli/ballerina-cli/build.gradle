@@ -92,7 +92,6 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
-    maxParallelForks = 1
     systemProperty "ballerina.home", "$buildDir"
 
     useTestNG() {

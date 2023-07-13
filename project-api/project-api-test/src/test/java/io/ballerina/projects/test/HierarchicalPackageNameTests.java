@@ -96,7 +96,7 @@ public class HierarchicalPackageNameTests {
                 "Unexpected number of dependencies");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testResolveHierarchicalPackageInDist() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_x.y.z");
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
@@ -143,7 +143,7 @@ public class HierarchicalPackageNameTests {
         }
     }
 
-    @Test(enabled = false, dependsOnMethods = "testResolveHierarchicalPackageInDist")
+    @Test(dependsOnMethods = "testResolveHierarchicalPackageInDist")
     public void testResolveDifferentPackagesFromEachRepo() {
         Path centralCache = customUserHome.resolve("repositories/central.ballerina.io");
         BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a.c", centralCache);
