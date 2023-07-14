@@ -262,13 +262,18 @@ public class LargeMethodOptimizer {
         parentFuncEnv.parentFuncNewInsList.add(callHandleArray);
     }
 
-    private Map<BIRAbstractInstruction, List<BIROperand>> getSplitPoints(List<BIRBasicBlock> bbs,
+    private Map<BIRAbstractInstruction, SplitPointDetails> getSplitPoints(List<BIRBasicBlock> bbs,
                                                                    Set<BIROperand> arrayValuesOperands) {
+        // a copy of arrayValueOperands is made to find first found array element operands from bottom
+        Set<BIROperand> remainingArrayValueOperands = new HashSet<>(arrayValuesOperands);
+
         // Split points means the places which is eligible for a split. i.e. we can split the parent function by
         // moving instructions and terminators until this one (including this) to a new function.
         // Criteria for choosing split point is as follows. We go from bottom to top searching for array value operands
-        // in both rhs and lhs. If we find one that is a split point unless we find that previously in the same BB.
-        Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints = new HashMap<>();
+        // in both rhs and lhs. If we find one, that is a split point, unless we find that previously in the same BB.
+        // A new flag is added to the split point to depict whether to split the function here (splitHere).
+        // If it is false only array populating instructions are added.
+        Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = new HashMap<>();
         for (int bbIndex = bbs.size() - 2; bbIndex >= 0; bbIndex--) {
             Set<BIROperand> operandsInSameBB = new HashSet<>();
             BIRBasicBlock bb = bbs.get(bbIndex);
@@ -282,7 +287,8 @@ public class LargeMethodOptimizer {
                 if (bbTerminator.kind != InstructionKind.BRANCH) {
                     // branch terminators are omitted from terminators because its boolean operand appear
                     // in a preceding instruction before the terminator. There we can do the split
-                    populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbTerminator, operandsInSameBB);
+                    populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbTerminator, operandsInSameBB,
+                            remainingArrayValueOperands);
                 }
                 if (bbTerminator.kind == InstructionKind.CALL) {
                     // When arrays have new objects created inside them, the object is created in one instruction
@@ -293,41 +299,57 @@ public class LargeMethodOptimizer {
                     if (callIns.name.value.equals(OBJECT_INITIALIZATION_FUNCTION_NAME)) {
                         for (BIROperand arg : callIns.args) {
                             addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, callIns, arg,
-                                    operandsInSameBB);
+                                    operandsInSameBB, remainingArrayValueOperands);
                         }
                     }
                 }
             }
             for (int insIndex = lastInsNum; insIndex >= 0; insIndex--) {
                 populateInsSplitPoints(arrayValuesOperands, insSplitPoints, bbInstructions.get(insIndex),
-                        operandsInSameBB);
+                        operandsInSameBB, remainingArrayValueOperands);
             }
         }
         return insSplitPoints;
     }
 
     private void populateInsSplitPoints(Set<BIROperand> arrayValuesOperands,
-                                        Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints,
-                                        BIRAbstractInstruction ins, Set<BIROperand> operandsInSameBB) {
+                                        Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints,
+                                        BIRAbstractInstruction ins, Set<BIROperand> operandsInSameBB,
+                                        Set<BIROperand> remainingArrayValueOperands) {
         BIROperand insLhsOp = ins.lhsOp;
         if (insLhsOp != null) {
-            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, insLhsOp, operandsInSameBB);
+            addOperandToInsSplitPoints(arrayValuesOperands, insSplitPoints, ins, insLhsOp, operandsInSameBB,
+                    remainingArrayValueOperands);
         }
     }
 
     private void addOperandToInsSplitPoints(Set<BIROperand> arrayValuesOperands,
-                                            Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints,
+                                            Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints,
                                             BIRAbstractInstruction ins, BIROperand insOperand,
-                                            Set<BIROperand> operandsInSameBB) {
+                                            Set<BIROperand> operandsInSameBB,
+                                            Set<BIROperand> remainingArrayValueOperands) {
         if (arrayValuesOperands.contains(insOperand) && !operandsInSameBB.contains(insOperand)) {
             operandsInSameBB.add(insOperand);
             if (insSplitPoints.containsKey(ins)) {
-                List<BIROperand> operandList = insSplitPoints.get(ins);
+                SplitPointDetails splitPointDetails = insSplitPoints.get(ins);
+                List<BIROperand> operandList = splitPointDetails.arrayElementsBIROperands;
                 operandList.add(insOperand);
+                if (remainingArrayValueOperands.contains(insOperand)) {
+                    remainingArrayValueOperands.remove(insOperand);
+                } else {
+                    if (splitPointDetails.splitHere) {
+                        splitPointDetails.splitHere = false;
+                    }
+                }
             } else {
                 List<BIROperand> operandList = new ArrayList<>();
                 operandList.add(insOperand);
-                insSplitPoints.put(ins, operandList);
+                if (remainingArrayValueOperands.contains(insOperand)) {
+                    remainingArrayValueOperands.remove(insOperand);
+                    insSplitPoints.put(ins, new SplitPointDetails(operandList, true));
+                } else {
+                    insSplitPoints.put(ins, new SplitPointDetails(operandList, false));
+                }
             }
         }
     }
@@ -340,7 +362,7 @@ public class LargeMethodOptimizer {
                                                   Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
                                                   SplitFuncEnv splitFuncEnv,
                                                   ParentFuncEnv parentFuncEnv, Set<BIROperand> arrayValuesOperands) {
-        Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints = getSplitPoints(bbs, arrayValuesOperands);
+        Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = getSplitPoints(bbs, arrayValuesOperands);
         boolean splitNow;
         for (int bbIndex = 0; bbIndex < bbs.size() - 1; bbIndex++) {
             BIRBasicBlock bb = bbs.get(bbIndex);
@@ -373,11 +395,11 @@ public class LargeMethodOptimizer {
                 splitFuncEnv.periodicSplitInsCount++;
                 populateSplitFuncArgsAndLocalVarList(splitFuncEnv, bbIns);
                 splitNow = setArrayElementGivenOperand(birOperands, splitFuncEnv.splitFuncNewInsList,
-                        handleArrayOperand, splitFuncEnv.splitFuncTempVars, insSplitPoints, bbIns);
+                        handleArrayOperand, splitFuncEnv.splitFuncTempVars, insSplitPoints, bbIns, splitFuncEnv);
 
                 // create split func if needed
                 if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD && splitFuncEnv.splitOkay
-                        && splitNow) {
+                        && splitNow && splitFuncEnv.splitHere) {
                     createNewFuncForPeriodicSplit(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                             handleArray, splitFuncEnv, parentFuncEnv, bb, bbIns);
                 }
@@ -404,7 +426,7 @@ public class LargeMethodOptimizer {
 
             List<BIRNonTerminator> newBBInsList = new ArrayList<>();
             splitNow = setArrayElementGivenOperand(birOperands, newBBInsList, handleArrayOperand,
-                    splitFuncEnv.splitFuncTempVars, insSplitPoints, bb.terminator);
+                    splitFuncEnv.splitFuncTempVars, insSplitPoints, bb.terminator, splitFuncEnv);
             if (splitNow) {
                 splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
                 BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
@@ -424,7 +446,7 @@ public class LargeMethodOptimizer {
             }
 
             if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD && splitFuncEnv.splitOkay
-                    && splitNow) {
+                    && splitNow && splitFuncEnv.splitHere) {
                 createNewFuncForPeriodicSplit(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                         handleArray, splitFuncEnv, parentFuncEnv, bb, bb.terminator);
             }
@@ -680,10 +702,11 @@ public class LargeMethodOptimizer {
     private boolean setArrayElementGivenOperand(Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
                                                 List<BIRNonTerminator> newInsList, BIROperand handleArrayOperand,
                                                 TempVarsForArraySplit tempVars,
-                                                Map<BIRAbstractInstruction, List<BIROperand>> insSplitPoints,
-                                                BIRAbstractInstruction currIns) {
+                                                Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints,
+                                                BIRAbstractInstruction currIns, SplitFuncEnv splitFuncEnv) {
         if (insSplitPoints.containsKey(currIns)) {
-            List<BIROperand> currOperands = insSplitPoints.get(currIns);
+            SplitPointDetails splitPointDetails = insSplitPoints.get(currIns);
+            List<BIROperand> currOperands = splitPointDetails.arrayElementsBIROperands;
             for (BIROperand currOperand : currOperands) {
                 BIRListConstructorEntryWithIndex listConstructorEntryWithIndex = birOperands.get(currOperand);
                 BIRNode.BIRListConstructorEntry listConstructorEntry = listConstructorEntryWithIndex
@@ -692,6 +715,8 @@ public class LargeMethodOptimizer {
                 setArrayElement(newInsList, handleArrayOperand, currOperand, listConstructorEntry, arrayIndex,
                         tempVars);
             }
+            // no need to set the below in else part as it will not affect since splitNow is considered along with this
+            splitFuncEnv.splitHere = splitPointDetails.splitHere;
             return true;
         }
         return false;
@@ -1540,6 +1565,18 @@ public class LargeMethodOptimizer {
         }
     }
 
+    static class SplitPointDetails {
+        List<BIROperand> arrayElementsBIROperands; // BIROperands which are the array elements
+        // whether to split to a function here. This is made true if only, all the array element operands
+        // in this instruction are first found when going from bottom to top
+        boolean splitHere;
+
+        private SplitPointDetails(List<BIROperand> arrayElementsBIROperands, boolean splitHere) {
+            this.arrayElementsBIROperands = arrayElementsBIROperands;
+            this.splitHere = splitHere;
+        }
+    }
+
     static class BIRListConstructorEntryWithIndex {
         BIRNode.BIRListConstructorEntry listConstructorEntry;
         int index;
@@ -1586,6 +1623,7 @@ public class LargeMethodOptimizer {
         boolean fromAttachedFunction;
         BIRVariableDcl returnVarDcl;
         BIROperand returnOperand;
+        boolean splitHere = false; // this is set from SplitPointDetails splitHere field
 
         private SplitFuncEnv(TempVarsForArraySplit splitFuncTempVars, boolean fromAttachedFunction) {
             this.splitFuncTempVars = splitFuncTempVars;
