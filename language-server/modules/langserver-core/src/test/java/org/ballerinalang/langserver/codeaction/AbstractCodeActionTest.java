@@ -404,40 +404,6 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                                  List<TextEdit> actualEdits,
                                                  TestConfig testConfig) {
         //Validate the args of rename command
-        if (CommandConstants.RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
-            if (actualArgs.size() == 2) {
-                Optional<String> actualFilePath =
-                        PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
-                                .map(path -> path.toUri().toString().replace(sourceRoot.toUri().toString(), ""));
-                int actualRenamePosition = actualArgs.get(1).getAsInt();
-                String expectedFilePath = expArgs.get(0).getAsString();
-                int expectedRenamePosition = expArgs.get(1).getAsInt();
-                if (actualFilePath.isPresent()) {
-                    String actualPath = actualFilePath.get();
-                    if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
-                        actualPath = actualFilePath.get().substring(1);
-                    }
-                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath)) &&
-                            actualRenamePosition == expectedRenamePosition) {
-                        return true;
-                    }
-                    JsonArray newArgs = new JsonArray();
-                    newArgs.add(actualArgs.get(0).getAsString());
-                    newArgs.add(actualRenamePosition);
-
-                    //Replace the args of the actual command to update the test config
-                    actualCommand.add("arguments", newArgs);
-                }
-            }
-            return false;
-        } else if ("ballerina.action.extract".equals(actualCommand.get("command").getAsString())) {
-            if (actualArgs.size() == 3 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)) {
-                return true;
-            }
-            return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
-                    && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
-        }
-
         if (CommandConstants.POSITIONAL_RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
@@ -465,6 +431,12 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 }
             }
             return false;
+        } else if ("ballerina.action.extract".equals(actualCommand.get("command").getAsString())) {
+            if (actualArgs.size() == 3 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)) {
+                return true;
+            }
+            return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
+                    && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
         }
 
         for (JsonElement actualArg : actualArgs) {
