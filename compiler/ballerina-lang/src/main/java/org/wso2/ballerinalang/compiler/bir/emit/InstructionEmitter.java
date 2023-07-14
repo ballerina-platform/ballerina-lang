@@ -50,7 +50,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  */
 class InstructionEmitter {
 
-    private static final byte ARRAY_VALUE_COUNT = 10;
+    private static final byte INITIAL_VALUE_COUNT = 10;
 
     private InstructionEmitter() {}
 
@@ -176,8 +176,31 @@ class InstructionEmitter {
         nMapStr += "NewMap";
         nMapStr += emitSpaces(1);
         nMapStr += emitVarRef(ins.rhsOp);
+        nMapStr += "{";
+        nMapStr += emitMapValues(ins.initialValues);
+        nMapStr += "}";
         nMapStr += ";";
         return nMapStr;
+    }
+
+    private static String emitMapValues(List<BIRNode.BIRMappingConstructorEntry> initialValues) {
+        if (initialValues.isEmpty()) {
+            return "";
+        }
+        StringBuilder outStr = new StringBuilder();
+        for (int i = 0; i < Math.min(initialValues.size(), INITIAL_VALUE_COUNT); i++) {
+            BIRNode.BIRMappingConstructorEntry mappingEntry = initialValues.get(i);
+            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
+                BIRNode.BIRMappingConstructorKeyValueEntry entry =
+                        (BIRNode.BIRMappingConstructorKeyValueEntry) mappingEntry;
+                outStr.append(emitVarRef(entry.keyOp)).append(":").append(emitVarRef(entry.valueOp)).append(",");
+            } else {
+                outStr.append(emitVarRef(((BIRNode.BIRMappingConstructorSpreadFieldEntry) mappingEntry).exprOp))
+                        .append(",");
+            }
+        }
+        return initialValues.size() > INITIAL_VALUE_COUNT ? outStr.append("...").toString()
+                : outStr.substring(0, outStr.length() - 1);
     }
 
     private static String emitInsNewTable(BIRNonTerminator.NewTable ins, int tabs) {
@@ -247,10 +270,10 @@ class InstructionEmitter {
     }
 
     private static String emitArrayValues(List<BIRNode.BIRListConstructorEntry> values) {
-        BIROperand[] valueOperands = values.stream().map(x -> x.exprOp).limit(ARRAY_VALUE_COUNT)
+        BIROperand[] valueOperands = values.stream().map(x -> x.exprOp).limit(INITIAL_VALUE_COUNT)
                 .toArray(BIROperand[]::new);
         String result = emitVarRefs(valueOperands);
-        return values.size() > ARRAY_VALUE_COUNT ? result + ",..." : result;
+        return values.size() > INITIAL_VALUE_COUNT ? result + ",..." : result;
     }
 
     private static String emitInsNewError(BIRNonTerminator.NewError ins, int tabs) {
