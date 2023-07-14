@@ -390,7 +390,7 @@ type Employee5 record {
 };
 
 public function testDeprecatedAnonStructAsStructField() {
-    Employee5 employee5 = {address: {}};
+    Employee5 employee5 = {address: {}};    // warning
     _ = employee5.address;  // warning
     _ = employee5.address.line02;   // warning
 }
@@ -434,4 +434,29 @@ public function testDeprecatedAnonRecordFieldInInitialization() {
         city: city,     // warning
         ...companyDetails   // warning
     };
+}
+
+function fooFn(int x1, @deprecated int x2){
+}
+
+function barFn(string s, *Company company) {
+}
+
+public function testDeprecatedParamUsages() {
+    fooFn(10, 11);
+    fooFn(12, x2 = 13);
+    fooFn(x1 = 14, x2 = 15);
+    barFn("bar", {
+        companyId: 1,
+        city: "Berlin", // Warning
+        country: "Germany", // Warning
+        name: "Bar" // Warning
+    });
+    barFn(
+        "bar",
+        companyId = 1,
+        city = "Berlin", // Warning
+        country = "Germany", // Warning
+        name = "Bar" // Warning
+    );
 }
