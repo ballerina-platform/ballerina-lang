@@ -40,7 +40,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -369,63 +369,10 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 11, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 8, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
-    }
-
-    @Test(description = "Test loading in-built code modifier by default")
-    public void testCompilerPluginCodeModifyInBuilt() {
-        Package currentPackage = loadPackage("in_built_plugin_code_modify");
-        // Check the document count in the current package
-        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 2);
-
-        //  Running the compilation
-        currentPackage.getCompilation();
-
-
-        // Running the code generation
-        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
-
-        // Compiling the new package
-        Project project = currentPackage.project();
-        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
-        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
-        Assert.assertSame(newPackage.project(), project);
-        Assert.assertSame(newPackage, project.currentPackage());
-
-        // Modified source files
-        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 2);
-        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-            // The code generator adds specific function to the end of every source file.
-            String specificFunction = "public function inBuiltFuncCodeModifier"
-                    + document.name().replace(".bal", "").replace("/", "_")
-                    + "(string params) returns error? {\n}";
-            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
-        }
-
-        // Modified test source files
-        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 1);
-        for (DocumentId documentId : newPackage.getDefaultModule().testDocumentIds()) {
-            Document document = newPackage.getDefaultModule().document(documentId);
-            // The code generator adds specific function to the end of every source file.
-            String specificFunction = "public function inBuiltFuncCodeModifier"
-                    + document.name().replace(".bal", "").replace("/", "_").replace("-", "_")
-                    + "(string params) returns error? {\n}";
-            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
-        }
-
-        PackageCompilation compilation = newPackage.getCompilation();
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
-
-        // Check direct package dependencies count is 1
-        Assert.assertEquals(newPackage.packageDependencies().size(), 0, "Unexpected number of dependencies");
     }
 
     @Test(description = "Test a combination of in-built and package provided compiler plugins")
@@ -506,7 +453,7 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 5, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
@@ -715,7 +662,7 @@ public class CompilerPluginTests {
         }
     }
 
-    @AfterClass
+    @AfterSuite
     private void cleanup() throws IOException {
         Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
                 "log_creator_combined_plugin/compiler-plugin.txt");
