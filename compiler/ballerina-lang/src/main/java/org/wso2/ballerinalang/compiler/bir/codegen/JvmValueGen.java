@@ -415,7 +415,9 @@ public class JvmValueGen {
         mv.visitCode();
         if (!JvmCodeGenUtil.isAnonType(typedef)) {
             for (BField field : recordType.fields.values()) {
-                JvmCodeGenUtil.generateDiagnosticPos(field.pos, mv);
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) && !Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                    JvmCodeGenUtil.generateDiagnosticPos(field.pos, mv);
+                }
             }
         }
 
