@@ -350,7 +350,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         try {
             switch (kind) {
                 case ADD:
-                    return new BLangConstantValue(value.value, currentConstSymbol.type);
+                    return new BLangConstantValue(value.value, value.type);
                 case SUB:
                     return calculateNegation(value);
                 case BITWISE_COMPLEMENT:
@@ -570,6 +570,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env,
                                                                 Stack<String> anonTypeNameSuffixes) {
+        this.currentConstSymbol = constantSymbol;
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
 
