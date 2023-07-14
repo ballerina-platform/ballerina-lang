@@ -2234,35 +2234,31 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        BType recLiteralType = recordLiteral.getBType();
 
         for (RecordLiteralNode.RecordField field : fields) {
             if (field.isKeyValueField()) {
-                BVarSymbol fieldSymbol = ((BLangRecordKeyValueField) field).key.fieldSymbol;
-
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr, data);
 
-                if (fieldSymbol != null && Symbols.isFlagOn(fieldSymbol.flags, Flags.DEPRECATED)) {
-                    String deprecatedConstruct = generateDeprecatedConstructString(recordLiteral,
-                            fieldSymbol.toString(), fieldSymbol);
-                    dlog.warning(((BLangRecordKeyValueField) field).pos,
-                            DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+                BVarSymbol fieldSymbol = ((BLangRecordKeyValueField) field).key.fieldSymbol;
+                if (fieldSymbol != null) {
+                    reportIfDeprecatedUsage(fieldSymbol, fieldSymbol.toString(),
+                            recordLiteral, ((BLangRecordKeyValueField) field).pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField recField
                         = (BLangRecordLiteral.BLangRecordVarNameField) field;
                 analyzeExpr(recField, data);
 
-                if (recordLiteral.getBType().tsymbol != null
-                        && recordLiteral.getBType().tsymbol.type.getKind() == TypeKind.RECORD) {
+                if (recLiteralType.tsymbol != null && recLiteralType.tsymbol.type != null
+                        && recLiteralType.tsymbol.type.getKind() == TypeKind.RECORD) {
 
-                    BRecordType recordType = (BRecordType) recordLiteral.getBType().tsymbol.type;
+                    BRecordType recordType = (BRecordType) recLiteralType.tsymbol.type;
                     BField matchingField = recordType.getFields().get(recField.symbol.getName().getValue());
 
-                    if (matchingField != null && Symbols.isFlagOn(matchingField.symbol.flags, Flags.DEPRECATED)) {
-                        String deprecatedConstruct = generateDeprecatedConstructString(recordLiteral,
-                                matchingField.name.getValue(), matchingField.symbol);
-                        dlog.warning(((BLangRecordLiteral.BLangRecordVarNameField) field).pos,
-                                DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+                    if (matchingField != null && matchingField.symbol != null) {
+                        reportIfDeprecatedUsage(matchingField.symbol, matchingField.name.getValue(),
+                                recordLiteral, ((BLangRecordLiteral.BLangRecordVarNameField) field).pos);
                     }
                 }
             } else {
@@ -2271,7 +2267,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 analyzeExpr(spreadField.expr, data);
 
                 BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
-                BType contextType = Types.getReferredType(recordLiteral.getBType());
+                BType contextType = Types.getReferredType(recLiteralType);
 
                 if (spreadFieldType != null && spreadFieldType.getKind() == TypeKind.RECORD
                         && contextType.getKind() == TypeKind.RECORD) {
@@ -2279,22 +2275,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         BRecordType recordType = (BRecordType) contextType;
                         BField matchingField = recordType.getFields().get(fieldEntry.getName().getValue());
 
-                        if (matchingField != null && Symbols.isFlagOn(matchingField.symbol.flags, Flags.DEPRECATED)) {
-                            String deprecatedConstruct = generateDeprecatedConstructString(recordLiteral,
-                                    matchingField.name.getValue(), matchingField.symbol);
-                            dlog.warning(spreadField.expr.pos,
-                                    DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+                        if (matchingField != null && matchingField.symbol != null) {
+                            reportIfDeprecatedUsage(matchingField.symbol, matchingField.name.getValue(),
+                                    recordLiteral, spreadField.expr.pos);
                         }
                     }
                 }
-
             }
         }
 
         Set<Object> names = new HashSet<>();
         Set<Object> neverTypedKeys = new HashSet<>();
-        BType literalBType = recordLiteral.getBType();
-        BType type = Types.getReferredType(literalBType);
+        BType type = Types.getReferredType(recLiteralType);
         boolean isRecord = type.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
 
@@ -3970,6 +3962,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         return errorType;
+    }
+
+    private void reportIfDeprecatedUsage(BSymbol constructSymbol,
+                                         String constructName,
+                                         BLangExpression expr,
+                                         Location usagePos) {
+        if (Symbols.isFlagOn(constructSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(usagePos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                    generateDeprecatedConstructString(expr, constructName, constructSymbol));
+        }
     }
 
     /**
