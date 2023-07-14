@@ -2535,6 +2535,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 logDeprecatedWarningForInvocation(invocationExpr);
             }
         }
+        analyzeInvocationParams(invocationExpr, data);
     }
 
     @Override
@@ -3912,6 +3913,107 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean checkReturnValidityInTransaction(AnalyzerData data) {
         return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0
                 && data.withinTransactionScope;
+    }
+
+    private void analyzeInvocationParams(BLangInvocation iExpr, AnalyzerData data) {
+        if (iExpr.symbol == null) {
+            return;
+        }
+
+        BType invocableType = Types.getReferredType(iExpr.symbol.type);
+        if (invocableType.tag != TypeTags.INVOKABLE) {
+            return;
+        }
+
+        BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
+
+        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableSymbol.params);
+        List<BVarSymbol> incRecordParams = new ArrayList<>();
+
+        getIncRecordFields(iExpr, nonRestParams, incRecordParams);
+
+        List<BType> paramTypes = ((BInvokableType) invocableType).getParameterTypes();
+        int parameterCountForPositionalArgs = paramTypes.size();
+        int parameterCountForNamedArgs = parameterCountForPositionalArgs + incRecordParams.size();
+        for (BVarSymbol symbol : nonRestParams) {
+            if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED) ||
+                    Types.getReferredType(symbol.type).tag != TypeTags.RECORD) {
+                continue;
+            }
+            LinkedHashMap<String, BField> fields =
+                    ((BRecordType) Types.getReferredType(symbol.type)).fields;
+            if (fields.isEmpty()) {
+                continue;
+            }
+            for (String field : fields.keySet()) {
+                if (Types.getReferredType(fields.get(field).type).tag != TypeTags.NEVER) {
+                    parameterCountForNamedArgs = parameterCountForNamedArgs - 1;
+                    break;
+                }
+            }
+        }
+
+        int i = 0;
+        boolean foundNamedArg = false;
+        for (BLangExpression expr : iExpr.argExprs) {
+            switch (expr.getKind()) {
+                case NAMED_ARGS_EXPR:
+                    foundNamedArg = true;
+                    BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expr;
+                    if (namedArgsExpression.varSymbol != null
+                            && Symbols.isFlagOn(namedArgsExpression.varSymbol.flags, Flags.DEPRECATED)) {
+                        String deprecatedConstruct = generateDeprecatedConstructString(expr,
+                                namedArgsExpression.varSymbol.toString(), namedArgsExpression.varSymbol);
+                        dlog.warning(expr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                                deprecatedConstruct);
+                    }
+                    i++;
+                    break;
+                case REST_ARGS_EXPR:
+                    if (foundNamedArg) {
+                        continue;
+                    }
+                    analyzeExpr(expr, data);
+                    break;
+                default:    // positional args
+                    if (foundNamedArg) {
+                        continue;
+                    }
+                    if (i < parameterCountForPositionalArgs) {
+                        BVarSymbol paramSymbol = invokableSymbol.params.get(i);
+                        if (Symbols.isFlagOn(invokableSymbol.params.get(i).flags, Flags.INCLUDED)) {
+                            analyzeExpr(expr, data);
+                        }
+                        else if (Symbols.isFlagOn(paramSymbol.flags, Flags.DEPRECATED)) {
+                            String deprecatedConstruct = generateDeprecatedConstructString(expr,
+                                    paramSymbol.toString(), paramSymbol);
+                            dlog.warning(expr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                                    deprecatedConstruct);
+                        }
+                    }
+                    i++;
+
+            }
+        }
+    }
+
+    private void getIncRecordFields(BLangInvocation iExpr, List<BVarSymbol> nonRestParams, List<BVarSymbol> incRecordParams) {
+        if (iExpr.argExprs.size() > 0) {
+            return;
+        }
+
+        for (BVarSymbol param : nonRestParams) {
+            BType paramType = Types.getReferredType(param.type);
+            if (!Symbols.isFlagOn(Flags.asMask(param.getFlags()), Flags.INCLUDED) ||
+                    paramType.getKind() != TypeKind.RECORD) {
+                continue;
+            }
+            for (BField field: ((BRecordType) paramType).fields.values()) {
+                if (field.symbol.type.tag != TypeTags.NEVER) {
+                    incRecordParams.add(field.symbol);
+                }
+            }
+        }
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
