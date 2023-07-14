@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
+import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -81,6 +82,8 @@ public class CodeGenerator {
         // Split large BIR functions into smaller methods
         largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
         largeMethodOptimizer.splitLargeBIRFunctions(packageSymbol.bir);
+
+        BIREmitter.emit(packageSymbol.bir);
 
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);

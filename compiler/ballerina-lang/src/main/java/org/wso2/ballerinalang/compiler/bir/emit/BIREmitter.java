@@ -49,7 +49,7 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
-    private boolean dumbBIR;
+    public static boolean dumbBIR;
 
     public static BIREmitter getInstance(CompilerContext context) {
 
@@ -68,11 +68,17 @@ public class BIREmitter {
         this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
     }
 
-    public BLangPackage emit(BLangPackage bLangPackage) {
+    public static BLangPackage emit(BLangPackage bLangPackage) {
         if (dumbBIR) {
             console.println(emitModule(bLangPackage.symbol.bir));
         }
         return bLangPackage;
+    }
+
+    public static void emit(BIRNode.BIRPackage birPackage) {
+        if (dumbBIR) {
+            console.println(emitModule(birPackage));
+        }
     }
 
     public static String emitModule(BIRNode.BIRPackage mod) {
