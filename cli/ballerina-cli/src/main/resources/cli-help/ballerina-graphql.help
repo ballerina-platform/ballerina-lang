@@ -26,7 +26,8 @@ DESCRIPTION
 
 
 OPTIONS
-        -i, --input <graphql-configuration-file-path | ballerina-graphql-service-file-path | graphql-schema-file-path>
+        -i, --input <graphql-configuration-file-path | ballerina-graphql-service-file-path | 
+        graphql-schema-file-path>
             This is mandatory input. The given GraphQL config file which is configured with
             GraphQL schemas (SDL) and queries, will generate the Ballerina GraphQL client sources.
             The given Ballerina GraphQL service file will generate the GraphQL schema (SDL) file
@@ -42,13 +43,15 @@ OPTIONS
             If this base path is not specified, schemas will be generated for each of the GraphQL
             services in the input file.
         -m, --mode
-            This mode is used to identify the operation mode. It can be `client`, `schema`, or `service`. The `client` argument
-            indicates the Ballerina client source code generation, the `schema` argument indicates the GraphQL schema
-            generation, and the `service` argument indicates the Ballerina GraphQL service source code generation. Mode is only 
-            mandatory for Ballerina GraphQL service source code generation.
+            This mode is used to identify the operation mode. It can be `client`, `schema`, or 
+            `service`. The `client` argument indicates the Ballerina client source code 
+            generation, the `schema` argument indicates the GraphQL schema generation, and the 
+            `service` argument indicates the Ballerina GraphQL service source code generation. 
+            Mode is only mandatory for Ballerina GraphQL service source code generation.
         -r, --use-records-for-objects
-            This flag is used without an argument. It is used only in the Ballerina GraphQL service generation. It will make 
-            the Ballerina CLI tool to use record types for GraphQL object types whenever possible.
+            This flag is used without an argument. It is used only in the Ballerina GraphQL 
+            service generation. It will make the Ballerina CLI tool to use record types for 
+            GraphQL object types whenever possible.
 
 EXAMPLES
        Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`).
@@ -64,5 +67,6 @@ EXAMPLES
        Generate a Ballerina GraphQL service using a GraphQL schema file (`schema.graphql`).
            $ bal graphql -i schema.graphql -m service -o ./output_path
 
-       Generate a Ballerina GraphQL service using a GraphQL schema file (`schema.graphql`) including record types whenever possible.
+       Generate a Ballerina GraphQL service using a GraphQL schema file (`schema.graphql`) 
+       including record types whenever possible.
            $ bal graphql -i schema.graphql -m service -o ./output_path -r
