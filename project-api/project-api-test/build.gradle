@@ -48,7 +48,6 @@ dependencies {
     testRuntime project(':ballerina-runtime')
     testRuntime project(':project-api-test-artifact:logging-file-appender-plugin')
     testRuntime project(':compiler-plugins:package-semantic-analyzer')
-    testRuntime project(':project-api-test-artifact:in-built-code-modifier-plugin')
     testRuntime project(':project-api-test-artifact:log-creator-in-built-code-modifier')
     testRuntime project(':project-api-test-artifact:log-creator-in-built-code-generator')
     testRuntime project(':project-api-test-artifact:log-creator-in-built-code-analyzer')

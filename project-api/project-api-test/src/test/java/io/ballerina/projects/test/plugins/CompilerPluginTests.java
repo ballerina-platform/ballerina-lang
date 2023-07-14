@@ -40,7 +40,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -715,7 +715,7 @@ public class CompilerPluginTests {
         }
     }
 
-    @AfterClass
+    @AfterSuite
     private void cleanup() throws IOException {
         Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
                 "log_creator_combined_plugin/compiler-plugin.txt");
