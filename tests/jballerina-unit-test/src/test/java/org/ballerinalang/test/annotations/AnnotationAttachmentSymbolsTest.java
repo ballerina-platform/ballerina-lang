@@ -370,6 +370,30 @@ public class AnnotationAttachmentSymbolsTest {
         Assert.assertEquals(arrList.get(1).value, 2L);
     }
 
+    @Test
+    public void testConstAnnots() {
+        List<? extends AnnotationAttachmentSymbol> attachmentsF1 =
+                ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "F1").symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachmentsF1.size(), 1);
+        assertAttachmentSymbol(attachmentsF1.get(0), "v29", true, "increment", 2L);
+        List<? extends AnnotationAttachmentSymbol> attachmentsF2 =
+                ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "F2").symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachmentsF2.size(), 1);
+        assertAttachmentSymbol(attachmentsF2.get(0), "v29", true, "increment", 1L);
+        List<? extends AnnotationAttachmentSymbol> attachmentsF3 =
+                ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "F3").symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachmentsF3.size(), 1);
+        assertAttachmentSymbol(attachmentsF3.get(0), "v29", true, "increment", -1L);
+        List<? extends AnnotationAttachmentSymbol> attachmentsF4 =
+                ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "F4").symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachmentsF4.size(), 1);
+        assertAttachmentSymbol(attachmentsF4.get(0), "v29", true, "increment", -2L);
+    }
+
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;

@@ -47,7 +47,7 @@ public class AnnotationExpressionCodeAnalysisNegative {
                 "keys, expected a string literal or an expression", 26, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 'i' via spread " +
                 "operator '...fl'", 49, 8);
-        BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 's'", 50, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid record constructor: duplicate key 's'", 50, 5);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
