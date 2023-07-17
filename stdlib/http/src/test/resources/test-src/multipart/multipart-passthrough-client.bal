@@ -20,7 +20,7 @@ import ballerina/log;
 import ballerina/mime;
 
 int testServicePort = 9090;
-int targetServicePort = 9091;
+int targetServicePort = 9093;
 int passthroughServicePort = 9092;
 
 final http:Client clientEP = new("http://localhost:" + targetServicePort.toString());
