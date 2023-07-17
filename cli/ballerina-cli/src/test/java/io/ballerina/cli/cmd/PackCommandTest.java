@@ -168,6 +168,36 @@ public class PackCommandTest extends BaseCommandTest {
                 .toFile().exists());
     }
 
+    @Test(description = "Pack a package with testOnly platform libs")
+    public void testPackageWithTestOnlyPlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithTestOnlyPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+//        Assert.assertTrue(buildLog.replaceAll("\r", "").contains(
+//                getOutput("pack-project-with-test-only-platform-libs.txt")));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with ballerina/java imports only in tests")
+    public void testPackageWithTestOnlyJavaImports() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithTestOnlyJavaImports");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-test-only-platform-libs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
+                .toFile().exists());
+    }
+
     @Test(description = "Pack a package with an empty Dependencies.toml")
     public void testPackageWithEmptyDependenciesToml() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithDependenciesToml");
