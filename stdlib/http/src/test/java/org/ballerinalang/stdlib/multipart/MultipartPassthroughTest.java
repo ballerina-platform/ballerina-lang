@@ -25,6 +25,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.MultipartUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -123,32 +124,10 @@ public class MultipartPassthroughTest {
     @Test(description = "Test multipart passthrough with nested parts")
     public void testMultipartPassthroughWithNestedParts() {
         String path = "/passthrough/consume";
-        HttpHeaders headers = new DefaultHttpHeaders();
-        String parentBoundary = MimeUtil.getNewMultipartDelimiter();
-        String childBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/mixed; boundary=" + parentBoundary);
-        String multipartBody = "--" + parentBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"text\"\r\n" +
-                "Content-Type: text/plain\r\n" +
-                "\r\n" +
-                "This is a text part\r\n" +
-                "--" + parentBoundary + "\r\n" +
-                "Content-Type: multipart/mixed; boundary=" + childBoundary + "\r\n" +
-                "\r\n" +
-                "--" + childBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"xml\"\r\n" +
-                "Content-Type: application/xml; charset=UTF-8; type=\"text/xml\"\r\n" +
-                "\r\n" +
-                "<text>This is a nested xml part</text>\r\n" +
-                "--" + childBoundary + "--\r\n" +
-                "--" + parentBoundary + "--\r\n";
-
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
-                multipartBody);
+        HTTPTestRequest inRequestMsg = MultipartUtils.createNestedPartRequest(path);
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
-                "This is a text part, <text>This is a nested xml part</text>");
+                "Parent Part, Child Part 1\n, Child Part 2\n");
     }
 }
