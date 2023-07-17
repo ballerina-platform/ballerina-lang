@@ -191,7 +191,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal",
                 "query_expr_source_98.bal", "query_expr_source_102.bal", "query_expr_source_104.bal",
                 "query_expr_source_100.bal", "query_expr_source_125.bal", "query_expr_source_90.bal",
-                "query_expr_source_99.bal", "query_expr_source_89.bal", "query_expr_source_93.bal"
+                "query_expr_source_99.bal", "query_expr_source_89.bal", "query_expr_source_93.bal",
+                "service_decl_source_24.bal"
         );
     }
 

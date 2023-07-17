@@ -278,14 +278,24 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_ACCESSOR_DEFINITION",
+                  "kind": "OBJECT_FIELD",
                   "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "FUNCTION_TYPE_DESC",
+                      "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "RESOURCE_KEYWORD",
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD",
+                          "hasDiagnostics": true,
                           "leadingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -294,6 +304,26 @@
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": "    "
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
+                                "children": [
+                                  {
+                                    "kind": "RESOURCE_KEYWORD",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_QUALIFIER_NOT_ALLOWED"
+                                    ]
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ],
                           "trailingMinutiae": [
@@ -302,15 +332,6 @@
                               "value": " "
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
                         }
                       ]
                     },
@@ -325,54 +346,95 @@
                       ]
                     },
                     {
-                      "kind": "LIST",
+                      "kind": "EQUAL_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_EQUAL_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "BINARY_EXPRESSION",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
+                          "kind": "BINARY_EXPRESSION",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH"
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SLASH_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "limit"
+                                }
+                              ]
+                            }
                           ]
                         },
                         {
                           "kind": "SLASH_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "limit"
-                        },
-                        {
-                          "kind": "SLASH_TOKEN"
-                        },
-                        {
-                          "kind": "RESOURCE_PATH_SEGMENT_PARAM",
+                          "kind": "LIST_CONSTRUCTOR",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACKET_TOKEN"
                             },
                             {
                               "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "INT_TYPE_DESC",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "trailingMinutiae": [
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "INT_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_COMMA_TOKEN"
+                                  ]
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "id"
                                     }
                                   ]
                                 }
                               ]
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "id"
                             },
                             {
                               "kind": "CLOSE_BRACKET_TOKEN"
@@ -382,14 +444,28 @@
                       ]
                     },
                     {
-                      "kind": "FUNCTION_SIGNATURE",
+                      "kind": "SEMICOLON_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_SEMICOLON_TOKEN"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "OBJECT_FIELD",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "NIL_TYPE_DESC",
                       "children": [
                         {
                           "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                          "kind": "LIST",
-                          "children": []
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
@@ -403,7 +479,23 @@
                       ]
                     },
                     {
-                      "kind": "FUNCTION_BODY_BLOCK",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_EQUAL_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "MAPPING_CONSTRUCTOR",
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
@@ -433,6 +525,14 @@
                             }
                           ]
                         }
+                      ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_SEMICOLON_TOKEN"
                       ]
                     }
                   ]

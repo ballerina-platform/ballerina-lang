@@ -11,7 +11,7 @@
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
+// specific language governing permissions and selectations
 // under the License.
 
 public class Listener {
@@ -40,12 +40,12 @@ service on new Listener() {
 }
 
 service on new Listener() {
-    resource function get limit/[int id] () {
+    resource function get select/[int id] () {
     }
 
-    resource function get /limit/[int id] () {
+    resource function get /select/[int id] () {
     }
 
-    resource function get foo/limit/[int id] () {
+    resource function get foo/select/[int id] () {
     }
 }
