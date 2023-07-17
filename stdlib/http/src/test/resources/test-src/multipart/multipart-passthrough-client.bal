@@ -19,12 +19,107 @@ import ballerina/lang.'string as strings;
 import ballerina/log;
 import ballerina/mime;
 
+int testServicePort = 9090;
 int targetServicePort = 9091;
 int passthroughServicePort = 9092;
 
 final http:Client clientEP = new("http://localhost:" + targetServicePort.toString());
+final http:Client passthroughClientEP = new("http://localhost:" + passthroughServicePort.toString());
 
-service passthrough on new http:MockListener(passthroughServicePort) {
+service test on new http:MockListener(testServicePort) {
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/test1"
+    }
+    resource function test1(http:Caller caller, http:Request request) returns @tainted error? {
+        mime:Entity textPart = new;
+        textPart.setContentDisposition(getContentDispositionForFormData("textPart"));
+        textPart.setText("This is a text part");
+
+        http:Request req = new;
+        req.setBodyParts([textPart], contentType = mime:MULTIPART_FORM_DATA);
+        var result = passthroughClientEP->post("/passthrough/process", req);
+        if (result is error) {
+            log:printError("Error sending response", result);
+        }
+        return caller->respond(<http:Response>result);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/test2"
+    }
+    resource function test2(http:Caller caller, http:Request request) returns @tainted error? {
+        mime:Entity textPart = new;
+        textPart.setContentDisposition(getContentDispositionForFormData("textPart"));
+        textPart.setText("This is a text part");
+
+        http:Request req = new;
+        req.setBodyParts([textPart], contentType = mime:MULTIPART_FORM_DATA);
+        var result = passthroughClientEP->post("/passthrough/consume", req);
+        if (result is error) {
+            log:printError("Error sending response", result);
+        }
+        return caller->respond(<http:Response>result);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/test3"
+    }
+    resource function test3(http:Caller caller, http:Request request) returns @tainted error? {
+        mime:Entity textPart = new;
+        textPart.setContentDisposition(getContentDispositionForFormData("textPart"));
+        textPart.setText("This is a text part");
+
+        mime:Entity xmlPart = new;
+        xmlPart.setContentDisposition(getContentDispositionForFormData("xmlPart"));
+        xmlPart.setXml(xml `<name>This is an xml part</name>`);
+        mime:InvalidContentTypeError? contentType = xmlPart.setContentType("application/xop+xml; type=\"text/xml\"");
+
+        http:Request req = new;
+        req.setBodyParts([textPart, xmlPart], contentType = mime:MULTIPART_FORM_DATA);
+        var result = passthroughClientEP->post("/passthrough/process", req);
+        if (result is error) {
+            log:printError("Error sending response", result);
+        }
+        return caller->respond(<http:Response>result);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/test4"
+    }
+    resource function test4(http:Caller caller, http:Request request) returns @tainted error? {
+        mime:Entity textPart = new;
+        textPart.setContentDisposition(getContentDispositionForFormData("textPart"));
+        textPart.setText("This is a text part");
+
+        mime:Entity xmlPart = new;
+        xmlPart.setContentDisposition(getContentDispositionForFormData("xmlPart"));
+        xmlPart.setXml(xml `<name>This is an xml part</name>`, "application/xop+xml; type=\"text/xml\"");
+
+        mime:Entity jsonPart = new;
+        jsonPart.setContentDisposition(getContentDispositionForFormData("jsonPart"));
+        jsonPart.setJson({"name":"This is a json part"});
+
+        mime:Entity[] bodyParts = [xmlPart, jsonPart];
+        mime:Entity entityPart = new;
+        entityPart.setContentDisposition(getContentDispositionForFormData("entityPart"));
+        entityPart.setBodyParts(bodyParts, contentType = mime:MULTIPART_MIXED);
+
+        http:Request req = new;
+        req.setBodyParts([textPart, entityPart], contentType = mime:MULTIPART_FORM_DATA);
+        var result = passthroughClientEP->post("/passthrough/process", req);
+        if (result is error) {
+            log:printError("Error sending response", result);
+        }
+        return caller->respond(<http:Response>result);
+    }
+}
+
+service passthrough on new http:Listener(passthroughServicePort) {
 
     @http:ResourceConfig {
         methods: ["POST"],
@@ -133,4 +228,11 @@ function handleContent(mime:Entity bodyPart) returns @tainted string|error {
         }
     }
     return error("Invalid media type: " + bodyPart.getContentType());
+}
+
+function getContentDispositionForFormData(string partName) returns mime:ContentDisposition {
+    mime:ContentDisposition contentDisposition = new;
+    contentDisposition.name = partName;
+    contentDisposition.disposition = "form-data";
+    return contentDisposition;
 }

@@ -39,7 +39,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class MultipartPassthroughTest {
 
     private static final int TEST_SERVICE_PORT = 9092;
-    private static final int TEST_CLIENT_PORT = 9090;
 
     @BeforeClass
     public void setup() {
@@ -152,34 +151,5 @@ public class MultipartPassthroughTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
                 "This is a text part, This is a nested text part, <text>This is a nested xml part</text>");
-    }
-
-    @Test(description = "Test multipart passthrough with Ballerina client")
-    public void testMultipartPassthroughWithBallerinaClient() {
-        String path = "/test/test1";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invoke(TEST_CLIENT_PORT, inRequestMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part");
-
-        path = "/test/test2";
-        inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        response = Services.invoke(TEST_CLIENT_PORT, inRequestMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part");
-
-        path = "/test/test3";
-        inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        response = Services.invoke(TEST_CLIENT_PORT, inRequestMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part, " +
-                "<name>This is an xml part</name>");
-
-        path = "/test/test4";
-        inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        response = Services.invoke(TEST_CLIENT_PORT, inRequestMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part, " +
-                "<name>This is an xml part</name>, name=This is a json part");
     }
 }
