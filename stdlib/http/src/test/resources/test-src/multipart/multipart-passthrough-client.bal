@@ -80,7 +80,7 @@ service test on new http:MockListener(testServicePort) {
 
         http:Request req = new;
         req.setBodyParts([textPart, xmlPart], contentType = mime:MULTIPART_FORM_DATA);
-        var result = passthroughClientEP->post("/passthrough/process", req);
+        var result = passthroughClientEP->post("/passthrough/consume", req);
         if (result is error) {
             log:printError("Error sending response", result);
         }
@@ -107,7 +107,7 @@ service test on new http:MockListener(testServicePort) {
 
         http:Request req = new;
         req.setBodyParts([textPart, entityPart], contentType = mime:MULTIPART_FORM_DATA);
-        var result = passthroughClientEP->post("/passthrough/process", req);
+        var result = passthroughClientEP->post("/passthrough/consume", req);
         if (result is error) {
             log:printError("Error sending response", result);
         }
