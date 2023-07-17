@@ -800,6 +800,7 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, INTERSECTION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
+        mv.visitLdcInsn(Utils.decodeIdentifier(bType.tsymbol.name.value));
         String varName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
         // Create the constituent types array.
