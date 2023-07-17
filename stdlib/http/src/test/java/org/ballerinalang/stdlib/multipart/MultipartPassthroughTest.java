@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.multipart;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.util.internal.StringUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
@@ -128,6 +129,6 @@ public class MultipartPassthroughTest {
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
-                "Parent Part, Child Part 1\n, Child Part 2\n");
+                "Parent Part, Child Part 1" + StringUtil.NEWLINE + ", Child Part 2" + StringUtil.NEWLINE);
     }
 }
