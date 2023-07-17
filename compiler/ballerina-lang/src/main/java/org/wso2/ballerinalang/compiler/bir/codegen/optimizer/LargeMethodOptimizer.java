@@ -354,6 +354,14 @@ public class LargeMethodOptimizer {
         }
     }
 
+    private Map<BIROperand, Integer> getErrorOperandsAndTargetBBs(List<BIRErrorEntry> errorTable) {
+        Map<BIROperand, Integer> errorOperandsAndTargetBBs = new HashMap<>();
+        for (BIRErrorEntry birErrorEntry : errorTable) {
+            errorOperandsAndTargetBBs.put(birErrorEntry.errorOp, birErrorEntry.targetBB.number);
+        }
+        return errorOperandsAndTargetBBs;
+    }
+
     private void splitParentFuncForPeriodicSplits(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
                                                   boolean fromAttachedFunction,
                                                   List<BIRBasicBlock> bbs,
@@ -363,7 +371,12 @@ public class LargeMethodOptimizer {
                                                   SplitFuncEnv splitFuncEnv,
                                                   ParentFuncEnv parentFuncEnv, Set<BIROperand> arrayValuesOperands) {
         Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = getSplitPoints(bbs, arrayValuesOperands);
-        boolean splitNow;
+        Map<BIROperand, Integer> errorOperandsAndTargetBBs = getErrorOperandsAndTargetBBs(parentFunc.errorTable);
+        // When an error table operand is found as an array element operand in the LHS of an non terminator,
+        // the array element populating instructions should be put in the targetBB for the try-catch to work correctly.
+        List<BIRNonTerminator> nextBBPendingIns = new ArrayList<>();
+        List<BIRNonTerminator> newBBInsList;
+        boolean arrayElementSet;
         for (int bbIndex = 0; bbIndex < bbs.size() - 1; bbIndex++) {
             BIRBasicBlock bb = bbs.get(bbIndex);
             if (!splitFuncEnv.splitOkay && splitFuncEnv.doNotSplitTillThisBBNum == bb.number) {
@@ -371,6 +384,10 @@ public class LargeMethodOptimizer {
                 splitFuncEnv.periodicSplitInsCount -= 1;
             }
             splitFuncEnv.splitFuncChangedBBs.put(bb.number, splitFuncEnv.splitFuncBB);
+            if (!nextBBPendingIns.isEmpty()) {
+                splitFuncEnv.splitFuncNewInsList.addAll(nextBBPendingIns);
+                nextBBPendingIns.clear();
+            }
             for (int insIndex = 0; insIndex < bb.instructions.size(); insIndex++) {
                 if (bbIndex == 0 && insIndex == 0) { // array size ins
                     continue;
@@ -382,8 +399,9 @@ public class LargeMethodOptimizer {
                 }
 
                 BIRNonTerminator bbIns = bb.instructions.get(insIndex);
-                if (!splitFuncEnv.returnValAssigned && bbIns.lhsOp != null
-                        && bbIns.lhsOp.variableDcl.kind == VarKind.RETURN) {
+                BIROperand bbInsLhsOp = bbIns.lhsOp;
+                if (!splitFuncEnv.returnValAssigned && bbInsLhsOp != null
+                        && bbInsLhsOp.variableDcl.kind == VarKind.RETURN) {
                     splitFuncEnv.returnValAssigned = true;
                     // when the return val is assigned, there are no more ins in the BB
                     // and the terminator is of kind GOTO to the return BB
@@ -394,12 +412,21 @@ public class LargeMethodOptimizer {
                 splitFuncEnv.splitFuncNewInsList.add(bbIns);
                 splitFuncEnv.periodicSplitInsCount++;
                 populateSplitFuncArgsAndLocalVarList(splitFuncEnv, bbIns);
-                splitNow = setArrayElementGivenOperand(birOperands, splitFuncEnv.splitFuncNewInsList,
+                newBBInsList = new ArrayList<>();
+                arrayElementSet = setArrayElementGivenOperand(birOperands, newBBInsList,
                         handleArrayOperand, splitFuncEnv.splitFuncTempVars, insSplitPoints, bbIns, splitFuncEnv);
+                if (bbInsLhsOp != null && errorOperandsAndTargetBBs.containsKey(bbInsLhsOp)) {
+                    nextBBPendingIns.addAll(newBBInsList);
+                    splitFuncEnv.splitOkay = false;
+                    splitFuncEnv.doNotSplitTillThisBBNum = Math.max(
+                            splitFuncEnv.doNotSplitTillThisBBNum, errorOperandsAndTargetBBs.get(bbInsLhsOp));
+                } else {
+                    splitFuncEnv.splitFuncNewInsList.addAll(newBBInsList);
+                }
 
                 // create split func if needed
                 if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD && splitFuncEnv.splitOkay
-                        && splitNow && splitFuncEnv.splitHere) {
+                        && arrayElementSet && splitFuncEnv.splitHere) {
                     createNewFuncForPeriodicSplit(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                             handleArray, splitFuncEnv, parentFuncEnv, bb, bbIns);
                 }
@@ -424,10 +451,10 @@ public class LargeMethodOptimizer {
 
             splitFuncEnv.periodicSplitInsCount++;
 
-            List<BIRNonTerminator> newBBInsList = new ArrayList<>();
-            splitNow = setArrayElementGivenOperand(birOperands, newBBInsList, handleArrayOperand,
+            newBBInsList = new ArrayList<>();
+            arrayElementSet = setArrayElementGivenOperand(birOperands, newBBInsList, handleArrayOperand,
                     splitFuncEnv.splitFuncTempVars, insSplitPoints, bb.terminator, splitFuncEnv);
-            if (splitNow) {
+            if (arrayElementSet) {
                 splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
                 BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                 splitFuncEnv.splitFuncBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
@@ -442,11 +469,12 @@ public class LargeMethodOptimizer {
             if (bb.terminator.kind == InstructionKind.BRANCH) {
                 splitFuncEnv.splitOkay = false;
                 BIRTerminator.Branch branch = (BIRTerminator.Branch) bb.terminator;
-                splitFuncEnv.doNotSplitTillThisBBNum = Math.max(branch.trueBB.number, branch.falseBB.number);
+                int higherBBNumber = Math.max(branch.trueBB.number, branch.falseBB.number);
+                splitFuncEnv.doNotSplitTillThisBBNum = Math.max(splitFuncEnv.doNotSplitTillThisBBNum, higherBBNumber);
             }
 
             if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD && splitFuncEnv.splitOkay
-                    && splitNow && splitFuncEnv.splitHere) {
+                    && arrayElementSet && splitFuncEnv.splitHere) {
                 createNewFuncForPeriodicSplit(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                         handleArray, splitFuncEnv, parentFuncEnv, bb, bb.terminator);
             }
