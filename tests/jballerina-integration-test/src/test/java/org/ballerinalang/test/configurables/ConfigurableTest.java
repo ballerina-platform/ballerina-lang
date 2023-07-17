@@ -91,7 +91,7 @@ public class ConfigurableTest extends BaseTest {
         logLeecher.waitForText(5000);
     }
 
-    @Test
+    @Test (dependsOnMethods = "testConfigurableBalRun")
     public void testConfigurableWithJavaJarRun() throws BallerinaTestException {
         executeBalCommand("/configurableProject", "main", null);
     }
@@ -134,7 +134,7 @@ public class ConfigurableTest extends BaseTest {
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
     }
 
-    @Test
+    @Test (dependsOnMethods = "testFileEnvVariableBasedConfigurable")
     public void testDataEnvVariableBasedConfigurableNegative() throws BallerinaTestException {
         LogLeecher errorLeecher1 = new LogLeecher("warning: invalid TOML file :", ERROR);
         LogLeecher errorLeecher2 = new LogLeecher("[BAL_CONFIG_DATA:(1:11,1:12)] missing new line", ERROR);
@@ -174,7 +174,7 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher12.waitForText(5000);
     }
 
-    @Test
+    @Test (dependsOnMethods = "testDataEnvVariableBasedConfigurableNegative")
     public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
         String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
                 "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
@@ -198,7 +198,7 @@ public class ConfigurableTest extends BaseTest {
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
     }
 
-    @Test
+    @Test (dependsOnMethods = "testDataEnvVariableBasedConfigurableWithNewLine")
     public void testConfigOverriding() throws BallerinaTestException {
         // Check multiple cases of TOML values getting overridden
         String configFilePath1 =  Paths.get(testFileLocation, "config_files", "Config.toml").toString();
@@ -248,7 +248,7 @@ public class ConfigurableTest extends BaseTest {
 
     /** Negative test cases. */
 
-    @Test
+    @Test (dependsOnMethods = "testConfigurableVariablesWithCliArgs")
     public void testConfigurableVariablesWithInvalidCliArgs() throws BallerinaTestException {
         LogLeecher errorLeecher1 = new LogLeecher("error: [intVar=waruna] configurable variable 'intVar' is expected " +
                                                           "to be of type 'int', but found 'waruna'", ERROR);
@@ -323,7 +323,7 @@ public class ConfigurableTest extends BaseTest {
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFile))));
     }
 
-    @DataProvider(name = "structured-project-provider")
+    @DataProvider(name = "structured-project-provider", parallel = true)
     public Object[] structuredDataProvider() {
         return new String[][]{
                 {"configRecordType", "Config_records.toml"},
@@ -334,7 +334,19 @@ public class ConfigurableTest extends BaseTest {
                 {"configMapType", "Config_maps.toml"},
                 {"configComplexXml", "Config_xml.toml"},
                 {"configTupleType", "Config_tuples.toml"},
-                {"configTableArray", "Config_table_arrays.toml"},
+                {"configTableArray", "Config_table_arrays.toml"}
+        };
+    }
+
+    @Test(dataProvider = "structured-inline-project-provider", dependsOnMethods = "testStructuredTypeConfigurable")
+    public void testStructuredTypeConfigurableInline(String packageName, String configFile) throws BallerinaTestException {
+        executeBalCommand("/configStructuredTypesProject", packageName,
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFile))));
+    }
+
+    @DataProvider(name = "structured-inline-project-provider", parallel = true)
+    public Object[] structuredInlineDataProvider() {
+        return new String[][]{
                 {"configRecordType", "Config_records_inline.toml"},
                 {"configOpenRecord", "Config_open_records_inline.toml"},
                 {"defaultValuesRecord", "Config_default_values_inline.toml"},
@@ -342,8 +354,7 @@ public class ConfigurableTest extends BaseTest {
                 {"configTableType", "Config_tables_inline.toml"},
                 {"configMapType", "Config_maps_inline.toml"},
                 {"configComplexXml", "Config_xml_inline.toml"},
-                {"configTupleType", "Config_tuples_inline.toml"},
-
+                {"configTupleType", "Config_tuples_inline.toml"}
         };
     }
 

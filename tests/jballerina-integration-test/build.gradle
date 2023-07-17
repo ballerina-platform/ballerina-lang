@@ -99,7 +99,7 @@ test {
     dependsOn ':jballerina-tools:build'
     systemProperty 'enableJBallerinaTests', 'true'
 
-    maxParallelForks = 1
+
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath

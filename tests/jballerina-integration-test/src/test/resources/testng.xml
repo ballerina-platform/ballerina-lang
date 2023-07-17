@@ -17,11 +17,11 @@
 
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
-<suite name="jBallerina-Test-Suite" time-out="120000">
+<suite name="jBallerina-Test-Suite" time-out="120000" parallel="true">
     <listeners>
-        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
-        <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
-        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+<!--        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>-->
+<!--        <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>-->
+<!--        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>-->
     </listeners>
 
     <test name="ballerina-data-streaming-tests">
@@ -132,7 +132,7 @@
             <class name="org.ballerinalang.test.async.AsyncFunctionsTest" />
         </classes>
     </test>
-    <test name="ballerina-strand-dump-tests">
+    <test name="ballerina-strand-dump-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.troubleshoot.StrandDumpTest" />

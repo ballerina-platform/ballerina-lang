@@ -19,7 +19,7 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
-<suite name="testerina-intg-test-suite">
+<suite name="testerina-intg-test-suite" parallel="classes">
 
     <!-- ballerina.test Related Test Cases. -->
     <test name="testerina-intg-tests">

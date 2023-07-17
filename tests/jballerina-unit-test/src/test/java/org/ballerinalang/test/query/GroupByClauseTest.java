@@ -50,7 +50,7 @@ public class GroupByClauseTest {
         BRunUtil.invoke(resultWithListCtr, functionName);
     }
 
-    @DataProvider
+    @DataProvider(parallel = true)
     public Object[] dataToTestGroupByClauseWithListCtr() {
         return new Object[] {
                 "testGroupByExpressionAndSelectWithGroupingKeys1",
