@@ -100,6 +100,8 @@ public enum Snippet {
 //
 //    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
+
+
     DEF_SERVICE_COMMON(SnippetGenerator.getCommonServiceSnippet()),
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
@@ -230,6 +232,8 @@ public enum Snippet {
     KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
+
+    KW_NAME(SnippetGenerator.getNameKeywordSnippet()),
 
     KW_IN(SnippetGenerator.getInKeywordSnippet()),
 

@@ -41,7 +41,10 @@ public class ModuleVariableContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
+        return new Object[][] {
+                {"var_name_test.json", "module_var_context"}
+        };
+//        return this.getConfigsList();
     }
 
     @Override

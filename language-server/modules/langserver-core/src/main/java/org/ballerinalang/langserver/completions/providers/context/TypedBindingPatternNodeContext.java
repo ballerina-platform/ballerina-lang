@@ -20,12 +20,17 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem.Kind;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +43,25 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
 
     public TypedBindingPatternNodeContext() {
         super(TypedBindingPatternNode.class);
+    }
+
+    private static List<LSCompletionItem> getIdentifierCompletionItem(BallerinaCompletionContext context,
+                                                                      TypedBindingPatternNode node)
+            throws LSCompletionException {
+
+        List<LSCompletionItem> completions = new ArrayList<>();
+
+        // If the condition fails, create a custom LSCompletionItem with the generated identifier
+        String generateidentifier = NameUtil.generateIdentifier(node);
+        CompletionItem completionItem = new CompletionItem();
+
+        completionItem.setLabel(generateidentifier);
+
+        // Create a StaticCompletionItem with the completion item and kind
+        StaticCompletionItem variableName = new StaticCompletionItem(context, completionItem, Kind.KEYWORD);
+
+        completions.add(variableName);
+        return completions;
     }
 
     @Override
@@ -55,7 +79,10 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
             return CompletionUtil.route(context, node.typeDescriptor());
         }
 
-        return CompletionUtil.route(context, node.parent());
+        return getIdentifierCompletionItem(context, node);
+
+
+//        return CompletionUtil.route(context, node.parent());
     }
 
     private boolean withinTypeDesc(BallerinaCompletionContext context, TypedBindingPatternNode node) {
@@ -69,7 +96,7 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
     public boolean onPreValidation(BallerinaCompletionContext context, TypedBindingPatternNode node) {
         int cursor = context.getCursorPositionInTree();
         TypeDescriptorNode typeDescriptorNode = node.typeDescriptor();
-        
+
         return !typeDescriptorNode.isMissing() && cursor > typeDescriptorNode.textRange().endOffset();
     }
 }

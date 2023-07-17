@@ -40,6 +40,12 @@ public class SnippetGenerator {
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
+
+    public static SnippetBlock getNameKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.MATHI, ItemResolverConstants.MATHI, "vinoth ",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
     public static SnippetBlock getAnnotationDefSnippet() {
         String snippet = "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};";
         return new SnippetBlock(ItemResolverConstants.ANNOTATION, ItemResolverConstants.ANNOTATION, snippet,

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.MaskedTokenPrediction;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -26,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -67,7 +69,15 @@ public class NameUtil {
         }
         return result.toString();
     }
-    
+
+    public static String generateIdentifier(TypedBindingPatternNode node) {
+        String maskedString = node.parent().toString();
+        maskedString = maskedString.replace("  MISSING[]", "[MASK] ").replace("\n", "");
+        String predictedToken = MaskedTokenPrediction.getPredictedToken(maskedString);
+        return predictedToken;
+    }
+
+
     /**
      * Generates a variable name.
      *
@@ -211,7 +221,7 @@ public class NameUtil {
      * @return Signature
      */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        String typeSignature = typeSymbol.typeKind() == 
+        String typeSignature = typeSymbol.typeKind() ==
                 TypeDescKind.COMPILATION_ERROR ? "" : typeSymbol.signature();
         return CommonUtil.getModifiedSignature(context, typeSignature);
     }
@@ -264,7 +274,7 @@ public class NameUtil {
         }
         return existingArgNames;
     }
-    
+
     /**
      * Coverts a given text to camel case.
      *

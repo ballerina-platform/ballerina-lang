@@ -42,6 +42,7 @@ dependencies {
         implementation "com.google.code.findbugs:jsr305:${project.findbugsJsr305Version}"
         implementation "com.google.code.gson:gson:${project.gsonVersion}"
         implementation "com.google.guava:guava:${project.guavaVersion}"
+        implementation "org.example:onnx_model:1.0-SNAPSHOT"
         implementation "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
         implementation "com.sun.mail:javax.mail:${project.javaxMailVersion}"
         implementation "com.squareup.okhttp3:okhttp:${project.okhttpVersion}"

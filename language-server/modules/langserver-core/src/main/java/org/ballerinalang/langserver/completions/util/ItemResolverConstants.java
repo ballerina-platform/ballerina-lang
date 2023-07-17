@@ -23,6 +23,8 @@ package org.ballerinalang.langserver.completions.util;
  */
 public class ItemResolverConstants {
 
+    public static final String MATHI = "vinoth";
+
     // Start of Basic Constructs
     public static final String RETURN = "return";
     public static final String RETURN_SC = "return;";

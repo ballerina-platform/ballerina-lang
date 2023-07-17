@@ -11,6 +11,7 @@ module io.ballerina.language.server.core {
     uses org.ballerinalang.langserver.eventsync.EventPublisher;
     uses org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
     uses org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+    uses io.ballerina.MaskedTokenPrediction;
     exports org.ballerinalang.langserver;
     exports org.ballerinalang.langserver.references;
     exports org.ballerinalang.langserver.common.utils;
@@ -40,4 +41,5 @@ module io.ballerina.language.server.core {
     requires com.google.gson;
     requires io.ballerina.syntaxapicallsgen;
     requires io.ballerina.central.client;
+    requires predictor;
 }
