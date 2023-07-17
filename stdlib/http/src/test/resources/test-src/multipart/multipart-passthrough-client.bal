@@ -98,13 +98,9 @@ service test on new http:MockListener(testServicePort) {
 
         mime:Entity xmlPart = new;
         xmlPart.setContentDisposition(getContentDispositionForFormData("xmlPart"));
-        xmlPart.setXml(xml `<name>This is an xml part</name>`, "application/xop+xml; type=\"text/xml\"");
+        xmlPart.setXml(xml `<name>This is a nested xml part</name>`, "application/xop+xml; type=\"text/xml\"");
 
-        mime:Entity jsonPart = new;
-        jsonPart.setContentDisposition(getContentDispositionForFormData("jsonPart"));
-        jsonPart.setJson({"name":"This is a json part"});
-
-        mime:Entity[] bodyParts = [xmlPart, jsonPart];
+        mime:Entity[] bodyParts = [xmlPart];
         mime:Entity entityPart = new;
         entityPart.setContentDisposition(getContentDispositionForFormData("entityPart"));
         entityPart.setBodyParts(bodyParts, contentType = mime:MULTIPART_MIXED);

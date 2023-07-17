@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.multipart;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
@@ -52,16 +53,16 @@ public class MultipartPassthroughTest {
     @Test(description = "Test multipart passthrough without consuming")
     public void testMultipartPassthroughWithoutConsuming() {
         String path = "/passthrough/process";
+        String boundary = MimeUtil.getNewMultipartDelimiter();
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/form-data; boundary=----WebKitFormBoundaryT1tTtUf2h9rXv7T4");
-        String multipartBody = "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
+                "multipart/form-data; boundary=" + boundary);
+        String multipartBody = "--" + boundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"text\"\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "This is a text part\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4--\r\n";
-
+                "--" + boundary + "--\r\n";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
@@ -72,16 +73,16 @@ public class MultipartPassthroughTest {
     @Test(description = "Test multipart passthrough with consuming")
     public void testMultipartPassthroughWithConsuming() {
         String path = "/passthrough/consume";
+        String boundary = MimeUtil.getNewMultipartDelimiter();
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/form-data; boundary=----WebKitFormBoundaryT1tTtUf2h9rXv7T4");
-        String multipartBody = "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
+                "multipart/form-data; boundary=" + boundary);
+        String multipartBody = "--" + boundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"text\"\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "This is a text part\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4--\r\n";
-
+                "--" + boundary + "--\r\n";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
@@ -92,23 +93,24 @@ public class MultipartPassthroughTest {
     @Test(description = "Test multipart passthrough with type parameter")
     public void testMultipartPassthroughWithTypeParam() {
         String path = "/passthrough/consume";
+        String boundary = MimeUtil.getNewMultipartDelimiter();
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/mixed; boundary=----WebKitFormBoundaryT1tTtUf2h9rXv7T4");
-        String multipartBody = "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
+                "multipart/form-data; boundary=" + boundary);
+        String multipartBody = "--" + boundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"text\"\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "This is a text part\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
+                "--" + boundary + "\r\n" +
                 "Content-Type: application/xml; charset=UTF-8; type=\"text/xml\"\r\n" +
                 "\r\n" +
                 "<text>This is a xml part</text>\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
+                "--" + boundary + "\r\n" +
                 "Content-Type: application/json\r\n" +
                 "\r\n" +
                 "{ \"name\": \"This is a json part\" }\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4--\r\n";
+                "--" + boundary + "--\r\n";
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
@@ -122,34 +124,31 @@ public class MultipartPassthroughTest {
     public void testMultipartPassthroughWithNestedParts() {
         String path = "/passthrough/consume";
         HttpHeaders headers = new DefaultHttpHeaders();
+        String parentBoundary = MimeUtil.getNewMultipartDelimiter();
+        String childBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/mixed; boundary=----WebKitFormBoundaryT1tTtUf2h9rXv7T4");
-        String multipartBody = "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
+                "multipart/mixed; boundary=" + parentBoundary);
+        String multipartBody = "--" + parentBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"text\"\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "This is a text part\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4\r\n" +
-                "Content-Type: multipart/mixed; boundary=----WebKitFormBoundaryT1tTtUf2h9rXv7T5\r\n" +
+                "--" + parentBoundary + "\r\n" +
+                "Content-Type: multipart/mixed; boundary=" + childBoundary + "\r\n" +
                 "\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T5\r\n" +
-                "Content-Disposition: form-data; name=\"text\"\r\n" +
-                "Content-Type: text/plain\r\n" +
-                "\r\n" +
-                "This is a nested text part\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T5\r\n" +
+                "--" + childBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"xml\"\r\n" +
                 "Content-Type: application/xml; charset=UTF-8; type=\"text/xml\"\r\n" +
                 "\r\n" +
                 "<text>This is a nested xml part</text>\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T5--\r\n" +
-                "------WebKitFormBoundaryT1tTtUf2h9rXv7T4--\r\n";
+                "--" + childBoundary + "--\r\n" +
+                "--" + parentBoundary + "--\r\n";
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
-                "This is a text part, This is a nested text part, <text>This is a nested xml part</text>");
+                "This is a text part, <text>This is a nested xml part</text>");
     }
 }
