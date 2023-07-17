@@ -124,6 +124,7 @@
                   "children": [
                     {
                       "kind": "QUERY_PIPELINE",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "FROM_CLAUSE",
@@ -266,9 +267,11 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "GROUP_BY_CLAUSE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "GROUP_KEYWORD",
@@ -296,6 +299,7 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "GROUPING_KEY_VAR_DECLARATION",
@@ -389,21 +393,14 @@
                                     },
                                     {
                                       "kind": "SIMPLE_NAME_REFERENCE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "select",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_IDENTIFIER"
                                           ]
                                         }
                                       ]
@@ -418,14 +415,20 @@
                     },
                     {
                       "kind": "SELECT_CLAUSE",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "SELECT_KEYWORD",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_SELECT_KEYWORD"
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "        "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
                           ]
                         },
                         {

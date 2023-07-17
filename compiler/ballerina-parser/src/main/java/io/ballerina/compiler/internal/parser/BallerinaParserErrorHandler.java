@@ -6237,7 +6237,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     private boolean isContextualKeyword(STToken token) {
-        return BallerinaParser.isKeywordMatch(token, SyntaxKind.SELECT_KEYWORD, SyntaxKind.WHERE_KEYWORD,
+        return BallerinaParser.isKeywordMatch(token, SyntaxKind.WHERE_KEYWORD,
                 SyntaxKind.JOIN_KEYWORD, SyntaxKind.OUTER_KEYWORD, SyntaxKind.EQUALS_KEYWORD, SyntaxKind.ORDER_KEYWORD,
                 SyntaxKind.BY_KEYWORD, SyntaxKind.ASCENDING_KEYWORD, SyntaxKind.DESCENDING_KEYWORD,
                 SyntaxKind.LIMIT_KEYWORD, SyntaxKind.CONFLICT_KEYWORD, SyntaxKind.GROUP_KEYWORD,

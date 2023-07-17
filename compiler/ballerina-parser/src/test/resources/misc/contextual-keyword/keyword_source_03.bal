@@ -1,6 +1,5 @@
 int where = 1;
 int join = 2;
-int select = 3;
 int outer = 4;
 int equals = 5;
 int order = 6;
@@ -13,7 +12,6 @@ int conflict = 11;
 function keywords() {
     var where = "where";
     var join = "join";
-    var select = "select";
     var outer = "outer";
     var equals = "equals";
     var order = "order";

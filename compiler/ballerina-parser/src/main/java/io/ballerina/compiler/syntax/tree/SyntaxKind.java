@@ -77,6 +77,7 @@ public enum SyntaxKind {
     LET_KEYWORD(223, "let"),
     NEW_KEYWORD(224, "new"),
     FROM_KEYWORD(225, "from"),
+    SELECT_KEYWORD(227, "select"),
     START_KEYWORD(228, "start"),
     FLUSH_KEYWORD(229, "flush"),
     CONFIGURABLE_KEYWORD(230, "configurable"),
@@ -132,7 +133,6 @@ public enum SyntaxKind {
     DESCENDING_KEYWORD(410, "descending"),
     LIMIT_KEYWORD(411, "limit"),
     CONFLICT_KEYWORD(412, "conflict"),
-    SELECT_KEYWORD(413, "select"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
