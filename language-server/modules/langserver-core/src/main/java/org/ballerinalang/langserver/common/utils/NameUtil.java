@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.AlbertBasePrediction;
 import io.ballerina.MaskedTokenPrediction;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -70,11 +71,11 @@ public class NameUtil {
         return result.toString();
     }
 
-    public static String generateIdentifier(TypedBindingPatternNode node) {
+    public static String[] generateIdentifier(TypedBindingPatternNode node) {
         String maskedString = node.parent().toString();
-        maskedString = maskedString.replace("  MISSING[]", "[MASK] ").replace("\n", "");
-        String predictedToken = MaskedTokenPrediction.getPredictedToken(maskedString);
-        return predictedToken;
+        maskedString = maskedString.replace("  MISSING[]", "<mask> ").replace("\n", "");
+        String[] predictedTokens = MaskedTokenPrediction.getPredictedToken(maskedString);
+        return predictedTokens;
     }
 
 

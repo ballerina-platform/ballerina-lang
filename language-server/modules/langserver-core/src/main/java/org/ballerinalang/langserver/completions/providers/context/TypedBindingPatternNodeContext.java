@@ -50,17 +50,15 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
             throws LSCompletionException {
 
         List<LSCompletionItem> completions = new ArrayList<>();
+        String[] generateidentifier = NameUtil.generateIdentifier(node);
 
-        // If the condition fails, create a custom LSCompletionItem with the generated identifier
-        String generateidentifier = NameUtil.generateIdentifier(node);
-        CompletionItem completionItem = new CompletionItem();
+        for (String identifier : generateidentifier) {
+            CompletionItem completionItem = new CompletionItem();
+            completionItem.setLabel(identifier);
+            StaticCompletionItem variableName = new StaticCompletionItem(context, completionItem, Kind.KEYWORD);
+            completions.add(variableName);
+        }
 
-        completionItem.setLabel(generateidentifier);
-
-        // Create a StaticCompletionItem with the completion item and kind
-        StaticCompletionItem variableName = new StaticCompletionItem(context, completionItem, Kind.KEYWORD);
-
-        completions.add(variableName);
         return completions;
     }
 
