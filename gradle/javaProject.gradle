@@ -45,7 +45,7 @@ dependencies {
         implementation "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
         implementation "com.sun.mail:javax.mail:${project.javaxMailVersion}"
         implementation "com.squareup.okhttp3:okhttp:${project.okhttpVersion}"
-        implementation "com.squareup.okio:okio:${project.squareupOkioVersion}"
+        implementation "com.squareup.okio:okio-jvm:${project.squareupOkioVersion}"
         implementation "io.jaegertracing:jaeger-core:${project.jaegerCoreVersion}"
         implementation "io.jaegertracing:jaeger-thrift:${project.jaegerThriftVersion}"
         implementation "com.zaxxer:HikariCP:${project.hikariCPVersion}"
