@@ -503,6 +503,10 @@ public class SymbolFactory {
         return new BallerinaPathParameterSymbol(pathKind, symbol, this.context);
     }
 
+    public PathParameterSymbol createPathParamSymbol(BTypeSymbol tsymbol, PathSegment.Kind kind) {
+        return new BallerinaPathParameterSymbol(kind, tsymbol, this.context, true);
+    }
+
     /**
      * Create a Ballerina Type Definition Symbol.
      *

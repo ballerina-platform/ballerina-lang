@@ -57,9 +57,11 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -449,8 +451,8 @@ public class Values {
         Type describingType = typedesc.getDescribingType();
         if (describingType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG &&
                 ((ReferenceType) describingType).getReferredType().getTag() == TypeTags.INTERSECTION_TAG) {
-            describingType = ((IntersectionType)
-                    ((ReferenceType) describingType).getReferredType()).getConstituentTypes().get(0);
+            describingType = ReadOnlyUtils.getMutableType(((BIntersectionType)
+                    ((ReferenceType) describingType).getReferredType()));
         }
         if (!(describingType instanceof AnnotatableType)) {
             throw ErrorCreator.createError(StringUtils.fromString("Invalid type found."));
@@ -473,5 +475,16 @@ public class Values {
         ResourceMethodType resourceMethod = serviceType.getResourceMethods()[0];
         Parameter parameter = resourceMethod.getParameters()[0];
         return StringUtils.fromString(parameter.name);
+    }
+
+    public static BArray getParamNamesFromObjectInit(BObject object) {
+        ObjectType objectType = object.getType();
+        MethodType initMethodtype = objectType.getInitMethod();
+        Parameter[] parameters = initMethodtype.getParameters();
+        BArray paramNames = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+        for (int i = 0; i < parameters.length; i++) {
+            paramNames.add(i, StringUtils.fromString(parameters[i].name));
+        }
+        return paramNames;
     }
 }

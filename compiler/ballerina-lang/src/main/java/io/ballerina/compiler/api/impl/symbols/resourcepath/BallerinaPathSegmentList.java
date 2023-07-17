@@ -19,12 +19,15 @@
 package io.ballerina.compiler.api.impl.symbols.resourcepath;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.symbols.resourcepath.util.BallerinaNamedPathSegment;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +42,10 @@ import java.util.StringJoiner;
  */
 public class BallerinaPathSegmentList implements PathSegmentList {
 
+    private final List<Name> internalSegments;
     private final List<BVarSymbol> internalPathParams;
     private final BVarSymbol internalPathRestParam;
+    private final List<BResourcePathSegmentSymbol> pathSegmentSymbols;
     private final List<BResourcePathSegmentSymbol> internalPathSegmentSymbols;
     private final CompilerContext context;
 
@@ -51,9 +56,21 @@ public class BallerinaPathSegmentList implements PathSegmentList {
 
     public BallerinaPathSegmentList(List<BResourcePathSegmentSymbol> pathSegmentSymbols, List<BVarSymbol> pathParams,
                                     BVarSymbol pathRestParam, CompilerContext context) {
+        this.internalSegments = new ArrayList<>();
+        this.internalPathSegmentSymbols = pathSegmentSymbols;
+        this.internalPathParams = pathParams;
+        this.pathSegmentSymbols = pathSegmentSymbols;
+        this.internalPathRestParam = pathRestParam;
+        this.context = context;
+    }
+
+    public BallerinaPathSegmentList(List<Name> segments, List<BVarSymbol> pathParams, BVarSymbol pathRestParam,
+                                    List<BResourcePathSegmentSymbol> pathSegmentSymbols, CompilerContext context) {
+        this.internalSegments = segments;
         this.internalPathSegmentSymbols = pathSegmentSymbols;
         this.internalPathParams = pathParams;
         this.internalPathRestParam = pathRestParam;
+        this.pathSegmentSymbols = pathSegmentSymbols;
         this.context = context;
     }
 
@@ -68,6 +85,39 @@ public class BallerinaPathSegmentList implements PathSegmentList {
 
         for (BVarSymbol internalPathParam : this.internalPathParams) {
             pathParams.add(symbolFactory.createPathParamSymbol(internalPathParam, PathSegment.Kind.PATH_PARAMETER));
+        }
+
+        this.pathParams = Collections.unmodifiableList(pathParams);
+        return this.pathParams;
+    }
+
+//    @Override
+    public List<PathParameterSymbol> pathParameters2() {
+        if (this.pathParams != null) {
+            return this.pathParams;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<PathParameterSymbol> pathParams = new ArrayList<>();
+
+        int internalPathParamCount = 0;
+        List<Name> segments = this.internalSegments;
+        for (int i = 0; i < segments.size(); i++) {
+            Name internalSegment = segments.get(i);
+            switch (internalSegment.value) {
+                case "^":
+                    pathParams.add(symbolFactory.createPathParamSymbol(
+                            this.internalPathParams.get(internalPathParamCount++), PathSegment.Kind.PATH_PARAMETER));
+                    break;
+                case "$^":
+                    pathParams.add(
+                            symbolFactory.createPathParamSymbol(this.pathSegmentSymbols.get(i).getType().tsymbol,
+                                    PathSegment.Kind.PATH_PARAMETER)
+                    );
+                    break;
+                default:
+                    break;
+            }
         }
 
         this.pathParams = Collections.unmodifiableList(pathParams);
@@ -110,6 +160,36 @@ public class BallerinaPathSegmentList implements PathSegmentList {
                     break;
                 default:
                     segment = symbolFactory.createResourceNamedPathSegment(pathSegmentSymbol);
+            }
+            segments.add(segment);
+        }
+
+        this.resourcePath = Collections.unmodifiableList(segments);
+        return this.resourcePath;
+    }
+
+    public List<PathSegment> list2() {
+        if (this.resourcePath != null) {
+            return this.resourcePath;
+        }
+
+        List<PathParameterSymbol> pathParams = this.pathParameters();
+        List<PathSegment> segments = new ArrayList<>();
+        List<Name> names = this.internalSegments;
+
+        for (int i = 0, pathParamCount = 0, pathTypeCount = 0, namesSize = names.size(); i < namesSize; i++) {
+            Name internalSegment = names.get(i);
+            PathSegment segment;
+            switch (internalSegment.value) {
+                case "$^":
+                case "^":
+                    segment = pathParams.get(pathParamCount++);
+                    break;
+                case "^^":
+                    segment = pathRestParameter().get();
+                    break;
+                default:
+                    segment = new BallerinaNamedPathSegment(internalSegment.value);
             }
             segments.add(segment);
         }

@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -117,7 +117,7 @@ public class TupleRestDescriptorTest {
     }
 
     @Test(description = "Test out of bound indexed based access on tuples with rest descriptor",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple index out of range: " +
                             "index: 4, size: 4.*")

@@ -17,8 +17,6 @@
  */
 package io.ballerina.cli.launcher.util;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
-
 import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
@@ -28,6 +26,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+
 /**
  * Utility methods for doing file operations.
  *
@@ -36,6 +36,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class BFileUtil {
 
     private static final String IGNORE = ".gitignore";
+
+    private BFileUtil() {}
 
     /**
      * Copy a file or directory to a target location.
@@ -72,8 +74,8 @@ public class BFileUtil {
                 }
             });
         } catch (IOException e) {
-            throw new BLangRuntimeException(
-                    "error occured while copying from '" + sourcePath + "' " + "to '" + targetPath + "'", e);
+            throw createLauncherException(
+                    "error occured while copying from '" + sourcePath + "' " + "to '" + targetPath + "'");
         }
     }
 
@@ -108,7 +110,7 @@ public class BFileUtil {
                 }
             });
         } catch (IOException e) {
-            throw new BLangRuntimeException("error occurred while deleting '" + path + "'", e);
+            throw createLauncherException("error occurred while deleting '" + path + "'");
         }
     }
 

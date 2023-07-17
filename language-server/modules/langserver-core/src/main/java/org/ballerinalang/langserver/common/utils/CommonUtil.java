@@ -293,7 +293,11 @@ public class CommonUtil {
             if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
                 return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
             }
-            return typeRef.typeDescriptor();
+            TypeSymbol rawType = typeRef.typeDescriptor();
+            if (rawType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                return getRawType(rawType);
+            }
+            return rawType;
         }
         return typeDescriptor;
     }

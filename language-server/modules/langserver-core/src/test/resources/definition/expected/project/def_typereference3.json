@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "projectls/typereference.bal"
+  },
+  "position": {
+    "line": 6,
+    "character": 13
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 12
+        },
+        "end": {
+          "line": 7,
+          "character": 19
+        }
+      },
+      "uri": "projectls/modules/lsmod3/lsmod3.bal"
+    }
+  ]
+}

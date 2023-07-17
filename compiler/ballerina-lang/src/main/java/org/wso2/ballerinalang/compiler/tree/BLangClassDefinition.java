@@ -72,6 +72,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BObjectType objectType = null;
     public boolean hasClosureVars;
     public SymbolEnv typeDefEnv;
+    public int cycleDepth = -1;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
