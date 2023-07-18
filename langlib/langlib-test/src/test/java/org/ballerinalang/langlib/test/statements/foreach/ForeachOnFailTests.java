@@ -25,6 +25,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -84,5 +85,37 @@ public class ForeachOnFailTests {
         Object result = BRunUtil.invoke(program, "testNestedForeachLoopBreak");
         Assert.assertTrue(result instanceof BString);
         Assert.assertEquals(result.toString(), expected);
+    }
+
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    public void testOnFailWithErrorBP(String funcName) {
+        BRunUtil.invoke(program, funcName);
+    }
+
+    @DataProvider(name = "onFailClauseWithErrorBPTestDataProvider")
+    public Object[] onFailClauseWithErrorBPTestDataProvider() {
+        return new Object[]{
+                "testSimpleOnFailWithErrorBP",
+                "testSimpleOnFailWithErrorBPWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithError",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedType",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4",
+                "testOnFailWithErrorBPHavingAnonDetailRecord",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithVar",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP1",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP2",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP3",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP4",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP5",
+                "testNestedOnFailWithErrorBP",
+                "testNestedOnFailWithErrorBPWithErrorArgsHavingBP",
+                "testMultiLevelOnFailWithErrorBP",
+                "testMultiLevelOnFailWithoutErrorInOneLevel"
+        };
     }
 }

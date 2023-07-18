@@ -3921,15 +3921,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         onFailClause.pos = pos;
         onFailClauseNode.typedBindingPattern().ifPresent(typedBindingPatternNode -> {
-            if (typedBindingPatternNode.bindingPattern().kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
-                VariableDefinitionNode variableDefinitionNode =
-                        createBLangVarDef(getPosition(typedBindingPatternNode), typedBindingPatternNode,
-                                Optional.empty(), Optional.empty());
-                onFailClause.isDeclaredWithVar =
-                        typedBindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-                markVariableWithFlag((BLangVariable) variableDefinitionNode.getVariable(), Flag.FINAL);
-                onFailClause.variableDefinitionNode = variableDefinitionNode;
-            }
+            VariableDefinitionNode variableDefinitionNode =
+                    createBLangVarDef(getPosition(typedBindingPatternNode), typedBindingPatternNode,
+                            Optional.empty(), Optional.empty());
+            onFailClause.isDeclaredWithVar =
+                    typedBindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+            markVariableWithFlag((BLangVariable) variableDefinitionNode.getVariable(), Flag.FINAL);
+            onFailClause.variableDefinitionNode = variableDefinitionNode;
         });
         BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
         blockNode.pos = pos;

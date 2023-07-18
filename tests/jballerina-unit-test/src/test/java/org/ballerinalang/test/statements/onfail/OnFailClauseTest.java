@@ -51,8 +51,60 @@ public class OnFailClauseTest {
     public void testOnFailClauseNegativeCaseV1() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/onfail/on-fail-clause-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeResult, 0, "undefined symbol 'i'", 22, 55);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'i'", 22, 55);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible error definition type: " +
+                "'SampleError' will not be matched to 'error<record {| string code; anydata...; |}>'", 49, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SampleError', " +
+                "found 'error<record {| string code; anydata...; |}>'", 49, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible error definition type: " +
+                "'SampleError' will not be matched to 'SampleComplexError'", 56, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SampleError', " +
+                "found 'SampleComplexError'", 56, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible error definition type: " +
+                "'SampleError' will not be matched to 'int'", 63, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SampleError', " +
+                "found 'int'", 63, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
+                "type but found 'int' in type definition", 63, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
+                "type but found 'int' in type definition", 63, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible error definition type: " +
+                "'error<record {| string code; anydata...; |}>' will not be matched to " +
+                "'error<record {| int code; anydata...; |}>'", 71, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'error<record " +
+                "{| string code; anydata...; |}>', found 'error<record {| int code; anydata...; |}>'", 71, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible error definition type: 'error' " +
+                "will not be matched to 'anydata'", 78, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'error', " +
+                "found 'anydata'", 78, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
+                "type but found 'anydata' in type definition", 78, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
+                "type but found 'anydata' in type definition", 78, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible error definition type: 'error' will" +
+                " not be matched to '[error]'", 85, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'error', " +
+                "found '[error]'", 85, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid binding pattern in 'on fail' clause: " +
+                "only a capture binding pattern or an error binding pattern is allowed", 85, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
+                "type but found '[error]' in type definition", 85, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid binding pattern in 'on fail' clause: " +
+                "only a capture binding pattern or an error binding pattern is allowed", 92, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid list binding pattern: attempted " +
+                "to infer a list type, but found 'error'", 92, 15);
+        BAssertUtil.validateError(negativeResult, i++, "a wildcard binding pattern can be used only " +
+                "with a value that belong to type 'any'", 99, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid binding pattern in 'on fail' clause: " +
+                "only a capture binding pattern or an error binding pattern is allowed", 106, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid record binding pattern " +
+                "with type 'error'", 106, 15);
+        BAssertUtil.validateError(negativeResult, i++, "unknown error detail arg 'cause' passed to " +
+                "closed error detail type 'SampleComplexErrorData'", 114, 66);
+        BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
+                "type but found '(SampleComplexError|SampleError)' in type definition", 117, 15);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(description = "Test on-fail clause negative cases - v2")

@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -31,12 +32,14 @@ import org.testng.annotations.Test;
  */
 public class RetryStmtWithOnFailTest {
 
-    private CompileResult programFile, negativeFile;
+    private CompileResult programFile, negativeFile1, negativeFile2;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/retrystmt/retry_stmt_with_on_fail.bal");
-        negativeFile = BCompileUtil.compile("test-src/statements/retrystmt/retry_on_fail_negative.bal");
+        negativeFile1 = BCompileUtil.compile("test-src/statements/retrystmt/retry_on_fail_negative.bal");
+        negativeFile2 = BCompileUtil.compile("test-src/statements/retrystmt/retry_on_fail_negative_unreachable.bal");
+
     }
 
     @Test
@@ -45,28 +48,69 @@ public class RetryStmtWithOnFailTest {
         BRunUtil.invoke(programFile, "testRetryStatement", params);
     }
 
-    @Test(description = "Check not incompatible types and reachable statements.")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    public void testOnFailWithErrorBP(String funcName) {
+        BRunUtil.invoke(programFile, funcName);
+    }
+
+    @DataProvider(name = "onFailClauseWithErrorBPTestDataProvider")
+    public Object[] onFailClauseWithErrorBPTestDataProvider() {
+        return new Object[]{
+                "testSimpleOnFailWithErrorBP",
+                "testSimpleOnFailWithErrorBPWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithError",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedType",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4",
+                "testOnFailWithErrorBPHavingAnonDetailRecord",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithVar",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP1",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP2",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP3",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP4",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP5",
+                "testMultiLevelOnFailWithErrorBP",
+                "testMultiLevelOnFailWithoutErrorInOneLevel"
+        };
+    }
+
+    @Test(description = "Check not incompatible types.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(negativeFile, index++, "unreachable code", 20, 12);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 21, 16);
-        BAssertUtil.validateError(negativeFile, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 32, 14);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 32, 14);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 45, 12);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 59, 12);
-        BAssertUtil.validateError(negativeFile, index++, "unreachable code", 62, 7);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e1'", 78, 12);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'resA'", 97, 6);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'resB'", 98, 6);
-        BAssertUtil.validateError(negativeFile, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 100, 12);
-        Assert.assertEquals(negativeFile.getDiagnostics().length, index);
+        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 14, 14);
+        BAssertUtil.validateError(negativeFile1, index++, "incompatible types: " +
+                "expected 'ErrorTypeA', found 'ErrorTypeB'", 14, 14);
+        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
+                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 36, 12);
+        BAssertUtil.validateError(negativeFile1, index++, "incompatible types: " +
+                "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 36, 12);
+        BAssertUtil.validateError(negativeFile1, index++, "invalid error variable; " +
+                "expecting an error type but found '(SampleComplexError|SampleError)' in type definition", 66, 15);
+        Assert.assertEquals(negativeFile1.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Check unreachable statements.")
+    public void testNegative2() {
+        int index = 0;
+        BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 20, 12);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 21, 16);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 33, 12);
+        BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 36, 7);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 48, 12);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e1'", 66, 12);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'resB'", 81, 6);
+        Assert.assertEquals(negativeFile2.getDiagnostics().length, index);
     }
 
     @AfterClass
     public void tearDown() {
         programFile = null;
-        negativeFile = null;
+        negativeFile1 = null;
+        negativeFile2 = null;
     }
 }

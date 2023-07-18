@@ -253,6 +253,40 @@ public class Types {
         return checkType(pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES) == symTable.semanticError;
     }
 
+    public BType getErrorTypes(BType bType) {
+        if (bType == null) {
+            return symTable.semanticError;
+        }
+
+        BType errorType = symTable.semanticError;
+
+        int tag = bType.tag;
+        if (tag == TypeTags.TYPEREFDESC) {
+            return getErrorTypes(Types.getReferredType(bType));
+        }
+        if (tag == TypeTags.ERROR) {
+            errorType = bType;
+        } else if (tag == TypeTags.READONLY) {
+            errorType = symTable.errorType;
+        } else if (tag == TypeTags.UNION) {
+            LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
+            Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
+            for (BType memType : memTypes) {
+                BType memErrType = getErrorTypes(memType);
+
+                if (memErrType != symTable.semanticError) {
+                    errTypes.add(memErrType);
+                }
+            }
+
+            if (!errTypes.isEmpty()) {
+                errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+            }
+        }
+
+        return errorType;
+    }
+
     public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
@@ -7137,6 +7171,8 @@ public class Types {
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
+
+        Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
     }
 
     /**

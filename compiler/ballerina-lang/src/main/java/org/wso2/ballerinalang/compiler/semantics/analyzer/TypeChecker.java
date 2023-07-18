@@ -6109,6 +6109,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             errorTypes.add(exprType);
         }
 
+        if (!data.commonAnalyzerData.errorTypes.empty()) {
+            data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(checkedExpr.expr.getBType()));
+        }
+
         // This list will be used in the desugar phase
         checkedExpr.equivalentErrorTypeList = errorTypes;
         if (errorTypes.isEmpty()) {

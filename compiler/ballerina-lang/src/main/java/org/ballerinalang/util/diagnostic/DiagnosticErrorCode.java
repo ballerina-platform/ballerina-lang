@@ -799,7 +799,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EMPTY_REGEXP_STRING_DISALLOWED(
             "BCS4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS(
-            "BCS4045", "unsupported.empty.character.class")
+            "BCS4045", "unsupported.empty.character.class"),
+
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCS4046", "invalid.binding.pattern.in.on.fail")
     ;
 
     private String diagnosticId;
