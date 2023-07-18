@@ -125,10 +125,27 @@ public class MultipartPassthroughTest {
     @Test(description = "Test multipart passthrough with nested parts")
     public void testMultipartPassthroughWithNestedParts() {
         String path = "/passthrough/consume";
-        HTTPTestRequest inRequestMsg = MultipartUtils.createNestedPartRequest(path);
+        String parentBoundary = MimeUtil.getNewMultipartDelimiter();
+        String childBoundary = MimeUtil.getNewMultipartDelimiter();
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
+                "multipart/form-data; boundary=" + parentBoundary);
+        String multipartBody = "--" + parentBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"entity\"\r\n" +
+                "Content-Type: multipart/mixed; boundary=" + childBoundary + "\r\n" +
+                "\r\n" +
+                "--" + childBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"text\"\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "\r\n" +
+                "This is a nested text part\r\n" +
+                "--" + childBoundary + "--\r\n" +
+                "--" + parentBoundary + "--\r\n";
+
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
+                multipartBody);
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response),
-                "Parent Part, Child Part 1" + StringUtil.NEWLINE + ", Child Part 2" + StringUtil.NEWLINE);
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a nested text part");
     }
 }

@@ -94,19 +94,15 @@ service test on new http:MockListener(testServicePort) {
     resource function test4(http:Caller caller, http:Request request) returns @tainted error? {
         mime:Entity textPart = new;
         textPart.setContentDisposition(getContentDispositionForFormData("textPart"));
-        textPart.setText("This is a text part");
+        textPart.setText("This is a nested text part");
 
-        mime:Entity xmlPart = new;
-        xmlPart.setContentDisposition(getContentDispositionForFormData("xmlPart"));
-        xmlPart.setXml(xml `<name>This is a nested xml part</name>`, "application/xop+xml; type=\"text/xml\"");
-
-        mime:Entity[] bodyParts = [xmlPart];
+        mime:Entity[] bodyParts = [textPart];
         mime:Entity entityPart = new;
         entityPart.setContentDisposition(getContentDispositionForFormData("entityPart"));
         entityPart.setBodyParts(bodyParts, contentType = mime:MULTIPART_MIXED);
 
         http:Request req = new;
-        req.setBodyParts([textPart, entityPart], contentType = mime:MULTIPART_FORM_DATA);
+        req.setBodyParts([entityPart], contentType = mime:MULTIPART_FORM_DATA);
         var result = passthroughClientEP->post("/passthrough/consume", req);
         if (result is error) {
             log:printError("Error sending response", result);

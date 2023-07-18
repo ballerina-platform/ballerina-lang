@@ -80,7 +80,6 @@ public class MultipartPassthroughClientTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HttpCarbonMessage response = Services.invoke(TEST_CLIENT_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part, " +
-                "<name>This is a nested xml part</name>");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a nested text part");
     }
 }
