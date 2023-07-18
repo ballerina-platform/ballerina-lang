@@ -62,7 +62,7 @@ public class EntityBodyWithCharsetTest {
     public void testCharsetWithExistingContentType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "application/json;charset=ISO_8859-1:1987");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "application/json;charset=\"ISO_8859-1:1987\"");
     }
 
     @Test
