@@ -846,13 +846,12 @@ public class LargeMethodOptimizer {
         return birFunc;
     }
 
-    private BIRVariableDcl getArgVarKindVarDcl(BIRVariableDcl variableDcl) {
-        return new BIRVariableDcl(variableDcl.pos, variableDcl.type, variableDcl.name, variableDcl.originalName,
-                VarScope.FUNCTION, VarKind.ARG, variableDcl.metaVarName);
-    }
-
     private void rectifyVarKindsAndTerminators(BIRFunction birFunction, BIRVariableDcl selfVarDcl,
                                                BIRBasicBlock returnBB) {
+        Map<Name, BIRVariableDcl> funcArgsWithName = new HashMap<>();
+        for (BIRFunctionParameter parameter : birFunction.parameters) {
+            funcArgsWithName.put(parameter.name, parameter);
+        }
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
             for (BIRNonTerminator instruction : basicBlock.instructions) {
                 if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {
@@ -861,26 +860,23 @@ public class LargeMethodOptimizer {
                     instruction.lhsOp.variableDcl = birFunction.returnVariable;
                     basicBlock.terminator = new BIRTerminator.GOTO(null, returnBB, basicBlock.terminator.scope);
                 }
-                BIROperand[] rhsOperands = instruction.getRhsOperands();
-                for (BIROperand rhsOperand : rhsOperands) {
-                    if (rhsOperand.variableDcl.kind == VarKind.SELF) {
-                        rhsOperand.variableDcl = selfVarDcl;
-                    } else if (rhsOperand.variableDcl.kind == VarKind.LOCAL) {
-                        rhsOperand.variableDcl = getArgVarKindVarDcl(rhsOperand.variableDcl);
-                    }
-                }
+                fixInsRhsOperands(selfVarDcl, funcArgsWithName, instruction.getRhsOperands());
             }
             if ((basicBlock.terminator.lhsOp != null) &&
                     (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.SELF)) {
                 basicBlock.terminator.lhsOp.variableDcl = selfVarDcl;
             }
-            BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
-            for (BIROperand rhsOperand : rhsOperands) {
-                if (rhsOperand.variableDcl.kind == VarKind.SELF) {
-                    rhsOperand.variableDcl = selfVarDcl;
-                } else if (rhsOperand.variableDcl.kind == VarKind.LOCAL) {
-                    rhsOperand.variableDcl = getArgVarKindVarDcl(rhsOperand.variableDcl);
-                }
+            fixInsRhsOperands(selfVarDcl, funcArgsWithName, basicBlock.terminator.getRhsOperands());
+        }
+    }
+
+    private void fixInsRhsOperands(BIRVariableDcl selfVarDcl, Map<Name, BIRVariableDcl> funcArgsWithName,
+                                   BIROperand[] rhsOperands) {
+        for (BIROperand rhsOperand : rhsOperands) {
+            if (rhsOperand.variableDcl.kind == VarKind.SELF) {
+                rhsOperand.variableDcl = selfVarDcl;
+            } else if (funcArgsWithName.containsKey(rhsOperand.variableDcl.name)) {
+                rhsOperand.variableDcl = funcArgsWithName.get(rhsOperand.variableDcl.name);
             }
         }
     }
