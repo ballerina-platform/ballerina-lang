@@ -8,5 +8,3 @@ graalvmCompatible = true
 
 [[platform.java11.dependency]]
 path = "./libs/one-1.0.0.jar"
-scope = "testOnly"
-graalvmCompatible = true

@@ -155,7 +155,7 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack a package with platform libs")
     public void testPackageWithPlatformLibs() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        Path projectPath = this.testResources.resolve("validGraalvmCompatibleProjectWithPlatformLibs");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
@@ -177,8 +177,8 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
 
-//        Assert.assertTrue(buildLog.replaceAll("\r", "").contains(
-//                getOutput("pack-project-with-test-only-platform-libs.txt")));
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-test-only-platform-libs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
                 .toFile().exists());
     }
