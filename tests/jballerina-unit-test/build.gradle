@@ -26,6 +26,7 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation 'org.slf4j:slf4j-api'
+    implementation 'org.jetbrains:annotations:24.0.0'
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
