@@ -21,11 +21,11 @@ package org.ballerinalang.langlib.test;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -158,7 +158,7 @@ public class LangLibArrayTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible types: expected '\\(Employee & readonly\\)', found 'Employee'\"}.*")
     public void testModificationAfterSliceOfReadonlyRecordArray() {
@@ -166,7 +166,7 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
                     "found 'map<string>'\"}.*")
@@ -271,7 +271,7 @@ public class LangLibArrayTest {
         assertEquals(returns.toString(), "[]");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"}.*")
     public void testRemoveAllFixedLengthArray() {
@@ -279,7 +279,7 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
                             + " of a tuple of fixed length '2' to '3'\"}.*")
@@ -288,7 +288,7 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the " +
                             "length of a tuple of fixed length '2' to '0'\"}.*")
@@ -297,7 +297,7 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
                             + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
@@ -324,7 +324,7 @@ public class LangLibArrayTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp =
                   "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length " +
                           "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")

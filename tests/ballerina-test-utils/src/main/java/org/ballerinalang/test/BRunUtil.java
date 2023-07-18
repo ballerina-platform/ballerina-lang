@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -41,6 +40,7 @@ import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,6 +60,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -74,6 +76,9 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
  * @since 2.0.0
  */
 public class BRunUtil {
+
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
 
     /**
      * Invoke a ballerina function.
@@ -181,7 +186,7 @@ public class BRunUtil {
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
-                    if (t instanceof BLangRuntimeException) {
+                    if (t instanceof BLangTestException) {
                         throw ErrorCreator.createError(StringUtils.fromString(t.getMessage()));
                     }
                     if (t instanceof io.ballerina.runtime.api.values.BError) {
@@ -203,7 +208,7 @@ public class BRunUtil {
                     new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new BLangRuntimeException(futureValue.panic.getMessage(),
+                throw new BLangTestException(futureValue.panic.getMessage(),
                         futureValue.panic);
             }
             jvmResult = futureValue.result;
@@ -302,18 +307,34 @@ public class BRunUtil {
             classPath.append(File.pathSeparator).append(jarLibrary.path());
         }
 
-        try {
-            final List<String> actualArgs = new ArrayList<>();
-            int index = 0;
-            actualArgs.add(index++, "java");
-            for (String javaOpt : javaOpts) {
-                actualArgs.add(index++, javaOpt);
-            }
-            actualArgs.add(index++, "-cp");
-            actualArgs.add(index++, System.getProperty("java.class.path") + classPath);
-            actualArgs.add(index, initClassName);
-            actualArgs.addAll(Arrays.asList(args));
+        final List<String> actualArgs = new ArrayList<>();
+        int index = 0;
+        actualArgs.add(index++, "java");
+        for (String javaOpt : javaOpts) {
+            actualArgs.add(index++, javaOpt);
+        }
+        actualArgs.add(index++, "-cp");
 
+        String classPathString = System.getProperty("java.class.path") + classPath;
+        // Create an argument file for Windows to mitigate the long classpath issue.
+        if (isWindows) {
+            String classPathArgs = "classPathArgs";
+            try {
+                File classPathArgsFile = File.createTempFile(classPathArgs, ".txt");
+                FileWriter fileWriter = new FileWriter(classPathArgsFile);
+                fileWriter.write(classPathString);
+                fileWriter.close();
+                actualArgs.add(index++, "@" + classPathArgsFile.getAbsolutePath());
+            } catch (IOException e) {
+                throw new RuntimeException("Error while creating classpath arguments file: " + classPathArgs, e);
+            }
+        } else {
+            actualArgs.add(index++, classPathString);
+        }
+        actualArgs.add(index, initClassName);
+        actualArgs.addAll(Arrays.asList(args));
+
+        try {
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
             String consoleError = getConsoleOutput(process.getErrorStream());
@@ -363,11 +384,11 @@ public class BRunUtil {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             response = method.invoke(null, args);
             if (response instanceof Throwable) {
-                throw new BLangRuntimeException(String.format(errorMsg, funcName, response),
+                throw new BLangTestException(String.format(errorMsg, funcName, response),
                         (Throwable) response);
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BLangRuntimeException(String.format(errorMsg, funcName, e.getMessage()), e);
+            throw new BLangTestException(String.format(errorMsg, funcName, e.getMessage()), e);
         }
     }
 
@@ -387,7 +408,7 @@ public class BRunUtil {
                         throw new RuntimeException(targetException);
                     }
                 } catch (IllegalAccessException e) {
-                    throw new BLangRuntimeException("Method has private access", e);
+                    throw new BLangTestException("Method has private access", e);
                 }
             };
             final FutureValue out = scheduler
@@ -396,7 +417,7 @@ public class BRunUtil {
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof ErrorValue) {
-                    throw new BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                    throw new BLangTestException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                 }
                 throw (RuntimeException) t;
             }

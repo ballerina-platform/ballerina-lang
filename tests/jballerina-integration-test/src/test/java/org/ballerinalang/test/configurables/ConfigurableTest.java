@@ -117,20 +117,83 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
+    public void testConfigurableModuleStructureWithTestAPI() throws BallerinaTestException {
+        LogLeecher testLog1 = new LogLeecher("4 passing");
+        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
+                new LogLeecher[]{testLog1}, testFileLocation + "/testModuleStructureProject");
+        testLog1.waitForText(5000);
+    }
+
+    @Test
+    public void testFileEnvVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
         String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
                 File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
-                                                                          configFilePaths))));
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
+    }
 
+    @Test
+    public void testDataEnvVariableBasedConfigurableNegative() throws BallerinaTestException {
+        LogLeecher errorLeecher1 = new LogLeecher("warning: invalid TOML file :", ERROR);
+        LogLeecher errorLeecher2 = new LogLeecher("[BAL_CONFIG_DATA:(1:11,1:12)] missing new line", ERROR);
+        LogLeecher errorLeecher3 = new LogLeecher("[BAL_CONFIG_DATA:(1:22,1:24)] missing new line", ERROR);
+        LogLeecher errorLeecher4 = new LogLeecher("[BAL_CONFIG_DATA:(1:36,1:39)] missing new line", ERROR);
+        LogLeecher errorLeecher5 = new LogLeecher("[BAL_CONFIG_DATA:(1:52,1:57)] missing new line", ERROR);
+        LogLeecher errorLeecher6 = new LogLeecher("[BAL_CONFIG_DATA:(1:71,1:75)] missing new line", ERROR);
+        LogLeecher errorLeecher7 = new LogLeecher("[BAL_CONFIG_DATA:(1:89,1:94)] missing new line", ERROR);
+        LogLeecher errorLeecher8 = new LogLeecher("[BAL_CONFIG_DATA:(1:104,1:111)] missing new line", ERROR);
+        LogLeecher errorLeecher9 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'stringVar'", ERROR);
+        LogLeecher errorLeecher10 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'booleanVar'", ERROR);
+        LogLeecher errorLeecher11 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'intArr'", ERROR);
+        LogLeecher errorLeecher12 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'decimalArr'", ERROR);
         // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
-                "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
-                "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
+                "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6]";
+        bMainInstance.runMain(testFileLocation, "envVarPkg", null, new String[]{},
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))), null,
+                new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5,
+                        errorLeecher6, errorLeecher7, errorLeecher8, errorLeecher9, errorLeecher10,
+                        errorLeecher11, errorLeecher12});
+        errorLeecher1.waitForText(5000);
+        errorLeecher2.waitForText(5000);
+        errorLeecher3.waitForText(5000);
+        errorLeecher4.waitForText(5000);
+        errorLeecher5.waitForText(5000);
+        errorLeecher6.waitForText(5000);
+        errorLeecher7.waitForText(5000);
+        errorLeecher8.waitForText(5000);
+        errorLeecher9.waitForText(5000);
+        errorLeecher10.waitForText(5000);
+        errorLeecher11.waitForText(5000);
+        errorLeecher12.waitForText(5000);
+    }
+
+    @Test
+    public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
+        String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
+                "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
                 "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\nintVar = 42\\nfloatVar = 3.5\\nstringVar = \"abc\"\\nbooleanVar = true\\n" +
+                "decimalVar = 24.87\\nintArr = [1,2,3]\\nfloatArr = [9.0, 5.6]\\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\\nbooleanArr = [true, false,false, true]\\n" +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\n\\rintVar = 42\\n\\rfloatVar = 3.5\\n\\rstringVar = \"abc\"\\n\\r" +
+                "booleanVar = true\\n\\rdecimalVar = 24.87\\n\\rintArr = [1,2,3]\\n\\r" +
+                "floatArr = [9.0, 5.6]\\n\\rstringArr = [\"red\", \"yellow\", \"green\"]\\n\\r" +
+                "booleanArr = [true, false,false, true]\\n\\rdecimalArr = [8.9, 4.5, 6.2]";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
     }

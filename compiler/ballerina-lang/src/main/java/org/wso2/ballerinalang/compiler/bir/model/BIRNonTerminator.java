@@ -846,7 +846,16 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            return closureVars.toArray(new BIROperand[0]);
+            if (annotations == null) {
+                return closureVars.toArray(new BIROperand[0]);
+            }
+            BIROperand[] operands = new BIROperand[closureVars.size() + 1];
+            int i = 0;
+            for (; i < closureVars.size(); i++) {
+                operands[i] = closureVars.get(i);
+            }
+            operands[i] = annotations;
+            return operands;
         }
     }
 

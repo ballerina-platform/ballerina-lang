@@ -18,8 +18,8 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 /**
  * Returns the descendants of xml element.
@@ -30,7 +30,7 @@ public class GetDescendants {
 
     public static BXml getDescendants(BXml element) {
         if (!IsElement.isElement(element)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
+            throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR,
                     "getDescendants", "element");
         }
         return element.descendants();
