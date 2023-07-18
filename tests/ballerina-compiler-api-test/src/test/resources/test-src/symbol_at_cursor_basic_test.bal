@@ -210,3 +210,7 @@ function testTypeofSymbol(error result) {
     string errPrefix = "Payload binding failed: ";
     var errMsg = result.detail()["message"];
 }
+
+public type ReturnValue02 readonly & string;
+
+ReturnValue02 stringVar01 = "ballerina";

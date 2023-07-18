@@ -18,14 +18,14 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
@@ -57,12 +57,12 @@ import static org.testng.Assert.assertTrue;
  */
 public class SymbolAtCursorTest {
 
+    Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_basic_test.bal");
+    SemanticModel model = getDefaultModulesSemanticModel(project);
+    Document srcFile = getDocumentForSingleSource(project);
+
     @Test(dataProvider = "BasicsPosProvider")
     public void testBasics(int line, int column, String expSymbolName) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_basic_test.bal");
-        SemanticModel model = getDefaultModulesSemanticModel(project);
-        Document srcFile = getDocumentForSingleSource(project);
-
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
@@ -339,13 +339,18 @@ public class SymbolAtCursorTest {
 
     @Test
     public void testTypeOfSymbol() {
-        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_basic_test.bal");
-        SemanticModel model = getDefaultModulesSemanticModel(project);
-        Document srcFile = getDocumentForSingleSource(project);
-
         Symbol symbol = model.symbol(srcFile, LinePosition.from(210, 8)).get();
         assertEquals(symbol.kind(), VARIABLE);
-        AbstractTypeSymbol typeSymbol = (AbstractTypeSymbol) ((BallerinaVariableSymbol) symbol).typeDescriptor();
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), INTERSECTION);
+
+        symbol = model.symbol(srcFile, LinePosition.from(213, 12)).get();
+        typeSymbol = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), INTERSECTION);
+
+        symbol = model.symbol(srcFile, LinePosition.from(215, 14)).get();
+        assertEquals(symbol.kind(), VARIABLE);
+        typeSymbol = ((TypeReferenceTypeSymbol) ((VariableSymbol) symbol).typeDescriptor()).typeDescriptor();
         assertEquals(typeSymbol.typeKind(), INTERSECTION);
     }
 }
