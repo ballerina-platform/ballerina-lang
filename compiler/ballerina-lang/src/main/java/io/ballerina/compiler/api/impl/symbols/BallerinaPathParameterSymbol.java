@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents an implementation of path param symbol.
@@ -45,17 +46,31 @@ import java.util.List;
 public class BallerinaPathParameterSymbol extends BallerinaSymbol implements PathParameterSymbol {
 
     private final PathSegment.Kind segmentKind;
+    private final boolean isTypeOnlyPathParam;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
     private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private String signature;
-    private boolean isTypeOnlyPathParam;
 
+    public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context) {
+        super(symbol.getOriginalName().getValue(), SymbolKind.PATH_PARAMETER, symbol, context);
+        this.segmentKind = kind;
+        this.isTypeOnlyPathParam = false;
+    }
     public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context,
                                         boolean isTypeOnlyPathParam) {
         super(symbol.getOriginalName().getValue(), SymbolKind.PATH_PARAMETER, symbol, context);
         this.segmentKind = kind;
         this.isTypeOnlyPathParam = isTypeOnlyPathParam;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        String name = super.getName().orElse(null);
+        if ("$^^".equals(name) || "$^".equals(name)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(name);
     }
 
     @Override
