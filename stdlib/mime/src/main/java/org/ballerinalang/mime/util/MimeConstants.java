@@ -50,9 +50,8 @@ public class MimeConstants {
     public static final String INVALID_HEADER_OPERATION = "{ballerina/mime}InvalidHeaderOperation";
 
     /**
-     * Content type HTTP header.
+     * Content id HTTP header.
      */
-
     public static final String CONTENT_ID = "content-id";
 
     /**
@@ -171,9 +170,12 @@ public class MimeConstants {
     public static final String COMMA = ",";
     public static final String ASSIGNMENT = "=";
     public static final String DOUBLE_QUOTE = "\"";
+    public static final String TOKEN_SPECIAL = "\" ()<>@,;:/[]?=\\\"\"";
     public static final String PARSER_ERROR = "failed to parse: ";
     public static final String CONTENT_DISPOSITION_FILE_NAME = "filename";
     public static final String CONTENT_DISPOSITION_NAME = "name";
+    public static final String LEFT_ANGLE_BRACKET = "<";
+    public static final String RIGHT_ANGLE_BRACKET = ">";
 
     /**
      * Describes the format of the body part.
