@@ -783,6 +783,7 @@ public class JvmPackageGen {
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
 
+        removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
         rewriteRecordInits(module.typeDefs);
 
@@ -807,6 +808,10 @@ public class JvmPackageGen {
         clearPackageGenInfo();
 
         return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
+    }
+
+    private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {
+        typeDefs.removeIf(def -> Symbols.isFlagOn(def.flags, Flags.SOURCE_ANNOTATION));
     }
 
     private BIRFunction getMainFunction(BIRPackage module) {
