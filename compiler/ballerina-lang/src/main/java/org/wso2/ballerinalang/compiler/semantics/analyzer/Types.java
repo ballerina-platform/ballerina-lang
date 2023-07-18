@@ -266,26 +266,32 @@ public class Types {
             return getErrorTypes(Types.getReferredType(bType));
         }
         if (tag == TypeTags.ERROR) {
-            errorType = bType;
-        } else if (tag == TypeTags.READONLY) {
-            errorType = symTable.errorType;
-        } else if (tag == TypeTags.UNION) {
-            LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
-            Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
-            for (BType memType : memTypes) {
-                BType memErrType = getErrorTypes(memType);
+            return bType;
+        }
 
-                if (memErrType != symTable.semanticError) {
-                    errTypes.add(memErrType);
-                }
-            }
+        if (tag == TypeTags.READONLY) {
+            return symTable.errorType;
+        }
 
-            if (!errTypes.isEmpty()) {
-                errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+        if (tag != TypeTags.UNION) {
+            return errorType;
+        }
+
+        LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
+        Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
+        for (BType memType : memTypes) {
+            BType memErrType = getErrorTypes(memType);
+
+            if (memErrType != symTable.semanticError) {
+                errTypes.add(memErrType);
             }
         }
 
-        return errorType;
+        if (errTypes.isEmpty()) {
+            return errorType;
+        }
+
+        return errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
     }
 
     public BType checkType(Location pos,

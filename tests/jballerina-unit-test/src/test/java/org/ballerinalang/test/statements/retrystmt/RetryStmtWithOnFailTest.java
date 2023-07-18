@@ -32,14 +32,12 @@ import org.testng.annotations.Test;
  */
 public class RetryStmtWithOnFailTest {
 
-    private CompileResult programFile, negativeFile1, negativeFile2;
+    private CompileResult programFile, negativeFile1;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/retrystmt/retry_stmt_with_on_fail.bal");
         negativeFile1 = BCompileUtil.compile("test-src/statements/retrystmt/retry_on_fail_negative.bal");
-        negativeFile2 = BCompileUtil.compile("test-src/statements/retrystmt/retry_on_fail_negative_unreachable.bal");
-
     }
 
     @Test
@@ -96,6 +94,8 @@ public class RetryStmtWithOnFailTest {
 
     @Test(description = "Check unreachable statements.")
     public void testNegative2() {
+        CompileResult negativeFile2 = BCompileUtil.compile(
+                "test-src/statements/retrystmt/retry_on_fail_negative_unreachable.bal");
         int index = 0;
         BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 20, 12);
         BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 21, 16);
@@ -111,6 +111,5 @@ public class RetryStmtWithOnFailTest {
     public void tearDown() {
         programFile = null;
         negativeFile1 = null;
-        negativeFile2 = null;
     }
 }

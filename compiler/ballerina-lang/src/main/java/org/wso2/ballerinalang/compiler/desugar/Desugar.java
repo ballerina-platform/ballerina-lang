@@ -5185,23 +5185,22 @@ public class Desugar extends BLangNodeVisitor {
 
     private void handleOnFailErrorVarDefNode(VariableDefinitionNode onFailVarDefNode, BLangBlockStmt onFailBody,
                                              BLangFail fail) {
-        if (onFailVarDefNode != null) {
-            BLangStatement stmt;
-            BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
-            if (variableNode.getKind() == NodeKind.ERROR_VARIABLE) {
-                stmt = handleErrorBPInOnFail((BLangErrorVariable) variableNode, fail);
-            } else {
-                stmt = handleCaptureBPInOnFail((BLangSimpleVariable) variableNode, fail);
-            }
-            onFailBody.stmts.add(0, stmt);
+        if (onFailVarDefNode == null) {
+            return;
         }
+
+        BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
+        onFailBody.stmts.add(0,
+                             variableNode.getKind() == NodeKind.ERROR_VARIABLE ?
+                                     handleErrorBPInOnFail((BLangErrorVariable) variableNode, fail) :
+                                     handleCaptureBPInOnFail((BLangSimpleVariable) variableNode, fail));
     }
 
-    private BLangStatement handleErrorBPInOnFail (BLangErrorVariable varNode, BLangFail fail) {
+    private BLangStatement handleErrorBPInOnFail(BLangErrorVariable varNode, BLangFail fail) {
         BLangErrorVariable errorVar = ASTBuilderUtil.createErrorVariable(varNode.pos,
                 varNode.getBType(), rewrite(fail.expr, env), varNode.message, varNode.cause, varNode.restDetail,
                 varNode.detail);
-        BLangErrorVariableDef errorVarDef = ASTBuilderUtil.createErrorVariableDef(onFailClause.pos, errorVar);
+        BLangErrorVariableDef errorVarDef = ASTBuilderUtil.createErrorVariableDef(varNode.pos, errorVar);
         return rewrite(errorVarDef, env);
     }
 

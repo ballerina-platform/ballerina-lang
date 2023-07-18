@@ -70,7 +70,7 @@ function testNestedRetryWithLessOnFails () returns string {
    return str;
 }
 
-function testOnFailWithUnion () returns string {
+function testOnFailWithUnion() returns string {
    string str = "";
    var getTypeBError = function () returns int|ErrorTypeB{
        ErrorTypeB errorB = error ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");

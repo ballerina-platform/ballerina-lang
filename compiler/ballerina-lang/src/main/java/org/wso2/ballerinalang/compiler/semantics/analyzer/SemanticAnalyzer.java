@@ -3868,7 +3868,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.env = blockEnv;
         analyzeStmt(foreach.body, data);
 
-        updateBreakMode(onFailExists, foreach.body, foreach.onFailClause, data);
+        analyzeOnFailClause(onFailExists, foreach.body, foreach.onFailClause, data);
         data.notCompletedNormally = false;
         data.breakFound = prevBreakFound;
     }
@@ -3921,12 +3921,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeStmt(onFailClause.body, data);
     }
 
-    private void updateBreakMode(boolean onFailExists, BLangBlockStmt blockStmt, BLangOnFailClause onFailClause,
-                                 AnalyzerData data) {
-        if (onFailExists) {
-            blockStmt.failureBreakMode = getPossibleBreakMode(!data.commonAnalyzerData.errorTypes.peek().isEmpty());
-            this.analyzeNode(onFailClause, data);
+    private void analyzeOnFailClause(boolean onFailExists, BLangBlockStmt blockStmt, BLangOnFailClause onFailClause,
+                                     AnalyzerData data) {
+        if (!onFailExists) {
+            return;
         }
+
+        blockStmt.failureBreakMode = getPossibleBreakMode(!data.commonAnalyzerData.errorTypes.peek().isEmpty());
+        this.analyzeNode(onFailClause, data);
     }
 
     private BLangBlockStmt.FailureBreakMode getPossibleBreakMode(boolean possibleFailurePresent) {
@@ -3972,7 +3974,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
         data.breakFound = prevBreakFound;
-        updateBreakMode(onFailExists, whileNode.body, whileNode.onFailClause, data);
+        analyzeOnFailClause(onFailExists, whileNode.body, whileNode.onFailClause, data);
     }
 
     @Override
@@ -3983,7 +3985,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
         analyzeStmt(doNode.body, data);
-        updateBreakMode(onFailExists, doNode.body, doNode.onFailClause, data);
+        analyzeOnFailClause(onFailExists, doNode.body, doNode.onFailClause, data);
     }
 
     @Override
@@ -4009,7 +4011,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
         analyzeStmt(lockNode.body, data);
-        updateBreakMode(onFailExists, lockNode.body, lockNode.onFailClause, data);
+        analyzeOnFailClause(onFailExists, lockNode.body, lockNode.onFailClause, data);
     }
 
     @Override
@@ -4223,7 +4225,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
         analyzeStmt(transactionNode.transactionBody, data);
-        updateBreakMode(onFailExists, transactionNode.transactionBody, transactionNode.onFailClause, data);
+        analyzeOnFailClause(onFailExists, transactionNode.transactionBody, transactionNode.onFailClause, data);
     }
 
     @Override
@@ -4255,7 +4257,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.commonAnalyzerData.errorTypes.push(new LinkedHashSet<>());
         }
         analyzeStmt(retryNode.retryBody, data);
-        updateBreakMode(onFailExists, retryNode.retryBody, retryNode.onFailClause, data);
+        analyzeOnFailClause(onFailExists, retryNode.retryBody, retryNode.onFailClause, data);
     }
 
     @Override
