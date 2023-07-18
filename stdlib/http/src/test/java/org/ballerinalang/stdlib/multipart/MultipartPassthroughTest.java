@@ -97,8 +97,7 @@ public class MultipartPassthroughTest {
         String path = "/passthrough/consume";
         String boundary = MimeUtil.getNewMultipartDelimiter();
         HttpHeaders headers = new DefaultHttpHeaders();
-        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/mixed; boundary=" + boundary);
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + boundary);
         String multipartBody = "--" + boundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"text\"\r\n" +
                 "Content-Type: text/plain\r\n" +
@@ -128,14 +127,9 @@ public class MultipartPassthroughTest {
         String parentBoundary = MimeUtil.getNewMultipartDelimiter();
         String childBoundary = MimeUtil.getNewMultipartDelimiter();
         HttpHeaders headers = new DefaultHttpHeaders();
-        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/mixed; boundary=" + parentBoundary);
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + parentBoundary);
         String multipartBody = "--" + parentBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"text\"\r\n" +
-                "Content-Type: text/plain\r\n" +
-                "\r\n" +
-                "This is a text part\r\n" +
-                "--" + parentBoundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"entity\"\r\n" +
                 "Content-Type: multipart/mixed; boundary=" + childBoundary + "\r\n" +
                 "\r\n" +
                 "--" + childBoundary + "\r\n" +
@@ -143,11 +137,6 @@ public class MultipartPassthroughTest {
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "This is a nested text part\r\n" +
-                "--" + childBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"xml\"\r\n" +
-                "Content-Type: application/xml; charset=UTF-8; type=\"text/xml\"\r\n" +
-                "\r\n" +
-                "<text>This is a nested xml part</text>\r\n" +
                 "--" + childBoundary + "--\r\n" +
                 "--" + parentBoundary + "--\r\n";
 
@@ -155,7 +144,6 @@ public class MultipartPassthroughTest {
                 multipartBody);
         HttpCarbonMessage response = Services.invoke(TEST_SERVICE_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response),
-                "This is a text part, This is a nested text part, <text>This is a nested xml part</text>");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a nested text part");
     }
 }

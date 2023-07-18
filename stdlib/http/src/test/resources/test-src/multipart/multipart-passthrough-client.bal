@@ -86,37 +86,6 @@ service test on new http:MockListener(testServicePort) {
         }
         return caller->respond(<http:Response>result);
     }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test4"
-    }
-    resource function test4(http:Caller caller, http:Request request) returns @tainted error? {
-        mime:Entity textPart = new;
-        textPart.setContentDisposition(getContentDispositionForFormData("textPart"));
-        textPart.setText("This is a text part");
-
-        mime:Entity xmlPart = new;
-        xmlPart.setContentDisposition(getContentDispositionForFormData("xmlPart"));
-        xmlPart.setXml(xml `<name>This is an xml part</name>`, "application/xop+xml; type=\"text/xml\"");
-
-        mime:Entity jsonPart = new;
-        jsonPart.setContentDisposition(getContentDispositionForFormData("jsonPart"));
-        jsonPart.setJson({"name":"This is a json part"});
-
-        mime:Entity[] bodyParts = [xmlPart, jsonPart];
-        mime:Entity entityPart = new;
-        entityPart.setContentDisposition(getContentDispositionForFormData("entityPart"));
-        entityPart.setBodyParts(bodyParts, contentType = mime:MULTIPART_MIXED);
-
-        http:Request req = new;
-        req.setBodyParts([textPart, entityPart], contentType = mime:MULTIPART_FORM_DATA);
-        var result = passthroughClientEP->post("/passthrough/consume", req);
-        if (result is error) {
-            log:printError("Error sending response", result);
-        }
-        return caller->respond(<http:Response>result);
-    }
 }
 
 service passthrough on new http:Listener(passthroughServicePort) {

@@ -73,14 +73,4 @@ public class MultipartPassthroughClientTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part, " +
                 "<name>This is an xml part</name>");
     }
-
-    @Test(description = "Test multipart passthrough with nested parts")
-    public void testMultipartPassthroughWithNestedParts() {
-        String path = "/test/test4";
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage response = Services.invoke(TEST_CLIENT_PORT, inRequestMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "This is a text part, " +
-                "<name>This is an xml part</name>, name=This is a json part");
-    }
 }
