@@ -32,13 +32,7 @@ service passthrough on new http:MockListener(passthroughServicePort) {
     }
     resource function consume(http:Caller caller, http:Request request) returns @tainted error? {
         var bodyParts = request.getBodyParts();
-        if (bodyParts is mime:Entity[]) {
-            string[] parts = [];
-            foreach var part in bodyParts {
-                parts.push(check handleContent(part));
-            }
-            string payload = strings:'join(", ", ...parts);
-        } else {
+        if (bodyParts is error) {
             log:printError(<string>bodyParts.reason());
             http:Response response = new;
             response.setPayload("Error in decoding multiparts in the passthrough service!");

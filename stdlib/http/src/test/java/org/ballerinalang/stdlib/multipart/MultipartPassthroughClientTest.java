@@ -74,8 +74,7 @@ public class MultipartPassthroughClientTest {
                 "<name>This is an xml part</name>");
     }
 
-    // Following test is disabled since this is failing in GitHub runner
-    @Test(description = "Test multipart passthrough with nested parts", enabled = false)
+    @Test(description = "Test multipart passthrough with nested parts")
     public void testMultipartPassthroughWithNestedParts() {
         String path = "/test/test4";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
