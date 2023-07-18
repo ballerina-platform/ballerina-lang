@@ -40,6 +40,9 @@ client class BookService {
 
     resource function get [string...]() {
     }
+
+    resource function get [string]() {
+    }
 }
 
 type Book record {|

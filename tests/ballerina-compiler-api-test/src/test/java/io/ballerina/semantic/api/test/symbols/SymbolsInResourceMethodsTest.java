@@ -77,10 +77,9 @@ public class SymbolsInResourceMethodsTest {
                 {32, 52, "isbn", SymbolKind.PATH_PARAMETER},
                 {32, 80, "Book", SymbolKind.TYPE},
 
-                // TODO: The following tests need to be verified again
-                {17, 26, ".", SymbolKind.PATH_PARAMETER},   // TODO: Is this a path-param?
-                {36, 27, "$^", SymbolKind.PATH_PARAMETER},
-                {40, 36, "$^^", SymbolKind.PATH_PARAMETER},
+                {17, 26, ".", SymbolKind.PATH_PARAMETER},   // TODO: Root path is not a path param
+                {36, 27, null, SymbolKind.PATH_PARAMETER},
+                {40, 36, null, SymbolKind.PATH_PARAMETER},
 
         };
     }
@@ -138,7 +137,7 @@ public class SymbolsInResourceMethodsTest {
     @Test
     public void testPathSegmentsInResourceMethod2() {
         Object[][] expPathSegments = new Object[][]{
-                {"$^", PathSegment.Kind.NAMED_SEGMENT},
+                {null, PathSegment.Kind.PATH_PARAMETER},
                 {"author", PathSegment.Kind.PATH_PARAMETER},
                 {"bookId", PathSegment.Kind.PATH_PARAMETER},
         };
@@ -169,8 +168,12 @@ public class SymbolsInResourceMethodsTest {
     }
 
     private void assertPathSegment(PathSegment pathSegment, String expName, PathSegment.Kind expKind) {
-        assertTrue(pathSegment.getName().isPresent());
-        assertEquals(pathSegment.getName().get(), expName);
+        if (expName != null) {
+            assertTrue(pathSegment.getName().isPresent());
+            assertEquals(pathSegment.getName().get(), expName);
+        } else {
+            assertTrue(pathSegment.getName().isEmpty());
+        }
         assertEquals(pathSegment.pathSegmentKind(), expKind);
     }
 }
