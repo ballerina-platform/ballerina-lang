@@ -30,6 +30,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectUtils;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -106,6 +108,7 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
+            Set<String> packageImports = ProjectUtils.getPackageImports(project.currentPackage());
             PackageResolution packageResolution = project.currentPackage().getResolution();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
@@ -157,7 +160,14 @@ public class CompileTask implements Task {
 
             // We dump the raw graphs twice only if code generator/modifier plugins are engaged
             // since the package has changed now
-            if (packageResolution != project.currentPackage().getResolution()) {
+
+            Set<String> newPackageImports = ProjectUtils.getPackageImports(project.currentPackage());
+            ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
+            if (!packageImports.equals(newPackageImports)) {
+                resolutionOptions = ResolutionOptions.builder().setOffline(false).build();
+            }
+
+            if (packageResolution != project.currentPackage().getResolution(resolutionOptions)) {
                 packageResolution = project.currentPackage().getResolution();
                 if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                     packageResolution.dumpGraphs(out);
@@ -243,28 +253,16 @@ public class CompileTask implements Task {
             }
             String warning = null;
             // existing project
-            if (prevDistributionVersion == null) {
-                // Built with Update 4 or less. Therefore, we issue a warning
+            if (prevDistributionVersion == null
+                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
+                // Built with a previous Update. Therefore, we issue a warning
                 warning = "Detected an attempt to compile this package using Swan Lake Update "
                         + currentVersionForDiagnostic +
-                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                        ".";
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic + ".";
                 if (project.buildOptions().sticky()) {
                     warning += "\nHINT: Execute the bal command with --sticky=false";
                 } else {
                     warning += " To ensure compatibility, the Dependencies.toml file will be updated with the " +
-                            "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
-                }
-            } else {
-                // Built with Update 5 or above
-                boolean newUpdateDistribution =
-                        ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
-                if (newUpdateDistribution) {
-                    // Issue a warning
-                    warning = "Detected an attempt to compile this package using Swan Lake Update "
-                            + currentVersionForDiagnostic +
-                            ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                            ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
                             "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
                 }
             }

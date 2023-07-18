@@ -89,7 +89,7 @@ dependencies {
     dist "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
-    dist "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+    dist "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
     dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
 
     // runtime

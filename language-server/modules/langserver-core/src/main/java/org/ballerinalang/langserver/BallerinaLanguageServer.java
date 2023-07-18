@@ -149,6 +149,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+        res.getCapabilities().setInlayHintProvider(true);
 
         CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor,
                 CodeActionKind.QuickFix, CodeActionKind.Source));
@@ -217,6 +218,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
         //Initialize Service Template Generator.
         ServiceTemplateGenerator.getInstance(this.serverContext);
+        CentralPackageDescriptorLoader.getInstance(this.serverContext)
+                .loadBallerinaxPackagesFromCentral(this.serverContext);
     }
 
     /**
@@ -419,8 +422,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
                 WatchKind.Create + WatchKind.Delete + WatchKind.Change));
         watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules/*"), WatchKind.Create + WatchKind.Delete));
         watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules"), WatchKind.Delete));
-        watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated/*"),
-                WatchKind.Create + WatchKind.Delete));
         watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated"), WatchKind.Delete));
         watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.BALLERINA_TOML),
                 WatchKind.Create + WatchKind.Delete));

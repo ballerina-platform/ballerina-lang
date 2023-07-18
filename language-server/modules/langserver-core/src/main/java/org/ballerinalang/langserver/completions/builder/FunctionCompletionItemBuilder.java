@@ -36,14 +36,21 @@ import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SnippetGenerator;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -52,6 +59,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,9 +91,6 @@ public final class FunctionCompletionItemBuilder {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null && functionSymbol.getName().isPresent()) {
-            if (functionSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                return ResourcePathCompletionItemBuilder.build((ResourceMethodSymbol) functionSymbol, context);
-            }
             String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setLabel(functionSignature.getRight());
@@ -349,7 +354,7 @@ public final class FunctionCompletionItemBuilder {
             return Optional.empty();
         } else {
             return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
-                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+                    ((param.getName().isEmpty() || param.isTypeOnlyParam()) ? "" : " " + param.getName().get()));
         }
     }
 
@@ -371,6 +376,40 @@ public final class FunctionCompletionItemBuilder {
         }
 
         return modulePrefix + SyntaxKind.COLON_TOKEN.stringValue() + functionName;
+    }
+
+    /**
+     * Creates and returns the main function completion item.
+     *
+     * @param context   Ballerina completion context
+     * @return {@link CompletionItem} generated main function completion item.
+     */
+    public static LSCompletionItem buildMainFunction(BallerinaCompletionContext context) {
+        NonTerminalNode node = context.getNodeAtCursor();
+        Optional<Token> lastQualifier = Optional.empty();
+        while (node != null) {
+            lastQualifier = ModulePartNodeContextUtil.getLastQualifier(context, node);
+            if (lastQualifier.isPresent() || node.kind() == SyntaxKind.MODULE_PART) {
+                break;
+            }
+            node = node.parent();
+        }
+
+        CompletionItem completionItem = new CompletionItem();
+        String insertText;
+        if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
+            insertText = "function main() ";
+        } else {
+            insertText = "public function main() ";
+        }
+        completionItem.setInsertText(insertText + "{" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}");
+        completionItem.setLabel("public main function");
+        completionItem.setFilterText(SnippetGenerator.generateFilterText
+                (Arrays.asList(ItemResolverConstants.PUBLIC_KEYWORD, ItemResolverConstants.FUNCTION, "main")));
+        completionItem.setKind(CompletionItemKind.Snippet);
+        completionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.MAIN_FUNCTION);
     }
 
     /**

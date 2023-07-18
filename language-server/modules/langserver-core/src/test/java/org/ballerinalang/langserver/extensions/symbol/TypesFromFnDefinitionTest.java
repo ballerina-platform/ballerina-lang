@@ -623,10 +623,13 @@ public class TypesFromFnDefinitionTest {
         IntersectionType moduleIdRecordType = (IntersectionType) resolvedType;
         Assert.assertEquals(moduleIdRecordType.members.size(), 2);
 
-        Assert.assertEquals(moduleIdRecordType.members.get(0).typeName, SymbolServiceTestUtil.RECORD);
+        Assert.assertEquals(moduleIdRecordType.members.get(0).typeName, SymbolServiceTestUtil.READ_ONLY);
         Assert.assertNull(moduleIdRecordType.members.get(0).name);
-        Assert.assertTrue(moduleIdRecordType.members.get(0) instanceof RecordType);
-        RecordType recordType = (RecordType) moduleIdRecordType.members.get(0);
+
+        Assert.assertEquals(moduleIdRecordType.members.get(1).typeName, SymbolServiceTestUtil.RECORD);
+        Assert.assertNull(moduleIdRecordType.members.get(1).name);
+        Assert.assertTrue(moduleIdRecordType.members.get(1) instanceof RecordType);
+        RecordType recordType = (RecordType) moduleIdRecordType.members.get(1);
 
         Assert.assertEquals(recordType.fields.size(), 3);
         Assert.assertEquals(recordType.fields.get(0).name, "organization");
@@ -638,9 +641,6 @@ public class TypesFromFnDefinitionTest {
         Assert.assertTrue(recordType.fields.get(2) instanceof ArrayType);
         ArrayType arrayReturnType = (ArrayType) recordType.fields.get(2);
         Assert.assertEquals(arrayReturnType.memberType.typeName, SymbolServiceTestUtil.STRING);
-
-        Assert.assertEquals(moduleIdRecordType.members.get(1).typeName, SymbolServiceTestUtil.READ_ONLY);
-        Assert.assertNull(moduleIdRecordType.members.get(1).name);
     }
 
     private void assertTypeIdType(Type resolvedType) {
@@ -652,10 +652,13 @@ public class TypesFromFnDefinitionTest {
         IntersectionType typeIdRecordType = (IntersectionType) resolvedType;
         Assert.assertEquals(typeIdRecordType.members.size(), 2);
 
-        Assert.assertEquals(typeIdRecordType.members.get(0).typeName, SymbolServiceTestUtil.RECORD);
+        Assert.assertEquals(typeIdRecordType.members.get(0).typeName, SymbolServiceTestUtil.READ_ONLY);
         Assert.assertNull(typeIdRecordType.members.get(0).name);
-        Assert.assertTrue(typeIdRecordType.members.get(0) instanceof RecordType);
-        RecordType recordType = (RecordType) typeIdRecordType.members.get(0);
+
+        Assert.assertEquals(typeIdRecordType.members.get(1).typeName, SymbolServiceTestUtil.RECORD);
+        Assert.assertNull(typeIdRecordType.members.get(1).name);
+        Assert.assertTrue(typeIdRecordType.members.get(1) instanceof RecordType);
+        RecordType recordType = (RecordType) typeIdRecordType.members.get(1);
 
         Assert.assertEquals(recordType.fields.size(), 2);
         Assert.assertEquals(recordType.fields.get(0).name, "moduleId");
@@ -669,8 +672,5 @@ public class TypesFromFnDefinitionTest {
         Assert.assertEquals(unionType.members.size(), 2);
         Assert.assertEquals(unionType.members.get(0).typeName, SymbolServiceTestUtil.STRING);
         Assert.assertEquals(unionType.members.get(1).typeName, SymbolServiceTestUtil.INTEGER);
-
-        Assert.assertEquals(typeIdRecordType.members.get(1).typeName, SymbolServiceTestUtil.READ_ONLY);
-        Assert.assertNull(typeIdRecordType.members.get(1).name);
     }
 }

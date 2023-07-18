@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
@@ -283,9 +284,6 @@ public class RunNativeImageTestTask implements Task {
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
-        if (coverage) {
-            this.out.println("WARNING: Code coverage generation is not supported with Ballerina native test");
-        }
 
         if (report) {
             testReport = new TestReport();
@@ -355,6 +353,10 @@ public class RunNativeImageTestTask implements Task {
             testSuiteMapEntries.add(testSuiteMap);
         }
 
+        if (!hasTests) {
+            out.println("\tNo tests found");
+        }
+
         // If the function mocking does not exist, combine all test suite map entries
         if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
             HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
@@ -401,6 +403,11 @@ public class RunNativeImageTestTask implements Task {
             if (hasTests) {
                 int testResult = 1;
                 try {
+                    String warnings = GraalVMCompatibilityUtils.getAllWarnings(
+                            project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
+                    if (!warnings.isEmpty()) {
+                        out.println(warnings);
+                    }
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
                     if (testResult != 0) {
                         accumulatedTestResult = testResult;
@@ -410,6 +417,9 @@ public class RunNativeImageTestTask implements Task {
                             String moduleName = testSuiteEntry.getKey();
                             ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
                                     testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                            if (moduleStatus == null) {
+                                continue;
+                            }
 
                             if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                                 moduleName = ModuleName.from(project.currentPackage().packageName(),
@@ -477,6 +487,10 @@ public class RunNativeImageTestTask implements Task {
 
         List<String> cmdArgs = new ArrayList<>();
         List<String> nativeArgs = new ArrayList<>();
+
+        String graalVMBuildOptions = currentPackage.project().buildOptions().graalVMBuildOptions();
+        nativeArgs.add(graalVMBuildOptions);
+
         cmdArgs.add(nativeImageCommand);
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
@@ -503,9 +517,12 @@ public class RunNativeImageTestTask implements Task {
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + convertWinPathToUnixFormat(addQuotationMarkToString(
-                    nativeConfigPath.resolve("reflect-config.json").toString())));
+                nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
+
+        // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
+        // use it as an argument.
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
                 .toString(), Charset.defaultCharset())) {
             nativeArgumentWriter.write(String.join(" ", nativeArgs));
@@ -601,7 +618,7 @@ public class RunNativeImageTestTask implements Task {
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
         dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().forEach(classPath::add);

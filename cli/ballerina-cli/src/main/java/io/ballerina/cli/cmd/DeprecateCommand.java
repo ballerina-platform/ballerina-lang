@@ -40,7 +40,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2201.5.0
  */
-@CommandLine.Command(name = DEPRECATE_COMMAND, description = "deprecate a package in Ballerina Central")
+@CommandLine.Command(name = DEPRECATE_COMMAND, description = "Deprecate a package in Ballerina Central")
 public class DeprecateCommand implements BLauncherCmd {
 
     private PrintStream outStream;
@@ -137,7 +137,7 @@ public class DeprecateCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("deprecates a package in Ballerina Central \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(DEPRECATE_COMMAND));
     }
 
     @Override
@@ -169,7 +169,8 @@ public class DeprecateCommand implements BLauncherCmd {
                 packageValue = packageInfo + ":*";
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()),
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(),
                     getAccessTokenOfCLI(settings));
             client.deprecatePackage(packageValue, deprecationMsg,
                     JvmTarget.JAVA_11.code(),

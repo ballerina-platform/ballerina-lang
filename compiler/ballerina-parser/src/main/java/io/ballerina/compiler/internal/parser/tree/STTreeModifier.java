@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -1677,16 +1677,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STCollectClauseNode transform(
+            STCollectClauseNode collectClauseNode) {
+        STNode collectKeyword = modifyNode(collectClauseNode.collectKeyword);
+        STNode expression = modifyNode(collectClauseNode.expression);
+        return collectClauseNode.modify(
+                collectKeyword,
+                expression);
+    }
+
+    @Override
     public STQueryExpressionNode transform(
             STQueryExpressionNode queryExpressionNode) {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
-        STNode selectClause = modifyNode(queryExpressionNode.selectClause);
+        STNode resultClause = modifyNode(queryExpressionNode.resultClause);
         STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -2467,6 +2477,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return orderKeyNode.modify(
                 expression,
                 orderDirection);
+    }
+
+    @Override
+    public STGroupByClauseNode transform(
+            STGroupByClauseNode groupByClauseNode) {
+        STNode groupKeyword = modifyNode(groupByClauseNode.groupKeyword);
+        STNode byKeyword = modifyNode(groupByClauseNode.byKeyword);
+        STNode groupingKey = modifyNode(groupByClauseNode.groupingKey);
+        return groupByClauseNode.modify(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    @Override
+    public STGroupingKeyVarDeclarationNode transform(
+            STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        STNode typeDescriptor = modifyNode(groupingKeyVarDeclarationNode.typeDescriptor);
+        STNode simpleBindingPattern = modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern);
+        STNode equalsToken = modifyNode(groupingKeyVarDeclarationNode.equalsToken);
+        STNode expression = modifyNode(groupingKeyVarDeclarationNode.expression);
+        return groupingKeyVarDeclarationNode.modify(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
     }
 
     @Override

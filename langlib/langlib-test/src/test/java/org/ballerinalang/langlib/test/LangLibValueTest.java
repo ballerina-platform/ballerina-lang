@@ -376,7 +376,7 @@ public class LangLibValueTest {
                 "testCloneWithTypeOnRegExpNegative",
                 "testCloneWithTypeWithXML", "testConversionsBetweenXml",
                 "testCloneWithTypeRecordWithXMLField",
-                "testConvertToUnionWithAmbiguousMemberTypes",
+                "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
                 "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
                 "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
         };
@@ -449,7 +449,8 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeNestedRecordsNegative" },
                 { "testFromJsonWithTypeOnRegExp" },
                 { "testFromJsonWithTypeOnRegExpNegative" },
-                {"testFromJsonWithTypeToUnionOfTypeReference"}
+                {"testFromJsonWithTypeToUnionOfTypeReference"},
+                {"testFromJsonStringWithUnexpectedChars"}
         };
     }
 
@@ -526,5 +527,20 @@ public class LangLibValueTest {
     public void testDecimalToString() {
         BRunUtil.invoke(compileResult, "testDecimalZeroToString");
         BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
+    }
+
+    @Test
+    public void testCount() {
+        BRunUtil.invoke(compileResult, "testCount");
+    }
+
+    @Test
+    public void testFirst() {
+        BRunUtil.invoke(compileResult, "testFirst");
+    }
+
+    @Test
+    public void testLast() {
+        BRunUtil.invoke(compileResult, "testLast");
     }
 }

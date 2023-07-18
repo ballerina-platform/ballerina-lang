@@ -1013,7 +1013,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
             case LexerTerminals.CONFLICT:
                 return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
-
             case LexerTerminals.CLASS:
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
             case LexerTerminals.CONFIGURABLE:
@@ -1521,6 +1520,11 @@ public class BallerinaLexer extends AbstractLexer {
                     shouldProcessInterpolations = false;
                 }
                 while (!reader.isEOF()) {
+                    if (shouldProcessInterpolations && this.reader.peek() == LexerTerminals.BACKSLASH 
+                            && this.reader.peek(1) == LexerTerminals.OPEN_BRACKET) {
+                        // Escaped open brackets are not considered as the start of a no interpolation context.
+                        reader.advance();
+                    }
                     reader.advance();
                     nextChar = this.reader.peek();
                     switch (nextChar) {
@@ -1537,6 +1541,11 @@ public class BallerinaLexer extends AbstractLexer {
                         case LexerTerminals.CLOSE_BRACKET:
                             shouldProcessInterpolations = true;
                             continue;
+                        case LexerTerminals.BACKSLASH:
+                            if (!shouldProcessInterpolations && this.reader.peek(1) == LexerTerminals.CLOSE_BRACKET) {
+                                reader.advance();
+                            }
+                            continue;    
                         default:
                             continue;
                     }

@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -2129,20 +2129,32 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public CollectClauseNode transform(
+            CollectClauseNode collectClauseNode) {
+        Token collectKeyword =
+                modifyToken(collectClauseNode.collectKeyword());
+        ExpressionNode expression =
+                modifyNode(collectClauseNode.expression());
+        return collectClauseNode.modify(
+                collectKeyword,
+                expression);
+    }
+
+    @Override
     public QueryExpressionNode transform(
             QueryExpressionNode queryExpressionNode) {
         QueryConstructTypeNode queryConstructType =
                 modifyNode(queryExpressionNode.queryConstructType().orElse(null));
         QueryPipelineNode queryPipeline =
                 modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause =
-                modifyNode(queryExpressionNode.selectClause());
+        ClauseNode resultClause =
+                modifyNode(queryExpressionNode.resultClause());
         OnConflictClauseNode onConflictClause =
                 modifyNode(queryExpressionNode.onConflictClause().orElse(null));
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -3116,6 +3128,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return orderKeyNode.modify(
                 expression,
                 orderDirection);
+    }
+
+    @Override
+    public GroupByClauseNode transform(
+            GroupByClauseNode groupByClauseNode) {
+        Token groupKeyword =
+                modifyToken(groupByClauseNode.groupKeyword());
+        Token byKeyword =
+                modifyToken(groupByClauseNode.byKeyword());
+        SeparatedNodeList<Node> groupingKey =
+                modifySeparatedNodeList(groupByClauseNode.groupingKey());
+        return groupByClauseNode.modify(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    @Override
+    public GroupingKeyVarDeclarationNode transform(
+            GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(groupingKeyVarDeclarationNode.typeDescriptor());
+        BindingPatternNode simpleBindingPattern =
+                modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern());
+        Token equalsToken =
+                modifyToken(groupingKeyVarDeclarationNode.equalsToken());
+        ExpressionNode expression =
+                modifyNode(groupingKeyVarDeclarationNode.expression());
+        return groupingKeyVarDeclarationNode.modify(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
     }
 
     @Override

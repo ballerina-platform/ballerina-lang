@@ -18,12 +18,12 @@ package org.ballerinalang.test.expressions.binaryoperations;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -54,7 +54,7 @@ public class AddOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByAddition() {
@@ -260,6 +260,15 @@ public class AddOperationTest {
                 "'(1|2|int)' and '(xml:Element|xml:Text)'", 150, 9);
         BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
                 "'(xml:Element|xml:Text)' and '(1|2|int)'", 152, 9);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 156, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 157, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 158, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 159, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 163, 11);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 164, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 165, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 166, 12);
+
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }
