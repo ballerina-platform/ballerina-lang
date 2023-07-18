@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import java.nio.charset.StandardCharsets;
 
 /***
  * A package provided code analyzer which adds a log statement to the beginning of the file.
+ *
+ * @since 2.7.1
  */
 public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
 
@@ -44,7 +46,6 @@ public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
     public void init(CompilerPluginContext pluginContext) {
         pluginContext.addCodeAnalyzer(new LogCodeAnalyzer());
     }
-
 
     /***
      * A package provided code analyzer which adds a log statement to the beginning of the file.
@@ -58,14 +59,12 @@ public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
 
             analysisContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }
-
     }
 
     /***
      * A package provided code analyzer which adds a log statement to the beginning of the file.
      */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
-
         @Override
         public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
             appendToOutputFile(filePath, "syntax-node-analysis-analyzer");
@@ -80,6 +79,5 @@ public class LogCodeAnalyzerPkgPlugin extends CompilerPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

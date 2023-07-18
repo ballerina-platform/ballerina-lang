@@ -422,6 +422,5 @@ public class PackCommandTest extends BaseCommandTest {
         Files.deleteIfExists(logFile);
         Files.deleteIfExists(logFile.getParent());
         Files.deleteIfExists(logFile.getParent().getParent());
-
     }
 }

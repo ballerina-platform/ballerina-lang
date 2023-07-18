@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 
-
 /***
  * A package provided code generator which adds a log statement to the beginning of the file.
+ *
+ * @since 2.7.1
  */
 public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
 
@@ -44,7 +45,6 @@ public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
     public void init(CompilerPluginContext pluginContext) {
         pluginContext.addCodeGenerator(new LogCodeGenerator());
     }
-
 
     /***
      * A package provided code generator which adds a log statement to the beginning of the file.
@@ -58,7 +58,6 @@ public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
 
             generatorContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }
-
     }
 
     /***
@@ -72,7 +71,6 @@ public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
         }
     }
 
-
     private static void appendToOutputFile(String filePath, String content) {
         File outputFile = new File(filePath);
         try (FileOutputStream fileStream = new FileOutputStream(outputFile, true);
@@ -81,6 +79,5 @@ public class LogCodeGeneratorPkgPlugin extends CompilerPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

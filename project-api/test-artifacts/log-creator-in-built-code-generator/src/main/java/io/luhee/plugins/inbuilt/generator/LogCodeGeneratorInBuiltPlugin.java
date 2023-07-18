@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 
-
 /***
  * A in-built code generator which adds a log statement to the beginning of the file.
+ *
+ * @since 2.7.1
  */
 public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
     static String filePath = "./src/test/resources/compiler_plugin_tests/" +
@@ -79,6 +80,5 @@ public class LogCodeGeneratorInBuiltPlugin extends CompilerPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

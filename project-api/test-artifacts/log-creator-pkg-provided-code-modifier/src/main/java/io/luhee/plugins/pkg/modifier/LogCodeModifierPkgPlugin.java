@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 
-
 /***
  * A package provided code modifier which adds a log statement to the beginning of the file.
+ *
+ * @since 2.7.1
  */
 public class LogCodeModifierPkgPlugin extends CompilerPlugin {
 
@@ -46,7 +47,6 @@ public class LogCodeModifierPkgPlugin extends CompilerPlugin {
         pluginContext.addCodeModifier(new LogCodeModifier());
     }
 
-
     /***
      * A package provided code modifier which adds a log statement to the beginning of the file.
      */
@@ -56,17 +56,14 @@ public class LogCodeModifierPkgPlugin extends CompilerPlugin {
             modifierContext.addSourceModifierTask(sourceGeneratorContext -> {
                 appendToOutputFile(filePath, "source-modifier");
             });
-
             modifierContext.addSyntaxNodeAnalysisTask(new LogSyntaxNodeAnalysis(), SyntaxKind.FUNCTION_DEFINITION);
         }
-
     }
 
     /***
      * A package provided code modifier which adds a log statement to the beginning of the file.
      */
     public static class LogSyntaxNodeAnalysis implements AnalysisTask<SyntaxNodeAnalysisContext> {
-
         @Override
         public void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
             appendToOutputFile(filePath, "syntax-node-analysis-modifier");
@@ -81,6 +78,5 @@ public class LogCodeModifierPkgPlugin extends CompilerPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

@@ -45,6 +45,7 @@ public class RunCommandTest extends BaseCommandTest {
         Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, "");
     }
+
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -303,7 +304,6 @@ public class RunCommandTest extends BaseCommandTest {
                 "Package provided syntax node analysis from code modifier has failed to run");
         Assert.assertTrue(logFileContent.contains("pkg-provided-source-modifier"),
                 "Package provided source modifier from code modifier has failed to run");
-
     }
 
     @Test(description = "Run a valid ballerina project with invalid argument")
@@ -385,6 +385,5 @@ public class RunCommandTest extends BaseCommandTest {
         Files.deleteIfExists(logFile);
         Files.deleteIfExists(logFile.getParent());
         Files.deleteIfExists(logFile.getParent().getParent());
-
     }
 }
