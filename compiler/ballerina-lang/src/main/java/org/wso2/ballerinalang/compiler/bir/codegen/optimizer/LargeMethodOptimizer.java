@@ -1541,6 +1541,7 @@ public class LargeMethodOptimizer {
             funcArgsWithName.put(parameter.name, parameter);
         }
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
+            Map<BIRVariableDcl, BIROperand> newRhsOperands = new HashMap<>();
             for (BIRNonTerminator instruction : basicBlock.instructions) {
                 if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {
                     instruction.lhsOp.variableDcl = selfVarDcl;
@@ -1548,24 +1549,49 @@ public class LargeMethodOptimizer {
                     instruction.lhsOp.variableDcl = birFunction.returnVariable;
                     basicBlock.terminator = new BIRTerminator.GOTO(null, returnBB, basicBlock.terminator.scope);
                 }
-                fixInsRhsOperands(selfVarDcl, funcArgsWithName, instruction.getRhsOperands());
+                setInsRhsOperands(selfVarDcl, funcArgsWithName, instruction, newRhsOperands);
             }
             if ((basicBlock.terminator.lhsOp != null) &&
                     (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.SELF)) {
                 basicBlock.terminator.lhsOp.variableDcl = selfVarDcl;
             }
-            fixInsRhsOperands(selfVarDcl, funcArgsWithName, basicBlock.terminator.getRhsOperands());
+            setInsRhsOperands(selfVarDcl, funcArgsWithName, basicBlock.terminator, newRhsOperands);
         }
     }
 
-    private void fixInsRhsOperands(BIRVariableDcl selfVarDcl, Map<Name, BIRVariableDcl> funcArgsWithName,
-                                   BIROperand[] rhsOperands) {
+    private void setInsRhsOperands(BIRVariableDcl selfVarDcl, Map<Name, BIRVariableDcl> funcArgsWithName,
+                                   BIRAbstractInstruction instruction, Map<BIRVariableDcl, BIROperand> newRhsOperands) {
+        if (selfVarDcl == null && funcArgsWithName.isEmpty()) {
+            return;
+        }
+        List<BIROperand> operandList = new ArrayList<>();
+        boolean foundArgs = false;
+        BIROperand[] rhsOperands = instruction.getRhsOperands();
         for (BIROperand rhsOperand : rhsOperands) {
             if (rhsOperand.variableDcl.kind == VarKind.SELF) {
-                rhsOperand.variableDcl = selfVarDcl;
+                foundArgs = true;
+                populateNewRHSOperands(selfVarDcl, operandList, newRhsOperands, rhsOperand);
             } else if (funcArgsWithName.containsKey(rhsOperand.variableDcl.name)) {
-                rhsOperand.variableDcl = funcArgsWithName.get(rhsOperand.variableDcl.name);
+                foundArgs = true;
+                populateNewRHSOperands(funcArgsWithName.get(rhsOperand.variableDcl.name), operandList, newRhsOperands,
+                        rhsOperand);
+            } else {
+                operandList.add(rhsOperand);
             }
+        }
+        if (foundArgs) {
+            instruction.setRhsOperands(operandList.toArray(new BIROperand[0]));
+        }
+    }
+
+    private static void populateNewRHSOperands(BIRVariableDcl variableDcl, List<BIROperand> operandList,
+                                               Map<BIRVariableDcl, BIROperand> newRhsOperands, BIROperand rhsOperand) {
+        if (!newRhsOperands.containsKey(rhsOperand.variableDcl)) {
+            BIROperand newOperand = new BIROperand(variableDcl);
+            operandList.add(newOperand);
+            newRhsOperands.put(rhsOperand.variableDcl, newOperand);
+        } else {
+            operandList.add(newRhsOperands.get(rhsOperand.variableDcl));
         }
     }
 
