@@ -256,17 +256,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         if (literalType.tag == TypeTags.BYTE_ARRAY) {
-            BLangListConstructorExpr listConstructorExpr = rewriteByteArrayLiteral(literalExpr);
-            BType expType = Types.getReferredType(data.expType);
-            if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.INFERRED) {
-                ((BArrayType) expType).size = listConstructorExpr.exprs.size();
-                ((BArrayType) expType).state = BArrayState.CLOSED;
-            }
-            if (types.typeIncompatible(literalExpr.pos, listConstructorExpr.getBType(), data.expType)) {
-                data.resultType = symTable.semanticError;
-                return;
-            }
-            data.resultType = checkListConstructorCompatibility(literalType, listConstructorExpr, data);
+            data.resultType = rewriteByteArrayLiteral(literalExpr, data);
             return;
         }
 
@@ -283,25 +273,27 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         data.resultType = finiteType;
     }
 
-    private BLangListConstructorExpr rewriteByteArrayLiteral(BLangLiteral literalExpr) {
+    private BType rewriteByteArrayLiteral(BLangLiteral literalExpr, AnalyzerData data) {
         byte[] values = types.convertToByteArray((String) literalExpr.value);
-        BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode
-                = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        BArrayType literalType = new BArrayType(symTable.byteType, null, values.length,
-                BArrayState.CLOSED);
-        arrayLiteralNode.setBType(literalType);
-        arrayLiteralNode.pos = literalExpr.pos;
-        arrayLiteralNode.exprs = new ArrayList<>();
-        for (byte b : values) {
-            arrayLiteralNode.exprs.add(createByteLiteral(literalExpr.pos, b));
-        }
-        return arrayLiteralNode;
-    }
 
-    private BLangLiteral createByteLiteral(Location pos, Byte value) {
-        BLangLiteral byteLiteral = new BLangLiteral(Byte.toUnsignedInt(value), symTable.byteType);
-        byteLiteral.pos = pos;
-        return byteLiteral;
+        List<BType> memberTypes = new ArrayList<>();
+        for (byte b : values) {
+            memberTypes.add(getFiniteType(Byte.toUnsignedInt(b), data.constantSymbol, literalExpr.pos,
+                    symTable.byteType));
+        }
+
+        BType expType = Types.getReferredType(data.expType);
+        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.INFERRED) {
+            ((BArrayType) expType).size = memberTypes.size();
+            ((BArrayType) expType).state = BArrayState.CLOSED;
+        }
+
+        BArrayType arrayType = new BArrayType(symTable.byteType, null, values.length, BArrayState.CLOSED);
+        if (types.typeIncompatible(literalExpr.pos, arrayType, expType)) {
+            return symTable.semanticError;
+        }
+
+        return createNewTupleType(literalExpr.pos, memberTypes, data);
     }
 
     @Override
