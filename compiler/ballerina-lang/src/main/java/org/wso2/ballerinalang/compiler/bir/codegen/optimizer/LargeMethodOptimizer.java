@@ -117,7 +117,7 @@ public class LargeMethodOptimizer {
     private boolean hasLessInstructionCount(BIRFunction birFunction) {
         int instructionCount = 0;
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
-            instructionCount += basicBlock.instructions.size();
+            instructionCount += (basicBlock.instructions.size() + 1);
         }
         return instructionCount < FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
     }
@@ -127,9 +127,16 @@ public class LargeMethodOptimizer {
         final List<BIRFunction> newlyAddingFunctions = new ArrayList<>();
         List<Split> possibleSplits = getPossibleSplits(birFunction.basicBlocks, birFunction.errorTable,
                 birFunction.name.toString());
+        // periodic splits will be done only if it is from a split function
+        boolean splitFurther = fromSplitFunction;
         if (!possibleSplits.isEmpty()) {
             generateSplits(birFunction, possibleSplits, newlyAddingFunctions, fromAttachedFunction);
-        } else if (fromSplitFunction) {
+            // if now we have less instructions in the parent function no splits are done
+            if (hasLessInstructionCount(birFunction)) {
+                splitFurther = false;
+            }
+        }
+        if (splitFurther) {
             periodicSplitFunction(birFunction, newlyAddingFunctions, fromAttachedFunction, splitTypeArray);
         }
         return newlyAddingFunctions;
