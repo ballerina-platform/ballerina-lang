@@ -898,7 +898,7 @@ public class LargeMethodOptimizer {
     }
 
     private static void populateNewRHSOperands(BIRVariableDcl variableDcl, List<BIROperand> operandList,
-                                               Map<BIRVariableDcl, BIROperand> newRhsOperands,BIROperand rhsOperand) {
+                                               Map<BIRVariableDcl, BIROperand> newRhsOperands, BIROperand rhsOperand) {
         if (!newRhsOperands.containsKey(rhsOperand.variableDcl)) {
             BIROperand newOperand = new BIROperand(variableDcl);
             operandList.add(newOperand);

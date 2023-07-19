@@ -995,7 +995,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             closureVars = new ArrayList<>(Arrays.asList(operands));
             if (annotations != null) {
                 closureVars.remove(closureVars.size() - 1);
-                annotations = operands[operands.length -1];
+                annotations = operands[operands.length - 1];
             }
         }
     }
