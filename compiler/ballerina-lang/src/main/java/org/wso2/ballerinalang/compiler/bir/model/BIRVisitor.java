@@ -169,10 +169,6 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BIRNonTerminator.NewLargeArray birNewLargeArray) {
-        throw new AssertionError();
-    }
-
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
         throw new AssertionError();
     }

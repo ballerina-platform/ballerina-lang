@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
@@ -175,7 +176,7 @@ public class LargeMethodOptimizer {
 
         createAndAddNewHandleArrayForLargeArrayIns(parentFuncEnv, arrayIns, handleArray, handleArrayOperand);
 
-        BIRNonTerminator.NewLargeArray newLargeArrayIns = new BIRNonTerminator.NewLargeArray(arrayIns.pos,
+        JLargeArrayInstruction newLargeArrayIns = new JLargeArrayInstruction(arrayIns.pos,
                 arrayIns.type, arrayIns.lhsOp, arrayIns.typedescOp, arrayIns.sizeOp, handleArrayOperand);
 
         // populating ListConstructorEntry array elements at runtime using jMethodCalls

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -630,6 +631,31 @@ public class JvmInstructionGen {
                     isInterface);
             if (callIns.lhsOp != null) {
                 this.storeToVar(callIns.lhsOp.variableDcl);
+            }
+        } else {
+            JLargeArrayInstruction inst = (JLargeArrayInstruction) ins;
+            BType instType = JvmCodeGenUtil.getReferredType(inst.type);
+            if (instType.tag == TypeTags.ARRAY) {
+                this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
+                this.mv.visitInsn(DUP);
+                jvmTypeGen.loadType(this.mv, inst.type);
+                loadListInitialValues(inst);
+                BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
+
+                if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
+                        ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+                    visitNewRecordArray(elementType);
+                } else {
+                    this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                            INIT_ARRAY, false);
+                }
+                this.storeToVar(inst.lhsOp.variableDcl);
+            } else {
+                this.loadVar(inst.typedescOp.variableDcl);
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                loadListInitialValues(inst);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+                this.storeToVar(inst.lhsOp.variableDcl);
             }
         }
     }
@@ -1535,32 +1561,6 @@ public class JvmInstructionGen {
         }
     }
 
-    void generateLargeArrayNewIns(BIRNonTerminator.NewLargeArray inst, int localVarOffset) {
-        BType instType = JvmCodeGenUtil.getReferredType(inst.type);
-        if (instType.tag == TypeTags.ARRAY) {
-            this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
-            this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, inst.type);
-            loadListInitialValues(inst);
-            BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
-
-            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
-                visitNewRecordArray(elementType);
-            } else {
-                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
-                        INIT_ARRAY, false);
-            }
-            this.storeToVar(inst.lhsOp.variableDcl);
-        } else {
-            this.loadVar(inst.typedescOp.variableDcl);
-            this.mv.visitVarInsn(ALOAD, localVarOffset);
-            loadListInitialValues(inst);
-            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
-            this.storeToVar(inst.lhsOp.variableDcl);
-        }
-    }
-
     private void visitNewRecordArray(BType type) {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
         elementType = elementType.tag == TypeTags.INTERSECTION ?
@@ -2203,8 +2203,8 @@ public class JvmInstructionGen {
         }
     }
 
-    private void loadListInitialValues(BIRNonTerminator.NewLargeArray arrayNewIns) {
-        this.loadVar(arrayNewIns.values.variableDcl);
+    private void loadListInitialValues(JLargeArrayInstruction largeArrayIns) {
+        this.loadVar(largeArrayIns.values.variableDcl);
         mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/values/HandleValue", "getValue",
                 "()Ljava/lang/Object;", false);
         mv.visitTypeInsn(CHECKCAST, "[Lio/ballerina/runtime/api/values/BListInitialValueEntry;");
@@ -2264,9 +2264,6 @@ public class JvmInstructionGen {
                     break;
                 case NEW_ARRAY:
                     generateArrayNewIns((BIRNonTerminator.NewArray) inst, localVarOffset);
-                    break;
-                case NEW_LARGE_ARRAY:
-                    generateLargeArrayNewIns((BIRNonTerminator.NewLargeArray) inst, localVarOffset);
                     break;
                 case ARRAY_STORE:
                     generateArrayStoreIns((FieldAccess) inst);

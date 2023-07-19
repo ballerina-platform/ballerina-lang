@@ -24,7 +24,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  */
 public enum JInsKind {
     JCAST((byte) 1),
-    CALL((byte) 2);
+    CALL((byte) 2),
+    LARGE_ARRAY((byte) 3);
 
     byte value;
 

@@ -331,46 +331,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     }
 
     /**
-     * A new large array instruction.
-     *
-     */
-    public static class NewLargeArray extends BIRNonTerminator {
-        public BIROperand typedescOp;
-        public BIROperand sizeOp;
-        public BType type;
-        public BIROperand values;
-
-        public NewLargeArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
-                             BIROperand values) {
-            super(location, InstructionKind.NEW_LARGE_ARRAY);
-            this.type = type;
-            this.lhsOp = lhsOp;
-            this.sizeOp = sizeOp;
-            this.values = values;
-        }
-
-        public NewLargeArray(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp, BIROperand sizeOp,
-                        BIROperand values) {
-            this(location, type, lhsOp, sizeOp, values);
-            this.typedescOp = typedescOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-
-        @Override
-        public BIROperand[] getRhsOperands() {
-            if (typedescOp != null) {
-                return new BIROperand[]{typedescOp, sizeOp, values};
-            } else {
-                return new BIROperand[]{sizeOp, values};
-            }
-        }
-    }
-
-    /**
      * A field access expression.
      * <p>
      * e.g., a["b"] = 10 (int)
