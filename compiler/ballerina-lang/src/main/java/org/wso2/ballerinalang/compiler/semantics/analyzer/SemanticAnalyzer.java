@@ -3882,7 +3882,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (onFailVarDefNode != null) {
             BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
-            if (variableNode.getKind() != NodeKind.VARIABLE && variableNode.getKind() != NodeKind.ERROR_VARIABLE) {
+            NodeKind kind = variableNode.getKind();
+            if (kind != NodeKind.VARIABLE && kind != NodeKind.ERROR_VARIABLE) {
                 dlog.error(variableNode.pos, DiagnosticErrorCode.INVALID_BINDING_PATTERN_IN_ON_FAIL);
             }
 
@@ -3908,11 +3909,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                         onFailVarNode.getBType());
             }
 
-            for (BType errorType : onFailErrTypes.peek()) {
-                if (onFailVarNode.getBType() != null && !types.isAssignable(errorType, onFailVarNode.getBType())) {
-                    dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
-                            onFailVarNode.getBType());
-                }
+            if (kind == NodeKind.ERROR_VARIABLE) {
+                BLangErrorVariable var = (BLangErrorVariable) variableNode;
+                var.symbol = symbolEnter.defineVarSymbol(var.pos, var.flagSet, var.getBType(),
+                                                         Names.fromString(anonModelHelper.getNextErrorVarKey(
+                                                                 onFailEnv.enclPkg.packageID)), onFailEnv, true);
             }
         }
 

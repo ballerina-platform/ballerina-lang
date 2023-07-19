@@ -249,12 +249,8 @@ public class WhileStmtTest {
     @Test(description = "Check incompatible types.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 17, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++,
                 "incompatible types: expected 'ErrorTypeA', found 'ErrorTypeB'", 17, 12);
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 41, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++,
                 "incompatible types: expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 41, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "invalid error variable; " +

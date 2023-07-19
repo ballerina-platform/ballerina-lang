@@ -109,16 +109,10 @@ public class MatchStatementOnFailTest {
     @Test(description = "Check incompatible types.")
     public void testNegative1() {
         int i = 0;
-        BAssertUtil.validateError(resultNegative1, i++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 15);
         BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 30, 15);
-        BAssertUtil.validateError(resultNegative1, i++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 15);
         BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 59, 15);
-        BAssertUtil.validateError(resultNegative1, i++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 94, 15);
         BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
                 "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeB'", 94, 15);
         BAssertUtil.validateError(resultNegative1, i++, "invalid error variable; expecting an error " +

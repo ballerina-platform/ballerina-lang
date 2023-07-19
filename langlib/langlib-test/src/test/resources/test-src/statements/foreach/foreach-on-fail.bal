@@ -101,29 +101,30 @@ type SampleErrorData record {|
 
 type SampleError error<SampleErrorData>;
 
-string testMessage = "";
-int testErrorCode = 0;
-string testErrorReason = "";
-
 function testSimpleOnFailWithErrorBP() {
+    string testMessage;
     foreach var i in data {
         fail error("error!");
     } on fail error error(msg) {
         testMessage = msg;
     }
-     assertEquality(testMessage, "error!");
+    assertEquality(testMessage, "error!");
 }
 
 function testSimpleOnFailWithErrorBPWithVar() {
+    string testMessage;
     foreach var i in data {
         fail error("error!");
     } on fail var error(msg) {
         testMessage = msg;
     }
-     assertEquality(testMessage, "error!");
+    assertEquality(testMessage, "error!");
 }
 
 function testOnFailWithErrorBPHavingUserDefinedTypeWithError() {
+    int testErrorCode;
+    string testMessage;
+    string testErrorReason;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail error error(msg, code = errCode, reason = errReason) {
@@ -139,6 +140,9 @@ function testOnFailWithErrorBPHavingUserDefinedTypeWithError() {
 }
 
 function testOnFailWithErrorBPHavingUserDefinedTypeWithVar() {
+    string testMessage;
+    int testErrorCode;
+    string testErrorReason;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail var error(msg, code = errCode, reason = errReason) {
@@ -154,6 +158,9 @@ function testOnFailWithErrorBPHavingUserDefinedTypeWithVar() {
 }
 
 function testOnFailWithErrorBPHavingUserDefinedType() {
+    string testMessage;
+    int testErrorCode;
+    string testErrorReason;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail SampleError error(msg, code = errCode, reason = errReason) {
@@ -169,6 +176,9 @@ function testOnFailWithErrorBPHavingUserDefinedType() {
 }
 
 function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1() {
+    string testMessage;
+    int testErrorCode;
+    string testErrorReason;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail error<SampleErrorData> error(msg, code = errCode, reason = errReason) {
@@ -184,6 +194,7 @@ function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1() {
 }
 
 function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2() {
+    int testErrorCode;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail error<record {int code;}> error(code = errCode) {
@@ -194,6 +205,8 @@ function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2() {
 }
 
 function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3() {
+    int testErrorCode;
+    string testErrorReason;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail error<record {int code;}> error(code = errCode, reason = errReason) {
@@ -207,6 +220,7 @@ function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3() {
 }
 
 function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4() {
+    int testErrorCode;
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail error<record {int|string code;}> error(code = errCode) {
@@ -217,6 +231,7 @@ function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4() {
 }
 
 function testOnFailWithErrorBPHavingAnonDetailRecord() {
+    int testErrorCode;
     foreach var i in data {
         error<record {int code;}> errVar = error("error", code = 34);
         fail errVar;
@@ -228,6 +243,8 @@ function testOnFailWithErrorBPHavingAnonDetailRecord() {
 }
 
 function testOnFailWithErrorBPHavingAnonDetailRecordWithVar() {
+    int testErrorCode;
+    string testErrorReason;
     foreach var i in data {
         error<record {int code;}> errVar = error("error", code = 34);
         fail errVar;
@@ -242,6 +259,7 @@ function testOnFailWithErrorBPHavingAnonDetailRecordWithVar() {
 }
 
 function testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType() {
+    int testErrorCode;
     foreach var i in data {
         error<record {int code;}> errVar = error("error", code = 34);
         fail errVar;
@@ -261,13 +279,12 @@ type SampleComplexErrorData record {|
 
 type SampleComplexError error<SampleComplexErrorData>;
 
-int testErrorPosRow = 0;
-int testErrorPosCol = 0;
-string testErrorMoreInfo = "";
-
-
 function testOnFailWithErrorBPWithErrorArgsHavingBP1() {
     string causeMsg;
+    int testErrorCode;
+    int testErrorPosRow;
+    int testErrorPosCol;
+    string testErrorMoreInfo;
     foreach var i in data {
         fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
     } on fail SampleComplexError error(_, cause = errCause, code = errCode, pos = errorPos, infoDetails = errInfo) {
@@ -290,6 +307,11 @@ function testOnFailWithErrorBPWithErrorArgsHavingBP1() {
 }
 
 function testOnFailWithErrorBPWithErrorArgsHavingBP2() {
+    string testMessage;
+    int testErrorCode;
+    int testErrorPosRow;
+    int testErrorPosCol;
+    string testErrorMoreInfo;
     foreach var i in data {
         fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
     } on fail SampleComplexError error(message, cause = error(msg), code = errCode, pos = errorPos, infoDetails = errInfo) {
@@ -312,6 +334,11 @@ function testOnFailWithErrorBPWithErrorArgsHavingBP2() {
 }
 
 function testOnFailWithErrorBPWithErrorArgsHavingBP3() {
+    string testMessage;
+    int testErrorCode;
+    int testErrorPosRow;
+    int testErrorPosCol;
+    string testErrorMoreInfo;
     foreach var i in data {
         fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
     } on fail SampleComplexError error(message, cause = error(msg), code = errCode, pos = [row, col], infoDetails = errInfo) {
@@ -334,6 +361,11 @@ function testOnFailWithErrorBPWithErrorArgsHavingBP3() {
 }
 
 function testOnFailWithErrorBPWithErrorArgsHavingBP4() {
+    string testMessage;
+    int testErrorCode;
+    int testErrorPosRow;
+    int testErrorPosCol;
+    string testErrorMoreInfo;
     foreach var i in data {
         fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
     } on fail SampleComplexError error(_, cause = error(msg), code = errCode, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
@@ -356,6 +388,11 @@ function testOnFailWithErrorBPWithErrorArgsHavingBP4() {
 }
 
 function testOnFailWithErrorBPWithErrorArgsHavingBP5() {
+    string testMessage;
+    int testErrorCode;
+    int testErrorPosRow;
+    int testErrorPosCol;
+    string testErrorMoreInfo;
     foreach var i in data {
         fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
     } on fail var error(_, cause = error(msg), code = errCode, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
@@ -377,10 +414,12 @@ function testOnFailWithErrorBPWithErrorArgsHavingBP5() {
     assertEquality(testMessage is string, true);
 }
 
-int testErrorCodeNested = 0;
-string testMessageNested = "";
-
 function testNestedOnFailWithErrorBP() {
+    string testMessage = "";
+    int testErrorCode = 0;
+    string testErrorReason = "";
+    int testErrorCodeNested = 0;
+    string testMessageNested = "";
     string testErrorReasonNested = "";
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
@@ -408,6 +447,13 @@ function testNestedOnFailWithErrorBP() {
 }
 
 function testNestedOnFailWithErrorBPWithErrorArgsHavingBP() {
+    string testMessage = "";
+    int testErrorCode = 0;
+    int testErrorCodeNested = 0;
+    string testMessageNested = "";
+    int testErrorPosRow = 0;
+    int testErrorPosCol = 0;
+    string testErrorMoreInfo = "";
     foreach var i in data {
         fail error SampleError("error!", code = 20, reason = "deadlock condition");
     } on fail var error(msg1, code = errCode1, reason = errReason1) {
@@ -436,6 +482,9 @@ function testNestedOnFailWithErrorBPWithErrorArgsHavingBP() {
 }
 
 function testMultiLevelOnFailWithErrorBP() {
+    string testMessage;
+    int testErrorCode;
+    string testErrorReason;
     string str = "";
     int[] level1dData = [2];
     int[] nestedData = [1];
@@ -465,6 +514,9 @@ function testMultiLevelOnFailWithoutErrorInOneLevel() {
     string str = "";
     int[] nestedData = [1];
     int[] level1dData = [2];
+    string testMessage;
+    int testErrorCode;
+    string testErrorReason;
 
     foreach var i in level1dData {
         foreach var j in nestedData {
