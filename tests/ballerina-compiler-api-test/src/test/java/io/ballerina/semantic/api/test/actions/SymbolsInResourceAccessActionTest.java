@@ -112,7 +112,7 @@ public class SymbolsInResourceAccessActionTest {
                 {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // -><c>/
                 {42, 35, "foo", SymbolKind.PATH_SEGMENT}, // ->/<c>foo
                 {42, 49, "x", SymbolKind.CONSTANT},  // ["3"](<c>x, 2);
-                {78, 11, "get", SymbolKind.RESOURCE_METHOD}  // -><c>/()
+                {78, 10, "get", SymbolKind.RESOURCE_METHOD}  // -><c>/()
         };
     }
 
@@ -128,21 +128,21 @@ public class SymbolsInResourceAccessActionTest {
     public Object[][] getResourceAccessActionPosAndFunctionSignatures() {
         return new Object[][]{
                 // Resource method: [string s1]/[string s2]()
-                {66, 12, "resource function get [string s1]/[string s2] () returns ()"},
-                {67, 17, "resource function get [string s1]/[string s2] () returns ()"},
-                {68, 13, "resource function get [string s1]/[string s2] () returns ()"},
+                {66, 10, "resource function get [string s1]/[string s2] () returns ()"},
+                {67, 10, "resource function get [string s1]/[string s2] () returns ()"},
+                {68, 10, "resource function get [string s1]/[string s2] () returns ()"},
 
                 // Resource method: [string... ss]()
-                {70, 12, "resource function get [string... ss] () returns ()"},
-                {71, 17, "resource function get [string... ss] () returns ()"},
-                {72, 13, "resource function get [string... ss] () returns ()"},
+                {70, 10, "resource function get [string... ss] () returns ()"},
+                {71, 10, "resource function get [string... ss] () returns ()"},
+                {72, 10, "resource function get [string... ss] () returns ()"},
 
                 // Resource method: path1/path2()
-                {74, 11, "resource function get path1/path2 () returns ()"},
-                {76, 11, "resource function get path1/path2 () returns ()"},
+                {74, 10, "resource function get path1/path2 () returns ()"},
+                {76, 10, "resource function get path1/path2 () returns ()"},
 
                 // Resource method: .()
-                {78, 11, "resource function get . () returns ()"},
+                {78, 10, "resource function get . () returns ()"},
         };
     }
 
@@ -158,9 +158,15 @@ public class SymbolsInResourceAccessActionTest {
     public Object[][] getResourceAccessActionPathPos() {
         return new Object[][]{
                 // Resource method: path1/path2()
-                {74, 12, "path1"},   // quxCl->/<CURSOR>path1/path2()
-                {76, 13, "path1"},   // quxCl->/[<CURSOR>"path1"]/["path2"]()
+                {74, 11, "path1"},   // quxCl->/<CURSOR>path1/path2()
+                {76, 12, "path1"},   // quxCl->/[<CURSOR>"path1"]/["path2"]()
         };
+    }
+
+    @Test
+    public void testPathSegmentOfAmbiguousResourceFunction() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(91, 9));
+        assertTrue(symbol.isEmpty()); // Resource method is ambiguous
     }
 
     // Utils

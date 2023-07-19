@@ -78,3 +78,16 @@ public function testResourceAccessActionPath() {
 
    quxCl->/(); // Root path
 }
+
+client class Bam {
+   resource function post path1/path2() {
+   }
+
+   resource function post [string p1]/[string p2]() {
+   }
+}
+
+public function testPathSegmentOfAmbiguousResourceFunction() {
+   Bam bam = new;
+   bam->/path1/path2.post();
+}
