@@ -441,25 +441,26 @@ public class SymbolBIRTest {
     @Test
     public void testObjectTypeSymbolDefQualifiers() {
         Project project = BCompileUtil.loadProject("test-src/object_symbol_qualifiers.bal");
-        Package currentPackage = project.currentPackage();
         Document srcFile = getDocumentForSingleSource(project);
         SemanticModel model = getDefaultModulesSemanticModel(project);
         
         Optional<Symbol> symbol = model.symbol(srcFile, from(19, 20));
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), TYPE);
-        assertEquals(((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor().typeKind(), OBJECT);
-        ObjectTypeSymbol clientObjectTSymbol = (ObjectTypeSymbol) ((TypeReferenceTypeSymbol) symbol.get())
-                                                .typeDescriptor();
+        Symbol sym = symbol.get();
+        assertEquals(sym.kind(), TYPE);
+        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) sym).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), OBJECT);
+        ObjectTypeSymbol clientObjectTSymbol = (ObjectTypeSymbol) typeSymbol;
         assertEquals(clientObjectTSymbol.qualifiers().size(), 3);
         assertEquals(clientObjectTSymbol.qualifiers(), List.of(DISTINCT, ISOLATED, CLIENT));
 
         symbol = model.symbol(srcFile, from(23, 23));
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), TYPE);
-        assertEquals(((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor().typeKind(), OBJECT);
-        ObjectTypeSymbol serviceObjectTSymbol = (ObjectTypeSymbol) ((TypeReferenceTypeSymbol) symbol.get())
-                                                    .typeDescriptor();
+        sym = symbol.get();
+        assertEquals(sym.kind(), TYPE);
+        typeSymbol = ((TypeReferenceTypeSymbol) sym).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), OBJECT);
+        ObjectTypeSymbol serviceObjectTSymbol = (ObjectTypeSymbol) typeSymbol;
         assertEquals(serviceObjectTSymbol.qualifiers().size(), 3);
         assertEquals(serviceObjectTSymbol.qualifiers(), List.of(DISTINCT, ISOLATED, SERVICE));
     }
