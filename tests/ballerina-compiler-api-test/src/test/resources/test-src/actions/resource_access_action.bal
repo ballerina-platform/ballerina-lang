@@ -46,35 +46,35 @@ public function testResourceMethods() {
 }
 
 client class Bar {
-    resource function get [string s1]/[string s2]() {}
+   resource function get [string s1]/[string s2]() {}
 }
 
 client class Baz {
-    resource function get [string... ss]() {}
+   resource function get [string... ss]() {}
 }
 
 client class Qux {
-    resource function get path1/path2() {}
+   resource function get path1/path2() {}
 
-    resource function get . () {}
+   resource function get . () {}
 }
 
 public function testResourceAccessActionPath() {
-    Bar barCl = new;
-    Baz bazCl = new;
-    Qux quxCl = new;
+   Bar barCl = new;
+   Baz bazCl = new;
+   Qux quxCl = new;
 
-    barCl->/seg1/seg2();
-    barCl->/[...["seg1", "seg2"]]();
-    barCl->/["seg1"]/["seg2"]();
+   barCl->/seg1/seg2();
+   barCl->/[...["seg1", "seg2"]]();
+   barCl->/["seg1"]/["seg2"]();
 
-    bazCl->/seg1/seg2();
-    bazCl->/[...["seg1", "seg2"]]();
-    bazCl->/["seg1"]/["seg2"]();
+   bazCl->/seg1/seg2();
+   bazCl->/[...["seg1", "seg2"]]();
+   bazCl->/["seg1"]/["seg2"]();
 
-    quxCl->/path1/path2();
-    quxCl->/[...["path1", "path2"]]();
-    quxCl->/["path1"]/["path2"]();
+   quxCl->/path1/path2();
+   quxCl->/[...["path1", "path2"]]();
+   quxCl->/["path1"]/["path2"]();
 
-    quxCl->/(); // Root path
+   quxCl->/(); // Root path
 }
