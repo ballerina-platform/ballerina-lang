@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
@@ -33,8 +32,6 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
-import io.ballerina.runtime.internal.values.HandleValue;
-import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.io.PrintStream;
@@ -77,20 +74,6 @@ public class RuntimeUtils {
             addToArray(type.getElementType(), args[i], array);
         }
         return array;
-    }
-
-    public static HandleValue getListInitialValueEntryArray(long size) {
-        return new HandleValue(new ListInitialValueEntry[(int) size]);
-    }
-
-    public static void setExpressionEntry(HandleValue arrayList, Object element, long index) {
-        ListInitialValueEntry[] arr = (ListInitialValueEntry[]) arrayList.getValue();
-        arr[(int) index] = new ListInitialValueEntry.ExpressionEntry(element);
-    }
-
-    public static void setSpreadEntry(HandleValue arrayList, Object element, long index) {
-        ListInitialValueEntry[] arr = (ListInitialValueEntry[]) arrayList.getValue();
-        arr[(int) index] = new ListInitialValueEntry.SpreadEntry((BArray) element);
     }
 
     public static void addToArray(Type type, String value, ArrayValue array) {

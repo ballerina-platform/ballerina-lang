@@ -58,7 +58,7 @@ import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.BIRGenUtils.rearrangeBasicBlocks;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LARGE_STRUCTURE_UTILS;
 
 /**
  * Split large BIR functions into smaller methods.
@@ -251,7 +251,7 @@ public class LargeMethodOptimizer {
         JMethodCallInstruction callHandleArray = new JMethodCallInstruction(null);
         callHandleArray.lhsOp = handleArrayOperand;
         callHandleArray.invocationType = INVOKESTATIC;
-        callHandleArray.jClassName = RUNTIME_UTILS;
+        callHandleArray.jClassName = LARGE_STRUCTURE_UTILS;
         callHandleArray.jMethodVMSig = "(J)Lio/ballerina/runtime/internal/values/HandleValue;";
         callHandleArray.name = "getListInitialValueEntryArray";
         callHandleArray.args = new ArrayList<>(Arrays.asList(arraySizeOperand));
@@ -756,7 +756,7 @@ public class LargeMethodOptimizer {
                                  TempVarsForArraySplit tempVars) {
         JMethodCallInstruction callSetEntry = new JMethodCallInstruction(null);
         callSetEntry.invocationType = INVOKESTATIC;
-        callSetEntry.jClassName = RUNTIME_UTILS;
+        callSetEntry.jClassName = LARGE_STRUCTURE_UTILS;
         callSetEntry.jMethodVMSig =
                 "(Lio/ballerina/runtime/internal/values/HandleValue;Ljava/lang/Object;J)V";
         tempVars.tempVarsUsed = true;
