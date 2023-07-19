@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -351,6 +352,11 @@ public class SymbolAtCursorTest {
         symbol = model.symbol(srcFile, LinePosition.from(215, 14)).get();
         assertEquals(symbol.kind(), VARIABLE);
         typeSymbol = ((TypeReferenceTypeSymbol) ((VariableSymbol) symbol).typeDescriptor()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), INTERSECTION);
+
+        symbol = model.symbol(srcFile, LinePosition.from(217, 14)).get();
+        typeSymbol =
+                ((UnionTypeSymbol) ((TypeDefinitionSymbol) (symbol)).typeDescriptor()).memberTypeDescriptors().get(0);
         assertEquals(typeSymbol.typeKind(), INTERSECTION);
     }
 }

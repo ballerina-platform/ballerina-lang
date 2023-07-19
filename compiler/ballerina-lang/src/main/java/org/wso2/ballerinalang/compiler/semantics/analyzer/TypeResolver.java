@@ -416,7 +416,7 @@ public class TypeResolver {
         }
     }
 
-    private BType calculateEffectiveType(BLangIdentifier name, BLangType typeNode, BLangType bLangTypeOne,
+    private BType calculateEffectiveType(BLangType typeNode, BLangType bLangTypeOne,
                                          BLangType bLangTypeTwo, BType typeOne, BType typeTwo) {
         BType typeOneReference = Types.getReferredType(typeOne);
         BType typeTwoReference = Types.getReferredType(typeTwo);
@@ -540,7 +540,7 @@ public class TypeResolver {
         // Resolve the type
         ResolverData data = new ResolverData();
         data.modTable = mod;
-        BType type = resolveTypeDesc(symEnv, defn, depth, defn.typeNode, data);
+        BType type = resolveTypeDesc(symEnv, defn, depth, defn.typeNode, data, false);
 
         // Define the typeDefinition. Add symbol, flags etc.
         type = defineTypeDefinition(defn, type, symEnv);
@@ -681,6 +681,11 @@ public class TypeResolver {
 
     private BType resolveTypeDesc(SymbolEnv symEnv, BLangTypeDefinition defn, int depth,
                                   BLangType td, ResolverData data) {
+        return resolveTypeDesc(symEnv, defn, depth, td, data, true);
+    }
+
+    private BType resolveTypeDesc(SymbolEnv symEnv, BLangTypeDefinition defn, int depth,
+                                  BLangType td, ResolverData data, boolean anonymous) {
         SymbolEnv prevEnv = data.env;
         BLangTypeDefinition prevDefn = data.typeDefinition;
         int prevDepth = data.depth;
@@ -718,7 +723,7 @@ public class TypeResolver {
                 resultType = resolveTypeDesc((BLangUnionTypeNode) td, data);
                 break;
             case INTERSECTION_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangIntersectionTypeNode) td, data);
+                resultType = resolveTypeDesc((BLangIntersectionTypeNode) td, data, anonymous);
                 break;
             case USER_DEFINED_TYPE:
                 resultType = resolveTypeDesc((BLangUserDefinedType) td, data);
@@ -1382,7 +1387,7 @@ public class TypeResolver {
         memberTypes.addAll(flattenMemberTypes);
     }
 
-    private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data) {
+    private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data, boolean anonymous) {
         currentDepth = data.depth;
         List<BLangType> constituentTypeNodes = td.constituentTypeNodes;
         LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>();
@@ -1408,10 +1413,11 @@ public class TypeResolver {
         if (errored) {
             return symTable.semanticError;
         }
-
-        BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC,
-                Names.fromString(typeDefinition.name.value), symEnv.enclPkg.symbol.pkgID, null,
-                symEnv.scope.owner, td.pos, BUILTIN);
+        Name name = anonymous ?
+                Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(data.env.enclPkg.packageID)) :
+                Names.fromString(typeDefinition.name.value);
+        BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, name,
+                symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
         BIntersectionType intersectionType = new BIntersectionType(intersectionSymbol);
         intersectionSymbol.type = intersectionType;
         intersectionType.setConstituentTypes(constituentTypes);
@@ -1433,11 +1439,11 @@ public class TypeResolver {
             }
         }
 
-        fillEffectiveType(typeDefinition.name, intersectionType, td, symEnv);
+        fillEffectiveType(intersectionType, td, symEnv);
         return intersectionType;
     }
 
-    private void fillEffectiveType(BLangIdentifier name, BIntersectionType intersectionType,
+    private void fillEffectiveType(BIntersectionType intersectionType,
                                    BLangIntersectionTypeNode td, SymbolEnv env) {
         List<BLangType> constituentTypeNodes = td.constituentTypeNodes;
         Iterator<BLangType> bLangTypeItr = constituentTypeNodes.iterator();
@@ -1458,7 +1464,7 @@ public class TypeResolver {
                 continue;
             }
 
-            effectiveType = calculateEffectiveType(name, td, bLangEffectiveType, bLangType, effectiveType, type);
+            effectiveType = calculateEffectiveType(td, bLangEffectiveType, bLangType, effectiveType, type);
             if (effectiveType.tag == TypeTags.SEMANTIC_ERROR) {
                 intersectionType.effectiveType = symTable.semanticError;
                 return;

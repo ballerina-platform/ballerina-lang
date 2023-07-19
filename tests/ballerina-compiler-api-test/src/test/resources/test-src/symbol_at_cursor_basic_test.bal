@@ -214,3 +214,5 @@ function testTypeofSymbol(error result) {
 public type ReturnValue02 readonly & string;
 
 ReturnValue02 stringVar01 = "ballerina";
+
+public type ReadOnlyPrimitiveUnion readonly & string|int;
