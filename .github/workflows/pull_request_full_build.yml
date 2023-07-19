@@ -133,6 +133,12 @@ jobs:
         with:
           repository: 'ballerina-platform/ballerina-distribution'
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17.0.7'
+
       - name: Checkout Java 17 branch
         run: |
           git fetch origin && git checkout -t origin/java_17_migration
