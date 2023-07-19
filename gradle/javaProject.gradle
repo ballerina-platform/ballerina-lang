@@ -46,7 +46,7 @@ dependencies {
         implementation 'com.google.protobuf:protobuf-java:3.21.7'
         implementation 'com.google.code.findbugs:jsr305:3.0.2'
         implementation 'com.google.code.gson:gson:2.8.9'
-        implementation 'com.google.guava:guava:32.0.0-jre'
+        implementation 'com.google.guava:guava:32.1.1-jre'
         implementation 'com.moandjiezana.toml:toml4j:0.7.2'
         implementation 'com.sun.mail:javax.mail:1.6.2'
         implementation 'com.squareup.okhttp3:okhttp:3.14.9'
