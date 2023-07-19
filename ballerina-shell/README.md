@@ -1,4 +1,7 @@
-# Ballerina Shell
+# Ballerina Shell [Experimental]
+
+Note: This is an experimental feature, which supports only a limited
+set of functionality.
 
 A REPL program for the [ballerina language](https://github.com/ballerina-platform/ballerina-lang). Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
 
