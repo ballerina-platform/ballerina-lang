@@ -5951,6 +5951,9 @@ public class Desugar extends BLangNodeVisitor {
             BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
+                if (varSymbol.closure) {
+                    varRefExpr.symbol.closure = true;
+                }
             }
         }
 
