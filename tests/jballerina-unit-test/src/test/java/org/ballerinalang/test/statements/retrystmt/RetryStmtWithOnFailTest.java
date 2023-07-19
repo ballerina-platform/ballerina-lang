@@ -93,13 +93,12 @@ public class RetryStmtWithOnFailTest {
         CompileResult negativeFile2 = BCompileUtil.compile(
                 "test-src/statements/retrystmt/retry_on_fail_negative_unreachable.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 20, 12);
-        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 21, 16);
-        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 33, 12);
-        BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 36, 7);
-        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 48, 12);
-        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e1'", 66, 12);
-        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'resB'", 81, 6);
+        BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 34, 9);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 35, 15);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e'", 45, 15);
+        BAssertUtil.validateError(negativeFile2, index++, "unreachable code", 48, 9);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'e1'", 62, 15);
+        BAssertUtil.validateWarning(negativeFile2, index++, "unused variable 'resB'", 77, 9);
         Assert.assertEquals(negativeFile2.getDiagnostics().length, index);
     }
 
