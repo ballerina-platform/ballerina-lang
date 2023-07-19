@@ -405,15 +405,15 @@ public class BIRPackageSymbolEnter {
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol =
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
-                        this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
-                        Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
+                                             this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
+                                             Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
         invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         boolean isResourceFunction = dataInStream.readBoolean();
-
+        
         if (this.currentStructure != null) {
             BType attachedType = Types.getReferredType(this.currentStructure.type);
 
@@ -583,8 +583,8 @@ public class BIRPackageSymbolEnter {
 
         defineMarkDownDocAttachment(symbol, docBytes);
         defineAnnotAttachmentSymbols(dataInStream,
-                (isClass || isEnum || symbol.tag == SymTag.TYPE_DEF) ? (Annotatable) symbol :
-                        null);
+                                     (isClass || isEnum || symbol.tag == SymTag.TYPE_DEF) ? (Annotatable) symbol :
+                                             null);
 
         if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
             type.tsymbol.name = symbol.name;
@@ -704,7 +704,7 @@ public class BIRPackageSymbolEnter {
 
         for (int i = 0; i < attachPointCount; i++) {
             attachPoints.add(AttachPoint.getAttachmentPoint(getStringCPEntryValue(dataInStream),
-                    dataInStream.readBoolean()));
+                                                            dataInStream.readBoolean()));
         }
 
         BType annotationType = readBType(dataInStream);
@@ -1112,7 +1112,6 @@ public class BIRPackageSymbolEnter {
      * @since 0.970.0
      */
     private static class BIRPackageSymbolEnv {
-
         PackageID requestedPackageId;
         Map<Integer, byte[]> unparsedBTypeCPs = new HashMap<>();
         BPackageSymbol pkgSymbol;
