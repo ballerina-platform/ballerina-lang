@@ -50,12 +50,8 @@ public class DoStmtsTest {
     @Test(description = "Check not incompatible types.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 15, 12);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible types: expected 'ErrorTypeA', " +
                 "found 'ErrorTypeB'", 15, 12);
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 37, 12);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible types: expected " +
                 "'(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 37, 12);
         Assert.assertEquals(negativeFile1.getDiagnostics().length, index);
@@ -78,16 +74,14 @@ public class DoStmtsTest {
     @Test(description = "Check on fail scope.")
     public void testNegative2() {
         int index = 0;
-        Assert.assertEquals(negativeFile2.getErrorCount(), 5);
         BAssertUtil.validateError(negativeFile2, index++, "type 'string' not allowed here; " +
                 "expected an 'error' or a subtype of 'error'.", 6, 11);
-        BAssertUtil.validateError(negativeFile2, index++, "incompatible error definition " +
-                "type: 'other' will not be matched to 'string'", 8, 12);
         BAssertUtil.validateError(negativeFile2, index++, "incompatible types: expected " +
                 "'other', found 'string'", 8, 12);
         BAssertUtil.validateError(negativeFile2, index++, "invalid error variable; expecting " +
                 "an error type but found 'string' in type definition", 8, 12);
         BAssertUtil.validateError(negativeFile2, index++, "undefined symbol 'd'", 26, 12);
+        Assert.assertEquals(negativeFile2.getErrorCount(), index);
     }
 
     @AfterClass

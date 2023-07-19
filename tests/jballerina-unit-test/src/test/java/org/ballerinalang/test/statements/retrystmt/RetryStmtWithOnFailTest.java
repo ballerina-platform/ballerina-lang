@@ -79,12 +79,8 @@ public class RetryStmtWithOnFailTest {
     @Test(description = "Check not incompatible types.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 14, 14);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible types: " +
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 14, 14);
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 36, 12);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible types: " +
                 "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 36, 12);
         BAssertUtil.validateError(negativeFile1, index++, "invalid error variable; " +

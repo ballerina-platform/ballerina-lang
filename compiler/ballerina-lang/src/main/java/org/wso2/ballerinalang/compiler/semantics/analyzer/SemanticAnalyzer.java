@@ -3907,13 +3907,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
                         onFailVarNode.getBType());
             }
-
-            for (BType errorType : onFailErrTypes.peek()) {
-                if (onFailVarNode.getBType() != null && !types.isAssignable(errorType, onFailVarNode.getBType())) {
-                    dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
-                            onFailVarNode.getBType());
-                }
-            }
         }
 
         onFailErrTypes.pop();
