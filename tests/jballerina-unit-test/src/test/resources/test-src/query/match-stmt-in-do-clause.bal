@@ -118,8 +118,9 @@ function testConstMatchPattern2() {
     assertEquality([1, 2, "a", "x", "x"], result);
 }
 
+const C = "C";
 function testBindingPatternsInMatchStatement() {
-    (anydata|error)[] expected = ["A", 1, 100, [1], [2, 3], [4, 5, 6, 7], [8, [9, 10]],
+    (anydata|error)[] expected = ["A", "C", 1, 100, [1], [2, 3], [4, 5, 6, 7], [8, [9, 10]],
                          {a: 3, b: 20}, {t: {a: 3, b: 20}}, {a: 3, b: 20, c: 40, d: 500},
                          error("Generic Error", code = 20)];
     (anydata|error)[] result = [];
@@ -129,6 +130,10 @@ function testBindingPatternsInMatchStatement() {
             match item {
                 "A" => {
                     result.push("A");
+                }
+                
+                C => {
+                    result.push("C");
                 }
                 
                 100 => {

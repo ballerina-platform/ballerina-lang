@@ -2500,9 +2500,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangMatchClause matchClause) {
         matchClause.matchPatterns.forEach(this::acceptNode);
         this.acceptNode(matchClause.matchGuard);
-        matchClause.declaredVars.forEach((k, v) -> identifiers.putIfAbsent(k, v));
+        Map<String, BSymbol> prevIdentifiers = new HashMap<>(identifiers);
+        identifiers.putAll(matchClause.declaredVars);
         this.acceptNode(matchClause.blockStmt);
-        matchClause.declaredVars.forEach((k, v) -> identifiers.remove(k));
+        identifiers = prevIdentifiers;
     }
 
     @Override
