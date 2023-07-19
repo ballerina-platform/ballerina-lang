@@ -53,7 +53,7 @@ public class ImportFormattingOptions {
     public static class ImportFormattingOptionsBuilder {
         private boolean groupImports = true;
         private boolean sortImports = true;
-        private boolean removeUnusedImports = true;
+        private boolean removeUnusedImports = false;
 
         public ImportFormattingOptions.ImportFormattingOptionsBuilder setGroupImports(boolean groupImports) {
             this.groupImports = groupImports;
