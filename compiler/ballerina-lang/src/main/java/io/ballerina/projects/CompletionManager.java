@@ -22,8 +22,13 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.completion.CompletionContext;
 import io.ballerina.projects.plugins.completion.CompletionException;
@@ -165,9 +170,11 @@ public class CompletionManager {
         return typeDescriptor;
     }
 
-    private boolean isInServiceBodyNodeContext(CompletionContext context, Node referenceNode) {
+    private boolean isInServiceBodyNodeContext(CompletionContext context,
+                                               Node referenceNode) {
         Optional<LinePosition> cursorPosition = context.cursorPosition();
-        if (referenceNode.kind() != SyntaxKind.SERVICE_DECLARATION || cursorPosition.isEmpty()) {
+        if (referenceNode.kind() != SyntaxKind.SERVICE_DECLARATION
+                || cursorPosition.isEmpty()) {
             return false;
         }
 
@@ -184,22 +191,9 @@ public class CompletionManager {
             return false;
         }
 
-        /* Covers
-          service on new http:Listener(9090) {
-
-                r<cursor>
-
-                resource function get test(http:Caller caller, http:Request req) {
-
-                }
-          }
-        */
-        return serviceDeclarationNode.members().stream()
-                .filter(member -> member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION
-                        || member.kind() == SyntaxKind.FUNCTION_DEFINITION)
-                .noneMatch(member -> member.lineRange().startLine().line() <= cursorLine
-                        && cursorLine <= member.lineRange().endLine().line());
-
+        ServiceDeclarationContextValidator validator = new ServiceDeclarationContextValidator(context);
+        validator.visitNode(context.nodeAtCursor());
+        return validator.isValidContext();
     }
 
     /**
@@ -222,6 +216,72 @@ public class CompletionManager {
 
         public CompilerPluginInfo compilerPluginInfo() {
             return compilerPluginInfo;
+        }
+    }
+
+    /**
+     * Visitor to validate the completion context.
+     *
+     */
+    static class ServiceDeclarationContextValidator extends NodeVisitor {
+
+        private CompletionContext context;
+        private boolean isValidContext = false;
+
+        public ServiceDeclarationContextValidator(CompletionContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public void visit(ServiceDeclarationNode serviceDeclarationNode) {
+            isValidContext = true;
+        }
+
+        @Override
+        public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+            simpleNameReferenceNode.parent().accept(this);
+        }
+
+        @Override
+        public void visit(ObjectFieldNode objectFieldNode) {
+            int cursorPosition = context.cursorPosInTree();
+            isValidContext = objectFieldNode.textRange().startOffset() <= cursorPosition
+                    && cursorPosition <= objectFieldNode.textRange().endOffset()
+                    && objectFieldNode.fieldName().isMissing()
+                    && objectFieldNode.equalsToken().isEmpty();
+        }
+
+        @Override
+        public void visit(FunctionDefinitionNode functionDefinitionNode) {
+            int cursorLine = context.cursorPosition().get().line();
+            isValidContext = cursorLine < functionDefinitionNode.lineRange().startLine().line()
+                    || functionDefinitionNode.lineRange().endLine().line() < cursorLine;
+        }
+
+        @Override
+        public void visit(MethodDeclarationNode methodDeclarationNode) {
+            int cursorLine = context.cursorPosition().get().line();
+            isValidContext = cursorLine < methodDeclarationNode.lineRange().startLine().line()
+                    || methodDeclarationNode.lineRange().endLine().line() < cursorLine;
+        }
+
+        @Override
+        protected void visitSyntaxNode(Node node) {
+            //Do nothing
+        }
+
+        public Boolean isValidContext() {
+            return this.isValidContext;
+        }
+
+        public void visitNode(Node node) {
+            if (node.kind() == SyntaxKind.LIST) {
+                if (node.parent() != null) {
+                    node.parent().accept(this);
+                }
+            } else {
+                node.accept(this);
+            }
         }
     }
 
