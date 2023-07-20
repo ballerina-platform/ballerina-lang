@@ -1,4 +1,4 @@
-# Ballerina Shell [Experimental]
+# Ballerina Shell
 
 Note: This is an experimental feature, which supports only a limited
 set of functionality.
