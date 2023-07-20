@@ -57,4 +57,16 @@ public class JLargeArrayInstruction extends JInstruction {
             return new BIROperand[]{sizeOp, values};
         }
     }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        if (operands.length == 3) {
+            this.typedescOp = operands[0];
+            this.sizeOp = operands[1];
+            this.values = operands[2];
+        } else {
+            this.sizeOp = operands[0];
+            this.values = operands[1];
+        }
+    }
 }

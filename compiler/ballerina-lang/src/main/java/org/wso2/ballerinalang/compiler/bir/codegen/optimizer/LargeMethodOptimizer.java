@@ -1540,8 +1540,8 @@ public class LargeMethodOptimizer {
         for (BIRFunctionParameter parameter : birFunction.parameters) {
             funcArgsWithName.put(parameter.name, parameter);
         }
+        Map<BIRVariableDcl, BIROperand> newRhsOperands = new HashMap<>();
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
-            Map<BIRVariableDcl, BIROperand> newRhsOperands = new HashMap<>();
             for (BIRNonTerminator instruction : basicBlock.instructions) {
                 if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {
                     instruction.lhsOp.variableDcl = selfVarDcl;
