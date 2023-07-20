@@ -882,13 +882,20 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
             for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
-                if (Types.getReferredType(memberType).tag != TypeTags.RECORD) {
-                    continue;
+                BLangType typeNode;
+                switch (Types.getReferredType(memberType).tag) {
+                    case TypeTags.RECORD:
+                        typeNode = constant.associatedTypeDefinition.typeNode;
+                        break;
+                    case TypeTags.TUPLE:
+                        typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+                        break;
+                    default:
+                        continue;
                 }
                 BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
                 constant.expr = rewrite(constant.expr,
-                        SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
-                                pkgNode.initFunction.symbol.scope, env));
+                        SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env));
                 BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
                         constant.expr);
                 initFnBody.stmts.add(constInit);
@@ -4632,7 +4639,7 @@ public class Desugar extends BLangNodeVisitor {
         if (type.tag == TypeTags.INTERSECTION) {
             type = ((BIntersectionType) type).effectiveType;
         }
-        
+
         if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 addAsRecordTypeDefinition(memberType, pos);
@@ -5888,7 +5895,8 @@ public class Desugar extends BLangNodeVisitor {
                         continue;
                     }
                 } else {
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = spreadOpType.tag == TypeTags.INTERSECTION ?
+                            (BTupleType) ((BIntersectionType) spreadOpType).effectiveType : (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         i += spreadOpTuple.getMembers().size();
                         continue;
@@ -6428,7 +6436,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
         BType type = Types.getReferredType(invocation.symbol.type);
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
-        
+
         if (invokableTypeSymbol == null) {
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, invocation);
             stmtExpr.setBType(invocation.getBType());
@@ -9503,7 +9511,7 @@ public class Desugar extends BLangNodeVisitor {
             return impConversionExpr;
         }
 
-        int lhsTypeTag = Types.getReferredType(lhsType).tag;    
+        int lhsTypeTag = Types.getReferredType(lhsType).tag;
         if (lhsTypeTag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
             return expr;
         }
