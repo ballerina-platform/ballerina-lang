@@ -196,6 +196,7 @@ public class QueryActionOrExprTest {
 
         BRunUtil.invoke(result, "testConstMatchPattern1");
         BRunUtil.invoke(result, "testConstMatchPattern2");
+        BRunUtil.invoke(result, "testBindingPatternsInMatchStatement");
     }
 
     @AfterClass
