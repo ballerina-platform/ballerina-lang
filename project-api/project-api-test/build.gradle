@@ -45,6 +45,7 @@ dependencies {
     testImplementation project(':ballerina-lang')
     testImplementation project(':ballerina-tools-api')
     testImplementation project(':ballerina-parser')
+    testImplementation project(':toml-parser')
 
     testRuntimeOnly project(':ballerina-runtime')
     testRuntimeOnly project(':project-api-test-artifact:logging-file-appender-plugin')
