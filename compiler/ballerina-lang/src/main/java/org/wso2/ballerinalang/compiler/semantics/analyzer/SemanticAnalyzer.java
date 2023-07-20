@@ -3888,20 +3888,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             BType failErrorType;
-            LinkedHashSet<BType> onFailErrType = onFailErrTypes.peek();
-            boolean isVarTypeHardcoded = false;
-            if (onFailErrType.size() == 1) {
-                failErrorType = onFailErrType.iterator().next();
-            } else if (onFailErrType.size() > 1) {
-                failErrorType = BUnionType.create(null, onFailErrType);
+            LinkedHashSet<BType> currentOnFailErrTypes = onFailErrTypes.peek();
+            if (currentOnFailErrTypes.size() == 1) {
+                failErrorType = currentOnFailErrTypes.iterator().next();
+            } else if (currentOnFailErrTypes.size() > 1) {
+                failErrorType = BUnionType.create(null, currentOnFailErrTypes);
             } else {
-                failErrorType = symTable.errorType;
-                isVarTypeHardcoded = true;
+                failErrorType = symTable.neverType;
             }
 
             // Check on-fail node's variables and set types.
-            handleForeachDefinitionVariables(onFailVarDefNode, failErrorType,
-                    onFailClause.isDeclaredWithVar, isVarTypeHardcoded, onFailEnv);
+            handleForeachDefinitionVariables(onFailVarDefNode, failErrorType, onFailClause.isDeclaredWithVar, true,
+                                             onFailEnv);
             BLangVariable onFailVarNode = (BLangVariable) onFailVarDefNode.getVariable();
 
             if (onFailVarNode.getBType() != null && !types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
@@ -4485,11 +4483,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void handleForeachDefinitionVariables(VariableDefinitionNode variableDefinitionNode, BType varType,
-                                                  boolean isDeclaredWithVar, boolean isVarTypeHardcoded,
-                                                  SymbolEnv blockEnv) {
+                                                  boolean isDeclaredWithVar, boolean onFail, SymbolEnv blockEnv) {
         BLangVariable variableNode = (BLangVariable) variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
+            if (onFail && varType == symTable.neverType) {
+                varType = symTable.errorType;
+            }
+
             // If the foreach node's variables are declared with var, type is `varType`.
             handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
@@ -4498,13 +4499,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Then, if the `varType` was hardcoded as `symtable.errorType`, we swap them and check whether `typeNodeType`
         // is assignable to `symtable.errorType`
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
-        if (isVarTypeHardcoded) {
-            BType sourceType = varType;
-            varType = typeNodeType;
-            typeNodeType = sourceType;
-        }
         // Checking whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
+            if (onFail && varType == symTable.neverType) {
+                varType = typeNodeType;
+            }
             // If assignable, we set types to the variables.
             handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
