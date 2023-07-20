@@ -129,6 +129,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -138,6 +139,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
@@ -234,6 +237,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
@@ -2205,9 +2209,8 @@ public class JvmInstructionGen {
 
     private void loadListInitialValues(JLargeArrayInstruction largeArrayIns) {
         this.loadVar(largeArrayIns.values.variableDcl);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/values/HandleValue", "getValue",
-                "()Ljava/lang/Object;", false);
-        mv.visitTypeInsn(CHECKCAST, "[Lio/ballerina/runtime/api/values/BListInitialValueEntry;");
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
+        mv.visitTypeInsn(CHECKCAST, "[L" + B_LIST_INITIAL_VALUE_ENTRY + ";");
     }
 
     private void createExprEntry(BIRNode.BIRListConstructorEntry initialValueOp) {
