@@ -4,6 +4,7 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -32,6 +33,9 @@ public class PackCommandTest extends BaseCommandTest {
     private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
+    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+            "log_creator_combined_plugin/compiler-plugin.txt");
+
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -44,6 +48,8 @@ public class PackCommandTest extends BaseCommandTest {
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
+        Files.createDirectories(logFile.getParent());
+        Files.writeString(logFile, "");
     }
 
     @Test(description = "Test package command")
@@ -78,6 +84,48 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
+    }
+
+    @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins")
+    public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
+        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources/compiler-plugins");
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im")
+                        .toAbsolutePath().toString());
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im")
+                .toAbsolutePath().toString());
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_modifier_im")
+                .toAbsolutePath().toString());
+
+        Path projectPath = this.testResources.resolve("compiler-plugins").resolve("log_creator_combined_plugin");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String logFileContent =  Files.readString(logFile);
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-analyzer"),
+                "Package provided syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-analyzer"),
+                "In-Built syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-analyzer"),
+                "Package provided source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-analyzer"),
+                "In-Built source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-generator"),
+                "Package provided syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-generator"),
+                "In-Built syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-generator"),
+                "Package provided source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-generator"),
+                "In-Built source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-modifier"),
+                "In-Built syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-modifier"),
+                "In-Built source modifier from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-modifier"),
+                "Package provided syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-modifier"),
+                "Package provided source modifier from code modifier has failed to run");
     }
 
     @Test(description = "Pack an application package")
@@ -174,6 +222,22 @@ public class PackCommandTest extends BaseCommandTest {
                 .resolve("wso2-emptyProjWithCompilerPlugin-any-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
+    }
+
+    @Test(description = "Pack an empty package as a tool")
+    public void testPackEmptyProjectWithTool() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyProjectWithTool");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+                .resolve("wso2-emptyProjWithTool-any-0.1.0.bala").toFile().exists());
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("compile-empty-project-with-tool.txt"));
     }
 
     @Test(description = "Pack an empty package with tests only")
@@ -367,5 +431,12 @@ public class PackCommandTest extends BaseCommandTest {
         packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("WARNING: Package is not verified with GraalVM."));
+    }
+
+    @AfterClass
+    public void cleanUp() throws IOException {
+        Files.deleteIfExists(logFile);
+        Files.deleteIfExists(logFile.getParent());
+        Files.deleteIfExists(logFile.getParent().getParent());
     }
 }

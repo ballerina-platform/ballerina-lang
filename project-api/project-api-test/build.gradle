@@ -43,12 +43,15 @@ dependencies {
     testImplementation 'com.google.code.gson:gson'
     testImplementation project(':ballerina-test-utils')
     testImplementation project(':ballerina-lang')
-    testImplementation project(':toml-parser')
     testImplementation project(':ballerina-tools-api')
     testImplementation project(':ballerina-parser')
+
     testRuntimeOnly project(':ballerina-runtime')
     testRuntimeOnly project(':project-api-test-artifact:logging-file-appender-plugin')
     testRuntimeOnly project(':compiler-plugins:package-semantic-analyzer')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-modifier')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-generator')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
 
     compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
@@ -64,6 +67,9 @@ dependencies {
     compilerPluginJar project(':compiler-plugins:package-semantic-analyzer')
     compilerPluginJar project(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 
     testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
