@@ -14104,7 +14104,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseOnfailOptionalBP() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
-            return STNodeFactory.createEmptyNode();
+            return STAbstractNodeFactory.createEmptyNode();
         } else if (isTypeStartingToken(nextToken.kind)) {
             return parseTypedBindingPattern();
         } else {

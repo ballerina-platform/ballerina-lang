@@ -3910,10 +3910,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             if (kind == NodeKind.ERROR_VARIABLE) {
-                BLangErrorVariable var = (BLangErrorVariable) variableNode;
-                var.symbol = symbolEnter.defineVarSymbol(var.pos, var.flagSet, var.getBType(),
-                                                         Names.fromString(anonModelHelper.getNextErrorVarKey(
-                                                                 onFailEnv.enclPkg.packageID)), onFailEnv, true);
+                BLangErrorVariable errorVar = (BLangErrorVariable) variableNode;
+                errorVar.symbol = symbolEnter.defineVarSymbol(errorVar.pos, errorVar.flagSet, errorVar.getBType(),
+                                                              Names.fromString(anonModelHelper.getNextErrorVarKey(
+                                                                      onFailEnv.enclPkg.packageID)),
+                                                              onFailEnv, true);
             }
         }
 
