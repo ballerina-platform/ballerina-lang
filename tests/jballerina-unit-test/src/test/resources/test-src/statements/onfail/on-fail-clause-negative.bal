@@ -117,3 +117,20 @@ function testOnFailWithMultipleErrors() {
     } on fail var error(msg) {
     }
 }
+
+type Error1 distinct error;
+type Error2 distinct error;
+
+function functionWithCheckpanicInDoClauseNegative() {
+    do {
+        _ = checkpanic fn();
+
+        Error2? x = ();
+        check x;
+
+        fail error("Error");
+    } on fail Error1 e {
+    }
+}
+
+function fn() returns int|Error1 => 1;

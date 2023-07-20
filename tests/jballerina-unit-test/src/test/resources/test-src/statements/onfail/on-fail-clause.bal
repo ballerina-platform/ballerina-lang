@@ -979,6 +979,33 @@ function testMultiLevelOnFailWithoutErrorInOneLevel() {
     assertEquality(testErrorReason, "deadlock condition");
     assertEquality(testMessage, "error!");
 }
+
+type Error distinct error;
+
+function testOnFailWithCheckpanicOfDifferentErrorInDoClause() returns error? {
+    [int, Error]? res = functionWithCheckpanicInDoClause(1);
+    assertTrue(res !is ());
+    [int, Error] [a, b] = checkpanic res.ensureType();
+    assertEquality(1, a);
+    assertEquality("Error", b.message());
+
+    [int, Error]|error? errRes = trap functionWithCheckpanicInDoClause(2);
+    assertTrue(errRes is error && errRes !is Error);
+    error c = <error> errRes;
+    assertEquality("error!", c.message());
+}
+
+function functionWithCheckpanicInDoClause(1|2 val) returns [int, Error]? {
+    do {
+        _ = checkpanic fn(val);
+        fail error Error("Error");
+    } on fail Error e {
+        return [val, e];
+    }
+    return ();
+}
+
+function fn(1|2 val) returns int|error => val == 1 ? 1 : error("error!");
 //-------------------------------------------------------------------------------
 
 type AssertionError error;

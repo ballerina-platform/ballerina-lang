@@ -47,6 +47,11 @@ public class OnFailClauseTest {
         BRunUtil.invoke(result, "testOnFailEdgeTestcases");
     }
 
+    @Test
+    public void testOnFailWithCheckpanicOfDifferentErrorInDoClause() {
+        BRunUtil.invoke(result, "testOnFailWithCheckpanicOfDifferentErrorInDoClause");
+    }
+
     @Test(description = "Test on-fail clause negative cases - v1")
     public void testOnFailClauseNegativeCaseV1() {
         CompileResult negativeResult = BCompileUtil.compile(
@@ -91,6 +96,8 @@ public class OnFailClauseTest {
                 "closed error detail type 'SampleComplexErrorData'", 114, 66);
         BAssertUtil.validateError(negativeResult, i++, "invalid error variable; expecting an error " +
                 "type but found '(SampleComplexError|SampleError)' in type definition", 117, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(Error2|error)', found " +
+                "'Error1'", 132, 15);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
