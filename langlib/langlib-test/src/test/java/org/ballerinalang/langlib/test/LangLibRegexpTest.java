@@ -212,7 +212,7 @@ public class LangLibRegexpTest {
                 {"testNegativeInvalidFlags1"},
                 {"testNegativeInvalidFlags2"},
                 {"testNegativeInvalidFlags3"},
-                {"testNegativeInvalidFlags4"},
+                {"testNegativeInvalidFlags4"}
         };
     }
     
