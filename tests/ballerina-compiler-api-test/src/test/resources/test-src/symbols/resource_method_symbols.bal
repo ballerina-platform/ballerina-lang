@@ -38,6 +38,9 @@ client class BookService {
         return true;
     }
 
+    resource function post [float... fl]() {
+    }
+
     resource function get [string...]() {
     }
 

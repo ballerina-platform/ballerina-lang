@@ -19,6 +19,9 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaPathParameterSymbol;
+import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaDotResourcePath;
+import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathRestParam;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathSegmentList;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
@@ -42,6 +45,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBas
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -76,11 +80,9 @@ public class SymbolsInResourceMethodsTest {
                 {24, 45, "names", SymbolKind.PATH_PARAMETER},
                 {32, 52, "isbn", SymbolKind.PATH_PARAMETER},
                 {32, 80, "Book", SymbolKind.TYPE},
-
-                {17, 26, ".", SymbolKind.PATH_PARAMETER},   // TODO: Root path is not a path param
                 {36, 27, null, SymbolKind.PATH_PARAMETER},
-                {40, 36, null, SymbolKind.PATH_PARAMETER},
-
+                {40, 37, "fl", SymbolKind.PATH_PARAMETER},
+                {43, 36, null, SymbolKind.PATH_PARAMETER},
         };
     }
 
@@ -105,7 +107,7 @@ public class SymbolsInResourceMethodsTest {
     }
 
     @Test
-    public void testPathSegmentsInResourceMethod1() {
+    public void testPathSegmentsInResourceMethod() {
         Object[][] expPathSegments = new Object[][]{
                 {"registered", PathSegment.Kind.NAMED_SEGMENT},
                 {"isbn", PathSegment.Kind.PATH_PARAMETER},
@@ -135,7 +137,7 @@ public class SymbolsInResourceMethodsTest {
     }
 
     @Test
-    public void testPathSegmentsInResourceMethod2() {
+    public void testPathSegmentsInResourceMethodWithTypeOnlyPathParam() {
         Object[][] expPathSegments = new Object[][]{
                 {null, PathSegment.Kind.PATH_PARAMETER},
                 {"author", PathSegment.Kind.PATH_PARAMETER},
@@ -156,15 +158,45 @@ public class SymbolsInResourceMethodsTest {
     }
 
     @Test
-    public void testPathSegmentsInResourceMethod3() {
-        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, 40, 22, "get", SymbolKind.RESOURCE_METHOD);
+    public void testResourceMethodWithRestPathParam() {
+        // function post [float... fl] ()
+        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, 40, 22, "post", SymbolKind.RESOURCE_METHOD);
         ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol) symbol;
         ResourcePath resourcePath = resourceMethod.resourcePath();
-        assertEquals(resourcePath.kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        assertEquals(resourcePath.kind(), ResourcePath.Kind.PATH_REST_PARAM);
+        BallerinaPathParameterSymbol restPathParam = (BallerinaPathParameterSymbol)
+                ((BallerinaPathRestParam) resourcePath).parameter();
+        assertFalse(restPathParam.isTypeOnlyParam());
+        assertTrue(restPathParam.getName().isPresent());
+        assertEquals(restPathParam.getName().get(), "fl");
+        TypeSymbol typeDesc = restPathParam.typeDescriptor();
+        assertEquals(typeDesc.typeKind(), TypeDescKind.ARRAY);
+    }
 
-        List<PathSegment> pathSegments = ((BallerinaPathSegmentList) resourcePath).list();
-        assertEquals(pathSegments.size(), 1);
-        assertPathSegment(pathSegments.get(0), "$^^", PathSegment.Kind.NAMED_SEGMENT);
+    @Test
+    public void testResourceMethodWithTypeOnlyRestPathParam() {
+        // function get [string...] ()
+        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, 43, 22, "get", SymbolKind.RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol) symbol;
+        ResourcePath resourcePath = resourceMethod.resourcePath();
+        assertEquals(resourcePath.kind(), ResourcePath.Kind.PATH_REST_PARAM);
+        BallerinaPathParameterSymbol restPathParam = (BallerinaPathParameterSymbol)
+                ((BallerinaPathRestParam) resourcePath).parameter();
+        assertTrue(restPathParam.isTypeOnlyParam());
+        assertTrue(restPathParam.getName().isEmpty());
+        TypeSymbol typeDesc = restPathParam.typeDescriptor();
+        assertEquals(typeDesc.typeKind(), TypeDescKind.STRING);
+    }
+
+    @Test
+    public void testResourceMethodWithDotPath() {
+        // function get .()
+        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, 17, 22, "get", SymbolKind.RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol) symbol;
+        ResourcePath resourcePath = resourceMethod.resourcePath();
+        assertEquals(resourcePath.kind(), ResourcePath.Kind.DOT_RESOURCE_PATH);
+        BallerinaDotResourcePath dotResourcePath = (BallerinaDotResourcePath) resourcePath;
+        assertEquals(dotResourcePath.signature(), ".");
     }
 
     private void assertPathSegment(PathSegment pathSegment, String expName, PathSegment.Kind expKind) {

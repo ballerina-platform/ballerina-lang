@@ -49,6 +49,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
     private static final String DOT_RESOURCE_PATH = ".";
     private static final String PATH_PARAM = "^";
     private static final String PATH_REST_PARAM = "^^";
+    private static final String TYPE_ONLY_PATH_REST_PARAM = "$^^";
 
     private final CompilerContext context;
     private final BInvokableSymbol internalSymbol;
@@ -83,6 +84,9 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
                 break;
             case PATH_REST_PARAM:
                 this.resourcePath = new BallerinaPathRestParam(resourceFn.restPathParam, this.context);
+                break;
+            case TYPE_ONLY_PATH_REST_PARAM:
+                this.resourcePath = new BallerinaPathRestParam(pathSegmentSymbols.get(0), this.context);
                 break;
             default:
                 this.resourcePath = new BallerinaPathSegmentList(resourceFn.pathSegmentSymbols, resourceFn.pathParams,
