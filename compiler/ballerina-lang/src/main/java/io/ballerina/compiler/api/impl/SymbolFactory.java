@@ -486,17 +486,17 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        return new BallerinaPathParameterSymbol(pathKind, symbol, this.context);
+        return this.createPathParamSymbol(symbol, pathKind, false);
     }
 
     /**
      * Create a name-less path param symbol.
      *
-     * @param symbol {@link BResourcePathSegmentSymbol} to convert
+     * @param symbol {@link BSymbol} to convert
      * @param pathKind {@link PathSegment.Kind} path segment kind
      * @return {@link BallerinaPathParameterSymbol} generated
      */
-    public PathParameterSymbol createPathParamSymbol(BResourcePathSegmentSymbol symbol, PathSegment.Kind pathKind,
+    public PathParameterSymbol createPathParamSymbol(BSymbol symbol, PathSegment.Kind pathKind,
                                                      boolean isTypeOnly) {
         return new BallerinaPathParameterSymbol(pathKind, symbol, this.context, isTypeOnly);
     }

@@ -51,7 +51,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * Test cases for symbols in resource methods.
  *
- * @since 2201.6.0
+ * @since 2201.8.0
  */
 public class SymbolsInResourceMethodsTest {
 
