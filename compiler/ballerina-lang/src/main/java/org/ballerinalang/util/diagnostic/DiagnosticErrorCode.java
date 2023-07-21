@@ -810,7 +810,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
     NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param"),
 
-    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCS4053", "invalid.binding.pattern.in.on.fail")
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4053", "invalid.binding.pattern.in.on.fail")
     ;
 
     private String diagnosticId;
