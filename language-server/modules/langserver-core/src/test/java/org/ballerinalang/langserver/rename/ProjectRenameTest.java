@@ -39,6 +39,7 @@ public class ProjectRenameTest extends AbstractRenameTest {
         return new Object[][]{
                 {"rename_class_result.json", "Student"},
                 {"rename_function_result.json", "getStudents"},
+                {"rename_function_named_arg_result.json", "firstName"},
                 {"rename_global_var_result.json", "path"},
                 {"rename_error_config1.json", "Mod2Error"},
                 {"rename_error_config2.json", "Mod2Error"},
