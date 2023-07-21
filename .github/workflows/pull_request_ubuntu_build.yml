@@ -15,7 +15,6 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
-      - on-fail-error-bp
 
 jobs:
   ubuntu_build:
