@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -6467,7 +6468,7 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            BInvokableSymbol invokableSymbol = defaultValues.get(paramName);
+            BInvokableSymbol invokableSymbol = defaultValues.get(Utils.unescapeBallerina(paramName));
             BLangInvocation closureInvocation = getInvocation(invokableSymbol);
             for (int m = 0; m < invokableSymbol.params.size(); m++) {
                 String langLibFuncParam = invokableSymbol.params.get(m).name.value;
