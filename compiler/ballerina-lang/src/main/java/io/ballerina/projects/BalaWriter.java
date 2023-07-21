@@ -193,10 +193,8 @@ public abstract class BalaWriter {
 
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
         PackageManifest.Platform platform = packageManifest.platform(target);
-
         if (platform != null) {
             Boolean graalvmCompatible = platform.graalvmCompatible();
-
             if (graalvmCompatible != null) {
                 // If the package explicitly specifies the graalvmCompatibility property, then use it
                 packageJson.setGraalvmCompatible(graalvmCompatible);
@@ -204,8 +202,9 @@ public abstract class BalaWriter {
                 // If the package uses only distribution provided platform libraries, then package is graalvm compatible
                 packageJson.setGraalvmCompatible(true);
             }
-        } else if (!AnyTarget.ANY.code().equals(target)) {
-            // If the package uses only distribution provided platform libraries, then the package is graalvm compatible
+        } else {
+            // If the package uses only distribution provided platform libraries
+            // or has only ballerina dependencies, then the package is graalvm compatible
             packageJson.setGraalvmCompatible(true);
         }
     }
