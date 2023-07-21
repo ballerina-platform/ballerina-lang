@@ -1112,7 +1112,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpType = checkConstExpr(spreadOpExpr, data);
-                spreadOpType = Types.getEffectiveType(Types.getReferredType(spreadOpType));
+                spreadOpType = Types.getReferredType(spreadOpType);
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
