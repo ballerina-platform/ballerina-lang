@@ -17,12 +17,6 @@
  */
 package org.ballerinalang.observability.anaylze.model;
 
-import com.google.gson.JsonElement;
-import io.ballerina.projects.ModuleDescriptor;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Hold data related to a package.
