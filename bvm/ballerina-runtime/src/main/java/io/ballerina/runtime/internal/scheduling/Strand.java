@@ -126,7 +126,7 @@ public class Strand {
             Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
             if (currentContext != null) {
                 TransactionLocalContext branchedContext =
-                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                        createTrxContextBranch((TransactionLocalContext) currentContext, this.id);
                 setCurrentTransactionContext(branchedContext);
             }
         }
@@ -137,7 +137,7 @@ public class Strand {
     }
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
-                                                           String strandName) {
+                                                           int strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(currentTrxContext.getGlobalTransactionId(),
                         currentTrxContext.getURL(), currentTrxContext.getProtocol(),
