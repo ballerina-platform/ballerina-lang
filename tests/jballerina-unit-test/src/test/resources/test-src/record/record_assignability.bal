@@ -1,4 +1,4 @@
-// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.com).
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -85,17 +85,17 @@ type R11 record {|
 function testRecordToRecordWithOptionalFieldTypingRuntimePositive() {
     R9 a = {};
     R8 _ = a; // OK
-    assertTrue(<any> a is R8);
+    assertTrue(<any>a is R8);
 
     record {| int x?; |} b = {};
-    assertTrue(<any> b is R8);
+    assertTrue(<any>b is R8);
 
     record {| int x?; never...; |} c = {};
-    assertTrue(<any> c is R8);
+    assertTrue(<any>c is R8);
 
     R9[] d = [];
     R8[] _ = d; // OK
-    assertTrue(<any> d is R8[]);
+    assertTrue(<any>d is R8[]);
 
     record {| readonly int? b; int...; |} e = {b: 1};
     assertTrue(e is record { int a?; int b; });

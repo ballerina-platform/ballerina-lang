@@ -208,7 +208,7 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
                 "'record {| |} & readonly', found 'record {| int x; never?...; |}'", 258, 25);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
-                "'record {| int x; never...; |}', found 'record {| |} & readonly'", 261, 41);
+                "'record {| int x; never...; |}', found 'record {| |} & readonly'", 261, 40);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'record {| never i?; " +
                 "anydata...; |}', found 'record {| never?...; |}'", 264, 28);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +

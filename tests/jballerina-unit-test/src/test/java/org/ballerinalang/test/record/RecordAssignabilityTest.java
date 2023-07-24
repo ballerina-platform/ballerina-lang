@@ -92,7 +92,7 @@ public class RecordAssignabilityTest {
         validateError(negativeResult, i++, "incompatible types: expected 'R1', found 'record {| int...; |}'", 66, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'R3', found 'record {| int...; |}'", 67, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'record {| int a?; int b; anydata...; |}', " +
-                "found 'record {| readonly int? b; int...; |}'", 70, 35);
+                "found 'record {| readonly int? b; int...; |}'", 70, 33);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 }

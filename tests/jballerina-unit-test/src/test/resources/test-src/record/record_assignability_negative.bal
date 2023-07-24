@@ -59,13 +59,13 @@ function testOpenRecordToRecordWithIncompatibleOptionalFieldTyping() {
     R2 r1 = {x: 1, "y": 10};
     R1 _ = r1;
 
-    record {| int|string...; |} r2 = {};
+    record {|int|string...;|} r2 = {};
     R1 _ = r2;
 
-    record {| int...; |} r3 = {};
+    record {|int...;|} r3 = {};
     R1 _ = r3;
     R3 _ = r3;
 
-    record {| readonly int? b; int...; |} r4 = {b: 1};
-    record { int a?; int b; } _ = r4;
+    record {|readonly int? b; int...;|} r4 = {b: 1};
+    record {int a?; int b;} _ = r4;
 }
