@@ -314,12 +314,12 @@ public class RunTestsTask implements Task {
                     + "=destfile="
                     + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                     .resolve(TesterinaConstants.EXEC_FILE_NAME);
-            if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.includesInCoverage == null) {
-                // add user defined classes for generating the jacoco exec file
-                agentCommand += ",includes=" + orgName + ".*";
-            } else {
-                agentCommand += ",includes=" + this.includesInCoverage;
-            }
+//            if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.includesInCoverage == null) {
+//                // add user defined classes for generating the jacoco exec file
+//                agentCommand += ",includes=" + orgName + ".*";
+//            } else {
+//                agentCommand += ",includes=" + this.includesInCoverage;
+//            }
 
             if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
                 if (!this.excludesInCoverage.equals("")) {
