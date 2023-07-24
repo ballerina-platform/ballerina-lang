@@ -81,6 +81,12 @@ public class CodegenErrorsTest {
     }
 
     @Test
+    public void testLargeMethods3() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods3");
+        BRunUtil.runMain(result);
+    }
+
+    @Test
     public void testLargeNumberOfListeners() {
         CompileResult compileResult = BCompileUtil.compile("test-src/jvm/large-number-of-listeners.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
