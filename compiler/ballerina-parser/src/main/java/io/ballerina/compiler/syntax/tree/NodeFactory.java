@@ -3081,6 +3081,23 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stGroupingKeyVarDeclarationNode.createUnlinkedFacade();
     }
 
+    /**
+     * @deprecated Use {@link #createOnFailClauseNode(Token, Token, TypedBindingPatternNode, BlockStatementNode)}
+     * instead.
+     */
+    @Deprecated
+    public static OnFailClauseNode createOnFailClauseNode(
+            Token onKeyword,
+            Token failKeyword,
+            TypeDescriptorNode typeDescriptor,
+            IdentifierToken failErrorName,
+            BlockStatementNode blockStatement) {
+        return createOnFailClauseNode(onKeyword, failKeyword,
+                                      createTypedBindingPatternNode(typeDescriptor,
+                                                                    createCaptureBindingPatternNode(failErrorName)),
+                                      blockStatement);
+    }
+
     public static OnFailClauseNode createOnFailClauseNode(
             Token onKeyword,
             Token failKeyword,
