@@ -105,6 +105,10 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(DOC_COMMAND);
@@ -214,7 +218,8 @@ public class DocCommand implements BLauncherCmd {
                 .setCodeCoverage(false)
                 .setOffline(offline)
                 .setTestReport(false)
-                .setObservabilityIncluded(false);
+                .setObservabilityIncluded(false)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
 
         if (targetDir != null) {

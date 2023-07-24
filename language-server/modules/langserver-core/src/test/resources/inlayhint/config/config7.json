@@ -1,0 +1,25 @@
+{
+  "range": {
+    "start": {
+      "line": 10,
+      "character": 29
+    },
+    "end": {
+      "line": 10,
+      "character": 37
+    }
+  },
+  "source": "source/inlayhint7.bal",
+  "result": [
+    {
+      "position": {
+        "line": 10,
+        "character": 29
+      },
+      "label": {
+        "left": "kind: "
+      }
+    }
+  ],
+  "description": "inlay hints for rest arguments"
+}

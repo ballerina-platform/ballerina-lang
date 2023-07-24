@@ -119,7 +119,7 @@ public class ConfigReader {
         populateConfigVars(packageSymbol, configVars);
         if (!packageSymbol.imports.isEmpty()) {
             for (BPackageSymbol importSymbol : packageSymbol.imports) {
-                populateConfigVars(importSymbol, configVars);
+                configVars.addAll(getValidConfigs(importSymbol));
             }
         }
         return configVars;
