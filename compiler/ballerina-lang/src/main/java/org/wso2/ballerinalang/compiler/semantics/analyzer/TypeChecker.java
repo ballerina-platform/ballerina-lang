@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCheckedOnFailSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -103,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -6017,6 +6019,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         visitCheckAndCheckPanicExpr(checkedExpr, data);
+    }
+
+    @Override
+    public void visit(BLangCheckedOnFailExpr checkedOnFailExpr, AnalyzerData data) {
+        BCheckedOnFailSymbol checkOnFailSymbol = new BCheckedOnFailSymbol(SymTag.CHECKED_ON_FAIL,
+                Flags.asMask(new HashSet<>(Lists.of())),
+                new Name(String.format("$checked_on_fail_symbol_%d$", data.commonAnalyzerData.letCount++)),
+                data.env.enclPkg.symbol.pkgID, checkedOnFailExpr.getBType(), data.env.scope.owner,
+                checkedOnFailExpr.pos);
+        data.env = SymbolEnv.createExprEnv(checkedOnFailExpr, data.env, checkOnFailSymbol);
+        setErrorVariableTypeInCheckedOnFailExpr(checkedOnFailExpr.simpleVariable, symTable.errorType, data);
+        checkExpr(checkedOnFailExpr.checkedExpr, data);
+        checkExpr(checkedOnFailExpr.errorConstructorExpr, data);
+        data.resultType = types.checkType(checkedOnFailExpr, checkedOnFailExpr.checkedExpr.getBType(), data.expType);
+    }
+
+    private void setErrorVariableTypeInCheckedOnFailExpr(BLangSimpleVariable variable, BType type, AnalyzerData data) {
+        variable.setBType(type);
+        symbolEnter.defineNode(variable, data.env);
     }
 
     @Override

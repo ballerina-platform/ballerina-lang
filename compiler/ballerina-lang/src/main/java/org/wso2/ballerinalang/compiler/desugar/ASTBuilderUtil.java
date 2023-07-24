@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
@@ -1050,5 +1051,12 @@ public class ASTBuilderUtil {
         flagExpr.flags = ASTBuilderUtil.createLiteral(pos, valueType, "");
         flagExpr.setBType(exprType);
         return flagExpr;
+    }
+
+    static BLangFail createFailNode(Location pos, BLangExpression expr) {
+        BLangFail failNode = (BLangFail) TreeBuilder.createFailNode();
+        failNode.pos = pos;
+        failNode.expr = expr;
+        return failNode;
     }
 }

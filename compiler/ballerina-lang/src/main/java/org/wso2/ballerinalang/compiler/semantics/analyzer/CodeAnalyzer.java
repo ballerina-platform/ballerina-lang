@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -3236,6 +3237,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
+    public void visit(BLangCheckedOnFailExpr checkedOnFailExpr, AnalyzerData data) {
+        analyzeExpr(checkedOnFailExpr.checkedExpr, data);
+        analyzeNode(checkedOnFailExpr.simpleVariable, data);
+        analyzeExpr(checkedOnFailExpr.errorConstructorExpr, data);
+    }
+
+    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr, AnalyzerData data) {
     }
 
@@ -3489,7 +3497,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return  currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
                 (currentParent.getKind() == NodeKind.VARIABLE &&
                         ((BLangSimpleVariable) data.parent).typeNode.getBType().tag == TypeTags.FUTURE)
-                || currentParent.getKind() == NodeKind.TRAP_EXPR;
+                || currentParent.getKind() == NodeKind.TRAP_EXPR
+                || currentParent.getKind() == NodeKind.CHECKED_ON_FAIL_EXPR;
     }
 
     @Override

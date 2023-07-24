@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -741,6 +742,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangCheckedExpr checkedExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
         throw new AssertionError();
     }
 

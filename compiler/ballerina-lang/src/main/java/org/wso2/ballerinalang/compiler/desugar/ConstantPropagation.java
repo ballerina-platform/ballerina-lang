@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1194,6 +1195,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
         rewrite(reFlagExpression.flagsOnOff);
         rewrite(reFlagExpression.colon);
         result = reFlagExpression;
+    }
+
+    public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
+        rewrite(checkedOnFailExpr.checkedExpr);
+        rewrite(checkedOnFailExpr.simpleVariable);
+        rewrite(checkedOnFailExpr.errorConstructorExpr);
+        result = checkedOnFailExpr;
     }
 
     @SuppressWarnings("unchecked")
