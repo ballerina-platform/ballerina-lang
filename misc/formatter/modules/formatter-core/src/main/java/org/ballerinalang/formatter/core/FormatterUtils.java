@@ -66,6 +66,11 @@ class FormatterUtils {
         return true;
     }
 
+    /**
+     * Sort ImportDeclaration nodes based on orgName and the moduleName in-place.
+     *
+     * @param importDeclarationNodes ImportDeclarations nodes
+     */
     static void sortImportDeclarations(List<ImportDeclarationNode> importDeclarationNodes) {
         importDeclarationNodes.sort((node1, node2) -> new CompareToBuilder()
                 .append(node1.orgName().isPresent() ? node1.orgName().get().orgName().text() : "",

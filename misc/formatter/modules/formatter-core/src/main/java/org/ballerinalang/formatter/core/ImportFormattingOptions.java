@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.ballerinalang.formatter.core;
 /**
  * A model for formatting and optimizing imports by the API user, that could be passed onto the formatter.
  *
- * @since 2201.4.0
+ * @since 2201.8.0
  */
 public class ImportFormattingOptions {
     private boolean groupImports;

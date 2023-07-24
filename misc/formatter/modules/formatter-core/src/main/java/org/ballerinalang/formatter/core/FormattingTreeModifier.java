@@ -286,9 +286,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ModulePartNode transform(ModulePartNode modulePartNode) {
-        NodeList<ImportDeclarationNode> imports = options.getOptimizeImports() ?
-                sortAndGroupImportDeclarationNodes(modulePartNode.imports()) :
-                formatNodeList(modulePartNode.imports(), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> imports = sortAndGroupImportDeclarationNodes(modulePartNode.imports());
         NodeList<ModuleMemberDeclarationNode> members = formatModuleMembers(modulePartNode.members());
         Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
         return modulePartNode.modify(imports, members, eofToken);
