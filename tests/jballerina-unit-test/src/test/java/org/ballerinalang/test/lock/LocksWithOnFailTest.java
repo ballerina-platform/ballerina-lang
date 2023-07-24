@@ -36,18 +36,16 @@ import static org.testng.Assert.assertTrue;
 
 /**
  * Tests for Ballerina locks with on fail clause.
-  *
+ *
  * @since 0.961.0
  */
 public class LocksWithOnFailTest {
 
-    private CompileResult compileResult, compileResultNegative;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-
         compileResult = BCompileUtil.compile("test-src/lock/lock-on-fail.bal");
-        compileResultNegative = BCompileUtil.compile("test-src/lock/lock-on-fail-negative.bal");
     }
 
     @Test(description = "Tests lock within a lock")
@@ -108,15 +106,15 @@ public class LocksWithOnFailTest {
 
     @Test(description = "Check incompatible types.")
     public void testNegative() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/lock/lock-on-fail-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(compileResultNegative, i++, "invalid error variable; expecting an " +
+        BAssertUtil.validateError(resultNegative, i++, "invalid error variable; expecting an " +
                 "error type but found '(SampleComplexError|SampleError)' in type definition", 39, 15);
-        Assert.assertEquals(compileResultNegative.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @AfterClass
     public void tearDown() {
         compileResult = null;
-        compileResultNegative = null;
     }
 }

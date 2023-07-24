@@ -31,15 +31,13 @@ import org.testng.annotations.Test;
  */
 public class DoStmtsTest {
 
-    private CompileResult programFile, negativeFile1, negativeFile2, negativeFile3;
+    private CompileResult programFile, negativeFile1, negativeFile2;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/dostatement/do-stmt.bal");
         negativeFile1 = BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative-1.bal");
         negativeFile2 = BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative-2.bal");
-        negativeFile3 =
-                BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative-unreachable.bal");
     }
 
     @Test
@@ -59,16 +57,18 @@ public class DoStmtsTest {
 
     @Test(description = "Check unreachable statements.")
     public void testNegativeUnreachable() {
+        CompileResult negativeRes =
+                BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative-unreachable.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeFile3, index++, "unreachable code", 15, 6);
-        BAssertUtil.validateWarning(negativeFile3, index++, "unused variable 'e'", 17, 12);
-        BAssertUtil.validateWarning(negativeFile3, index++, "unused variable 'e'", 30, 12);
-        BAssertUtil.validateWarning(negativeFile3, index++, "unused variable 'e'", 43, 12);
-        BAssertUtil.validateWarning(negativeFile3, index++, "unused variable 'e'", 57, 12);
-        BAssertUtil.validateError(negativeFile3, index++, "unreachable code", 60, 7);
-        BAssertUtil.validateError(negativeFile3, index++, "unreachable code", 72, 3);
-        BAssertUtil.validateError(negativeFile3, index++, "this function must return a result", 73, 1);
-        Assert.assertEquals(negativeFile3.getDiagnostics().length, index);
+        BAssertUtil.validateError(negativeRes, index++, "unreachable code", 15, 6);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 17, 12);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 30, 12);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 43, 12);
+        BAssertUtil.validateWarning(negativeRes, index++, "unused variable 'e'", 57, 12);
+        BAssertUtil.validateError(negativeRes, index++, "unreachable code", 60, 7);
+        BAssertUtil.validateError(negativeRes, index++, "unreachable code", 72, 3);
+        BAssertUtil.validateError(negativeRes, index++, "this function must return a result", 73, 1);
+        Assert.assertEquals(negativeRes.getDiagnostics().length, index);
     }
 
     @Test(description = "Check on fail scope.")
@@ -89,6 +89,5 @@ public class DoStmtsTest {
         programFile = null;
         negativeFile1 = null;
         negativeFile2 = null;
-        negativeFile3 = null;
     }
 }

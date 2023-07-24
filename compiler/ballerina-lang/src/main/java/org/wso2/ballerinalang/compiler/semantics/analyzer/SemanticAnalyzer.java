@@ -4496,8 +4496,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
         // If the type node is available, we get the type from it.
-        // Then, if the `varType` was hardcoded as `symtable.errorType`, we swap them and check whether `typeNodeType`
-        // is assignable to `symtable.errorType`
         BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
         // Checking whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {

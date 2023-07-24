@@ -34,16 +34,11 @@ import org.testng.annotations.Test;
  */
 public class MatchStatementOnFailTest {
 
-    private CompileResult result, resultNegative1, resultNegative2;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail.bal");
-        resultNegative1 =
-                BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail_negative.bal");
-        resultNegative2 =
-                BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail" +
-                        "_negative_unreachable.bal");
     }
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
@@ -108,33 +103,35 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Check incompatible types.")
     public void testNegative1() {
+        CompileResult resultNegative =
+                BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 30, 15);
-        BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
                 "expected 'ErrorTypeA', found 'ErrorTypeB'", 59, 15);
-        BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: " +
                 "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeB'", 94, 15);
-        BAssertUtil.validateError(resultNegative1, i++, "invalid error variable; expecting an error " +
+        BAssertUtil.validateError(resultNegative, i++, "invalid error variable; expecting an error " +
                 "type but found '(SampleComplexError|SampleError)' in type definition", 125, 15);
-        Assert.assertEquals(resultNegative1.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Check reachable statements.")
     public void testNegative2() {
+        CompileResult resultNegative =
+                BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail_negative_unreachable.bal");
         int i = -1;
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 29, 14);
-        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'e'", 31, 15);
-        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'err'", 57, 14);
-        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'e'", 60, 15);
-        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 62, 9);
-        Assert.assertEquals(resultNegative2.getDiagnostics().length, i + 1);
+        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 31, 15);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 57, 14);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 60, 15);
+        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 62, 9);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i + 1);
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
-        resultNegative1 = null;
-        resultNegative2 = null;
     }
 }

@@ -39,7 +39,6 @@ public class WhileStmtTest {
     private CompileResult negativeCompileResult;
     private CompileResult onfailCompileResult;
     private CompileResult onfailNegativeCompileResult;
-    private CompileResult onfailNegativeUnreachableCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -48,8 +47,6 @@ public class WhileStmtTest {
         onfailCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail.bal");
         onfailNegativeCompileResult = BCompileUtil.compile(
                 "test-src/statements/whilestatement/while-stmt-on-fail-negative.bal");
-        onfailNegativeUnreachableCompileResult = BCompileUtil.compile(
-                "test-src/statements/whilestatement/while-stmt-on-fail-negative-reachability.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
@@ -260,6 +257,8 @@ public class WhileStmtTest {
 
     @Test(description = "Check unreachable statements.")
     public void testNegative2() {
+        CompileResult onfailNegativeUnreachableCompileResult = BCompileUtil.compile(
+                "test-src/statements/whilestatement/while-stmt-on-fail-negative-reachability.bal");
         int index = 0;
         BAssertUtil.validateError(onfailNegativeUnreachableCompileResult, index++,
                 "unreachable code", 17, 6);
