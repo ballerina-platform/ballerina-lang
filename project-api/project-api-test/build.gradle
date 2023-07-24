@@ -48,6 +48,9 @@ dependencies {
     testRuntime project(':ballerina-runtime')
     testRuntime project(':project-api-test-artifact:logging-file-appender-plugin')
     testRuntime project(':compiler-plugins:package-semantic-analyzer')
+    testRuntime project(':project-api-test-artifact:log-creator-in-built-code-modifier')
+    testRuntime project(':project-api-test-artifact:log-creator-in-built-code-generator')
+    testRuntime project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
 
     compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
@@ -63,6 +66,9 @@ dependencies {
     compilerPluginJar project(':compiler-plugins:package-semantic-analyzer')
     compilerPluginJar project(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 
     testRuntime project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
