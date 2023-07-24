@@ -1,0 +1,10 @@
+[package]
+org = "foo"
+name = "tool_test"
+version = "1.0.1"
+export = ["tool_test"]
+distribution = "2201.6.0-SNAPSHOT"
+template = true
+
+[build-options]
+observabilityIncluded = true

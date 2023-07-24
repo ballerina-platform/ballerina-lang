@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -27,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -34,6 +37,8 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,10 +81,44 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
             ruleContext = RuleContext.PARAMETER_CTX;
         } else if (this.withinReturnKWContext(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
+        } else if (node.parent().kind() == SyntaxKind.OBJECT_FIELD) {
+            /* Covers the completions for init function in object constructor or class definition
+             * eg: object { function <cursor> }
+             *     object { public function <cursor> }
+             */
+            SnippetCompletionItem initFuncCompletionItem =
+                    new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get());
+            Token funcKW = node.functionKeyword();
+            int endOffset = getEndPosWithoutNewLine(funcKW);
+            Range range = PositionUtil.toRange(funcKW.textRange().startOffset(), endOffset,
+                    context.currentDocument().get().textDocument());
+            TextEdit textEdit = new TextEdit(range, "");
+            initFuncCompletionItem.getCompletionItem().setAdditionalTextEdits(List.of(textEdit));
+            completionItems.add(initFuncCompletionItem);
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         }
         this.sort(context, node, completionItems, ruleContext);
 
         return completionItems;
+    }
+
+    private int getEndPosWithoutNewLine(Token token) {
+        /* Purpose of this method to handle the following scenario specially
+         * eg: object { function<cursor> }
+         * If we have single trailing minutiae, and it is a new line, then we need to consider `function` keyword as
+         * an existing token.
+         */
+        int end = token.textRangeWithMinutiae().endOffset();
+        MinutiaeList minutiaeList = token.trailingMinutiae();
+        int size = minutiaeList.size();
+        if (size == 0) {
+            return end;
+        }
+        Minutiae lastMinutiae = minutiaeList.get(size - 1);
+        if (lastMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+            return size == 1 ? token.textRange().startOffset() : end - 1;
+        }
+        return end;
     }
 
     @Override

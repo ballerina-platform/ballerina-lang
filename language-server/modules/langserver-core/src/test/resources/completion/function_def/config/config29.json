@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "function_def/source/source28.bal",
+  "description": "init function completion in object constructor",
+  "items": [
+    {
+      "label": "init function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "init_function",
+      "insertText": "function init(${1}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 15
+            },
+            "end": {
+              "line": 2,
+              "character": 24
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "function",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
