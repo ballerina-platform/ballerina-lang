@@ -78,7 +78,7 @@ public class LargeMethodOptimizer {
     // splits are done only if the newly created method will contain more instructions than the below number
     private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 50;
     // splits are done only if the newly created method will have less function arguments than the below number
-    private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 250;
+    private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 125;
     // total least no. of terminators and non-terminators that should be there to make the split
     private static final int INS_COUNT_PERIODIC_SPLIT_THRESHOLD = 500;
     // current BIR package id
