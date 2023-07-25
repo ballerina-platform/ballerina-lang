@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.bala.object;
 
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -67,8 +69,18 @@ public class ObjectIncludeOverrideBalaTest {
         assertEquals(((BClassSymbol) fooClass).attachedFuncs.size(), 1);
         BInvokableSymbol fnSymbol = ((BClassSymbol) fooClass).attachedFuncs.get(0).symbol;
         assertEquals(fnSymbol.getName().getValue(), "FooClass.execute");
-        assertEquals(fnSymbol.getParameters().get(0).getName().getValue(), "aVar");
-        assertEquals(fnSymbol.getParameters().get(1).getName().getValue(), "bVar");
+
+        BVarSymbol aVarParam = fnSymbol.getParameters().get(0);
+        assertEquals(aVarParam.getName().getValue(), "aVar");
+        assertEquals(aVarParam.pkgID.name.value, ".");
+        assertEquals(aVarParam.pkgID.orgName.value, "$anon");
+        assertEquals(aVarParam.origin, SymbolOrigin.SOURCE);
+
+        BVarSymbol bVarParam = fnSymbol.getParameters().get(1);
+        assertEquals(bVarParam.getName().getValue(), "bVar");
+        assertEquals(bVarParam.pkgID.name.value, ".");
+        assertEquals(bVarParam.pkgID.orgName.value, "$anon");
+        assertEquals(bVarParam.origin, SymbolOrigin.SOURCE);
     }
 
     @Test

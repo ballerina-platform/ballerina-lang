@@ -66,3 +66,9 @@ public function getObjectWithPublicFieldsAndMethods() returns ObjectWithPublicFi
 public type FooObj readonly & distinct service object {
     isolated remote function execute(string aVar, int bVar) returns int;
 };
+
+public readonly class BarClass {
+    public isolated function generate(int[] artifacts, boolean publish) returns byte[] {
+        return [1, 0, 1];
+    }
+}
