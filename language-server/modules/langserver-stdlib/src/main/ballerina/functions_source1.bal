@@ -60,3 +60,8 @@ function function6(int param1, int param2) returns TestRecord3 {
     
     return rec;
 }
+
+public function function7(int param1, int param2) returns TestRecord4 {
+    TestRecord3 rec = {};
+    return rec;
+}

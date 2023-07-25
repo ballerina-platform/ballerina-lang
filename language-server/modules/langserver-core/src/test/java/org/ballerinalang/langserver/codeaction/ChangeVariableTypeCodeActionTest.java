@@ -73,6 +73,7 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
                 {"changeVarBasedOnLetExpr4.json"},
                 {"changeVarBasedOnLetExpr5.json"},
                 {"changeVarBasedOnLetExpr6.json"},
+                {"changeVarBasedOnLetExpr7.json"},
         };
     }
 
