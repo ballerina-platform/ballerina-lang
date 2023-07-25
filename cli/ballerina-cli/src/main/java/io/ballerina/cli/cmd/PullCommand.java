@@ -22,12 +22,16 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
+
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.maven.MavenResolverClient;
+import org.ballerinalang.maven.MavenResolverClientException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -58,6 +62,7 @@ public class PullCommand implements BLauncherCmd {
 
     private static final String USAGE_TEXT =
             "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
+    public static final String PACKAGE_NOT_FOUND = "package not found";
 
     private PrintStream errStream;
     private boolean exitWhenFinish;
@@ -187,26 +192,61 @@ public class PullCommand implements BLauncherCmd {
                     // Ignore 'Settings.toml' parsing errors and return empty Settings object
                     settings = Settings.from();
                 }
+
+                boolean checkInMavenRepo = settings.getRepositories().length > 0;
+
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
                         settings.getProxy().password(), getAccessTokenOfCLI(settings));
-                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                   RepoUtils.getBallerinaVersion(), false);
-                if (version.equals(Names.EMPTY.getValue())) {
-                    List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
-                            RepoUtils.getBallerinaVersion());
-                    version = CommandUtil.getLatestVersion(versions);
+                String centralResponse = client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                                   RepoUtils.getBallerinaVersion(), false, checkInMavenRepo);
+                String mavenResponse = "";
+
+                if (checkInMavenRepo) {
+                    Path mavenBalaCachePath = ProjectUtils.createAndGetHomeReposPath()
+                            .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.MAVEN_REPOSITORY_CACHE_NAME)
+                            .resolve(ProjectConstants.BALA_DIR_NAME);
+
+                    try {
+                        createDirectories(mavenBalaCachePath);
+                    } catch (IOException e) {
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        throw createLauncherException(
+                                "unexpected error occurred while creating package repository in maven bala cache: " + e.getMessage());
+                    }
+                    MavenResolverClient mvnResolverClient = new MavenResolverClient();
+                    for (Repository repo : settings.getRepositories()) {
+                         if (!"".equals(repo.username()) && !"".equals(repo.password())) {
+                             mvnResolverClient.addRepository(repo.id(), repo.url(), repo.username(), repo.password());
+                         } else {
+                             mvnResolverClient.addRepository(repo.id(), repo.url());
+                         }
+                    }
+                   mavenResponse = mvnResolverClient.pullPackage(orgName, packageName, version, String.valueOf(mavenBalaCachePath.toAbsolutePath()));
                 }
-                boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
-                if (hasCompilationErrors) {
-                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+
+                if (centralResponse.contains(PACKAGE_NOT_FOUND) && (PACKAGE_NOT_FOUND.equals(mavenResponse) || "".equals(mavenResponse))) {
+                    errStream.println("unexpected error occurred while pulling package:" + centralResponse);
                     CommandUtil.exitError(this.exitWhenFinish);
-                    return;
+                }
+
+                if (!checkInMavenRepo) {
+                    if (version.equals(Names.EMPTY.getValue())) {
+                        List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
+                                RepoUtils.getBallerinaVersion());
+                        version = CommandUtil.getLatestVersion(versions);
+                    }
+                    boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
+                    if (hasCompilationErrors) {
+                        CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
+                        return;
+                    }
                 }
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException e) {
+            } catch (CentralClientException | MavenResolverClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
             }

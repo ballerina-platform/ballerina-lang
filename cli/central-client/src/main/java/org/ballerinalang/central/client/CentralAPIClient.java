@@ -123,6 +123,8 @@ public class CentralAPIClient {
     private static final String ERR_PACKAGE_DEPRECATE = "error: failed to deprecate the package: ";
     private static final String ERR_PACKAGE_UN_DEPRECATE = "error: failed to undo deprecation of the package: ";
     private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
+    private static final String PACKAGE_NOT_FOUND = "package not found";
+    private static final String PACKAGE_FOUND = "package found";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     // System property name for enabling central verbose
     public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
@@ -442,20 +444,41 @@ public class CentralAPIClient {
         }
     }
 
+
     /**
      * Pull a package from central.
      *
-     * @param org                       The organization of the package.
-     * @param name                      The name of the package.
-     * @param version                   The version of the package.
-     * @param packagePathInBalaCache    The package path in Bala cache.
-     * @param supportedPlatform         The supported platform.
-     * @param ballerinaVersion          The ballerina version.
-     * @param isBuild                   If build option is enabled or not.
-     * @throws CentralClientException   Central Client exception.
+     * @param org                    The organization of the package.
+     * @param name                   The name of the package.
+     * @param version                The version of the package.
+     * @param packagePathInBalaCache The package path in Bala cache.
+     * @param supportedPlatform      The supported platform.
+     * @param ballerinaVersion       The ballerina version.
+     * @param isBuild                If build option is enabled or not.
+     * @throws CentralClientException Central Client exception.
      */
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
                             String supportedPlatform, String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
+        pullPackage(org, name, version, packagePathInBalaCache, supportedPlatform, ballerinaVersion, isBuild, false);
+    }
+
+    /**
+     * Pull a package from central.
+     *
+     * @param org                    The organization of the package.
+     * @param name                   The name of the package.
+     * @param version                The version of the package.
+     * @param packagePathInBalaCache The package path in Bala cache.
+     * @param supportedPlatform      The supported platform.
+     * @param ballerinaVersion       The ballerina version.
+     * @param isBuild                If build option is enabled or not.
+     * @param checkInMavenRepo       If the maven repo should be checked or not.
+     * @throws CentralClientException Central Client exception.
+     * @return found/ not found status of the package
+     */
+    public String pullPackage(String org, String name, String version, Path packagePathInBalaCache,
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild, boolean checkInMavenRepo)
             throws CentralClientException {
         String resourceUrl = "/" + PACKAGES + "/" + org + "/" + name;
         boolean enableOutputStream =
@@ -530,7 +553,7 @@ public class CentralAPIClient {
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
                                 isDeprecated ? deprecationMessage : null,
                                 balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
-                        return;
+                        return PACKAGE_FOUND;
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
                                 "'. BALA content download from '" + balaUrl.get() + "' failed.");
@@ -556,6 +579,9 @@ public class CentralAPIClient {
                         packagePullResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            if (checkInMavenRepo && error.getMessage().contains(PACKAGE_NOT_FOUND)) {
+                                return "error: " + error.getMessage();
+                            }
                             throw new CentralClientException("error: " + error.getMessage());
                         }
                     }

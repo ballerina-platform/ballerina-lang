@@ -23,11 +23,13 @@ import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.Central;
 import io.ballerina.projects.internal.model.Proxy;
+import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
@@ -46,6 +48,7 @@ import java.util.List;
  */
 public class SettingsBuilder {
 
+    public static final String NAME = "name";
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -58,6 +61,9 @@ public class SettingsBuilder {
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
     private static final String ACCESS_TOKEN = "accesstoken";
+    private static final String REPOSITORY = "repository";
+    private static final String ID = "id";
+    private static final String URL = "url";
 
     private SettingsBuilder(TomlDocument settingsToml) {
         this.diagnosticList = new ArrayList<>();
@@ -100,29 +106,47 @@ public class SettingsBuilder {
 
         String host = "";
         int port = 0;
-        String username = "";
-        String password = "";
+        String proxyUsername = "";
+        String proxyPassword = "";
         String accessToken = "";
+        String url = "";
+        String id = "";
+        String repoName = "";
+        String repositoryUsername = "";
+        String repositoryPassword = "";
+        ArrayList<Repository> repositories = new ArrayList<>();
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode proxyNode = (TomlTableNode) tomlAstNode.entries().get(PROXY);
             if (proxyNode != null && proxyNode.kind() != TomlType.NONE && proxyNode.kind() == TomlType.TABLE) {
-                host = getStringValueFromProxyNode(proxyNode, HOST, "");
+                host = getStringOrDefaultFromTomlTableNode(proxyNode, HOST, "");
                 port = getIntValueFromProxyNode(proxyNode, PORT, 0);
-                username = getStringValueFromProxyNode(proxyNode, USERNAME, "");
-                password = getStringValueFromProxyNode(proxyNode, PASSWORD, "");
+                proxyUsername = getStringOrDefaultFromTomlTableNode(proxyNode, USERNAME, "");
+                proxyPassword = getStringOrDefaultFromTomlTableNode(proxyNode, PASSWORD, "");
             }
 
             TomlTableNode centralNode = (TomlTableNode) tomlAstNode.entries().get(CENTRAL);
             if (centralNode != null && centralNode.kind() != TomlType.NONE && centralNode.kind() == TomlType.TABLE) {
-                accessToken = getStringValueFromProxyNode(centralNode, ACCESS_TOKEN, "");
+                accessToken = getStringOrDefaultFromTomlTableNode(centralNode, ACCESS_TOKEN, "");
+            }
+
+            List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) tomlAstNode.entries().get(REPOSITORY))
+                    .children();
+            for (TomlTableNode repositoryNode : repositoryNodes) {
+                repoName = getStringOrDefaultFromTomlTableNode(repositoryNode, NAME, "");
+                url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
+                id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
+                repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
+                repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, PASSWORD, "");
+                repositories.add(Repository.from(id, repoName,url, repositoryUsername, repositoryPassword));
             }
         }
 
-        return Settings.from(Proxy.from(host, port, username, password), Central.from(accessToken), diagnostics());
+        return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken),
+                diagnostics(), repositories.toArray(new Repository[0]));
     }
 
-    private String getStringValueFromProxyNode(TomlTableNode pkgNode, String key, String defaultValue) {
+    private String getStringOrDefaultFromTomlTableNode(TomlTableNode pkgNode, String key, String defaultValue) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             // return default value
