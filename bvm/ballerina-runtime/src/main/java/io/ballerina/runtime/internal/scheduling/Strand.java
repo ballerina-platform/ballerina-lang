@@ -143,6 +143,10 @@ public class Strand {
                         currentTrxContext.getURL(), currentTrxContext.getProtocol(),
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
+        if (currentTrxBlockId.contains("_")) {
+            // remove the parent strand id from the transaction block id
+            currentTrxBlockId = currentTrxBlockId.split("_")[0];
+        }
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
         trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
