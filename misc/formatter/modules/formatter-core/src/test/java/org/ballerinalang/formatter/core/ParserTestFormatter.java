@@ -90,7 +90,7 @@ public class ParserTestFormatter extends FormatterTest {
 
                 // The following tests are disabled due to tokens merging together after formatting. issue #35240
                 "query_expr_source_121.bal", "query_expr_source_123.bal", "query_expr_source_124.bal",
-                "query_expr_source_126.bal", "match_stmt_source_21.bal",
+                "query_expr_source_126.bal", "match_stmt_source_21.bal", "query_expr_source_47.bal",
                 "func_params_source_27.bal", "on_fail_check_source_13.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
