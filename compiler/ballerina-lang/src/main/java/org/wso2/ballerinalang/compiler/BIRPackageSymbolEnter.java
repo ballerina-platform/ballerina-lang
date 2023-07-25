@@ -476,7 +476,10 @@ public class BIRPackageSymbolEnter {
                     }
 
                     resourceFunction.pathSegmentSymbols = pathSegmentSymbols;
-                    objectTypeSymbol.attachedFuncs.add(resourceFunction);
+
+                    if (!isImmutable(this.currentStructure.flags)) {
+                        objectTypeSymbol.attachedFuncs.add(resourceFunction);
+                    }
                 } else {
                     BAttachedFunction attachedFunc =
                             new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
@@ -487,7 +490,7 @@ public class BIRPackageSymbolEnter {
                         structureTypeSymbol.initializerFunc = attachedFunc;
                     } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
                         ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
-                    } else {
+                    } else if (!isImmutable(this.currentStructure.flags)) {
                         structureTypeSymbol.attachedFuncs.add(attachedFunc);
                     }
                 }

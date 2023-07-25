@@ -68,7 +68,7 @@ public type FooObj readonly & distinct service object {
 };
 
 public readonly class BarClass {
-    public isolated function generate(int[] artifacts, boolean publish) returns byte[] {
+    public isolated function patch(int[] artifacts, boolean publish) returns byte[] {
         return [1, 0, 1];
     }
 }

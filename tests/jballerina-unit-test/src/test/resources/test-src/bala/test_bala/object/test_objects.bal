@@ -466,25 +466,17 @@ function testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields() {
     assertTrue((<any> ob3) is foo2:ObjectWithPublicFieldsAndMethods);
 }
 
-// readonly client class FooClass {
-//     *foo2:FooObj;
-//     *foo2:BarClass;
-
-//     isolated remote function execute(string aVar, int bVar) returns int {
-//         return bVar;
-//     }
-
-//     public isolated function patch(int[] artifacts, boolean publish) returns byte[] {
-//         return [0, 0, 1, 1, 1];
-//     }
-// }
-
 readonly client class FooClass {
+    *foo2:FooObj;
     *foo2:BarClass;
 
-     public isolated function generate(int[] artifacts, boolean publish) returns byte[] {
-         return [0, 0, 1, 1, 1];
-     }
+    isolated remote function execute(string aVar, int bVar) returns int {
+        return bVar;
+    }
+
+    public isolated function patch(int[] artifacts, boolean publish) returns byte[] {
+        return [0, 0, 1, 1, 1];
+    }
 }
 
 function testObjectInclusionWithMethodWithParameters() {
