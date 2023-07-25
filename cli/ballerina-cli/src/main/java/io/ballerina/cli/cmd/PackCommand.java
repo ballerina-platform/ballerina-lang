@@ -37,6 +37,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
+@CommandLine.Command(name = PACK_COMMAND, description = "Create distribution format of the current package")
 public class PackCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -83,6 +84,10 @@ public class PackCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -155,7 +160,8 @@ public class PackCommand implements BLauncherCmd {
         }
 
         // If project is empty
-        if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty()) {
+        if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty() &&
+                project.currentPackage().balToolToml().isEmpty()) {
             CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
                         false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -264,7 +270,8 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setEnableCache(enableCache);
+                .setEnableCache(enableCache)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
@@ -280,8 +287,7 @@ public class PackCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("packages the current package into a .bala file after verifying that it can build with \n");
-        out.append("all its dependencies. Created .bala file contains the distribution format of the current package");
+        out.append(BLauncherCmd.getCommandUsageInfo(PACK_COMMAND));
 
     }
 

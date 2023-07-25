@@ -46,6 +46,7 @@ public class JvmConstants {
     public static final String ARRAY_VALUE = "io/ballerina/runtime/internal/values/ArrayValue";
     public static final String OBJECT_VALUE = "io/ballerina/runtime/internal/values/ObjectValue";
     public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/internal/values/AbstractObjectValue";
+    public static final String BREF_VALUE = "io/ballerina/runtime/api/values/BRefValue";
     public static final String REF_VALUE = "io/ballerina/runtime/internal/values/RefValue";
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
@@ -192,6 +193,7 @@ public class JvmConstants {
     public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
+    public static final String BAL_ENV_CLASS = "io/ballerina/runtime/internal/BalEnvironment";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
     public static final String BAL_FUTURE = "io/ballerina/runtime/api/Future";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
@@ -215,14 +217,11 @@ public class JvmConstants {
     public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
-    public static final String BAL_ERROR_REASONS =
-            "io/ballerina/runtime/internal/util/exceptions/BallerinaErrorReasons";
-    public static final String RUNTIME_ERRORS = "io/ballerina/runtime/internal/util/exceptions/RuntimeErrors";
-    public static final String BLANG_EXCEPTION_HELPER =
-            "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
+    public static final String ERROR_REASONS = "io/ballerina/runtime/internal/errors/ErrorReasons";
+    public static final String ERROR_CODES = "io/ballerina/runtime/internal/errors/ErrorCodes";
+    public static final String ERROR_HELPER = "io/ballerina/runtime/internal/errors/ErrorHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
-    public static final String RUNTIME_REGISTRY_CLASS =
-            "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
+    public static final String RUNTIME_REGISTRY_CLASS = "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
     public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
 
@@ -281,8 +280,6 @@ public class JvmConstants {
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 
     // exception classes
-    public static final String BLANG_RUNTIME_EXCEPTION =
-            "io/ballerina/runtime/internal/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
     public static final String HANDLE_THROWABLE_METHOD = "handleBErrorAndExit";

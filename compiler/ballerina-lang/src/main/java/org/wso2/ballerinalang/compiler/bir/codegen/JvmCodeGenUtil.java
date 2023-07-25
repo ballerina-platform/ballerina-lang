@@ -646,14 +646,12 @@ public class JvmCodeGenUtil {
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos, String fullyQualifiedFuncName,
-                                     String yieldStatus, int yieldStatusVarIndex) {
+                                     Location terminatorPos, String fullyQualifiedFuncName, String yieldStatus,
+                                     int yieldStatusVarIndex) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
                 fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-
-        // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
     }

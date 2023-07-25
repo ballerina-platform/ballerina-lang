@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -29,8 +30,9 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
@@ -374,8 +376,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
     }
 
-    private BallerinaException createXMLCycleError() {
-        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(), "Cycle detected");
+    private BError createXMLCycleError() {
+        return ErrorCreator.createError(ErrorReasons.XML_OPERATION_ERROR,
+                StringUtils.fromString("Cycle detected"));
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
@@ -438,13 +441,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             String xmlStr = this.stringValue(null);
             OMElement omElement = XmlFactory.stringToOM(xmlStr);
             return omElement;
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((XmlFactory.PARSE_ERROR_PREFIX + e.getMessage())));
         }
     }
 
@@ -522,11 +525,14 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      */
     @Override
     public XmlValue getItem(int index) {
-        if (index != 0) {
+        if (index == 0) {
+            return this;
+        }
+        if (index > 0) {
             return new XmlSequence();
         }
-
-        return this;
+        throw ErrorHelper.getRuntimeException(
+                ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
     public int size() {

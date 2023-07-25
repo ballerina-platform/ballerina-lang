@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.worker;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,14 +38,14 @@ public class StackOverflowTest {
         this.result = BCompileUtil.compile("test-src/workers/stack_overflow_negative.bal");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StackOverflow \\{\"message\":\"stack " +
                     "overflow\"\\}.*")
     public void recursiveFunction() {
         BRunUtil.invoke(result, "recursiveFunction");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StackOverflow \\{\"message\":\"stack " +
                     "overflow\"\\}.*")
     public void testStackOverflowInFunction() {

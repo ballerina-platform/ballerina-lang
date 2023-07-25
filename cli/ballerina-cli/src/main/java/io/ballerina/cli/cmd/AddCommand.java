@@ -41,7 +41,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessModuleName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to Ballerina project")
+@CommandLine.Command(name = ADD_COMMAND, description = "Add a new Ballerina module to the current package")
 public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -208,7 +208,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Add a new Ballerina module");
+        out.append(BLauncherCmd.getCommandUsageInfo(ADD_COMMAND));
     }
 
     @Override
