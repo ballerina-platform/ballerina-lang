@@ -50,3 +50,13 @@ public function addPerson(Person p) {
 
 # Directory path
 public string directoryPath = "/";
+
+string name = "";
+
+# Set name.
+#
+# + fname - parameter description
+# + lname - parameter description
+public function setName(string fname, string lname) {
+    name = fname + " " + lname;
+}
