@@ -149,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -2499,7 +2500,14 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangMatchClause matchClause) {
         matchClause.matchPatterns.forEach(this::acceptNode);
         this.acceptNode(matchClause.matchGuard);
+        Map<String, BSymbol> prevIdentifiers = new HashMap<>(identifiers);
+        identifiers.putAll(matchClause.declaredVars);
         this.acceptNode(matchClause.blockStmt);
+        identifiers = prevIdentifiers;
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
     }
 
     @Override

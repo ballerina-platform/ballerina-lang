@@ -1,0 +1,5 @@
+[plugin]
+class = "io.luhee.plugins.pkg.modifier.LogCodeModifierPkgPlugin"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/log-creator-pkg-provided-code-modifier-1.0.0.jar"
