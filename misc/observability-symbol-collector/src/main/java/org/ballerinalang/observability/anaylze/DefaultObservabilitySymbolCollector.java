@@ -209,11 +209,11 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
                         .append("}")
                         .append(",");
             }
-            jsonStringBuilder.deleteCharAt(jsonStringBuilder.length()-1);
+            jsonStringBuilder.deleteCharAt(jsonStringBuilder.length() - 1);
             jsonStringBuilder.append("}}")
                     .append(",");
         }
-        jsonStringBuilder.deleteCharAt(jsonStringBuilder.length()-1);
+        jsonStringBuilder.deleteCharAt(jsonStringBuilder.length() - 1);
 
         return jsonStringBuilder.append("}}").toString();
     }
