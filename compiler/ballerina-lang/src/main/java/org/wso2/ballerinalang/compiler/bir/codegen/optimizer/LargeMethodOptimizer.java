@@ -404,8 +404,10 @@ public class LargeMethodOptimizer {
         parentFuncEnv.parentFuncNewInsList.add(callHandleArray);
     }
 
-    private Map<BIRAbstractInstruction, SplitPointDetails> getSplitPointsForMap(List<BIRBasicBlock> bbs,
-                                                                                Set<BIROperand> mapValueOperands) {
+    private Map<BIRAbstractInstruction,
+            SplitPointDetails> getSplitPointsForMap(List<BIRBasicBlock> bbs, Set<BIROperand> mapValueOperands,
+                                                    Set<BIROperand> globalAndArgVarKeyOperands,
+                                                    Set<BIRNonTerminator> globalAndArgVarKeyConstLoadInsSet) {
         // a copy of arrayValueOperands is made to find first found array element operands from bottom
         Set<BIROperand> remainingArrayValueOperands = new HashSet<>(mapValueOperands);
 
@@ -447,8 +449,14 @@ public class LargeMethodOptimizer {
                 }
             }
             for (int insIndex = lastInsNum; insIndex >= 0; insIndex--) {
-                populateInsSplitPoints(mapValueOperands, insSplitPoints, bbInstructions.get(insIndex),
-                        operandsInSameBB, remainingArrayValueOperands);
+                BIRNonTerminator currIns = bbInstructions.get(insIndex);
+                if (currIns.lhsOp != null && globalAndArgVarKeyOperands.contains(currIns.lhsOp)) {
+                    globalAndArgVarKeyOperands.remove(currIns.lhsOp);
+                    globalAndArgVarKeyConstLoadInsSet.add(currIns);
+                    continue;
+                }
+                populateInsSplitPoints(mapValueOperands, insSplitPoints, currIns, operandsInSameBB,
+                        remainingArrayValueOperands);
             }
         }
         return insSplitPoints;
@@ -564,7 +572,9 @@ public class LargeMethodOptimizer {
                                                      ParentFuncEnv parentFuncEnv, Set<BIROperand> mapValuesOperands,
                                                      Set<BIROperand> globalAndArgVarKeyOperands,
                                                      List<BIRNonTerminator> globalAndArgVarKeyConstLoadIns) {
-        Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = getSplitPointsForMap(bbs, mapValuesOperands);
+        Set<BIRNonTerminator> globalAndArgVarKeyConstLoadInsSet = new HashSet<>();
+        Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = getSplitPointsForMap(bbs, mapValuesOperands,
+                globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadInsSet);
         Map<BIROperand, Integer> errorOperandsAndTargetBBs = getErrorOperandsAndTargetBBs(parentFunc.errorTable);
         // When an error table operand is found as an array element operand in the LHS of an non terminator,
         // the array element populating instructions should be put in the targetBB for the try-catch to work correctly.
@@ -593,6 +603,10 @@ public class LargeMethodOptimizer {
                 }
 
                 BIRNonTerminator bbIns = bb.instructions.get(insIndex);
+                if (globalAndArgVarKeyConstLoadInsSet.contains(bbIns)) {
+                    globalAndArgVarKeyConstLoadIns.add(bbIns);
+                    continue;
+                }
                 BIROperand bbInsLhsOp = bbIns.lhsOp;
                 if (!splitFuncEnv.returnValAssigned && bbInsLhsOp != null
                         && bbInsLhsOp.variableDcl.kind == VarKind.RETURN) {
@@ -602,10 +616,6 @@ public class LargeMethodOptimizer {
                     bb.terminator = new BIRTerminator.GOTO(bb.terminator.pos, splitFuncEnv.returnBB,
                             bb.terminator.scope);
                     splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
-                }
-                if (bbInsLhsOp != null && globalAndArgVarKeyOperands.contains(bbInsLhsOp)) {
-                    globalAndArgVarKeyConstLoadIns.add(bbIns);
-                    continue;
                 }
                 splitFuncEnv.splitFuncNewInsList.add(bbIns);
                 splitFuncEnv.periodicSplitInsCount++;
