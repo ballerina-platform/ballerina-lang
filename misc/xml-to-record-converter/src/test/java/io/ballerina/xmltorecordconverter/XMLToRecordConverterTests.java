@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org)
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -79,13 +79,18 @@ public class XMLToRecordConverterTests {
     private final Path sample7Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_7.bal");
 
+    private final Path sample8XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_8.xml");
+    private final Path sample8Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_8.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
     @Test(description = "testBasicXML")
     public void testBasicXML() throws IOException {
         String xmlFileContent = Files.readString(sample0XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -94,7 +99,7 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLWithTwoLevels")
     public void testBasicXMLWithTwoLevels() throws IOException {
         String xmlFileContent = Files.readString(sample1XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample1Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -103,7 +108,7 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLWithTwoLevelsWithDifferentElements")
     public void testBasicXMLWithTwoLevelsWithDifferentElements() throws IOException {
         String xmlFileContent = Files.readString(sample2XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample2Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -112,7 +117,7 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLWithNodesWithSameName")
     public void testBasicXMLWithNodesWithSameName() throws IOException {
         String xmlFileContent = Files.readString(sample3XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -121,7 +126,7 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLForObjectArray")
     public void testBasicXMLForObjectArray() throws IOException {
         String xmlFileContent = Files.readString(sample4XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample4Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -130,7 +135,7 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLWithNodesWithSameNameAndDifferentDataTypes")
     public void testBasicXMLWithNodesWithSameNameAndDifferentDataTypes() throws IOException {
         String xmlFileContent = Files.readString(sample5XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample5Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -139,7 +144,7 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLWithNodesWithPrimitiveAndOtherDataTypes")
     public void testBasicXMLWithNodesWithPrimitiveAndOtherDataTypes() throws IOException {
         String xmlFileContent = Files.readString(sample6XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample6Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -148,9 +153,18 @@ public class XMLToRecordConverterTests {
     @Test(description = "testBasicXMLWithMultipleLevelsOfNodes")
     public void testBasicXMLWithMultipleLevelsOfNodes() throws IOException {
         String xmlFileContent = Files.readString(sample7XML);
-        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample7Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testBasicXMLWithNamespace")
+    public void testBasicXMLWithNamespace() throws IOException {
+        String xmlFileContent = Files.readString(sample8XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample8Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 

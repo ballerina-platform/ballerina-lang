@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org)
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -55,5 +55,25 @@ public class DiagnosticMessage {
 
     public Object[] getArgs() {
         return Objects.requireNonNullElse(this.args, new Object[0]).clone();
+    }
+
+    public static DiagnosticMessage xmlToRecordConverter100(Object[] args) {
+        return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_100",
+                "XML parser configuration error: Unable to properly configure.", DiagnosticSeverity.ERROR, args);
+    }
+
+    public static DiagnosticMessage xmlToRecordConverter101(Object[] args) {
+        return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_101",
+                "Error occurred while parsing the XML text.", DiagnosticSeverity.ERROR, args);
+    }
+
+    public static DiagnosticMessage xmlToRecordConverter102(Object[] args) {
+        return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_102",
+                "Provided input is invalid.", DiagnosticSeverity.ERROR, args);
+    }
+
+    public static DiagnosticMessage xmlToRecordConverter103(Object[] args) {
+        return new DiagnosticMessage("XML_TO_RECORD_CONVERTER_103",
+                "Error occurred while formatting the Ballerina syntax tree.", DiagnosticSeverity.ERROR, args);
     }
 }
