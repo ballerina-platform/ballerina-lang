@@ -4,7 +4,7 @@
     "character": 25
   },
   "source": "expression_context/source/check_expression_ctx_source10.bal",
-  "description": "",
+  "description": "Completions after module identifier in check expression context",
   "items": [
     {
       "label": "TEST_INT_CONST1",
