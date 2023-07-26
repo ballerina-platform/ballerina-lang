@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import io.ballerina.AlbertBasePrediction;
-import io.ballerina.MaskedTokenPrediction;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -34,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
+import org.ballerinalang.langserver.completions.identifiergenerator.PredictionByJava;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +73,7 @@ public class NameUtil {
     public static String[] generateIdentifier(TypedBindingPatternNode node) {
         String maskedString = node.parent().toString();
         maskedString = maskedString.replace("  MISSING[]", "<mask> ").replace("\n", "");
-        String[] predictedTokens = MaskedTokenPrediction.getPredictedToken(maskedString);
+        String[] predictedTokens = PredictionByJava.getPredictedToken(maskedString);
         return predictedTokens;
     }
 

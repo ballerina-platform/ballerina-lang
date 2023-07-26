@@ -15,6 +15,12 @@
  *
  */
 
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
 apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
@@ -29,7 +35,7 @@ configurations {
         transitive false
     }
     dependency {
-        transitive false
+        transitive true
     }
     libs
     distributionBala
@@ -71,7 +77,6 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation "com.google.guava:guava:${project.guavaVersion}"
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation "io.ballerina:predictor:1.0-SNAPSHOT"
 
     distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
@@ -79,13 +84,28 @@ dependencies {
     dependency "org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:${project.eclipseLsp4jJsonrpcVersion}"
     dependency "commons-io:commons-io:${project.commonsIoVersion}"
     dependency "com.google.guava:guava:${project.guavaVersion}"
-    dependency "io.ballerina:predictor:1.0-SNAPSHOT"
 
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
     testCompile 'org.awaitility:awaitility'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
+
+    implementation group: 'com.microsoft.onnxruntime', name: 'onnxruntime', version: '1.15.0'
+    implementation group: 'ai.djl.pytorch', name: 'pytorch-engine', version: '0.19.0'
+    implementation group: 'ai.djl', name: 'api', version: '0.22.0'
+    implementation group: 'ai.djl', name: 'model-zoo', version: '0.22.1'
+    implementation group: 'ai.djl.huggingface', name: 'tokenizers', version: '0.21.0'
+//    implementation 'com.sun.jna:jna:3.0.9'
+
+    dependency group: 'com.microsoft.onnxruntime', name: 'onnxruntime', version: '1.15.0'
+    dependency group: 'ai.djl.pytorch', name: 'pytorch-engine', version: '0.19.0'
+    dependency group: 'ai.djl', name: 'api', version: '0.22.0'
+    dependency group: 'ai.djl', name: 'model-zoo', version: '0.22.1'
+    dependency group: 'ai.djl.huggingface', name: 'tokenizers', version: '0.21.0'
+//    dependency 'com.comsun.jna:jna:3.0.9'
+
+
 }
 
 description = 'Ballerina - Language server - Core'
@@ -118,7 +138,7 @@ task testJar(type: Jar, dependsOn: testClasses) {
 artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
     libs configurations.dependency.files
-    
+
     tests testJar
 }
 
@@ -164,4 +184,3 @@ task buildAndCopy(type: Copy) {
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib'
 }
-
