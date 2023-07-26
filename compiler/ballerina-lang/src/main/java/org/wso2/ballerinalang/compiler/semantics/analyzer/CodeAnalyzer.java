@@ -2249,8 +2249,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (referredType.getKind() == TypeKind.RECORD) {
                     BField matchingField = ((BRecordType) referredType).getFields().get(recField.symbol
                             .getName().getValue());
-                    reportIfDeprecatedUsage(matchingField.symbol, recordLiteral,
-                                ((BLangRecordLiteral.BLangRecordVarNameField) field).pos);
+                    if (matchingField != null) {
+                        reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, recField.pos);
+                    }
                 }
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField
@@ -2263,7 +2264,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
                         BRecordType recordType = (BRecordType) referredType;
                         BField matchingField = recordType.getFields().get(fieldEntry.getName().getValue());
-                        reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, spreadField.expr.pos);
+                        if (matchingField != null) {
+                            reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, spreadField.expr.pos);
+                        }
                     }
                 }
             }
