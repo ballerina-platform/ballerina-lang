@@ -253,28 +253,16 @@ public class CompileTask implements Task {
             }
             String warning = null;
             // existing project
-            if (prevDistributionVersion == null) {
-                // Built with Update 4 or less. Therefore, we issue a warning
+            if (prevDistributionVersion == null
+                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
+                // Built with a previous Update. Therefore, we issue a warning
                 warning = "Detected an attempt to compile this package using Swan Lake Update "
                         + currentVersionForDiagnostic +
-                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                        ".";
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic + ".";
                 if (project.buildOptions().sticky()) {
                     warning += "\nHINT: Execute the bal command with --sticky=false";
                 } else {
                     warning += " To ensure compatibility, the Dependencies.toml file will be updated with the " +
-                            "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
-                }
-            } else {
-                // Built with Update 5 or above
-                boolean newUpdateDistribution =
-                        ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
-                if (newUpdateDistribution) {
-                    // Issue a warning
-                    warning = "Detected an attempt to compile this package using Swan Lake Update "
-                            + currentVersionForDiagnostic +
-                            ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                            ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
                             "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
                 }
             }

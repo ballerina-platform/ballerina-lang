@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.InlayHintContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -48,6 +49,7 @@ import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
+import org.ballerinalang.langserver.inlayhint.InlayHintProvider;
 import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
@@ -74,6 +76,8 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
@@ -669,6 +673,30 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             return new SemanticTokens(new ArrayList<>());
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                InlayHintContext context = ContextBuilder.buildInlayHintContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManagerProxy.get(),
+                        this.serverContext,
+                        cancelChecker);
+
+                return InlayHintProvider.getInlayHint(context);
+            } catch (CancellationException ignore) {
+                // Ignore cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'textDocument/inlayHint' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_INLAY_HINT, msg, e,
+                        new TextDocumentIdentifier(params.getTextDocument().getUri()),
+                        (Position) null);
+            }
+
+            return Collections.emptyList();
         });
     }
 }

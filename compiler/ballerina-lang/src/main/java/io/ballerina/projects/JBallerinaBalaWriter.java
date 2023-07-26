@@ -22,9 +22,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_JSON;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 
 /**
@@ -49,6 +52,9 @@ import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
  */
 public class JBallerinaBalaWriter extends BalaWriter {
 
+    public static final String TOOL = "tool";
+    public static final String LIBS = "libs";
+    public static final String COMPILER_PLUGIN = "compiler-plugin";
     private JBallerinaBackend backend;
 
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
@@ -56,6 +62,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
         this.packageContext = backend.packageContext();
         this.target = getTargetPlatform(packageContext.getResolution()).code();
         this.compilerPluginToml = readCompilerPluginToml();
+        this.balToolToml = readBalToolToml();
     }
 
 
@@ -110,6 +117,10 @@ public class JBallerinaBalaWriter extends BalaWriter {
             List<String> compilerPluginLibPaths = new ArrayList<>();
             List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
 
+            if (compilerPluginDependencies.get(0) == null) {
+                throw new ProjectException("No dependencies found in CompilerPlugin.toml file");
+            }
+
             if (!compilerPluginDependencies.isEmpty()) {
 
                 // Iterate through compiler plugin dependencies and add them to bala
@@ -144,12 +155,58 @@ public class JBallerinaBalaWriter extends BalaWriter {
                     .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
             try {
-                putZipEntry(balaOutputStream, Paths.get("compiler-plugin", COMPILER_PLUGIN_JSON),
+                putZipEntry(balaOutputStream, Paths.get(COMPILER_PLUGIN, COMPILER_PLUGIN_JSON),
                         new ByteArrayInputStream(
                                 gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
             } catch (IOException e) {
                 throw new ProjectException("Failed to write '" + COMPILER_PLUGIN_JSON + "' file: " + e.getMessage(), e);
             }
+        }
+    }
+
+    @Override
+    protected void addBalTool(ZipOutputStream balaOutputStream) throws IOException {
+        if (this.balToolToml.isPresent()) {
+            List<String> balToolLibPaths = new ArrayList<>();
+            List<String> balToolDependencies = this.balToolToml.get().getBalToolDependencies();
+
+            if (balToolDependencies.isEmpty()) {
+                throw new ProjectException("No dependencies found in BalTool.toml file");
+            }
+         // Iterate through bal tool dependencies and add them to bala
+            // organization would be
+            // -- Bala Root
+            //   - tool/
+            //     - libs
+            //       - java-library1.jar
+            //       - java-library2.jar
+
+
+            // Iterate jars and create directories for each target
+            for (String balToolLib : balToolDependencies) {
+                Path libPath = this.packageContext.project().sourceRoot().resolve(balToolLib);
+                // null check is added for spot bug with the toml validation filename cannot be null
+                String fileName = Optional.ofNullable(libPath.getFileName())
+                        .map(p -> p.toString()).orElse("annon");
+                Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
+                // create a zip entry for each file
+                putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                balToolLibPaths.add(entryPath.toString());
+            }
+
+        BalToolJson balToolJson = new BalToolJson(this.balToolToml.get().tool().getId(), balToolLibPaths);
+
+        // Remove fields with empty values from `BalTool.json`
+        Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
+                .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
+
+        try {
+            putZipEntry(balaOutputStream, Paths.get(TOOL, BAL_TOOL_JSON),
+                    new ByteArrayInputStream(
+                            gson.toJson(balToolJson).getBytes(Charset.defaultCharset())));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write '" + BAL_TOOL_JSON + "' file: " + e.getMessage(), e);
+        }
         }
     }
 
@@ -192,6 +249,17 @@ public class JBallerinaBalaWriter extends BalaWriter {
         if (compilerPluginToml.isPresent()) {
             TomlDocument tomlDocument = compilerPluginToml.get().compilerPluginTomlContext().tomlDocument();
             return Optional.of(CompilerPluginDescriptor.from(tomlDocument));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<BalToolDescriptor> readBalToolToml() {
+        Optional<BalToolToml> balToolToml = backend.packageContext().project()
+                .currentPackage().balToolToml();
+        if (balToolToml.isPresent()) {
+            TomlDocument tomlDocument = balToolToml.get().balToolTomlContext().tomlDocument();
+            Path sourceRoot = packageContext.project().sourceRoot();
+            return Optional.of(BalToolDescriptor.from(tomlDocument, sourceRoot));
         }
         return Optional.empty();
     }

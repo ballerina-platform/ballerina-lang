@@ -48,7 +48,7 @@ public class Utils {
         }
         for (Object value : values) {
             if (value != null) {
-                out.print(StringUtils.getStringValue(value, null));
+                out.print(StringUtils.getStringValue(value));
             }
         }
     }
@@ -62,7 +62,7 @@ public class Utils {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(StringUtils.getStringValue(value, null));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         out.println(content);
@@ -112,8 +112,7 @@ public class Utils {
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref,
-                                        null)));
+                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref)));
                             }
                             break;
                         case '%':

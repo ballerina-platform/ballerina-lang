@@ -51,7 +51,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = RUN_COMMAND, description = "Build and execute a Ballerina program.")
+@CommandLine.Command(name = RUN_COMMAND, description = "Compile and run the current package")
 public class RunCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -101,6 +101,10 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
@@ -228,14 +232,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Run command runs a compiled Ballerina program. \n");
-        out.append("\n");
-        out.append("If a Ballerina source file is given, \n");
-        out.append("run command compiles and runs it. \n");
-        out.append("\n");
-        out.append("By default, 'bal run' executes the main function. \n");
-        out.append("If the main function is not there, it executes services. \n");
-        out.append("\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(RUN_COMMAND));
     }
 
     @Override
@@ -261,7 +258,8 @@ public class RunCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
-                .setConfigSchemaGen(configSchemaGen);
+                .setConfigSchemaGen(configSchemaGen)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

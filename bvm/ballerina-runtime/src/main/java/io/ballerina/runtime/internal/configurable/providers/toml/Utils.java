@@ -70,8 +70,8 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * Util methods required for configurable variables.

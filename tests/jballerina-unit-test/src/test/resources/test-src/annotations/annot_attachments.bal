@@ -307,3 +307,33 @@ public const annotation record {| int increment = 1; |} v29 on source type;
 type Qux record {|
     int x;
 |};
+
+const int x = 1;
+
+@v29 {
+    increment: +2
+}
+type F1 record {|
+    int x;
+|};
+
+@v29 {
+    increment: +x
+}
+type F2 record {|
+    int x;
+|};
+
+@v29 {
+    increment: -x
+}
+type F3 record {|
+    int x;
+|};
+
+@v29 {
+    increment: -2
+}
+type F4 record {|
+    int x;
+|};

@@ -70,7 +70,7 @@ public class LangLibrary {
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
         this.types = Types.getInstance(context);
-        this.methodBinder = new LangLibFunctionBinder(this.types);
+        this.methodBinder = new LangLibFunctionBinder(this.types, context);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {

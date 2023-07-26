@@ -307,31 +307,47 @@ class JMethodResolver {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
-                (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
-            BType returnType = jMethodRequest.bReturnType;
-            String expectedRetTypeName;
-            if (returnType.tag == TypeTags.NIL || returnType instanceof BTypeReferenceType &&
-                    ((BTypeReferenceType) returnType).referredType.tag == TypeTags.ERROR) {
-                expectedRetTypeName = "error";
-            } else if (returnType instanceof BUnionType) {
-                BUnionType bUnionReturnType = (BUnionType) returnType;
-                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
-                expectedRetTypeName = modifiedRetType + "|error";
-            } else {
-                expectedRetTypeName = returnType + "|error";
-            }
+        BType returnType = jMethodRequest.bReturnType;
+        String expectedRetTypeName;
+        if (throwsCheckedException && !jMethodRequest.returnsBErrorType) {
+            expectedRetTypeName = getExpectedReturnType(returnType);
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
                             "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
+        } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
+            String errorMsgPart;
+            if (returnType instanceof BUnionType) {
+                BUnionType bUnionReturnType = (BUnionType) returnType;
+                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
+            } else {
+                errorMsgPart = "no return type expected but found '" + returnType + "'";
+            }
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws 'java.lang.RuntimeException' found in class '" +
+                            jMethodRequest.declaringClass.getName() + "': " + errorMsgPart);
+        }
+    }
+
+    private String getExpectedReturnType(BType retType) {
+        if (retType.tag == TypeTags.NIL || (retType instanceof BTypeReferenceType &&
+                ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
+            return "error";
+        } else if (retType instanceof BUnionType) {
+            BUnionType bUnionReturnType = (BUnionType) retType;
+            BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+            return modifiedRetType + "|error";
+        } else {
+            return retType + "|error";
         }
     }
 
     private LinkedHashSet<BType> getNonErrorMembers(BUnionType bUnionReturnType) {
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
         for (BType bType : bUnionReturnType.getMemberTypes()) {
-            if (!(bType instanceof BTypeReferenceType &&
+            if (bType.tag != TypeTags.ERROR && !(bType instanceof BTypeReferenceType &&
                     ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
                 memTypes.add(bType);
             }
@@ -378,8 +394,12 @@ class JMethodResolver {
                 }
             }
 
-            BType receiverType = bParamTypes[0];
-            boolean isLastParam = bParamTypes.length == 1;
+            int receiverIndex = 0;
+            if (!jMethodRequest.pathParamSymbols.isEmpty()) {
+                receiverIndex = jMethodRequest.pathParamCount;
+            }
+            BType receiverType = bParamTypes[receiverIndex];
+            boolean isLastParam = (bParamTypes.length - jMethodRequest.pathParamCount) == 1;
             if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
                     jMethodRequest.restParamExist)) {
                 if (jParamTypes.length == 0 || bParamTypes[0].tag != TypeTags.HANDLE) {
@@ -389,7 +409,12 @@ class JMethodResolver {
                             jMethodRequest.declaringClass);
                 }
             }
-            i++;
+            for (int k = receiverIndex; k < bParamTypes.length - 1; k++) {
+                bParamTypes[k] = bParamTypes[k + 1];
+            }
+            BType[] bParamTypesWithoutReceiver = new BType[bParamTypes.length - 1];
+            System.arraycopy(bParamTypes, 0, bParamTypesWithoutReceiver, 0, bParamTypesWithoutReceiver.length);
+            bParamTypes = bParamTypesWithoutReceiver;
         } else if (bParamCount != jParamTypes.length) {
             if (jMethod.isBalEnvAcceptingMethod()) {
                 j++;
@@ -423,6 +448,7 @@ class JMethodResolver {
         BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
         paramTypes.add(initialPathParamIndex, pathParamArrayType);
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.pathParamCount = 1;
         jMethod.hasBundledPathParams = true;
     }
 

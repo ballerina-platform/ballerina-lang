@@ -52,7 +52,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -64,7 +63,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
@@ -113,6 +111,7 @@ import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -126,6 +125,7 @@ public class ProjectUtils {
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+    private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
 
     /**
      * Validates the org-name.
@@ -148,6 +148,18 @@ public class ProjectUtils {
         return validateDotSeparatedIdentifiers(packageName)
                 && validateUnderscoresOfName(packageName)
                 && validateInitialNumericsOfName(packageName);
+    }
+
+    /**
+     * Validates the package name.
+     *
+     * @param toolName The package name.
+     * @return True if valid package name, else false.
+     */
+    public static boolean validateToolName(String toolName) {
+        return validateDotSeparatedIdentifiersWithHyphen(toolName)
+                && validateUnderscoresOfName(toolName)
+                && validateInitialNumericsOfName(toolName);
     }
 
     /**
@@ -355,11 +367,13 @@ public class ProjectUtils {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
 
-        // if package name is starting with numeric character, prepend `app` / `lib`
+        // if package name is starting with numeric character, prepend `app` / `lib` / `tool`
         if (packageName.matches("[0-9].*")) {
-            if (template.equalsIgnoreCase("lib")) {
-                packageName = "lib" + packageName;
-            } else {
+            if (template.equalsIgnoreCase(LIB_DIR)) {
+                packageName = LIB_DIR + packageName;
+            } else if (template.equalsIgnoreCase(TOOL_DIR)) {
+                packageName = TOOL_DIR + packageName;
+            }  else {
                 packageName = "app" + packageName;
             }
         }
@@ -712,13 +726,8 @@ public class ProjectUtils {
     public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
         if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
-            if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
-                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
-                Authenticator.setDefault(authenticator);
-            }
             return new Proxy(Proxy.Type.HTTP, proxyInet);
         }
-
         return null;
     }
 
@@ -760,6 +769,13 @@ public class ProjectUtils {
 
     private static boolean validateDotSeparatedIdentifiers(String identifiers) {
         Matcher m = separatedIdentifierPattern.matcher(identifiers);
+        Matcher mm = onlyDotsPattern.matcher(identifiers);
+
+        return m.matches() && !mm.matches();
+    }
+
+    private static boolean validateDotSeparatedIdentifiersWithHyphen(String identifiers) {
+        Matcher m = separatedIdentifierWithHyphenPattern.matcher(identifiers);
         Matcher mm = onlyDotsPattern.matcher(identifiers);
 
         return m.matches() && !mm.matches();
@@ -987,7 +1003,36 @@ public class ProjectUtils {
     }
 
     /**
-     * Delete all files and subdirectories expect a given file inside the given directory.
+     * Delete the all contents in the given directory except for selected files.
+     *
+     * @param directoryPath Directory to delete.
+     * @param filesToKeep files to keep.
+     */
+    public static boolean deleteSelectedFilesInDirectory(Path directoryPath, List<Path> filesToKeep) {
+        if (filesToKeep.isEmpty()) {
+            return deleteDirectory(directoryPath);
+        }
+        File directory = new File(String.valueOf(directoryPath));
+        File[] files = directory.listFiles();
+        boolean success = true;
+        if (files != null) {
+            for (File f : files) {
+                if (!filesToKeep.contains(f.toPath()) && f.isDirectory()) {
+                    success = deleteDirectory(f.toPath());
+                } else if (!filesToKeep.contains(f.toPath()) && f.isFile()) {
+                    success = f.delete();
+                }
+
+            }
+                if (!success) {
+                    return false;
+                }
+        }
+        return true;
+    }
+
+    /**
+     * Delete all files and subdirectories except a given file inside the given directory.
      *
      * @param directoryPath Directory to delete.
      * @param fileNameToKeep file name to keep
@@ -1143,6 +1188,7 @@ public class ProjectUtils {
      * Given a list of patterns in include field, find the directories and files in the package that match the patterns.
      *
      * @param patterns list of string patterns to be matched
+     * @param packageRoot package root
      * @return the list of matching paths
      */
     public static List<Path> getPathsMatchingIncludePatterns(List<String> patterns, Path packageRoot) {
