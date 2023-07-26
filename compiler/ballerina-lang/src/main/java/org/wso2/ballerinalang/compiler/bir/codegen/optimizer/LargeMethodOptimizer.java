@@ -1044,6 +1044,13 @@ public class LargeMethodOptimizer {
                 int arrayIndex = mappingConstructorEntryWithIndex.index;
                 setMapElement(newInsList, handleArrayOperand, currOperand, mappingConstructorEntry, arrayIndex,
                         tempVars);
+                if (mappingConstructorEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
+                    BIRVariableDcl keyVarDcl = ((BIRNode.BIRMappingConstructorKeyValueEntry) mappingConstructorEntry).keyOp
+                            .variableDcl;
+                    if (keyVarDcl.kind == VarKind.ARG) {
+                        splitFuncEnv.splitFuncArgs.add(keyVarDcl);
+                    }
+                }
             }
             // no need to set the below in else part as it will not affect since splitNow is considered along with this
             splitFuncEnv.splitHere = splitPointDetails.splitHere;
