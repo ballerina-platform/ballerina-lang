@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
@@ -232,27 +233,7 @@ public class ToolCommand implements BLauncherCmd {
             }
         }
 
-        Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME);
-
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            try {
-                if (isToolLocallyAvailable(toolId, version)) {
-                    outStream.println("tool " + toolId + ":" + version + " is already available locally.");
-                } else {
-                    pullToolFromCentral(supportedPlatform, balaCacheDirPath);
-                }
-                insertToBalToolsTomlFile();
-            } catch (PackageAlreadyExistsException e) {
-                errStream.println(e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException | ProjectException e) {
-                CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
-                        null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-            }
-        }
+        pullToolAndUpdateBalToolsToml(toolId, version);
     }
 
     private void handleUseCommand() {
@@ -407,6 +388,32 @@ public class ToolCommand implements BLauncherCmd {
         }
     }
 
+    public void pullToolAndUpdateBalToolsToml(String toolIdArg, String versionArg) {
+        toolId = toolIdArg;
+        version = versionArg;
+        Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME);
+
+        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+            try {
+                if (isToolLocallyAvailable(toolId, version)) {
+                    outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+                } else {
+                    pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+                }
+                insertToBalToolsTomlFile();
+            } catch (PackageAlreadyExistsException e) {
+                errStream.println(e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
+            } catch (CentralClientException | ProjectException e) {
+                CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+        }
+    }
+
     private void pullToolFromCentral(String supportedPlatform, Path balaCacheDirPath) throws CentralClientException {
         Settings settings;
         try {
@@ -464,6 +471,12 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void removeAllToolVersions() {
+        if (BalToolsUtil.builtInToolCommands.contains(toolId)) {
+            CommandUtil.printError(errStream, "cannot remove built-in tool " + toolId + ".", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
 
