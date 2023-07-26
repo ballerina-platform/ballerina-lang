@@ -44,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.jsonmapper.diagnostic.DiagnosticMessage;
 import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -618,10 +619,7 @@ public class JsonToRecordMapper {
         } else if (typeNames.size() == 1) {
             return typeNames.get(0);
         }
-        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
-        String unionTypeDescNodeSource = typeNames.stream().map(TypeDescriptorNode::toSourceCode)
-                .collect(Collectors.joining(pipeToken.toSourceCode()));
-        TypeDescriptorNode unionTypeDescNode = NodeParser.parseTypeDescriptor(unionTypeDescNodeSource);
+        TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(typeNames);
         Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
         Token questionMarkToken = NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -631,6 +629,25 @@ public class JsonToRecordMapper {
 
         return isOptional ?
                 NodeFactory.createOptionalTypeDescriptorNode(parenTypeDescNode, questionMarkToken) : parenTypeDescNode;
+    }
+
+    private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
+        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
+
+        if (typeNames.size() == 0) {
+            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
+            return NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
+        } else if (typeNames.size() == 1) {
+            return typeNames.get(0);
+        } else if (typeNames.size() == 2) {
+            return NodeFactory.createUnionTypeDescriptorNode(typeNames.get(0), pipeToken, typeNames.get(1));
+        }
+        TypeDescriptorNode firstTypeDescNode = typeNames.remove(0);
+        TypeDescriptorNode secondTypeDescNode = typeNames.remove(0);
+        TypeDescriptorNode unionTypeDescNode =
+                NodeFactory.createUnionTypeDescriptorNode(firstTypeDescNode, pipeToken, secondTypeDescNode);
+        typeNames.add(0, unionTypeDescNode);
+        return joinToUnionTypeDescriptorNode(typeNames);
     }
 
     /**
