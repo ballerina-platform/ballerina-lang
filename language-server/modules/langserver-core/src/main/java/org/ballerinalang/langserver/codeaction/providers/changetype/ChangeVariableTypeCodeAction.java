@@ -303,8 +303,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         if (bindingPatternNode.kind() != SyntaxKind.CAPTURE_BINDING_PATTERN) {
             return Optional.empty();
         }
-        CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPatternNode;
-        return Optional.of(captureBindingPatternNode.variableName().text());        
+        return Optional.of(((CaptureBindingPatternNode) bindingPatternNode).variableName().text());        
     }
     
     private Optional<String> getModuleVarName(ModuleVariableDeclarationNode node) {

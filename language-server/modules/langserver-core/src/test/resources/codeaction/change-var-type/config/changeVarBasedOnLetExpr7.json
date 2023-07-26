@@ -6,7 +6,7 @@
   "source": "changeVarBasedOnLetExpr7.bal",
   "expected": [
     {
-      "title": "Change variable 'i' type to 'module1:TestRecord4'",
+      "title": "Change variable 'i' type to 'int'",
       "kind": "quickfix",
       "edits": [
         {
@@ -17,10 +17,10 @@
             },
             "end": {
               "line": 3,
-              "character": 7
+              "character": 10
             }
           },
-          "newText": "module1:TestRecord4"
+          "newText": "int"
         }
       ],
       "resolvable": false
