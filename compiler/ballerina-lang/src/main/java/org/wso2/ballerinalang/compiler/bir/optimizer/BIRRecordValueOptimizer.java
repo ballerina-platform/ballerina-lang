@@ -5,9 +5,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -30,6 +34,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     private final Map<BIROperand, BRecordType> recordOperandTypeMap = new HashMap<>();
 
     private BIRNode.BIRBasicBlock lastBB = null;
+    private BIRNode.BIRFunction currentFunction = null;
     private List<BIRNode.BIRBasicBlock> newBBs = new ArrayList<>();
     private List<BIRNode.BIRFunction> moduleFunctions = new ArrayList<>();
     private boolean fpRemoved = false;
@@ -54,6 +59,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRFunction birFunction) {
+        currentFunction = birFunction;
         birFunction.basicBlocks.forEach(bb -> bb.accept(this));
         birFunction.basicBlocks = newBBs;
         newBBs = new ArrayList<>();
@@ -95,18 +101,13 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
                 if (fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
                     BIRNode.BIRFunction defaultFunction = getDefaultBIRFunction(fpCall.fp.variableDcl.name.value);
                     if (defaultFunction == null) {
+                        resetBasicBlock(basicBlock);
                         return;
                     }
                     BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
                     lastBB = lastBB != null ? lastBB : basicBlock;
-                    if (defaultFunction.basicBlocks.size() == 2 && containsOnlyConstantLoad(firstBB)) {
-                        BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad)
-                                firstBB.instructions.get(0);
-                        BIRNonTerminator.ConstantLoad newConstLoad =
-                                new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value,
-                                        constantLoad.type, fpCall.lhsOp);
-                        newConstLoad.scope = fpCall.scope;
-                        lastBB.instructions.add(newConstLoad);
+                    if (containsOnlyConstantLoad(defaultFunction)) {
+                        moveConstLoadInstruction(fpCall, firstBB);
                         lastBB.terminator = null;
                         fpRemoved = true;
                     } else {
@@ -121,13 +122,43 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         }
     }
 
-    private boolean containsOnlyConstantLoad(BIRNode.BIRBasicBlock firstBB) {
+    private void moveConstLoadInstruction(BIRTerminator.FPCall fpCall, BIRNode.BIRBasicBlock firstBB) {
+
+        BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
+        if (firstBB.instructions.size() == 2) {
+            BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type,
+                    new Name("%temp_" + fpCall.fp.variableDcl.name), VarScope.FUNCTION, VarKind.TEMP, "");
+            BIROperand tempVarOperand = new BIROperand(tempVar);
+            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
+                    constantLoad.value, constantLoad.type, tempVarOperand);
+            currentFunction.localVars.add(tempVar);
+            newConstLoad.scope = fpCall.scope;
+            lastBB.instructions.add(newConstLoad);
+            BIRNonTerminator.TypeCast typeCast = (BIRNonTerminator.TypeCast) firstBB.instructions.get(1);
+            BIRNonTerminator.TypeCast newTypeCast = new BIRNonTerminator.TypeCast(typeCast.pos, fpCall.lhsOp,
+                    tempVarOperand, typeCast.type, typeCast.checkTypes);
+            lastBB.instructions.add(newTypeCast);
+        } else {
+            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
+                    constantLoad.value, constantLoad.type, fpCall.lhsOp);
+            lastBB.instructions.add(newConstLoad);
+        }
+    }
+
+    private boolean containsOnlyConstantLoad(BIRNode.BIRFunction defaultFunction) {
+        if (defaultFunction.basicBlocks.size() != 2) {
+            return false;
+        }
+        BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
+        BIRNode.BIRBasicBlock secondBB = defaultFunction.basicBlocks.get(1);
+        if (!secondBB.instructions.isEmpty() || secondBB.terminator.kind != InstructionKind.RETURN) {
+            return false;
+        }
         switch (firstBB.instructions.size()) {
             case 1:
                 return firstBB.instructions.get(0).kind == CONST_LOAD;
             case 2:
-                return firstBB.instructions.get(0).kind == CONST_LOAD &&
-                        firstBB.instructions.get(1).kind == TYPE_CAST;
+                return firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST;
             default:
                 return false;
         }
