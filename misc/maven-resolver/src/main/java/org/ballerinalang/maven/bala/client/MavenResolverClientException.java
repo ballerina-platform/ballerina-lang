@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.maven;
+package org.ballerinalang.maven.bala.client;
 
 /**
  * Indicate the errors thrown by the Maven resolver.

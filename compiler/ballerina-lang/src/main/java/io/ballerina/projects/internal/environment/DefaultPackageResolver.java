@@ -33,12 +33,15 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.repositories.CustomPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,6 +58,7 @@ public class DefaultPackageResolver implements PackageResolver {
     private final PackageRepository distributionRepo;
     private final PackageRepository centralRepo;
     private final PackageRepository localRepo;
+    private final Map<String, PackageRepository> customRepos;
     private final WritablePackageCache packageCache;
 
     public DefaultPackageResolver(PackageRepository distributionRepo,
@@ -63,6 +67,19 @@ public class DefaultPackageResolver implements PackageResolver {
                                   PackageCache packageCache) {
         this.distributionRepo = distributionRepo;
         this.centralRepo = centralRepo;
+        this.localRepo = localRepo;
+        this.customRepos = new HashMap<>();
+        this.packageCache = (WritablePackageCache) packageCache;
+    }
+
+    public DefaultPackageResolver(PackageRepository distributionRepo,
+                                  PackageRepository centralRepo,
+                                  PackageRepository localRepo,
+                                  Map<String, PackageRepository> customRepos,
+                                  PackageCache packageCache) {
+        this.distributionRepo = distributionRepo;
+        this.centralRepo = centralRepo;
+        this.customRepos = customRepos;
         this.localRepo = localRepo;
         this.packageCache = (WritablePackageCache) packageCache;
     }

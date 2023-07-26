@@ -39,6 +39,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     MODULE_NOT_FOUND("BCE5100", "module.not.found"),
     UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type"),
     CONFLICTING_PLATFORM_JAR_FILES("BCE5300", "conflicting.platform.jars.type"),
+    CUSTOM_REPOSITORY_NOT_FOUND("BCE5400", "custom.repository.not.found"),
     ;
 
     private final String diagnosticId;
