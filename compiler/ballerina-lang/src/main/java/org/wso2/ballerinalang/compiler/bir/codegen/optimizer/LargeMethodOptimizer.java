@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -56,6 +57,7 @@ import java.util.Set;
  */
 public class LargeMethodOptimizer {
 
+    private static final Name DEFAULT_WORKER_NAME = new Name("function");
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
     private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
@@ -200,8 +202,7 @@ public class LargeMethodOptimizer {
                         List<BIRErrorEntry> splitErrorTableEntries = new ArrayList<>();
                         int trapBBNum;
                         while (errTableEntryIndex >= 0) {
-                            trapBBNum = Integer.parseInt(
-                                    errorTableEntries.get(errTableEntryIndex).trapBB.toString().substring(2));
+                            trapBBNum = errorTableEntries.get(errTableEntryIndex).trapBB.number;
                             if (trapBBNum <= getBbIdNum(basicBlocks, bbNum)) {
                                 break;
                             } else if (trapBBNum < getBbIdNum(basicBlocks, splitEndBBIndex)) {
@@ -262,7 +263,7 @@ public class LargeMethodOptimizer {
     }
 
     private int getBbIdNum(List<BIRBasicBlock> bbList, int bbIndex) {
-        return Integer.parseInt(bbList.get(bbIndex).toString().substring(2));
+        return bbList.get(bbIndex).number;
     }
 
     private boolean needToPassRhsVarDclAsArg(BIROperand rhsOp) {
@@ -289,9 +290,11 @@ public class LargeMethodOptimizer {
         int startInsNum = 0; // start instruction index
         int bbNum = 0; // ongoing BB index
         int newBBNum = getBbIdNum(basicBlocks, basicBlocks.size() - 1); // used for newly created BB's id
-        BIRBasicBlock currentBB  = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));
+        BIRBasicBlock currentBB  = possibleSplits.get(splitNum).startBBNum == 0
+                ? replaceExistingBBAndGetCurrentBB(basicBlocks, bbNum) : null;
         Map<String, String> changedLocalVarStartBB = new HashMap<>(); // key: oldBBId, value: newBBId
         Map<String, String> changedLocalVarEndBB = new HashMap<>(); // key: oldBBId, value: newBBId
+        Map<Integer, BIRBasicBlock> changedErrorTableEndBB = new HashMap<>(); // key: oldBB number, value: new BB
 
         while (bbNum < basicBlocks.size()) {
             // it is either the start of a new BB or after split across BBs (say jump) now in the middle of a BB
@@ -308,7 +311,7 @@ public class LargeMethodOptimizer {
                     for (; bbNum < possibleSplits.get(splitNum).startBBNum; bbNum++) {
                         newBBList.add(basicBlocks.get(bbNum));
                     }
-                    currentBB = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));
+                    currentBB = replaceExistingBBAndGetCurrentBB(basicBlocks, bbNum);
                     continue;
                 }
             } else if (splitNum >= possibleSplits.size()) {
@@ -361,7 +364,11 @@ public class LargeMethodOptimizer {
                 changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
                 startInsNum = 0;
                 bbNum += 1;
-                currentBB = new BIRBasicBlock(new Name("bb" + getBbIdNum(basicBlocks, bbNum)));
+                if (splitNum < possibleSplits.size() && (possibleSplits.get(splitNum).startBBNum == bbNum)) {
+                    currentBB = replaceExistingBBAndGetCurrentBB(basicBlocks, bbNum);
+                } else {
+                    currentBB = null;
+                }
                 continue;
             }
 
@@ -372,7 +379,7 @@ public class LargeMethodOptimizer {
                         possibleSplits.get(splitNum).firstIns));
             }
             splitFuncNum += 1;
-            String newFunctionName = "$split$method$" + splitFuncNum;
+            String newFunctionName = "$split$method$_" + splitFuncNum;
             Name newFuncName = new Name(newFunctionName);
             Split currSplit = possibleSplits.get(splitNum);
             splitNum += 1;
@@ -386,27 +393,27 @@ public class LargeMethodOptimizer {
             } else {
                 splitFuncCallResultOp = splitLastInsLhsOp;
             }
+            // extra +1 for BB incremented in createNewBIRFunctionAcrossBB function, hence BB number is newBBNum + 2
+            BIRBasicBlock parentFuncNewBB = new BIRBasicBlock(newBBNum + 2);
             BIRFunction newBIRFunc = createNewBIRFunctionAcrossBB(function, newFuncName, newFuncReturnType, currSplit,
-                    newBBNum, fromAttachedFunction);
-            newBBNum += 1;
+                    newBBNum, fromAttachedFunction, changedErrorTableEndBB, parentFuncNewBB);
+            newBBNum += 2;
             newlyAddedFunctions.add(newBIRFunc);
             if (currSplit.splitFurther) {
                 newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction));
             }
             function.errorTable.removeAll(currSplit.errorTableEntries);
             startInsNum = currSplit.lastIns + 1;
-            newBBNum += 1;
-            BIRBasicBlock newBB = new BIRBasicBlock(new Name("bb" + newBBNum));
             List<BIROperand> args = new ArrayList<>();
             for (BIRVariableDcl funcArg : currSplit.funcArgs) {
                 args.add(new BIROperand(funcArg));
             }
             currentBB.terminator = new BIRTerminator.Call(lastInstruction.pos, InstructionKind.CALL, false,
-                    currentPackageId, newFuncName, args, splitFuncCallResultOp, newBB, Collections.emptyList(),
-                    Collections.emptySet(), lastInstruction.scope);
+                    currentPackageId, newFuncName, args, splitFuncCallResultOp, parentFuncNewBB,
+                    Collections.emptyList(), Collections.emptySet(), lastInstruction.scope);
             newBBList.add(currentBB);
             changedLocalVarEndBB.put(basicBlocks.get(bbNum).id.value, currentBB.id.value);
-            currentBB = newBB;
+            currentBB = parentFuncNewBB;
             if (currSplit.returnValAssigned) {
                 currentBB = handleNewFuncReturnVal(function, splitFuncCallResultOp, lastInstruction.scope, currentBB,
                         newBBNum, newBBList, splitLastInsLhsOp);
@@ -422,6 +429,28 @@ public class LargeMethodOptimizer {
         // unused temp and synthetic vars in the original function are removed
         // and onlyUsedInSingleBB flag in BIRVariableDcl is changed in needed places
         removeUnusedVarsAndSetVarUsage(function);
+        // set error table changed BBs
+        fixErrorTableEndBBs(function.errorTable, changedErrorTableEndBB);
+    }
+
+    private void fixErrorTableEndBBs(List<BIRErrorEntry> errorTable,
+                                     Map<Integer, BIRBasicBlock> changedErrorTableEndBB) {
+        for (BIRErrorEntry birErrorEntry : errorTable) {
+            if (changedErrorTableEndBB.containsKey(birErrorEntry.endBB.number)) {
+                birErrorEntry.endBB = changedErrorTableEndBB.get(birErrorEntry.endBB.number);
+            }
+        }
+    }
+
+    private BIRBasicBlock replaceExistingBBAndGetCurrentBB(List<BIRBasicBlock> basicBlocks, int bbNum) {
+        BIRBasicBlock currentBB = basicBlocks.get(bbNum);
+        BIRBasicBlock newCurrentBB = new BIRBasicBlock(getBbIdNum(basicBlocks, bbNum));
+        newCurrentBB.instructions = currentBB.instructions;
+        newCurrentBB.terminator = currentBB.terminator;
+        basicBlocks.set(bbNum, newCurrentBB);
+        currentBB.terminator = null;
+        currentBB.instructions = new ArrayList<>();
+        return currentBB;
     }
 
     private BType createErrorUnionReturnType(BType newFuncReturnType) {
@@ -438,8 +467,8 @@ public class LargeMethodOptimizer {
         BIRNonTerminator errorTestIns = new BIRNonTerminator.TypeTest(null, symbolTable.errorType,
                 isErrorResultOp, splitFuncCallResultOp);
         currentBB.instructions.add(errorTestIns);
-        BIRBasicBlock trueBB = new BIRBasicBlock(new Name("bb" + ++newBBNum));
-        BIRBasicBlock falseBB = new BIRBasicBlock(new Name("bb" + ++newBBNum));
+        BIRBasicBlock trueBB = new BIRBasicBlock(++newBBNum);
+        BIRBasicBlock falseBB = new BIRBasicBlock(++newBBNum);
         currentBB.terminator = new BIRTerminator.Branch(null, isErrorResultOp, trueBB, falseBB, lastInsScope);
         newBBList.add(currentBB);
         BIROperand castedErrorOp = generateTempLocalVariable(function, symbolTable.errorType);
@@ -565,10 +594,14 @@ public class LargeMethodOptimizer {
      * @param currSplit ongoing split details
      * @param newBBNum last BB id num of the parent function
      * @param fromAttachedFunction flag which indicates an original attached function is being split
+     * @param changedErrorTableEndBB error tables end BBs which needs to be changed
+     * @param parentFuncNewBB new BIRBasicBlock being added to the parent function
      * @return newly created BIR function
      */
     private BIRFunction createNewBIRFunctionAcrossBB(BIRFunction parentFunc, Name funcName, BType retType,
-                                                     Split currSplit, int newBBNum, boolean fromAttachedFunction) {
+                                                     Split currSplit, int newBBNum, boolean fromAttachedFunction,
+                                                     Map<Integer, BIRBasicBlock> changedErrorTableEndBB,
+                                                     BIRBasicBlock parentFuncNewBB) {
         List<BIRBasicBlock> parentFuncBBs = parentFunc.basicBlocks;
         BIRNonTerminator lastIns = parentFuncBBs.get(currSplit.endBBNum).instructions.get(currSplit.lastIns);
         List<BType> paramTypes = new ArrayList<>();
@@ -577,8 +610,8 @@ public class LargeMethodOptimizer {
         }
         BInvokableType type = new BInvokableType(paramTypes, retType, null);
 
-        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, parentFunc.flags, type,
-                parentFunc.workerName, 0, parentFunc.origin);
+        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, 0, type,
+                DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
         BIRVariableDcl selfVarDcl = null;
@@ -609,21 +642,26 @@ public class LargeMethodOptimizer {
         birFunc.errorTable.addAll(currSplit.errorTableEntries);
 
         // creates BBs
-        BIRBasicBlock entryBB = new BIRBasicBlock(new Name("bb0"));
+        BIRBasicBlock entryBB = new BIRBasicBlock(0);
         if (currSplit.firstIns < parentFuncBBs.get(currSplit.startBBNum).instructions.size()) {
             entryBB.instructions.addAll(parentFuncBBs.get(currSplit.startBBNum).instructions.subList(
                     currSplit.firstIns, parentFuncBBs.get(currSplit.startBBNum).instructions.size()));
         }
         entryBB.terminator = parentFuncBBs.get(currSplit.startBBNum).terminator;
-        birFunc.basicBlocks.add(entryBB);
+        List<BIRBasicBlock> basicBlocks = birFunc.basicBlocks;
+        basicBlocks.add(entryBB);
 
         // copying BBs between first and last bb
         for (int bbNum = currSplit.startBBNum + 1; bbNum < currSplit.endBBNum; bbNum++) {
-            birFunc.basicBlocks.add(parentFuncBBs.get(bbNum));
+            BIRBasicBlock bb = parentFuncBBs.get(bbNum);
+            basicBlocks.add(bb);
+            changedErrorTableEndBB.put(bb.number, parentFuncNewBB);
         }
 
         // create last BB and the return BB (exit BB)
-        BIRBasicBlock lastBB = new BIRBasicBlock(new Name("bb" + getBbIdNum(parentFuncBBs, currSplit.endBBNum)));
+        int lastBBIdNum = getBbIdNum(parentFuncBBs, currSplit.endBBNum);
+        BIRBasicBlock lastBB = new BIRBasicBlock(lastBBIdNum);
+        changedErrorTableEndBB.put(lastBBIdNum, parentFuncNewBB);
         if (0 <= currSplit.lastIns) {
             lastBB.instructions.addAll(parentFuncBBs.get(currSplit.endBBNum).instructions.subList(
                     0, currSplit.lastIns + 1));
@@ -632,13 +670,41 @@ public class LargeMethodOptimizer {
 
         // a new BB with id using newBBNum is used to include the return statement
         newBBNum += 1;
-        BIRBasicBlock exitBB = new BIRBasicBlock(new Name("bb" + newBBNum));
+        BIRBasicBlock exitBB = new BIRBasicBlock(newBBNum);
         exitBB.terminator = new BIRTerminator.Return(null);
         lastBB.terminator = new BIRTerminator.GOTO(null, exitBB, lastIns.scope);
-        birFunc.basicBlocks.add(lastBB);
-        birFunc.basicBlocks.add(exitBB);
+        for (BIRBasicBlock basicBlock : basicBlocks) {
+            fixTerminatorBBs(lastBBIdNum, lastBB, basicBlock.terminator);
+        }
+        basicBlocks.add(lastBB);
+        basicBlocks.add(exitBB);
         rectifyVarKindsAndTerminators(birFunc, selfVarDcl, exitBB);
         return birFunc;
+    }
+
+    private void fixTerminatorBBs(int lastBBIdNum, BIRBasicBlock lastBB, BIRTerminator terminator) {
+        if (terminator.thenBB != null && terminator.thenBB.number == lastBBIdNum) {
+            terminator.thenBB = lastBB;
+        }
+
+        switch (terminator.getKind()) {
+            case GOTO:
+                if (((BIRTerminator.GOTO) terminator).targetBB.number == lastBBIdNum) {
+                    ((BIRTerminator.GOTO) terminator).targetBB = lastBB;
+                }
+                break;
+            case BRANCH:
+                BIRTerminator.Branch branchTerminator = (BIRTerminator.Branch) terminator;
+                if (branchTerminator.trueBB.number == lastBBIdNum) {
+                    branchTerminator.trueBB = lastBB;
+                }
+                if (branchTerminator.falseBB.number == lastBBIdNum) {
+                    branchTerminator.falseBB = lastBB;
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -663,7 +729,7 @@ public class LargeMethodOptimizer {
 
         for (int splitNum = 0; splitNum < possibleSplits.size(); splitNum++) {
             splitFuncNum += 1;
-            String newFunctionName = "$split$method$" + splitFuncNum;
+            String newFunctionName = "$split$method$_" + splitFuncNum;
             Name newFuncName = new Name(newFunctionName);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplits.get(splitNum).lastIns).lhsOp.variableDcl);
@@ -679,7 +745,7 @@ public class LargeMethodOptimizer {
             currentBB.instructions.addAll(instructionList.subList(startInsNum, possibleSplits.get(splitNum).firstIns));
             startInsNum = possibleSplits.get(splitNum).lastIns + 1;
             newBBNum += 1;
-            BIRBasicBlock newBB = new BIRBasicBlock(new Name("bb" + newBBNum));
+            BIRBasicBlock newBB = new BIRBasicBlock(newBBNum);
             List<BIROperand> args = new ArrayList<>();
             for (BIRVariableDcl funcArg : possibleSplits.get(splitNum).funcArgs) {
                 args.add(new BIROperand(funcArg));
@@ -732,8 +798,8 @@ public class LargeMethodOptimizer {
         }
         BInvokableType type = new BInvokableType(paramTypes, retType, null);
 
-        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, parentFunc.flags, type,
-                parentFunc.workerName, 0, parentFunc.origin);
+        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, 0, type,
+                DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
         BIRVariableDcl selfVarDcl = null;
@@ -763,11 +829,11 @@ public class LargeMethodOptimizer {
         birFunc.localVars.addAll(lhsOperandList);
 
         // creates 2 bbs
-        BIRBasicBlock entryBB = new BIRBasicBlock(new Name("bb0"));
+        BIRBasicBlock entryBB = new BIRBasicBlock(0);
         entryBB.instructions.addAll(collectedIns);
         currentIns.lhsOp = new BIROperand(birFunc.returnVariable);
         entryBB.instructions.add(currentIns);
-        BIRBasicBlock exitBB = new BIRBasicBlock(new Name("bb1"));
+        BIRBasicBlock exitBB = new BIRBasicBlock(1);
         exitBB.terminator = new BIRTerminator.Return(null);
         entryBB.terminator = new BIRTerminator.GOTO(null, exitBB, currentIns.scope);
         birFunc.basicBlocks.add(entryBB);

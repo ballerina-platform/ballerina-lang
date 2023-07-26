@@ -209,8 +209,7 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'function ((any|error)...) returns ()', found " +
                         "'function (any...) returns ()'", 123, 47);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected " +
-                "'[\"list\",int?,Type]', found 'Type'", 133, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'List', found 'Type'", 133, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
                 "found 'table<record {| |}>'", 138, 11);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
@@ -275,13 +274,8 @@ public class AssignStmtTest {
     }
 
     @Test()
-    public void testAssignAnyToUnionWithErrorAndAny() {
-        BRunUtil.invoke(result, "testAssignAnyToUnionWithErrorAndAny");
-    }
-
-    @Test()
-    public void testAssignQueryExpressionToVar() {
-        BRunUtil.invoke(result, "testAssignVarInQueryExpression");
+    public void assignAnyToUnionWithErrorAndAny() {
+        BRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
     }
 
     @Test

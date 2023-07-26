@@ -32,9 +32,9 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BObjectType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,9 +43,9 @@ import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.OBJECT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * <p>
@@ -207,7 +207,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (objectType.isReadOnly()) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
+                    ErrorHelper.getErrorDetails(ErrorCodes.INVALID_READONLY_VALUE_UPDATE));
         }
 
         Field field = objectType.getFields().get(fieldName);
@@ -215,7 +215,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
+                    ErrorHelper.getErrorDetails(ErrorCodes.OBJECT_INVALID_FINAL_FIELD_UPDATE,
                                                          fieldName, objectType));
         }
         checkFieldUpdateType(fieldName, value);
@@ -229,7 +229,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
         throw ErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
                         INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_OBJECT_FIELD_VALUE_ERROR,
+                ErrorHelper.getErrorDetails(ErrorCodes.INVALID_OBJECT_FIELD_VALUE_ERROR,
                         fieldName, fieldType, TypeChecker.getType(value)));
     }
 }

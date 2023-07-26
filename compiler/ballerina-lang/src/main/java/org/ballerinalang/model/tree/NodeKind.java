@@ -73,6 +73,7 @@ public enum NodeKind {
     INDEX_BASED_ACCESS_EXPR,
     INT_RANGE_EXPR,
     INVOCATION,
+    COLLECT_CONTEXT_INVOCATION,
     LAMBDA,
     ARROW_EXPR,
     LITERAL,
@@ -196,6 +197,7 @@ public enum NodeKind {
 
     /* Clauses */
     SELECT,
+    COLLECT,
     FROM,
     JOIN,
     WHERE,
@@ -206,6 +208,8 @@ public enum NodeKind {
     LIMIT,
     ORDER_BY,
     ORDER_KEY,
+    GROUP_BY,
+    GROUPING_KEY,
     ON_FAIL,
 
     /* Match statement */

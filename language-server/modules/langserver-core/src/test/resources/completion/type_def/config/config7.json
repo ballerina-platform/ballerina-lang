@@ -4,6 +4,7 @@
     "character": 40
   },
   "source": "type_def/source/source7.bal",
+  "description": "",
   "items": [
     {
       "label": "Thread",
@@ -22,14 +23,6 @@
       },
       "sortText": "BM",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Cloneable",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "AR",
-      "insertText": "Cloneable",
       "insertTextFormat": "Snippet"
     },
     {
@@ -560,6 +553,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Cloneable",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "AI",
+      "insertText": "Cloneable",
       "insertTextFormat": "Snippet"
     }
   ]

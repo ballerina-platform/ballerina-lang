@@ -116,8 +116,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -135,6 +138,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -903,8 +907,24 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        SymbolEnv orderByEnv = groupByClause.env;
+        for (BLangGroupingKey groupingKeyNode : groupByClause.groupingKeyList) {
+            analyzeNode(groupingKeyNode, orderByEnv);
+        }
+    }
+
+    public void visit(BLangGroupingKey groupingKey) {
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, selectClause.env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+        analyzeNode(bLangCollectClause.expression, env);
     }
 
     @Override
@@ -1402,6 +1422,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        analyzeNode(collectContextInvocation.invocation, env);
+    }
+
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
             analyzeNode(positionalArg, env);
@@ -1418,7 +1443,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        boolean isWorker = actionInvocationExpr.functionPointerInvocation;
+        boolean isWorker = actionInvocationExpr.functionPointerInvocation &&
+                Symbols.isFlagOn(actionInvocationExpr.symbol.flags, Flags.WORKER);
         if (isInIsolatedFunction(env)) {
             if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true, isWorker)) {
                 return;
@@ -2080,7 +2106,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (inIsolatedFunction && !invocationExpr.functionPointerInvocation) {
+        if (inIsolatedFunction && !Symbols.isFlagOn(flags, Flags.WORKER)) {
             dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
             return;
         }

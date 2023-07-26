@@ -78,7 +78,13 @@ public class LangLibRegexpTest {
                 "testEmptyRegexpFind",
                 "testRegexpFromString",
                 "testEmptyRegexpMatch",
-                "testTranslatingDiffNodesInCharClass"
+                "testTranslatingDiffNodesInCharClass",
+                "testRegexpInterpolation",
+                "testRegexpInterpolationNegative",
+                "testCharClassesWithMultipleRangesAndAtoms",
+                "testModuleLevelPatterns",
+                "testTranslatingDiffNodesInCharClass",
+                "testRegexpWithUnicodeChars",
         };
     }
 
@@ -206,7 +212,7 @@ public class LangLibRegexpTest {
                 {"testNegativeInvalidFlags1"},
                 {"testNegativeInvalidFlags2"},
                 {"testNegativeInvalidFlags3"},
-                {"testNegativeInvalidFlags4"},
+                {"testNegativeInvalidFlags4"}
         };
     }
     

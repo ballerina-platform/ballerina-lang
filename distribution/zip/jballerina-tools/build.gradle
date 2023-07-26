@@ -67,13 +67,12 @@ configurations {
 }
 
 dependencies {
-    dist "org.bytedeco:javacpp:${project.bytedecoJavacppVersion}"
     dist "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
     dist "com.fasterxml.jackson.core:jackson-core:${project.jacksonCoreVersion}"
     dist "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
     dist "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
     // dist 'org.ow2.asm:asm:6.2.1'
-    dist "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+    dist "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
     dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
     dist "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
     dist "me.tongfei:progressbar:${project.tongfeiProgressbarVersion}"
@@ -81,7 +80,6 @@ dependencies {
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
 
-    // Following dependencies are required for kraal library
     dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
     dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
     dist "org.ow2.asm:asm:${project.ow2AsmVersion}"

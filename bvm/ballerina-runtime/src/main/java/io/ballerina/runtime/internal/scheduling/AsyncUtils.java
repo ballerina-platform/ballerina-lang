@@ -81,8 +81,9 @@ public class AsyncUtils {
      * @return Future Value
      */
     public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
-                                                         StrandMetadata metadata, Object[] args, Function<Object,
-            Object> resultHandleFunction, Scheduler scheduler) {
+                                                         StrandMetadata metadata, Object[] args,
+                                                         Function<Object, Object> resultHandleFunction,
+                                                         Scheduler scheduler) {
         Strand parent = Scheduler.getStrand();
         AsyncFunctionCallback callback = new AsyncFunctionCallback(parent) {
             @Override

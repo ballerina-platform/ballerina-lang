@@ -20,17 +20,22 @@ package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+
+import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
 
 /**
  * This class executes a Ballerina program.
@@ -49,9 +54,6 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
-        } catch (BLangRuntimeException e) {
-            errStream.println(e.getMessage());
-            Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
                 // print the error message only if the exception was not thrown due to compilation errors
@@ -81,7 +83,27 @@ public class Main {
             cmdParser.setStopAtPositional(true);
 
             // loading additional commands via SPI
-            ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
+            ServiceLoader<BLauncherCmd> bCmds;
+            if (null != args && args.length > 0 && LauncherUtils.isToolCommand(args[0])) {
+                List<File> jars = LauncherUtils.getToolCommandJarAndDependenciesPath(args[0]);
+                URL[] urls = jars.stream()
+                        .map(file -> {
+                            try {
+                                return file.toURI().toURL();
+                            } catch (MalformedURLException e) {
+                                throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
+                                        .getAbsolutePath());
+                            }
+                        })
+                        .toArray(URL[]::new);
+                // Combine custom class loader with system class loader
+                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+                ClassLoader combinedClassLoader = new URLClassLoader(urls, systemClassLoader);
+                bCmds = ServiceLoader.load(BLauncherCmd.class, combinedClassLoader);
+            } else {
+                bCmds = ServiceLoader.load(BLauncherCmd.class);
+            }
+
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
@@ -244,6 +266,7 @@ public class Main {
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
         }
+
     }
 
     /**
@@ -251,7 +274,7 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @CommandLine.Command(name = "version", description = "Prints Ballerina version")
+    @CommandLine.Command(name = "version", description = "Print the Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -280,12 +303,12 @@ public class Main {
 
         @Override
         public void printLongDesc(StringBuilder out) {
-
+            out.append(BLauncherCmd.getCommandUsageInfo(VERSION_COMMAND));
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  bal version\n");
+            out.append("Print the Ballerina version");
         }
 
         @Override
@@ -371,6 +394,8 @@ public class Main {
         @CommandLine.Parameters(arity = "0..1")
         private List<String> argList = new ArrayList<>();
 
+        private CommandLine parentCmdParser;
+
         @Override
         public void execute() {
             if (versionFlag) {
@@ -402,6 +427,7 @@ public class Main {
 
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
         }
     }
 }

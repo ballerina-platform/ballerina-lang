@@ -100,8 +100,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -118,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1746,6 +1750,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 BLangExpression expr = varNode.expr;
                 return expr != null && isValidContextForInferredArray(node.parent) &&
                         isValidVariableForInferredArray(expr);
+            case CONSTANT:
+                BLangConstant constant = (BLangConstant) node;
+                return constant.expr != null && isValidContextForInferredArray(node.parent) &&
+                        isValidVariableForInferredArray(constant.expr);
             default:
                 return false;
         }
@@ -2349,7 +2357,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
                     String unescapedName = Utils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
                                         Types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
                                         unescapedName);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(unescapedName)) {
@@ -2367,7 +2375,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
                                 Types.getReferredType(recordLiteral.parent.getBType())
                                         .getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
@@ -2489,6 +2497,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 logDeprecatedWarningForInvocation(invocationExpr);
             }
         }
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation node, AnalyzerData data) {
+        analyzeExpr(node.invocation, data);
     }
 
     @Override
@@ -3333,8 +3346,23 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
+    public void visit(BLangGroupByClause node, AnalyzerData data) {
+        node.groupingKeyList.forEach(value -> analyzeNode(value, data));
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, AnalyzerData data) {
+        analyzeNode((BLangNode) node.getGroupingKey(), data);
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause, AnalyzerData data) {
         analyzeExpr(selectClause.expression, data);
+    }
+
+    @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
     }
 
     @Override
