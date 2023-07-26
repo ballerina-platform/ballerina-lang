@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org)
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * The extended service for the XMLToRecord endpoint.
  *
- * @since 2.0.0
+ * @since 2201.7.2
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("xmlToRecord")
@@ -47,8 +47,7 @@ public class XMLToRecordConverterService implements ExtendedLanguageServerServic
             boolean isClosed = request.getIsClosed();
             boolean forceFormatRecordFields = request.getForceFormatRecordFields();
 
-            return XMLToRecordConverter.convert(xmlValue, false, isRecordTypeDesc, isClosed,
-                    forceFormatRecordFields);
+            return XMLToRecordConverter.convert(xmlValue, isRecordTypeDesc, isClosed, forceFormatRecordFields);
         });
     }
 

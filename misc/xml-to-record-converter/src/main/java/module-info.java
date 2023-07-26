@@ -11,5 +11,4 @@ module io.ballerina.xmltorecordconverter {
     requires org.eclipse.lsp4j.jsonrpc;
 
     exports io.ballerina.xmltorecordconverter;
-//    exports io.ballerina.jsonmapper.diagnostic;
 }
