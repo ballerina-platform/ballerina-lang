@@ -1,18 +1,10 @@
 {
   "position": {
-    "line": 5,
-    "character": 11
+    "line": 4,
+    "character": 5
   },
-  "source": "typedesc_context/source/union_typedesc2.bal",
+  "source": "record_type_desc/source/source15.bal",
   "items": [
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "AN",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "StrandData",
       "kind": "Struct",
@@ -25,30 +17,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap1",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "AN",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TEST_CONST",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "D",
-      "insertText": "TEST_CONST",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "AM",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -57,11 +25,76 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap3",
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AM",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
       "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "AN",
-      "insertText": "TestMap3",
+      "detail": "Readonly",
+      "sortText": "BN",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "TypeParameter",
+      "detail": "Handle",
+      "sortText": "BN",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "TypeParameter",
+      "detail": "Never",
+      "sortText": "BN",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "TypeParameter",
+      "detail": "Json",
+      "sortText": "BN",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "TypeParameter",
+      "detail": "Anydata",
+      "sortText": "BN",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "TypeParameter",
+      "detail": "Any",
+      "sortText": "BN",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "TypeParameter",
+      "detail": "Byte",
+      "sortText": "BN",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Z",
+      "filterText": "service",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -137,172 +170,21 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Z",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "BO",
       "filterText": "module1",
       "insertText": "module1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "filterText": "array",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "filterText": "test",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CF",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "G",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "G",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "G",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "G",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "G",
-      "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
     {
@@ -350,6 +232,78 @@
             }
           },
           "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "test",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -402,89 +356,12 @@
       ]
     },
     {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Z",
-      "filterText": "null",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1:function4(int param1, int param2, string param3, float... param4)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
-        }
-      },
-      "sortText": "BC",
-      "filterText": "module1_function4",
-      "insertText": "module1:function4(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "module1:function3(int param1, int param2, float... param3)",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
-        }
-      },
-      "sortText": "BC",
-      "filterText": "module1_function3",
-      "insertText": "module1:function3(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "module1:function2()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
-        }
-      },
-      "sortText": "BC",
-      "filterText": "module1_function2",
-      "insertText": "module1:function2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1:function1()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "BC",
-      "filterText": "module1_function1",
-      "insertText": "module1:function1()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.regexp",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CE",
-      "filterText": "regexp",
-      "insertText": "regexp",
+      "filterText": "value",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -498,74 +375,57 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.regexp;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
     {
-      "label": "readonly",
-      "kind": "TypeParameter",
-      "detail": "Readonly",
-      "sortText": "BN",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
     },
     {
-      "label": "handle",
-      "kind": "TypeParameter",
-      "detail": "Handle",
-      "sortText": "BN",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "TypeParameter",
-      "detail": "Never",
-      "sortText": "BN",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "TypeParameter",
-      "detail": "Json",
-      "sortText": "BN",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "TypeParameter",
-      "detail": "Anydata",
-      "sortText": "BN",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "TypeParameter",
-      "detail": "Any",
-      "sortText": "BN",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "TypeParameter",
-      "detail": "Byte",
-      "sortText": "BN",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Z",
-      "filterText": "service",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
     },
     {
       "label": "decimal",
@@ -584,11 +444,51 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "object",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "object",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "transaction",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
       "sortText": "BN",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
@@ -645,6 +545,120 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "\"HELLO WORLD\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "D",
+      "insertText": "module1:TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "BK",
+      "insertText": "module1:TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "E",
+      "insertText": "module1:TestEnum1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "BN",
+      "insertText": "module1:TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "D",
+      "insertText": "module1:TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "BB",
+      "insertText": "module1:TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "module1:TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "module1:TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "BK",
+      "insertText": "module1:TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "BN",
+      "insertText": "module1:TargetType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "module1:TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "module1:TestRecord2",
       "insertTextFormat": "Snippet"
     }
   ]
