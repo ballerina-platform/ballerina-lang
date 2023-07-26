@@ -27,6 +27,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -45,11 +47,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
-import static io.ballerina.cli.cmd.Constants.TOML_EXT;
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.utils.PrintUtils.printTools;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
@@ -61,6 +62,7 @@ import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateToolName;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -74,10 +76,12 @@ public class ToolCommand implements BLauncherCmd {
     private static final String TOOL_LIST_COMMAND = "list";
     private static final String TOOL_SEARCH_COMMAND = "search";
     private static final String TOOL_REMOVE_COMMAND = "remove";
+    private static final String TOOL_USE_COMMAND = "use";
     private static final String HYPHEN = "-";
 
     private static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";
     private static final String TOOL_PULL_USAGE_TEXT = "bal tool pull <tool-id>[:<version>]";
+    private static final String TOOL_USE_USAGE_TEXT = "bal tool use <tool-id>:<version>";
     private static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
     private static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
     private static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<org>|<package>|<text>]";
@@ -86,12 +90,7 @@ public class ToolCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
 
-    private final String distSpecificToolsTomlName = DIST_TOOL_TOML_PREFIX + RepoUtils.getBallerinaShortVersion()
-            + TOML_EXT;
-    Path distSpecificToolsTomlPath = Path.of(
-            System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR,
-            distSpecificToolsTomlName);
-    Path globalToolsTomlPath = Path.of(
+    Path balToolsTomlPath = Path.of(
             System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
 
     @CommandLine.Parameters(description = "Manage ballerina tools")
@@ -144,6 +143,8 @@ public class ToolCommand implements BLauncherCmd {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
             } else if (argList.get(0).equals(TOOL_PULL_COMMAND)) {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_PULL_COMMAND);
+            } else if (argList.get(0).equals(TOOL_USE_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_USE_COMMAND);
             } else if (argList.get(0).equals(TOOL_LIST_COMMAND)) {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_LIST_COMMAND);
             } else if (argList.get(0).equals(TOOL_REMOVE_COMMAND)) {
@@ -167,6 +168,9 @@ public class ToolCommand implements BLauncherCmd {
         switch (command) {
             case TOOL_PULL_COMMAND:
                 handlePullCommand();
+                break;
+            case TOOL_USE_COMMAND:
+                handleUseCommand();
                 break;
             case TOOL_LIST_COMMAND:
                 handleListCommand();
@@ -232,24 +236,91 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        if (isToolLocallyAvailable(toolId, version)) {
-            CommandUtil.printError(this.errStream, "tool is already pulled.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+                if (isToolLocallyAvailable(toolId, version)) {
+                    outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+                } else {
+                    pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+                }
                 insertToBalToolsTomlFile();
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException e) {
+            } catch (CentralClientException | ProjectException e) {
                 errStream.println("unexpected error occurred while pulling tool:" + e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
             }
         }
+    }
+
+    private void handleUseCommand() {
+        if (argList.size() < 2) {
+            CommandUtil.printError(this.errStream, "no tool id given.", TOOL_USE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (argList.size() > 2) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments.", TOOL_USE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        String toolIdAndVersion = argList.get(1);
+        String[] toolInfo = toolIdAndVersion.split(":");
+        if (toolInfo.length == 2) {
+            toolId = toolInfo[0];
+            version = toolInfo[1];
+        }  else {
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_USE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!validateToolName(toolId)) {
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_USE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        try {
+            SemanticVersion.from(version);
+        } catch (ProjectException e) {
+            CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(), TOOL_USE_USAGE_TEXT,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getTool(toolId, version);
+        if (tool.isEmpty()) {
+            CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not found. " +
+                            "Run 'bal tool pull " + toolId + ":" + version
+                            + "' to fetch and set as the active version.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        this.org = tool.get().org();
+        this.name = tool.get().name();
+
+        Optional<BalToolsManifest.Tool> currentActiveTool = balToolsManifest.getActiveTool(toolId);
+        if (currentActiveTool.isPresent() && currentActiveTool.get().version().equals(tool.get().version())) {
+            outStream.println("tool '" + toolId + ":" + version + "' is the current active version.");
+            return;
+        }
+
+        boolean isDistsCompatible = checkToolDistCompatibilityWithCurrentDist();
+        if (!isDistsCompatible) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        balToolsManifest.setActiveToolVersion(toolId, version);
+        balToolsToml.modify(balToolsManifest);
+        outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
     }
 
     private void handleListCommand() {
@@ -329,9 +400,11 @@ public class ToolCommand implements BLauncherCmd {
         }
 
         if (Names.EMPTY.getValue().equals(version)) {
-            removeAllToolVersions();
+            outStream.println("All remove WIP");
+//            removeAllToolVersions();
         } else {
-            removeSpecificToolVersion();
+            outStream.println("Version remove WIP");
+//            removeSpecificToolVersion();
         }
     }
 
@@ -349,159 +422,158 @@ public class ToolCommand implements BLauncherCmd {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings));
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
-        org = toolInfo[0];
-        name = toolInfo[1];
-        version = toolInfo[2];
+        boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
+        org = toolInfo[1];
+        name = toolInfo[2];
+        version = toolInfo[3];
+
+        if (isPulled) {
+            outStream.println("tool '" + toolId + ":" + version + "' pulled successfully.");
+        } else {
+            outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
+        }
     }
 
     private void insertToBalToolsTomlFile() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
-        boolean shouldUpdateToml = true;
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
 
-        // Should not update the toml version if there is already an already installed higher version
-        if (distSpecificToolsManifest.tools().containsKey(toolId)) {
-            SemanticVersion currentVersionInToml = SemanticVersion.from(
-                    distSpecificToolsManifest.tools().get(toolId).version());
-            if (currentVersionInToml.greaterThanOrEqualTo(SemanticVersion.from(version))) {
-                shouldUpdateToml = false;
-            }
+        boolean isDistsCompatible = checkToolDistCompatibilityWithCurrentDist();
+        if (!isDistsCompatible) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (isToolVersionAlreadyActive(toolId, version)) {
+            outStream.println("tool '" + toolId + ":" + version + "' is already active.");
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
-        // Update the distribution specific toml file
-        if (shouldUpdateToml) {
-            distSpecificToolsManifest.tools().put(toolId, new BalToolsManifest.Tool(toolId, org, name, version));
-            distSpecificToolsToml.modify(distSpecificToolsManifest);
-        }
-
-        // Update the global toml file
-        BalToolsToml globalToolsToml = BalToolsToml.from(globalToolsTomlPath);
-        BalToolsManifest globalToolsManifest = BalToolsManifestBuilder.from(globalToolsToml).build();
-        if (!globalToolsManifest.tools().containsKey(toolId)) {
-            globalToolsManifest.addTool(toolId, org, name, null);
-            globalToolsToml.modify(globalToolsManifest);
-        }
-
-        outStream.println(toolId  + ":" + version + " pulled successfully.");
-        if (shouldUpdateToml) {
-            outStream.println(toolId + ":" + version + " successfully set as the active version.");
-        }
+        balToolsManifest.addTool(toolId, org, name, version, true);
+        balToolsToml.modify(balToolsManifest);
+        outStream.println("tool '" + toolId + ":" + version + "' successfully set as the active version.");
     }
 
     private List<BalToolsManifest.Tool> listBalToolsTomlFile() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
-        return new ArrayList<>(balToolsManifest.tools().values());
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        List<BalToolsManifest.Tool> flattenedTools = new ArrayList<>();
+        balToolsManifest.tools().values().stream()
+                .flatMap(map -> map.values().stream())
+                .forEach(flattenedTools::add);
+        return flattenedTools;
     }
 
-    private void removeAllToolVersions() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
+//    private void removeAllToolVersions() {
+//        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+//        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+//
+//        BalToolsToml globalToolsToml = BalToolsToml.from(balToolsTomlPath);
+//        BalToolsManifest globalToolsManifest = BalToolsManifestBuilder.from(globalToolsToml).build();
+//
+//        if (!balToolsManifest.tools().containsKey(toolId)) {
+//            CommandUtil.printError(errStream, "tool " + toolId + " does not exist locally.", null, false);
+//            CommandUtil.exitError(this.exitWhenFinish);
+//            return;
+//        }
+//
+//        BalToolsManifest.Tool tool = balToolsManifest.tools().get(toolId);
+//        boolean isDeleted = deleteAllToolVersionsCache(tool.org(), tool.name());
+//        if (!isDeleted) {
+//            CommandUtil.printError(
+//                    errStream,
+//                    "failed to delete the tool jar for the tool " + tool.id() + ":" + tool.version() + ".",
+//                    null,
+//                    false);
+//            CommandUtil.exitError(this.exitWhenFinish);
+//            return;
+//        }
+//
+//        balToolsManifest.removeTool(toolId);
+//        globalToolsManifest.removeTool(toolId);
+//
+//        balToolsToml.modify(balToolsManifest);
+//        globalToolsToml.modify(globalToolsManifest);
+//
+//        outStream.println(toolId + " removed successfully.");
+//    }
 
-        BalToolsToml globalToolsToml = BalToolsToml.from(globalToolsTomlPath);
-        BalToolsManifest globalToolsManifest = BalToolsManifestBuilder.from(globalToolsToml).build();
-
-        if (!distSpecificToolsManifest.tools().containsKey(toolId)) {
-            CommandUtil.printError(errStream, "tool " + toolId + " does not exist locally.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        BalToolsManifest.Tool tool = distSpecificToolsManifest.tools().get(toolId);
-        boolean isDeleted = deleteAllToolVersionsCache(tool.org(), tool.name());
-        if (!isDeleted) {
-            CommandUtil.printError(
-                    errStream,
-                    "failed to delete the tool jar for the tool " + tool.id() + ":" + tool.version() + ".",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        distSpecificToolsManifest.removeTool(toolId);
-        globalToolsManifest.removeTool(toolId);
-
-        distSpecificToolsToml.modify(distSpecificToolsManifest);
-        globalToolsToml.modify(globalToolsManifest);
-
-        outStream.println(toolId + " removed successfully.");
-    }
-
-    private void removeSpecificToolVersion() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
-
-        if (!distSpecificToolsManifest.tools().containsKey(toolId) || !isToolLocallyAvailable(toolId, version)) {
-            CommandUtil.printError(errStream, "tool " + toolId + ":" + version + " does not exist locally.",
-                    null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        BalToolsManifest.Tool tool = distSpecificToolsManifest.tools().get(toolId);
-        boolean isDeleted = deleteSpecificToolVersionCache(tool.org(), tool.name(), version);
-        if (!isDeleted) {
-            CommandUtil.printError(
-                    errStream,
-                    "failed to delete tool cache for the tool " + tool.id() + ":" + tool.version() + ".",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        if (!version.equals(distSpecificToolsManifest.tools().get(toolId).version())) {
-            // The version to be deleted is not the active version. So, no need to update the toml file
-            outStream.println(toolId + ":" + version + " removed successfully.");
-            return;
-        }
-        Path toolPkgDir = Path.of(
-                System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
-                CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, tool.org(), tool.name());
-        if (Files.exists(toolPkgDir) && Files.isDirectory(toolPkgDir)) {
-            try (Stream<Path> stream = Files.list(toolPkgDir)) {
-                if (stream.findAny().isEmpty()) {
-                    // No other versions exist. Remove the tool from the toml file
-                    distSpecificToolsManifest.removeTool(toolId);
-                    distSpecificToolsToml.modify(distSpecificToolsManifest);
-                    outStream.println(toolId + ":" + version + " removed successfully.");
-                } else {
-                    // set the next latest version as the active version
-                    try (Stream<Path> stream2 = Files.list(toolPkgDir)) {
-                        Optional<SemanticVersion> latestVersionOpt = stream2
-                                .map(path -> path.getFileName().toString())
-                                .map(SemanticVersion::from)
-                                .max((v1, v2) -> {
-                                    if (v1.greaterThan(v2)) {
-                                        return 1;
-                                    } else if (v2.greaterThan(v1)) {
-                                        return -1;
-                                    } else {
-                                        return 0;
-                                    }
-                                });
-
-                        if (latestVersionOpt.isPresent()) {
-                            String latestVersion = latestVersionOpt.get().toString();
-                            distSpecificToolsManifest.removeTool(toolId);
-                            distSpecificToolsManifest.addTool(toolId, tool.org(), tool.name(), latestVersion);
-                            distSpecificToolsToml.modify(distSpecificToolsManifest);
-                            outStream.println(toolId + ":" + version + " removed successfully.");
-                            outStream.println(toolId + ":" + latestVersion + " successfully set as the active " +
-                                    "version.");
-                        }
-                    } catch (IOException e) {
-                        CommandUtil.printError(errStream, "failed to list the tool package directory.", e.getMessage(),
-                                false);
-                        CommandUtil.exitError(this.exitWhenFinish);
-                    }
-                }
-            } catch (IOException e) {
-                CommandUtil.printError(errStream, "failed to list the tool package directory.", e.getMessage(), false);
-                CommandUtil.exitError(this.exitWhenFinish);
-            }
-        }
-    }
+//    private void removeSpecificToolVersion() {
+//        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+//        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+//
+//        if (!balToolsManifest.tools().containsKey(toolId) || !isToolLocallyAvailable(toolId, version)) {
+//            CommandUtil.printError(errStream, "tool " + toolId + ":" + version + " does not exist locally.",
+//                    null, false);
+//            CommandUtil.exitError(this.exitWhenFinish);
+//            return;
+//        }
+//
+//        BalToolsManifest.Tool tool = balToolsManifest.tools().get(toolId);
+//        boolean isDeleted = deleteSpecificToolVersionCache(tool.org(), tool.name(), version);
+//        if (!isDeleted) {
+//            CommandUtil.printError(
+//                    errStream,
+//                    "failed to delete tool cache for the tool " + tool.id() + ":" + tool.version() + ".",
+//                    null,
+//                    false);
+//            CommandUtil.exitError(this.exitWhenFinish);
+//            return;
+//        }
+//        if (!version.equals(balToolsManifest.tools().get(toolId).version())) {
+//            // The version to be deleted is not the active version. So, no need to update the toml file
+//            outStream.println(toolId + ":" + version + " removed successfully.");
+//            return;
+//        }
+//        Path toolPkgDir = Path.of(
+//                System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
+//                CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, tool.org(), tool.name());
+//        if (Files.exists(toolPkgDir) && Files.isDirectory(toolPkgDir)) {
+//            try (Stream<Path> stream = Files.list(toolPkgDir)) {
+//                if (stream.findAny().isEmpty()) {
+//                    // No other versions exist. Remove the tool from the toml file
+//                    balToolsManifest.removeTool(toolId);
+//                    balToolsToml.modify(balToolsManifest);
+//                    outStream.println(toolId + ":" + version + " removed successfully.");
+//                } else {
+//                    // set the next latest version as the active version
+//                    try (Stream<Path> stream2 = Files.list(toolPkgDir)) {
+//                        Optional<SemanticVersion> latestVersionOpt = stream2
+//                                .map(path -> path.getFileName().toString())
+//                                .map(SemanticVersion::from)
+//                                .max((v1, v2) -> {
+//                                    if (v1.greaterThan(v2)) {
+//                                        return 1;
+//                                    } else if (v2.greaterThan(v1)) {
+//                                        return -1;
+//                                    } else {
+//                                        return 0;
+//                                    }
+//                                });
+//
+//                        if (latestVersionOpt.isPresent()) {
+//                            String latestVersion = latestVersionOpt.get().toString();
+//                            balToolsManifest.removeTool(toolId);
+//                            balToolsManifest.addTool(toolId, tool.org(), tool.name(), latestVersion);
+//                            balToolsToml.modify(balToolsManifest);
+//                            outStream.println(toolId + ":" + version + " removed successfully.");
+//                            outStream.println(toolId + ":" + latestVersion + " successfully set as the active " +
+//                                    "version.");
+//                        }
+//                    } catch (IOException e) {
+//                        CommandUtil.printError(errStream,
+//                        "failed to list the tool package directory.", e.getMessage(),
+//                                false);
+//                        CommandUtil.exitError(this.exitWhenFinish);
+//                    }
+//                }
+//            } catch (IOException e) {
+//                CommandUtil.printError(errStream, "failed to list the tool package directory.",
+//                e.getMessage(), false);
+//                CommandUtil.exitError(this.exitWhenFinish);
+//            }
+//        }
+//    }
 
     private boolean deleteAllToolVersionsCache(String org, String name) {
         Path toolPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
@@ -572,14 +644,68 @@ public class ToolCommand implements BLauncherCmd {
         if (version.equals(Names.EMPTY.getValue())) {
             return false;
         }
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
-        if (distSpecificToolsManifest.tools().containsKey(toolId)) {
-            BalToolsManifest.Tool tool = distSpecificToolsManifest.tools().get(toolId);
-            Path toolPath = Path.of(
-                    System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
-                    CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, tool.org(), tool.name(), version);
-            return toolPath.toFile().exists();
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getTool(toolId, version);
+        if (tool.isEmpty()) {
+            return false;
+        }
+        Path toolCacheDir = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(tool.get().org()).resolve(tool.get().name());
+        if (toolCacheDir.toFile().isDirectory()) {
+            try (Stream<Path> versions = Files.list(toolCacheDir)) {
+                return versions.anyMatch(path -> {
+                    if (path.getFileName().toString().equals(version)) {
+                        org = tool.get().org();
+                        name = tool.get().name();
+                        return true;
+                    }
+                    return false;
+                });
+            } catch (IOException e) {
+                throw new ProjectException("Error while looking for locally available tools: " + e);
+            }
+        }
+        return false;
+    }
+
+    private boolean checkToolDistCompatibilityWithCurrentDist() {
+        SemanticVersion currentDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        SemanticVersion toolDistVersion = getToolDistVersionFromCentralCache();
+        if (!isCompatibleWithLocalDistVersion(currentDistVersion, toolDistVersion)) {
+            errStream.println("tool '" + toolId + ":" + version + "' is not compatible with the " +
+                    "current Ballerina distribution '" + RepoUtils.getBallerinaShortVersion() +
+                    "'. Please use a version compatible with the current Ballerina distribution.");
+            return false;
+        }
+        return true;
+    }
+
+    private SemanticVersion getToolDistVersionFromCentralCache() {
+        Path balaPath = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(org).resolve(name).resolve(version)
+                .resolve(ANY_PLATFORM);
+        PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
+        return SemanticVersion.from(packageJson.getBallerinaVersion());
+    }
+
+    private boolean isCompatibleWithLocalDistVersion(SemanticVersion localDistVersion,
+                                                     SemanticVersion toolDistVersion) {
+        return localDistVersion.major() == toolDistVersion.major()
+                && localDistVersion.minor() >= toolDistVersion.minor();
+    }
+
+    private boolean isToolVersionAlreadyActive(String toolId, String version) {
+        if (version.equals(Names.EMPTY.getValue())) {
+            return false;
+        }
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        if (balToolsManifest.tools().containsKey(toolId)) {
+            Map<String, BalToolsManifest.Tool> toolVersions = balToolsManifest.tools().get(toolId);
+            return toolVersions.containsKey(version) && toolVersions.get(version).active();
         }
         return false;
     }

@@ -64,8 +64,9 @@ public class PrintUtils {
         printListLocalTableHeader(toolIdColWidth, versionColWidth);
 
         for (BalToolsManifest.Tool tool: tools) {
+            String activeIndicator = tool.active() ? "* " : "  ";
             printInCLI("|" + tool.id(), toolIdColWidth);
-            printInCLI(tool.version(), versionColWidth);
+            printInCLI(activeIndicator + tool.version(), versionColWidth);
             outStream.println();
         }
         outStream.println();

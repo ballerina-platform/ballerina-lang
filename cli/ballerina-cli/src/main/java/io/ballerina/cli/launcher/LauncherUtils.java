@@ -22,7 +22,6 @@ import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.runtime.api.values.BError;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +33,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
@@ -44,7 +44,6 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DEBUG_OPTION;
 import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
-import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
 import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
 import static io.ballerina.cli.cmd.Constants.GENCACHE_COMMAND;
@@ -69,13 +68,13 @@ import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.START_DEBUG_ADAPTER_COMMAND;
 import static io.ballerina.cli.cmd.Constants.START_LANG_SERVER_COMMAND;
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
-import static io.ballerina.cli.cmd.Constants.TOML_EXT;
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.UPDATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_OPTION;
 import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
@@ -173,19 +172,17 @@ public class LauncherUtils {
 
     static List<File> getToolCommandJarAndDependenciesPath(String commandName) {
         Path userHomeDirPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME);
-
-        String distSpecificToolsTomlName = DIST_TOOL_TOML_PREFIX + RepoUtils.getBallerinaShortVersion() + TOML_EXT;
-        Path distSpecificToolsTomlPath = userHomeDirPath.resolve(Path.of(CONFIG_DIR, distSpecificToolsTomlName));
-
+        Path balToolsTomlPath = userHomeDirPath.resolve(Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
         Path centralBalaDirPath = userHomeDirPath.resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
-        BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
 
-        if (distSpecificToolsManifest.tools().containsKey(commandName)) {
-            BalToolsManifest.Tool tool = distSpecificToolsManifest.tools().get(commandName);
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(commandName);
+        if (tool.isPresent()) {
             File libsDir = centralBalaDirPath.resolve(
-                    Path.of(tool.org(), tool.name(), tool.version(), ANY_PLATFORM, TOOL, LIBS)).toFile();
+                    Path.of(tool.get().org(), tool.get().name(), tool.get().version(), ANY_PLATFORM, TOOL, LIBS))
+                    .toFile();
             return findJarFiles(libsDir);
         }
         throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + commandName + "'");

@@ -25,8 +25,11 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
@@ -66,11 +69,6 @@ public class BalToolsManifestBuilder {
         return balToolsManifest;
     }
 
-    public BalToolsManifestBuilder addTool(String id, String org, String name, String version) {
-        balToolsManifest.addTool(id, org, name, version);
-        return this;
-    }
-
     public BalToolsManifestBuilder removeTool(String id) {
         balToolsManifest.removeTool(id);
         return this;
@@ -81,7 +79,7 @@ public class BalToolsManifestBuilder {
             return BalToolsManifest.from();
         }
         validateBalToolsTomlAgainstSchema();
-        Map<String, BalToolsManifest.Tool> tools = getTools();
+        Map<String, Map<String, BalToolsManifest.Tool>> tools = getTools();
         return BalToolsManifest.from(tools);
     }
 
@@ -99,7 +97,7 @@ public class BalToolsManifestBuilder {
         balToolsTomlValidator.validate(balToolsToml.get().toml());
     }
 
-    private Map<String, BalToolsManifest.Tool> getTools() {
+    private Map<String, Map<String, BalToolsManifest.Tool>> getTools() {
         if (balToolsToml.isEmpty()) {
             return new HashMap<>();
         }
@@ -115,7 +113,7 @@ public class BalToolsManifestBuilder {
             return new HashMap<>();
         }
 
-        Map<String, BalToolsManifest.Tool> tools = new HashMap<>();
+        Map<String, Map<String, BalToolsManifest.Tool>> tools = new HashMap<>();
         if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
 
@@ -124,20 +122,23 @@ public class BalToolsManifestBuilder {
                 String org = getStringValueFromToolNode(toolNode, "org");
                 String name = getStringValueFromToolNode(toolNode, "name");
                 String version = getStringValueFromToolNode(toolNode, "version");
+                boolean active = getBooleanFromTemplateNode(toolNode, "active");
 
                 // If id, org or name, one of the value is null, ignore tool record
-                if (id == null || org == null || name == null) {
+                if (id == null || org == null || name == null || version == null) {
                     continue;
                 }
 
-                if (version != null) {
-                    try {
-                        PackageVersion.from(version);
-                    } catch (ProjectException ignore) {
-                        continue;
-                    }
+                try {
+                    PackageVersion.from(version);
+                } catch (ProjectException ignore) {
+                    continue;
                 }
-                tools.put(id, new BalToolsManifest.Tool(id, org, name, version));
+
+                if (!tools.containsKey(id)) {
+                    tools.put(id, new HashMap<>());
+                }
+                tools.get(id).put(version, new BalToolsManifest.Tool(id, org, name, version, active));
             }
         }
         return tools;
@@ -149,6 +150,23 @@ public class BalToolsManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    boolean getBooleanFromTemplateNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return false;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
+                return tomlBooleanValueNode.getValue();
+            }
+        }
+        return false;
     }
 
     public BalToolsManifest build() {
