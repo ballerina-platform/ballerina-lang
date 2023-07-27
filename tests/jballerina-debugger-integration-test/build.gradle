@@ -45,6 +45,7 @@ task extractDistribution(type: Copy) {
 // Integration tests for jBallerina debugger
 test {
     mustRunAfter ':jballerina-integration-test:test'
+    mustRunAfter ':ballerina-cli:test'
     dependsOn extractDistribution
 
     maxParallelForks = 1
