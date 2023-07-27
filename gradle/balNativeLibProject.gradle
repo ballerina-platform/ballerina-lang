@@ -150,6 +150,9 @@ task assembleArtifact(type: Zip) {
 
 test {
     dependsOn copySelfToTestBalHome
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 publishing {

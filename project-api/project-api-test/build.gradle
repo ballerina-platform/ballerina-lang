@@ -108,7 +108,6 @@ test {
     }
 
     useTestNG() {
-        suites 'src/test/resources/testng.xml'
         systemProperty("project.version", project.version)
     }
 

@@ -85,4 +85,11 @@ configurations {
     testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+
 tasks.createJavadoc.dependsOn(':bir-spec:kaitai')

@@ -16,10 +16,6 @@
  * under the License.
  *
  */
- 
-//apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
-//apply from: "$rootDir/gradle/birTestableProject.gradle"
-//apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
@@ -44,32 +40,9 @@ dependencies {
     testRuntimeOnly project(':ballerina-runtime')
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
-
-//    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
-////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
-////    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-log-api', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-file', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-auth', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-mime', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-cache', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-time', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-task', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-crypto', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-reflect', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-lang:jballerina.java', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-observability', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-system', configuration: 'balaImplementation')
-//    balaImplementation project(path: ':testerina:testerina-core', configuration: 'balaImplementation')
-//    balaImplementation project(path: ':ballerina-lang-test', configuration: 'balaImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'
-
-//task createBre(type: org.gradle.api.tasks.Copy) {
-//    from configurations.balRuntime
-//    into "$buildDir/bre/lib"
-//}
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
@@ -92,8 +65,6 @@ test {
             exceptionFormat "full"
         }
     }
-
-//    dependsOn createBre
 }
 
 configurations {

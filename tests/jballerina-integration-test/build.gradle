@@ -48,10 +48,7 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-cli')
-//    implementation project(':ballerina-http')
-//    implementation project(':ballerina-transactions')
     implementation project(':ballerina-cli')
-//    implementation project(':ballerina-transactions')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation project(':ballerina-shell:shell-core')
@@ -59,9 +56,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
 
     balRuntime project(':ballerina-runtime')
-
-//    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
     testRuntimeOnly project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
 
     testImplementation 'org.slf4j:slf4j-jdk14'

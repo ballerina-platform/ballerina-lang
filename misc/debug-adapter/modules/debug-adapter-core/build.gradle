@@ -48,6 +48,12 @@ createJavadoc {
     exclude "**"
 }
 
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
 description = 'Ballerina - Debug Adapter - Debug Adaptor Core'
 
 ext.moduleName = 'ballerina.debug.adapter.core'
