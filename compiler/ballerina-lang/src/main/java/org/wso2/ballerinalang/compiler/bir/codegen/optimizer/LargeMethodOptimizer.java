@@ -620,6 +620,7 @@ public class LargeMethodOptimizer {
                 BIRNonTerminator bbIns = bb.instructions.get(insIndex);
                 if (globalAndArgVarKeyConstLoadInsSet.contains(bbIns)) {
                     globalAndArgVarKeyConstLoadIns.add(bbIns);
+                    parentFuncEnv.parentFuncLocalVarList.add(bbIns.lhsOp.variableDcl);
                     continue;
                 }
                 BIROperand bbInsLhsOp = bbIns.lhsOp;
