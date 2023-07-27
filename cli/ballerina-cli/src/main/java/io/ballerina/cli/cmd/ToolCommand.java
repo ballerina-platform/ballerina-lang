@@ -511,12 +511,6 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void removeAllToolVersions() {
-        if (BalToolsUtil.builtInToolCommands.contains(toolId)) {
-            CommandUtil.printError(errStream, "cannot remove built-in tool " + toolId + ".", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
 
@@ -530,8 +524,8 @@ public class ToolCommand implements BLauncherCmd {
 
         balToolsManifest.removeTool(toolId);
         balToolsToml.modify(balToolsManifest);
-        BalToolsManifest.Tool tool = toolVersions.get().values().stream().findAny().get();
-        deleteAllToolVersionsCache(tool.org(), tool.name());
+        Optional<BalToolsManifest.Tool> tool = toolVersions.get().values().stream().findAny();
+        tool.ifPresent(value -> deleteAllToolVersionsCache(value.org(), value.name()));
         outStream.println("tool '" + toolId + "' successfully removed.");
     }
 
