@@ -110,3 +110,10 @@ task runLSSimulator(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "org.ballerinalang.langserver.simulator.EditorSimulator"
 }
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+

@@ -119,10 +119,6 @@ test {
     systemProperty "enableJBallerinaTests", "true"
     systemProperty "ballerina.home", "$buildDir"
 
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
     }
