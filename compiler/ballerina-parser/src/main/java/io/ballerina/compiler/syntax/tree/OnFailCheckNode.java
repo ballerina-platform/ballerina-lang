@@ -48,7 +48,7 @@ public class OnFailCheckNode extends NonTerminalNode {
         return childInBucket(3);
     }
 
-    public ErrorConstructorExpressionNode errorConstructor() {
+    public ExpressionNode expression() {
         return childInBucket(4);
     }
 
@@ -69,7 +69,7 @@ public class OnFailCheckNode extends NonTerminalNode {
                 "failKeyword",
                 "identifier",
                 "rightArrowToken",
-                "errorConstructor"};
+                "expression"};
     }
 
     public OnFailCheckNode modify(
@@ -77,13 +77,13 @@ public class OnFailCheckNode extends NonTerminalNode {
             Token failKeyword,
             IdentifierToken identifier,
             Token rightArrowToken,
-            ErrorConstructorExpressionNode errorConstructor) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor)) {
+                expression)) {
             return this;
         }
 
@@ -92,7 +92,7 @@ public class OnFailCheckNode extends NonTerminalNode {
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor);
+                expression);
     }
 
     public OnFailCheckNodeModifier modify() {
@@ -110,7 +110,7 @@ public class OnFailCheckNode extends NonTerminalNode {
         private Token failKeyword;
         private IdentifierToken identifier;
         private Token rightArrowToken;
-        private ErrorConstructorExpressionNode errorConstructor;
+        private ExpressionNode expression;
 
         public OnFailCheckNodeModifier(OnFailCheckNode oldNode) {
             this.oldNode = oldNode;
@@ -118,7 +118,7 @@ public class OnFailCheckNode extends NonTerminalNode {
             this.failKeyword = oldNode.failKeyword();
             this.identifier = oldNode.identifier();
             this.rightArrowToken = oldNode.rightArrowToken();
-            this.errorConstructor = oldNode.errorConstructor();
+            this.expression = oldNode.expression();
         }
 
         public OnFailCheckNodeModifier withOnKeyword(
@@ -149,10 +149,10 @@ public class OnFailCheckNode extends NonTerminalNode {
             return this;
         }
 
-        public OnFailCheckNodeModifier withErrorConstructor(
-                ErrorConstructorExpressionNode errorConstructor) {
-            Objects.requireNonNull(errorConstructor, "errorConstructor must not be null");
-            this.errorConstructor = errorConstructor;
+        public OnFailCheckNodeModifier withExpression(
+                ExpressionNode expression) {
+            Objects.requireNonNull(expression, "expression must not be null");
+            this.expression = expression;
             return this;
         }
 
@@ -162,7 +162,7 @@ public class OnFailCheckNode extends NonTerminalNode {
                     failKeyword,
                     identifier,
                     rightArrowToken,
-                    errorConstructor);
+                    expression);
         }
     }
 }

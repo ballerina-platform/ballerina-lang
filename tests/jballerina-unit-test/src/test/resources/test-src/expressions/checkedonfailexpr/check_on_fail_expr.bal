@@ -35,12 +35,28 @@ function returnError2() returns int|error {
     return error("Something went wrong");
 }
 
+function returnError3() returns error {
+    return error("New error");
+}
+
+function returnError4(error e) returns error {
+    return error("New error", e);
+}
+
 function testCheckedOnFailExpressionPanicWithCustomError1() returns error? {
     check returnError1() on fail e => error("Custom error", e);
 }
 
 function testCheckedOnFailExpressionPanicWithCustomError2() returns error? {
     int value = check returnError2() on fail e => error("Custom error", e);
+}
+
+function testCheckedOnFailWithFunctionReturningError1() returns error? {
+    check returnError1() on fail e => returnError3();
+}
+
+function testCheckedOnFailWithFunctionReturningError2() returns error? {
+    check returnError1() on fail e => returnError4(e);
 }
 
 function testCheckedOnFailExpressionPanicWithCustomError() {
@@ -53,6 +69,15 @@ function testCheckedOnFailExpressionPanicWithCustomError() {
     assertTrue(err2 is error);
     assertEquals("Custom error", (<error> err2).message());
     assertEquals("Something went wrong", (<error> (<error> err2).cause()).message());
+
+    error? err3 = testCheckedOnFailWithFunctionReturningError1();
+    assertTrue(err3 is error);
+    assertEquals("New error", (<error> err3).message());
+
+    error? err4 = testCheckedOnFailWithFunctionReturningError2();
+    assertTrue(err4 is error);
+    assertEquals("New error", (<error> err4).message());
+    assertEquals("Something went wrong", (<error> (<error> err4).cause()).message());
 }
 
 function assertTrue(anydata actual) {

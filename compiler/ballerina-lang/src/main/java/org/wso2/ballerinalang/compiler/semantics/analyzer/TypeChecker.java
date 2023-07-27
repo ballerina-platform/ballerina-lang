@@ -6050,7 +6050,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.env = SymbolEnv.createExprEnv(checkedOnFailExpr, data.env, checkOnFailSymbol);
         setErrorVariableTypeInCheckedOnFailExpr(checkedOnFailExpr.simpleVariable, symTable.errorType, data);
         checkExpr(checkedOnFailExpr.checkedExpr, data);
-        checkExpr(checkedOnFailExpr.errorConstructorExpr, data);
+        checkExpr(checkedOnFailExpr.expr, symTable.errorType, data);
         data.resultType = types.checkType(checkedOnFailExpr, checkedOnFailExpr.checkedExpr.getBType(), data.expType);
     }
 

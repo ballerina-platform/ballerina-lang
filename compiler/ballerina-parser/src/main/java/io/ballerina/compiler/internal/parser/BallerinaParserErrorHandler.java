@@ -3043,7 +3043,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER ||
                 parentCtx == ParserRuleContext.CLASS_MEMBER ||
                 parentCtx == ParserRuleContext.OBJECT_TYPE_MEMBER ||
-                parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL) {
+                parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL ||
+                parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
             nextContext = ParserRuleContext.SEMICOLON;
         } else if (parentCtx == ParserRuleContext.ANNOTATIONS) {
             nextContext = ParserRuleContext.ANNOTATION_END;
@@ -5084,16 +5085,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext getNextRuleForSemicolon(int nextLookahead) {
         STToken nextToken;
         ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
-            endContext(); // end external func-body
-            return getNextRuleForSemicolon(nextLookahead);
-        } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
-            endContext(); // end expression
+        if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY || parentCtx == ParserRuleContext.ON_FAIL_CHECK
+                || parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
+            endContext();
             return getNextRuleForSemicolon(nextLookahead);
         } else if (isExpressionContext(parentCtx)) {
             // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
-            endContext(); // end statement
-            return ParserRuleContext.STATEMENT;
+            endContext();
+            return getNextRuleForSemicolon(nextLookahead);
         } else if (parentCtx == ParserRuleContext.VAR_DECL_STMT) {
             endContext(); // end var-decl
             parentCtx = getParentContext();

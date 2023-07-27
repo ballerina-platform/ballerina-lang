@@ -9130,9 +9130,9 @@ public class BallerinaParser extends AbstractParser {
         STNode failKeyword = parseFailKeyword();
         STNode varName = parseVariableName();
         STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.RIGHT_DOUBLE_ARROW);
-        STNode errConstructor = parseErrorConstructorExpr(false);
+        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, true, false);
         endContext();
-        return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow, errConstructor);
+        return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow, expr);
     }
     
     private boolean isEndOfResourceAccessPathSegments(STToken nextToken, boolean isRhsExpr, boolean isInMatchGuard) {

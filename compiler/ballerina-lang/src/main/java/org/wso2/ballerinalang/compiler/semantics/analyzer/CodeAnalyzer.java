@@ -3253,7 +3253,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangCheckedOnFailExpr checkedOnFailExpr, AnalyzerData data) {
         analyzeExpr(checkedOnFailExpr.checkedExpr, data);
         analyzeNode(checkedOnFailExpr.simpleVariable, data);
-        analyzeExpr(checkedOnFailExpr.errorConstructorExpr, data);
+        analyzeExpr(checkedOnFailExpr.expr, data);
     }
 
     @Override

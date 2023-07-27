@@ -5454,7 +5454,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         checkedOnFailExpr.simpleVariable = createSimpleVariable(onFailCheckNode.identifier());
-        checkedOnFailExpr.errorConstructorExpr = createExpression(onFailCheckNode.errorConstructor());
+        checkedOnFailExpr.expr = createExpression(onFailCheckNode.expression());
         return checkedOnFailExpr;
     }
 

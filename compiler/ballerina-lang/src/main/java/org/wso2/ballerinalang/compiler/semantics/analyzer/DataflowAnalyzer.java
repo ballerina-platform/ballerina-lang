@@ -2343,7 +2343,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
         analyzeNode(checkedOnFailExpr.checkedExpr, env);
         analyzeNode(checkedOnFailExpr.simpleVariable, env);
-        analyzeNode(checkedOnFailExpr.errorConstructorExpr, env);
+        analyzeNode(checkedOnFailExpr.expr, env);
     }
 
     /**

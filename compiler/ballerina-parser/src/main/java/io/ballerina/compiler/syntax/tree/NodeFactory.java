@@ -3597,7 +3597,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token failKeyword,
             IdentifierToken identifier,
             Token rightArrowToken,
-            ErrorConstructorExpressionNode errorConstructor) {
+            ExpressionNode errorConstructor) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");

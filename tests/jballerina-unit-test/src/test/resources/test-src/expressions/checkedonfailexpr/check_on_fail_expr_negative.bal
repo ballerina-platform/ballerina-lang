@@ -31,3 +31,8 @@ function returnInt2() returns int|error => 3;
 function testCheckOnFailWithBinaryExprNegative() {
     int val = check returnInt2() on fail e => error("Error occurred", e) + 2.0;
 }
+
+function testInvalidReturnType() {
+    _ = check returnInt2() on fail e => returnInt();
+    _ = check returnInt2() on fail e => returnInt2();
+}

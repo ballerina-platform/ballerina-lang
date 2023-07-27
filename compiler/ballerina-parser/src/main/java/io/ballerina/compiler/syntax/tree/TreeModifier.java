@@ -3692,14 +3692,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(onFailCheckNode.identifier());
         Token rightArrowToken =
                 modifyToken(onFailCheckNode.rightArrowToken());
-        ErrorConstructorExpressionNode errorConstructor =
-                modifyNode(onFailCheckNode.errorConstructor());
+        ExpressionNode expression =
+                modifyNode(onFailCheckNode.expression());
         return onFailCheckNode.modify(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor);
+                expression);
     }
 
     // Tokens

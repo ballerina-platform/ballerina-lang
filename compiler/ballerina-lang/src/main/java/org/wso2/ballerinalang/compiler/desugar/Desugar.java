@@ -8743,7 +8743,7 @@ public class Desugar extends BLangNodeVisitor {
         bLBlockStmt.addStatement(tempVarDef);
         doNode.setBody(bLBlockStmt);
 
-        BLangFail fail = ASTBuilderUtil.createFailNode(checkedOnFailExpr.pos, checkedOnFailExpr.errorConstructorExpr);
+        BLangFail fail = ASTBuilderUtil.createFailNode(checkedOnFailExpr.pos, checkedOnFailExpr.expr);
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(checkedOnFailExpr.pos);
         onFailBody.scope = new Scope(env.scope.owner);
         fail.parent = onFailBody;

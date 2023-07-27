@@ -1513,7 +1513,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.checkedExpr = clone(source.checkedExpr);
         clone.simpleVariable = clone(source.simpleVariable);
-        clone.errorConstructorExpr = clone(source.errorConstructorExpr);
+        clone.expr = clone(source.expr);
     }
 
     @Override

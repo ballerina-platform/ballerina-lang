@@ -1235,7 +1235,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
         rewrite(checkedOnFailExpr.checkedExpr);
         rewrite(checkedOnFailExpr.simpleVariable);
-        rewrite(checkedOnFailExpr.errorConstructorExpr);
+        rewrite(checkedOnFailExpr.expr);
         result = checkedOnFailExpr;
     }
 

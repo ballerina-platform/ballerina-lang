@@ -840,14 +840,14 @@ public class FormattingTreeModifier extends TreeModifier {
         Token failKeyword = formatToken(onFailCheckNode.failKeyword(), 1, 0);
         IdentifierToken identifier = formatToken(onFailCheckNode.identifier(), 1, 0);
         Token rightArrowToken = formatToken(onFailCheckNode.rightArrowToken(), 1, 0);
-        ErrorConstructorExpressionNode errorConstructorExpr = formatNode(onFailCheckNode.errorConstructor(),
+        ExpressionNode expression = formatNode(onFailCheckNode.expression(),
                                                                             env.trailingWS, env.trailingNL);
         return onFailCheckNode.modify()
                 .withOnKeyword(onKeyword)
                 .withFailKeyword(failKeyword)
                 .withIdentifier(identifier)
                 .withRightArrowToken(rightArrowToken)
-                .withErrorConstructor(errorConstructorExpr)
+                .withExpression(expression)
                 .apply();
     }
 

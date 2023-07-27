@@ -76,6 +76,16 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
         testFile("check-expr/on_fail_check_source_10.bal", "check-expr/on_fail_check_assert_10.json");
     }
 
+    @Test
+    public void testOnFailCheckWithFunctionReturningCustomError() {
+        testFile("check-expr/on_fail_check_source_14.bal", "check-expr/on_fail_check_assert_14.json");
+    }
+
+    @Test
+    public void testOnFailCheckWithTernaryConditionalExpr() {
+        testFile("check-expr/on_fail_check_source_15.bal", "check-expr/on_fail_check_assert_15.json");
+    }
+
     // Recovery test
 
     @Test
@@ -126,5 +136,10 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testOnFailWithExtraCharactersTest2() {
         testFile("check-expr/on_fail_check_source_09.bal", "check-expr/on_fail_check_assert_09.json");
+    }
+
+    @Test
+    public void testOnFailWithMissingQuestionMarkInTernaryOp() {
+        testFile("check-expr/on_fail_check_source_16.bal", "check-expr/on_fail_check_assert_16.json");
     }
 }
