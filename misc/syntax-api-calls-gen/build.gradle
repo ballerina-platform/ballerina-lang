@@ -31,7 +31,8 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-    jvmArgs = ['--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED']
+    jvmArgs = ['--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED',
+               '--add-opens=java.base/java.lang=ALL-UNNAMED']
 }
 
 description = 'Ballerina - Syntax API Calls Gennerator'
