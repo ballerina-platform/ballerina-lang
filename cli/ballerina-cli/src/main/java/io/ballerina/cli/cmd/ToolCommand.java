@@ -33,6 +33,7 @@ import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.central.client.model.Tool;
@@ -463,6 +464,7 @@ public class ToolCommand implements BLauncherCmd {
             // Ignore 'Settings.toml' parsing errors and return empty Settings object
             settings = Settings.from();
         }
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings));
