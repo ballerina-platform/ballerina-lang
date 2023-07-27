@@ -481,10 +481,10 @@ readonly client class FooClass {
 
 function testObjectInclusionWithMethodWithParameters() {
     FooClass foo = new;
-    // int result = foo->execute("a", 1);
-    // assertEquals(1, result);
+    int result = foo->execute("a", 1);
+    assertEquals(1, result);
 
-    // byte[] _ = foo.patch([1, 2, 3], true);
+    byte[] _ = foo.patch([1, 2, 3], true);
 }
 
 function assertTrue(anydata actual) {
