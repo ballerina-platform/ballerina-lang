@@ -398,7 +398,7 @@ public class CodeActionUtil {
         if (transitiveBinaryUnion) {
             members.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
         }
-        
+
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         // Check if a union type with error and one non-error type
         if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && !errorMembers.isEmpty()) {
@@ -433,7 +433,7 @@ public class CodeActionUtil {
             }
             edits.add(new TextEdit(newTextRange, generateIfElseText(varName, spaces, padding, memberTypes)));
         }
-        
+
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         return edits;
     }
@@ -453,72 +453,78 @@ public class CodeActionUtil {
     }
 
     public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
-                                                      CodeActionContext context) {
+                                                      CodeActionContext context,
+                                                      List<TypeSymbol> errorTypeSymbols,
+                                                      ImportsAcceptor acceptor) {
+        if (errorTypeSymbols.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<TextEdit> edits = new ArrayList<>();
-        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
+        Optional<FunctionDefinitionNode> enclosedFuncNode = getEnclosedFunction(matchedNode);
         String returnText = "";
         Range returnRange = null;
-        if (enclosedFunc.isPresent()) {
-            SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-            Document document = context.currentDocument().orElseThrow();
-            Optional<Symbol> optEnclosedFuncSymbol =
-                    semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
-            FunctionSymbol enclosedFuncSymbol = null;
-            if (optEnclosedFuncSymbol.isPresent()) {
-                Symbol funcSymbol = optEnclosedFuncSymbol.get();
-                if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
-                        funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                    enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
-                }
-            }
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        Optional<Document> document = context.currentDocument();
 
-            if (enclosedFuncSymbol != null) {
-                boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
-                boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
-                if (hasFuncNodeReturn && hasFuncSymbolReturn) {
-                    // Parent function already has a return-type
-                    TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
-                    ReturnTypeDescriptorNode enclosedRetTypeDescNode =
-                            enclosedFunc.get().functionSignature().returnTypeDesc().get();
-                    if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
-                        // Parent function already has a union return-type
-                        UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
-                        boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
-                                .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
-                        if (!hasErrorMember) {
-                            // Union has no error member-type
-                            String typeName =
-                                    CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context)
-                                            .orElseThrow();
-                            returnText = "returns " + typeName + "|error";
-                            returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
-                        }
-                    } else if (enclosedRetTypeDesc.typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                        String returnType = enclosedRetTypeDescNode.type().toString().replaceAll("\\s+", "");
-                        returnText = "returns " + returnType + "|error";
-                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
-                    } else {
-                        // Parent function already has another return-type
-                        if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
-                            String typeName =
-                                    CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                            returnText = "returns " + typeName + "|error";
-                        }
-                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
-                    }
-                } else {
-                    // Parent function has no return
-                    returnText = " returns error?";
-                    Position position = PositionUtil.toPosition(
-                            enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
-                    returnRange = new Range(position, position);
+        if (enclosedFuncNode.isPresent() && semanticModel.isPresent() && document.isPresent()) {
+            if (enclosedFuncNode.get().functionSignature().returnTypeDesc().isPresent()) {
+                // Enclosing function already has a return-type
+                ReturnTypeDescriptorNode enclosedRetTypeDescNode =
+                        enclosedFuncNode.get().functionSignature().returnTypeDesc().get();
+                Optional<TypeSymbol> returnTypeDescriptor =
+                        semanticModel.get().symbol(document.get(),
+                                        enclosedFuncNode.get().functionName().lineRange().startLine())
+                                .filter(funcSymbol -> funcSymbol.kind() == SymbolKind.FUNCTION
+                                        || funcSymbol.kind() == SymbolKind.METHOD
+                                        || funcSymbol.kind() == SymbolKind.RESOURCE_METHOD)
+                                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor());
+
+                if (returnTypeDescriptor.isEmpty()) {
+                    return Collections.emptyList();
                 }
+
+                List<TypeSymbol> allErrorTypes = new ArrayList<>();
+                allErrorTypes.addAll(errorTypeSymbols);
+                Pair<List<TypeSymbol>, List<TypeSymbol>> errorAndNonErrorTypedSymbols =
+                        getErrorAndNonErrorTypedSymbols(returnTypeDescriptor.get());
+                allErrorTypes.addAll(errorAndNonErrorTypedSymbols.getRight());
+                List<TypeSymbol> errorSymbolsToAdd = filterErrorSubTypes(allErrorTypes);
+
+                if (returnTypeDescriptor.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                    String returnType = enclosedRetTypeDescNode.type().toString()
+                            .replaceAll("\\s+", "");
+                    UnionTypeSymbol newMemberType = semanticModel.get().types().builder().UNION_TYPE
+                            .withMemberTypes(errorSymbolsToAdd.toArray(new TypeSymbol[0])).build();
+                    returnText = String.format("returns %s|%S", returnType, newMemberType.signature());
+                } else {
+                    List<TypeSymbol> memberTypes = new ArrayList<>();
+                    //Exclude NIL return type and add it to the end of the return statement
+                    boolean nilReturnType = errorAndNonErrorTypedSymbols.getLeft().stream()
+                            .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
+                    memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
+                            .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL).collect(Collectors.toList()));
+                    memberTypes.addAll(errorSymbolsToAdd);
+                    UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
+                            .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
+                    String typeName = CodeActionUtil.getPossibleType(newType, context, acceptor).orElseThrow();
+                    returnText = String.format("returns %s", typeName + (nilReturnType ? "?" : ""));
+                }
+                returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
+            } else {
+                // Parent function has no return
+                List<TypeSymbol> errorSymbolsToAdd = filterErrorSubTypes(errorTypeSymbols);
+                UnionTypeSymbol newMemberType = semanticModel.get().types().builder().UNION_TYPE
+                        .withMemberTypes(errorSymbolsToAdd.toArray(new TypeSymbol[0])).build();
+                String typeName = CodeActionUtil.getPossibleType(newMemberType, context, acceptor).orElseThrow();
+                returnText = String.format(" returns %s?", typeName);
+                Position position = PositionUtil.toPosition(
+                        enclosedFuncNode.get().functionSignature().closeParenToken().lineRange().endLine());
+                returnRange = new Range(position, position);
             }
         }
-
         // If we are in a method call expression and the expression part already doesn't have a brace, we have to add
         // braces to prevent the "check" being added to the entire method call expression.
-        if (matchedNode.kind() != SyntaxKind.BRACED_EXPRESSION && 
+        if (matchedNode.kind() != SyntaxKind.BRACED_EXPRESSION &&
                 matchedNode.parent().kind() == SyntaxKind.METHOD_CALL) {
             Position endPos = PositionUtil.toPosition(matchedNode.lineRange().endLine());
             edits.add(new TextEdit(new Range(pos, pos), "("));
@@ -533,6 +539,35 @@ public class CodeActionUtil {
             edits.add(new TextEdit(returnRange, returnText));
         }
         return edits;
+    }
+
+    private static List<TypeSymbol> filterErrorSubTypes(List<TypeSymbol> errorTypeSymbols) {
+        if (errorTypeSymbols.size() == 1) {
+            return errorTypeSymbols;
+        }
+        List<TypeSymbol> errorTypeSymbolsClone = new ArrayList<>(errorTypeSymbols);
+        return errorTypeSymbolsClone.stream().filter(typeSymbol ->
+                errorTypeSymbols.stream().filter(other -> !other.signature().equals(typeSymbol.signature()))
+                        .noneMatch(typeSymbol::subtypeOf)).collect(Collectors.toList());
+    }
+
+    private static Pair<List<TypeSymbol>, List<TypeSymbol>> getErrorAndNonErrorTypedSymbols(TypeSymbol returnTypeDescriptor) {
+        if (returnTypeDescriptor.typeKind() == TypeDescKind.UNION) {
+            List<TypeSymbol> errorTypeSymbols = new ArrayList<>();
+            List<TypeSymbol> nonErrorTypeSymbols = new ArrayList<>();
+            for (TypeSymbol typeSymbol : ((UnionTypeSymbol) returnTypeDescriptor).memberTypeDescriptors()) {
+                if (CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR) {
+                    errorTypeSymbols.add(typeSymbol);
+                } else {
+                    nonErrorTypeSymbols.add(typeSymbol);
+                }
+            }
+            return Pair.of(nonErrorTypeSymbols, errorTypeSymbols);
+        }
+        if (CommonUtil.getRawType(returnTypeDescriptor).typeKind() == TypeDescKind.ERROR) {
+            return Pair.of(Collections.emptyList(), List.of(returnTypeDescriptor));
+        }
+        return Pair.of(List.of(returnTypeDescriptor), Collections.emptyList());
     }
 
     /**
