@@ -189,8 +189,9 @@ public class LargeMethodOptimizer {
         Set<BIROperand> mapValuesOperands = new HashSet<>();
         Set<BIROperand> globalAndArgVarKeyOperands = new HashSet<>();
         List<BIRNonTerminator> globalAndArgVarKeyConstLoadIns = new ArrayList<>();
+        Map<BIROperand, NonTerminatorLocation> mapKeyOperandLocations = new HashMap<>();
         List<BIRNonTerminator> globalAndArgVarIns = getGlobalAndArgVarInsForMap(parentFuncTempVars, mapIns,
-                handleArrayOperand, birOperands, mapValuesOperands, globalAndArgVarKeyOperands);
+                handleArrayOperand, birOperands, mapValuesOperands, globalAndArgVarKeyOperands, mapKeyOperandLocations);
 
         // add the constant load array size operand instruction
         parentFuncEnv.parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
@@ -199,7 +200,7 @@ public class LargeMethodOptimizer {
         splitParentFuncForPeriodicMapSplits(parentFunc, newlyAddingFunctions, fromAttachedFunction,
                 bbs, newArrayInsBBNum, newArrayInsNumInRelevantBB,
                 handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv, mapValuesOperands,
-                globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadIns);
+                globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadIns, mapKeyOperandLocations);
 
         parentFuncEnv.parentFuncNewInsList.addAll(globalAndArgVarKeyConstLoadIns);
         parentFuncEnv.parentFuncNewInsList.addAll(globalAndArgVarIns);
@@ -307,7 +308,8 @@ public class LargeMethodOptimizer {
                                                                Map<BIROperand, BIRMappingConstructorEntryWithIndex>
                                                                        birOperands,
                                                                Set<BIROperand> mapValuesOperands,
-                                                               Set<BIROperand> globalAndArgVarKeyOperands) {
+                                                               Set<BIROperand> globalAndArgVarKeyOperands,
+                                                               Map<BIROperand, NonTerminatorLocation> mapKeyOperandLocations) {
         List<BIRNonTerminator> globalAndArgVarIns = new ArrayList<>();
         int arrIndex = 0;
         for (BIRNode.BIRMappingConstructorEntry value : mapIns.initialValues) {
@@ -323,6 +325,7 @@ public class LargeMethodOptimizer {
                     setMapElement(globalAndArgVarIns, handleArrayOperand, keyValueEntry.valueOp, value, arrIndex,
                             parentFuncTempVars);
                 }
+                mapKeyOperandLocations.put(keyValueEntry.keyOp, null);
             } else {
                 BIRNode.BIRMappingConstructorSpreadFieldEntry spreadFieldEntry =
                         (BIRNode.BIRMappingConstructorSpreadFieldEntry) value;
@@ -407,7 +410,13 @@ public class LargeMethodOptimizer {
     private Map<BIRAbstractInstruction,
             SplitPointDetails> getSplitPointsForMap(List<BIRBasicBlock> bbs, Set<BIROperand> mapValueOperands,
                                                     Set<BIROperand> globalAndArgVarKeyOperands,
-                                                    Set<BIRNonTerminator> globalAndArgVarKeyConstLoadInsSet) {
+                                                    Set<BIRNonTerminator> globalAndArgVarKeyConstLoadInsSet,
+                                                    Map<BIROperand, NonTerminatorLocation> mapKeyOperandLocations) {
+
+        // For a key value entry, we do not populate the map value, if we do not have key operand before
+        // the value operand. We have to check that when processing split points. Hence, we have to find where
+        // the map key operands are located. That is done in the same loop below.
+
         // a copy of arrayValueOperands is made to find first found array element operands from bottom
         Set<BIROperand> remainingArrayValueOperands = new HashSet<>(mapValueOperands);
 
@@ -450,8 +459,13 @@ public class LargeMethodOptimizer {
             }
             for (int insIndex = lastInsNum; insIndex >= 0; insIndex--) {
                 BIRNonTerminator currIns = bbInstructions.get(insIndex);
-                if (currIns.lhsOp != null && globalAndArgVarKeyOperands.contains(currIns.lhsOp)) {
-                    globalAndArgVarKeyOperands.remove(currIns.lhsOp);
+                BIROperand lhsOp = currIns.lhsOp;
+                if (lhsOp != null && mapKeyOperandLocations.containsKey(lhsOp)
+                        && mapKeyOperandLocations.get(lhsOp) == null) {
+                    mapKeyOperandLocations.put(lhsOp, new NonTerminatorLocation(bbIndex, insIndex));
+                }
+                if (lhsOp != null && globalAndArgVarKeyOperands.contains(lhsOp)) {
+                    globalAndArgVarKeyOperands.remove(lhsOp);
                     globalAndArgVarKeyConstLoadInsSet.add(currIns);
                     continue;
                 }
@@ -571,10 +585,11 @@ public class LargeMethodOptimizer {
                                                      SplitFuncEnv splitFuncEnv,
                                                      ParentFuncEnv parentFuncEnv, Set<BIROperand> mapValuesOperands,
                                                      Set<BIROperand> globalAndArgVarKeyOperands,
-                                                     List<BIRNonTerminator> globalAndArgVarKeyConstLoadIns) {
+                                                     List<BIRNonTerminator> globalAndArgVarKeyConstLoadIns,
+                                                     Map<BIROperand, NonTerminatorLocation> mapKeyOperandLocations) {
         Set<BIRNonTerminator> globalAndArgVarKeyConstLoadInsSet = new HashSet<>();
         Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = getSplitPointsForMap(bbs, mapValuesOperands,
-                globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadInsSet);
+                globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadInsSet, mapKeyOperandLocations);
         Map<BIROperand, Integer> errorOperandsAndTargetBBs = getErrorOperandsAndTargetBBs(parentFunc.errorTable);
         // When an error table operand is found as an array element operand in the LHS of an non terminator,
         // the array element populating instructions should be put in the targetBB for the try-catch to work correctly.
@@ -621,8 +636,9 @@ public class LargeMethodOptimizer {
                 splitFuncEnv.periodicSplitInsCount++;
                 populateSplitFuncArgsAndLocalVarList(splitFuncEnv, bbIns);
                 newBBInsList = new ArrayList<>();
-                mapElementSet = setMapElementGivenOperand(birOperands, newBBInsList,
-                        handleArrayOperand, splitFuncEnv.splitFuncTempVars, insSplitPoints, bbIns, splitFuncEnv);
+                mapElementSet = setMapElementGivenOperand(birOperands, newBBInsList, handleArrayOperand,
+                        splitFuncEnv.splitFuncTempVars, insSplitPoints, bbIns, splitFuncEnv, mapKeyOperandLocations,
+                        bbIndex, insIndex);
                 if (bbInsLhsOp != null && errorOperandsAndTargetBBs.containsKey(bbInsLhsOp)) {
                     nextBBPendingIns.addAll(newBBInsList);
                     splitFuncEnv.splitOkay = false;
@@ -651,7 +667,8 @@ public class LargeMethodOptimizer {
             splitFuncEnv.periodicSplitInsCount++;
             newBBInsList = new ArrayList<>();
             mapElementSet = setMapElementGivenOperand(birOperands, newBBInsList, handleArrayOperand,
-                    splitFuncEnv.splitFuncTempVars, insSplitPoints, bb.terminator, splitFuncEnv);
+                    splitFuncEnv.splitFuncTempVars, insSplitPoints, bb.terminator, splitFuncEnv, mapKeyOperandLocations,
+                    bbIndex, -1);
             if (mapElementSet) {
                 splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
                 BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
@@ -1040,10 +1057,12 @@ public class LargeMethodOptimizer {
     }
 
     private boolean setMapElementGivenOperand(Map<BIROperand, BIRMappingConstructorEntryWithIndex> birOperands,
-                                                List<BIRNonTerminator> newInsList, BIROperand handleArrayOperand,
-                                                TempVarsForArraySplit tempVars,
-                                                Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints,
-                                                BIRAbstractInstruction currIns, SplitFuncEnv splitFuncEnv) {
+                                              List<BIRNonTerminator> newInsList, BIROperand handleArrayOperand,
+                                              TempVarsForArraySplit tempVars,
+                                              Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints,
+                                              BIRAbstractInstruction currIns, SplitFuncEnv splitFuncEnv,
+                                              Map<BIROperand, NonTerminatorLocation> mapKeyOperandLocations,
+                                              int bbIndex, int insIndex) {
         if (insSplitPoints.containsKey(currIns)) {
             SplitPointDetails splitPointDetails = insSplitPoints.get(currIns);
             List<BIROperand> currOperands = splitPointDetails.arrayElementsBIROperands;
@@ -1051,12 +1070,25 @@ public class LargeMethodOptimizer {
                 BIRMappingConstructorEntryWithIndex mappingConstructorEntryWithIndex = birOperands.get(currOperand);
                 BIRNode.BIRMappingConstructorEntry mappingConstructorEntry = mappingConstructorEntryWithIndex
                         .mappingConstructorEntry;
+                boolean isKeyValueEntry = mappingConstructorEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry;
+                if (isKeyValueEntry && insIndex != -1) {
+                    BIROperand keyOperand = ((BIRNode.BIRMappingConstructorKeyValueEntry) mappingConstructorEntry)
+                            .keyOp;
+                    if (mapKeyOperandLocations.containsKey(keyOperand)) {
+                        NonTerminatorLocation nonTerminatorLocation = mapKeyOperandLocations.get(keyOperand);
+                        if ((nonTerminatorLocation.bbNum > bbIndex) ||
+                                (nonTerminatorLocation.bbNum == bbIndex && nonTerminatorLocation.insNum > insIndex)) {
+                            splitPointDetails.splitHere = false;
+                            continue;
+                        }
+                    }
+                }
                 int arrayIndex = mappingConstructorEntryWithIndex.index;
                 setMapElement(newInsList, handleArrayOperand, currOperand, mappingConstructorEntry, arrayIndex,
                         tempVars);
-                if (mappingConstructorEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
-                    BIRVariableDcl keyVarDcl = ((BIRNode.BIRMappingConstructorKeyValueEntry) mappingConstructorEntry).keyOp
-                            .variableDcl;
+                if (isKeyValueEntry) {
+                    BIRVariableDcl keyVarDcl = ((BIRNode.BIRMappingConstructorKeyValueEntry) mappingConstructorEntry)
+                            .keyOp.variableDcl;
                     if (keyVarDcl.kind == VarKind.ARG) {
                         splitFuncEnv.splitFuncArgs.add(keyVarDcl);
                     }
@@ -2018,6 +2050,16 @@ public class LargeMethodOptimizer {
                                                     int index) {
             this.mappingConstructorEntry = mappingConstructorEntry;
             this.index = index;
+        }
+    }
+
+    static class NonTerminatorLocation {
+        int bbNum;
+        int insNum;
+
+        private NonTerminatorLocation(int bbNum, int insNum) {
+            this.bbNum = bbNum;
+            this.insNum = insNum;
         }
     }
 
