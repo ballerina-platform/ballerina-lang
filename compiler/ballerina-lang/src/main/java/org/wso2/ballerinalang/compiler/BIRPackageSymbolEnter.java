@@ -1704,6 +1704,7 @@ public class BIRPackageSymbolEnter {
                     boolean isImmutable = isImmutable(objectSymbol.flags);
                     for (int i = 0; i < funcCount; i++) {
                         //populate intersection type object functions
+                        // TODO: Fix https://github.com/ballerina-platform/ballerina-lang/issues/30051
                         if (isImmutable) {
                             populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
                         } else {
