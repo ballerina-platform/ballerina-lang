@@ -31,3 +31,8 @@ function returnInt2() returns int|error => 3;
 function testCheckOnFailWithBinaryExprNegative() {
     int val = check returnInt2() on fail e => error("Error occurred", e) + 2.0;
 }
+
+function testRedeclareSymbolWithInCheckedOnFailExpression() {
+    int num = 5;
+    var val = check from int num in [1, 2, 3] where num >= 2 select num on fail e => error("Error occurred", e);
+}

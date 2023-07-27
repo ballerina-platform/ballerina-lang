@@ -35,24 +35,29 @@ function returnError2() returns int|error {
     return error("Something went wrong");
 }
 
-function testCheckedOnFailExpressionPanicWithCustomError1() returns error? {
+function testCheckedOnFailExpressionWithCustomError1() returns error? {
     check returnError1() on fail e => error("Custom error", e);
 }
 
-function testCheckedOnFailExpressionPanicWithCustomError2() returns error? {
+function testCheckedOnFailExpressionWithCustomError2() returns error? {
     int value = check returnError2() on fail e => error("Custom error", e);
 }
 
-function testCheckedOnFailExpressionPanicWithCustomError() {
-    error? err1 = testCheckedOnFailExpressionPanicWithCustomError1();
+function testCheckedOnFailExpressionWithCustomError() {
+    error? err1 = testCheckedOnFailExpressionWithCustomError1();
     assertTrue(err1 is error);
     assertEquals("Custom error", (<error> err1).message());
     assertEquals("Something went wrong", (<error> (<error> err1).cause()).message());
 
-    error? err2 = testCheckedOnFailExpressionPanicWithCustomError2();
+    error? err2 = testCheckedOnFailExpressionWithCustomError2();
     assertTrue(err2 is error);
     assertEquals("Custom error", (<error> err2).message());
     assertEquals("Something went wrong", (<error> (<error> err2).cause()).message());
+}
+
+function testCheckedOnFailExpressionWithQueryExpression() {
+    var val = check from int num in [1, 2, 3] where num >= 2 select num on fail e => error("Error occurred", e);
+    assertEquals([2, 3], val);
 }
 
 function assertTrue(anydata actual) {
