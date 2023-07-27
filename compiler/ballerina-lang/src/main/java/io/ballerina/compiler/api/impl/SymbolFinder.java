@@ -1762,7 +1762,7 @@ class SymbolFinder extends BaseVisitor {
 
         if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             // Returns since the resource-function has only the root-path segment
-            // Assumption: If a resource-action with 0 path-expr match with a resource function must have a root-path
+            // Assumption: If a resource-action with 0 path-expr matches with a resource function, then it must have a root-path
             return;
         }
 
