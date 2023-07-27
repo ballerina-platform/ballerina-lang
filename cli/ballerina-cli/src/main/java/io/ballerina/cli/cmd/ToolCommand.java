@@ -78,6 +78,7 @@ public class ToolCommand implements BLauncherCmd {
     private static final String TOOL_SEARCH_COMMAND = "search";
     private static final String TOOL_REMOVE_COMMAND = "remove";
     private static final String TOOL_USE_COMMAND = "use";
+    private static final String TOOL_UPDATE_COMMAND = "update";
     private static final String HYPHEN = "-";
 
     private static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";
@@ -86,6 +87,7 @@ public class ToolCommand implements BLauncherCmd {
     private static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
     private static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
     private static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<org>|<package>|<text>]";
+    private static final String TOOL_UPDATE_USAGE_TEXT = "bal tool update <tool-id>";
 
     private final boolean exitWhenFinish;
     private final PrintStream outStream;
@@ -152,6 +154,8 @@ public class ToolCommand implements BLauncherCmd {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_REMOVE_COMMAND);
             } else if (argList.get(0).equals(TOOL_SEARCH_COMMAND)) {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_SEARCH_COMMAND);
+            } else if (argList.get(0).equals(TOOL_UPDATE_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_UPDATE_COMMAND);
             } else {
                 commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
             }
@@ -181,6 +185,9 @@ public class ToolCommand implements BLauncherCmd {
                 break;
             case TOOL_REMOVE_COMMAND:
                 handleRemoveCommand();
+                break;
+            case TOOL_UPDATE_COMMAND:
+                handleUpdateCommand();
                 break;
             default:
                 CommandUtil.printError(this.errStream, "invalid sub-command given.", TOOL_USAGE_TEXT, false);
@@ -386,6 +393,39 @@ public class ToolCommand implements BLauncherCmd {
         } else {
             removeSpecificToolVersion();
         }
+    }
+
+    private void handleUpdateCommand() {
+        if (argList.size() < 2) {
+            CommandUtil.printError(this.errStream, "no tool id given.", TOOL_UPDATE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (argList.size() > 2) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments.", TOOL_UPDATE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        toolId = argList.get(1);
+        version = Names.EMPTY.getValue();
+
+        if (!validateToolName(toolId)) {
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_UPDATE_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(toolId);
+        if (tool.isEmpty()) {
+            CommandUtil.printError(errStream, "tool '" + toolId + "' is not installed.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        pullToolAndUpdateBalToolsToml(toolId, version);
     }
 
     public void pullToolAndUpdateBalToolsToml(String toolIdArg, String versionArg) {
