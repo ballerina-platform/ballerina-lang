@@ -43,9 +43,6 @@ public class PredictionByJava {
 
     public static String[] getPredictedToken(String sentence) {
         try {
-//            ClassLoader classLoader = PredictionByJava.class.getClassLoader();
-//            String path  = classLoader.getResource("/home/vinoth/Documents/ballerina-lang/language-server/modules/langserver-core/src/main/resources/fine_tuned_albert/fine_tuned_model.onnx").getPath();
-
             HuggingFaceTokenizer tokenizer =
                     HuggingFaceTokenizer.newInstance(Paths.get(
                     "/home/vinoth/Documents/ballerina-lang/language-server/modules/langserver-core/src/" +
