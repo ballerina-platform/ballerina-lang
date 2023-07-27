@@ -476,10 +476,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     resourceFunction.pathSegmentSymbols = pathSegmentSymbols;
-
-                    if (!isImmutable(this.currentStructure.flags)) {
-                        objectTypeSymbol.attachedFuncs.add(resourceFunction);
-                    }
+                    objectTypeSymbol.attachedFuncs.add(resourceFunction);
                 } else {
                     BAttachedFunction attachedFunc =
                             new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
@@ -490,7 +487,7 @@ public class BIRPackageSymbolEnter {
                         structureTypeSymbol.initializerFunc = attachedFunc;
                     } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
                         ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
-                    } else if (!isImmutable(this.currentStructure.flags)) {
+                    } else {
                         structureTypeSymbol.attachedFuncs.add(attachedFunc);
                     }
                 }
@@ -1704,7 +1701,6 @@ public class BIRPackageSymbolEnter {
                     boolean isImmutable = isImmutable(objectSymbol.flags);
                     for (int i = 0; i < funcCount; i++) {
                         //populate intersection type object functions
-                        // TODO: Fix https://github.com/ballerina-platform/ballerina-lang/issues/30051
                         if (isImmutable) {
                             populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
                         } else {
