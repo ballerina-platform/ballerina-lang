@@ -99,6 +99,9 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_MAP;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_STREAM;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_TYPE;
 
 /**
  * @since 2201.5.0
@@ -388,8 +391,10 @@ public class QueryTypeChecker extends TypeChecker {
                 }
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                     resolvedType = symTable.mapType;
+                } else if (queryExpr.isStream) {
+                    resolvedType = symTable.streamType;
                 } else {
-                    resolvedType = getNonContextualQueryType(selectType, collectionType);
+                    resolvedType = getNonContextualQueryType(selectType, collectionType, selectExp.pos);
                 }
                 break;
         }
@@ -570,26 +575,38 @@ public class QueryTypeChecker extends TypeChecker {
         return initType;
     }
 
-    private BType getNonContextualQueryType(BType staticType, BType basicType) {
-        BType resultType;
+    private BType getNonContextualQueryType(BType constraintType, BType basicType,  Location pos) {
         switch (Types.getReferredType(basicType).tag) {
             case TypeTags.TABLE:
-                resultType = symTable.tableType;
+                if (types.isAssignable(constraintType, symTable.mapAllType)) {
+                    return symTable.tableType;
+                }
                 break;
             case TypeTags.STREAM:
-                resultType = symTable.streamType;
-                break;
+                dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_STREAM);
+                return symTable.semanticError;
+            case TypeTags.MAP:
+                dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_MAP);
+                return symTable.semanticError;
             case TypeTags.XML:
-                resultType = new BXMLType(staticType, null);
+                if (types.isSubTypeOfBaseType(constraintType, symTable.xmlType.tag)) {
+                    return new BXMLType(constraintType, null);
+                }
                 break;
             case TypeTags.STRING:
-                resultType = symTable.stringType;
+                if (types.isSubTypeOfBaseType(constraintType, TypeTags.STRING)) {
+                    return symTable.stringType;
+                }
                 break;
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+            case TypeTags.OBJECT:
+                return new BArrayType(constraintType);
             default:
-                resultType = new BArrayType(staticType);
-                break;
+                return symTable.semanticError;
         }
-        return resultType;
+        dlog.error(pos, INVALID_QUERY_CONSTRUCT_TYPE, basicType, constraintType);
+        return symTable.semanticError;
     }
 
     private boolean validateTableType(BTableType tableType, TypeChecker.AnalyzerData data) {

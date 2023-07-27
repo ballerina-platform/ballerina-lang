@@ -306,24 +306,18 @@ function testNeverWithForeach8() {
 }
 
 function testNeverWithFromClauseInQueryExpr1() {
-    map<never> x = {};
-    var y = from never a in x select 1;
-    assertEquality(0, y.length());
-}
-
-function testNeverWithFromClauseInQueryExpr2() {
     xml<never> x = xml ``;
     xml y = from never a in x select xml:concat();
     assertEquality(xml:concat(), y);
 }
 
-function testNeverWithFromClauseInQueryExpr3() {
+function testNeverWithFromClauseInQueryExpr2() {
     never[] x = [];
     int[] y = from never a in x select 1;
     assertEquality(0, y.length());
 }
 
-function testNeverWithFromClauseInQueryExpr4() {
+function testNeverWithFromClauseInQueryExpr3() {
     never[] x = [];
     never[] y = [];
     int[] z = from var a in x
@@ -333,7 +327,7 @@ function testNeverWithFromClauseInQueryExpr4() {
     assertEquality(0, z.length());
 }
 
-function testNeverWithFromClauseInQueryExpr5() {
+function testNeverWithFromClauseInQueryExpr4() {
     NeverTable x = table [
     ];
     map<never>[] y = from var a in x select a;

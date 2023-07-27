@@ -304,7 +304,7 @@ function simpleQueryExprForXML9() returns error? {
     BookGenerator bookGenerator = new ();
     stream<Book, error?> bookStream = new (bookGenerator);
 
-    var xmlValue = check from Book book in bookStream
+    var xmlValue = stream from Book book in bookStream
         select xml `<Book>
                         <Author>${book.author}</Author>
                         <Title>${book.title}</Title>
