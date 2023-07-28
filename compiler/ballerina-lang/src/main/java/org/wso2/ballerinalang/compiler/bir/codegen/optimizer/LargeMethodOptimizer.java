@@ -1079,8 +1079,8 @@ public class LargeMethodOptimizer {
                             .keyOp;
                     if (mapKeyOperandLocations.containsKey(keyOperand)) {
                         NonTerminatorLocation nonTerminatorLocation = mapKeyOperandLocations.get(keyOperand);
-                        if ((nonTerminatorLocation.bbNum > bbIndex) ||
-                                (nonTerminatorLocation.bbNum == bbIndex && nonTerminatorLocation.insNum > insIndex)) {
+                        if (nonTerminatorLocation != null && (nonTerminatorLocation.bbNum > bbIndex ||
+                                (nonTerminatorLocation.bbNum == bbIndex && nonTerminatorLocation.insNum > insIndex))) {
                             splitPointDetails.splitHere = false;
                             continue;
                         }
