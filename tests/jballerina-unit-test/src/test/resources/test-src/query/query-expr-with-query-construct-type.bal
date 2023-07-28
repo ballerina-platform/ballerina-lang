@@ -1800,6 +1800,34 @@ function testJoinedQueryExprConstructingMapWithRegExp() {
     }, arr3);
 }
 
+type ModuleDecls [string, FuncDecl...];
+
+type FuncDecl [string, Signature];
+
+public type Signature [string, string[], string];
+
+type ModuleDeclsMemo record {|
+    readonly string id;
+    map<Signature> funcs = {};
+|};
+
+function testInnerQueryConstructedWithCEP() {
+    map<ModuleDeclsMemo> funcMap = {
+        "1": {id: "01", funcs: {"func1": ["foo", ["int", "string"], "boolean"]}},
+        "2": {id: "02", funcs: {"func2": ["bar", ["int", "int"], "boolean"]}}
+    };
+    ModuleDecls[] decl = from var {id, funcs} in funcMap
+        select [
+            id,
+            ...from var [name, sig] in funcs.entries()
+                where name.equalsIgnoreCaseAscii("func1")
+                select <FuncDecl>[name, sig]
+        ];
+
+    assertEqual([["01",["func1",["foo",["int","string"],"boolean"]]],["02"]], decl);
+}
+
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

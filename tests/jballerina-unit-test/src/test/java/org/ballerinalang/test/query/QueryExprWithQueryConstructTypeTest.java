@@ -497,6 +497,11 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testConstructMapsWithTuples");
     }
 
+    @Test
+    public void testInnerQueryConstructedWithCEP() {
+        BRunUtil.invoke(result, "testInnerQueryConstructedWithCEP");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
