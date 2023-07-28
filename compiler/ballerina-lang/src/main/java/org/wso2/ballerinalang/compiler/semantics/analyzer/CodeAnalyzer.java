@@ -3928,15 +3928,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                     if (i < parameterCountForPositionalArgs) {
                         BVarSymbol paramSymbol = invokableSymbol.params.get(i);
-                        if (paramSymbol != null && Symbols.isFlagOn(paramSymbol.flags, Flags.DEPRECATED)) {
-                            logDeprecatedWaring(paramSymbol.toString(), paramSymbol, expr.pos);
-                        }
+                        reportIfDeprecatedUsage(paramSymbol, expr, expr.pos);
                         if (Symbols.isFlagOn(invokableSymbol.params.get(i).flags, Flags.INCLUDED)) {
                             analyzeExpr(expr, data);
                         }
+                    } else {
+                        reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
                     }
                     i++;
-
             }
         }
     }
