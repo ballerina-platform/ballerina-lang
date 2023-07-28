@@ -134,6 +134,7 @@ public class LargeMethodOptimizer {
         boolean splitFurther = fromSplitFunction;
         if (!possibleSplits.isEmpty()) {
             generateSplits(birFunction, possibleSplits, newlyAddingFunctions, fromAttachedFunction);
+            rearrangeBasicBlocks(birFunction);
             // if now we have less instructions in the parent function no splits are done
             if (hasLessInstructionCount(birFunction)) {
                 splitFurther = false;
