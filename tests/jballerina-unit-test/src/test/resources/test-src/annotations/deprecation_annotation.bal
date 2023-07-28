@@ -442,6 +442,18 @@ function fooFn(int x1, @deprecated int x2){
 function barFn(string s, *Company company) {
 }
 
+function bazFn(string a, @deprecated int... c) {
+}
+
+function quxFn(@deprecated string y1 = "Qux", @deprecated int y2 = 10) {
+}
+
+function quuxFn(record {|
+    int id;
+    record {|string name; @deprecated int age;|} person;
+|} z) {
+}
+
 public function testDeprecatedParamUsages() {
     fooFn(10, 11);
     fooFn(12, x2 = 13);
@@ -459,4 +471,25 @@ public function testDeprecatedParamUsages() {
         country = "Germany", // Warning
         name = "Bar" // Warning
     );
+    bazFn(
+        "A",
+        1,  // warning
+        2,  // warning
+        3   // warning
+    );
+    quxFn(
+        "Quux", // warning
+        11      // warning
+    );
+    quxFn(
+        y1 = "Quux", // warning
+        y2 = 11      // warning
+    );
+    quuxFn({
+        id: 1,
+        person: {
+            name: "John",
+            age: 12     // warning
+        }
+    });
 }
