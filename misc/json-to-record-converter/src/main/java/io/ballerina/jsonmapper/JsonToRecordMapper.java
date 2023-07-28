@@ -639,15 +639,12 @@ public class JsonToRecordMapper {
     private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
         Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
 
-        if (typeNames.size() == 2) {
-            return NodeFactory.createUnionTypeDescriptorNode(typeNames.get(0), pipeToken, typeNames.get(1));
+        TypeDescriptorNode unionTypeDescNode = typeNames.get(0);
+        for (int i = 1; i < typeNames.size(); i++) {
+            unionTypeDescNode =
+                    NodeFactory.createUnionTypeDescriptorNode(unionTypeDescNode, pipeToken, typeNames.get(i));
         }
-        TypeDescriptorNode firstTypeDescNode = typeNames.remove(0);
-        TypeDescriptorNode secondTypeDescNode = typeNames.remove(0);
-        TypeDescriptorNode unionTypeDescNode =
-                NodeFactory.createUnionTypeDescriptorNode(firstTypeDescNode, pipeToken, secondTypeDescNode);
-        typeNames.add(0, unionTypeDescNode);
-        return joinToUnionTypeDescriptorNode(typeNames);
+        return unionTypeDescNode;
     }
 
     /**
