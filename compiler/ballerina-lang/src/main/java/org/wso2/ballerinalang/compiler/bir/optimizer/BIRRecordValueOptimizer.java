@@ -37,6 +37,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     private BIRNode.BIRFunction currentFunction = null;
     private List<BIRNode.BIRBasicBlock> newBBs = new ArrayList<>();
     private List<BIRNode.BIRFunction> moduleFunctions = new ArrayList<>();
+    private final Map<String, BIRNode.BIRVariableDcl> typecastVars = new HashMap<>();
     private boolean fpRemoved = false;
     private boolean valueCreated = false;
 
@@ -63,6 +64,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         birFunction.basicBlocks.forEach(bb -> bb.accept(this));
         birFunction.basicBlocks = newBBs;
         newBBs = new ArrayList<>();
+        typecastVars.clear();
     }
 
     @Override
@@ -116,6 +118,8 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
                 } else {
                     resetBasicBlock(basicBlock);
                 }
+            } else {
+                resetBasicBlock(basicBlock);
             }
         } else if (fpRemoved  && valueCreated) {
             resetBasicBlock(basicBlock);
@@ -126,15 +130,22 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
         BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
         if (firstBB.instructions.size() == 2) {
-            BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type,
-                    new Name("%temp_" + fpCall.fp.variableDcl.name), VarScope.FUNCTION, VarKind.TEMP, "");
+            BIRNonTerminator.TypeCast typeCast = (BIRNonTerminator.TypeCast) firstBB.instructions.get(1);
+            String tempVarName = "%temp_" + typeCast.rhsOp.variableDcl.name.value;
+            BIRNode.BIRVariableDcl tempVar;
+            if (typecastVars.containsKey(tempVarName)) {
+                tempVar = typecastVars.get(tempVarName);
+            } else {
+                tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type, new Name(tempVarName),
+                        VarScope.FUNCTION, VarKind.TEMP, "");
+                typecastVars.put(tempVarName, tempVar);
+                currentFunction.localVars.add(tempVar);
+            }
             BIROperand tempVarOperand = new BIROperand(tempVar);
             BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
                     constantLoad.value, constantLoad.type, tempVarOperand);
-            currentFunction.localVars.add(tempVar);
             newConstLoad.scope = fpCall.scope;
             lastBB.instructions.add(newConstLoad);
-            BIRNonTerminator.TypeCast typeCast = (BIRNonTerminator.TypeCast) firstBB.instructions.get(1);
             BIRNonTerminator.TypeCast newTypeCast = new BIRNonTerminator.TypeCast(typeCast.pos, fpCall.lhsOp,
                     tempVarOperand, typeCast.type, typeCast.checkTypes);
             lastBB.instructions.add(newTypeCast);
