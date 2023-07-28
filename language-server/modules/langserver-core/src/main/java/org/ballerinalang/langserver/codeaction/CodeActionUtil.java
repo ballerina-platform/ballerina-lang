@@ -506,7 +506,8 @@ public class CodeActionUtil {
                         boolean nilReturnType = errorAndNonErrorTypedSymbols.getLeft().stream()
                                 .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
                         memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
-                                .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL).collect(Collectors.toList()));
+                                .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL)
+                                .collect(Collectors.toList()));
                         memberTypes.addAll(errorSymbolsToAdd);
                         UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
                                 .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
@@ -556,7 +557,8 @@ public class CodeActionUtil {
                         .noneMatch(typeSymbol::subtypeOf)).collect(Collectors.toList());
     }
 
-    private static Pair<List<TypeSymbol>, List<TypeSymbol>> getErrorAndNonErrorTypedSymbols(TypeSymbol returnTypeDescriptor) {
+    private static Pair<List<TypeSymbol>, List<TypeSymbol>> getErrorAndNonErrorTypedSymbols(
+            TypeSymbol returnTypeDescriptor) {
         if (returnTypeDescriptor.typeKind() == TypeDescKind.UNION) {
             List<TypeSymbol> errorTypeSymbols = new ArrayList<>();
             List<TypeSymbol> nonErrorTypeSymbols = new ArrayList<>();
