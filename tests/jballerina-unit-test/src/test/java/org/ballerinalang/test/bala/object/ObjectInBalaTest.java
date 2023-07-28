@@ -557,20 +557,24 @@ public class ObjectInBalaTest {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_negative.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, 
-                "incompatible types: 'bir/objs:0.1.0:Bar' will not be matched to 'bir/objs:0.1.0:Foo'", 20, 9);
+                "incompatible types: expected 'bir/objs:0.1.0:Foo', found 'bir/objs:0.1.0:Bar'", 24, 18);
         BAssertUtil.validateError(result, i++, 
-                "incompatible types: 'bir/objs:0.1.0:Foo' will not be matched to 'bir/objs:0.1.0:Bar'", 24, 9);
+                "incompatible types: expected 'bir/objs:0.1.0:Bar', found 'bir/objs:0.1.0:Foo'", 28, 18);
+        BAssertUtil.validateError(result, i++,
+                "incompatible types: expected 'Foo', found 'bir/objs:0.1.0:Foo'", 29, 13);
         BAssertUtil.validateError(result, i++, 
-                "incompatible types: 'bir/objs:0.1.0:Xyz' will not be matched to 'bir/objs:0.1.0:Qux'", 28, 9);
-        BAssertUtil.validateError(result, i, 
-                "incompatible types: 'bir/objs:0.1.0:Qux' will not be matched to 'bir/objs:0.1.0:Xyz'", 32, 9);
-        Assert.assertEquals(result.getErrorCount(), 4);
+                "incompatible types: expected 'bir/objs:0.1.0:Qux', found 'bir/objs:0.1.0:Xyz'", 33, 18);
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: expected 'bir/objs:0.1.0:Xyz', found 'bir/objs:0.1.0:Qux'", 37, 18);
+        BAssertUtil.validateError(result, i++,
+                "incompatible types: expected 'bir/objs:0.1.0:Foo', found 'Foo'", 41, 18);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
-    @Test
-    public void testObjectTypeAssignability() {
+    @Test(description = "Positive test to verify object isolated and distinct qualifiers load properly from BIR")
+    public void testObjectTypeAssignabilityWithQualifiers() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_positive.bal");
-        BRunUtil.invoke(result, "testObjectTypeAssignability");
+        BRunUtil.invoke(result, "testObjectTypeAssignabilityWithQualifiers");
     }
     
     @AfterClass

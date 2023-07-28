@@ -16,72 +16,66 @@
 
 import bir/objs;
 
+public type Quxx isolated client object {
+    public isolated function execute() returns anydata|error;
+};
+
 objs:Qux quxMod = isolated service object {
     public isolated function execute() returns anydata|error {
          return "qux";
     }
 };
 
-function f1(objs:Foo foo) {
-    assertTrue(foo is objs:Foo);
-}
-
-function f2(objs:Xyz xyz) {
-    assertTrue(xyz is objs:Xyz);
-}
-
-function f3(any foo) {
-    assertTrue(foo is objs:Foo);
-}
-
-function f4(any baz) {
-    assertTrue(baz is objs:Baz);
-}
-
-function f5(any xyz) {
-    assertTrue(xyz is objs:Xyz);
-}
-
-function f6(any qux) {
-    assertTrue(qux is objs:Qux);
-}
-
-function f7(any foo) {
-    assertFalse(foo is objs:Bar);
-}
-
-function testObjectTypeAssignability() {
+function testObjectTypeAssignabilityWithQualifiers() {
     objs:Foo foo = isolated client object {
          public isolated function execute() returns anydata|error {
            return "foo";
         }
     };
-    f1(foo);
-    f3(foo);
-    f7(foo);
+    assertTrue(foo is objs:Foo);
+    assertTrue(<any>foo is objs:Foo);
+    assertFalse(<any>foo is objs:Bar);
     
     objs:Baz baz = isolated client object {
         public isolated function execute() returns anydata|error {
             return "baz";
         }
     };
-    f4(baz);
+    assertTrue(<any>baz is objs:Baz);
     
     objs:Xyz xyz = isolated service object {
         public isolated function execute() returns anydata|error {
             return "xyz";
         }
     };
-    f2(xyz);
-    f5(xyz);
+    assertTrue(xyz is objs:Xyz);
+    assertTrue(<any>xyz is objs:Xyz);
     
     objs:Qux qux = isolated service object {
         public isolated function execute() returns anydata|error {
             return "qux";
         }
     };
-    f6(qux);
-    f6(quxMod);
+    assertTrue(<any>qux is objs:Qux);
+    assertTrue(<any>quxMod is objs:Qux);
+    
+    objs:Quxx quxx = isolated client object {
+        public isolated function execute() returns anydata|error {
+            return "quxx";
+        }
+    };
+    
+    objs:Muxx _ = quxx;
+    Quxx _ = quxx;
+    assertTrue(quxx is Quxx);
+    
+    Quxx _ = isolated client object {
+        public isolated function execute() returns anydata|error {
+            return "quxx";
+        }
+    };
+    objs:Quxx _ = quxx;
+    assertTrue(quxx is objs:Quxx);
 }
 
 function assertTrue(anydata actual) {

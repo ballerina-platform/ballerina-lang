@@ -16,18 +16,27 @@
 
 import bir/objs;
 
+public type Foo distinct isolated client object {
+    public isolated function execute() returns anydata|error;
+};
+
 function f1(objs:Bar bar) {
-    _ = bar is objs:Foo;
+    objs:Foo _ = bar;
 }
 
 function f2(objs:Foo foo) {
-    _ = foo is objs:Bar;
+    objs:Bar _ = foo;
+    Foo _ = foo;
 }
 
 function f3(objs:Xyz xyz) {
-    _ = xyz is objs:Qux;
+    objs:Qux _ = xyz;
 }
 
 function f4(objs:Qux qux) {
-    _ = qux is objs:Xyz;
+    objs:Xyz _ = qux;
+}
+
+function f5(Foo foo) {
+    objs:Foo _ = foo;
 }
