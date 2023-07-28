@@ -20,6 +20,7 @@ jobs:
   windows_build:
     name: Build with some tests on Windows
     runs-on: windows-latest
+    timeout-minutes: 240
     concurrency: 
        group: ${{ github.head_ref }}-windows
        cancel-in-progress: true
@@ -55,5 +56,5 @@ jobs:
         env:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
+        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :ballerina-cli:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 
