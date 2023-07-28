@@ -490,26 +490,31 @@ public class CodeActionUtil {
                 allErrorTypes.addAll(errorAndNonErrorTypedSymbols.getRight());
                 List<TypeSymbol> errorSymbolsToAdd = filterErrorSubTypes(allErrorTypes);
 
-                if (returnTypeDescriptor.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                    String returnType = enclosedRetTypeDescNode.type().toString()
-                            .replaceAll("\\s+", "");
-                    UnionTypeSymbol newMemberType = semanticModel.get().types().builder().UNION_TYPE
-                            .withMemberTypes(errorSymbolsToAdd.toArray(new TypeSymbol[0])).build();
-                    returnText = String.format("returns %s|%S", returnType, newMemberType.signature());
-                } else {
-                    List<TypeSymbol> memberTypes = new ArrayList<>();
-                    //Exclude NIL return type and add it to the end of the return statement
-                    boolean nilReturnType = errorAndNonErrorTypedSymbols.getLeft().stream()
-                            .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
-                    memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
-                            .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL).collect(Collectors.toList()));
-                    memberTypes.addAll(errorSymbolsToAdd);
-                    UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
-                            .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
-                    String typeName = CodeActionUtil.getPossibleType(newType, context, acceptor).orElseThrow();
-                    returnText = String.format("returns %s", typeName + (nilReturnType ? "?" : ""));
+                boolean isNewErrorTypeAvailable = errorSymbolsToAdd.stream()
+                        .anyMatch(typeSymbol -> errorAndNonErrorTypedSymbols.getRight().stream()
+                                .noneMatch(otherSymbol -> otherSymbol.signature().equals(typeSymbol.signature())));
+                if (!errorSymbolsToAdd.isEmpty() && isNewErrorTypeAvailable) {
+                    if (returnTypeDescriptor.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                        String returnType = enclosedRetTypeDescNode.type().toString()
+                                .replaceAll("\\s+", "");
+                        UnionTypeSymbol newMemberType = semanticModel.get().types().builder().UNION_TYPE
+                                .withMemberTypes(errorSymbolsToAdd.toArray(new TypeSymbol[0])).build();
+                        returnText = String.format("returns %s|%s", returnType, newMemberType.signature());
+                    } else {
+                        List<TypeSymbol> memberTypes = new ArrayList<>();
+                        //Exclude NIL return type and add it to the end of the return statement
+                        boolean nilReturnType = errorAndNonErrorTypedSymbols.getLeft().stream()
+                                .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
+                        memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
+                                .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL).collect(Collectors.toList()));
+                        memberTypes.addAll(errorSymbolsToAdd);
+                        UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
+                                .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
+                        String typeName = CodeActionUtil.getPossibleType(newType, context, acceptor).orElseThrow();
+                        returnText = String.format("returns %s", typeName + (nilReturnType ? "?" : ""));
+                    }
+                    returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                 }
-                returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
             } else {
                 // Parent function has no return
                 List<TypeSymbol> errorSymbolsToAdd = filterErrorSubTypes(errorTypeSymbols);

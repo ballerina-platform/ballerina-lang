@@ -94,8 +94,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context, importsAcceptor);
+        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, 
+                positionDetails, typeSymbol.get(), context, importsAcceptor);
         List<TextEdit> edits = new ArrayList<>(modifiedTextEdits.edits);
         List<TextEdit> addCheckTextEdits = CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
