@@ -449,7 +449,7 @@ public class LargeMethodOptimizer {
                     // hence spilt function should be created after such function call
                     // only in this case we have to consider RHS operands (only function arguments)
                     BIRTerminator.Call callIns = (BIRTerminator.Call) bbTerminator;
-                    if (callIns.name.value.equals(OBJECT_INITIALIZATION_FUNCTION_NAME)) {
+                    if (callIns.name.value.contains(OBJECT_INITIALIZATION_FUNCTION_NAME)) {
                         for (BIROperand arg : callIns.args) {
                             addOperandToInsSplitPoints(mapValueOperands, insSplitPoints, callIns, arg,
                                     operandsInSameBB, remainingArrayValueOperands);
