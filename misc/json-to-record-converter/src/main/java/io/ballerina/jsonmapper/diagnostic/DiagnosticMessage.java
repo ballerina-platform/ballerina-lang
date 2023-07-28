@@ -121,10 +121,10 @@ public final class DiagnosticMessage {
                         "Consider rename it back to a meaningful name.", DiagnosticSeverity.INFO, null);
     }
 
-    public static DiagnosticMessage jsonToRecordConverter107(Object[] args) {
+    public static DiagnosticMessage jsonToRecordConverter107(String recordField) {
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_107",
-                "Proper inline record cannot be generated due to the nested structure of the JSON. " +
-                        "This will cause infinite record nesting.",
-                DiagnosticSeverity.ERROR, args);
+                String.format("Proper inline record cannot be generated due to the nested structure of the JSON. " +
+                        "This will cause infinite record nesting. Consider renaming field %s.", recordField),
+                DiagnosticSeverity.ERROR, null);
     }
 }
