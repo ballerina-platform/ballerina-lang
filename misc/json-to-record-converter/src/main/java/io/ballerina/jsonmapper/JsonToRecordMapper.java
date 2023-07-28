@@ -508,7 +508,8 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode converted =
                         convertUnionTypeToInline(fieldTypeName, visitedRecordTypeDescNodeTypeToNodes);
                 if (converted == null) {
-                    DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter107(null);
+                    DiagnosticMessage message =
+                            DiagnosticMessage.jsonToRecordConverter107(recordFieldNode.fieldName().text());
                     diagnosticMessages.add(message);
                     return Optional.empty();
                 }
@@ -675,6 +676,9 @@ public class JsonToRecordMapper {
 
             if (fieldKind.equals(SyntaxKind.IDENTIFIER_TOKEN)) {
                 arrayExtractedNode = visitedRecordTypeDescNodeTypeToNodes.get(fieldTypeNameText);
+                if (arrayExtractedNode == null) {
+                    return null;
+                }
             }
             updatedTypeDescNodes.add(arrayExtractedNode);
         } else {
