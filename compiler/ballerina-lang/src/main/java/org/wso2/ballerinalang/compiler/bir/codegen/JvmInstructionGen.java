@@ -628,7 +628,6 @@ public class JvmInstructionGen {
                     mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
                             INIT_BAL_ENV, false);
                 }
-
                 while (argIndex < callIns.args.size()) {
                     BIROperand arg = callIns.args.get(argIndex);
                     this.loadVar(arg.variableDcl);
@@ -649,7 +648,6 @@ public class JvmInstructionGen {
                     jvmTypeGen.loadType(this.mv, inst.type);
                     loadListInitialValues(inst);
                     BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
-
                     if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
                             ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
                         visitNewRecordArray(elementType);
