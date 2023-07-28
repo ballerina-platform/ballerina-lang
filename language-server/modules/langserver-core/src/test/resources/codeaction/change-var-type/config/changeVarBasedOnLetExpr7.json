@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 47
+  },
+  "source": "changeVarBasedOnLetExpr7.bal",
+  "expected": [
+    {
+      "title": "Change variable 'i' type to 'int'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 10
+            }
+          },
+          "newText": "int"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

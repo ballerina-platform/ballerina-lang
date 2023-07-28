@@ -187,8 +187,6 @@ public class CommandConstants {
 
     public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Convert to '%s' template";
 
-    public static final String RENAME_COMMAND = "ballerina.action.rename";
-
     public static final String POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
 
     public static final String EXTRACT_COMMAND = "ballerina.action.extract";

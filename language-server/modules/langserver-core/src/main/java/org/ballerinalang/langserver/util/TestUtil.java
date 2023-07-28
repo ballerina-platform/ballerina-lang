@@ -919,6 +919,7 @@ public class TestUtil {
 
             Map<String, Object> initializationOptions = new HashMap<>();
             initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
+            initializationOptions.put(InitializationOptions.KEY_ENABLE_INLAY_HINTS, true);
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);

@@ -33,11 +33,12 @@ import org.testng.annotations.Test;
  */
 public class StringQueryExpressionTest {
 
-    private CompileResult result;
+    private CompileResult result, negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/string-query-expression.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/string-query-expression-negative.bal");
     }
 
     @Test(description = "Test simple query expression with string result")
@@ -46,6 +47,11 @@ public class StringQueryExpressionTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex Ranjan John ");
+    }
+
+    @Test(description = "Test simple query expression with string result")
+    public void testSimpleQueryExprForStringResult2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForStringResult2");
     }
 
     @Test(description = "Test query expression with where giving string result")
@@ -172,8 +178,18 @@ public class StringQueryExpressionTest {
         Assert.assertEquals(returnValues.toString(), "Ranjan John ");
     }
 
+    // issue - #40012
+    // @Test(description = "Negative Query expr for String tests")
+    // public void testNegativeQueryExprForXML() {
+    //     int index = 0;
+    //     validateError(negativeResult, index++, "ambiguous type '[string:Char, string:Char]'", 46, 16);
+    //     validateError(negativeResult, index++, "ambiguous type '[string:Char, string:Char, string:Char]'", 48, 16);
+    //     Assert.assertEquals(negativeResult.getErrorCount(), index);
+    // }
+
     @AfterClass
     public void tearDown() {
         result = null;
+        negativeResult = null;
     }
 }

@@ -118,13 +118,87 @@ function testConstMatchPattern2() {
     assertEquality([1, 2, "a", "x", "x"], result);
 }
 
+const C = "C";
+function testBindingPatternsInMatchStatement() {
+    (anydata|error)[] expected = ["A", "C", 1, 100, [1], [2, 3], [4, 5, 6, 7], [8, [9, 10]],
+                         {a: 3, b: 20}, {t: {a: 3, b: 20}}, {a: 3, b: 20, c: 40, d: 500},
+                         error("Generic Error", code = 20)];
+    (anydata|error)[] result = [];
+    from anydata|error item in expected
+        do  {
+            int z = 100;
+            match item {
+                "A" => {
+                    result.push("A");
+                }
+                
+                C => {
+                    result.push("C");
+                }
+                
+                100 => {
+                    result.push(z);
+                }
+
+                var i if i is int => {
+                    result.push(i);
+                }
+
+                var [_] => {
+                    result.push(item);
+                }
+    
+                var [i, j] if j is int => {
+                    result.push([i, j]);
+                }
+
+                var [i, [j, k]] => {
+                    result.push([i, [j, k]]);
+                }
+
+                var [i, j, ...rest] => {
+                    result.push([i, j, ...rest]);
+                }
+                
+                var {a, b, ...rest} if rest.cloneReadOnly().length() > 0 => {
+                    result.push({a, b, ...rest});
+                }
+
+                var {a, b} => {
+                    result.push({a, b});
+                }
+
+                var {t: {a, b}} => {
+                    result.push({t: {a, b}});
+                }
+                
+                var error(ERROR, code = code) => {
+                    result.push(error(ERROR, code = code));
+                }
+                
+                _ if item is anydata => {
+                    result.push(item);
+                }
+            }
+        };
+    foreach int i in 0...result.length() - 1 {
+        assertEquality(expected[i], result[i]);
+    } 
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(anydata expected, anydata actual) {
-    if expected == actual {
+function assertEquality(anydata|error expected, anydata|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    
+    if expected is error && actual is error && expected.message() == actual.message(){
         return;
     }
 
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

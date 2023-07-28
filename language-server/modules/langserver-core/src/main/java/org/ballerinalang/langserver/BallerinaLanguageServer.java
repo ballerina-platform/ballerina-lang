@@ -218,6 +218,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
         //Initialize Service Template Generator.
         ServiceTemplateGenerator.getInstance(this.serverContext);
+        CentralPackageDescriptorLoader.getInstance(this.serverContext)
+                .loadBallerinaxPackagesFromCentral(this.serverContext);
     }
 
     /**

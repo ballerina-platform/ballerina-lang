@@ -200,6 +200,24 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {201, 7, location(201, 5, 9),
                         List.of(location(201, 5, 9))
                 },
+                // Parameters in named-args
+                {209, 10, location(215, 22, 24),
+                        List.of(location(209, 10, 12),
+                                location(215, 22, 24))
+                },
+                {209, 22, location(215, 37, 39),
+                        List.of(location(209, 22, 24),
+                                location(215, 37, 39))
+                },
+                {210, 10, location(218, 24, 29),
+                        List.of(location(210, 10, 15),
+                                location(211, 10, 15),
+                                location(218, 24, 29))
+                },
+                {212, 16, location(223, 22, 24),
+                        List.of(location(212, 16, 18),
+                                location(223, 22, 24))
+                }
         };
     }
 

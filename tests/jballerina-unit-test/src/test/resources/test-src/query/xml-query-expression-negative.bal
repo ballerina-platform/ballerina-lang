@@ -50,3 +50,54 @@ function testSimpleQueryExprForXMLWithReadonly1() {
     xml<xml:ProcessingInstruction> & readonly _ = from xml:ProcessingInstruction x in processingInstructions
         select x;
 }
+
+type Book record {|
+    string title;
+    string author;
+|};
+
+class BookGenerator {
+    int i = 0;
+
+    public isolated function next() returns record {|Book value;|}|error? {
+        self.i += 1;
+        if (self.i < 0) {
+            return error("Error");
+        } else if (self.i >= 3) {
+            return ();
+        }
+        return {
+            value: {
+                title: "Title " + self.i.toString(), author: "Author " + self.i.toString()
+            }
+        };
+    }
+}
+
+BookGenerator bookGenerator = new ();
+stream<Book, error?> bookStream = new (bookGenerator);
+
+function testSimpleQueryExprForXML() {
+    xml:Element _ = check from Book book in bookStream
+        select xml `<Book>
+                        <Author>${book.author}</Author>
+                        <Title>${book.title}</Title>
+                    </Book>`;
+
+    xml:Element|xml _ = check from Book book in bookStream
+        select xml `<Book>
+                        <Author>${book.author}</Author>
+                        <Title>${book.title}</Title>
+                    </Book>`;
+
+    xml:Text|xml _ = check from Book book in bookStream
+        select xml `<Book>
+                        <Author>${book.author}</Author>
+                        <Title>${book.title}</Title>
+                    </Book>`;
+    xml:Element[]|xml _ = check from Book book in bookStream
+        select xml `<Book>
+                        <Author>${book.author}</Author>
+                        <Title>${book.title}</Title>
+                    </Book>`;
+}

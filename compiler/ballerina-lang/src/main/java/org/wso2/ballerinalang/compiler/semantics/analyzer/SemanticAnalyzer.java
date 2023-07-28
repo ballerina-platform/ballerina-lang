@@ -938,7 +938,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangSimpleVariable field : recordFields) {
             if (field.flagSet.contains(Flag.READONLY)) {
                 handleReadOnlyField(isRecordType, fields, field, data);
-            } else {
+            } else if (!types.isAssignable(field.getBType(), symTable.neverType)) {
                 allReadOnlyFields = false;
             }
 

@@ -203,3 +203,24 @@ public function findRefsIn() {
             .reduce(function (int val1, int val2) => val1 + val2, 0);
 
 }
+
+function testRefsInsideFuncCall() {
+    string|int value = "Jam";
+
+    func1(s1 = "Sam", s2 = value);
+    func2(xFunc = func1);
+    func2(xFunc = func4);
+    func2(func3(s1 = "abc"));
+}
+
+function func1(string s1, string|int s2) {
+}
+
+function func2(function xFunc) {
+}
+
+function (int) returns int func4 = a => a + a;
+
+function func3(string s1) returns function (int) returns int {
+    return func4;
+}

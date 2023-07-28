@@ -83,6 +83,31 @@ function testErrorIntersection() {
     assertEquality(3, e4.detail()["num"]);
 }
 
+type MyDefaultStatusCodeError1 distinct er:DefaultStatusCodeError;
+type MyDefaultStatusCodeError2 distinct er:DefaultStatusCodeError & error<record {| int code; boolean fatal; |}>;
+type MyDefaultStatusCodeError3 distinct er:DefaultStatusCodeError & distinct error<record {| int code; boolean fatal; |}>;
+
+function testDistinctErrorIntersection() {
+    MyDefaultStatusCodeError1 e1 = error MyDefaultStatusCodeError1("Default status code error", code = 404);
+    assertEquality("Default status code error", e1.message());
+    assertEquality(404, e1.detail()["code"]);
+
+    MyDefaultStatusCodeError2 e2 = error MyDefaultStatusCodeError2("Default status code error", code = 404,
+        fatal = true);
+    assertEquality("Default status code error", e2.message());
+    assertEquality(404, e2.detail()["code"]);
+
+    er:DefaultStatusCodeError e3  = e2;
+    assertEquality("Default status code error", e3.message());
+    assertEquality(404, e3.detail()["code"]);
+
+    MyDefaultStatusCodeError3 e4 = error MyDefaultStatusCodeError3("Default status code error", code = 404,
+        fatal = true);
+    er:DefaultStatusCodeError e5 = e4;
+    assertEquality("Default status code error", e5.message());
+    assertEquality(404, e5.detail()["code"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

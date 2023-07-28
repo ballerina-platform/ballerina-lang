@@ -1,0 +1,13 @@
+{
+  "organization": "testorg",
+  "name": "centralSample",
+  "version": "1.0.2",
+  "export": [
+    "centralSample"
+  ],
+  "ballerina_version": "2201.7.0-SNAPSHOT",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2023R1",
+  "platform": "any",
+  "template": true
+}

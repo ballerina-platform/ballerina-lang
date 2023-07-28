@@ -102,11 +102,10 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                 positionDetails.matchedNode(), context));
         edits.addAll(importsAcceptor.getNewImportTextEdits());
 
-        int renamePosition = modifiedTextEdits.renamePositions.get(0);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
                 edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition,
-                modifiedTextEdits.varRenamePosition.get(0), modifiedTextEdits.imports.size());
+        addRenamePopup(context, codeAction, modifiedTextEdits.varRenamePosition.get(0),
+                modifiedTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -2552,7 +2553,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             attachedType = Types.getReferredType(attachedType);
             attachedType = attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType;
         }
-
+        boolean isSourceOnlyAnon = isSourceAnonOnly(annotationSymbol.points);
         BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY, env.enclPkg.packageID,
                                                              attachedType, attachedType, env.scope.owner,
                                                              annotationAttachment.pos, VIRTUAL);
@@ -2575,7 +2576,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             }
         } else {
             constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr, constantSymbol,
-                    env, anonTypeNameSuffixes);
+                    env, anonTypeNameSuffixes, isSourceOnlyAnon);
         }
 
         constantSymbol.type = constAnnotationValue.type;
@@ -2586,6 +2587,15 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                                                                  env.scope.owner,
                                                                                  annotationAttachment.pos, SOURCE,
                                                                                  constantSymbol);
+    }
+
+    private boolean isSourceAnonOnly(Set<AttachPoint> attachPoints) {
+        for (AttachPoint attachPoint : attachPoints) {
+            if (!attachPoint.source) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {

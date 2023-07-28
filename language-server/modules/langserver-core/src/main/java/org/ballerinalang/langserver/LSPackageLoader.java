@@ -53,9 +53,10 @@ public class LSPackageLoader {
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private final List<ModuleInfo> distRepoPackages;
+    private List<ModuleInfo> distRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
+    private List<ModuleInfo> centralPackages = new ArrayList<>();
 
     private final LSClientLogger clientLogger;
 
@@ -70,7 +71,6 @@ public class LSPackageLoader {
 
     private LSPackageLoader(LanguageServerContext context) {
         this.clientLogger = LSClientLogger.getInstance(context);
-        distRepoPackages = this.getDistributionRepoPackages();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
@@ -109,7 +109,7 @@ public class LSPackageLoader {
      * @return {@link List} of distribution repo packages
      */
     public List<ModuleInfo> getDistributionRepoPackages() {
-        if (this.distRepoPackages != null) {
+        if (this.distRepoPackages != null && !this.distRepoPackages.isEmpty()) {
             return this.distRepoPackages;
         }
         DefaultEnvironment environment = new DefaultEnvironment();
@@ -117,8 +117,22 @@ public class LSPackageLoader {
         BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
         PackageRepository packageRepository = ballerinaDistribution.packageRepository();
         List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
-        return Collections.unmodifiableList(checkAndResolvePackagesFromRepository(packageRepository, skippedLangLibs,
-                Collections.emptySet()));
+        this.distRepoPackages = checkAndResolvePackagesFromRepository(packageRepository, skippedLangLibs,
+                Collections.emptySet());
+        return distRepoPackages;
+    }
+
+    public List<ModuleInfo> getCentralPackages(LanguageServerContext context) {
+        if (centralPackages == null || centralPackages.isEmpty()) {
+            centralPackages = CentralPackageDescriptorLoader.getInstance(context).getCentralPackages(context).stream()
+                    .map(packageInfo -> {
+                        PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+                        PackageName packageName = PackageName.from(packageInfo.getName());
+                        PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+                        return new ModuleInfo(packageOrg, packageName, packageVersion, null);
+                    }).collect(Collectors.toList());
+        }
+        return centralPackages;
     }
 
     /**

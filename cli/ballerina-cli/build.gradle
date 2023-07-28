@@ -22,6 +22,9 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    compilerPluginJar {
+        transitive false
+    }
     distributionBala
     distributionBirJar
     balRt
@@ -62,12 +65,24 @@ dependencies {
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
     testRuntime project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+    testRuntime project(':project-api-test-artifact:log-creator-in-built-code-modifier')
+    testRuntime project(':project-api-test-artifact:log-creator-in-built-code-generator')
+    testRuntime project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
+
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 }
 
 task createTestDistributionCache(type: Copy) {
     dependsOn configurations.distributionBala
     from configurations.distributionBala
     into "$buildDir/repo"
+}
+
+task copyCompilerPluginJars(type: Copy) {
+    from configurations.compilerPluginJar
+    into "$buildDir/compiler-plugin-jars"
 }
 
 task createTestBre(type: Copy) {
@@ -81,6 +96,7 @@ task createTestBre(type: Copy) {
 test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
+    dependsOn copyCompilerPluginJars
 
     systemProperty "ballerina.home", "$buildDir"
 

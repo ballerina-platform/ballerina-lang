@@ -1,2 +1,6 @@
 Welcome to Ballerina Shell REPL.
+
+Note: This is an experimental feature, which supports only a limited
+set of functionality.
+
 Type /exit to exit and /help to list available commands.

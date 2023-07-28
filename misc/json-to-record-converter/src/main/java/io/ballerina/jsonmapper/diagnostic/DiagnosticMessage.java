@@ -120,4 +120,11 @@ public final class DiagnosticMessage {
                 "Few of the records are renamed. " +
                         "Consider rename it back to a meaningful name.", DiagnosticSeverity.INFO, null);
     }
+
+    public static DiagnosticMessage jsonToRecordConverter107(Object[] args) {
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_107",
+                "Proper inline record cannot be generated due to the nested structure of the JSON. " +
+                        "This will cause infinite record nesting.",
+                DiagnosticSeverity.ERROR, args);
+    }
 }

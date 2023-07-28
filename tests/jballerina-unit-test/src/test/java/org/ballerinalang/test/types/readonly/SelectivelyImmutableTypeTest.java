@@ -163,11 +163,11 @@ public class SelectivelyImmutableTypeTest {
                       313, 5);
 
         validateError(result, index++, "incompatible types: expected 'never?', found 'stream<int>'", 321, 27);
-        validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
+        validateError(result, index++, "incompatible types: expected 'record {| never a?; |} & readonly', " +
                 "found '(R1 & readonly)'", 322, 32);
         validateError(result, index++, "incompatible types: expected 'never', found 'int'", 331, 35);
         validateError(result, index++, "incompatible types: expected 'never', found 'stream<int>'", 331, 43);
-        validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
+        validateError(result, index++, "incompatible types: expected 'record {| never a?; |} & readonly', " +
                 "found '(R2 & readonly)'", 332, 32);
         validateError(result, index++, "missing non-defaultable required record field 'a'", 333, 23);
         validateError(result, index++, "incompatible types: expected 'never', found 'int'", 333, 29);

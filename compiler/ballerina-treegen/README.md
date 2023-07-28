@@ -14,6 +14,9 @@ This tool generates source code required to work with Ballerina syntax trees. By
 Update the [`syntax_tree_descriptor.json`](src/main/resources/syntax_tree_descriptor.json) with the necessary changes. 
 
 ### Step 2:
+Update the [`syntax_node_metada.json`](src/main/resources/syntax_node_metadata.json) with the necessary changes.
+
+### Step 3:
 Run the following command. By default, the tool does an in-place update of the above-mentioned classes.
 ```bash
 ./gradle treegen

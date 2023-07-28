@@ -286,4 +286,9 @@ public class XMLAttributesTest {
             System.setOut(original);
         }
     }
+
+    @Test
+    public void testAttributesInEmptyXMLSequence() {
+        BRunUtil.invoke(xmlAttrProgFile, "testAttributesInEmptyXMLSequence");
+    }
 }

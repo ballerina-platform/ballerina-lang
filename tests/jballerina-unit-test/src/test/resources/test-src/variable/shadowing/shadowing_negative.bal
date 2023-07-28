@@ -145,3 +145,11 @@ public enum Foo {
 }
 
 type Foo int;
+
+function shadowFn() returns string {
+}
+
+function testShadowing() {
+    string shadowFn = "A";
+    _ = shadowFn();
+}

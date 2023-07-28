@@ -1,5 +1,8 @@
 Ballerina Shell Help
 
+Note: This is an experimental feature, which supports only a limited
+set of functionality.
+
 Type a Ballerina language expression, statement, or declaration.
 Or, type one of the following commands:
 

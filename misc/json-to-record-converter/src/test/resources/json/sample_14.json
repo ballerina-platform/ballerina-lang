@@ -1,0 +1,54 @@
+{
+  "description": "The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.\n\nNote that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document.\n",
+  "default": "<|endoftext|>",
+  "nullable": true,
+  "oneOf": [
+    {
+      "type": "string",
+      "default": "",
+      "example": "This is a test."
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "default": "",
+        "example": "This is a test."
+      }
+    },
+    {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "integer"
+      },
+      "example": "[1212, 318, 257, 1332, 13]"
+    },
+    {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "integer"
+        }
+      },
+      "example": "[[1212, 318, 257, 1332, 13]]"
+    }
+  ],
+  "foo": {
+    "bar": {
+      "foo": {
+        "bar": "Bar Text"
+      },
+      "bar": {
+        "baz": "Baz Text",
+        "foo": {
+          "bar": "Bar Text"
+        }
+      },
+      "baz": 12
+    }
+  }
+}

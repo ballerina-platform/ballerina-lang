@@ -13,4 +13,6 @@ public function main() {
     }
 
     int localInt = module1:gInt;
+
+    module2:setName(fname = "John", lname = "Doe");
 }

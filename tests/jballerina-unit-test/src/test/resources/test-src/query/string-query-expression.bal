@@ -41,13 +41,77 @@ function testSimpleQueryExprForStringResult() returns string {
     return outputNameString;
 }
 
+type Book record {|
+    string title;
+    string author;
+|};
+
+class BookGenerator {
+    int i = 0;
+
+    public isolated function next() returns record {|Book value;|}|error? {
+        self.i += 1;
+        if (self.i < 0) {
+            return error("Error");
+        } else if (self.i >= 3) {
+            return ();
+        }
+        return {
+            value: {
+                title: "Title " + self.i.toString(), author: "Author " + self.i.toString()
+            }
+        };
+    }
+}
+
+function testSimpleQueryExprForStringResult2() {
+    error? e = trap simpleQueryExprForStringResult();
+    assertFalse(e is error);
+
+    e = trap simpleQueryExprForStringResult2();
+    assertFalse(e is error);
+
+    e = trap simpleQueryExprForStringResult3();
+    assertFalse(e is error);
+}
+
+function simpleQueryExprForStringResult() returns error? {
+    string:Char chr = "a";
+    BookGenerator bookGenerator = new ();
+    stream<Book, error?> bookStream = new (bookGenerator);
+    string strValue = check from Book _ in bookStream
+        select chr;
+    string expectedValue = "aa";
+    assertTrue(strValue is string);
+    assertEquality(strValue, expectedValue);
+}
+
+function simpleQueryExprForStringResult2() returns error? {
+    stream<Book, error?> bookStream = [{ author: "Author 1", title: "Title 1" },
+                                        {author: "Author 2", title: "Title 2" }].toStream();
+    string strValue = check from Book _ in bookStream
+        select <string:Char> "a";
+    string expectedValue = "aa";
+    assertTrue(strValue is string);
+    assertEquality(strValue, expectedValue);
+}
+
+function simpleQueryExprForStringResult3() returns error? {
+    string:Char chr = "a";
+    BookGenerator bookGenerator = new ();
+    stream<Book, error?> bookStream = new (bookGenerator);
+    string:Char[] strValue = check from Book _ in bookStream
+        select chr;
+    assertTrue(strValue is string:Char[]);
+    assertEquality(strValue[0], chr);
+    assertEquality(strValue[1], chr);
+}
+
 function testQueryExprWithWhereForStringResult() returns string {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};
-
     Person[] personList = [p1, p2, p3];
-
     string outputNameString =
                 from var person in personList
                 where person.age >= 30
@@ -335,4 +399,26 @@ function testQueryExprWithLimitForStringResultV2() returns string {
                select person.firstName+" ";
 
    return outputNameString;
+}
+
+function assertEquality(any|error actual, any|error expected) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(actual, true);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(actual, false);
 }

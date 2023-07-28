@@ -63,6 +63,7 @@ public class BallerinaTomlTests {
         PackageManifest.Platform platform = packageManifest.platform("java11");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
+        Assert.assertEquals(platform.graalvmCompatible().booleanValue(), true);
         for (Map<String, Object> library : platformDependencies) {
             Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));

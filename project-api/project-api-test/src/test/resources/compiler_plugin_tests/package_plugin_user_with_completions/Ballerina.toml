@@ -1,4 +1,0 @@
-[package]
-org = "lstest"
-name = "package_plugin_user_with_completions"
-version = "0.1.0"

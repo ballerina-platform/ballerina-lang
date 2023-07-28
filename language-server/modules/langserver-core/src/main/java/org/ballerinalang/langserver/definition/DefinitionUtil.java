@@ -93,16 +93,17 @@ public class DefinitionUtil {
             return Optional.empty();
         }
 
+        Path absFilePath = filepath.get().normalize().toAbsolutePath();
         String fileUri;
         // Check if file resides in a protected dir
-        if (PathUtil.isWriteProtectedPath(filepath.get())) {
+        if (PathUtil.isWriteProtectedPath(absFilePath)) {
             try {
-                fileUri = PathUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
+                fileUri = PathUtil.getBalaUriForPath(context.languageServercontext(), absFilePath);
             } catch (URISyntaxException e) {
                 throw new UserErrorException("Unable create definition file URI");
             }
         } else {
-            fileUri = filepath.get().toUri().toString();
+            fileUri = absFilePath.toUri().toString();
         }
 
         io.ballerina.tools.diagnostics.Location symbolLocation = symbol.getLocation().get();

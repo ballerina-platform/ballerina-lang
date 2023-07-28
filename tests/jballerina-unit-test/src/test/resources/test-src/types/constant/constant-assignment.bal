@@ -31,3 +31,24 @@ function accessConstantEvalIntegerExpression() returns (int) {
 function accessConstantEvalWithMultipleConst() returns (string) {
     return varConcat;
 }
+
+const TUPLE1 = [1, 2];
+const [int, byte] TUPLE2 = [1, 2];
+
+function assignListConstToByteArray() {
+    byte[] byteArr1 = TUPLE1;
+    assertEquals(byteArr1[0], 1);
+    assertEquals(byteArr1[1], 2);
+
+    byte[] byteArr2 = TUPLE2;
+    assertEquals(byteArr2[0], 1);
+    assertEquals(byteArr2[1], 2);
+}
+
+function assertEquals(anydata actual, anydata expected) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected ${expected.toBalString()}, found ${actual.toBalString()}`);
+}

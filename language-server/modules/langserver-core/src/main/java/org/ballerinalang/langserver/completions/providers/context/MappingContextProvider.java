@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.langserver.common.RecordField;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
@@ -152,24 +153,40 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         if (!this.hasReadonlyKW(evalNode)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
         }
-        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
+
+        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeDescriptors = this.getRecordTypeDescs(context, node);
         List<String> existingFields = getFields(node);
         List<RecordFieldSymbol> validFields = new ArrayList<>();
-        for (RawTypeSymbolWrapper<RecordTypeSymbol> wrapper : recordTypeDesc) {
-            Map<String, RecordFieldSymbol> fields = RecordUtil.getRecordFields(wrapper, existingFields);
-            validFields.addAll(fields.values());
 
-            completionItems.addAll(this.getSpreadFieldCompletionItemsForRecordFields(context, validFields));
-            completionItems.addAll(RecordUtil.getRecordFieldCompletionItems(context, fields, wrapper));
+        //To create a single completion item for record fields with the same name and same type
+        Map<RecordField.RecordFieldIdentifier, List<RecordField>> recordFieldMap = new HashMap<>();
+        for (RawTypeSymbolWrapper<RecordTypeSymbol> wrapper : recordTypeDescriptors) {
+            Map<String, RecordFieldSymbol> fields = RecordUtil.getRecordFields(wrapper, existingFields);
+            fields.forEach((key, value) -> {
+                RecordField recordField = new RecordField(key,
+                        value, wrapper);
+                RecordField.RecordFieldIdentifier identifier = new RecordField.RecordFieldIdentifier(key,
+                        recordField.getFieldSymbol().typeDescriptor());
+                if (!recordFieldMap.containsKey(identifier)) {
+                    recordFieldMap.put(identifier, new ArrayList<>(List.of(recordField)));
+                } else {
+                    recordFieldMap.get(identifier).add(recordField);
+                }
+            });
+
+            validFields.addAll(fields.values());
             if (!fields.values().isEmpty()) {
                 Optional<LSCompletionItem> fillAllStructFieldsItem =
                         RecordUtil.getFillAllRecordFieldCompletionItems(context, fields, wrapper);
                 fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
+
+            completionItems.addAll(this.getSpreadFieldCompletionItemsForRecordFields(context, validFields));
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
+        completionItems.addAll(RecordUtil.getRecordFieldCompletionItems(context, recordFieldMap));
 
-        if (recordTypeDesc.isEmpty() || validFields.isEmpty()) {
+        if (recordTypeDescriptors.isEmpty() || validFields.isEmpty()) {
             /*
             This means that we are within a mapping constructor for a map. Therefore, we suggest the variables
             Eg: 
@@ -232,7 +249,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                         return true;
                     }
                     // For nested maps, we have to treat specially
-                    return resolvedType.get().typeKind() == TypeDescKind.MAP 
+                    return resolvedType.get().typeKind() == TypeDescKind.MAP
                             && mapTypeSymbol.subtypeOf(resolvedType.get());
                 })).collect(Collectors.toList());
 
@@ -356,11 +373,10 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             super.sort(context, node, completionItems);
             return;
         }
-        
+
         completionItems.forEach(lsCItem -> {
             String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
             lsCItem.getCompletionItem().setSortText(sortText);
         });
     }
-
 }

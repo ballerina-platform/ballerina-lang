@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -31,8 +32,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -40,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -62,6 +66,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -368,5 +374,41 @@ public class TypeDefBuilderHelper {
         if (isImmutable) {
             structureTypeNode.typeRefs.add(origTypeRef);
         }
+    }
+
+    public static void createTypeDefinition(BRecordType type, Location pos, Names names,
+                                            Types types, SymbolTable symTable,
+                                            SymbolEnv env) {
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) type.tsymbol;
+
+        BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
+                type.tsymbol.name, env.scope.owner.pkgID, null, env.scope.owner, pos, VIRTUAL);
+        typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
+        typeDefinitionSymbol.scope.define(Names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
+
+        type.tsymbol.scope = new Scope(type.tsymbol);
+        for (BField field : ((HashMap<String, BField>) type.fields).values()) {
+            type.tsymbol.scope.define(field.name, field.symbol);
+            field.symbol.owner = recordSymbol;
+        }
+        typeDefinitionSymbol.type = type;
+        recordSymbol.type = type;
+        recordSymbol.typeDefinitionSymbol = typeDefinitionSymbol;
+        recordSymbol.markdownDocumentation = new MarkdownDocAttachment(0);
+
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
+                pos);
+        TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
+                env, env.scope.owner.pkgID, null, Flags.REQUIRED, false);
+        recordTypeNode.sealed = true;
+        recordTypeNode.analyzed = true;
+        type.restFieldType = new BNoType(TypeTags.NONE);
+        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
+                typeDefinitionSymbol, recordTypeNode, env);
+        typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
+        typeDefinition.symbol.type = type;
+        typeDefinition.flagSet = new HashSet<>();
+        typeDefinition.flagSet.add(Flag.PUBLIC);
+        typeDefinition.flagSet.add(Flag.ANONYMOUS);
     }
 }

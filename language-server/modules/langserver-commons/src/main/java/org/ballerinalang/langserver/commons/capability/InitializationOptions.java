@@ -33,11 +33,6 @@ public interface InitializationOptions {
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
 
     /**
-     * Whether the client supports rename popup.
-     */
-    String KEY_RENAME_SUPPORT = "supportRenamePopup";
-
-    /**
      * Whether the client supports {@link org.eclipse.lsp4j.Position} based rename popup.
      */
     String KEY_POSITIONAL_RENAME_SUPPORT = "supportPositionalRenamePopup";
@@ -53,6 +48,11 @@ public interface InitializationOptions {
     String KEY_ENABLE_LIGHTWEIGHT_MODE = "enableLightWeightMode";
 
     /**
+     * Where the client supports inlay hints.
+     */
+    String KEY_ENABLE_INLAY_HINTS = "enableInlayHints";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -65,13 +65,6 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableSemanticTokens();
-
-    /**
-     * Returns if the client supports rename popup.
-     *
-     * @return True if supported, false otherwise
-     */
-    boolean isRefactorRenameSupported();
 
     /**
      * Returns if the client supports {@link org.eclipse.lsp4j.Position} based rename.
@@ -92,4 +85,11 @@ public interface InitializationOptions {
      * @return True if enabled, false otherwise
      */
     boolean isEnableLightWeightMode();
+
+    /**
+     * Returns if the client supports inlay hints.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableInlayHints();
 }

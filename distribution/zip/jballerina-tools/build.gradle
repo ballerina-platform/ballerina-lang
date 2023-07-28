@@ -67,7 +67,6 @@ configurations {
 }
 
 dependencies {
-    dist "org.bytedeco:javacpp:${project.bytedecoJavacppVersion}"
     dist "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
     dist "com.fasterxml.jackson.core:jackson-core:${project.jacksonCoreVersion}"
     dist "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
@@ -81,7 +80,6 @@ dependencies {
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
 
-    // Following dependencies are required for kraal library
     dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
     dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
     dist "org.ow2.asm:asm:${project.ow2AsmVersion}"

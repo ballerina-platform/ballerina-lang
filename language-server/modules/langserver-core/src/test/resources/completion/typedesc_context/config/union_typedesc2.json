@@ -421,7 +421,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function4",
+      "filterText": "module1_function4",
       "insertText": "module1:function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -440,7 +440,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function3",
+      "filterText": "module1_function3",
       "insertText": "module1:function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -459,7 +459,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function2",
+      "filterText": "module1_function2",
       "insertText": "module1:function2()",
       "insertTextFormat": "Snippet"
     },
@@ -474,7 +474,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function1",
+      "filterText": "module1_function1",
       "insertText": "module1:function1()",
       "insertTextFormat": "Snippet"
     },

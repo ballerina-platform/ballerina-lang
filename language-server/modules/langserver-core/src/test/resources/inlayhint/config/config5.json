@@ -1,0 +1,52 @@
+{
+  "range": {
+    "start": {
+      "line": 11,
+      "character": 25
+    },
+    "end": {
+      "line": 12,
+      "character": 44
+    }
+  },
+  "source": "source/inlayhint5.bal",
+  "result": [
+    {
+      "position": {
+        "line": 11,
+        "character": 25
+      },
+      "label": {
+        "left": "name: "
+      }
+    },
+    {
+      "position": {
+        "line": 11,
+        "character": 33
+      },
+      "label": {
+        "left": "age: "
+      }
+    },
+    {
+      "position": {
+        "line": 12,
+        "character": 33
+      },
+      "label": {
+        "left": "name: "
+      }
+    },
+    {
+      "position": {
+        "line": 12,
+        "character": 41
+      },
+      "label": {
+        "left": "age: "
+      }
+    }
+  ],
+  "description": "inlay hints for implicit and explicit new expressions"
+}

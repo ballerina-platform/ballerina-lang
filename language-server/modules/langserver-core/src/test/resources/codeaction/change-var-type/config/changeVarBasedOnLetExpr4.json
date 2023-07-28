@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 0,
+    "character": 48
+  },
+  "source": "changeVarBasedOnLetExpr4.bal",
+  "expected": [
+    {
+      "title": "Change variable 'x' type to 'string'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 0,
+              "character": 21
+            }
+          },
+          "newText": "string"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

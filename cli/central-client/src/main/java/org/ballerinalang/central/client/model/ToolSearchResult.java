@@ -24,13 +24,13 @@ import java.util.List;
  * {@code ToolJsonSchema} represents tool search result from central.
  */
 public class ToolSearchResult {
-    private List<Tool> packages;
+    private List<Tool> tools;
 
     public List<Tool> getTools() {
-        return packages;
+        return tools;
     }
 
     public void setTools(List<Tool> tools) {
-        this.packages =  tools;
+        this.tools =  tools;
     }
 }
