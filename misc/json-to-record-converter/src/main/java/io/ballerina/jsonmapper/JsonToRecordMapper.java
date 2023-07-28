@@ -630,15 +630,16 @@ public class JsonToRecordMapper {
                 NodeFactory.createOptionalTypeDescriptorNode(parenTypeDescNode, questionMarkToken) : parenTypeDescNode;
     }
 
+    /**
+     * This method joins types to create UnionTypeDescriptorNode.
+     *
+     * @param typeNames List of TypeDescriptorNodes to be unionized - the size of the list should be always >= 2
+     * @return {@link TypeDescriptorNode} Union TypeDescriptorNode of provided TypeDescriptorNodes
+     */
     private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
         Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
 
-        if (typeNames.size() == 0) {
-            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
-            return NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
-        } else if (typeNames.size() == 1) {
-            return typeNames.get(0);
-        } else if (typeNames.size() == 2) {
+        if (typeNames.size() == 2) {
             return NodeFactory.createUnionTypeDescriptorNode(typeNames.get(0), pipeToken, typeNames.get(1));
         }
         TypeDescriptorNode firstTypeDescNode = typeNames.remove(0);
