@@ -203,7 +203,7 @@ public class LargeMethodOptimizer {
                 handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv, mapValuesOperands,
                 globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadIns, mapKeyOperandLocations);
 
-        parentFuncEnv.parentFuncNewInsList.addAll(globalAndArgVarKeyConstLoadIns);
+        parentFuncEnv.parentFuncNewBBList.get(0).instructions.addAll(globalAndArgVarKeyConstLoadIns);
         parentFuncEnv.parentFuncNewInsList.addAll(globalAndArgVarIns);
         parentFuncEnv.parentFuncNewInsList.add(newLargeMapIns);
         parentFuncEnv.parentFuncNewBB.instructions = parentFuncEnv.parentFuncNewInsList;
@@ -310,7 +310,8 @@ public class LargeMethodOptimizer {
                                                                        birOperands,
                                                                Set<BIROperand> mapValuesOperands,
                                                                Set<BIROperand> globalAndArgVarKeyOperands,
-                                                               Map<BIROperand, NonTerminatorLocation> mapKeyOperandLocations) {
+                                                               Map<BIROperand, NonTerminatorLocation>
+                                                                       mapKeyOperandLocations) {
         List<BIRNonTerminator> globalAndArgVarIns = new ArrayList<>();
         int arrIndex = 0;
         for (BIRNode.BIRMappingConstructorEntry value : mapIns.initialValues) {
