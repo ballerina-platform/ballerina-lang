@@ -1254,7 +1254,7 @@ public class BuildCommandTest extends BaseCommandTest {
     @Test(description = "Check GraalVM compatibility of build project")
     public void testGraalVMCompatibilityOfJavaImportedProject() throws IOException {
         // Project contains only dist provided Java dependencies
-        Path projectPath = this.testResources.resolve("validJava11Project");
+        Path projectPath = this.testResources.resolve("validJavaProject");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
@@ -1269,7 +1269,7 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Check GraalVM compatibility of build project")
-    public void testGraalVMCompatibilityOfJava11Project() throws IOException {
+    public void testGraalVMCompatibilityOfJavaProject() throws IOException {
         // Project contains platform Java dependencies
         Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
         System.setProperty("user.dir", projectPath.toString());
