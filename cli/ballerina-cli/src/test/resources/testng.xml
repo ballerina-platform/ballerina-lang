@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="commands-test-suite">
-    <test name="command-tests" preserve-order="true">
+    <test name="command-tests" parallel="false">
         <classes>
             <class name="io.ballerina.cli.cmd.AddCommandTest" />
             <class name="io.ballerina.cli.cmd.BaseCommandTest" />
