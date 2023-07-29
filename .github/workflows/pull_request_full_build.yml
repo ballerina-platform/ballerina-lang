@@ -69,7 +69,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '17.0.7'
 
       - name: Setup NodeJs
         uses: actions/setup-node@v3
