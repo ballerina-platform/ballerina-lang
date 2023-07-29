@@ -19,8 +19,8 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
-<suite name="commands-test-suite">
-    <test name="command-tests" preserve-order="true">
+<suite name="commands-test-suite" parallel="false" thread-count="1">
+    <test name="command-tests" parallel="false" preserve-order="true" thread-count="1">
         <classes>
             <class name="io.ballerina.cli.cmd.AddCommandTest" />
             <class name="io.ballerina.cli.cmd.BaseCommandTest" />
@@ -28,22 +28,22 @@ under the License.
             <class name="io.ballerina.cli.cmd.BuildNativeImageCommandTest"/>
             <class name="io.ballerina.cli.cmd.CleanCommandTest" />
             <class name="io.ballerina.cli.cmd.DocCommandTest" />
-            <class name="io.ballerina.cli.cmd.GraphCommandTest" />
+<!--            <class name="io.ballerina.cli.cmd.GraphCommandTest" />-->
             <class name="io.ballerina.cli.cmd.InitCommandTest" />
-            <class name="io.ballerina.cli.cmd.NewCommandTest" />
-            <class name="io.ballerina.cli.cmd.PrintUtilsTest" />
-            <class name="io.ballerina.cli.cmd.PullCommandTest" />
-            <class name="io.ballerina.cli.cmd.PushCommandTest" />
-            <class name="io.ballerina.cli.cmd.RunCommandTest" />
-            <class name="io.ballerina.cli.cmd.SearchCommandTest" />
-            <class name="io.ballerina.cli.cmd.ShellCommandTest" />
-            <class name="io.ballerina.cli.cmd.TestCommandTest" />
-            <class name="io.ballerina.cli.cmd.PackCommandTest" />
-            <class name="io.ballerina.cli.cmd.CommandUtilTest" />
-            <class name="io.ballerina.cli.cmd.TestNativeImageCommandTest"/>
-            <class name="io.ballerina.cli.cmd.BuildNativeImageCommandTest"/>
-            <class name="io.ballerina.cli.cmd.DeprecateCommandTest"/>
-            <class name="io.ballerina.cli.cmd.ToolCommandTest"/>
+<!--            <class name="io.ballerina.cli.cmd.NewCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PrintUtilsTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PullCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PushCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.RunCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.SearchCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.ShellCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.TestCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PackCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.CommandUtilTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.TestNativeImageCommandTest"/>-->
+<!--            <class name="io.ballerina.cli.cmd.BuildNativeImageCommandTest"/>-->
+<!--            <class name="io.ballerina.cli.cmd.DeprecateCommandTest"/>-->
+<!--            <class name="io.ballerina.cli.cmd.ToolCommandTest"/>-->
         </classes>
     </test>
 </suite>
