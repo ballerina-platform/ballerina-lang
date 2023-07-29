@@ -19,7 +19,6 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
@@ -410,23 +409,13 @@ public class ToolCommand implements BLauncherCmd {
         }
 
         toolId = argList.get(1);
-        version = Names.EMPTY.getValue();
 
         if (!validateToolName(toolId)) {
             CommandUtil.printError(errStream, "invalid tool id.", TOOL_UPDATE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
-        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(toolId);
-        if (tool.isEmpty()) {
-            CommandUtil.printError(errStream, "tool '" + toolId + "' is not installed.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        pullToolAndUpdateBalToolsToml(toolId, version);
+        updateToolToLatestVersion();
     }
 
     public void pullToolAndUpdateBalToolsToml(String toolIdArg, String versionArg) {
@@ -686,5 +675,80 @@ public class ToolCommand implements BLauncherCmd {
             return toolVersions.containsKey(version) && toolVersions.get(version).active();
         }
         return false;
+    }
+
+    private void updateToolToLatestVersion() {
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(toolId);
+        if (tool.isEmpty()) {
+            CommandUtil.printError(errStream, "tool '" + toolId + "' is not installed.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME);
+
+        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+            try {
+                version = getLatestVersionForUpdateCommand(tool.get());
+                if (tool.get().version().equals(version)) {
+                    outStream.println("tool '" + toolId + "' is already up-to-date.");
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                if (isToolLocallyAvailable(toolId, version)) {
+                    outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+                } else {
+                    pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+                }
+                insertToBalToolsTomlFile();
+            } catch (PackageAlreadyExistsException e) {
+                errStream.println(e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
+            } catch (CentralClientException | ProjectException e) {
+                CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+        }
+    }
+
+    private String getLatestVersionForUpdateCommand(BalToolsManifest.Tool tool) throws CentralClientException {
+        Settings settings;
+        try {
+            settings = RepoUtils.readSettings();
+            // Ignore Settings.toml diagnostics in the pull command
+        } catch (SettingsTomlException e) {
+            // Ignore 'Settings.toml' parsing errors and return empty Settings object
+            settings = Settings.from();
+        }
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings));
+        List<String> versions = client.getPackageVersions(tool.org(), tool.name(), ANY_PLATFORM,
+                RepoUtils.getBallerinaVersion());
+        return getLatestVersionInSameMinor(versions, tool.version());
+    }
+
+    private String getLatestVersionInSameMinor(List<String> versions, String currentVersionStr) {
+        SemanticVersion currentVersion = SemanticVersion.from(currentVersionStr);
+        Optional<String> latestVersionInSameMinor = versions.stream().map(SemanticVersion::from)
+                .filter(version -> version.major() == currentVersion.major()
+                        && version.minor() == currentVersion.minor())
+                .max((v1, v2) -> {
+                    if (v1.greaterThan(v2)) {
+                        return 1;
+                    } else if (v2.greaterThan(v1)) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                })
+                .map(SemanticVersion::toString);
+        return latestVersionInSameMinor.orElse(currentVersionStr);
     }
 }

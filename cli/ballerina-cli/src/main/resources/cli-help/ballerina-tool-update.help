@@ -1,5 +1,6 @@
 NAME
-       bal-tool-update - Update to the latest version of a tool
+       bal-tool-update - Update to the latest patch version within the minor
+       version of the currently active tool version
 
 SYNOPSIS
        bal tool update <tool-id>
@@ -9,5 +10,6 @@ OPTIONS
            Print the usage details of tool the update command.
 
 DESCRIPTION
-       Fetch the latest compatible version of a given tool from Ballerina
-       Central repository and set it as the active version.
+       Fetch the latest compatible version that is within the currently active
+       version's minor version of a given tool from Ballerina Central
+       repository and set it as the active version.
