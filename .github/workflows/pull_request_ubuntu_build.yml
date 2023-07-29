@@ -62,7 +62,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :ballerina-cli:test -Pnative.test --max-workers=2 --scan --no-daemon 
+          ./gradlew clean :ballerina-cli:test --no-build-cache -Pnative.test --max-workers=2 --scan --no-daemon 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
       - name: Generate Jacoco report
@@ -138,7 +138,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build sonarqube --info -x test -x check --max-workers=2 --scan --no-daemon
+          ./gradlew clean build sonarqube --info -x test -x check --max-workers=2 --scan --no-daemon
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
       - name: Print log message
