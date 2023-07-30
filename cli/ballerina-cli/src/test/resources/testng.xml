@@ -19,8 +19,8 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
-<suite name="commands-test-suite" parallel="false" thread-count="1">
-    <test name="command-tests" parallel="false" preserve-order="true" thread-count="1">
+<suite name="commands-test-suite">
+    <test name="command-tests" parallel="false">
         <classes>
             <class name="io.ballerina.cli.cmd.AddCommandTest" />
             <class name="io.ballerina.cli.cmd.BaseCommandTest" />
