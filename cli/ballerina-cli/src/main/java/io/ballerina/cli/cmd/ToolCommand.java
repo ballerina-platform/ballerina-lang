@@ -643,7 +643,8 @@ public class ToolCommand implements BLauncherCmd {
         if (!isCompatibleWithLocalDistVersion(currentDistVersion, toolDistVersion)) {
             CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not compatible with the " +
                     "current Ballerina distribution '" + RepoUtils.getBallerinaShortVersion() +
-                    "'. Please use a version compatible with the current Ballerina distribution.", null, false);
+                    "'. Use 'bal tool search' to select a version compatible with the current Ballerina distribution.",
+                    null, false);
             return false;
         }
         return true;

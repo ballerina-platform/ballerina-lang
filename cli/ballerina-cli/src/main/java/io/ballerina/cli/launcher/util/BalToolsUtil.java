@@ -23,8 +23,14 @@ import io.ballerina.cli.cmd.ToolCommand;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
+import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.internal.model.PackageJson;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -98,15 +104,17 @@ public class BalToolsUtil {
             BUILD_COMMAND, RUN_COMMAND, TEST_COMMAND, DOC_COMMAND, PACK_COMMAND);
     private static final List<String> packageCommands = Arrays.asList(NEW_COMMAND, ADD_COMMAND, PULL_COMMAND,
             PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
+    // if a command is a built-in tool command, remove it from this list
     private static final List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, BINDGEN_COMMAND,
-            SHELL_COMMAND, VERSION_COMMAND);
+            SHELL_COMMAND, VERSION_COMMAND, OPENAPI_COMMAND, GRAPHQL_COMMAND, ASYNCAPI_COMMAND, GRPC_COMMAND,
+            PERSIST_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);
-    public static final List<String> builtInToolCommands = Arrays.asList(OPENAPI_COMMAND, GRAPHQL_COMMAND,
-            ASYNCAPI_COMMAND, GRPC_COMMAND, PERSIST_COMMAND);
+    // if a command is a built-in tool command, add it to this list
+    private static final List<String> builtInToolCommands = Arrays.asList();
 
-    private static Path balToolsTomlPath = Path.of(
+    private static final Path balToolsTomlPath = Path.of(
             System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
 
     public static boolean isNonBuiltInToolCommand(String commandName) {
@@ -172,12 +180,42 @@ public class BalToolsUtil {
 
         Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(commandName);
         if (tool.isPresent()) {
+            if (!isToolDistCompatibilityWithCurrentDist(tool.get())) {
+                String errMsg = "tool '" + tool.get().id() + ":" + tool.get().version() +
+                        "' is not compatible with the current Ballerina distribution '" +
+                        RepoUtils.getBallerinaShortVersion() +
+                        "'. Use 'bal tool search' to select a version compatible with the " +
+                        "current Ballerina distribution.";
+                throw LauncherUtils.createLauncherException(errMsg);
+            }
             File libsDir = centralBalaDirPath.resolve(
                             Path.of(tool.get().org(), tool.get().name(), tool.get().version(),
                                     ANY_PLATFORM, TOOL, LIBS)).toFile();
             return findJarFiles(libsDir);
         }
         throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + commandName + "'");
+    }
+
+    private static boolean isToolDistCompatibilityWithCurrentDist(BalToolsManifest.Tool tool) {
+        SemanticVersion currentDistVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        SemanticVersion toolDistVersion = getToolDistVersionFromCentralCache(tool);
+        return isVersionsCompatible(currentDistVersion, toolDistVersion);
+    }
+
+    private static SemanticVersion getToolDistVersionFromCentralCache(BalToolsManifest.Tool tool) {
+        Path balaPath = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(tool.org()).resolve(tool.name()).resolve(tool.version())
+                .resolve(ANY_PLATFORM);
+        PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
+        return SemanticVersion.from(packageJson.getBallerinaVersion());
+    }
+
+    private static boolean isVersionsCompatible(SemanticVersion localDistVersion,
+                                                SemanticVersion toolDistVersion) {
+        return localDistVersion.major() == toolDistVersion.major()
+                && localDistVersion.minor() >= toolDistVersion.minor();
     }
 
     private static List<File> findJarFiles(File directory) {
