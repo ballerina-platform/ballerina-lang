@@ -583,8 +583,10 @@ public class QueryTypeChecker extends TypeChecker {
                 }
                 break;
             case TypeTags.STREAM:
-                dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_STREAM);
-                return symTable.semanticError;
+// todo: Depends on https://github.com/ballerina-platform/ballerina-spec/issues/1252 decision
+//                dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_STREAM);
+//                return symTable.semanticError;
+                return symTable.streamType;
             case TypeTags.MAP:
                 dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_MAP);
                 return symTable.semanticError;
