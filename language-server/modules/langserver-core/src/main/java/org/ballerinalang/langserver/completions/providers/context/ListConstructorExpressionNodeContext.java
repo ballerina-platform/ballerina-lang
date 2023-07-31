@@ -15,22 +15,39 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.Document;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SpreadCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.builder.SpreadCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ListConstructorExpressionNode} context.
@@ -55,15 +72,69 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             completionItems.addAll(this.getCompletionItemList(entries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
+            if(context.getNodeAtCursor().kind() != SyntaxKind.SPREAD_MEMBER) {
+                completionItems.addAll(this.spreadOperatorCompletions(context));
+            }
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
+    private List<LSCompletionItem> spreadOperatorCompletions(BallerinaCompletionContext context) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        Optional<Document> document = context.currentDocument();
+        if (semanticModel.isEmpty() || document.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Optional<TypeSymbol> expectedType = semanticModel.get().expectedType(document.get(),
+                PositionUtil.getLinePosition(context.getCursorPosition()));
+        if (expectedType.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return context.visibleSymbols(context.getCursorPosition()).stream()
+                .filter(symbol -> {
+                    if (symbol.getName().isEmpty()) {
+                        return false;
+                    }
+                    TypeSymbol typeDescriptor;
+                    if (symbol.kind() == SymbolKind.VARIABLE) {
+                        typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                        if (typeDescriptor.typeKind() != TypeDescKind.ARRAY) {
+                            return false;
+                        }
+                    } else if (symbol.kind() == SymbolKind.FUNCTION) {
+                        Optional<TypeSymbol> typeSymbol = ((FunctionSymbol) symbol).typeDescriptor()
+                                .returnTypeDescriptor();
+                        if (typeSymbol.isEmpty()) {
+                            return false;
+                        }
+                        typeDescriptor = typeSymbol.get();
+                    } else {
+                        return false;
+                    }
+                    if (typeDescriptor.typeKind() != TypeDescKind.ARRAY) {
+                        return false;
+                    }
+                    return ((ArrayTypeSymbol) typeDescriptor)
+                            .memberTypeDescriptor().subtypeOf(expectedType.get());
+                }).map(symbol -> {
+                    TypeSymbol typeDescriptor;
+                    if (symbol.kind() == SymbolKind.VARIABLE) {
+                        typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                    } else {
+                        typeDescriptor = ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor().get();
+                    }
+                    String typeName = NameUtil.getModifiedTypeName(context, typeDescriptor);
+                    CompletionItem completionItem =
+                            SpreadCompletionItemBuilder.build(symbol, typeName, context);
+                    return new SpreadCompletionItem(context, completionItem, symbol);
+                }).collect(Collectors.toList());
+    }
+
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, ListConstructorExpressionNode node) {
-        return node.textRange().startOffset() <= context.getCursorPositionInTree() 
+        return node.textRange().startOffset() <= context.getCursorPositionInTree()
                 && context.getCursorPositionInTree() <= node.textRange().endOffset();
     }
 
@@ -76,6 +147,15 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             if (contextType.isEmpty()) {
                 // Added for safety.
                 sortText = SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 2));
+            } else if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SPREAD) {
+                Optional<Symbol> expression = ((SpreadCompletionItem) lsCItem).getExpression();
+                //Default sort text of variable or function symbols
+                int lastRank = expression.map(expr -> expr.kind() == SymbolKind.FUNCTION ? 4 : 3)
+                        .orElse(3);
+                //Set spread completion item sort text as the same of variable or function symbols
+                sortText = SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(1) //Assignable
+                        + SortingUtil.genSortText(lastRank); 
             } else if (!SortingUtil.isTypeCompletionItem(lsCItem)) {
                 /*
                 Here the sort text is three-fold.
@@ -89,7 +169,6 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             } else {
                 sortText = SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             }
-
             lsCItem.getCompletionItem().setSortText(sortText);
         }
     }

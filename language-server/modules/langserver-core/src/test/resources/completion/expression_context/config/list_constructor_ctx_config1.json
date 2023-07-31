@@ -4,6 +4,7 @@
     "character": 24
   },
   "source": "expression_context/source/list_constructor_ctx_source1.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",
@@ -738,6 +739,15 @@
       "sortText": "ATP",
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...numberList",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "AAC",
+      "filterText": "numberList",
+      "insertText": "...numberList",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -4,6 +4,7 @@
     "character": 9
   },
   "source": "expression_context/source/mapping_expr_ctx_source35.bal",
+  "description": "",
   "items": [
     {
       "label": "readonly",
@@ -43,7 +44,7 @@
       "label": "...f",
       "kind": "Variable",
       "detail": "Foo",
-      "sortText": "AB",
+      "sortText": "R",
       "filterText": "f",
       "insertText": "...f",
       "insertTextFormat": "Snippet"

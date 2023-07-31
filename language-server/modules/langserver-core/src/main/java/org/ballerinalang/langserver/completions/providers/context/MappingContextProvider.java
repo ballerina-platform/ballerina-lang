@@ -41,8 +41,9 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SpreadCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.SpreadFieldCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.SpreadCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -337,8 +338,8 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             String typeName = (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null) ? "" :
                     NameUtil.getModifiedTypeName(ctx, typeDescriptor.get());
             CompletionItem cItem;
-            cItem = SpreadFieldCompletionItemBuilder.build(symbol, typeName, ctx);
-            completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
+            cItem = SpreadCompletionItemBuilder.build(symbol, typeName, ctx);
+            completionItems.add(new SpreadCompletionItem(ctx, cItem, symbol));
             processedSymbols.add(symbol);
         });
         return completionItems;
