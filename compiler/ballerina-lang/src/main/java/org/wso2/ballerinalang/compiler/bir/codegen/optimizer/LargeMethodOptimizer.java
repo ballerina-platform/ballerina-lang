@@ -198,9 +198,20 @@ public class LargeMethodOptimizer {
                 handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv, mapValuesOperands,
                 globalAndArgVarKeyOperands, globalAndArgVarKeyConstLoadIns, mapKeyOperandLocations);
 
-        parentFuncEnv.parentFuncNewBBList.get(0).instructions.addAll(globalAndArgVarKeyConstLoadIns);
+        setParentFuncGlobalAndArgVarKeyConstLoadIns(parentFuncEnv, globalAndArgVarKeyConstLoadIns);
         setParentFuncDetails(parentFunc, bbs, newMapInsBBNum, parentFuncTempVars, parentFuncEnv, parentFuncStartBB,
                 newLargeMapIns, globalAndArgVarIns);
+    }
+
+    private void setParentFuncGlobalAndArgVarKeyConstLoadIns(ParentFuncEnv parentFuncEnv,
+                                                             List<BIRNonTerminator> globalAndArgVarKeyConstLoadIns) {
+        for (BIRNonTerminator nonTerminator : globalAndArgVarKeyConstLoadIns) {
+            BIRVariableDcl nonTermLhsVarDcl = nonTerminator.lhsOp.variableDcl;
+            nonTermLhsVarDcl.startBB = parentFuncEnv.parentFuncNewBB;
+            nonTermLhsVarDcl.endBB = parentFuncEnv.parentFuncNewBB;
+            nonTermLhsVarDcl.onlyUsedInSingleBB = true;
+        }
+        parentFuncEnv.parentFuncNewInsList.addAll(globalAndArgVarKeyConstLoadIns);
     }
 
     private void setParentFuncDetails(BIRFunction parentFunc, List<BIRBasicBlock> bbs, int newMapOrArrayInsBBNum,
