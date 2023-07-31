@@ -49,33 +49,30 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
-    public static boolean dumpBIR;
+    private boolean dumpBIR;
 
     public static BIREmitter getInstance(CompilerContext context) {
-
         BIREmitter birEmitter = context.get(BIR_EMITTER);
         if (birEmitter == null) {
             birEmitter = new BIREmitter(context);
         }
-
         return birEmitter;
     }
 
     private BIREmitter(CompilerContext context) {
-
         context.put(BIR_EMITTER, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
         this.dumpBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
     }
 
-    public static BLangPackage emit(BLangPackage bLangPackage) {
+    public BLangPackage emit(BLangPackage bLangPackage) {
         if (dumpBIR) {
             console.println(emitModule(bLangPackage.symbol.bir));
         }
         return bLangPackage;
     }
 
-    public static void emit(BIRNode.BIRPackage birPackage) {
+    public void emit(BIRNode.BIRPackage birPackage) {
         if (dumpBIR) {
             console.println(emitModule(birPackage));
         }

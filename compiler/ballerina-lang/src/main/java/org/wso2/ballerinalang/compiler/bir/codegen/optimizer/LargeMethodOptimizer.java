@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
-import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -77,13 +76,13 @@ public class LargeMethodOptimizer {
     private static final String SPLIT_METHOD = "$split$method$_";
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
-    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 2;
+    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
     // splits are done only if the newly created method will contain more instructions than the below number
-    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 2;
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 50;
     // splits are done only if the newly created method will have less function arguments than the below number
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 125;
-    // total least no. of terminators and non-terminators that should be there to make the split
-    private static final int INS_COUNT_PERIODIC_SPLIT_THRESHOLD = 3; // later can be 1000
+    // total least no. of terminators and non-terminators that should be there to make the periodic split
+    private static final int INS_COUNT_PERIODIC_SPLIT_THRESHOLD = 500;
     // current BIR package id
     private PackageID currentPackageId;
     // newly created split BIR function number
@@ -151,11 +150,6 @@ public class LargeMethodOptimizer {
 
     private void periodicSplitFunction(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
                                        boolean fromAttachedFunction, boolean splitTypeArray) {
-        if (BIREmitter.dumpBIR) {
-            System.out.println("----split_func_start----");
-            System.out.println(BIREmitter.emitFunction(parentFunc, 0));
-            System.out.println("----split_func_end----");
-        }
         if (splitTypeArray) {
             periodicSplitArray(parentFunc, newlyAddingFunctions, fromAttachedFunction);
         } else {
