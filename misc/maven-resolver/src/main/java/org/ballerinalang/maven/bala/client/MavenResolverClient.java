@@ -18,13 +18,18 @@
 package org.ballerinalang.maven.bala.client;
 
 
+import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.WriterFactory;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
+import org.eclipse.aether.deployment.DeployRequest;
+import org.eclipse.aether.deployment.DeploymentException;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.Authentication;
 import org.eclipse.aether.repository.LocalRepository;
@@ -35,20 +40,16 @@ import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
+import org.eclipse.aether.util.artifact.SubArtifact;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
+import org.apache.maven.model.Model;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
+import java.io.Writer;
+
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * Maven dependency resolving.
@@ -62,7 +63,7 @@ public class MavenResolverClient {
     RepositorySystem system;
     DefaultRepositorySystemSession session;
 
-    List<RemoteRepository> repositories;
+    RemoteRepository repository;
 
     /**
      * Resolver will be initialized to specified to location.
@@ -74,7 +75,6 @@ public class MavenResolverClient {
         locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
         system = locator.getService(RepositorySystem.class);
         session = MavenRepositorySystemUtils.newSession();
-        repositories = new ArrayList<>();
     }
 
     /**
@@ -92,47 +92,12 @@ public class MavenResolverClient {
         LocalRepository localRepo = new LocalRepository(targetLocation);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         Artifact artifact = new DefaultArtifact(groupId, artifactId, "bala", version);
-        Path balaFileDestPath = Paths.get(targetLocation);
-        Path temporaryExtractionPath;
         try {
             session.setTransferListener(new TransferListenerForClient());
             ArtifactRequest artifactRequest = new ArtifactRequest();
             artifactRequest.setArtifact(artifact);
-            artifactRequest.setRepositories(repositories);
+            artifactRequest.addRepository(repository);
             system.resolveArtifact(session, artifactRequest);
-//            String artifactName = artifactResult.getArtifact().getFile().getName();
-//            Path balaFilePath = artifactResult.getArtifact().getFile().toPath();
-//            temporaryExtractionPath = balaFileDestPath.resolve(groupId).resolve(artifactId).resolve(version)
-//                                        .resolve(PLATFORM);
-//
-//            try {
-//                extractBala(balaFilePath, temporaryExtractionPath);
-//                Files.delete(balaFilePath);
-//            } catch (IOException e) {
-//                throw new MavenResolverClientException("error occurred extracting the bala file: " + e.getMessage());
-//            }
-//
-//            Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
-//            String platform = PLATFORM_ANY;
-//            try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
-//                JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
-//                platform = resultObj.get(PLATFORM).getAsString();
-//            } catch (IOException e) {
-//                throw new MavenResolverClientException("unable to read the package.json file from the bala: " + e.getMessage());
-//            }
-//
-//            balaFileDestPath = balaFileDestPath.resolve(groupId).resolve(artifactId).resolve(version).resolve(platform);
-//
-//            try {
-//                if (Files.isDirectory(balaFileDestPath) && Files.list(balaFileDestPath).findAny().isPresent()) {
-//                    throw new MavenResolverClientException("package already exists in the home repository: " +
-//                            balaFileDestPath);
-//                }
-//            } catch (IOException e) {
-//                throw new MavenResolverClientException("error accessing bala : " + balaFileDestPath);
-//            }
-//
-//            temporaryExtractionPath.toFile().renameTo(balaFileDestPath.toFile());
 
         } catch (ArtifactResolutionException e) {
             if (e.getMessage().contains(COULD_NOT_FIND_ARTIFACT)) {
@@ -143,6 +108,33 @@ public class MavenResolverClient {
         return PACKAGE_FOUND;
     }
 
+
+    /**
+     * Deploys provided artifact into the repository.
+     * @param balaPath path to the bala
+     * @param orgName organization name
+     * @param packageName package name
+     * @param version version of the package
+     * @throws MavenResolverClientException when deployment fails
+     */
+    public void pushPackage(Path balaPath, String orgName, String packageName, String version, Path localRepoPath)
+            throws MavenResolverClientException {
+        LocalRepository localRepo = new LocalRepository(localRepoPath.toAbsolutePath().toString());
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+        DeployRequest deployRequest = new DeployRequest();
+        deployRequest.setRepository(this.repository);
+        Artifact mainArtifact = new DefaultArtifact(
+                orgName, packageName, "bala", version).setFile(balaPath.toFile());
+        deployRequest.addArtifact(mainArtifact);
+        try {
+            File temporaryPom = generatePomFile(orgName, packageName, version, "bala");
+            deployRequest.addArtifact(new SubArtifact(mainArtifact, "", "pom", temporaryPom));
+            system.deploy(session, deployRequest);
+        } catch (DeploymentException |IOException e) {
+            throw new MavenResolverClientException(e.getMessage());
+        }
+    }
+
     /**
      * Specified repository will be added to remote repositories.
      *
@@ -150,7 +142,7 @@ public class MavenResolverClient {
      * @param url url of the repository
      */
     public void addRepository(String id, String url) {
-        repositories.add(new RemoteRepository.Builder(id, "default", url).build());
+        this.repository = new RemoteRepository.Builder(id, "default", url).build();
     }
 
     /**
@@ -167,27 +159,24 @@ public class MavenResolverClient {
                         .addUsername(username)
                         .addPassword(password)
                         .build();
-        repositories.add(new RemoteRepository.Builder(id, "default", url)
-                .setAuthentication(authentication).build());
+        this.repository = new RemoteRepository.Builder(id, "default", url)
+                .setAuthentication(authentication).build();
     }
 
-    private static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
-        Files.createDirectories(balaFileDestPath);
-        URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path packageRoot = zipFileSystem.getPath("/");
-            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
-            for (Path path : paths) {
-                Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
-                if (destPath.toFile().isDirectory()) {
-                    FileUtils.deleteDirectory(destPath.toFile());
-                }
-                Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
-            }
-        }
-    }
-
-    private static String getPlatformFromBala(String balaName, String packageName, String version) {
-        return balaName.split(packageName + "-")[1].split("-" + version)[0];
+    private File generatePomFile(String groupId, String artifactId, String version, String packaging) throws IOException {
+        Model model = new Model();
+        model.setModelVersion("4.0.0");
+        model.setGroupId(groupId);
+        model.setArtifactId(artifactId);
+        model.setVersion(version);
+        model.setPackaging(packaging);
+        File tempFile = File.createTempFile(groupId + "-" + artifactId + "-" + version, ".pom");
+        tempFile.deleteOnExit();
+        Writer fw = WriterFactory.newXmlWriter(tempFile);
+        new MavenXpp3Writer().write(fw, model);
+        fw.close();
+        fw = null;
+        IOUtil.close(fw);
+        return tempFile;
     }
 }

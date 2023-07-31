@@ -29,6 +29,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -36,6 +37,8 @@ import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -54,6 +57,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
@@ -61,6 +65,7 @@ import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static java.nio.file.Files.createDirectories;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -145,19 +150,33 @@ public class PushCommand implements BLauncherCmd {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
+            Settings settings = RepoUtils.readSettings();
+
             // If the repository flag is specified, validate and push to the provided repo
             if (repositoryName != null) {
-                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                boolean isCustomRepository = false;
+                Repository targetRepository = null;
+                for (Repository repository : settings.getRepositories()) {
+                    if (repository.id().equals(repositoryName)) {
+                        isCustomRepository = true;
+                        targetRepository = repository;
+                        break;
+                    }
+                }
+
+                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME) && !isCustomRepository) {
                     String errMsg = "unsupported repository '" + repositoryName + "' found. Only '"
-                            + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported.";
+                            + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository and repositories mentioned in the " +
+                            "Settings.toml are supported.";
                     CommandUtil.printError(this.errStream, errMsg, null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
 
-                if (balaPath == null) {
+                if (balaPath == null && repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                     pushPackage(project);
-                } else {
+                    return;
+                } else if (repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                     if (!balaPath.toFile().exists()) {
                         throw new ProjectException("path provided for the bala file does not exist: " + balaPath + ".");
                     }
@@ -166,9 +185,37 @@ public class PushCommand implements BLauncherCmd {
                     }
                     validatePackageMdAndBalToml(balaPath);
                     pushBalaToCustomRepo(balaPath);
+                    return;
                 }
+
+                MavenResolverClient mvnClient = new MavenResolverClient();
+                if (!"".equals(targetRepository.username()) && !"".equals(targetRepository.password())) {
+                    mvnClient.addRepository(targetRepository.id(), targetRepository.url(), targetRepository.username(),
+                                            targetRepository.password());
+                } else {
+                    mvnClient.addRepository(targetRepository.id(), targetRepository.url());
+                }
+
+                Path customRepoLocalCache = RepoUtils.createAndGetHomeReposPath()
+                        .resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(targetRepository.id());
+
+
+                if (balaPath == null && isCustomRepository) {
+                    pushPackage(project, mvnClient, customRepoLocalCache);
+                } else if (isCustomRepository) {
+                    if (!balaPath.toFile().exists()) {
+                        throw new ProjectException("path provided for the bala file does not exist: " + balaPath + ".");
+                    }
+                    if (!FileUtils.getExtension(balaPath).equals("bala")) {
+                        throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
+                    }
+                    validatePackageMdAndBalToml(balaPath);
+                    pushBalaToCustomRepo(balaPath, mvnClient, customRepoLocalCache);
+                }
+
+
             } else {
-                Settings settings = RepoUtils.readSettings();
                 if (settings.diagnostics().hasErrors()) {
                     CommandUtil.printError(this.errStream, settings.getErrorMessage(), null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -224,6 +271,11 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project, this.balaPath);
         pushBalaToCustomRepo(balaFilePath);
+    }
+
+    private void pushPackage(BuildProject project, MavenResolverClient client, Path customRepoPath) {
+        Path balaFilePath = validateBalaFile(project, this.balaPath);
+        pushBalaToCustomRepo(balaFilePath, client, customRepoPath);
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client)
@@ -399,6 +451,39 @@ public class PushCommand implements BLauncherCmd {
                     throw new ProjectException(errorMessage);
                 }
             }
+        }
+    }
+
+    private void pushBalaToCustomRepo(Path balaPath, MavenResolverClient client, Path customRepoPath) {
+        try {
+            createDirectories(customRepoPath);
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage());
+        }
+        Path balaFileName = balaPath.getFileName();
+        if (null != balaFileName) {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+            String org = balaProject.currentPackage().manifest().org().toString();
+            String name = balaProject.currentPackage().manifest().name().toString();
+            String version = balaProject.currentPackage().manifest().version().toString();
+
+            try {
+                client.pushPackage(balaPath, org, name, version, customRepoPath);
+            } catch (MavenResolverClientException e) {
+                throw new ProjectException(e.getMessage());
+            }
+
+            Path relativePathToBalaFile;
+            if (this.balaPath != null) {
+                relativePathToBalaFile = balaPath;
+            } else {
+                relativePathToBalaFile = userDir.relativize(balaPath);
+            }
+            outStream.println("Successfully pushed " + relativePathToBalaFile
+                    + " to '" + repositoryName + "' repository.");
         }
     }
 
