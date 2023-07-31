@@ -428,7 +428,7 @@ public class JsonToRecordMapperTests {
         List<JsonToRecordMapperDiagnostic> diagnostics =
                 JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null).getDiagnostics();
         String diagnosticMessage = "Proper inline record cannot be generated due to the nested structure " +
-                "of the JSON. This will cause infinite record nesting. Consider renaming field items.";
+                "of the JSON. This will cause infinite record nesting. Consider renaming field 'items'.";
         Assert.assertEquals(diagnostics.size(), 1);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
     }
@@ -439,7 +439,7 @@ public class JsonToRecordMapperTests {
         List<JsonToRecordMapperDiagnostic> diagnostics =
                 JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null).getDiagnostics();
         String diagnosticMessage = "Proper inline record cannot be generated due to the nested structure " +
-                "of the JSON. This will cause infinite record nesting. Consider renaming field productRef.";
+                "of the JSON. This will cause infinite record nesting. Consider renaming field 'productRef'.";
         Assert.assertEquals(diagnostics.size(), 1);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
     }
