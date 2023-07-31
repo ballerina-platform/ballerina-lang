@@ -19,8 +19,11 @@
 package io.ballerina.runtime.internal.util;
 
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
 /**
  * Util methods required for handling large arrays, tuples, maps and records.
@@ -43,6 +46,20 @@ public class LargeStructureUtils {
     public static void setSpreadEntry(HandleValue arrayList, Object element, long index) {
         ListInitialValueEntry[] arr = (ListInitialValueEntry[]) arrayList.getValue();
         arr[(int) index] = new ListInitialValueEntry.SpreadEntry((BArray) element);
+    }
+
+    public static HandleValue getBMapInitialValueEntryArray(long size) {
+        return new HandleValue(new BMapInitialValueEntry[(int) size]);
+    }
+
+    public static void setKeyValueEntry(HandleValue arrayList, Object key, Object value, long index) {
+        BMapInitialValueEntry[] arr = (BMapInitialValueEntry[]) arrayList.getValue();
+        arr[(int) index] = new MappingInitialValueEntry.KeyValueEntry(key, value);
+    }
+
+    public static void setSpreadFieldEntry(HandleValue arrayList, Object spreadFieldEntry, long index) {
+        BMapInitialValueEntry[] arr = (BMapInitialValueEntry[]) arrayList.getValue();
+        arr[(int) index] = new MappingInitialValueEntry.SpreadFieldEntry((BMap) spreadFieldEntry);
     }
 
 }
