@@ -73,9 +73,10 @@ public class CodeActionRouter {
                     " Syntax tree is empty for file " + ctx.fileUri());
             return Collections.emptyList();
         }
-        if(ctx.currentSemanticModel().isEmpty()) {
+        if (ctx.currentSemanticModel().isEmpty()) {
             clientLogger.logTrace(LSContextOperation.TXT_CODE_ACTION.getName() + " " +
-                    " Semantic model is empty for file " + ctx.fileUri());
+                    " Semantic model is empty for module " + ctx.currentModule()
+                    .map(module -> module.moduleName().toString()).orElse(""));
             return Collections.emptyList();
         }
         Range highlightedRange = ctx.range();

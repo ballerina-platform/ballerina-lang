@@ -34,7 +34,7 @@
       "label": "...map1",
       "kind": "Variable",
       "detail": "map<RecordName>",
-      "sortText": "R",
+      "sortText": "AC",
       "filterText": "map1",
       "insertText": "...map1",
       "insertTextFormat": "Snippet"

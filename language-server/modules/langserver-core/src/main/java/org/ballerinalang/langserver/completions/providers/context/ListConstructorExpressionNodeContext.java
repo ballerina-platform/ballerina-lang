@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -36,7 +35,6 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SpreadCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.SpreadCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
@@ -72,7 +70,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             completionItems.addAll(this.getCompletionItemList(entries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
-            if(context.getNodeAtCursor().kind() != SyntaxKind.SPREAD_MEMBER) {
+            if (context.getNodeAtCursor().kind() != SyntaxKind.SPREAD_MEMBER) {
                 completionItems.addAll(this.spreadOperatorCompletions(context));
             }
         }

@@ -7,6 +7,12 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.Optional;
 
+/**
+ * Represents a Spread Completion Item.
+ * Eg: ...varName
+ *
+ * @since 2201.8.0
+ */
 public class SpreadCompletionItem extends AbstractLSCompletionItem {
     private final Symbol expression;
 
