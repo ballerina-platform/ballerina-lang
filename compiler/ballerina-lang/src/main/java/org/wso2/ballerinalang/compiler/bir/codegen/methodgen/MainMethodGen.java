@@ -67,6 +67,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_ALL_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -168,7 +169,7 @@ public class MainMethodGen {
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable);
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable, serviceEPAvailable);
 
         if (hasInitFunction && !isTestable) {
             setListenerFound(mv, serviceEPAvailable);
@@ -191,7 +192,7 @@ public class MainMethodGen {
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
-                                             boolean isTestable) {
+                                             boolean isTestable, boolean isServiceEPAvailable) {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         if (userMainFunc != null) {
             loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
@@ -202,7 +203,7 @@ public class MainMethodGen {
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
         }
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv, isTestable);
+        genSubmitToScheduler(initClass, mv, isTestable, isServiceEPAvailable);
         genReturn(mv, indexMap);
     }
 
@@ -413,7 +414,8 @@ public class MainMethodGen {
                            HANDLE_ERROR_RETURN, false);
     }
 
-    private void genSubmitToScheduler(String initClass, MethodVisitor mv, boolean isTestFunction) {
+    private void genSubmitToScheduler(String initClass, MethodVisitor mv, boolean isTestFunction,
+                                      boolean isServiceEPAvailable) {
         JvmCodeGenUtil.createFunctionPointer(mv, initClass, LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$");
 
         // no parent strand
@@ -430,7 +432,7 @@ public class MainMethodGen {
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
-        handleErrorFromFutureValue(mv, initClass, isTestFunction);
+        handleErrorFromFutureValue(mv, initClass, isTestFunction, isServiceEPAvailable);
     }
 
     private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -438,7 +440,8 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
-    private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction) {
+    private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction,
+                                            boolean isServiceEPAvailable) {
         mv.visitVarInsn(ALOAD, indexMap.get(INIT_FUTURE_VAR));
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD, GET_THROWABLE);
@@ -453,9 +456,14 @@ public class MainMethodGen {
             mv.visitJumpInsn(IFNE, labelIf);
             Label labelNE = new Label();
             mv.visitLabel(labelNE);
+            mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD, GET_THROWABLE);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_THROWABLE, false);
+            stopListeners(mv, isServiceEPAvailable);
+            generateModuleStopCall(initClass, mv);
+        } else {
+            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, HANDLE_THROWABLE, false);
         }
-        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD, GET_THROWABLE);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }
