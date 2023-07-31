@@ -44,11 +44,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         this.kind = kind;
     }
 
-    @Override
-    public InstructionKind getKind() {
-        return this.kind;
-    }
-
     public abstract BIRBasicBlock[] getNextBasicBlocks();
 
     /**
