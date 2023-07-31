@@ -4,19 +4,26 @@ package io.ballerina.projects.internal.repositories;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.maven.bala.client.MavenResolverClient;
 import org.ballerinalang.maven.bala.client.MavenResolverClientException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+
+import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 
 
 public class MavenPackageRepository extends CustomPackageRepository {
@@ -52,6 +59,15 @@ public class MavenPackageRepository extends CustomPackageRepository {
             mvnClient.addRepository(repository.id(), repository.url());
         }
 
+        Settings settings;
+        try {
+            settings = RepoUtils.readSettings();
+        } catch (SettingsTomlException e) {
+            settings = Settings.from();
+        }
+        Proxy proxy = settings.getProxy();
+        mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
+
         return new MavenPackageRepository(environment, cacheDirectory, ballerinaShortVersion, repository.id(), mvnClient);
     }
 
@@ -70,6 +86,8 @@ public class MavenPackageRepository extends CustomPackageRepository {
 
         Path balaDownloadPath = Paths.get(this.repoLocation).resolve(org).resolve(name).resolve(version)
                 .resolve(name + "-" + version + BALA_EXTENSION);
+        Path balaHashPath = Paths.get(this.repoLocation).resolve(org).resolve(name).resolve(version)
+                .resolve(name + "-" + version + BALA_EXTENSION + ".sha1");
         Path temporaryExtractionPath = Paths.get(this.repoLocation, org, name, version, PLATFORM);
         try {
             ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
@@ -80,6 +98,14 @@ public class MavenPackageRepository extends CustomPackageRepository {
             Path actualBalaPath = Paths.get(this.repoLocation, org, name, version, platform);
             temporaryExtractionPath.toFile().renameTo(actualBalaPath.toFile());
             Files.delete(balaDownloadPath);
+            Files.delete(balaHashPath);
+            Files.delete(balaDownloadPath.getParent().resolve("_remote.repositories"));
+            if (Files.exists(temporaryExtractionPath)) {
+                Files.walk(temporaryExtractionPath)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
         } catch (IOException e) {
             System.out.println("Unable to create bala for the package [" + org + "/" + name + ":" + version + "]: " +
                     e.getMessage());

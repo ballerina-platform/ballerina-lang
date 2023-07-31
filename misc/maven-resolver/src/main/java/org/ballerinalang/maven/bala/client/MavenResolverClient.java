@@ -20,7 +20,6 @@ package org.ballerinalang.maven.bala.client;
 
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.WriterFactory;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -33,6 +32,7 @@ import org.eclipse.aether.deployment.DeploymentException;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.Authentication;
 import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.Proxy;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
@@ -55,15 +55,15 @@ import java.nio.file.Path;
  * Maven dependency resolving.
  */
 public class MavenResolverClient {
-    public static final String COULD_NOT_FIND_ARTIFACT = "Could not find artifact";
-    public static final String PACKAGE_FOUND = "package found";
-    private static final String PACKAGE_NOT_FOUND = "package not found";
     public static final String PLATFORM = "platform";
-    public static final String PLATFORM_ANY = "any";
+    public static final String BALA_EXTENSION = "bala";
+    public static final String POM = "pom";
+    public static final String DEFAULT_REPO = "default";
+    public static final String ARTIFACT_SEPERATOR = "-";
     RepositorySystem system;
     DefaultRepositorySystemSession session;
 
-    RemoteRepository repository;
+    RemoteRepository.Builder repository;
 
     /**
      * Resolver will be initialized to specified to location.
@@ -86,26 +86,21 @@ public class MavenResolverClient {
      * @return found/ not found status of the package
      * @throws MavenResolverClientException when specified dependency cannot be resolved
      */
-    public String pullPackage(String groupId, String artifactId, String version, String targetLocation) throws
+    public void pullPackage(String groupId, String artifactId, String version, String targetLocation) throws
             MavenResolverClientException {
 
         LocalRepository localRepo = new LocalRepository(targetLocation);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-        Artifact artifact = new DefaultArtifact(groupId, artifactId, "bala", version);
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, BALA_EXTENSION, version);
         try {
             session.setTransferListener(new TransferListenerForClient());
             ArtifactRequest artifactRequest = new ArtifactRequest();
             artifactRequest.setArtifact(artifact);
-            artifactRequest.addRepository(repository);
+            artifactRequest.addRepository(repository.build());
             system.resolveArtifact(session, artifactRequest);
-
         } catch (ArtifactResolutionException e) {
-            if (e.getMessage().contains(COULD_NOT_FIND_ARTIFACT)) {
-                return PACKAGE_NOT_FOUND;
-            }
             throw new MavenResolverClientException(e.getMessage());
         }
-        return PACKAGE_FOUND;
     }
 
 
@@ -122,13 +117,13 @@ public class MavenResolverClient {
         LocalRepository localRepo = new LocalRepository(localRepoPath.toAbsolutePath().toString());
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         DeployRequest deployRequest = new DeployRequest();
-        deployRequest.setRepository(this.repository);
+        deployRequest.setRepository(this.repository.build());
         Artifact mainArtifact = new DefaultArtifact(
-                orgName, packageName, "bala", version).setFile(balaPath.toFile());
+                orgName, packageName, BALA_EXTENSION, version).setFile(balaPath.toFile());
         deployRequest.addArtifact(mainArtifact);
         try {
-            File temporaryPom = generatePomFile(orgName, packageName, version, "bala");
-            deployRequest.addArtifact(new SubArtifact(mainArtifact, "", "pom", temporaryPom));
+            File temporaryPom = generatePomFile(orgName, packageName, version);
+            deployRequest.addArtifact(new SubArtifact(mainArtifact, "", POM, temporaryPom));
             system.deploy(session, deployRequest);
         } catch (DeploymentException |IOException e) {
             throw new MavenResolverClientException(e.getMessage());
@@ -142,7 +137,7 @@ public class MavenResolverClient {
      * @param url url of the repository
      */
     public void addRepository(String id, String url) {
-        this.repository = new RemoteRepository.Builder(id, "default", url).build();
+        this.repository = new RemoteRepository.Builder(id, DEFAULT_REPO, url);
     }
 
     /**
@@ -159,18 +154,46 @@ public class MavenResolverClient {
                         .addUsername(username)
                         .addPassword(password)
                         .build();
-        this.repository = new RemoteRepository.Builder(id, "default", url)
-                .setAuthentication(authentication).build();
+        this.repository = new RemoteRepository.Builder(id, DEFAULT_REPO, url)
+                .setAuthentication(authentication);
     }
 
-    private File generatePomFile(String groupId, String artifactId, String version, String packaging) throws IOException {
+    /**
+     * Proxy will be set to the repository.
+     * @param url url of the proxy
+     * @param port port of the proxy
+     * @param username username of the proxy
+     * @param password password of the proxy
+     */
+    public void setProxy(String url, int port,String username, String password) {
+        if ("".equals(url) || port == 0) {
+            return;
+        }
+
+        Proxy proxy;
+        if ((!(username).isEmpty() && !(password).isEmpty())) {
+            Authentication authentication =
+                    new AuthenticationBuilder()
+                            .addUsername(username)
+                            .addPassword(password)
+                            .build();
+            proxy = new Proxy(null, url, port, authentication);
+        } else {
+            proxy = new Proxy(null, url, port);
+        }
+
+        this.repository.setProxy(proxy);
+    }
+
+    private File generatePomFile(String groupId, String artifactId, String version) throws IOException {
         Model model = new Model();
         model.setModelVersion("4.0.0");
         model.setGroupId(groupId);
         model.setArtifactId(artifactId);
         model.setVersion(version);
-        model.setPackaging(packaging);
-        File tempFile = File.createTempFile(groupId + "-" + artifactId + "-" + version, ".pom");
+        model.setPackaging(BALA_EXTENSION);
+        File tempFile = File.createTempFile(groupId + ARTIFACT_SEPERATOR + artifactId + ARTIFACT_SEPERATOR +
+                version, "." + POM);
         tempFile.deleteOnExit();
         Writer fw = WriterFactory.newXmlWriter(tempFile);
         new MavenXpp3Writer().write(fw, model);

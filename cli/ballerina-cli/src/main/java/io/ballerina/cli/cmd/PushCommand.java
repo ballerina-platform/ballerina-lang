@@ -29,6 +29,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.model.Proxy;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
@@ -195,6 +196,8 @@ public class PushCommand implements BLauncherCmd {
                 } else {
                     mvnClient.addRepository(targetRepository.id(), targetRepository.url());
                 }
+                Proxy proxy = settings.getProxy();
+                mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
                 Path customRepoLocalCache = RepoUtils.createAndGetHomeReposPath()
                         .resolve(ProjectConstants.REPOSITORIES_DIR)
