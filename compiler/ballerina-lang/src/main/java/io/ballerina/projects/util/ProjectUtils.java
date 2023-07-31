@@ -111,6 +111,7 @@ import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -366,11 +367,13 @@ public class ProjectUtils {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
 
-        // if package name is starting with numeric character, prepend `app` / `lib`
+        // if package name is starting with numeric character, prepend `app` / `lib` / `tool`
         if (packageName.matches("[0-9].*")) {
-            if (template.equalsIgnoreCase("lib")) {
-                packageName = "lib" + packageName;
-            } else {
+            if (template.equalsIgnoreCase(LIB_DIR)) {
+                packageName = LIB_DIR + packageName;
+            } else if (template.equalsIgnoreCase(TOOL_DIR)) {
+                packageName = TOOL_DIR + packageName;
+            }  else {
                 packageName = "app" + packageName;
             }
         }

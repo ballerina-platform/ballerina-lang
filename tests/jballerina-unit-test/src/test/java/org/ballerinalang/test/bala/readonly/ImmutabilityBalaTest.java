@@ -100,7 +100,7 @@ public class ImmutabilityBalaTest {
                 ":Config & readonly)'", 85, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0" +
                 ":MyConfig'", 88, 5);
-        validateError(result, index++, "missing required parameter '' in call to 'utcToCivil()'", 92, 18);
+        validateError(result, index++, "missing required parameter 'utc' in call to 'utcToCivil()'", 92, 18);
 
         assertEquals(result.getErrorCount(), index);
     }
