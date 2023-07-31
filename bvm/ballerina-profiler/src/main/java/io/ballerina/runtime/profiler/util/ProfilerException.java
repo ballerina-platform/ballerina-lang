@@ -21,20 +21,20 @@ package io.ballerina.runtime.profiler.util;
 import static io.ballerina.runtime.profiler.util.Constants.OUT;
 
 /**
- * This class is used as a custom exception class.
+ * This class is used as a profiler exception class.
  *
  * @since 2201.7.0
  */
-public class CustomException extends Exception {
-    public CustomException(String message) {
-        OUT.printf(message + "\n");
+public class ProfilerException extends RuntimeException {
+    public ProfilerException(String message) {
+        OUT.printf(String.format("%s%n", message));
     }
 
-    public CustomException(Throwable cause) {
-        OUT.printf(cause + "\n");
+    public ProfilerException(Throwable cause) {
+        OUT.printf(String.format("%s%n", cause));
     }
 
-    public CustomException(String message, Throwable cause) {
-        OUT.printf(message + cause + "\n");
+    public ProfilerException(String message, Throwable cause) {
+        OUT.printf(String.format("%s%s%n", message, cause));
     }
 }

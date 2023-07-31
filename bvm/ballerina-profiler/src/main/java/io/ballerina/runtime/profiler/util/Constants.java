@@ -15,4 +15,6 @@ public class Constants {
     public static final String TEMP_JAR_FILE_NAME = "temp.jar";
     public static final String STRAND = "(Lio/ballerina/runtime/internal/scheduling/Strand";
     public static final PrintStream OUT = System.out;
+    public static final PrintStream ERROR = System.err;
+    public static final String CLASS_SUFFIX = ".class";
 }

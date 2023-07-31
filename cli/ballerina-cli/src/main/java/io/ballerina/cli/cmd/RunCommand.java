@@ -223,74 +223,17 @@ public class RunCommand implements BLauncherCmd {
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
-        TaskExecutor.TaskBuilder taskBuilder = new TaskExecutor.TaskBuilder()
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()));
-
-        if (this.enableProfiler) {
-            taskBuilder
-                    .addTask(new CreateExecutableTask(outStream, this.output))
-                    .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                    .build()
-                    .executeTasks(project);
-            try {
-                initiateProfiler(project, args);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-
-            }
-        } else {
-            taskBuilder
-                    .addTask(new RunExecutableTask(args, outStream, errStream))
-                    .build()
-                    .executeTasks(project);
-        }
-    }
-
-    private void initiateProfiler(Project project, String[] args) throws java.io.IOException, InterruptedException {
-        String[] profilerCommand;
-        String profilerArguments = String.join(" ", args);
-        String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
-                "ballerina-profiler-1.0.jar").toString();
-        Path sourcePath = Path.of(profilerSource);
-        Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
-        StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
-        Files.copy(sourcePath, targetPath, copyOption);
-        if (args.length == 0) {
-            profilerCommand = new String[]{
-                    "java",
-                    "-jar",
-                    "Profiler.jar",
-                    "--file",
-                    "[" + project.currentPackage().packageName() + ".jar" + "]"
-            };
-        } else {
-            profilerCommand = new String[]{
-                    "java",
-                    "-jar",
-                    "Profiler.jar",
-                    "--file",
-                    "[" + project.currentPackage().packageName() + ".jar" + "]",
-                    "--args",
-                    "[" + profilerArguments + "]"
-            };
-        }
-        ProcessBuilder profilerProcessBuilder = new ProcessBuilder(profilerCommand);
-        profilerProcessBuilder.directory(new File(project.targetDir() + "/bin"));
-        profilerProcessBuilder.redirectErrorStream(true);
-        Process profilerProcess = profilerProcessBuilder.start();
-        InputStream processInputStream = profilerProcess.getInputStream();
-        if (processInputStream != null) {
-            try (InputStreamReader inputStreamReader = new InputStreamReader(
-                    processInputStream,
-                    java.nio.charset.StandardCharsets.UTF_8
-            );
-                 BufferedReader profilerReader = new BufferedReader(inputStreamReader)) {
-                profilerReader.lines().forEach(outStream::println);
-            }
-        }
-        profilerProcess.waitFor();
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
+                        buildOptions.enableCache()))
+                .addTask(new CreateExecutableTask(outStream, this.output), !this.enableProfiler)
+                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime()
+                        && !this.enableProfiler)
+                .addTask(new RunProfilerTask(outStream, errStream, args), !this.enableProfiler)
+                .addTask(new RunExecutableTask(args, outStream, errStream), this.enableProfiler).build();
+        taskExecutor.executeTasks(project);
     }
 
     @Override

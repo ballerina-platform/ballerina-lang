@@ -21,7 +21,7 @@ package io.ballerina.runtime.profiler;
 import io.ballerina.runtime.profiler.codegen.CustomClassLoader;
 import io.ballerina.runtime.profiler.codegen.MethodWrapper;
 import io.ballerina.runtime.profiler.util.Constants;
-import io.ballerina.runtime.profiler.util.CustomException;
+import io.ballerina.runtime.profiler.util.ProfilerException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -29,7 +29,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -56,10 +55,12 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  * @since 2201.7.0
  */
 public class Main {
+
     static long profilerStartTime;
     static int exitCode = 0;
     private static String balJarArgs = null;
     static String balJarName = null;
+    static String targetDir = null;
     static String skipFunctionString = null;
     private static int balFunctionCount = 0;
     static int moduleCount = 0;
@@ -69,7 +70,7 @@ public class Main {
     static final List<String> UTIL_INIT_PATHS = new ArrayList<>();
     static final List<String> UTIL_PATHS = new ArrayList<>();
 
-    public static void main(String[] args) throws CustomException {
+    public static void main(String[] args) throws ProfilerException {
         profilerStartTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
         addShutdownHookAndCleanup(); // Register a shutdown hook to handle graceful shutdown of the application
         printHeader(); // Print the program header
@@ -80,73 +81,67 @@ public class Main {
     }
 
     private static void printHeader() {
-        String header = "%n" +
-                Constants.ANSI_GRAY
-                + "================================================================================" +
-                Constants.ANSI_RESET
-                + "%n" +
-                Constants.ANSI_CYAN
-                + "Ballerina Profiler" + Constants.ANSI_RESET + ": Profiling..." + "%n" +
-                Constants.ANSI_GRAY
-                + "================================================================================" +
-                Constants.ANSI_RESET
-                + "%n" +
-                "WARNING : Ballerina Profiler is an experimental feature.";
-        OUT.printf(header + "%n");
+        OUT.printf("%n%s================================================================================%s",
+                Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT.printf("%n%sBallerina Profiler%s", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+        OUT.printf("%s: Profiling...%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT.printf("%n%s================================================================================%s",
+                Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT.printf("%n%sWARNING : Ballerina Profiler is an experimental feature.%s%n", Constants.ANSI_GRAY,
+                Constants.ANSI_RESET);
     }
 
     private static void handleProfilerArguments(String[] args) {
-        String invalidArgument = "Invalid CLI Argument";
-        if (args.length != 0) {
-            for (int i = 0; i < args.length; i++) {
-                switch (args[i]) {
-                    case "--file":
-                        balJarName = args[i + 1];
-                        if (balJarName.startsWith("[") && balJarName.endsWith("]")) {
-                            balJarName = balJarName.substring(1, balJarName.length() - 1);
-                        } else {
-                            OUT.printf(invalidArgument + "\n");
-                        }
-                        break;
-                    case "--args":
-                        balJarArgs = args[i + 1];
-                        if (balJarArgs != null && balJarArgs.startsWith("[") && balJarArgs.endsWith("]")) {
-                            balJarArgs = balJarArgs.substring(1, balJarArgs.length() - 1);
-                        } else {
-                            OUT.printf(invalidArgument + "\n");
-                        }
-                        break;
-                    case "--skip":
-                        skipFunctionString = args[i + 1];
-                        if (skipFunctionString != null && skipFunctionString.matches("\\[.*\\]")) {
-                            skipFunctionString = skipFunctionString.substring(1, skipFunctionString.length() - 1);
-                        } else {
-                            OUT.printf(invalidArgument + "\n");
-                        }
-                        break;
-                    default:
-                        // Handle unrecognized arguments here
-//                        OUT.printf(invalidArgument + "\n");
-                        break;
-                }
+        if (args.length == 0) {
+            return;
+        }
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--file":
+                    balJarName = args[i + 1];
+                    if (!balJarName.endsWith(".jar")) {
+                        throw new ProfilerException("Invalid JAR file found : " + balJarName);
+                    }
+                    break;
+                case "--args":
+                    balJarArgs = args[i + 1];
+                    if (balJarArgs == null || !balJarArgs.startsWith("[") || !balJarArgs.endsWith("]")) {
+                        throw new ProfilerException("Invalid JAR arguments found : " + balJarArgs);
+                    }
+                    balJarArgs = balJarArgs.substring(1, balJarArgs.length() - 1);
+                    break;
+//                TODO: Implement skip function
+//                case "--skip":
+//                    skipFunctionString = args[i + 1];
+//                    if (skipFunctionString != null && skipFunctionString.matches("\\[.*\\]")) {
+//                        skipFunctionString = skipFunctionString.substring(1, skipFunctionString.length() - 1);
+//                    } else {
+//                        OUT.printf("%s%n", invalidArgument);
+//                    }
+//                    break;
+                case "--target":
+                    targetDir = args[i + 1];
+                    break;
+                default:
+                    // Handle unrecognized arguments here
+                    break;
             }
         }
+
     }
 
-    private static void extractProfiler() throws CustomException {
-        OUT.printf(Constants.ANSI_CYAN + "[1/6] Initializing Profiler..." + Constants.ANSI_RESET + "%n");
+    private static void extractProfiler() throws ProfilerException {
+        OUT.printf("%s[1/6] Initializing Profiler...%s%n", Constants.ANSI_CYAN ,Constants.ANSI_RESET);
         try {
-            new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime")
-                    .start()
-                    .waitFor();
+            new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime").start().waitFor();
         } catch (IOException | InterruptedException exception) {
-            throw new CustomException(exception);
+            throw new ProfilerException(exception);
         }
     }
 
     public static void createTempJar(String balJarName) {
         try {
-            OUT.printf(Constants.ANSI_CYAN + "[2/6] Copying Executable..." + Constants.ANSI_RESET + "%n");
+            OUT.printf("%s[2/6] Copying Executable...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
             Path sourcePath = Paths.get(balJarName);
             Path destinationPath = Paths.get(Constants.TEMP_JAR_FILE_NAME);
             Files.copy(sourcePath, destinationPath);
@@ -156,21 +151,19 @@ public class Main {
         }
     }
 
-    private static void initializeProfiling(String balJarName) throws CustomException {
-        OUT.printf(Constants.ANSI_CYAN + "[3/6] Performing Analysis..." + Constants.ANSI_RESET + "%n");
+    private static void initializeProfiling(String balJarName) throws ProfilerException {
+        OUT.printf("%s[3/6] Performing Analysis...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         ArrayList<String> classNames = new ArrayList<>();
         try {
             findAllClassNames(balJarName, classNames);
             findUtilityClasses(classNames);
         } catch (Exception e) {
-            OUT.printf("(No such file or directory)" + "%n");
+            OUT.printf("(No such file or directory)%n");
         }
-        OUT.printf(Constants.ANSI_CYAN + "[4/6] Instrumenting Functions..." + Constants.ANSI_RESET + "%n");
+        OUT.printf("%s[4/6] Instrumenting Functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try (JarFile jarFile = new JarFile(balJarName)) {
-            String mainClassPackage = MethodWrapper.mainClassFinder(
-                    new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
-            CustomClassLoader customClassLoader = new CustomClassLoader(
-                    new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
+            String mainClassPackage = MethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
+            CustomClassLoader customClassLoader = new CustomClassLoader(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
             Set<String> usedPaths = new HashSet<>();
             for (String className : classNames) {
                 if (mainClassPackage == null) {
@@ -180,7 +173,7 @@ public class Main {
                     try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
                         byte[] code = MethodWrapper.modifyMethods(inputStream);
                         customClassLoader.loadClass(code);
-                        usedPaths.add(className.replace(".class", "").replace("/", "."));
+                        usedPaths.add(className.replace(Constants.CLASS_SUFFIX, "").replace("/", "."));
                         MethodWrapper.printCode(className, code);
                     }
                 }
@@ -188,19 +181,14 @@ public class Main {
                     moduleCount++;
                 }
             }
-            OUT.printf(" ○ Instrumented Module Count: " + moduleCount + "%n");
+            OUT.printf(" ○ Instrumented Module Count: %d%n", moduleCount);
             try (PrintWriter printWriter = new PrintWriter("usedPathsList.txt", StandardCharsets.UTF_8)) {
                 printWriter.println(String.join(", ", usedPaths));
             }
-            OUT.printf(" ○ Instrumented Function Count: " + balFunctionCount + "%n");
-
-        } catch (Throwable throwable) {
-            throw new CustomException(throwable);
-        }
-        try {
+            OUT.printf(" ○ Instrumented Function Count: %d%n", balFunctionCount);
             modifyJar();
         } catch (Throwable throwable) {
-            throw new CustomException(throwable);
+            throw new ProfilerException(throwable);
         }
     }
 
@@ -225,16 +213,13 @@ public class Main {
             ProcessBuilder processBuilder = new ProcessBuilder("jar", "uf", Constants.TEMP_JAR_FILE_NAME);
             processBuilder.command().addAll(changedDirs);
             processBuilder.start().waitFor();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | InterruptedException e) {
+            throw new ProfilerException("Error occurred while loading the jar file", e);
         }
     }
 
     public static void listAllFiles(final File userDirectory) {
-        String absolutePath = Paths.get(Constants.TEMP_JAR_FILE_NAME).toFile()
-                .getAbsolutePath().replaceAll(Constants.TEMP_JAR_FILE_NAME, "");
+        String absolutePath = Paths.get(Constants.TEMP_JAR_FILE_NAME).toFile().getAbsolutePath().replaceAll(Constants.TEMP_JAR_FILE_NAME, "");
 
         File[] files = userDirectory.listFiles();
         if (files != null) {
@@ -243,7 +228,7 @@ public class Main {
                     listAllFiles(fileEntry);
                 } else {
                     String fileEntryString = String.valueOf(fileEntry);
-                    if (fileEntryString.endsWith(".class")) {
+                    if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
                         fileEntryString = fileEntryString.replaceAll(absolutePath, "");
                         int index = fileEntryString.lastIndexOf('/');
                         fileEntryString = fileEntryString.substring(0, index);
@@ -259,7 +244,7 @@ public class Main {
     private static void findAllClassNames(String jarPath, ArrayList<String> classNames) throws IOException {
         try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(jarPath))) {
             for (ZipEntry entry = zipInputStream.getNextEntry(); entry != null; entry = zipInputStream.getNextEntry()) {
-                if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+                if (!entry.isDirectory() && entry.getName().endsWith(Constants.CLASS_SUFFIX)) {
                     classNames.add(String.valueOf(entry));
                 }
             }
@@ -267,14 +252,7 @@ public class Main {
     }
 
     private static void findUtilityClasses(ArrayList<String> classNames) {
-        for (String className : classNames) {
-            if (className.endsWith("$_init.class")) {
-                String path = className.substring(0, className.lastIndexOf('/') + 1);
-                if (!UTIL_INIT_PATHS.contains(path)) {
-                    UTIL_INIT_PATHS.add(path);
-                }
-            }
-        }
+        populateInitPaths(classNames);
 
         for (String name : classNames) {
             for (String path : UTIL_INIT_PATHS) {
@@ -283,6 +261,17 @@ public class Main {
                     if (subPath.indexOf('/') == -1) {
                         UTIL_PATHS.add(name);
                     }
+                }
+            }
+        }
+    }
+
+    private static void populateInitPaths(ArrayList<String> classNames) {
+        for (String className : classNames) {
+            if (className.endsWith("$_init.class")) {
+                String path = className.substring(0, className.lastIndexOf('/') + 1);
+                if (!UTIL_INIT_PATHS.contains(path)) {
+                    UTIL_INIT_PATHS.add(path);
                 }
             }
         }
@@ -304,56 +293,36 @@ public class Main {
         // Add a shutdown hook to stop the profiler and parse the output when the program is closed.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(
-                        System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
-                File tempJarFile = new File(Constants.TEMP_JAR_FILE_NAME);
-                if (tempJarFile.exists()) {
-                    boolean deleted = tempJarFile.delete();
-                    if (!deleted) {
-                        System.err.printf("Failed to delete temp jar file: " + Constants.TEMP_JAR_FILE_NAME + "%n");
-                    }
-                }
-                OUT.printf("%n" + Constants.ANSI_CYAN
-                        + "[6/6] Generating Output..." + Constants.ANSI_RESET + "%n");
+                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
+                deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
+                OUT.printf("%s[6/6] Generating Output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 Thread.sleep(100);
                 initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
                 deleteFileIfExists("CpuPre.json");
-                OUT.printf(" ○ Execution Time: " + profilerTotalTime / 1000 + " Seconds" + "%n");
+                OUT.printf(" ○ Execution Time: %d Seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
                 initializeHTMLExport();
                 deleteFileIfExists("performance_report.json");
-                OUT.printf("----------------------------------------");
-                OUT.printf("----------------------------------------" + "%n");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                OUT.print("----------------------------------------");
+                OUT.print("----------------------------------------");
+            } catch (IOException | InterruptedException e) {
+                throw new ProfilerException("Error occurred while generating the output", e);
             } finally {
-                String jarPath;
-                try {
-                    jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                File jarFile = new File(jarPath);
-                if (jarFile.exists()) {
-                    boolean deleted = jarFile.delete();
-                    if (!deleted) {
-                        System.err.printf("Failed to delete jar file: " + jarPath + "%n");
-                    }
-                }
+                deleteFileIfExists(targetDir);
             }
         }));
     }
 
     private static void deleteFileIfExists(String filePath) {
         File file = new File(filePath);
-        if (file.exists()) {
-            boolean deleted = file.delete();
-            if (!deleted) {
-                System.err.printf("Failed to delete file: " + filePath + "%n");
-            }
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            Files.delete(Paths.get(filePath));
+        } catch (IOException e) {
+            throw new ProfilerException("Failed to delete file: " + filePath + "%n", e);
         }
     }
 
