@@ -100,7 +100,6 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_MAP;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_STREAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_TYPE;
 
 /**
