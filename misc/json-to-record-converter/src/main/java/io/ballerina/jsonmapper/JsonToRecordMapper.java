@@ -618,10 +618,7 @@ public class JsonToRecordMapper {
         } else if (typeNames.size() == 1) {
             return typeNames.get(0);
         }
-        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
-        String unionTypeDescNodeSource = typeNames.stream().map(TypeDescriptorNode::toSourceCode)
-                .collect(Collectors.joining(pipeToken.toSourceCode()));
-        TypeDescriptorNode unionTypeDescNode = NodeParser.parseTypeDescriptor(unionTypeDescNodeSource);
+        TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(typeNames);
         Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
         Token questionMarkToken = NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -631,6 +628,23 @@ public class JsonToRecordMapper {
 
         return isOptional ?
                 NodeFactory.createOptionalTypeDescriptorNode(parenTypeDescNode, questionMarkToken) : parenTypeDescNode;
+    }
+
+    /**
+     * This method joins types to create UnionTypeDescriptorNode.
+     *
+     * @param typeNames List of TypeDescriptorNodes to be unionized - the size of the list should be always >= 2
+     * @return {@link TypeDescriptorNode} Union TypeDescriptorNode of provided TypeDescriptorNodes
+     */
+    private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
+        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
+
+        TypeDescriptorNode unionTypeDescNode = typeNames.get(0);
+        for (int i = 1; i < typeNames.size(); i++) {
+            unionTypeDescNode =
+                    NodeFactory.createUnionTypeDescriptorNode(unionTypeDescNode, pipeToken, typeNames.get(i));
+        }
+        return unionTypeDescNode;
     }
 
     /**
