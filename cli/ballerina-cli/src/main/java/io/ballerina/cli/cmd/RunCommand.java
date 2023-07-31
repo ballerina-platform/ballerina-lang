@@ -52,6 +52,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -71,7 +72,7 @@ public class RunCommand implements BLauncherCmd {
             FileSystems.getDefault().getPathMatcher("glob:**.jar");
 
     @CommandLine.Parameters(description = "Program arguments")
-    private List<String> argList = new ArrayList<>();
+    private final List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
@@ -102,7 +103,7 @@ public class RunCommand implements BLauncherCmd {
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = "--profile", description = "enables the ballerina profiler", hidden = true)
-    private Boolean enableProfiler = false;
+    private boolean enableProfiler = false;
     private String output;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
@@ -236,6 +237,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 initiateProfiler(project, args);
             } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
 
             }
         } else {
@@ -249,8 +251,8 @@ public class RunCommand implements BLauncherCmd {
     private void initiateProfiler(Project project, String[] args) throws java.io.IOException, InterruptedException {
         String[] profilerCommand;
         String profilerArguments = String.join(" ", args);
-        String profilerSource = Paths.get(System.getenv("BALLERINA_HOME")
-                , "bre", "lib", "ballerina-profiler-1.0.jar").toString();
+        String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
+                "ballerina-profiler-1.0.jar").toString();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
@@ -285,7 +287,7 @@ public class RunCommand implements BLauncherCmd {
                     java.nio.charset.StandardCharsets.UTF_8
             );
                  BufferedReader profilerReader = new BufferedReader(inputStreamReader)) {
-                profilerReader.lines().forEach(System.out::println);
+                profilerReader.lines().forEach(outStream::println);
             }
         }
         profilerProcess.waitFor();
