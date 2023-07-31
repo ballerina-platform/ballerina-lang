@@ -163,7 +163,7 @@ public class BindingsGenerator {
             PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
                     env.getProjectRoot()).packageManifest();
             if (packageManifest != null) {
-                return packageManifest.platform(JvmTarget.JAVA_11.code());
+                return packageManifest.platform(JvmTarget.JAVA_17.code());
             }
         }
         return null;

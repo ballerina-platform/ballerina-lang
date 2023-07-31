@@ -29,6 +29,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -213,5 +214,10 @@ public class XMLLiteralWithNamespacesTest {
     @Test
     public void testXmlInterpolationWithQuery() {
         BRunUtil.invoke(literalWithNamespacesResult, "testXmlInterpolationWithQuery");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        literalWithNamespacesResult = null;
     }
 }
