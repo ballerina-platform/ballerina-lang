@@ -169,7 +169,7 @@ public class PrintUtils {
             outStream.println();
         }
         outStream.println();
-        outStream.println(tools.size() + " tools found");
+        outStream.println(tools.size() + " tools found.");
     }
 
     /**

@@ -279,7 +279,11 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public byte getByte(long index) {
-        return (Byte) get(index);
+        Object value = get(index);
+        if (value instanceof Long) {
+            return ((Long) value).byteValue();
+        }
+        return (Byte) value;
     }
 
     /**

@@ -8,5 +8,5 @@ module io.ballerina.language.server.simulator {
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires com.google.gson;
-    requires slf4j.api;
+    requires org.slf4j;
 }
