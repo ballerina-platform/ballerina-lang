@@ -123,11 +123,17 @@ function testDefaultVal() {
     Person p = {};
     Mat m = {};
     Mat m2 = {x: 1};
+    record {
+        record {
+            int c = 10;
+        } b = {};
+    } a = {b: {}};
     assert("default first name", p.name);
     assert("", p.lname);
     assert(999, p.age);
     assert(10, m.x);
     assert(1, m2.x);
+    assert(10, a.b.c);
 }
 
 function testOpenRecordWithSpreadOperator() {
@@ -776,4 +782,24 @@ function testWithMultipleTypeInclusions() {
     assert(20, baz.y);
     assert(30, baz.a);
     assert(40, baz.b);
+}
+
+type Foo4 record {|
+    int x = 10;
+    int y = 10;
+|};
+
+function testSpreadOperatorWithOpenRecord() {
+    record {|int x; int y?;|} r = {x:14};
+    Foo4 f = { ...r};
+    assert(14, f.x);
+    assert(10, f.y);
+    record {|int x; int y?;|} r1 = {x:14, y:15};
+    Foo4 f1 = { ...r1};
+    assert(14, f1.x);
+    assert(15, f1.y);
+    record {|int x?; int y?;|} r2 = {};
+    Foo4 f2 = { ...r2};
+    assert(10, f2.x);
+    assert(10, f2.y);
 }

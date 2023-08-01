@@ -89,6 +89,11 @@ public class OpenRecordTest {
         BRunUtil.invoke(compileResult, "testWithMultipleTypeInclusions");
     }
 
+    @Test
+    public void testSpreadOperatorWithOpenRecord() {
+        BRunUtil.invoke(compileResult, "testSpreadOperatorWithOpenRecord");
+    }
+
     @Test(description = "Test default value of a nested record field")
     public void testNestedFieldDefaultValue() {
         BArray returns = (BArray) BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
