@@ -560,6 +560,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     /**
      * {@link MapIterator} iteration provider for ballerina maps.
      *
+     * @param <K> ballerina string key
+     * @param <V> ballerina value
+     *
      * @since 0.995.0
      */
     static class MapIterator<K, V> implements IteratorValue {

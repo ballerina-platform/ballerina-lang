@@ -1,4 +1,4 @@
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 artifactId = "ldap"
 version = "1.0.0"
 path = "./libs/ballerina-io-1.0.0-java.txt"

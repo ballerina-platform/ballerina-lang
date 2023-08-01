@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,5 +44,10 @@ public class RemoteObjectBalaTest {
     public void testRemoteObject() {
         BRunUtil.invoke(compileResult, "testCheck");
         BRunUtil.invoke(compileResult, "testNewEP", new Object[]{StringUtils.fromString("done")});
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

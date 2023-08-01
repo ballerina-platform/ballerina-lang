@@ -724,6 +724,7 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
+            'type_tag_enum::type_tag_record': map_constant_info
             'type_tag_enum::type_tag_intersection': intersection_constant_info
     instances:
       type:
