@@ -65,8 +65,13 @@ public class ClassTest {
     }
 
     @Test
-    public void testClassWithDefaultsWithoutInitFunc() {
-        BRunUtil.invoke(compileResult, "testClassWithDefaultsWithoutInitFunc");
+    public void testModuleVariableReferencingClass() {
+        BRunUtil.invoke(compileResult, "testModuleVariableReferencingClass");
+    }
+
+    @Test
+    public void testLocalObjectConstructorReferencingModuleVariable() {
+        BRunUtil.invoke(compileResult, "testLocalObjectConstructorReferencingModuleVariable");
     }
 
     @Test
