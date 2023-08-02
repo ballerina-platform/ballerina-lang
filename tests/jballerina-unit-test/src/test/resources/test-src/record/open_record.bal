@@ -698,25 +698,6 @@ function testDefaultableRecordFieldsWithQuotedIdentifiersForTypeKeywords() {
     assert(true, s?.'error === err);
     assert(true, s?.'json);
     assert(1234, s?.'anydata);
-<<<<<<< HEAD
-=======
-}
-
-
-type Details record {
-    string name;
-    BirthDay birthDay = {};
-};
-
-type BirthDay record {
-    int year = 2000;
-};
-
-function  testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
-    Student & readonly student = {id: 0};
-    assert(student.details.name, "chirans");
-    assert(student.details.birthDay.year, 2000);
->>>>>>> bc0eeda830002a58188d2c3c85f46e3281a42f90
 }
 
 // Util functions
