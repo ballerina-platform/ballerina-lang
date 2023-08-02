@@ -24,4 +24,16 @@
         <Class name="org.ballerinalang.langserver.simulator.EditorSimulator"/>
         <Bug pattern="DM_EXIT"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.langserver.simulator"/>
+        <Bug pattern="DMI_RANDOM_USED_ONLY_ONCE"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.langserver.simulator.generators"/>
+        <Bug pattern="DMI_RANDOM_USED_ONLY_ONCE"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.simulator.EditorTab"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
 </FindBugsFilter>
