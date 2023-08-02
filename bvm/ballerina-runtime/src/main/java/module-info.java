@@ -7,7 +7,7 @@ module io.ballerina.runtime {
     requires io.opentelemetry.api;
     requires io.opentelemetry.context;
     requires java.transaction.xa;
-    requires slf4j.api;
+    requires org.slf4j;
     requires axiom.impl;
     requires io.ballerina.toml;
     requires io.ballerina.tools.api;
@@ -58,7 +58,7 @@ module io.ballerina.runtime {
             io.ballerina.lang.xml, io.ballerina.lang.bool, io.ballerina.lang.error, io.ballerina.lang.internal,
             io.ballerina.lang.value, io.ballerina.auth, io.ballerina.runtime.api, io.ballerina.cli.utils,
             io.ballerina.cli;
-    exports io.ballerina.runtime.internal.util.exceptions to io.ballerina.lang.value, io.ballerina.lang.integer,
+    exports io.ballerina.runtime.internal.errors to io.ballerina.lang.value, io.ballerina.lang.integer,
             io.ballerina.java, io.ballerina.lang.internal, io.ballerina.lang.array, io.ballerina.lang.bool,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
             io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils, io.ballerina.cli,
@@ -70,7 +70,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
     exports io.ballerina.runtime.internal.configurable.providers.toml to org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime,
-            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.lang.regexp;
+            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.lang.regexp, io.ballerina.testerina.core;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
     exports io.ballerina.runtime.internal.regexp;

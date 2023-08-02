@@ -39,6 +39,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -65,6 +66,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.DEPRECATED_META_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -97,7 +99,7 @@ public class BalaFiles {
                 .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
         // load other modules
         List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath);
-        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
+        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, null, packageMd);
     }
 
     private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
@@ -111,7 +113,7 @@ public class BalaFiles {
                     .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
-            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
+            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, null, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read bala file:" + balaPath);
         }
@@ -259,9 +261,9 @@ public class BalaFiles {
             if (!Files.notExists(compilerPluginJsonPath)) {
                 CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
                 extractCompilerPluginLibraries(compilerPluginJson, balrPath, zipFileSystem);
-                return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
+                return getPackageManifest(packageJson, Optional.of(compilerPluginJson), null);
             }
-            return getPackageManifest(packageJson, Optional.empty());
+            return getPackageManifest(packageJson, Optional.empty(), null);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
@@ -272,7 +274,6 @@ public class BalaFiles {
         if (Files.notExists(packageJsonPath)) {
             throw new ProjectException("package.json does not exists in '" + balrPath + "'");
         }
-
         // Load `package.json`
         PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
         validatePackageJson(packageJson, balrPath);
@@ -282,9 +283,28 @@ public class BalaFiles {
         if (!Files.notExists(compilerPluginJsonPath)) {
             CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
             setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
-            return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
+            return getPackageManifest(packageJson, Optional.of(compilerPluginJson), getDeprecationMsg(balrPath));
         }
-        return getPackageManifest(packageJson, Optional.empty());
+        return getPackageManifest(packageJson, Optional.empty(), getDeprecationMsg(balrPath));
+    }
+
+    private static String getDeprecationMsg(Path balaPath) {
+        Path deprecateFilePath = balaPath.resolve(DEPRECATED_META_FILE_NAME);
+        if (Files.exists(deprecateFilePath)) {
+            StringBuilder fileContents = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(deprecateFilePath.toString(),
+                    Charset.defaultCharset()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    fileContents.append(line).append("\n");
+                }
+            } catch (IOException e) {
+                throw new ProjectException("unable to read content from the file '" + DEPRECATED_META_FILE_NAME +
+                        "'", e);
+            }
+            return fileContents.substring(0, fileContents.length() - 1);
+        }
+        return null;
     }
 
     private static DependencyManifest createDependencyManifestFromBalaFile(Path balrPath) {
@@ -372,21 +392,17 @@ public class BalaFiles {
     }
 
     private static PackageManifest getPackageManifest(PackageJson packageJson,
-            Optional<CompilerPluginJson> compilerPluginJson) {
-        PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
-                PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
-
-        Map<String, PackageManifest.Platform> platforms = new HashMap<>(Collections.emptyMap());
-        if (packageJson.getPlatformDependencies() != null) {
-            List<Map<String, Object>> platformDependencies = new ArrayList<>();
-            packageJson.getPlatformDependencies().forEach(dependency -> {
-                String jsonStr = gson.toJson(dependency);
-                platformDependencies.add(gson.fromJson(jsonStr, Map.class));
-
-            });
-            PackageManifest.Platform platform = new PackageManifest.Platform(platformDependencies);
-            platforms.put(packageJson.getPlatform(), platform);
+            Optional<CompilerPluginJson> compilerPluginJson, String deprecationMsg) {
+        PackageDescriptor pkgDesc;
+        if (deprecationMsg != null) {
+            pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
+                    PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()),
+                    true, deprecationMsg);
+        } else {
+            pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
+                    PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
         }
+        Map<String, PackageManifest.Platform> platforms = getPlatforms(packageJson);
 
         List<PackageManifest.Dependency> dependencies = new ArrayList<>();
         if (packageJson.getLocalDependencies() != null) {
@@ -410,6 +426,25 @@ public class BalaFiles {
                                 packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
                                 packageJson.getTemplate()));
+    }
+
+    private static Map<String, PackageManifest.Platform> getPlatforms(PackageJson packageJson) {
+        List<Map<String, Object>> platformDependencies = new ArrayList<>();
+        Boolean graalvmCompatible = null;
+        Map<String, PackageManifest.Platform> platforms = new HashMap<>();
+        if (packageJson.getPlatformDependencies() != null) {
+            packageJson.getPlatformDependencies().forEach(dependency -> {
+                String jsonStr = gson.toJson(dependency);
+                platformDependencies.add(gson.fromJson(jsonStr, Map.class));
+            });
+        }
+        if (packageJson.getGraalvmCompatible() != null) {
+            graalvmCompatible = packageJson.getGraalvmCompatible();
+        }
+        PackageManifest.Platform platform = new PackageManifest.Platform(platformDependencies, Collections.emptyList(),
+                graalvmCompatible);
+        platforms.put(packageJson.getPlatform(), platform);
+        return platforms;
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
@@ -443,8 +478,7 @@ public class BalaFiles {
                                                modules);
             packages.add(pkg);
         }
-
-        return DependencyManifest.from(null, packages);
+        return DependencyManifest.from(null, null, packages);
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {

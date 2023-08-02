@@ -20,14 +20,16 @@ import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionContextTypeResolver;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -65,7 +67,13 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
         TemplateExpressionNode templateExpressionNode = (TemplateExpressionNode) positionDetails.matchedNode();
-        Optional<TypeSymbol> typeSymbol = templateExpressionNode.apply(new CodeActionContextTypeResolver(context));
+        Node node = context.nodeAtRange();
+        LinePosition linePosition = node.location().lineRange().endLine();
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            typeSymbol = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         Set<String> typeSet = new HashSet<>();
         if (typeSymbol.isPresent()) {
@@ -78,14 +86,19 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
                 if (unionTypeSymbol.memberTypeDescriptors().contains(types.XML)) {
                     typeSet.add("xml");
                 }
+                if (unionTypeSymbol.memberTypeDescriptors().contains(types.REGEX)) {
+                    typeSet.add("re");
+                }
             } else if (typeSymbol.get().typeKind() == TypeDescKind.STRING) {
                 typeSet.add("string");
             } else if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
                 typeSet.add("xml");
+            } else if (isRegexTemplate(typeSymbol.get())) {
+                typeSet.add("re");
             }
         }
         if (typeSet.isEmpty()) {
-            typeSet.addAll(Set.of("string", "xml"));
+            typeSet.addAll(Set.of("string", "xml", "re"));
         }
 
         List<CodeAction> codeActions = new ArrayList<>();
@@ -100,6 +113,14 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
         });
 
         return codeActions;
+    }
+
+    private boolean isRegexTemplate(TypeSymbol typeSymbol) {
+        typeSymbol = CommonUtil.getRawType(typeSymbol);
+        if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            typeSymbol = CommonUtil.getRawType(typeSymbol);
+        }
+        return typeSymbol.typeKind() == TypeDescKind.REGEXP;
     }
 
     @Override

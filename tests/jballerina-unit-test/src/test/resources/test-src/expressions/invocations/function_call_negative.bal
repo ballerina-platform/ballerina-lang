@@ -95,3 +95,35 @@ function intRestParam(int... i) returns int {
 }
 
 function intParam(int i) returns int => i;
+
+function invalidNamedArg1() returns error {
+     int[] y = [5,6];
+     string x = "5";
+     _ = int:sum(ns=y);
+     _ = int:sum(ss=y);
+     _ = check int:fromString(s=x); // no error
+     _ = check int:fromString(s=y);
+     _ = check int:fromString(ss=x);
+}
+
+function testFuncWithNilReturnTypeWithoutVariableAssignment() {
+    f1();
+    f2();
+    f3();
+}
+
+function f1() returns ()|int|() => ();
+function f2() returns 1|null => null;
+function f3() returns null|1|null => null;
+
+function invalidRestParam() {
+    int x = 1;
+    func1(i = x); // named argument not allowed for rest parameter
+    func1(i = 2); // named argument not allowed for rest parameter
+    func2(x, i = x); // named argument not allowed for rest parameter
+    func2(t = x, i = x); // named argument not allowed for rest parameter
+}
+
+function func1(int... i) {}
+
+function func2(int t, int... i) {}

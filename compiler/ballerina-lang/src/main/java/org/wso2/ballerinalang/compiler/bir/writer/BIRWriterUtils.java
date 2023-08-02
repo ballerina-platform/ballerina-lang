@@ -58,8 +58,8 @@ public class BIRWriterUtils {
             eLine = pos.lineRange().endLine().line();
             sCol = pos.lineRange().startLine().offset();
             eCol = pos.lineRange().endLine().offset();
-            if (pos.lineRange().filePath() != null) {
-                sourceFileName = pos.lineRange().filePath();
+            if (pos.lineRange().fileName() != null) {
+                sourceFileName = pos.lineRange().fileName();
             }
         }
         buf.writeInt(addStringCPEntry(sourceFileName, cp));
@@ -220,17 +220,22 @@ public class BIRWriterUtils {
     }
 
     public static BIRNode.ConstValue getBIRConstantVal(BLangConstantValue constValue) {
+        BType constValType = constValue.type;
         int tag = constValue.type.tag;
-        if (tag == TypeTags.INTERSECTION) {
-            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
-            tag = constValue.type.tag;
+        boolean isIntersection = false;
+        if (constValType.tag == TypeTags.INTERSECTION) {
+            constValType = ((BIntersectionType) constValType).effectiveType;
+            tag = constValType.tag;
+            isIntersection = true;
         }
 
         if (tag == TypeTags.RECORD) {
             Map<String, BIRNode.ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new BIRNode.ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
+            return isIntersection ?
+                    new BIRNode.ConstValue(mapConstVal, ((BRecordType) constValType).getIntersectionType().get())
+                    : new BIRNode.ConstValue(mapConstVal, constValType);
         }
 
         if (tag == TypeTags.TUPLE) {
@@ -239,9 +244,9 @@ public class BIRWriterUtils {
             for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
-            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValType).getIntersectionType().get());
         }
 
-        return new BIRNode.ConstValue(constValue.value, constValue.type);
+        return new BIRNode.ConstValue(constValue.value, constValType);
     }
 }

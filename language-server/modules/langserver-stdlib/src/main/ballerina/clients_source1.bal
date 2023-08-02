@@ -74,9 +74,24 @@ public client class Client {
     #
     # + targetType - Response or `anydata`, which is expected to be returned after data binding
     # + return - The Response or the ClientError
-    resource function get path4/[string pathParam](TargetType targetType = <>) returns targetType|json|ClientError|error = @java:Method {
+    resource function get path4/[string pathParam](TargetType targetType = <>) returns targetType|ClientError|error = @java:Method {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "get"
+    } external;
+    
+    # Sample resource function with rest path praram with multiple target types with java interoperability
+    #
+    # + path - Request path
+    # + message - An HTTP outbound request or any allowed payload
+    # + headers - The entity headers
+    # + mediaType - The MIME type header of the request entity
+    # + targetType - HTTP response or `anydata`, which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    # establish the communication with the upstream server or a data binding failure
+    isolated resource function post [string ...path](RequestMessage message, map<string|string[]>? headers = (), string?
+            mediaType = (), TargetType targetType = <>) returns targetType|ClientError = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "postResource"
     } external;
 }
 
@@ -103,3 +118,4 @@ public type ClientError distinct error<map<anydata>>;
 
 # The super type of all the types.
 public type TargetType2 typedesc<any>;
+

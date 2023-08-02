@@ -195,6 +195,166 @@ type Foo record {
     string msg;
 };
 
+type Label record {
+    string name;
+};
+
+type PR record {
+    string url;
+    Label[] labels;
+};
+
+public function testQueryInLetClauseAsAClosure1() {
+    PR[] prs = [
+        {
+            "url": "url1",
+            "labels": [
+                {
+                    "name": "name1",
+                    "default": false
+                }
+            ]
+        },
+        {
+            "url": "url2",
+            "labels": [
+                {
+                    "name": "name2",
+                    "default": false
+                },
+                {
+                    "name": "name3",
+                    "default": false
+                }
+            ]
+        }
+    ];
+
+    PR[] projectedPRs = from var {url, labels} in prs
+        let var projectedLabels = from var {name} in labels
+            select {name}
+        select {url, labels: projectedLabels}; // This test validates the fix for #34332
+
+    assertEquality(projectedPRs[0].url, "url1");
+    assertEquality(projectedPRs[0].labels[0].name, "name1");
+
+    assertEquality(projectedPRs[1].url, "url2");
+    assertEquality(projectedPRs[1].labels[0].name, "name2");
+    assertEquality(projectedPRs[1].labels[1].name, "name3");
+}
+
+public function testQueryInLetClauseAsAClosure2() {
+    PR[] prs = [
+        {
+            "url": "url1",
+            "labels": [
+                {
+                    "name": "name1",
+                    "default": false
+                }
+            ]
+        },
+        {
+            "url": "url2",
+            "labels": [
+                {
+                    "name": "name2",
+                    "default": false
+                },
+                {
+                    "name": "name3",
+                    "default": false
+                }
+            ]
+        }
+    ];
+
+    PR[] projectedPRs = from var {url, labels: l} in prs
+        let var projectedLabels = from var {name} in l
+            select {name}
+        select {url, labels: projectedLabels};
+
+    assertEquality(projectedPRs[0].url, "url1");
+    assertEquality(projectedPRs[0].labels[0].name, "name1");
+
+    assertEquality(projectedPRs[1].url, "url2");
+    assertEquality(projectedPRs[1].labels[0].name, "name2");
+    assertEquality(projectedPRs[1].labels[1].name, "name3");
+}
+
+type LabelA record {
+    string name;
+    ColorA[] labels;
+};
+
+type ColorA record {
+    string code;
+};
+
+type PRA record {
+    string url;
+    LabelA[] labels;
+};
+
+public function testQueryInLetClauseAsAClosure3() {
+    PRA[] prs = [
+        {
+            "url": "url1",
+            "labels": [
+                {
+                    "name": "name1",
+                    "default": false,
+                    "labels": [
+                        {
+                            "code": "0x2354F1"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "url": "url2",
+            "labels": [
+                {
+                    "name": "name2",
+                    "default": false,
+                    "labels": [
+                        {
+                            "code": "0xFFEA45"
+                        }
+                    ]
+                },
+                {
+                    "name": "name3",
+                    "default": false,
+                    "labels": [
+                        {
+                            "code": "0xHGEABB"
+                        }
+                    ]
+                }
+            ]
+        }
+    ];
+
+    PRA[] projectedPRs = from var {url, labels: l} in prs
+        let var projectedLabels = from var {name, labels} in l
+            let var projectedColors = from var {code} in labels
+                select {code: code.concat("FOO")}
+            select {name, labels: projectedColors}
+        select {url, labels: projectedLabels}; // This test validates the fix for #34332
+
+    assertEquality(projectedPRs[0].url, "url1");
+    assertEquality(projectedPRs[0].labels[0].name, "name1");
+    assertEquality(projectedPRs[0].labels[0].labels[0].code, "0x2354F1FOO");
+
+    assertEquality(projectedPRs[1].url, "url2");
+    assertEquality(projectedPRs[1].labels[0].name, "name2");
+    assertEquality(projectedPRs[1].labels[0].labels[0].code, "0xFFEA45FOO");
+    assertEquality(projectedPRs[1].labels[1].name, "name3");
+    assertEquality(projectedPRs[1].labels[1].labels[0].code, "0xHGEABBFOO");
+}
+
 type FooError error<Foo>;
 
 //---------------------------------------------------------------------------------------------------------

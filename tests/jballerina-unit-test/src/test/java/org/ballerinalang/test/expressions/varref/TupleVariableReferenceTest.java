@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -383,6 +384,12 @@ public class TupleVariableReferenceTest {
                 "[int[] & readonly,any]]', found '([int[],ReadOnlyTuple] & readonly)'", 197, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[] & readonly', " +
                 "found 'int[]'", 199, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 204, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 207, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 210, 10);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
@@ -419,5 +426,12 @@ public class TupleVariableReferenceTest {
                 "duplicate variable 'a'", 27, 10);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'a'", 27, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

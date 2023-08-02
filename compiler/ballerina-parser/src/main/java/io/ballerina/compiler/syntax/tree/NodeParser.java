@@ -170,4 +170,26 @@ public class NodeParser {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsLetVarDeclaration(allowActions).createUnlinkedFacade();
     }
+
+    /**
+     * Parses the input as an annotation.
+     *
+     * @param text the input
+     * @return a {@code AnnotationNode}
+     */
+    public static AnnotationNode parseAnnotation(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsAnnotation().createUnlinkedFacade();
+    }
+
+    /**
+     * Parses the input as a markdown documentation.
+     *
+     * @param text the input
+     * @return a {@code MarkdownDocumentationNode}
+     */
+    public static MarkdownDocumentationNode parseMarkdownDocumentation(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsMarkdownDocumentation().createUnlinkedFacade();
+    }
 }

@@ -407,7 +407,7 @@ public class BIRPackageSymbolEnter {
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
                                              this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
                                              Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
-        invokableSymbol.source = pos.lineRange().filePath();
+        invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -548,6 +548,7 @@ public class BIRPackageSymbolEnter {
             if (type.tag == TypeTags.TYPEREFDESC && Objects.equals(type.tsymbol.name.value, typeDefName)
                     && type.tsymbol.owner == this.env.pkgSymbol) {
                 referenceType = (BTypeReferenceType) type;
+                referenceType.tsymbol.pos = pos;
             } else {
                 BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
                         this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
@@ -613,14 +614,6 @@ public class BIRPackageSymbolEnter {
             return;
         }
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
-        List<BVarSymbol> params = new ArrayList<>(invokableType.paramTypes.size());
-        for (BType paramType : invokableType.paramTypes) {
-            BVarSymbol varSymbol = new BVarSymbol(paramType.flags, Names.EMPTY, //TODO: should be written/read to BIR
-                                                  this.env.pkgSymbol.pkgID, paramType, null, symTable.builtinPos,
-                                                  COMPILED_SOURCE);
-            params.add(varSymbol);
-        }
-        tsymbol.params = params;
 
         if (invokableType.restType != null) {
             tsymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.pkgSymbol.pkgID, invokableType.restType, null,
@@ -1153,11 +1146,7 @@ public class BIRPackageSymbolEnter {
 
         private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType,
                                                           BType retType) throws IOException {
-            BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, bInvokableType.flags,
-                                                                             env.pkgSymbol.pkgID, null,
-                                                                             env.pkgSymbol.owner, symTable.builtinPos,
-                                                                             COMPILED_SOURCE);
-            bInvokableType.tsymbol = tSymbol;
+            BInvokableTypeSymbol tSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
             boolean hasTSymbol = inputStream.readBoolean();
             if (!hasTSymbol) {
                 return bInvokableType;
@@ -1420,8 +1409,13 @@ public class BIRPackageSymbolEnter {
                     return bMapType;
                 case TypeTags.INVOKABLE:
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+                    bInvokableType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
+                            env.pkgSymbol.pkgID, null,
+                            env.pkgSymbol.owner, symTable.builtinPos,
+                            COMPILED_SOURCE);
                     bInvokableType.flags = flags;
                     if (inputStream.readBoolean()) {
+                        // Return if an any function
                         return bInvokableType;
                     }
                     int paramCount = inputStream.readInt();

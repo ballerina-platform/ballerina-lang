@@ -4,6 +4,7 @@
     "character": 6
   },
   "source": "field_access_expression_context/source/field_access_ctx_source25.bal",
+  "description": "",
   "items": [
     {
       "label": "lname",
@@ -34,85 +35,6 @@
       "sortText": "CC",
       "filterText": "name",
       "insertText": "name()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ensureType(typedesc<any> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "ensureType",
-      "insertText": "ensureType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "cloneReadOnly()",
-      "kind": "Function",
-      "detail": "value:CloneableType & readonly",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toBalString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toBalString",
-      "insertText": "toBalString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "clone()",
-      "kind": "Function",
-      "detail": "value:CloneableType",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "clone",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toString",
-      "insertText": "toString()",
       "insertTextFormat": "Snippet"
     }
   ]

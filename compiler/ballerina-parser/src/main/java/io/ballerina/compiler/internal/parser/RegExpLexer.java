@@ -47,6 +47,7 @@ public class RegExpLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case RE_DISJUNCTION:
+            case RE_CHAR_CLASS:
                 token = readTokenInReDisjunction();
                 break;
             case RE_UNICODE_PROP_ESCAPE:
@@ -57,6 +58,10 @@ public class RegExpLexer extends AbstractLexer {
                 break;
             case INTERPOLATION:
                 token = readTokenInInterpolation();
+                break;
+            case RE_QUOTE_ESCAPE:
+                token = readTokenInReDisjunction();
+                endMode();
                 break;
             default:
                 token = null;
@@ -100,7 +105,7 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.BITWISE_XOR:
                 return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
             case LexerTerminals.DOLLAR:
-                if (peek() == LexerTerminals.OPEN_BRACE) {
+                if (this.mode != ParserMode.RE_CHAR_CLASS && peek() == LexerTerminals.OPEN_BRACE) {
                     // Start interpolation mode.
                     startMode(ParserMode.INTERPOLATION);
                     this.reader.advance();
@@ -119,8 +124,15 @@ public class RegExpLexer extends AbstractLexer {
                 return processReEscape();
             // Start parsing ReSyntaxChar character class [[^] [ReCharSet]].
             case LexerTerminals.OPEN_BRACKET:
+                if (this.mode != ParserMode.RE_QUOTE_ESCAPE) {
+                    startMode(ParserMode.RE_CHAR_CLASS);
+                }
+
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
             case LexerTerminals.CLOSE_BRACKET:
+                if (this.mode == ParserMode.RE_CHAR_CLASS) {
+                    endMode();
+                }
                 return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
             case LexerTerminals.OPEN_BRACE:
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
@@ -164,6 +176,9 @@ public class RegExpLexer extends AbstractLexer {
                     // Change the parser mode to handle ReUnicodePropertyEscape.
                     startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                 }
+                break;
+            case LexerTerminals.OPEN_BRACKET:
+                startMode(ParserMode.RE_QUOTE_ESCAPE);
                 break;
             default:
                 break;
@@ -254,10 +269,14 @@ public class RegExpLexer extends AbstractLexer {
                 processAbbrWithOther();
                 break;
             default:
-                while (!isEndOfUnicodePropertyEscape()) {
-                    this.reader.advance();
-                }
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+                break;
+        }
+
+        if (!isEndOfUnicodePropertyEscape()) {
+            while (!isEndOfUnicodePropertyEscape()) {
+                this.reader.advance();
+            }
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
 
         return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
@@ -271,9 +290,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'm':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -283,9 +300,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'c':
             case 'e':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -295,9 +310,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'l':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -308,9 +321,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'k':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -324,9 +335,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'f':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -336,9 +345,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'l':
             case 'p':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -349,9 +356,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'o':
             case 'n':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 

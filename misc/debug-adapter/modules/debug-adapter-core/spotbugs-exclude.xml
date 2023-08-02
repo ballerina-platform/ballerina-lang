@@ -64,4 +64,11 @@
             </And>
         </Or>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.debugadapter.completion.util.CompletionUtil"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>

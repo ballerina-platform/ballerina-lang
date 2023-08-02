@@ -64,5 +64,13 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
     @Test
     public void testInvalidFloatingPointLiteral() {
         testFile("basic-literals/float_literal_source_08.bal", "basic-literals/float_literal_assert_08.json");
+
+        testFile("basic-literals/float_literal_source_09.bal", "basic-literals/float_literal_assert_09.json");
+
+        testFile("basic-literals/float_literal_source_10.bal", "basic-literals/float_literal_assert_10.json");
+
+        testFile("basic-literals/float_literal_source_11.bal", "basic-literals/float_literal_assert_11.json");
+
+        testFile("basic-literals/float_literal_source_12.bal", "basic-literals/float_literal_assert_12.json");
     }
 }

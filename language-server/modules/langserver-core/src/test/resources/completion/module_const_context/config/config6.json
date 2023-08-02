@@ -4,6 +4,7 @@
     "character": 27
   },
   "source": "module_const_context/source/source6.bal",
+  "description": "",
   "items": [
     {
       "label": "module1",
@@ -191,7 +192,7 @@
     {
       "label": "varName",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "",
       "documentation": {
         "right": {
           "kind": "markdown",

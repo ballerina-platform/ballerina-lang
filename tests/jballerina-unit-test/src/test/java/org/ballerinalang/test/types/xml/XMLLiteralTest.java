@@ -100,6 +100,8 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 72, 44);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml'", 73, 44);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 73, 49);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:ProcessingInstruction'", 73, 96);
@@ -203,6 +205,13 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: 'ballerina/lang.object:0.0.0:RawTemplate[]' cannot be cast to 'string'", 144, 25);
 
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml'", 148, 44);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml:Element>|xml:Text)', found 'xml'", 149, 39);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml<xml:Text>>|xml<xml<xml:Comment>>)', found 'xml'", 150, 54);
+
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
@@ -283,20 +292,20 @@ public class XMLLiteralTest {
     public void testExpressionAsAttributeValue() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testExpressionAsAttributeValue");
         Assert.assertTrue(returns.get(0) instanceof BXml);
-        Assert.assertEquals(returns.get(0).toString(), "<foo bar=\"&quot;zzz&quot;\"></foo>");
+        Assert.assertEquals(returns.get(0).toString(), "<foo bar=\"&quot;zzz&quot;\"/>");
 
         Assert.assertTrue(returns.get(1) instanceof BXml);
-        Assert.assertEquals(returns.get(1).toString(), "<foo bar=\"aaazzzbb'b33&gt;22ccc?\"></foo>");
+        Assert.assertEquals(returns.get(1).toString(), "<foo bar=\"aaazzzbb'b33>22ccc?\"/>");
 
         Assert.assertTrue(returns.get(2) instanceof BXml);
-        Assert.assertEquals(returns.get(2).toString(), "<foo bar=\"}aaazzzbbb33&gt;22ccc{d{}e}{f{\"></foo>");
+        Assert.assertEquals(returns.get(2).toString(), "<foo bar=\"}aaazzzbbb33>22ccc{d{}e}{f{\"/>");
 
         Assert.assertTrue(returns.get(3) instanceof BXml);
-        Assert.assertEquals(returns.get(3).toString(), "<foo bar1=\"aaa{zzz}b${b&quot;b33&gt;22c\\}cc{d{}e}{f{\" "
-                + "bar2=\"aaa{zzz}b${b&quot;b33&gt;22c\\}cc{d{}e}{f{\"></foo>");
+        Assert.assertEquals(returns.get(3).toString(), "<foo bar1=\"aaa{zzz}b${b&quot;b33>22c\\}cc{d{}e}{f{\" "
+                + "bar2=\"aaa{zzz}b${b&quot;b33>22c\\}cc{d{}e}{f{\"/>");
 
         Assert.assertTrue(returns.get(4) instanceof BXml);
-        Assert.assertEquals(returns.get(4).toString(), "<foo bar=\"\"></foo>");
+        Assert.assertEquals(returns.get(4).toString(), "<foo bar=\"\"/>");
     }
 
     @Test
@@ -304,12 +313,12 @@ public class XMLLiteralTest {
         BArray returns = (BArray) BRunUtil.invoke(result, "testElementLiteralWithTemplateChildren");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<root>hello aaa&lt;bbb good morning <fname>John</fname> "
-                + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar></bar></root>");
+                + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar/></root>");
 
         Assert.assertTrue(returns.get(1) instanceof BXml);
         BXmlSequence seq = (BXmlSequence) returns.get(1);
         Assert.assertEquals(seq.toString(), "hello aaa&lt;bbb good morning <fname>John</fname> <lname>Doe</lname>. "
-                + "Have a nice day!<foo>123</foo><bar></bar>");
+                + "Have a nice day!<foo>123</foo><bar/>");
 
         BArray items = (BArray) seq.value();
         Assert.assertEquals(items.size(), 7);
@@ -372,7 +381,7 @@ public class XMLLiteralTest {
         Object returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
 
-        Assert.assertEquals(returns.toString(), "<foo>&lt;--&gt;returned from a function</foo>");
+        Assert.assertEquals(returns.toString(), "<foo>&lt;-->returned from a function</foo>");
     }
 
     @Test
@@ -401,7 +410,7 @@ public class XMLLiteralTest {
         Object returns = BRunUtil.invoke(result, "testInterpolatingVariousTypes");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
-                "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
+                "<elem>42|3.14|31.4444|this-is-a-string|<abc/></elem>");
     }
 
     @Test(description = "Test interpolating xml when there are extra dollar signs")

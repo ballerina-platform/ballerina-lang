@@ -94,8 +94,14 @@ public class ManifestBuilder {
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
     public static final String ICON = "icon";
+    public static final String GRAALVM_COMPATIBLE = "graalvmCompatible";
     public static final String DISTRIBUTION = "distribution";
     public static final String VISIBILITY = "visibility";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String URL = "url";
+    private static final String DEPENDENCY = "dependency";
+    private static final String ID = "id";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -347,57 +353,138 @@ public class ManifestBuilder {
 
                 if (platformCodeNode.kind() == TomlType.TABLE) {
                     TomlTableNode platformCodeTable = (TomlTableNode) platformCodeNode;
-                    TopLevelNode dependencyNode = platformCodeTable.entries().get("dependency");
-
-                    if (dependencyNode.kind() == TomlType.NONE) {
-                        return platforms;
+                    // Get graalvmCompatible value
+                    TopLevelNode graalvmCompatibleNode = platformCodeTable.entries().get(GRAALVM_COMPATIBLE);
+                    if (graalvmCompatibleNode != null) {
+                        if (graalvmCompatibleNode.kind() == TomlType.NONE) {
+                            return platforms;
+                        }
+                        PackageManifest.Platform newPlatform = getGraalvmCompatibilityPlatform(graalvmCompatibleNode);
+                        if (newPlatform != null) {
+                            if (platforms.get(platformCode) != null) {
+                                newPlatform = new PackageManifest.Platform(platforms.get(platformCode).dependencies(),
+                                        platforms.get(platformCode).repositories(),
+                                        newPlatform.graalvmCompatible());
+                            }
+                            platforms.put(platformCode, newPlatform);
+                        }
                     }
 
-                    if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
-                        TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyNode;
-                        List<TomlTableNode> children = dependencyTableArray.children();
-
-                        if (!children.isEmpty()) {
-                            List<Map<String, Object>> platformEntry = new ArrayList<>();
-
-                            for (TomlTableNode platformEntryTable : children) {
-                                if (!platformEntryTable.entries().isEmpty()) {
-                                    Map<String, Object> platformEntryMap = new HashMap<>();
-                                    String pathValue = getStringValueFromPlatformEntry(platformEntryTable, "path");
-                                    if (pathValue != null) {
-                                        Path path = Paths.get(pathValue);
-                                        if (!path.isAbsolute()) {
-                                            path = this.projectPath.resolve(path);
-                                        }
-                                        if (Files.notExists(path)) {
-                                            reportDiagnostic(platformEntryTable.entries().get("path"),
-                                                    "could not locate dependency path '" + pathValue + "'",
-                                                    "error.invalid.path", DiagnosticSeverity.ERROR);
-                                        }
-                                    }
-                                    platformEntryMap.put("path",
-                                            pathValue);
-                                    platformEntryMap.put("groupId",
-                                            getStringValueFromPlatformEntry(platformEntryTable, "groupId"));
-                                    platformEntryMap.put("artifactId",
-                                            getStringValueFromPlatformEntry(platformEntryTable, "artifactId"));
-                                    platformEntryMap.put(VERSION,
-                                            getStringValueFromPlatformEntry(platformEntryTable, VERSION));
-                                    platformEntryMap.put(SCOPE,
-                                            getStringValueFromPlatformEntry(platformEntryTable, "scope"));
-                                    platformEntry.add(platformEntryMap);
-                                }
+                    TopLevelNode topLevelNode = platformCodeTable.entries().get(DEPENDENCY);
+                    if (topLevelNode != null) {
+                        if (topLevelNode.kind() == TomlType.NONE) {
+                            return platforms;
+                        }
+                        PackageManifest.Platform newPlatform = getDependencyPlatform(topLevelNode);
+                        if (newPlatform != null) {
+                            if (platforms.get(platformCode) != null) {
+                                newPlatform = new PackageManifest.Platform(newPlatform.dependencies(),
+                                        platforms.get(platformCode).repositories(),
+                                        platforms.get(platformCode).graalvmCompatible());
                             }
-
-                            PackageManifest.Platform platform = new PackageManifest.Platform(platformEntry);
+                            platforms.put(platformCode, newPlatform);
+                        }
+                    }
+                    topLevelNode = platformCodeTable.entries().get(REPOSITORY);
+                    if (topLevelNode != null) {
+                        if (topLevelNode.kind() == TomlType.NONE) {
+                            return platforms;
+                        }
+                        PackageManifest.Platform platform = getRepositoryPlatform(topLevelNode);
+                        if (platform != null) {
+                            if (platforms.get(platformCode) != null) {
+                                platform = new PackageManifest.Platform(platforms.get(platformCode)
+                                        .dependencies(), platform.repositories(),
+                                        platforms.get(platformCode).graalvmCompatible());
+                            }
                             platforms.put(platformCode, platform);
                         }
                     }
                 }
             }
         }
-
         return platforms;
+    }
+
+    private PackageManifest.Platform getRepositoryPlatform(TopLevelNode dependencyNode) {
+        PackageManifest.Platform platform = null;
+        if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyNode;
+            List<TomlTableNode> children = dependencyTableArray.children();
+            if (!children.isEmpty()) {
+                List<Map<String, Object>> platformEntry = new ArrayList<>();
+                for (TomlTableNode platformEntryTable : children) {
+                    Map<String, Object> platformEntryMap = new HashMap<>();
+                    String username = getStringValueFromPlatformEntry(platformEntryTable, USERNAME);
+                    String password = getStringValueFromPlatformEntry(platformEntryTable, PASSWORD);
+                    platformEntryMap.put(ID, getStringValueFromPlatformEntry(platformEntryTable, ID));
+                    platformEntryMap.put(URL, getStringValueFromPlatformEntry(platformEntryTable, URL));
+                    if (username != null) {
+                        platformEntryMap.put(USERNAME, username);
+                    }
+                    if (password != null) {
+                        platformEntryMap.put(PASSWORD, password);
+                    }
+                    platformEntry.add(platformEntryMap);
+                }
+                platform = new PackageManifest.Platform(Collections.emptyList(), platformEntry, null);
+            }
+        }
+        return platform;
+    }
+
+    private PackageManifest.Platform getDependencyPlatform(TopLevelNode dependencyNode) {
+        PackageManifest.Platform platform = null;
+        if (dependencyNode.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyNode;
+            List<TomlTableNode> children = dependencyTableArray.children();
+            if (!children.isEmpty()) {
+                List<Map<String, Object>> platformEntry = new ArrayList<>();
+                for (TomlTableNode platformEntryTable : children) {
+                    if (!platformEntryTable.entries().isEmpty()) {
+                        Map<String, Object> platformEntryMap = new HashMap<>();
+                        String pathValue = getStringValueFromPlatformEntry(platformEntryTable, "path");
+                        if (pathValue != null) {
+                            Path path = Paths.get(pathValue);
+                            if (!path.isAbsolute()) {
+                                path = this.projectPath.resolve(path);
+                            }
+                            if (Files.notExists(path)) {
+                                reportDiagnostic(platformEntryTable.entries().get("path"),
+                                        "could not locate dependency path '" + pathValue + "'",
+                                        "error.invalid.path", DiagnosticSeverity.ERROR);
+                            }
+                        }
+                        platformEntryMap.put("path",
+                                pathValue);
+                        platformEntryMap.put("groupId",
+                                getStringValueFromPlatformEntry(platformEntryTable, "groupId"));
+                        platformEntryMap.put("artifactId",
+                                getStringValueFromPlatformEntry(platformEntryTable, "artifactId"));
+                        platformEntryMap.put(VERSION,
+                                getStringValueFromPlatformEntry(platformEntryTable, VERSION));
+                        platformEntryMap.put(SCOPE,
+                                getStringValueFromPlatformEntry(platformEntryTable, SCOPE));
+                        platformEntry.add(platformEntryMap);
+                    }
+                }
+                platform = new PackageManifest.Platform(platformEntry);
+            }
+        }
+        return platform;
+    }
+
+    private PackageManifest.Platform getGraalvmCompatibilityPlatform(TopLevelNode graalvmCompatibleNode) {
+        PackageManifest.Platform platform = null;
+        if (graalvmCompatibleNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = ((TomlKeyValueNode) graalvmCompatibleNode);
+            if (keyValueNode.value().kind() == TomlType.BOOLEAN) {
+                Boolean graalvmCompatible = ((TomlBooleanValueNode) keyValueNode.value()).getValue();
+                return new PackageManifest.Platform(Collections.emptyList(), Collections.emptyList(),
+                        graalvmCompatible);
+            }
+        }
+        return platform;
     }
 
     private List<PackageManifest.Dependency> getLocalRepoDependencies() {
@@ -487,6 +574,9 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.NATIVE_IMAGE.toString());
         Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
+        String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
+
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -499,7 +589,8 @@ public class ManifestBuilder {
                 .setSticky(sticky)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
-                .setExportComponentModel(exportComponentModel);
+                .setExportComponentModel(exportComponentModel)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);

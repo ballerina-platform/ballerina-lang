@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
@@ -117,8 +116,7 @@ public class TypeParamBoundArrayFunctionsTest {
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.ARRAY);
 
         TypeSymbol memberTypeSymbol = ((ArrayTypeSymbol) mapFnRetType).memberTypeDescriptor();
-        assertEquals(memberTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) memberTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(memberTypeSymbol.typeKind(), TypeDescKind.INT);
     }
 
     @Test
@@ -176,12 +174,10 @@ public class TypeParamBoundArrayFunctionsTest {
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
         TypeSymbol typeParameterSymbol = params.get(2).typeDescriptor();
-        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) typeParameterSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.INT);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
-        assertEquals(pushFnRetType.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) pushFnRetType).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(pushFnRetType.typeKind(), TypeDescKind.INT);
     }
 
     @Test

@@ -23,11 +23,18 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 
 /**
  * Contains concurrency tests for project loading.
@@ -40,11 +47,23 @@ public class TestConcurrentProjectAccess {
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
     private static final Path REPO_BALA_DIRECTORY = Paths.get(
             "build/repo/bala/").toAbsolutePath();
+    private static Path tempResourceDir;
+
+    @BeforeTest
+    public void setup() throws IOException {
+        // create temp dir and copy resources
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
+
+        // replace the distribution version in dependencies.toml of package_a
+        replaceDistributionVersionOfDependenciesToml(tempResourceDir.resolve("package_a"),
+                RepoUtils.getBallerinaShortVersion());
+    }
 
     @Test(threadPoolSize = 50, invocationCount = 50,  timeOut = 30000)
     public void testConcurrentProjectBuild() {
         // package_a --> package_b --> package_c
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_a");
+        Path projectDirPath = tempResourceDir.resolve("package_a");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 

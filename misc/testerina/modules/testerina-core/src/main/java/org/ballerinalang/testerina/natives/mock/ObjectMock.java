@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.natives.mock;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -37,7 +38,9 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.util.List;
 import java.util.Map;
@@ -59,12 +62,14 @@ public class ObjectMock {
      * @param objectValue mock object to impersonate the type
      * @return mock object of provided type
      */
-    public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
+    public static BObject mock(BTypedesc bTypedesc, ObjectValue objectValue) {
         ObjectType objectValueType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValueType.getMethods().length == 0 &&
-                    objectValueType.getFields().size() == 0) {
+                    objectValueType.getFields().size() == 0 &&
+                    (objectValueType instanceof BClientType &&
+                            ((BClientType) objectValueType).getResourceMethods().length == 0)) {
                 String detail = "mock object type '" + objectValueType.getName()
                         + "' should have at least one member function or field declared.";
                 throw ErrorCreator.createError(
@@ -80,6 +85,15 @@ public class ObjectMock {
                             ((ObjectType) bTypedesc.getDescribingType()).getMethods());
                     if (error != null) {
                         throw  error;
+                    }
+                }
+                if (objectValueType instanceof BClientType) {
+                    for (MethodType attachedFunction : ((BClientType) objectValueType).getResourceMethods()) {
+                        BError error = validateFunctionSignatures(attachedFunction,
+                                ((BClientType) bTypedesc.getDescribingType()).getResourceMethods());
+                        if (error != null) {
+                            throw  error;
+                        }
                     }
                 }
                 for (Map.Entry<String, Field> field : objectValueType.getFields().entrySet()) {
@@ -270,7 +284,12 @@ public class ObjectMock {
 
             // register return value for member field
             String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
-
+            if (!validateFieldAccessIsPublic(objectType, fieldName)) {
+                String detail = "member field should be public to be mocked. " +
+                        "The provided field '" + fieldName + "' is not public";
+                return ErrorCreator.createError(StringUtils.fromString(MockConstants.NON_PUBLIC_MEMBER_FIELD_ERROR),
+                        StringUtils.fromString(detail));
+            }
             if (!validateFieldValue(returnVal, objectType.getFields().get(fieldName).getFieldType())) {
                 String detail = "return value provided does not match the type of '" + fieldName + "'";
                 return ErrorCreator.createError(
@@ -283,6 +302,10 @@ public class ObjectMock {
             MockRegistry.getInstance().registerCase(mockObj, fieldName, null, returnVal);
         }
         return null;
+    }
+
+    private static boolean validateFieldAccessIsPublic(ObjectType objectType, String fieldName) {
+        return SymbolFlags.isFlagOn(objectType.getFields().get(fieldName).getFlags(), SymbolFlags.PUBLIC);
     }
 
     /**

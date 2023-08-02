@@ -124,7 +124,8 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "cannot update 'readonly' value of type '(Config & readonly)'", 194, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'MyConfig'", 197, 5);
 
-        validateError(result, index++, "invalid intersection type '(DEF & readonly)': no intersection", 201, 5);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'DEF' can never be 'readonly'",
+                201, 5);
         validateError(result, index++, "invalid intersection type with 'readonly', 'JKL' can never be 'readonly'", 209,
                 5);
         validateError(result, index++, "invalid intersection type with 'readonly', 'JKL' can never be 'readonly'", 211,
@@ -162,11 +163,11 @@ public class SelectivelyImmutableTypeTest {
                       313, 5);
 
         validateError(result, index++, "incompatible types: expected 'never?', found 'stream<int>'", 321, 27);
-        validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
+        validateError(result, index++, "incompatible types: expected 'record {| never a?; |} & readonly', " +
                 "found '(R1 & readonly)'", 322, 32);
         validateError(result, index++, "incompatible types: expected 'never', found 'int'", 331, 35);
         validateError(result, index++, "incompatible types: expected 'never', found 'stream<int>'", 331, 43);
-        validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
+        validateError(result, index++, "incompatible types: expected 'record {| never a?; |} & readonly', " +
                 "found '(R2 & readonly)'", 332, 32);
         validateError(result, index++, "missing non-defaultable required record field 'a'", 333, 23);
         validateError(result, index++, "incompatible types: expected 'never', found 'int'", 333, 29);

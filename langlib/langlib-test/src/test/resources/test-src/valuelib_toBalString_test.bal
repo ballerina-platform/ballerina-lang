@@ -493,8 +493,8 @@ function testToBalStringOnRegExpValueWithCapturingGroups5() {
     string:RegExp x7 = re `(?i:a|b)`;
     assert("re `(?i:a|b)`", x7.toBalString());
 
-    string:RegExp x8 = re `(?im:a|b|[])`;
-    assert("re `(?im:a|b|[])`", x8.toBalString());
+    string:RegExp x8 = re `(?im:a|b)`;
+    assert("re `(?im:a|b)`", x8.toBalString());
 
     string:RegExp x9 = re `(?i-m:[0-9])`;
     assert("re `(?i-m:[0-9])`", x9.toBalString());

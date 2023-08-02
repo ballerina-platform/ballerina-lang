@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Converts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n---  \n  \n### Parameters  \n  \n`any` ***v*** : the value to be converted to a string  \n  \n---  \n  \n### Return  \n`string` : a string resulting from the conversion  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina\\/lang.value\\/0.0.0\\/functions#toBalString)"
+        "value": "Converts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toBalString() ⇒ 12.12d\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toBalString() ⇒ [1,\"Sam\",12.3,12.12d,{\"value\":12}]\n```\n  \n  \n---  \n  \n### Parameters  \n  \n`any` ***v*** : the value to be converted to a string  \n  \n---  \n  \n### Return  \n`string` : a string resulting from the conversion  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina/lang.value/0.0.0#toBalString)"
       }
     },
     "id": {

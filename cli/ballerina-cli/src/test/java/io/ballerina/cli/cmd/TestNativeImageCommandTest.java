@@ -54,18 +54,29 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     public void testNativeImageTests() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true);
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
         new CommandLine(testCommand).parse();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("1 passing"));
     }
 
+    @Test(description = "Test a valid ballerina project")
+    public void testNativeImageTestsWithAdditionalArgs() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "-H:Name=foo");
+        new CommandLine(testCommand).parse();
+        testCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating 'foo' (executable)"));
+    }
+
     @Test(description = "Test function mocking")
     public void testNativeFunctionMockTests() throws IOException {
         Path projectPath = this.testResources.resolve("mockFunctionNative");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
-        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true);
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true, "");
         // non existing bal file
         new CommandLine(testCommand).parse();
         testCommand.execute();
@@ -84,7 +95,23 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
     public void testTestBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
-        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
+        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true, "");
+        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
+                    "standalone Ballerina files containing resources"));
+        }
+    }
+
+    //TODO: Change the output once the resource generation plugin is disabled
+    @Test(description = "Test a valid ballerina file with additional args")
+    public void testTestBalFileWithAdditionalArgs() throws IOException {
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
+        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
+                false, true, "-H:Name=foo");
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         try {
             testCommand.execute();
@@ -100,7 +127,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
-        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
+        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream,
+                false, true, "");
         new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         try {
             testCommand.execute();

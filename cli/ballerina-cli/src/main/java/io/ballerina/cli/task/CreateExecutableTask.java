@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -70,8 +71,6 @@ public class CreateExecutableTask implements Task {
 
         if (!project.buildOptions().nativeImage()) {
             this.out.println("Generating executable");
-        } else {
-            this.out.println("Generating executable with Native image");
         }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
@@ -98,13 +97,18 @@ public class CreateExecutableTask implements Task {
         }
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
             EmitResult emitResult;
             if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
+                String warnings = GraalVMCompatibilityUtils.getAllWarnings(
+                        project.currentPackage(), jBallerinaBackend.targetPlatform().code(), false);
+                if (!warnings.isEmpty()) {
+                    out.println(warnings);
+                }
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
             } else {
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);

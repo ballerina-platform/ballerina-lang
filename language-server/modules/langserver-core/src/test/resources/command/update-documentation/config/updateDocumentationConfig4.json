@@ -29,7 +29,7 @@
                     "character": 35
                   }
                 },
-                "newText": "# Description\n    #\n    # + id - Parameter Description  \n    # + path - Resource path parameter  \n    # + caller - Parameter Description  \n    # + req - Parameter Description"
+                "newText": "# Description\n    #\n    # + id - parameter description  \n    # + path - Resource path parameter  \n    # + caller - Parameter Description  \n    # + req - Parameter Description"
               }
             ]
           }

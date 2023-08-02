@@ -4,6 +4,7 @@
     "character": 38
   },
   "source": "action_node_context/source/client_resource_access_action_source3.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -734,6 +735,33 @@
       "detail": "Byte",
       "sortText": "N",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "string ``",
+      "insertText": "string `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "xml ``",
+      "insertText": "xml `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b = ...",
+      "kind": "Snippet",
+      "detail": "b = \"\"",
+      "sortText": "AR",
+      "filterText": "b",
+      "insertText": "b = ${1:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]

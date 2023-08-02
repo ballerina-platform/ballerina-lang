@@ -63,7 +63,7 @@ public class BuildLangLib {
     static boolean skipBootstrap = false;
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
         try {
             projectDir = Paths.get(args[0]);
@@ -91,7 +91,7 @@ public class BuildLangLib {
             Project project = BuildProject.load(environmentBuilder, projectDir, defaultOptions);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
             if (jBallerinaBackend.diagnosticResult().hasErrors()) {
                 out.println("Error building Ballerina package: " + pkg.packageName());
                 jBallerinaBackend.diagnosticResult().diagnostics().forEach(d -> out.println(d.toString()));

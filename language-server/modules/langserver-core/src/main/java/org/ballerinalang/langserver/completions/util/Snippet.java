@@ -38,8 +38,6 @@ public enum Snippet {
 
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
 
-    DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
-
     DEF_OBJECT_TYPE_DESC_SNIPPET(SnippetGenerator.getObjectTypeDescSnippet()),
 
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
@@ -129,6 +127,10 @@ public enum Snippet {
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
 
     DEF_REG_EXP(SnippetGenerator.getRegularExpressionSnippet()),
+
+    DEF_STRING(SnippetGenerator.getStringSnippet()),
+
+    DEF_XML(SnippetGenerator.getXmlSnippet()),
     
     DEF_PARANTHESIS(SnippetGenerator.getParanthesisSnippet()),
     
@@ -177,13 +179,15 @@ public enum Snippet {
 
     KW_AS(SnippetGenerator.getAsKeywordSnippet()),
 
-    KW_VERSION(SnippetGenerator.getVersionKeywordSnippet()),
-
     KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
     KW_WHERE(SnippetGenerator.getWhereKeywordSnippet()),
 
     KW_JOIN(SnippetGenerator.getJoinKeywordSnippet()),
+
+    KW_GROUPBY(SnippetGenerator.getGroupByKeywordSnippet()),
+
+    KW_COLLECT(SnippetGenerator.getCollectKeywordSnippet()),
 
     KW_ORDERBY(SnippetGenerator.getOrderByKeywordSnippet()),
 
@@ -356,6 +360,8 @@ public enum Snippet {
     CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
 
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
+
+    CLAUSE_GROUPBY(SnippetGenerator.getGroupByClauseSnippet()),
 
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
 

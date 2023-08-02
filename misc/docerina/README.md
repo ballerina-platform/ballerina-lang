@@ -31,7 +31,7 @@ bal doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedmodule
 Flags:
   --template, -t   path to a custom templates directory to be used for API documentation generation
   --output, -o     path to the output directory where the API documentation will be written to
-  --native, -n     read the source as native ballerina code
+  --graalvm, -n     read the source as native ballerina code
   --exclude, -e    a comma separated list of module names to be filtered from the documentation
   --verbose, -v    enable debug level logs
 ```

@@ -29,7 +29,7 @@ import java.util.Map;
 public class ConfigMap {
     private static Map<VariableKey, ConfigValue> configurableMap = new HashMap<>();
 
-    private ConfigMap(){}
+    private ConfigMap() {}
 
     public static Object get(VariableKey key) {
         return configurableMap.get(key).getValue();
