@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
@@ -190,7 +189,7 @@ public class BallerinaDocGenerator {
      *  @param excludeUI Exclude UI elements being copied/generated
      */
     public static void generateAPIDocs(Project project, String output, boolean excludeUI)
-            throws Exception {
+            throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
         ModuleLibrary moduleLib = new ModuleLibrary();
         moduleLib.modules = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
@@ -268,6 +267,20 @@ public class BallerinaDocGenerator {
         }
     }
 
+    private static String getApiDocsVersion() {
+        String apiDocsVersion = "";
+        try (InputStream inputStream = BallerinaDocGenerator.class.getResourceAsStream("/META-INF/tool.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            apiDocsVersion = properties.getProperty("apiDocs.version").split("-")[0];
+
+            return apiDocsVersion;
+        } catch (IOException e) {
+            return "NOT_FOUND";
+        }
+    }
+
     private static void genApiDocsJson(ModuleLibrary moduleLib, Path destination, boolean excludeUI) {
         try {
             Files.createDirectories(destination);
@@ -276,6 +289,7 @@ public class BallerinaDocGenerator {
         }
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
+        apiDocsJson.apiDocsVersion = getApiDocsVersion();
         apiDocsJson.docsData = moduleLib;
         apiDocsJson.searchData = genSearchJson(moduleLib);
 
@@ -393,7 +407,7 @@ public class BallerinaDocGenerator {
      *  @return a map of module names and their ModuleDoc.
      */
     public static Map<String, ModuleDoc> generateModuleDocMap(io.ballerina.projects.Project project)
-            throws Exception {
+            throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
         for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
             String moduleName;
@@ -420,11 +434,6 @@ public class BallerinaDocGenerator {
             });
             // we cannot remove the module.getCompilation() here since the semantic model is accessed
             // after the code gen phase here. package.getCompilation() throws an IllegalStateException
-            DiagnosticResult diagnostics = module.getCompilation().diagnostics();
-            if (diagnostics.hasErrors()) {
-                throw new Exception("API documentation generation failed due to compilation errors: " +
-                        diagnostics.errors().toString());
-            }
             ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, resources,
                     syntaxTreeMap, module.getCompilation().getSemanticModel(), module.isDefaultModule());
             moduleDocMap.put(moduleName, moduleDoc);

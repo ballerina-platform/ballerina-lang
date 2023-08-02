@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser;
 
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
@@ -100,6 +101,8 @@ public class BallerinaParser extends AbstractParser {
     public STNode parse() {
         return parseCompUnit();
     }
+
+    // ---------------------------------------- NodeParser related methods -------------------------------------------
 
     /**
      * Completely parses a given input a statement.
@@ -349,6 +352,41 @@ public class BallerinaParser extends AbstractParser {
         letVarDeclaration = invalidateRestAndAddToTrailingMinutiae(letVarDeclaration);
         return letVarDeclaration;
     }
+
+    /**
+     * Completely parses a given input as an annotation.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsAnnotation() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.ANNOTATIONS);
+        STNode annotation = parseAnnotation();
+        annotation = invalidateRestAndAddToTrailingMinutiae(annotation);
+        return annotation;
+    }
+
+    /**
+     * Completely parses a given input as a markdown documentation.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsMarkdownDocumentation() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode markdownDoc = parseMarkdownDocumentation();
+        if (markdownDoc.toSourceCode().isEmpty()) {
+            STNode missingHash = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.HASH_TOKEN,
+                    DiagnosticWarningCode.WARNING_MISSING_HASH_TOKEN);
+            STNode docLine = STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE,
+                    missingHash, STNodeFactory.createEmptyNodeList());
+            markdownDoc = STNodeFactory.createMarkdownDocumentationNode(STNodeFactory.createNodeList(docLine));
+        }
+
+        markdownDoc = invalidateRestAndAddToTrailingMinutiae(markdownDoc);
+        return markdownDoc;
+    }
+
+    // --------------------------------------- End of NodeParser related methods -------------------------------------
 
     /**
      * Start parsing the input from a given context. Supported starting points are:
@@ -706,16 +744,9 @@ public class BallerinaParser extends AbstractParser {
                 STNode slash = parseSlashToken();
                 orgName = STNodeFactory.createImportOrgNameNode(identifier, slash);
                 moduleName = parseModuleName();
-                parseVersion(); // Parse version and log an error
                 alias = parseImportPrefixDecl();
                 break;
             case DOT_TOKEN:
-            case VERSION_KEYWORD:
-                orgName = STNodeFactory.createEmptyNode();
-                moduleName = parseModuleName(identifier);
-                parseVersion(); // Parse version and log an error
-                alias = parseImportPrefixDecl();
-                break;
             case AS_KEYWORD:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
@@ -804,7 +835,6 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
                 return consume();
             case AS_KEYWORD:
-            case VERSION_KEYWORD:
             case SEMICOLON_TOKEN:
                 return null;
             default:
@@ -834,111 +864,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse version component of a import declaration.
-     * <p>
-     * <code>version-decl := version sem-ver</code>
-     * @deprecated
-     * Version is no longer supported. Hence, parse it and log an error.
-     **/
-    @Deprecated
-    private void parseVersion() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case VERSION_KEYWORD:
-                STNode versionKeyword = parseVersionKeyword();
-                STNode versionNumber = parseVersionNumber();
-                addInvalidNodeToNextToken(versionKeyword,
-                        DiagnosticErrorCode.ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED);
-                addInvalidNodeToNextToken(versionNumber, null);
-                return;
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-                return;
-            default:
-                if (isEndOfImportDecl(nextToken)) {
-                    return;
-                }
-
-                recover(peek(), ParserRuleContext.IMPORT_VERSION_DECL);
-                parseVersion();
-        }
-    }
-
-    /**
-     * Parse version keyword.
-     *
-     * @return Parsed node
-     */
-    private STNode parseVersionKeyword() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.VERSION_KEYWORD) {
-            return consume();
-        } else {
-            recover(peek(), ParserRuleContext.VERSION_KEYWORD);
-            return parseVersionKeyword();
-        }
-    }
-
-    /**
-     * Parse version number.
-     * <p>
-     * <code>sem-ver := major-num [. minor-num [. patch-num]]
-     * <br/>
-     * major-num := DecimalNumber
-     * <br/>
-     * minor-num := DecimalNumber
-     * <br/>
-     * patch-num := DecimalNumber
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseVersionNumber() {
-        STToken nextToken = peek();
-        STNode majorVersion;
-        switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-                majorVersion = parseMajorVersion();
-                break;
-            default:
-                recover(peek(), ParserRuleContext.VERSION_NUMBER);
-                return parseVersionNumber();
-        }
-
-        List<STNode> versionParts = new ArrayList<>();
-        versionParts.add(majorVersion);
-
-        STNode minorVersionEnd = parseSubVersionEnd();
-        if (minorVersionEnd != null) {
-            versionParts.add(minorVersionEnd);
-            STNode minorVersion = parseMinorVersion();
-            versionParts.add(minorVersion);
-
-            STNode patchVersionEnd = parseSubVersionEnd();
-            if (patchVersionEnd != null) {
-                versionParts.add(patchVersionEnd);
-                STNode patchVersion = parsePatchVersion();
-                versionParts.add(patchVersion);
-            }
-        }
-
-        return STNodeFactory.createNodeList(versionParts);
-
-    }
-
-    private STNode parseMajorVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.MAJOR_VERSION);
-    }
-
-    private STNode parseMinorVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.MINOR_VERSION);
-    }
-
-    private STNode parsePatchVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.PATCH_VERSION);
-    }
-
-    /**
      * Parse decimal literal.
      *
      * @param context Context in which the decimal literal is used.
@@ -951,21 +876,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(peek(), context);
             return parseDecimalIntLiteral(context);
-        }
-    }
-
-    private STNode parseSubVersionEnd() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            case DOT_TOKEN:
-                return parseDotToken();
-            default:
-                recover(nextToken, ParserRuleContext.IMPORT_SUB_VERSION);
-                return parseSubVersionEnd();
         }
     }
 
@@ -2545,6 +2455,7 @@ public class BallerinaParser extends AbstractParser {
         switch (ctx) {
             case TYPE_DESC_IN_ANNOTATION_DECL:
             case TYPE_DESC_BEFORE_IDENTIFIER:
+            case TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY:
             case TYPE_DESC_IN_RECORD_FIELD:
             case TYPE_DESC_IN_PARAM:
             case TYPE_DESC_IN_TYPE_BINDING_PATTERN:
@@ -2638,7 +2549,8 @@ public class BallerinaParser extends AbstractParser {
         // var is parsed as a built-in simple type. However, since var is not allowed everywhere,
         // validate it here. This is done to give better error messages.
         if (typeDesc.kind == SyntaxKind.VAR_TYPE_DESC &&
-                context != ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN) {
+                context != ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN &&
+                context != ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY) {
             STToken missingToken = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             missingToken = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(missingToken, typeDesc,
                     DiagnosticErrorCode.ERROR_INVALID_USAGE_OF_VAR);
@@ -5609,12 +5521,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExpressionRhsInternal(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
                                               boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
                                               boolean isInConditionalExpr) {
-        SyntaxKind nextTokenKind = peek().kind;
-        if (isAction(lhsExpr) || isEndOfActionOrExpression(nextTokenKind, isRhsExpr, isInMatchGuard)) {
+        STToken nextToken = peek();
+        if (isAction(lhsExpr) || isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
             // Action has to be the left most action or expression
             return lhsExpr;
         }
 
+        SyntaxKind nextTokenKind = nextToken.kind;
         if (!isValidExprRhsStart(nextTokenKind, lhsExpr.kind)) {
             return recoverExpressionRhs(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                     isInConditionalExpr);
@@ -6103,11 +6016,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Check whether the given token is an end of a action or expression.
      *
-     * @param tokenKind Token to check
+     * @param nextToken Next token
      * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
-    private boolean isEndOfActionOrExpression(SyntaxKind tokenKind, boolean isRhsExpr, boolean isInMatchGuard) {
+    private boolean isEndOfActionOrExpression(STToken nextToken, boolean isRhsExpr, boolean isInMatchGuard) {
+        SyntaxKind tokenKind = nextToken.kind;
         if (!isRhsExpr) {
             if (isCompoundAssignment(tokenKind)) {
                 return true;
@@ -6155,6 +6069,8 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
+            case IDENTIFIER_TOKEN:
+                return isGroupOrCollectKeyword(nextToken);
             default:
                 return isSimpleType(tokenKind);
         }
@@ -6484,18 +6400,20 @@ public class BallerinaParser extends AbstractParser {
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
+                if (argNameOrExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    break;
+                }
                 STNode equal = parseAssignOp();
                 STNode valExpr = parseExpression();
                 return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
-            default:
-                // Treat everything else as a single expression. If something is missing,
-                // expression-parsing will recover it.
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
-                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
+        // Treat everything else as a single expression. If something is missing,
+        // expression-parsing will recover it.
+        argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
+        return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
     }
 
     /**
@@ -9030,7 +8948,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 break;
             default:
-                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
@@ -9050,7 +8968,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 break;
             default:
-                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
@@ -9069,7 +8987,7 @@ public class BallerinaParser extends AbstractParser {
                 argList = parseParenthesizedArgList();
                 break;
             default:
-                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
@@ -9104,7 +9022,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode leadingSlash;
         STNode previousPathSegmentNode = pathSegment;
-        while (!isEndOfResourceAccessPathSegments(peek().kind, isRhsExpr, isInMatchGuard)) {
+        while (!isEndOfResourceAccessPathSegments(peek(), isRhsExpr, isInMatchGuard)) {
             leadingSlash = parseResourceAccessSegmentRhs(isRhsExpr, isInMatchGuard);
             if (leadingSlash == null) {
                 break;
@@ -9183,7 +9101,7 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_TOKEN:
                 return consume();
             default:
-                if (isEndOfResourceAccessPathSegments(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfResourceAccessPathSegments(nextToken, isRhsExpr, isInMatchGuard)) {
                     return null;
                 }
                 
@@ -9192,14 +9110,13 @@ public class BallerinaParser extends AbstractParser {
         }
     }
     
-    private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind,
-                                                      boolean isRhsExpr, boolean isInMatchGuard) {
-        switch (nextTokenKind) {
+    private boolean isEndOfResourceAccessPathSegments(STToken nextToken, boolean isRhsExpr, boolean isInMatchGuard) {
+        switch (nextToken.kind) {
             case DOT_TOKEN:
             case OPEN_PAREN_TOKEN:
                 return true;
             default:
-                return isEndOfActionOrExpression(nextTokenKind, isRhsExpr, isInMatchGuard);
+                return isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard);
         }
     }
     
@@ -9230,9 +9147,9 @@ public class BallerinaParser extends AbstractParser {
                     // This can be `expr->identifier` or `expr->identifier()` or `expr->[MISSING /]identifier`
                     // This logic is added to improve recovery for resource method call action slash token
                     // Next token is a Missing token means, it is a correct token recovered previously
-                    SyntaxKind nextNextNextTokenKind = getNextNextToken().kind;
-                    if (nextNextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN || 
-                            isEndOfActionOrExpression(nextNextNextTokenKind, isRhsExpr, isInMatchGuard) || 
+                    STToken nextNextToken = getNextNextToken();
+                    if (nextNextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN ||
+                            isEndOfActionOrExpression(nextNextToken, isRhsExpr, isInMatchGuard) ||
                             nextToken.isMissing()) {
                         name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                         break;
@@ -9271,6 +9188,10 @@ public class BallerinaParser extends AbstractParser {
             case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
             default:
+                if (isGroupOrCollectKeyword(nextToken)) {
+                    return parseAsyncSendAction(expression, rightArrow, name);
+                }
+
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END);
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
         }
@@ -11006,7 +10927,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> varDecls = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfLetVarDeclarations(nextToken.kind, getNextNextToken())) {
+        if (isEndOfLetVarDeclarations(nextToken, getNextNextToken())) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
         }
@@ -11018,7 +10939,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining variable declarations
         nextToken = peek();
         STNode leadingComma;
-        while (!isEndOfLetVarDeclarations(nextToken.kind, getNextNextToken())) {
+        while (!isEndOfLetVarDeclarations(nextToken, getNextNextToken())) {
             leadingComma = parseComma();
             varDecls.add(leadingComma);
             varDec = parseLetVarDecl(context, isRhsExpr, allowActions);
@@ -11030,7 +10951,8 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(varDecls);
     }
 
-    static boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind, STToken nextNextToken) {
+    static boolean isEndOfLetVarDeclarations(STToken nextToken, STToken nextNextToken) {
+        SyntaxKind tokenKind = nextToken.kind;
         switch (tokenKind) {
             case COMMA_TOKEN:
             case AT_TOKEN:
@@ -11038,7 +10960,7 @@ public class BallerinaParser extends AbstractParser {
             case IN_KEYWORD:
                 return true;
             default:
-                return !isTypeStartingToken(tokenKind, nextNextToken);
+                return isGroupOrCollectKeyword(nextToken) || !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
 
@@ -11248,6 +11170,7 @@ public class BallerinaParser extends AbstractParser {
         // Separate out the interpolated expressions to a queue. Then merge the string content using '${}'.
         // These '${}' are used to represent the interpolated locations. Regular expression parser will replace '${}'
         // with the actual interpolated expression, while building the regular expression tree.
+        this.tokenReader.startMode(ParserMode.REGEXP);
         ArrayDeque<STNode> expressions = new ArrayDeque<>();
         StringBuilder regExpStringBuilder = new StringBuilder();
         STToken nextToken = peek();
@@ -11261,7 +11184,7 @@ public class BallerinaParser extends AbstractParser {
             }
             nextToken = peek();
         }
-
+        this.tokenReader.endMode();
         CharReader charReader = CharReader.from(regExpStringBuilder.toString());
         AbstractTokenReader tokenReader = new TokenReader(new RegExpLexer(charReader));
         RegExpParser regExpParser = new RegExpParser(tokenReader, expressions);
@@ -11989,6 +11912,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> clauses = new ArrayList<>();
         STNode intermediateClause;
         STNode selectClause = null;
+        STNode collectClause = null;
         while (!isEndOfIntermediateClause(peek().kind)) {
             intermediateClause = parseIntermediateClause(isRhsExpr, allowActions);
             if (intermediateClause == null) {
@@ -12000,16 +11924,22 @@ public class BallerinaParser extends AbstractParser {
                 selectClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(selectClause, intermediateClause,
                         DiagnosticErrorCode.ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE);
                 continue;
+            } else if (collectClause != null) {
+                collectClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(collectClause, intermediateClause,
+                        DiagnosticErrorCode.ERROR_MORE_CLAUSES_AFTER_COLLECT_CLAUSE);
+                continue;
             }
 
-            if (intermediateClause.kind != SyntaxKind.SELECT_CLAUSE) {
+            if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
+                selectClause = intermediateClause;
+            } else if (intermediateClause.kind == SyntaxKind.COLLECT_CLAUSE) {
+                collectClause = intermediateClause;
+            } else {
                 clauses.add(intermediateClause);
                 continue;
             }
 
-            selectClause = intermediateClause;
-
-            if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek().kind)) {
+            if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek())) {
                 // Break the loop for,
                 // 1. nested query expressions as remaining clauses belong to the parent.
                 // 2. next token not being an intermediate-clause start as that token could belong to the parent node.
@@ -12017,13 +11947,13 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryConstructType, queryPipeline, selectClause);
         }
 
-        if (selectClause == null) {
+        if (selectClause == null && collectClause == null) {
             STNode selectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.SELECT_KEYWORD);
             STNode expr = STNodeFactory
                     .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
@@ -12046,8 +11976,8 @@ public class BallerinaParser extends AbstractParser {
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
 
 //        this.tokenReader.endKeywordMode();
-        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
-                onConflictClause);
+        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline,
+                selectClause == null ? collectClause : selectClause, onConflictClause);
     }
 
     /**
@@ -12059,8 +11989,8 @@ public class BallerinaParser extends AbstractParser {
         return Collections.frequency(this.errorHandler.getContextStack(), ParserRuleContext.QUERY_EXPRESSION) > 1;
     }
 
-    private boolean isValidIntermediateQueryStart(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
+    private boolean isValidIntermediateQueryStart(STToken token) {
+        switch (token.kind) {
             case FROM_KEYWORD:
             case WHERE_KEYWORD:
             case LET_KEYWORD:
@@ -12073,9 +12003,20 @@ public class BallerinaParser extends AbstractParser {
             case DESCENDING_KEYWORD:
             case LIMIT_KEYWORD:
                 return true;
+            case IDENTIFIER_TOKEN:
+                return isGroupOrCollectKeyword(token);
             default:
                 return false;
         }
+    }
+
+    private static boolean isGroupOrCollectKeyword(STToken nextToken) {
+        return isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken);
+    }
+
+    static boolean isKeywordMatch(SyntaxKind syntaxKind, STToken token) {
+        return token.kind == SyntaxKind.IDENTIFIER_TOKEN && syntaxKind.stringValue().equals(token.text());
     }
 
     /**
@@ -12088,7 +12029,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseIntermediateClause(boolean isRhsExpr, boolean allowActions) {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case FROM_KEYWORD:
                 return parseFromClause(isRhsExpr, allowActions);
             case WHERE_KEYWORD:
@@ -12101,7 +12043,6 @@ public class BallerinaParser extends AbstractParser {
             case OUTER_KEYWORD:
                 return parseJoinClause(isRhsExpr);
             case ORDER_KEYWORD:
-            case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
                 return parseOrderByClause(isRhsExpr);
@@ -12113,9 +12054,50 @@ public class BallerinaParser extends AbstractParser {
             case CONFLICT_KEYWORD:
                 return null;
             default:
+                if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)) {
+                    return parseCollectClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)) {
+                    return parseGroupByClause(isRhsExpr);
+                }
+
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS);
                 return parseIntermediateClause(isRhsExpr, allowActions);
         }
+    }
+
+    private STNode parseCollectClause(boolean isRhsExpr) {
+        startContext(ParserRuleContext.COLLECT_CLAUSE);
+        STNode collectKeyword = parseCollectKeyword();
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        endContext();
+        return STNodeFactory.createCollectClauseNode(collectKeyword, expression);
+    }
+
+    /**
+     * Parse collect-keyword.
+     *
+     * @return collect-keyword node
+     */
+    private STNode parseCollectKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COLLECT_KEYWORD) {
+            return consume();
+        }
+
+        if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, token)) {
+            // this is to treat "collect" as a keyword, even if its parsed as an identifier from lexer.
+            return getCollectKeyword(consume());
+        }
+
+        recover(token, ParserRuleContext.COLLECT_KEYWORD);
+        return parseCollectKeyword();
+    }
+
+    private STNode getCollectKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.COLLECT_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**
@@ -12272,6 +12254,48 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse group by clause.
+     * <code>group-by-clause := group by grouping-key-list</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseGroupByClause(boolean isRhsExpr) {
+        startContext(ParserRuleContext.GROUP_BY_CLAUSE);
+        STNode groupKeyword = parseGroupKeyword();
+        STNode byKeyword = parseByKeyword();
+        STNode groupingKeys = parseGroupingKeyList(isRhsExpr);
+        byKeyword = cloneWithDiagnosticIfListEmpty(groupingKeys, byKeyword,
+                    DiagnosticErrorCode.ERROR_MISSING_GROUPING_KEY);
+        endContext();
+        return STNodeFactory.createGroupByClauseNode(groupKeyword, byKeyword, groupingKeys);
+    }
+
+    /**
+     * Parse group-keyword.
+     *
+     * @return group-keyword node
+     */
+    private STNode parseGroupKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.GROUP_KEYWORD) {
+            return consume();
+        }
+
+        if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, token)) {
+            // this is to treat "group" as a keyword, even if its parsed as an identifier from lexer.
+            return getGroupKeyword(consume());
+        }
+
+        recover(token, ParserRuleContext.GROUP_KEYWORD);
+        return parseGroupKeyword();
+    }
+
+    private STNode getGroupKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.GROUP_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
+    }
+
+    /**
      * Parse order-keyword.
      *
      * @return Order-keyword node
@@ -12318,6 +12342,42 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse grouping key.
+     * <code>grouping-key-list := grouping-key ["," grouping-key]*</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseGroupingKeyList(boolean isRhsExpr) {
+        List<STNode> groupingKeys = new ArrayList<>();
+        STToken nextToken = peek();
+
+        if (isEndOfGroupByKeyListElement(nextToken)) {
+            return STNodeFactory.createEmptyNodeList();
+        }
+
+        // Parse first grouping key, that has no leading comma
+        STNode groupingKey = parseGroupingKey(isRhsExpr);
+        groupingKeys.add(groupingKey);
+
+        // Parse the remaining grouping keys
+        nextToken = peek();
+        STNode groupingKeyListMemberEnd;
+        while (!isEndOfGroupByKeyListElement(nextToken)) {
+            groupingKeyListMemberEnd = parseGroupingKeyListMemberEnd();
+            if (groupingKeyListMemberEnd == null) {
+                break;
+            }
+
+            groupingKeys.add(groupingKeyListMemberEnd);
+            groupingKey = parseGroupingKey(isRhsExpr);
+            groupingKeys.add(groupingKey);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(groupingKeys);
+    }
+
+    /**
      * Parse order key.
      * <p>
      * <code>order-key-list := order-key [, order-key]*</code>
@@ -12329,7 +12389,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> orderKeys = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfOrderKeys(nextToken.kind)) {
+        if (isEndOfOrderKeys(nextToken)) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
         }
@@ -12341,7 +12401,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining order keys
         nextToken = peek();
         STNode orderKeyListMemberEnd;
-        while (!isEndOfOrderKeys(nextToken.kind)) {
+        while (!isEndOfOrderKeys(nextToken)) {
             orderKeyListMemberEnd = parseOrderKeyListMemberEnd();
             if (orderKeyListMemberEnd == null) {
                 break;
@@ -12356,8 +12416,19 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(orderKeys);
     }
 
-    private boolean isEndOfOrderKeys(SyntaxKind tokenKind) {
-        switch (tokenKind) {
+    private boolean isEndOfGroupByKeyListElement(STToken nextToken) {
+        switch (nextToken.kind) {
+            case COMMA_TOKEN:
+                return false;
+            case EOF_TOKEN:
+                return true;
+            default:
+                return isQueryClauseStartToken(nextToken);
+        }
+    }
+
+    private boolean isEndOfOrderKeys(STToken nextToken) {
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
@@ -12366,12 +12437,12 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return true;
             default:
-                return isQueryClauseStartToken(tokenKind);
+                return isQueryClauseStartToken(nextToken);
         }
     }
 
-    private boolean isQueryClauseStartToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
+    private boolean isQueryClauseStartToken(STToken nextToken) {
+        switch (nextToken.kind) {
             case SELECT_KEYWORD:
             case LET_KEYWORD:
             case WHERE_KEYWORD:
@@ -12382,8 +12453,27 @@ public class BallerinaParser extends AbstractParser {
             case FROM_KEYWORD:
             case LIMIT_KEYWORD:
                 return true;
+            case IDENTIFIER_TOKEN:
+                return isGroupOrCollectKeyword(nextToken);
             default:
                 return false;
+        }
+    }
+
+    private STNode parseGroupingKeyListMemberEnd() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case COMMA_TOKEN:
+                return consume();
+            case EOF_TOKEN:
+                return null;
+            default:
+                if (isQueryClauseStartToken(nextToken)) {
+                    // null marks the end of grouping keys
+                    return null;
+                }
+                recover(peek(), ParserRuleContext.GROUPING_KEY_LIST_ELEMENT_END);
+                return parseGroupingKeyListMemberEnd();
         }
     }
 
@@ -12395,7 +12485,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             default:
-                if (isQueryClauseStartToken(nextToken.kind)) {
+                if (isQueryClauseStartToken(nextToken)) {
                     // null marks the end of order keys
                     return null;
                 }
@@ -12403,6 +12493,43 @@ public class BallerinaParser extends AbstractParser {
                 recover(peek(), ParserRuleContext.ORDER_KEY_LIST_END);
                 return parseOrderKeyListMemberEnd();
         }
+    }
+
+    private STNode parseGroupingKeyVariableDeclaration(boolean isRhsExpr) {
+        STNode groupingKeyElementTypeDesc =
+                parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY);
+        startContext(ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
+        STNode groupingKeySimpleBP = createCaptureOrWildcardBP(parseVariableName());
+        endContext();
+        STNode equalsToken = parseAssignOp();
+        STNode groupingKeyExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        return STNodeFactory.createGroupingKeyVarDeclarationNode(groupingKeyElementTypeDesc, groupingKeySimpleBP,
+                equalsToken, groupingKeyExpression);
+    }
+
+    /**
+     * Parse grouping key.
+     * <code>grouping-key := variable-name | inferable-type-descriptor variable-name "=" expression</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseGroupingKey(boolean isRhsExpr) {
+        STToken nextToken = peek();
+        SyntaxKind nextTokenKind = nextToken.kind;
+        if (nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && !isPossibleGroupingKeyVarDeclaration()) {
+            return STNodeFactory.createSimpleNameReferenceNode(parseVariableName());
+        } else if (isTypeStartingToken(nextTokenKind, nextToken)) {
+            return parseGroupingKeyVariableDeclaration(isRhsExpr);
+        }
+
+        recover(nextToken, ParserRuleContext.GROUPING_KEY_LIST_ELEMENT);
+        return parseGroupingKey(isRhsExpr);
+    }
+
+    private boolean isPossibleGroupingKeyVarDeclaration() {
+        SyntaxKind nextNextTokenKind = getNextNextToken().kind;
+        return nextNextTokenKind == SyntaxKind.EQUAL_TOKEN ||
+                nextNextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && peek(3).kind == SyntaxKind.EQUAL_TOKEN;
     }
 
     /**
@@ -12556,7 +12683,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOnClause(boolean isRhsExpr) {
         STToken nextToken = peek();
-        if (isQueryClauseStartToken(nextToken.kind)) {
+        if (isQueryClauseStartToken(nextToken)) {
             return createMissingOnClauseNode();
         }
 
@@ -17334,6 +17461,9 @@ public class BallerinaParser extends AbstractParser {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return SyntaxKind.NONE;
             case ERROR_CONSTRUCTOR:
+                if (isTypedBindingPattern) {
+                    return SyntaxKind.LIST_BINDING_PATTERN;
+                }
                 if (isPossibleErrorBindingPattern((STErrorConstructorExpressionNode) memberNode)) {
                     return SyntaxKind.NONE;
                 }
@@ -17755,7 +17885,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList, STNode member,
                                              boolean isRoot) {
         memberList = getBindingPatternsList(memberList, true);
-        memberList.add(member);
+        memberList.add(getBindingPattern(member, true));
         switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
         STNode listBindingPattern = parseListBindingPattern(openBracket, member, memberList);
         endContext();
@@ -18286,6 +18416,7 @@ public class BallerinaParser extends AbstractParser {
         STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         switch (peek().kind) {
             case COMMA_TOKEN: // { foo,
+            case CLOSE_BRACE_TOKEN: // {foo}
                 // could be map literal or mapping-binding-pattern
                 STNode colon = STNodeFactory.createEmptyNode();
                 STNode value = STNodeFactory.createEmptyNode();

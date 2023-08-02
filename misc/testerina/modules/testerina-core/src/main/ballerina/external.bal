@@ -103,3 +103,8 @@ isolated function getKeysDiff(string[] actualKeys, string[] expectedKeys) return
     name: "getKeysDiff",
     'class: "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
 } external;
+
+isolated function escapeSpecialCharacters(string key) returns string|error = @java:Method {
+    name: "escapeSpecialCharacters",
+    'class: "org.ballerinalang.testerina.natives.io.StringUtils"
+} external;

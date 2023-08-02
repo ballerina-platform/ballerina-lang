@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -65,5 +66,10 @@ public class LocalRecordAnnotationTest {
 
     public static BMap getLocalRecordAnnotations(TypedescValue typedescValue, BString annotName) {
         return (BMap) TypeChecker.getAnnotValue(typedescValue, annotName);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

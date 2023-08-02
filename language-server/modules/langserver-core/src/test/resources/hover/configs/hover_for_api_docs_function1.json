@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Returns the maximum of one or more int values.\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***n*** : first int value  \n`int[]...` ***ns*** : other int values  \n  \n---  \n  \n### Return  \n`int` : maximum value of value of parameter `n` and all of parameter `ns`  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina\\/lang.int\\/0.0.0\\/functions#max)"
+        "value": "Returns the maximum of one or more int values.\n\n```ballerina\nint:max(50, 20, 30, 70, 65) ⇒ 70\n[int, int, int] scores = [52, 95, 76];\nint:max(...scores) ⇒ 95\nint n = 18;\nn.max(25, 30, 4, 15) ⇒ 30\n```\n  \n  \n---  \n  \n### Parameters  \n  \n`int` ***n*** : first int value  \n`int[]...` ***ns*** : other int values  \n  \n---  \n  \n### Return  \n`int` : maximum value of value of parameter `n` and all of parameter `ns`  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina/lang.int/0.0.0#max)"
       }
     },
     "id": {

@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.InlayHintContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -48,6 +49,7 @@ import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
+import org.ballerinalang.langserver.inlayhint.InlayHintProvider;
 import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
@@ -74,9 +76,12 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameDefaultBehavior;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
@@ -92,6 +97,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import java.net.URISyntaxException;
@@ -499,7 +505,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+    public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>>
+    prepareRename(PrepareRenameParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 String fileUri = params.getTextDocument().getUri();
@@ -511,7 +518,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         cancelChecker);
                 Optional<Range> range = RenameUtil.prepareRename(context);
                 if (range.isPresent()) {
-                    return Either.forLeft(range.get());
+                    return Either3.forFirst(range.get());
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
@@ -666,6 +673,30 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             return new SemanticTokens(new ArrayList<>());
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                InlayHintContext context = ContextBuilder.buildInlayHintContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManagerProxy.get(),
+                        this.serverContext,
+                        cancelChecker);
+
+                return InlayHintProvider.getInlayHint(context);
+            } catch (CancellationException ignore) {
+                // Ignore cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'textDocument/inlayHint' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_INLAY_HINT, msg, e,
+                        new TextDocumentIdentifier(params.getTextDocument().getUri()),
+                        (Position) null);
+            }
+
+            return Collections.emptyList();
         });
     }
 }

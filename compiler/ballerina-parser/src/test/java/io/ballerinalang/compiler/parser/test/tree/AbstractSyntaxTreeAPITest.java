@@ -60,7 +60,7 @@ abstract class AbstractSyntaxTreeAPITest {
     }
 
     protected void assertLineRange(LineRange actualLineRange, LineRange expectedLineRange) {
-        Assert.assertEquals(actualLineRange.filePath(), expectedLineRange.filePath());
+        Assert.assertEquals(actualLineRange.fileName(), expectedLineRange.fileName());
         Assert.assertEquals(actualLineRange.startLine(), expectedLineRange.startLine());
         Assert.assertEquals(actualLineRange.endLine(), expectedLineRange.endLine());
     }

@@ -49,7 +49,8 @@ public class CompilerPluginNegativeTests {
     private static final String EXCEPTION_MESSAGE_6 = "Failed to load the compiler plugin in package: " +
             "'samjs:package_compiler_plugin_6:1.1.0'. io/samjs/jarlibrary/diagnosticutils/DiagnosticUtils";
     private static final String EXCEPTION_MESSAGE_20 = "Failed to initialize the compiler plugin in package: " +
-            "'samjs:package_compiler_plugin_20:1.1.0'. null";
+            "'samjs:package_compiler_plugin_20:1.1.0'. Cannot invoke \"String.toCharArray\\(\\)\" because " +
+            "the return value of \"io.samjs.plugins.badsad.BadSadCompilerPlugin20.getStr\\(\\)\" is null";
     private static final String EXCEPTION_MESSAGE_21 = "Failed to initialize the compiler plugin in package: " +
             "'samjs:package_compiler_plugin_21:1.1.0'. The value cannot be less than zero";
     private static final String EXCEPTION_MESSAGE_40 = "The compiler extension in package " +

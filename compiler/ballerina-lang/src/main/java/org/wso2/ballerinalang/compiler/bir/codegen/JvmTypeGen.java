@@ -87,6 +87,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
@@ -181,6 +182,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_XML
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_VALUE_OF;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -225,14 +227,15 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
-            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
-                String name = typeDef.internalName.value;
-                generateTypeField(cw, name);
-                generateTypedescField(cw, name);
+            BType bType = typeDef.type;
+            int bTypeTag = bType.tag;
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+                continue;
             }
-            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            String name = typeDef.internalName.value;
+            generateTypeField(cw, name);
+            generateTypedescField(cw, name);
         }
     }
 
@@ -252,7 +255,7 @@ public class JvmTypeGen {
     //              getAnonType() generation methods
     // -------------------------------------------------------
 
-    void generateGetAnonTypeMethod(ClassWriter cw) {
+    void generateGetAnonTypeMethod(ClassWriter cw, String moduleClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, GET_ANON_TYPE_METHOD,
                 JvmSignatures.GET_ANON_TYPE, null, null);
         mv.visitCode();
@@ -260,7 +263,7 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_ANON_TYPE_METHOD, moduleClass);
         mv.visitEnd();
     }
 
@@ -268,14 +271,14 @@ public class JvmTypeGen {
     //              Runtime value creation methods
     // -------------------------------------------------------
 
-    void generateValueCreatorMethods(ClassWriter cw) {
-        generateRecordValueCreateMethod(cw);
-        generateObjectValueCreateMethod(cw);
-        generateErrorValueCreateMethod(cw);
-        generateFunctionCallMethod(cw);
+    void generateValueCreatorMethods(ClassWriter cw, String moduleClass) {
+        generateRecordValueCreateMethod(cw, moduleClass);
+        generateObjectValueCreateMethod(cw, moduleClass);
+        generateErrorValueCreateMethod(cw, moduleClass);
+        generateFunctionCallMethod(cw, moduleClass);
     }
 
-    private void generateRecordValueCreateMethod(ClassWriter cw) {
+    private void generateRecordValueCreateMethod(ClassWriter cw, String moduleClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
                 CREATE_RECORD,
                 CREATE_RECORD_WITH_MAP, null);
@@ -283,11 +286,11 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, recordsClass, CREATE_RECORD_VALUE, CREATE_RECORD, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_RECORD_VALUE, moduleClass);
         mv.visitEnd();
     }
 
-    private void generateObjectValueCreateMethod(ClassWriter cw) {
+    private void generateObjectValueCreateMethod(ClassWriter cw, String moduleClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE, CREATE_OBJECT, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 1);
@@ -297,11 +300,11 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 5);
         mv.visitMethodInsn(INVOKESTATIC, objectsClass, CREATE_OBJECT_VALUE, CREATE_OBJECT, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_OBJECT_VALUE, moduleClass);
         mv.visitEnd();
     }
 
-    private void generateErrorValueCreateMethod(ClassWriter cw) {
+    private void generateErrorValueCreateMethod(ClassWriter cw, String moduleClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_ERROR_VALUE,
                 CREATE_ERROR, null,
                 null);
@@ -312,11 +315,11 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 4);
         mv.visitMethodInsn(INVOKESTATIC, errorsClass, CREATE_ERROR_VALUE, CREATE_ERROR, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_ERROR_VALUE, moduleClass);
         mv.visitEnd();
     }
 
-    private void generateFunctionCallMethod(ClassWriter cw) {
+    private void generateFunctionCallMethod(ClassWriter cw, String moduleClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CALL_FUNCTION, FUNCTION_CALL, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 1);
@@ -324,7 +327,7 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, functionCallsClass, CALL_FUNCTION, FUNCTION_CALL, false);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CALL_FUNCTION, moduleClass);
         mv.visitEnd();
     }
 
@@ -697,7 +700,7 @@ public class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_ERROR_TYPE);
             return;
         }
-
+        
         if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS)) {
             jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
         } else {
@@ -767,7 +770,7 @@ public class JvmTypeGen {
     private void generateMethodReturnAndInvoke(MethodVisitor methodVisitor, String className, int arrayIndex,
                                                MethodVisitor mv, String curMethodName) {
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, curMethodName, className);
         mv.visitEnd();
         methodVisitor.visitVarInsn(ALOAD, arrayIndex);
         methodVisitor.visitMethodInsn(INVOKESTATIC, className, curMethodName, SET_TYPE_ARRAY, false);
@@ -872,7 +875,7 @@ public class JvmTypeGen {
 
             mv.visitTypeInsn(NEW, typeOwner);
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
             mv.visitLdcInsn(hash);
             mv.visitLdcInsn("Package: " + typeOwner + ", TypeName: " + fieldName + ", Shape: " + shape + "");
@@ -950,18 +953,22 @@ public class JvmTypeGen {
                 false);
     }
 
-    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
-
-        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+    protected void loadFunctionPathParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol) {
         List<BVarSymbol> params = new ArrayList<>();
-        if (invokableSymbol == null) {
-            if (!invokableType.paramTypes.isEmpty()) {
-                loadFunctionPointerParameters(mv, invokableType);
-                return;
+        if (invokableSymbol != null) {
+            for (BVarSymbol param : invokableSymbol.params) {
+                SymbolKind paramKind = param.getKind();
+                if (paramKind != SymbolKind.PATH_PARAMETER && paramKind != SymbolKind.PATH_REST_PARAMETER) {
+                    break;
+                }
+                params.add(param);
             }
-        } else {
-            params = invokableSymbol.params;
         }
+        populateFunctionParameters(mv, invokableSymbol, params);
+    }
+
+    private void populateFunctionParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol,
+                                            List<BVarSymbol> params) {
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
@@ -978,7 +985,7 @@ public class JvmTypeGen {
             } else {
                 mv.visitInsn(ICONST_0);
             }
-            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.originalName.value);
             if (bInvokableSymbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
@@ -988,6 +995,20 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
+        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+        List<BVarSymbol> params = new ArrayList<>();
+        if (invokableSymbol == null) {
+            if (!invokableType.paramTypes.isEmpty()) {
+                loadFunctionPointerParameters(mv, invokableType);
+                return;
+            }
+        } else {
+            params = invokableSymbol.params;
+        }
+        populateFunctionParameters(mv, invokableSymbol, params);
     }
 
     private void loadFunctionPointerParameters(MethodVisitor mv, BInvokableType invokableType) {
@@ -1094,7 +1115,7 @@ public class JvmTypeGen {
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
         for (BLangExpression valueTypePair : finiteType.getValueSpace()) {
             Object value = ((BLangLiteral) valueTypePair).value;
@@ -1111,7 +1132,7 @@ public class JvmTypeGen {
             }
 
             // Add the value to the set
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
         }
 

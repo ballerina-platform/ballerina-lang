@@ -153,7 +153,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "java11": {
+        "java17": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
@@ -180,18 +180,41 @@
                   }
                 }
               }
+            },
+            "repository": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "graalvmCompatible": {
+              "type": "boolean"
             }
           },
           "required": [
-            "dependency"
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java11'"
+            "required": "cannot find '${property}' under 'platform.java17'"
           }
         }
       },
       "required": [
-        "java11"
+        "java17"
       ],
       "message": {
         "required": "cannot find '${property}' under 'platform'"

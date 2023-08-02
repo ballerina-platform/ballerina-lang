@@ -30,6 +30,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeSuite;
 import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 
@@ -57,6 +59,10 @@ public class BaseTest {
     public void init() throws IOException {
         Files.createDirectories(CENTRAL_CACHE);
 
+        // Add the correct distribution version to dependencies.toml
+        Path packageBPath = Path.of("src/test/resources/projects_for_resolution_tests/package_b");
+        replaceDistributionVersionOfDependenciesToml(packageBPath, RepoUtils.getBallerinaShortVersion());
+
         // Here package_a depends on package_b
         // and package_b depends on package_c
         // Therefore package_c is transitive dependency of package_a
@@ -67,12 +73,15 @@ public class BaseTest {
 
         BCompileUtil.compileAndCacheBala("projects_for_edit_api_tests/package_dependency_v1");
         BCompileUtil.compileAndCacheBala("projects_for_edit_api_tests/package_dependency_v2");
+
+        // Revert the distribution version to the placeholder
+        replaceDistributionVersionOfDependenciesToml(packageBPath, "**INSERT_DISTRIBUTION_VERSION_HERE**");
     }
 
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
         PackageCompilation compilation = dependencyProject.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
 
         List<String> repoNames = Lists.of("local", "stdlib.local");
         for (String repo : repoNames) {
@@ -113,7 +122,7 @@ public class BaseTest {
             throws IOException {
         Package currentPackage = dependencyProject.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
 
         Path centralRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(centralRepositoryCacheName).resolve(ProjectConstants.BALA_DIR_NAME);

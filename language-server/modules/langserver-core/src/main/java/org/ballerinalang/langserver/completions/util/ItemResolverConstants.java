@@ -88,10 +88,13 @@ public class ItemResolverConstants {
     public static final String RESOURCE = "resource";
     public static final String RESOURCE_FUNC_DEF = "resource function";
     public static final String REG_EXP = "re ``";
+    public static final String STRING_TEMP = "string ``";
+    public static final String XML_TEMP = "xml ``";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
+    public static final String GROUPBY_CLAUSE = "group by clause";
     public static final String ON_FAIL_CLAUSE = "on fail clause";
     public static final String ON_CONFLICT_CLAUSE = "on conflict";
 
@@ -107,6 +110,8 @@ public class ItemResolverConstants {
     public static final String MODULE_TYPE = "Module";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
+    public static final String VALUE_TYPE = "Value";
+    
     public static final String STATEMENT_TYPE = "Statement";
     public static final String NONE = "none";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
@@ -138,11 +143,12 @@ public class ItemResolverConstants {
     public static final String WAIT_KEYWORD = "wait";
     public static final String START_KEYWORD = "start";
     public static final String AS_KEYWORD = "as";
-    public static final String VERSION_KEYWORD = "version";
     public static final String FROM_KEYWORD = "from";
     public static final String WHERE_KEYWORD = "where";
     public static final String JOIN_KEYWORD = "join";
     public static final String ORDERBY_KEYWORD = "order by";
+    public static final String GROUPBY_KEYWORD = "group by";
+    public static final String COLLECT_KEYWORD = "collect";
     public static final String LIMIT_KEYWORD = "limit";
     public static final String SELECT_KEYWORD = "select";
     public static final String EQUALS_KEYWORD = "equals";

@@ -193,6 +193,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
     ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
     ERROR_MISSING_RE_KEYWORD("BCE0295", "error.missing.re.keyword"),
+    ERROR_MISSING_GROUP_KEYWORD("BCE0296", "error.missing.group.keyword"),
+    ERROR_MISSING_COLLECT_KEYWORD("BCE0297", "error.missing.collect.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -253,6 +255,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NAMED_ARG("BCE0529", "error.missing.named.arg"),
     ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER("BCE0530", "error.missing.field.match.pattern.member"),
     ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION("BCE0531", "error.missing.object.constructor.expression"),
+    ERROR_MISSING_GROUPING_KEY("BCE0532", "error.missing.grouping.key"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -318,8 +321,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_CHARACTER_IN_XML_ATTRIBUTE_VALUE("BCE0653", "error.invalid.character.in.xml.attribute.value"),
     ERROR_INVALID_ENTITY_REFERENCE_NAME_START("BCE0654", "error.invalid.entity.reference.name.start"),
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
-    ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
-            "error.version.in.import.declaration.no.longer.supported"),
     ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE0657", "error.more.than.one.object.network.qualifiers"),
     ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER("BCE0658", "error.remote.method.has.a.visibility.qualifier"),
     ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE0659",
@@ -357,7 +358,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
     ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0684",
             "error.annotations.not.allowed.for.tuple.rest.descriptor"),
-    ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char")
+    ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char"),
+    ERROR_MORE_CLAUSES_AFTER_COLLECT_CLAUSE("BCE0686", "error.more.clauses.after.collect.clause")
     ;
 
     String diagnosticId;

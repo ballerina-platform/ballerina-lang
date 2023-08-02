@@ -41,7 +41,6 @@ public enum SyntaxKind {
     TYPE_KEYWORD(107, "type"),
     RECORD_KEYWORD(108, "record"),
     OBJECT_KEYWORD(109, "object"),
-    VERSION_KEYWORD(110, "version"),
     AS_KEYWORD(111, "as"),
     ON_KEYWORD(112, "on"),
     RESOURCE_KEYWORD(113, "resource"),
@@ -129,10 +128,14 @@ public enum SyntaxKind {
     READONLY_KEYWORD(318, "readonly"),
     DISTINCT_KEYWORD(319, "distinct"),
     FAIL_KEYWORD(320, "fail"),
-    RE_KEYWORD(320, "re"),
+
+    // Contextual keywords
+    RE_KEYWORD(400, "re"), // Any kind above this is considered as a keyword
+    GROUP_KEYWORD(401, "group"),
+    COLLECT_KEYWORD(402, "collect"),
 
     // Separators
-    OPEN_BRACE_TOKEN(500, "{"), // Any kind above this is considered as a keyword
+    OPEN_BRACE_TOKEN(500, "{"),
     CLOSE_BRACE_TOKEN(501, "}"),
     OPEN_PAREN_TOKEN(502, "("),
     CLOSE_PAREN_TOKEN(503, ")"),
@@ -477,6 +480,11 @@ public enum SyntaxKind {
     COMPUTED_RESOURCE_ACCESS_SEGMENT(3088),
     RESOURCE_ACCESS_REST_SEGMENT(3089),
     MEMBER_TYPE_DESC(3090),
+    GROUPING_KEY_VAR_DECLARATION(3091),
+    GROUPING_KEY_VAR_NAME(3092),
+    GROUP_BY_CLAUSE(3093),
+    COLLECT_CLAUSE(3094),
+
 
     // XML
     XML_ELEMENT(4000),

@@ -28,10 +28,12 @@ import io.ballerina.projects.util.ProjectUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 
 /**
@@ -61,7 +64,7 @@ public class ProjectFiles {
                 .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null,
                         Collections.emptyList(), Collections.emptyList());
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
-                null, null, null, null, null);
+                null, null, null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
@@ -77,10 +80,11 @@ public class ProjectFiles {
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
         DocumentData compilerPluginToml = loadDocument(packageDirPath.resolve(ProjectConstants.COMPILER_PLUGIN_TOML));
+        DocumentData balToolToml = loadDocument(packageDirPath.resolve(ProjectConstants.BAL_TOOL_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
-        return PackageData.from(packageDirPath, defaultModule, otherModules,
-                ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
+        return PackageData.from(packageDirPath, defaultModule, otherModules, ballerinaToml, dependenciesToml,
+                cloudToml, compilerPluginToml, balToolToml, packageMd);
     }
 
     private static List<ModuleData> loadNewGeneratedModules(Path packageDirPath) {
@@ -113,7 +117,11 @@ public class ProjectFiles {
     }
 
     private static boolean isNewModule(Path packageDirPath, Path path) {
-        Path modulePath = packageDirPath.resolve(ProjectConstants.MODULES_ROOT).resolve(path.toFile().getName());
+        String dirName = path.toFile().getName();
+        if (dirName.equals(TEST_DIR_NAME)) {
+            return false;
+        }
+        Path modulePath = packageDirPath.resolve(ProjectConstants.MODULES_ROOT).resolve(dirName);
         return !Files.exists(modulePath);
     }
 
@@ -150,7 +158,7 @@ public class ProjectFiles {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
         List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
-        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : Collections.emptyList();
+        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : new ArrayList<>();
 
         // If the module is not a newly generated module, explicitly load generated sources
         if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
@@ -166,8 +174,15 @@ public class ProjectFiles {
             }
             if (Files.isDirectory(generatedSourcesRoot)) {
                 List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
-                verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath);
+                verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath, false);
                 srcDocs.addAll(generatedDocs);
+                if (Files.isDirectory(generatedSourcesRoot.resolve(TEST_DIR_NAME))) {
+                    List<DocumentData> generatedTestDocs =
+                            loadTestDocuments(generatedSourcesRoot.resolve(TEST_DIR_NAME));
+                    verifyDuplicateNames(testSrcDocs, generatedTestDocs, moduleDirPath.toFile().getName(),
+                            moduleDirPath, true);
+                    testSrcDocs.addAll(generatedTestDocs);
+                }
             }
         }
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
@@ -179,10 +194,16 @@ public class ProjectFiles {
     }
 
     private static void verifyDuplicateNames(List<DocumentData> srcDocs, List<DocumentData> generatedDocs,
-                                             String moduleName, Path modulesDirPath) {
+                                             String moduleName, Path modulesDirPath, boolean isTestDocs) {
         for (DocumentData doc : srcDocs) {
             generatedDocs.forEach(generatedDoc -> {
                 if (doc.name().equals(generatedDoc.name())) {
+                    if (isTestDocs) {
+                        throw new ProjectException("Test source file with a duplicate name '" +
+                                doc.name() + "' detected in both generated and module tests for the module '" +
+                                moduleName + "'. Please provide a unique name for '" +
+                                modulesDirPath.resolve(TEST_DIR_NAME).resolve(doc.name()) + "'");
+                    }
                     throw new ProjectException("Source file with a duplicate name '" + doc.name() + "' detected in " +
                             "both generated and module sources for the module '" + moduleName + "'. Please provide a " +
                             "unique name for '" + modulesDirPath.resolve(doc.name()) + "'");
@@ -256,7 +277,7 @@ public class ProjectFiles {
 
         String content;
         try {
-            content = Files.readString(documentFilePath, Charset.defaultCharset());
+            content = Files.readString(documentFilePath, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new ProjectException(e);
         }

@@ -85,7 +85,8 @@ public class IsolationInferenceTest {
                 "testServiceClassMethodIsolationInference",
                 "testObjectConstructorIsolatedInference",
                 "testFunctionsAccessingModuleLevelVarsIsolatedInference",
-                "testFunctionCallingFunctionWithIsolatedParamAnnotatedParam"
+                "testFunctionCallingFunctionWithIsolatedParamAnnotatedParam",
+                "testInferringIsolatedForAnonFuncArgForIsolatedParamAnnotatedParam"
         };
     }
 
@@ -105,6 +106,9 @@ public class IsolationInferenceTest {
                 "test-src/isolation-analysis/isolation_inference_isolation_analysis_negative.bal");
         int i = 0;
         validateError(result, i++, "invalid invocation of a non-isolated function in an 'isolated' function", 20, 16);
+        validateError(result, i++, "incompatible types: expected an 'isolated' function", 26, 24);
+        validateError(result, i++, "incompatible types: expected an 'isolated' function", 30, 24);
+        validateError(result, i++, "incompatible types: expected an 'isolated' function", 31, 24);
         assertEquals(result.getErrorCount(), i);
     }
 
@@ -178,7 +182,8 @@ public class IsolationInferenceTest {
     private Object[] testIsolatedInferenceWithVariablesFiles() {
         return new String[]{
                 "isolation_inference_with_variables_1.bal",
-                "isolation_inference_with_variables_2.bal"
+                "isolation_inference_with_variables_2.bal",
+                "isolation_inference_with_variables_3.bal"
         };
     }
 
@@ -324,12 +329,10 @@ public class IsolationInferenceTest {
 
     public static boolean isMethodIsolated(Object val, String methodName) {
         BObjectType objectType = (BObjectType) getType(val);
-
         List<MethodType> methodTypes = Lists.of(objectType.getMethods());
-
-        MethodType initializer = objectType.initializer;
-        if (initializer != null) {
-            methodTypes.add(initializer);
+        MethodType initMethod = objectType.getInitMethod();
+        if (initMethod != null) {
+            methodTypes.add(initMethod);
         }
         return isIsolated(methodTypes, methodName);
     }

@@ -58,8 +58,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -76,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -298,12 +302,6 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         lookupNodes(funcNode.annAttachments);
-        // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
-        // container of the function.
-        if (!this.range.equals(funcNode.symbol.pos.lineRange())) {
-            this.enclosingContainer = funcNode;
-        }
-
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
@@ -1476,6 +1474,26 @@ class NodeFinder extends BaseVisitor {
         lookupNode(reFlagExpression.colon);
     }
 
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        lookupNodes(groupByClause.getGroupingKeyList());
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+        lookupNode((BLangNode) groupingKeyClause.getGroupingKey());
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        lookupNode(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        lookupNode(invocation.invocation);
+    }
+
     private boolean setEnclosingNode(BLangNode node, Location pos) {
         if (PositionUtil.isRangeWithinNode(this.range, pos)
                 && (this.enclosingNode == null
@@ -1501,6 +1519,7 @@ class NodeFinder extends BaseVisitor {
             return false;
         }
 
-        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE);
+        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE) && ((BLangClassDefinition) node).flagSet
+                .contains(Flag.ANONYMOUS);
     }
 }

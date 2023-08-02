@@ -340,9 +340,8 @@ class _InnerJoinFunction {
     function (_Frame _frame) returns any|error lhsKeyFunction;
     function (_Frame _frame) returns any|error rhsKeyFunction;
     _FrameMultiMap rhsFramesMap = new;
-    _Frame[]? rhsCandidates;
-    _Frame|error? lhsFrame;
     error? failureAtJoin = ();
+    stream<_Frame>? joinedFramesStream;
 
     function init(
             _StreamPipeline pipelineToJoin,
@@ -350,9 +349,9 @@ class _InnerJoinFunction {
             function (_Frame _frame) returns any|error rhsKeyFunction) {
         self.lhsKeyFunction = lhsKeyFunction;
         self.rhsKeyFunction = rhsKeyFunction;
-        self.rhsCandidates = ();
         self.prevFunc = ();
-        self.lhsFrame = ();
+        self.joinedFramesStream = ();
+
         _Frame|error? f = pipelineToJoin.next();
         while (f is _Frame) {
             any|error rhsKeyFuncResult = rhsKeyFunction(f);
@@ -374,55 +373,48 @@ class _InnerJoinFunction {
     # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
-        _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
-        _Frame[]? rhsCandidates = self.rhsCandidates;
-        _Frame|error? lhsFrame = self.lhsFrame;
-        error? failureAtJoin = self.failureAtJoin;
-        string lhsKey = "";
+        if (self.joinedFramesStream is ()) {
+            function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
+            _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame|error? lhsFrame = pf.process();
+            _Frame[] joinedFrames = [];
+            error? failureAtJoin = self.failureAtJoin;
 
-        if(failureAtJoin is error) {
-            fail failureAtJoin;
-        }
-
-        if (lhsFrame is ()) {
-            lhsFrame = pf.process();
-            self.lhsFrame = lhsFrame;
-        }
-
-        if (lhsFrame is _Frame) {
-            any|error lhsKFRes = lhsKF(lhsFrame);
-            if (lhsKFRes is error) {
-                return prepareQueryBodyError(lhsKFRes);
+            if (failureAtJoin is error) {
+                fail failureAtJoin;
             }
-            lhsKey = (lhsKFRes).toString();
-            if (rhsCandidates is ()) {
-                rhsCandidates = rhsFramesMap.get(lhsKey);
-                self.rhsCandidates = rhsCandidates;
-            }
-            if (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
-                _Frame rhsFrame = rhsCandidates.shift();
-                self.rhsCandidates = rhsCandidates;
-                _Frame joinedFrame = {...lhsFrame};
-                foreach var [k, val] in rhsFrame.entries() {
-                    joinedFrame[k] = val;
+
+            while (lhsFrame is _Frame) {
+                any|error lhsKFRes = lhsKF(lhsFrame);
+                if (lhsKFRes is error) {
+                    return prepareQueryBodyError(lhsKFRes);
                 }
-                return joinedFrame;
-            } else {
-                // Move to next lhs frame
-                self.lhsFrame = ();
-                self.rhsCandidates = ();
-                return self.process();
+                string lhsKey = (lhsKFRes).toString();
+
+                _Frame[]? rhsCandidates = rhsFramesMap.get(lhsKey);
+                while (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
+                    _Frame rhsFrame = rhsCandidates.shift();
+                    _Frame joinedFrame = {...lhsFrame};
+                    foreach var [k, val] in rhsFrame.entries() {
+                        joinedFrame[k] = val;
+                    }
+                    joinedFrames.push(joinedFrame);
+                }
+                lhsFrame = pf.process();
             }
+            self.joinedFramesStream = joinedFrames.toStream();
         }
-        return lhsFrame;
+        stream<_Frame> s = <stream<_Frame>>self.joinedFramesStream;
+        record {|_Frame value;|}|error? f = s.next();
+        if (f is record {|_Frame value;|}) {
+            return f.value;
+        }
+        return f;
     }
 
     public function reset() {
-        // Reset the state of lhsFrame
-        self.lhsFrame = ();
-        self.rhsCandidates = ();
+        self.joinedFramesStream = ();
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
@@ -624,6 +616,139 @@ class _OrderByFunction {
 
     public function reset() {
         self.orderedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
+type RowGroupedData record {|
+    readonly anydata groupingKey;
+    _Frame[] frames;
+|};
+
+class _GroupByFunction {
+    *_StreamFunction;
+
+    string[] keys;
+    string[] nonGroupingKeys;
+    stream<_Frame>? groupedStream;
+    table<RowGroupedData> key(groupingKey) tbl;
+
+    function init(string[] keys, string[] nonGroupingKeys) {
+        self.keys = keys;
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.groupedStream = ();
+        self.tbl = table [];
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        if (self.groupedStream is ()) {
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame? f = check pf.process();
+            while f is _Frame {
+                anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
+                if self.tbl.hasKey(key) {
+                    self.tbl.get(key).frames.push(f);
+                } else {
+                    self.tbl.add({groupingKey: key, frames: [f]});
+                }
+                f = check pf.process();
+            }
+            self.groupedStream = self.convertToStream(self.tbl);
+        }
+
+        stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+        record {|_Frame value;|}|error? next = s.next();
+        return next is record {|_Frame value;|} ? next.value : next;
+    }
+
+    public function reset() {
+        self.groupedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    private function getKey(_Frame f) returns anydata|error {
+        anydata[] keys = [];
+        foreach var key in self.keys {
+            keys.push(<anydata> check f[key]);
+        }
+        return keys;
+    }
+
+    private function convertToStream(table<RowGroupedData> key(groupingKey) tbl) returns stream<_Frame> {
+        _Frame[] groupedFrames = [];
+
+        foreach var entry in tbl {
+            _Frame groupedFrame = {};
+            _Frame firstFrame = entry.frames[0];
+            foreach var key in self.keys {
+                groupedFrame[key] = firstFrame[key];
+            }
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                groupedFrame[nonGroupingKey] = [];
+            }
+            foreach var f in entry.frames {
+                foreach var nonGroupingKey in self.nonGroupingKeys {
+                    any|error sequenceValue = groupedFrame[nonGroupingKey];
+                    if sequenceValue is any {
+                        any|error val = f[nonGroupingKey];
+                        if val !is () {
+                            (<(any|error)[]> sequenceValue).push(val);
+                        }
+                    }
+                }
+            }
+            groupedFrames.push(groupedFrame);
+        }
+        return groupedFrames.toStream();
+    }
+}
+
+class _CollectFunction {
+    *_StreamFunction;
+
+    string[] nonGroupingKeys;
+    function (_Frame _frame) returns _Frame|error? collectFunc;
+
+    function init(string[] nonGroupingKeys, function (_Frame _frame) returns _Frame|error? collectFunc) {
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.collectFunc = collectFunc;
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        _Frame groupedFrame = {};
+        foreach var nonGroupingKey in self.nonGroupingKeys {
+            groupedFrame[nonGroupingKey] = [];
+        }
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        _Frame? f = check pf.process();
+        while f is _Frame {
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                any|error sequenceValue = groupedFrame[nonGroupingKey];
+                if (sequenceValue is any) {
+                    any|error val = f[nonGroupingKey];
+                    if val !is () {
+                        (<(any|error)[]> sequenceValue).push(val);
+                    }
+                }
+            }
+            f = check pf.process();
+        }
+        _Frame|error? cFrame = self.collectFunc(groupedFrame);
+        if (cFrame is error) {
+            return prepareQueryBodyError(cFrame);
+        }
+        return cFrame;
+    }
+
+    public function reset() {
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();

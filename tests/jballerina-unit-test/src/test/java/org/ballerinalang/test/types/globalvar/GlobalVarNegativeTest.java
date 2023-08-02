@@ -36,7 +36,6 @@ public class GlobalVarNegativeTest {
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "missing non-defaultable required record field 'x'", 22, 12);
         BAssertUtil.validateError(resultNegative, i++, "invalid character ':' in field access expression", 23, 15);
@@ -44,8 +43,9 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 27, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 29, 59);
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 29, 59);
-        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'", 31,
-                1);
+        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'",
+                31, 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test
@@ -196,18 +196,6 @@ public class GlobalVarNegativeTest {
                 20, 27);
         BAssertUtil.validateError(result, i++, "incompatible types: expected '(Foo & readonly)', found 'Foo'",
                 28, 22);
-        Assert.assertEquals(result.getErrorCount(), i);
-    }
-
-    @Test
-    public void testGlobalVariableInitWithOnFailNegative() {
-        CompileResult result = BCompileUtil.compile
-                ("test-src/statements/variabledef/global_variable_init_with_onfail_negative.bal");
-        int i = 0;
-        BAssertUtil.validateError(result, i++, "uninitialized variable 'j'", 18, 1);
-        BAssertUtil.validateError(result, i++, "uninitialized variable 'k'", 19, 1);
-        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
-                "variable(s) 'j, k' not initialized", 31, 5);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

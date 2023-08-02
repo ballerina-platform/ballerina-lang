@@ -18,13 +18,14 @@ package org.ballerinalang.test.expressions.binaryoperations;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -54,7 +55,7 @@ public class AddOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test two int add overflow expression", expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByAddition() {
@@ -178,59 +179,103 @@ public class AddOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 35);
-        BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 10);
-        BAssertUtil.validateError(resultNegative, 1, "operator '+' not defined for 'int' and 'string'", 14, 9);
-        BAssertUtil.validateError(resultNegative, 2, "operator '+' not defined for 'C' and 'string'", 28, 14);
-        BAssertUtil.validateError(resultNegative, 3, "operator '+' not defined for 'C' and '(float|int)'", 29, 14);
-        BAssertUtil.validateError(resultNegative, 4, "operator '+' not defined for 'C' and 'xml'", 30, 14);
-        BAssertUtil.validateError(resultNegative, 5, "operator '+' not defined for 'D' and 'int'", 47, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '+' not defined for 'F' and 'int'", 48, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '+' not defined for 'G' and 'int'", 49, 14);
-        BAssertUtil.validateError(resultNegative, 8, "operator '+' not defined for 'float' and 'decimal'", 56, 14);
-        BAssertUtil.validateError(resultNegative, 9, "operator '+' not defined for 'float' and 'decimal'", 57, 14);
-        BAssertUtil.validateError(resultNegative, 10, "operator '+' not defined for 'float' and 'int'", 58, 14);
-        BAssertUtil.validateError(resultNegative, 11, "operator '+' not defined for 'decimal' and 'int'", 59, 14);
-        BAssertUtil.validateError(resultNegative, 12, "operator '+' not defined for 'int' and 'float'", 60, 18);
-        BAssertUtil.validateError(resultNegative, 13, "operator '+' not defined for 'C' and 'float'", 64, 14);
-        BAssertUtil.validateError(resultNegative, 14, "operator '+' not defined for 'C' and 'float'", 65, 14);
-        BAssertUtil.validateError(resultNegative, 15, "incompatible types: expected 'string', found 'xml'", 72, 16);
-        BAssertUtil.validateError(resultNegative, 16, "incompatible types: expected 'FO', found 'string'", 73, 12);
-        BAssertUtil.validateError(resultNegative, 17, "operator '+' not defined for '(string:Char|xml)' and " +
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'json' and 'json'", 8, 10);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'C' and 'xml'", 30, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'D' and 'int'", 47, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'F' and 'int'", 48, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'G' and 'int'", 49, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'float' and 'decimal'", 56, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'float' and 'decimal'", 57, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'float' and 'int'", 58, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'decimal' and 'int'", 59, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'float'", 60, 18);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'C' and 'float'", 64, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'C' and 'float'", 65, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'xml'", 72, 16);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'FO', found 'string'", 73, 12);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(string:Char|xml)' and " +
                 "'(string:Char|xml)'", 85, 13);
-        BAssertUtil.validateError(resultNegative, 18, "operator '+' not defined for '(string:Char|xml)' and " +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(string:Char|xml)' and " +
                 "'(xml:Element|Strings)'", 86, 13);
-        BAssertUtil.validateError(resultNegative, 19, "operator '+' not defined for '(string:Char|xml)' and " +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(string:Char|xml)' and " +
                 "'(xml<(xml:Comment|xml:Text)>|string)'", 87, 13);
-        BAssertUtil.validateError(resultNegative, 20, "operator '+' not defined for '(xml:Element|Strings)' and " +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(xml:Element|Strings)' and " +
                 "'(xml:Element|Strings)'", 88, 13);
-        BAssertUtil.validateError(resultNegative, 21, "operator '+' not defined for '(xml:Element|Strings)' and " +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(xml:Element|Strings)' and " +
                 "'(xml<(xml:Comment|xml:Text)>|string)'", 89, 13);
-        BAssertUtil.validateError(resultNegative, 22, "operator '+' not defined for " +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
                 "'(xml<(xml:Comment|xml:Text)>|string)' and '(xml<(xml:Comment|xml:Text)>|string)'", 90, 13);
-        BAssertUtil.validateError(resultNegative, 23, "operator '+' not defined for '(int|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(int|float)'" +
                 " and '(int|float)'", 94, 13);
-        BAssertUtil.validateError(resultNegative, 24, "operator '+' not defined for '(int|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(int|float)'" +
                 " and '(float|int)'", 95, 13);
-        BAssertUtil.validateError(resultNegative, 25, "operator '+' not defined for '(int|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(int|float)'" +
                 " and '(byte|float)'", 96, 13);
-        BAssertUtil.validateError(resultNegative, 26, "operator '+' not defined for '(float|int)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(float|int)'" +
                 " and '(float|int)'", 97, 13);
-        BAssertUtil.validateError(resultNegative, 27, "operator '+' not defined for '(float|int)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(float|int)'" +
                 " and '(byte|float)'", 98, 13);
-        BAssertUtil.validateError(resultNegative, 28, "operator '+' not defined for '(byte|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(byte|float)'" +
                 " and '(byte|float)'", 99, 13);
-        BAssertUtil.validateError(resultNegative, 29, "operator '+' not defined for '(decimal|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(decimal|float)'" +
                 " and '(decimal|float)'", 103, 17);
-        BAssertUtil.validateError(resultNegative, 30, "operator '+' not defined for '(decimal|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(decimal|float)'" +
                 " and '(decimal|float)'", 104, 17);
-        BAssertUtil.validateError(resultNegative, 31, "operator '+' not defined for '(decimal|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(decimal|float)'" +
                 " and '(decimal|float)'", 105, 17);
-        BAssertUtil.validateError(resultNegative, 32, "operator '+' not defined for '(int|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(int|float)'" +
                 " and '(int|float)'", 111, 13);
-        BAssertUtil.validateError(resultNegative, 33, "operator '+' not defined for '(int|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(int|float)'" +
                 " and '(ints|float)'", 112, 13);
-        BAssertUtil.validateError(resultNegative, 34, "operator '+' not defined for '(ints|float)'" +
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(ints|float)'" +
                 " and '(ints|float)'", 113, 13);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(string|\"a\"|\"b\")' and 'int'", 118, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'int' and '(string|\"a\"|\"b\")'", 119, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(\"a\"|\"b\"|string)' and 'int'", 123, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'int' and '(\"a\"|\"b\"|string)'", 124, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(string|string:Char)' and 'int'", 128, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'float' and '(string|string:Char)'", 129, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'string' and 'int'", 133, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'string'", 134, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for '(1|2|int)' and 'string'", 138, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'string' and '(1|2|int)'", 139, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(xml:Element|xml:Text)' and 'int'", 143, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'int' and '(xml:Element|xml:Text)'", 144, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(string|\"a\"|\"b\")' and '(1|2|int)'", 147, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(1|2|int)' and '(string|\"a\"|\"b\")'", 149, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(1|2|int)' and '(xml:Element|xml:Text)'", 150, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
+                "'(xml:Element|xml:Text)' and '(1|2|int)'", 152, 9);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 156, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 157, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 158, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 159, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 163, 11);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 164, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 165, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 166, 12);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

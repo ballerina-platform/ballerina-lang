@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -76,8 +77,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -95,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -262,8 +267,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
-    private boolean possibleFailureReached = false;
-    private boolean visitingOnFailStmt = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private Deque<BSymbol> currDependentSymbolDeque;
@@ -436,7 +439,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // updated/marked as initialized.
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
-        this.possibleFailureReached = false;
 
         analyzeNode(funcNode.body, funcEnv);
 
@@ -535,7 +537,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
             this.uninitializedVars = copyUninitializedVars();
             this.flowTerminated = false;
-            this.possibleFailureReached = false;
             visitedOCE = true;
         }
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
@@ -841,7 +842,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(collection, env);
-        analyzeErrorHandlingStatement(foreach.body, foreach.onFailClause);
+        analyzeNode(foreach.body, env);
+        if (foreach.onFailClause != null) {
+            analyzeNode(foreach.onFailClause, env);
+        }
     }
 
     @Override
@@ -854,13 +858,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-        boolean prevVisitingOnFailStmt = this.visitingOnFailStmt;
-        if (whileNode.onFailClause != null) {
-            this.visitingOnFailStmt = true;
-        }
+
         analyzeNode(whileNode.expr, env);
         BranchResult whileResult = analyzeBranch(whileNode.body, env);
-        analyzeOnFailBranch(whileNode.onFailClause, whileResult);
+
+        if (whileNode.onFailClause != null) {
+            analyzeNode(whileNode.onFailClause, env);
+        }
 
         BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
 
@@ -875,60 +879,38 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
-        this.visitingOnFailStmt = prevVisitingOnFailStmt;
     }
 
     @Override
     public void visit(BLangDo doNode) {
-        analyzeErrorHandlingStatement(doNode.body, doNode.onFailClause);
-    }
-
-    private void analyzeErrorHandlingStatement(BLangBlockStmt blockStmt, BLangOnFailClause onFailClause) {
-        boolean prevVisitingOnFailStmt = this.visitingOnFailStmt;
-        if (onFailClause != null) {
-            this.visitingOnFailStmt = true;
-        }
-        BranchResult doResult = analyzeBranch(blockStmt, env);
-        this.uninitializedVars = doResult.uninitializedVars;
-        analyzeOnFailBranch(onFailClause, doResult);
-        this.visitingOnFailStmt = prevVisitingOnFailStmt;
-    }
-
-    private void analyzeOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
-        if (this.visitingOnFailStmt) {
-            // loop through the partial init variables from statement block
-            // and remove from `uninitializedVars` map if initialized in on-fail branch
-            BranchResult onFailResult = analyzeBranch(onFailClause, env);
-            Set<BSymbol> symbols = new HashSet<>();
-            for (BSymbol varRef: doResult.uninitializedVars.keySet()) {
-                InitStatus status = onFailResult.uninitializedVars.get(varRef);
-                if (status == null) {
-                    symbols.add(varRef);
-                }
-            }
-            for (BSymbol symbol: symbols) {
-                doResult.uninitializedVars.remove(symbol);
-            }
+        analyzeNode(doNode.body, env);
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
         }
     }
 
     public void visit(BLangFail failNode) {
-        this.possibleFailureReached = true;
         analyzeNode(failNode.expr, env);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-        analyzeErrorHandlingStatement(lockNode.body, lockNode.onFailClause);
+        analyzeNode(lockNode.body, this.env);
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        analyzeErrorHandlingStatement(transactionNode.transactionBody, transactionNode.onFailClause);
+        analyzeNode(transactionNode.transactionBody, env);
+        if (transactionNode.onFailClause != null) {
+            analyzeNode(transactionNode.onFailClause, env);
+        }
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.lineRange().filePath());
+        Name compUnitName = names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -1562,6 +1544,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        analyzeNode(collectContextInvocation.invocation, env);
+    }
+
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
             analyzeNode(positionalArg, env);
@@ -1640,8 +1627,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> analyzeNode(value, env));
+        replaceWithSeqSymbol(groupByClause.env);
+    }
+
+    private void replaceWithSeqSymbol(SymbolEnv env) {
+        for (Map.Entry<Name, Scope.ScopeEntry> symbolEntry : env.scope.entries.entrySet()) {
+            BSymbol sym = null;
+            Location loc = null;
+            for (Map.Entry<BSymbol, Location> unusedLocalVariable : this.unusedLocalVariables.entrySet()) {
+                BSymbol unusedVarSymbol = unusedLocalVariable.getKey();
+                if (unusedVarSymbol.name.equals(symbolEntry.getKey())) {
+                    sym = unusedLocalVariable.getKey();
+                    loc = unusedLocalVariable.getValue();
+                    break;
+                }
+            }
+            if (sym != null) {
+                this.unusedLocalVariables.remove(sym);
+                this.unusedLocalVariables.put(symbolEntry.getValue().symbol, loc);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        analyzeNode((BLangNode) groupingKey.getGroupingKey(), env);
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+        replaceWithSeqSymbol(bLangCollectClause.env);
+        analyzeNode(bLangCollectClause.expression, env);
     }
 
     @Override
@@ -1937,9 +1960,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        if (this.visitingOnFailStmt) {
-            this.possibleFailureReached = true;
-        }
         analyzeNode(checkedExpr.expr, env);
     }
 
@@ -1968,7 +1988,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        analyzeErrorHandlingStatement(retryNode.retryBody, retryNode.onFailClause);
+        analyzeNode(retryNode.retryBody, env);
+        if (retryNode.onFailClause != null) {
+            analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override
@@ -2326,28 +2349,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         boolean prevFlowTerminated = this.flowTerminated;
-        boolean prevFailureReached = this.possibleFailureReached;
 
         // Get a snapshot of the current uninitialized vars before visiting the node.
         // This is done so that the original set of uninitialized vars will not be
         // updated/marked as initialized.
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
-        this.possibleFailureReached = false;
 
         analyzeNode(node, env);
-        BranchResult branchResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
+        BranchResult brachResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
         this.flowTerminated = prevFlowTerminated;
-        this.possibleFailureReached = prevFailureReached;
 
-        return branchResult;
+        return brachResult;
     }
 
     private Map<BSymbol, InitStatus> copyUninitializedVars() {
-        return new LinkedHashMap<>(this.uninitializedVars);
+        return new HashMap<>(this.uninitializedVars);
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
@@ -2510,12 +2530,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 
-        BSymbol symbol = ((BLangVariableReference) varRef).symbol;
-        if (this.possibleFailureReached && this.uninitializedVars.containsKey(symbol)) {
-            this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
-        } else {
-            this.uninitializedVars.remove(symbol);
-        }
+        this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
     }
 
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {

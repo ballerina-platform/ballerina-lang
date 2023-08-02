@@ -40,9 +40,14 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
@@ -52,6 +57,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +70,10 @@ public class CompilerPluginTests {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
     private static final PrintStream OUT = System.out;
+    private static final String PLUGIN_OP_FILE_PATH = "./src/test/resources/compiler_plugin_tests/" +
+            "package_comp_plugin_with_analyzer_generator_modifier/target/combined_plugin_output.txt";
+    public static final String PLUGIN_LOCK_FILE_PATH = "./src/test/resources/compiler_plugin_tests/" +
+            "package_comp_plugin_with_analyzer_generator_modifier/target/combined_plugin_lock.txt";
 
     @BeforeSuite
     public void init() {
@@ -86,6 +96,14 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_diagnostic_init_function");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/defns");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_analyzer_generator_modifier");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/log_creator_pkg_provided_code_modifier_im");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/log_creator_pkg_provided_code_generator_im");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/log_creator_pkg_provided_code_analyzer_im");
     }
 
     @Test
@@ -357,6 +375,43 @@ public class CompilerPluginTests {
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
     }
 
+    @Test(description = "Test a combination of in-built and package provided compiler plugins")
+    public void testCombinationOfCompilerPlugins() throws IOException {
+        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+                "log_creator_combined_plugin/compiler-plugin.txt");
+        Files.writeString(logFile, "");
+        Package currentPackage = loadPackage("log_creator_combined_plugin");
+        currentPackage.getCompilation();
+        CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        String logFileContent =  Files.readString(logFile);
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-analyzer"),
+                "Package provided syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-analyzer"),
+                "In-Built syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-analyzer"),
+                "Package provided source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-analyzer"),
+                "In-Built source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-generator"),
+                "Package provided syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-generator"),
+                "In-Built syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-generator"),
+                "Package provided source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-generator"),
+                "In-Built source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-modifier"),
+                "In-Built syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-modifier"),
+                "In-Built source modifier from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-modifier"),
+                "Package provided syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-modifier"),
+                "Package provided source modifier from code modifier has failed to run");
+        Files.delete(logFile);
+    }
+
     @Test(description = "Test basic single bal file code modify using code modifier plugin")
     public void testCompilerPluginSingleBalFileCodeModifyBasic() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("single_bal_plugin_code_modify_user_1").resolve("main.bal");
@@ -455,7 +510,7 @@ public class CompilerPluginTests {
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
 
         PackageCompilation packageCompilation = newPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
 
         try {
@@ -468,9 +523,149 @@ public class CompilerPluginTests {
         Assert.assertNull(mainResult);
     }
 
+    @Test
+    public void testMatchStmtWithRepeatedCompilationWithCodeModifierPlugin() {
+        Package currentPackage = loadPackage("match_stmt_with_code_modifier_test");
+        currentPackage.getCompilation();
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
+
+        PackageCompilation packageCompilation = newPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
+
+        try {
+            BRunUtil.runInit(compileResult);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("error while invoking init method");
+        }
+
+        Object mainResult = BRunUtil.invoke(compileResult, "main");
+        Assert.assertNull(mainResult);
+    }
+
+    @Test(description = "Execute runCodeModifierPlugins() and ensure code analyzers are not running")
+    public void testRunCodeModifierPluginsMethod() {
+        Package currentPackage = loadPackage("package_plugin_mod_gen_analyze_user_1");
+
+        // Execute runCodeModifierPlugins(), which should not run code analyzers
+        clearCodeGenModAnalyzePluginOutputFile();
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        String output = readCodeGenModAnalyzePluginOutputFile();
+        Assert.assertEquals(output, "Initialized modifier",
+                "Invalid compiler plugin print logs after running code modifiers");
+
+        // Compile the package which should run the code analyzers
+        Optional<Package> updatedPackage = codeModifierResult.updatedPackage();
+        if (updatedPackage.isPresent()) {
+            updatedPackage.get().getCompilation();
+            output = readCodeGenModAnalyzePluginOutputFile();
+            clearCodeGenModAnalyzePluginOutputFile();
+            Assert.assertEquals(output, "Initialized modifier\nInitialized analyzer",
+                    "Invalid compiler plugin print logs after running code modifiers");
+        }
+    }
+
+    @Test(description = "Execute runCodeGeneratorPlugins() and ensure code analyzers are not running")
+    public void testRunCodeGeneratorPluginsMethod() {
+        Package currentPackage = loadPackage("package_plugin_mod_gen_analyze_user_1");
+
+        // Execute runCodeGeneratorPlugins(), which should not run code analyzers
+        clearCodeGenModAnalyzePluginOutputFile();
+        CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
+        String output = readCodeGenModAnalyzePluginOutputFile();
+        Assert.assertEquals(output, "Initialized generator",
+                "Invalid compiler plugin file logs after running code modifiers");
+
+        // Compile the package which should run the code analyzers
+        Optional<Package> updatedPackage = codeGeneratorResult.updatedPackage();
+        if (updatedPackage.isPresent()) {
+            updatedPackage.get().getCompilation();
+            updatedPackage.get().getCompilation();
+            output = readCodeGenModAnalyzePluginOutputFile();
+            clearCodeGenModAnalyzePluginOutputFile();
+            Assert.assertEquals(output, "Initialized generator\nInitialized analyzer",
+                    "Invalid compiler plugin file logs after compilation");
+        }
+    }
+
+    @Test(description = "Execute runCodeGenAndModifyPlugins() and ensure code analyzers are not running")
+    public void testRunCodeGenAndModifyPluginsMethod() {
+        Package currentPackage = loadPackage("package_plugin_mod_gen_analyze_user_1");
+
+        // Execute runCodeGenAndModifyPlugins(), which should not run code analyzers
+        clearCodeGenModAnalyzePluginOutputFile();
+        currentPackage.runCodeGenAndModifyPlugins();
+        String output = readCodeGenModAnalyzePluginOutputFile();
+        clearCodeGenModAnalyzePluginOutputFile();
+        Assert.assertEquals(output, "Initialized generator\nInitialized modifier",
+                "Invalid compiler plugin file logs after running code generators and modifiers");
+    }
+
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         return buildProject.currentPackage();
+    }
+
+    public String readCodeGenModAnalyzePluginOutputFile() {
+        try {
+            acquireLock();
+            StringBuilder output = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(PLUGIN_OP_FILE_PATH))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+            }
+            releaseLock();
+            return output.toString().strip().replaceAll("\r", "");
+        } catch (IOException e) {
+            throw new RuntimeException("Error while reading the file: " + PLUGIN_OP_FILE_PATH + " " + e.getMessage());
+        }
+    }
+
+    public void clearCodeGenModAnalyzePluginOutputFile() {
+        try {
+            acquireLock();
+            try (FileWriter writer = new FileWriter(PLUGIN_OP_FILE_PATH, false)) {
+                writer.write("");
+            }
+            releaseLock();
+        } catch (IOException e) {
+            throw new RuntimeException("Error while deleting the file: " + PLUGIN_OP_FILE_PATH + " " + e.getMessage());
+        }
+    }
+
+    private void acquireLock() {
+        try {
+            File lockFile = new File(PLUGIN_LOCK_FILE_PATH);
+            while (lockFile.exists()) {
+                Thread.sleep(100);
+            }
+            if (!lockFile.createNewFile()) {
+                throw new RuntimeException("Error while creating the lock file: " + PLUGIN_LOCK_FILE_PATH);
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(
+                    "Error while creating the lock file: " + PLUGIN_LOCK_FILE_PATH + " " + e.getMessage());
+        }
+    }
+
+    private void releaseLock() {
+        try {
+            Files.delete(Paths.get(PLUGIN_LOCK_FILE_PATH));
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Error while deleting the lock file: " + PLUGIN_LOCK_FILE_PATH + " " + e.getMessage());
+        }
+    }
+
+    @AfterSuite
+    private void cleanup() throws IOException {
+        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+                "log_creator_combined_plugin/compiler-plugin.txt");
+        Files.delete(logFile);
     }
 }

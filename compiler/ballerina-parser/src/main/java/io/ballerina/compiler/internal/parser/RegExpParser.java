@@ -427,6 +427,9 @@ public class RegExpParser extends AbstractParser {
                     return STNodeFactory.createToken(SyntaxKind.ESCAPED_MINUS_TOKEN, minusToken.leadingMinutiae(),
                             minusToken.trailingMinutiae());
                 }
+                if (token.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                    this.tokenReader.startMode(ParserMode.RE_CHAR_CLASS);
+                }
                 return parseReEscape();
             default:
                 STNode consumedToken = consume();
@@ -504,8 +507,8 @@ public class RegExpParser extends AbstractParser {
             openBrace = invalidateNonDigitNodesAndAddToTrailingMinutiae(openBrace, true);
         }
         STNode leastDigits = parseDigits(true);
-        STNode comma = null;
-        STNode mostDigits = null;
+        STNode comma = STNodeFactory.createEmptyNode();;
+        STNode mostDigits = STNodeFactory.createEmptyNodeList();
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.COMMA_TOKEN) {
             comma = consume();
@@ -739,7 +742,7 @@ public class RegExpParser extends AbstractParser {
      * @return Interpolation node
      */
     private STNode parseInterpolation() {
-        // Consume the injected interpolation start and end. i.e: &{}.
+        // Consume the injected interpolation start and end. i.e: ${}.
         consume();
         consume();
         return this.interpolationExprs.remove();

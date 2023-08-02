@@ -45,7 +45,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -520,6 +523,11 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
+    }
+
+    @Override
     public void visit(BLangRetry retryNode, AnalyzerData data) {
         boolean failureHandled = data.failureHandled;
         checkStatementExecutionValidity(retryNode, data);
@@ -544,6 +552,16 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         resetErrorThrown(data);
         analyzeReachability(onFailClause.body, data);
         resetErrorThrown(data);
+    }
+
+    @Override
+    public void visit(BLangGroupByClause node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, AnalyzerData data) {
+
     }
 
     @Override
@@ -582,7 +600,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     private Location getEndCharPos(Location pos) {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLinePos.line(), endLinePos.line(),
                 endLinePos.offset() - 1, endLinePos.offset(),
                 pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }

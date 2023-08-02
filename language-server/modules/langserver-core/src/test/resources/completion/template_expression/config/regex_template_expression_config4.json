@@ -4,6 +4,7 @@
     "character": 33
   },
   "source": "template_expression/source/regex_template_expression_source4.bal",
+  "description": "",
   "items": [
     {
       "label": "test/project2",
@@ -541,24 +542,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "()",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "Q",
-      "filterText": "()",
-      "insertText": "(${1})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "[]",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "Q",
-      "filterText": "[]",
-      "insertText": "[${1}]",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "CONST",
       "kind": "Variable",
       "detail": "100",
@@ -714,6 +697,24 @@
       "detail": "Byte",
       "sortText": "ACN",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "string ``",
+      "insertText": "string `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "xml ``",
+      "insertText": "xml `${1}`",
       "insertTextFormat": "Snippet"
     }
   ]

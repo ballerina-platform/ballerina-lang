@@ -36,6 +36,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -110,6 +112,26 @@ public class FileSystemRepository extends AbstractPackageRepository {
                 new FileSystemCache.FileSystemCacheFactory(cacheDir));
         Project project = BalaProject.loadProject(environmentBuilder, balaPath);
         return Optional.of(project.currentPackage());
+    }
+
+    /**
+     * Update the deprecated status of the package in file system cache.
+     *
+     * @param descriptor Package descriptor
+     */
+    void updateDeprecatedStatusForPackage(PackageDescriptor descriptor) {
+        Path balaPath = getPackagePath(descriptor.org().value(), descriptor.name().value(),
+                descriptor.version().value().toString());
+        if (balaPath != null && Files.exists(balaPath)) {
+            Path deprecateMsgMetaFile = Paths.get(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
+            if (descriptor.getDeprecated() && !deprecateMsgMetaFile.toFile().exists()) {
+                FileUtils.addDeprecatedMetaFile(deprecateMsgMetaFile, descriptor.getDeprecationMsg());
+            }
+
+            if (!descriptor.getDeprecated() && deprecateMsgMetaFile.toFile().exists()) {
+                FileUtils.deleteDeprecatedMetaFile(deprecateMsgMetaFile);
+            }
+        }
     }
 
     @Override
@@ -283,8 +305,12 @@ public class FileSystemRepository extends AbstractPackageRepository {
                 ProjectUtils.getRelativeBalaPath(org, name, version, null));
         if (!Files.exists(balaPath)) {
             // If bala for any platform not exist check for specific platform
-            balaPath = this.bala.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                balaPath = this.bala.resolve(ProjectUtils.getRelativeBalaPath(org, name, version, jvmTarget.code()));
+                if (Files.exists(balaPath)) {
+                    break;
+                }
+            }
         }
         return balaPath;
     }

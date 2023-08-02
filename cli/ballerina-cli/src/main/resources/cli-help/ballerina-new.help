@@ -2,12 +2,18 @@ NAME
        ballerina-new - Create a new Ballerina package
 
 SYNOPSIS
-       bal new <package-name> [-t |--template <template-name> ]
+       bal new <package-path> [-t |--template <template-name> ]
 
 
 DESCRIPTION
-       Create a new directory and initialize a Ballerina package inside
-       that directory.
+       Creates the given path if it does not exist and initializes a Ballerina
+       package in it. It generates the Ballerina.toml, main.bal, .gitignore and
+       .devcontainer.json files inside the package directory. However, for
+       existing paths, the main.bal file is only created if there are no
+       other Ballerina source files (.bal) in the directory.
+
+       This command also provides an option to generate files based on
+       predefined templates.
 
        A Ballerina package is a collection of logically-related Ballerina
        modules that are versioned and shared as a single unit. All modules of
@@ -16,6 +22,8 @@ DESCRIPTION
        The package directory will have the structure below.
             .
             ├── Ballerina.toml
+            ├── .devcontainer.json
+            ├── .gitignore
             └── main.bal
 
        Any directory becomes a Ballerina package if that directory has a
@@ -45,13 +53,19 @@ OPTIONS
 
 EXAMPLES
        Create a package with the 'main' function.
-           $ bal new <package-name>
+           $ bal new myPackage
+
+       Initialize a package in the current directory.
+           $ bal new .
+
+       Create a package in the given path.
+           $ bal new path/to/package
 
        Create a package with the 'main' function with tests.
-           $ bal new <package-name> -t main
+           $ bal new -t main myApp
 
-       Create a package with a Ballerina service.
-           $ bal new <package-name> -t service
+      Create a package with a Ballerina service template.
+           $ bal new -t service myService
 
-       Create a package with a Ballerina library.
-           $ bal new <package-name> -t lib
+      Create a package with a Ballerina library template.
+           $ bal new -t lib myLib

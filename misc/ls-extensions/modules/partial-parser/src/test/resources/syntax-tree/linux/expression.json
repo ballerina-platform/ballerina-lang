@@ -189,32 +189,12 @@
         "endColumn": 31
       },
       "leadingMinutiae": [],
-      "trailingMinutiae": [
-        {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "minutiae": ";",
-          "isInvalid": true
-        }
-      ]
+      "trailingMinutiae": []
     },
-    "source": "20;",
-    "syntaxDiagnostics": [
-      {
-        "message": "invalid token '{0}'",
-        "diagnosticInfo": {
-          "code": "BCE0600",
-          "severity": "ERROR"
-        }
-      }
-    ],
+    "source": "20",
+    "syntaxDiagnostics": [],
     "leadingMinutiae": [],
-    "trailingMinutiae": [
-      {
-        "kind": "INVALID_NODE_MINUTIAE",
-        "minutiae": ";",
-        "isInvalid": true
-      }
-    ],
+    "trailingMinutiae": [],
     "position": {
       "startLine": 0,
       "startColumn": 29,
@@ -223,25 +203,11 @@
     },
     "typeData": {}
   },
-  "source": "(population - infantCount) * 20;",
+  "source": "(population - infantCount) * 20",
   "kind": "BinaryExpression",
-  "syntaxDiagnostics": [
-    {
-      "message": "invalid token '{0}'",
-      "diagnosticInfo": {
-        "code": "BCE0600",
-        "severity": "ERROR"
-      }
-    }
-  ],
+  "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [
-    {
-      "kind": "INVALID_NODE_MINUTIAE",
-      "minutiae": ";",
-      "isInvalid": true
-    }
-  ],
+  "trailingMinutiae": [],
   "position": {
     "startLine": 0,
     "startColumn": 0,
