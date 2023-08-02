@@ -139,6 +139,11 @@ public class JsonToRecordMapperTests {
     private final Path sample14Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_14.bal");
 
+    private final Path sample15Json = RES_DIR.resolve(JSON_DIR)
+            .resolve("sample_15.json");
+    private final Path sample15TypeDescBal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_15_type_desc.bal");
+
     private final Path singleBalFile = RES_DIR.resolve(PROJECT_DIR).resolve(SOURCE_DIR)
             .resolve("singleFileProject").resolve("SingleBalFile.bal");
 
@@ -423,6 +428,15 @@ public class JsonToRecordMapperTests {
                 "of the JSON. This will cause infinite record nesting.";
         Assert.assertEquals(diagnostics.size(), 1);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
+    }
+
+    @Test(description = "Test for JSON array of nested objects - inline")
+    public void testForJsonArrayOfNestedObjectsInLIne() throws IOException {
+        String jsonFileContent = Files.readString(sample15Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample15TypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
