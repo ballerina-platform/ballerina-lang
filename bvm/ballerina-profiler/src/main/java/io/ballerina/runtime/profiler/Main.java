@@ -131,7 +131,7 @@ public class Main {
     }
 
     private static void extractProfiler() throws ProfilerException {
-        OUT.printf("%s[1/6] Initializing Profiler...%s%n", Constants.ANSI_CYAN ,Constants.ANSI_RESET);
+        OUT.printf("%s[1/6] Initializing Profiler...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try {
             new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime").start().waitFor();
         } catch (IOException | InterruptedException exception) {
@@ -162,8 +162,10 @@ public class Main {
         }
         OUT.printf("%s[4/6] Instrumenting Functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try (JarFile jarFile = new JarFile(balJarName)) {
-            String mainClassPackage = MethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
-            CustomClassLoader customClassLoader = new CustomClassLoader(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
+            String mainClassPackage = MethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{new File(balJarName)
+                    .toURI().toURL()}));
+            CustomClassLoader customClassLoader = new CustomClassLoader(new URLClassLoader(
+                    new URL[]{new File(balJarName).toURI().toURL()}));
             Set<String> usedPaths = new HashSet<>();
             for (String className : classNames) {
                 if (mainClassPackage == null) {
@@ -219,7 +221,8 @@ public class Main {
     }
 
     public static void listAllFiles(final File userDirectory) {
-        String absolutePath = Paths.get(Constants.TEMP_JAR_FILE_NAME).toFile().getAbsolutePath().replaceAll(Constants.TEMP_JAR_FILE_NAME, "");
+        String absolutePath = Paths.get(Constants.TEMP_JAR_FILE_NAME).toFile().getAbsolutePath()
+                .replaceAll(Constants.TEMP_JAR_FILE_NAME, "");
 
         File[] files = userDirectory.listFiles();
         if (files != null) {
@@ -293,19 +296,19 @@ public class Main {
         // Add a shutdown hook to stop the profiler and parse the output when the program is closed.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
+                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS)
+                        - profilerStartTime;
                 deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
                 OUT.printf("%s[6/6] Generating Output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 Thread.sleep(100);
                 initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
                 deleteFileIfExists("CpuPre.json");
-                OUT.printf(" ○ Execution Time: %d Seconds %n", profilerTotalTime / 1000);
+                OUT.printf(" ○ Execution Time: %d Seconds ", profilerTotalTime / 1000);
                 deleteTempData();
                 initializeHTMLExport();
                 deleteFileIfExists("performance_report.json");
-                OUT.print("----------------------------------------");
-                OUT.print("----------------------------------------");
+                OUT.println("--------------------------------------------------------------------------------");
             } catch (IOException | InterruptedException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);
             } finally {
