@@ -64,6 +64,8 @@ public class ProjectConstants {
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
+    public static final String IMPORT_PREFIX = "import ";
+    public static final String EMPTY_STRING = "";
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
@@ -107,11 +109,11 @@ public class ProjectConstants {
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
     public static final String TEST_SUITE = "test_suite";
 
-    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";
-    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.5.jar";
-    public static final String ASM_JAR = "asm-7.2.jar";
-    public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
-    public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
+    public static final String ASM_JAR = "asm-9.5.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-9.5.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-9.5.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 

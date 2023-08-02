@@ -142,11 +142,6 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(semanticTokensSupport));
         initializationOptions.setEnableSemanticTokens(enableSemanticTokens);
 
-        Object renameSupport = initOptions.get(InitializationOptions.KEY_RENAME_SUPPORT);
-        boolean enableRenameSupport = renameSupport != null &&
-                Boolean.parseBoolean(String.valueOf(renameSupport));
-        initializationOptions.setSupportRenamePopup(enableRenameSupport);
-
         Object quickPickSupport = initOptions.get(InitializationOptions.KEY_QUICKPICK_SUPPORT);
         boolean enableQuickPickSupport = quickPickSupport != null &&
                 Boolean.parseBoolean(String.valueOf(quickPickSupport));
@@ -162,7 +157,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         boolean enablePositionalRenameSupport = positionalRenameSupport != null && 
                 Boolean.parseBoolean(String.valueOf(positionalRenameSupport));
         initializationOptions.setSupportPositionalRenamePopup(enablePositionalRenameSupport);
-        
+
+        Object inlayHintsSupport = initOptions.get(InitializationOptions.KEY_ENABLE_INLAY_HINTS);
+        boolean enableInlayHintsSupport = inlayHintsSupport != null &&
+                Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
+        initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
+
         return initializationOptions;
     }
 
@@ -210,10 +210,10 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
-        private boolean supportRenamePopup = false;
         private boolean supportQuickPick = false;
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
+        private boolean enableInlayHints = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -233,21 +233,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         }
 
         @Override
-        public boolean isRefactorRenameSupported() {
-            return supportRenamePopup;
-        }
-
-        @Override
         public boolean isPositionalRefactorRenameSupported() {
             return supportPositionalRenamePopup;
         }
 
         public void setSupportPositionalRenamePopup(boolean supportPositionalRenamePopup) {
             this.supportPositionalRenamePopup = supportPositionalRenamePopup;
-        }
-
-        public void setSupportRenamePopup(boolean supportRenamePopup) {
-            this.supportRenamePopup = supportRenamePopup;
         }
 
         @Override
@@ -268,5 +259,13 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             this.supportQuickPick = supportQuickPick;
         }
 
+        @Override
+        public boolean isEnableInlayHints() {
+            return enableInlayHints;
+        }
+
+        public void setEnableInlayHints(boolean enableInlayHints) {
+            this.enableInlayHints = enableInlayHints;
+        }
     }
 }

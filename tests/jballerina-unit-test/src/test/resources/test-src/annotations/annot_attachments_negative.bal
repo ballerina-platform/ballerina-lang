@@ -934,3 +934,44 @@ public enum Color5 {
     ORANGE,
     GREEN
 }
+
+public const annotation record {| int increment; |} v25 on source type;
+
+int x = 1;
+
+@v25 {
+    increment: x + 1
+}
+type F1 record {|
+    int x;
+|};
+
+@v25 {
+    increment: -x
+}
+type F2 record {|
+    int x;
+|};
+
+@v25 {
+    increment: 1 + 2
+}
+type F3 record {|
+    int x;
+|};
+
+const int y = 3;
+
+@v25 {
+    increment: y + 1
+}
+type F4 record {|
+    int x;
+|};
+
+@v25 {
+    increment: y + x
+}
+type F5 record {|
+    int x;
+|};
