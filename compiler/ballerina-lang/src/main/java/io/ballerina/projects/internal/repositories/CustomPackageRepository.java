@@ -8,27 +8,26 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageMetadataResponse;
+
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.internal.ImportModuleRequest;
-import io.ballerina.projects.internal.ImportModuleResponse;
+
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public abstract class CustomPackageRepository extends FileSystemRepository{
+public abstract class CustomPackageRepository extends AbstractPackageRepository implements CustomRepositoryHelper {
+    private final FileSystemRepository fileSystemRepository;
     protected final String repoId;
 
-
-    //TODO: Overide the super methods if needed Eg: getPackage
     public CustomPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
                                    String repoId) {
-        super(environment, cacheDirectory, distributionVersion);
+        this.fileSystemRepository = new FileSystemRepository(environment, cacheDirectory, distributionVersion);
         this.repoId = repoId;
     }
 
@@ -38,20 +37,30 @@ public abstract class CustomPackageRepository extends FileSystemRepository{
         String orgName = request.orgName().value();
         String version = request.version().isPresent() ?
                 request.version().get().toString() : "0.0.0";
-        Path balaPath = super.getPackagePath(orgName, packageName, version);
+        Path balaPath = this.fileSystemRepository.getPackagePath(orgName, packageName, version);
         if (!Files.exists(balaPath)) {
             getPackageFromRemoteRepo(orgName, packageName, version);
         }
-        return super.getPackage(request, options);
+        return this.fileSystemRepository.getPackage(request, options);
     }
 
+    @Override
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
+        return getPackageVersions(request.orgName(), request.packageName(),
+                request.version().orElse(null));
+    }
+
+    @Override
+    public Map<String, List<String>> getPackages() {
+        return this.fileSystemRepository.getPackages();
+    }
 
 
     @Override
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
                                    PackageVersion version) {
-        boolean isPackageExist = super.isPackageExists(org, name, version);
+        boolean isPackageExist = this.fileSystemRepository.isPackageExists(org, name, version);
         if (!isPackageExist) {
             return getPackageFromRemoteRepo(org.value(), name.value(), version.value().toString());
         }
@@ -66,7 +75,7 @@ public abstract class CustomPackageRepository extends FileSystemRepository{
 
         isPackageExists(org, name, version);
 
-        Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
+        Path balaPath = this.fileSystemRepository.getPackagePath(org.toString(), name.toString(), version.toString());
         if (Files.exists(balaPath)) {
             return Collections.singletonList(version);
         } else {
@@ -78,27 +87,12 @@ public abstract class CustomPackageRepository extends FileSystemRepository{
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                     PackageVersion version) {
         isPackageExists(org, name, version);
-        return super.getDependencyGraph(org, name, version);
+        return this.fileSystemRepository.getDependencyGraph(org, name, version);
     }
 
     @Override
     public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
         isPackageExists(org, name, version);
-        return super.getModules(org, name, version);
+        return this.fileSystemRepository.getModules(org, name, version);
     }
-
-//    @Override
-//    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
-//                                                           ResolutionOptions options) {
-//
-//    }
-//
-//    @Override
-//    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
-//                                                     ResolutionOptions options) {
-//
-//    }
-
-
-    protected abstract boolean getPackageFromRemoteRepo(String org, String name, String version);
 }

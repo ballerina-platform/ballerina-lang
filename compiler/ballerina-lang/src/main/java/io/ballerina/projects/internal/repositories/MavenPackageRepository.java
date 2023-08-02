@@ -25,13 +25,11 @@ import java.util.Comparator;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 
-
-public class MavenPackageRepository extends CustomPackageRepository {
+public class MavenPackageRepository extends CustomPackageRepository implements CustomRepositoryHelper {
 
     public static final String EMPTY = "";
 
     public static final String PLATFORM = "platform";
-    public static final String BALA_EXTENSION = ".bala";
     private final MavenResolverClient client;
     private final String repoLocation;
 
@@ -73,7 +71,7 @@ public class MavenPackageRepository extends CustomPackageRepository {
 
 
     @Override
-    protected boolean getPackageFromRemoteRepo(String org,
+    public boolean getPackageFromRemoteRepo(String org,
                                                String name,
                                                String version) {
         try {
