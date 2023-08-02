@@ -2054,6 +2054,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         initFuncSymbol.retType = symTable.nilType;
 
         recordSymbol.scope = new Scope(recordSymbol);
+        recordSymbol.scope.define(Names.fromString(recordSymbol.name.value + "." + Names.INIT_FUNCTION_SUFFIX.value),
+                                  initFuncSymbol);
         return recordSymbol;
     }
 

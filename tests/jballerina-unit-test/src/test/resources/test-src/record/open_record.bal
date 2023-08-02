@@ -123,11 +123,17 @@ function testDefaultVal() {
     Person p = {};
     Mat m = {};
     Mat m2 = {x: 1};
+    record {
+        record {
+            int c = 10;
+        } b = {};
+    } a = {b: {}};
     assert("default first name", p.name);
     assert("", p.lname);
     assert(999, p.age);
     assert(10, m.x);
     assert(1, m2.x);
+    assert(10, a.b.c);
 }
 
 function testOpenRecordWithSpreadOperator() {
@@ -656,7 +662,6 @@ function testRecordsWithFieldsWithBuiltinNames() {
     assert("{\"error\":error(\"bam\",message=\"new error\"),\"json\":{\"s\":\"s\"},\"anydata\":3}", f.toString());
 }
 
-
 type Details record {
     string name;
     BirthDay birthDay = {};
@@ -693,6 +698,25 @@ function testDefaultableRecordFieldsWithQuotedIdentifiersForTypeKeywords() {
     assert(true, s?.'error === err);
     assert(true, s?.'json);
     assert(1234, s?.'anydata);
+<<<<<<< HEAD
+=======
+}
+
+
+type Details record {
+    string name;
+    BirthDay birthDay = {};
+};
+
+type BirthDay record {
+    int year = 2000;
+};
+
+function  testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
+    Student & readonly student = {id: 0};
+    assert(student.details.name, "chirans");
+    assert(student.details.birthDay.year, 2000);
+>>>>>>> bc0eeda830002a58188d2c3c85f46e3281a42f90
 }
 
 // Util functions
@@ -745,6 +769,21 @@ type Bar3 record {|
     byte a = 100;
 |};
 
+type Foo3 record {
+    int x = 10;
+    int y = 20;
+};
+
+type Bar4 record {
+    int a = 30;
+    int b = 40;
+};
+
+type Baz2 record {
+    *Foo3;
+    *Bar4;
+};
+
 function testTypeInclusionWithOpenRecord() {
     R1 r1 = {f : "hello"};
     assert("hello", r1.f);
@@ -754,4 +793,32 @@ function testTypeInclusionWithOpenRecord() {
     Bar3 b3 = {};
     assert(100, b3.a);
     assert(101, b3.h);
+}
+
+function testWithMultipleTypeInclusions() {
+    Baz2 baz = {};
+    assert(10, baz.x);
+    assert(20, baz.y);
+    assert(30, baz.a);
+    assert(40, baz.b);
+}
+
+type Foo4 record {|
+    int x = 10;
+    int y = 10;
+|};
+
+function testSpreadOperatorWithOpenRecord() {
+    record {|int x; int y?;|} r = {x:14};
+    Foo4 f = { ...r};
+    assert(14, f.x);
+    assert(10, f.y);
+    record {|int x; int y?;|} r1 = {x:14, y:15};
+    Foo4 f1 = { ...r1};
+    assert(14, f1.x);
+    assert(15, f1.y);
+    record {|int x?; int y?;|} r2 = {};
+    Foo4 f2 = { ...r2};
+    assert(10, f2.x);
+    assert(10, f2.y);
 }

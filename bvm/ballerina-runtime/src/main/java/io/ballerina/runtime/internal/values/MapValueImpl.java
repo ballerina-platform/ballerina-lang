@@ -281,10 +281,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
+        List<String> definedFields = new ArrayList<>();
         for (BMapInitialValueEntry initialValue : initialValues) {
             if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
                         (MappingInitialValueEntry.KeyValueEntry) initialValue;
+                if (definedFields.contains(keyValueEntry.key.toString())) {
+                    continue;
+                }
                 populateInitialValue((K) keyValueEntry.key, (V) keyValueEntry.value);
                 continue;
             }
@@ -292,6 +296,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             MapValueImpl<K, V> values =
                     (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) initialValue).values;
             for (Map.Entry<K, V> entry : values.entrySet()) {
+                definedFields.add(entry.getKey().toString());
                 populateInitialValue(entry.getKey(), entry.getValue());
             }
         }

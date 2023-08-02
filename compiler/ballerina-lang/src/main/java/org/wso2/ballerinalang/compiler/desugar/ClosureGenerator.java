@@ -209,6 +209,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private BLangNode result;
     private SymbolResolver symResolver;
     private AnnotationDesugar annotationDesugar;
+    private Desugar desugar;
     private Types types;
 
     public static ClosureGenerator getInstance(CompilerContext context) {
@@ -228,6 +229,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
+        this.desugar = Desugar.getInstance(context);
     }
 
     @Override
@@ -523,17 +525,16 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
+        if (varNode.typeNode != null && varNode.typeNode.getKind() != null) {
+            varNode.typeNode = rewrite(varNode.typeNode, env);
+        }
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.FIELD) && varNode.symbol.isDefaultable) {
-            typeNodeOfRecordField = varNode.typeNode;
             String closureName = generateName(varNode.symbol.name.value, env.node);
             generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
             result = varNode;
             return;
         }
 
-        if (varNode.typeNode != null && varNode.typeNode.getKind() != null) {
-            varNode.typeNode = rewrite(varNode.typeNode, env);
-        }
         if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             generateClosureForDefaultValues(closureName, varNode.name.value, varNode);
@@ -605,6 +606,10 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BSymbol owner = getOwner(env);
         BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
+        if (varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) varNode.expr;
+            desugar.generateFieldsForUserUnspecifiedRecordFields(recordLiteral, recordLiteral.fields);
+        }
         returnStmt.expr = addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
@@ -1703,7 +1708,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         Queue<BLangSimpleVariableDef> previousQueue = this.queue;
         this.queue = new LinkedList<>();
         int size = nodeList.size();
-        rewrite(typeNodeOfRecordField, env);
         for (int i = 0; i < size; i++) {
             E node = rewrite(nodeList.remove(0), env);
             Iterator<BLangSimpleVariableDef> iterator = queue.iterator();
@@ -1712,7 +1716,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
             }
             nodeList.add(node);
         }
-        typeNodeOfRecordField = null;
         this.queue = previousQueue;
         return nodeList;
     }
