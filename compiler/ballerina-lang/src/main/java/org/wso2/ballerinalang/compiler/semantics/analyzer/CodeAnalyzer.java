@@ -3908,26 +3908,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int parameterCountForPositionalArgs = ((BInvokableType) invocableType).getParameterTypes().size();
 
         int i = 0;
-        boolean foundNamedArg = false;
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
-                    foundNamedArg = true;
                     reportIfDeprecatedUsage(((BLangNamedArgsExpression) expr).varSymbol, expr, expr.pos);
                     i++;
                     break;
                 case REST_ARGS_EXPR:
-                    if (foundNamedArg) {
-                        continue;
-                    }
                     if (i > parameterCountForPositionalArgs) {
                         reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
                     }
                     break;
                 default:    // positional args
-                    if (foundNamedArg) {
-                        continue;
-                    }
                     if (i < parameterCountForPositionalArgs) {
                         BVarSymbol paramSymbol = invokableSymbol.params.get(i);
                         reportIfDeprecatedUsage(paramSymbol, expr, expr.pos);
