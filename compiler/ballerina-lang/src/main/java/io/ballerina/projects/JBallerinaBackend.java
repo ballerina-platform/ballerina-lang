@@ -258,34 +258,34 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private List<PlatformLibrary> getPlatformLibraries(PackageId packageId) {
         Package pkg = packageCache.getPackageOrThrow(packageId);
-        PackageManifest.Platform javaPlatform = pkg.manifest().platform(jdkVersion.code());
-        if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
-            return Collections.emptyList();
-        }
-
+        Map<String, PackageManifest.Platform> platforms = pkg.manifest().platforms();
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
-        for (Map<String, Object> dependency : javaPlatform.dependencies()) {
-            String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
-            String version = (String) dependency.get(JarLibrary.KEY_VERSION);
-            String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
-
-            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
-            // If dependencyFilePath does not exists, resolve it using MavenResolver
-            if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
-                dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+        for (PackageManifest.Platform javaPlatform : platforms.values()) {
+            if (javaPlatform == null || javaPlatform.dependencies().isEmpty()) {
+                continue;
             }
+            for (Map<String, Object> dependency : javaPlatform.dependencies()) {
+                String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
+                String version = (String) dependency.get(JarLibrary.KEY_VERSION);
+                String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
 
-            // If the path is relative we will covert to absolute relative to Ballerina.toml file
-            Path jarPath = Paths.get(dependencyFilePath);
-            if (!jarPath.isAbsolute()) {
-                jarPath = pkg.project().sourceRoot().resolve(jarPath);
+                String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+                // If dependencyFilePath does not exist, resolve it using MavenResolver
+                if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
+                    dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+                }
+
+                // If the path is relative we will covert to absolute relative to Ballerina.toml file
+                Path jarPath = Paths.get(dependencyFilePath);
+                if (!jarPath.isAbsolute()) {
+                    jarPath = pkg.project().sourceRoot().resolve(jarPath);
+                }
+
+                PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
+                platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version,
+                        pkg.packageOrg().value() + "/" + pkg.packageName().value()));
             }
-
-            PlatformLibraryScope scope = getPlatformLibraryScope(dependency);
-            platformLibraries.add(new JarLibrary(jarPath, scope, artifactId, groupId, version,
-                                                 pkg.packageOrg().value() + "/" + pkg.packageName().value()));
         }
-
         return platformLibraries;
     }
 
@@ -571,17 +571,17 @@ public class JBallerinaBackend extends CompilerBackend {
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
-            nativeArgs.addAll(Arrays.asList("-jar",
+            nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
-                    "--no-fallback", graalVMBuildOptions));
+                    "--no-fallback"));
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
-            nativeArgs.addAll(Arrays.asList("-jar",
+            nativeArgs.addAll(Arrays.asList(graalVMBuildOptions, "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "--no-fallback", graalVMBuildOptions));
+                    "--no-fallback"));
         }
 
         if (!Files.exists(nativeConfigPath)) {

@@ -21,9 +21,9 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     distributionBala
     distributionBirJar
     balRt
@@ -35,19 +35,24 @@ configurations {
 }
 
 dependencies {
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
+    testImplementation 'commons-io:commons-io'
     testImplementation 'com.google.code.gson:gson'
+    testImplementation project(':ballerina-test-utils')
+    testImplementation project(':ballerina-lang')
+    testImplementation project(':ballerina-tools-api')
+    testImplementation project(':ballerina-parser')
+    testImplementation project(':toml-parser')
 
-    testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-lang')
-    testCompile project(':ballerina-tools-api')
-    testCompile project(':ballerina-parser')
-    testRuntime project(':ballerina-runtime')
-    testRuntime project(':project-api-test-artifact:logging-file-appender-plugin')
-    testRuntime project(':compiler-plugins:package-semantic-analyzer')
+    testRuntimeOnly project(':ballerina-runtime')
+    testRuntimeOnly project(':project-api-test-artifact:logging-file-appender-plugin')
+    testRuntimeOnly project(':compiler-plugins:package-semantic-analyzer')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-modifier')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-generator')
+    testRuntimeOnly project(':project-api-test-artifact:log-creator-in-built-code-analyzer')
 
     compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
@@ -63,8 +68,11 @@ dependencies {
     compilerPluginJar project(':compiler-plugins:package-semantic-analyzer')
     compilerPluginJar project(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+    compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 
-    testRuntime project(":ballerina-lang-test")
+    testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
@@ -103,24 +111,29 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperty("project.version", project.version)
     }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/all-test.exec")
+    }
 }
 
-task jacocoMergeTest(type: JacocoMerge) {
+task jacocoMergeTest(type: JacocoReport) {
     dependsOn ':ballerina-lang:build'
     String langProjectBuildDir = project(":ballerina-lang").buildDir
-    destinationFile = file("$buildDir/jacoco/all-test.exec")
-    executionData = files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec")
+    getExecutionData().setFrom(files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec"))
 }
 
-jacocoTestReport.doFirst{
+jacocoTestReport {
+    afterEvaluate {
         String langProjectDir = project(":ballerina-lang").projectDir
         String langProjectBuildDir = project(":ballerina-lang").buildDir
-        classDirectories = files("$langProjectBuildDir/classes/java/main/io/ballerina/projects")
-        sourceDirectories = files("$langProjectDir/src/main/java")
-        executionData = files("$buildDir/jacoco/all-test.exec")
-}
+        getClassDirectories().setFrom(files("$langProjectBuildDir/classes/java/main/io/ballerina/projects") as FileCollection)
+        getSourceDirectories().setFrom(files("$langProjectDir/src/main/java") as FileCollection)
+        getExecutionData().setFrom(files("$buildDir/jacoco/all-test.exec") as FileCollection)
+    }
 
-jacocoTestReport.dependsOn(jacocoMergeTest)
+    dependsOn(jacocoMergeTest)
+}
 
 ext.moduleName = 'io.ballerina.projects.test'
 

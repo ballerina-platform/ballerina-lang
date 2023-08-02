@@ -64,16 +64,9 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, node.expression())) {
-            /*
-            Captures the following cases
-            (1) [module:]TypeName c = module:<cursor>
-            (2) [module:]TypeName c = module:a<cursor>
-             */
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                    || symbol.kind() == SymbolKind.FUNCTION;
-            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
-            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            getQNameRefCompletions((QualifiedNameReferenceNode) node.expression(), context, completionItems);
+        } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            getQNameRefCompletions((QualifiedNameReferenceNode) context.getNodeAtCursor(), context, completionItems);
         } else if (onSuggestionsAfterQualifiers(context, node.expression())) {
             /*
             Captures the following case.
@@ -93,6 +86,18 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
         this.sort(context, node, completionItems);
         return completionItems;
+    }
+    
+    private void getQNameRefCompletions(QualifiedNameReferenceNode qNameRef, BallerinaCompletionContext context,
+                                        List<LSCompletionItem> completionItems) {
+        /*
+        Captures the following cases
+        (1) [module:]TypeName c = module:<cursor>
+        (2) [module:]TypeName c = module:a<cursor>
+        */
+        Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION;
+        List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
+        completionItems.addAll(this.getCompletionItemList(moduleContent, context));
     }
 
     @Override

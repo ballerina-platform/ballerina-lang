@@ -1,3 +1,7 @@
+plugins {
+    id "com.gradle.enterprise" version "3.13.2"
+}
+
 rootProject.name = 'ballerina-parent'
 include(':ballerina-tools-api')
 include(':ballerina-parser')
@@ -69,7 +73,6 @@ include(':testerina')
 include(':testerina:report-tools')
 include(':testerina:testerina-compiler-plugin')
 include(':testerina:testerina-runtime')
-include(':testerina:testerina-core')
 include(':ballerina-spec-conformance-tests')
 include(':observability-symbol-collector')
 include(':metrics-extensions:ballerina-metrics-extension')
@@ -126,6 +129,12 @@ include(':project-api-test-artifact:bad-sad-compiler-plugin')
 include(':project-api-test-artifact:logging-file-appender-plugin')
 include(':project-api-test-artifact:init-function-codegen-compiler-plugin')
 include(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+include(':project-api-test-artifact:log-creator-in-built-code-modifier')
+include(':project-api-test-artifact:log-creator-in-built-code-generator')
+include(':project-api-test-artifact:log-creator-in-built-code-analyzer')
+include(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+include(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+include(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 include(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 include(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
@@ -152,6 +161,12 @@ project(':project-api-test-artifact:bad-sad-compiler-plugin').projectDir = file(
 project(':project-api-test-artifact:logging-file-appender-plugin').projectDir = file('project-api/test-artifacts/logging-file-appender-plugin')
 project(':project-api-test-artifact:init-function-codegen-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-codegen-compiler-plugin')
 project(':project-api-test-artifact:init-function-code-modify-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-code-modify-compiler-plugin')
+project(':project-api-test-artifact:log-creator-in-built-code-modifier').projectDir = file('project-api/test-artifacts/log-creator-in-built-code-modifier')
+project(':project-api-test-artifact:log-creator-in-built-code-generator').projectDir = file('project-api/test-artifacts/log-creator-in-built-code-generator')
+project(':project-api-test-artifact:log-creator-in-built-code-analyzer').projectDir = file('project-api/test-artifacts/log-creator-in-built-code-analyzer')
+project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier').projectDir = file('project-api/test-artifacts/log-creator-pkg-provided-code-modifier')
+project(':project-api-test-artifact:log-creator-pkg-provided-code-generator').projectDir = file('project-api/test-artifacts/log-creator-pkg-provided-code-generator')
+project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer').projectDir = file('project-api/test-artifacts/log-creator-pkg-provided-code-analyzer')
 project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen').projectDir = file('project-api/test-artifacts/simple-code-gen-plugin-with-resource-gen')
 project(':project-api-test-artifact:init-function-diagnostic-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-diagnostic-compiler-plugin')
 project(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier').projectDir = file('project-api/test-artifacts/compiler-plugin-with-analyzer-generator-modifier')
@@ -261,5 +276,12 @@ buildCache {
         url = "http://192.168.58.132:5071/cache/"
         enabled = false
         push = true
+    }
+}
+
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 }

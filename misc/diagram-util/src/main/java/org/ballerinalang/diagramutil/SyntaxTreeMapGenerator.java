@@ -297,9 +297,14 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
             nodeJson.add("typeData", symbolJson);
 
-            if ((node.kind() == SyntaxKind.BLOCK_STATEMENT || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK ||
-                    node.kind() == SyntaxKind.SERVICE_DECLARATION) && (this.visibleEpsForEachBlock.size() > 0 ||
-                    this.visibleEpsForModule.size() > 0)) {
+            boolean isBlockNode = node.kind() == SyntaxKind.BLOCK_STATEMENT
+                    || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK
+                    || node.kind() == SyntaxKind.SERVICE_DECLARATION;
+            boolean hasVisibleEps = this.visibleEpsForEachBlock.size() > 0
+                    || this.visibleEpsForClass.size() > 0
+                    || this.visibleEpsForModule.size() > 0;
+
+            if (isBlockNode && hasVisibleEps) {
 
                 JsonArray blockEndpoints = new JsonArray();
                 // Add module level endpoints
