@@ -14,10 +14,10 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-shell-test-suite">
-    <test name="ballerina-shell-test" parallel="false">
+    <test name="ballerina-shell-test">
         <packages>
             <package name="io.ballerina.shell.test.*"/>
             <package name="io.ballerina.shell.test.unit.*"/>

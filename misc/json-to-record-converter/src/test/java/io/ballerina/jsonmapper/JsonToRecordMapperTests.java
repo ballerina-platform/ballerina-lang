@@ -144,6 +144,9 @@ public class JsonToRecordMapperTests {
     private final Path sample15TypeDescBal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_15_type_desc.bal");
 
+    private final Path sample16Json = RES_DIR.resolve(JSON_DIR)
+            .resolve("sample_16.json");
+
     private final Path singleBalFile = RES_DIR.resolve(PROJECT_DIR).resolve(SOURCE_DIR)
             .resolve("singleFileProject").resolve("SingleBalFile.bal");
 
@@ -425,7 +428,18 @@ public class JsonToRecordMapperTests {
         List<JsonToRecordMapperDiagnostic> diagnostics =
                 JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null).getDiagnostics();
         String diagnosticMessage = "Proper inline record cannot be generated due to the nested structure " +
-                "of the JSON. This will cause infinite record nesting.";
+                "of the JSON. This will cause infinite record nesting. Consider renaming field 'items'.";
+        Assert.assertEquals(diagnostics.size(), 1);
+        Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
+    }
+
+    @Test(description = "Test for nested JSON with same recurring field to generate inline record - 1")
+    public void testForJsonWithRecurringFieldNameToGenerateInlineRecord1() throws IOException {
+        String jsonFileContent = Files.readString(sample16Json);
+        List<JsonToRecordMapperDiagnostic> diagnostics =
+                JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null, null).getDiagnostics();
+        String diagnosticMessage = "Proper inline record cannot be generated due to the nested structure " +
+                "of the JSON. This will cause infinite record nesting. Consider renaming field 'productRef'.";
         Assert.assertEquals(diagnostics.size(), 1);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
     }
