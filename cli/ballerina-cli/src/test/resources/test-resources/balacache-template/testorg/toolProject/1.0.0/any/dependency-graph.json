@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "org": "testorg",
+      "name": "toolProject",
+      "version": "1.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "testorg",
+      "package_name": "toolProject",
+      "version": "1.0.0",
+      "module_name": "toolProject",
+      "dependencies": []
+    }
+  ]
+}
