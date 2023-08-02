@@ -120,7 +120,9 @@ public class PushCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PUSH_COMMAND);
             outStream.println(commandUsageInfo);
             // Exit status, zero for OK, non-zero for error
-            Runtime.getRuntime().exit(0);
+            if (exitWhenFinish) {
+                Runtime.getRuntime().exit(0);
+            }
             return;
         }
 
