@@ -232,6 +232,18 @@ public distinct class FileInputStream {
         }
     }
 
+    # The function that maps to the `skipNBytes` method of `java.io.FileInputStream`.
+    #
+    # + arg0 - The `int` value required to map with the Java method parameter.
+    # + return - The `IOException` value returning from the Java mapping.
+    public function skipNBytes(int arg0) returns IOException? {
+        error|() externalObj = java_io_FileInputStream_skipNBytes(self.jObj, arg0);
+        if (externalObj is error) {
+            IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
+            return e;
+        }
+    }
+
     # The function that maps to the `transferTo` method of `java.io.FileInputStream`.
     #
     # + arg0 - The `OutputStream` value required to map with the Java method parameter.
@@ -449,6 +461,12 @@ function java_io_FileInputStream_reset(handle receiver) returns error? = @java:M
 
 function java_io_FileInputStream_skip(handle receiver, int arg0) returns int|error = @java:Method {
     name: "skip",
+    'class: "java.io.FileInputStream",
+    paramTypes: ["long"]
+} external;
+
+function java_io_FileInputStream_skipNBytes(handle receiver, int arg0) returns error? = @java:Method {
+    name: "skipNBytes",
     'class: "java.io.FileInputStream",
     paramTypes: ["long"]
 } external;
