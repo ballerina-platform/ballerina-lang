@@ -54,12 +54,6 @@ public class ObjectTest {
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
     }
 
-    @AfterClass
-    public void tearDown() {
-        checkInInitializerResult = null;
-        checkFunctionReferencesResult = null;
-    }
-
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-simple-struct.bal");
@@ -945,5 +939,11 @@ public class ObjectTest {
     public void testNonPublicSymbolsWarningInServiceClass() {
         CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        checkFunctionReferencesResult = null;
+        checkInInitializerResult = null;
     }
 }

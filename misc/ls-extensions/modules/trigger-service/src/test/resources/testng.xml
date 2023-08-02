@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="trigger-service-test-suite">
-    <test name="triggers-test" parallel="false">
+    <test name="triggers-test">
         <classes>
             <class name="io.ballerina.trigger.TriggerServiceTest"/>
         </classes>
