@@ -11,8 +11,8 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
 
-    testCompile 'org.testng:testng'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation 'org.testng:testng'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
 description = 'JBallerina Semtyp port - Unit Test Module'
