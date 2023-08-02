@@ -8721,17 +8721,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
+
         /*
-        * check doA() on fail e => error("Something went wrong", e);
-        *
-        * Above is desugared to
-        * $result;
-        * do {
-        *   $result = doA();
-        * } on fail var e {
-        *   error("Something went wrong", e);
-        * }
-        * */
+         * check doA() on fail e => error("Something went wrong", e);
+         *
+         * Above is desugared to
+         * $result;
+         * do {
+         *   $result = doA();
+         * } on fail var e {
+         *   error("Something went wrong", e);
+         * }
+         */
+
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(checkedOnFailExpr.pos);
         BLangSimpleVariableDef tempVarDef = createVarDef("$result",
                 checkedOnFailExpr.checkedExpr.getBType(), checkedOnFailExpr.checkedExpr, checkedOnFailExpr.pos);
