@@ -85,10 +85,10 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"add_module1.json"},
-//                {"add_module2.json"},
-//                {"add_module3.json"},
-//                {"add_module4.json"},
-//                {"add_module5.json"},
+                {"add_module2.json"},
+                {"add_module3.json"},
+                {"add_module4.json"},
+                {"add_module5.json"},
         };
     }
 
