@@ -57,7 +57,6 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
 public class Main {
 
     static long profilerStartTime;
-    static int exitCode = 0;
     private static String balJarArgs = null;
     static String balJarName = null;
     static String targetDir = null;
@@ -111,14 +110,13 @@ public class Main {
                     balJarArgs = balJarArgs.substring(1, balJarArgs.length() - 1);
                     break;
 //                TODO: Implement skip function
-//                case "--skip":
-//                    skipFunctionString = args[i + 1];
-//                    if (skipFunctionString != null && skipFunctionString.matches("\\[.*\\]")) {
-//                        skipFunctionString = skipFunctionString.substring(1, skipFunctionString.length() - 1);
-//                    } else {
-//                        OUT.printf("%s%n", invalidArgument);
-//                    }
-//                    break;
+                case "--skip":
+                    skipFunctionString = args[i + 1];
+                    if (skipFunctionString == null || !skipFunctionString.matches("\\[.*\\]")) {
+                        throw new ProfilerException("Invalid skip functions found : " + skipFunctionString);
+                    }
+                    skipFunctionString = skipFunctionString.substring(1, skipFunctionString.length() - 1);
+                    break;
                 case "--target":
                     targetDir = args[i + 1];
                     break;
@@ -146,8 +144,7 @@ public class Main {
             Path destinationPath = Paths.get(Constants.TEMP_JAR_FILE_NAME);
             Files.copy(sourcePath, destinationPath);
         } catch (IOException e) {
-            exitCode = 2;
-            OUT.printf("Error occurred while copying the file: %s%n", e.getMessage());
+            throw new ProfilerException("Error occurred while copying the file: " + balJarName, e);
         }
     }
 
@@ -158,7 +155,7 @@ public class Main {
             findAllClassNames(balJarName, classNames);
             findUtilityClasses(classNames);
         } catch (Exception e) {
-            OUT.printf("(No such file or directory)%n");
+            throw new ProfilerException("Error occurred while performing analysis", e);
         }
         OUT.printf("%s[4/6] Instrumenting Functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try (JarFile jarFile = new JarFile(balJarName)) {
