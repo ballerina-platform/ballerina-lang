@@ -224,7 +224,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(outStream, this.output), !this.enableProfiler)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime()
                         && !this.enableProfiler)
-                .addTask(new RunProfilerTask(outStream, errStream, args), !this.enableProfiler)
+                .addTask(new RunProfilerTask(errStream, args), !this.enableProfiler)
                 .addTask(new RunExecutableTask(args, outStream, errStream), this.enableProfiler).build();
         taskExecutor.executeTasks(project);
     }

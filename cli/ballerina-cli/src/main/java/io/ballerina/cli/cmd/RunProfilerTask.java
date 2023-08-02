@@ -27,11 +27,9 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME
 public class RunProfilerTask implements Task {
 
     private final String[] args;
-    private final transient PrintStream out;
     private final transient PrintStream err;
 
-    public RunProfilerTask(PrintStream outStream, PrintStream errStream, String[] args) {
-        this.out = outStream;
+    public RunProfilerTask(PrintStream errStream, String[] args) {
         this.err = errStream;
         this.args = args;
     }
