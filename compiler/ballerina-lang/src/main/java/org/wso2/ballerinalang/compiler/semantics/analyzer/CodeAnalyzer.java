@@ -3920,7 +3920,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     if (foundNamedArg) {
                         continue;
                     }
-                    analyzeExpr(expr, data);
+                    if (i > parameterCountForPositionalArgs) {
+                        reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
+                    }
                     break;
                 default:    // positional args
                     if (foundNamedArg) {
