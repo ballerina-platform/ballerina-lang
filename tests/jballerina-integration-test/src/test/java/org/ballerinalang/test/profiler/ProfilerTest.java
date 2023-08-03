@@ -21,6 +21,7 @@ package org.ballerinalang.test.profiler;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,12 +51,26 @@ public class ProfilerTest extends BaseTest {
         String packageName = "testProject";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        bMainInstance.runMain("run",
-                new String[]{"--profile", packageName},
-                envProperties,
-                null,
-                null,
-                sourceRoot);
+        LogLeecher[] leechers = getProfilerLogLeechers(25, 607);
+        bMainInstance.runMain("run", new String[]{"--profile", packageName}, envProperties,
+                null, leechers, sourceRoot);
+        for (LogLeecher leecher : leechers) {
+            leecher.waitForText(5000);
+        }
+    }
+
+    private LogLeecher[] getProfilerLogLeechers(int moduleCount, int functionCount) {
+        return new LogLeecher[]{
+                new LogLeecher("[1/6] Initializing Profiler..."),
+                new LogLeecher("[2/6] Copying Executable..."),
+                new LogLeecher("[3/6] Performing Analysis..."),
+                new LogLeecher("[4/6] Instrumenting Functions..."),
+                new LogLeecher("○ Instrumented Module Count: " + moduleCount),
+                new LogLeecher("○ Instrumented Function Count: " + functionCount),
+                new LogLeecher("[5/6] Running Executable..."),
+                new LogLeecher("[6/6] Generating Output..."),
+                new LogLeecher("○ Execution Time:"),
+                new LogLeecher("○ Output: ")};
     }
 //    @Test
 //    public void testProfilerOutput() throws BallerinaTestException {

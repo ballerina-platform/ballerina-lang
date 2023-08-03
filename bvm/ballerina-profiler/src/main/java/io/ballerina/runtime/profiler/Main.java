@@ -301,7 +301,7 @@ public class Main {
                 initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
                 deleteFileIfExists("CpuPre.json");
-                OUT.printf(" ○ Execution Time: %d Seconds ", profilerTotalTime / 1000);
+                OUT.printf(" ○ Execution Time: %d Seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
                 initializeHTMLExport();
                 deleteFileIfExists("performance_report.json");
