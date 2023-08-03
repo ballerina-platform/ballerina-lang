@@ -1712,7 +1712,10 @@ public class ClosureGenerator extends BLangNodeVisitor {
             E node = rewrite(nodeList.remove(0), env);
             Iterator<BLangSimpleVariableDef> iterator = queue.iterator();
             while (iterator.hasNext()) {
-                nodeList.add(rewrite((E) queue.poll(), env));
+                BLangSimpleVariableDef bLangSimpleVariableDef = queue.poll();
+                nodeList.add(rewrite((E) bLangSimpleVariableDef, env));
+                BSymbol varSymbol = bLangSimpleVariableDef.var.symbol;
+                env.scope.define(varSymbol.name, varSymbol);
             }
             nodeList.add(node);
         }
