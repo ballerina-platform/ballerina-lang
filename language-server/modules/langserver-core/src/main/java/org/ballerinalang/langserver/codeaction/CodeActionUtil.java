@@ -483,8 +483,7 @@ public class CodeActionUtil {
                     return Collections.emptyList();
                 }
 
-                List<TypeSymbol> allErrorTypes = new ArrayList<>();
-                allErrorTypes.addAll(errorTypeSymbols);
+                List<TypeSymbol> allErrorTypes = new ArrayList<>(errorTypeSymbols);
                 Pair<List<TypeSymbol>, List<TypeSymbol>> errorAndNonErrorTypedSymbols =
                         getErrorAndNonErrorTypedSymbols(returnTypeDescriptor.get());
                 allErrorTypes.addAll(errorAndNonErrorTypedSymbols.getRight());
