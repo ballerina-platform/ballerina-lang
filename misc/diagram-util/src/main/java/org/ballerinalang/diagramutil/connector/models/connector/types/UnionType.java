@@ -51,8 +51,4 @@ public class UnionType extends Type {
         this.displayAnnotation = unionType.displayAnnotation;
         this.documentation = unionType.documentation;
     }
-
-    public List<Type> getMembers() {
-        return members;
-    }
 }
