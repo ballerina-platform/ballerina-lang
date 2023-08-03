@@ -39,4 +39,20 @@ public class UnionType extends Type {
         this.typeName = "union";
         this.members = members;
     }
+
+    public UnionType(UnionType unionType) {
+        this.typeName = unionType.typeName;
+        this.members = unionType.members;
+        this.name = unionType.name;
+        this.optional = unionType.optional;
+        this.typeInfo = unionType.typeInfo;
+        this.defaultable = unionType.defaultable;
+        this.defaultValue = unionType.defaultValue;
+        this.displayAnnotation = unionType.displayAnnotation;
+        this.documentation = unionType.documentation;
+    }
+
+    public List<Type> getMembers() {
+        return members;
+    }
 }
