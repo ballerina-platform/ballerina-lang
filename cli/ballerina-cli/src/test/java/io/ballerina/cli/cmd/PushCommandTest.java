@@ -184,8 +184,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("ballerina-push - Push packages to Ballerina Central"));
+        Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
     @Test(description = "Test push command with help flag")
@@ -196,8 +195,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("ballerina-push - Push packages to Ballerina Central"));
+        Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
     @Test
