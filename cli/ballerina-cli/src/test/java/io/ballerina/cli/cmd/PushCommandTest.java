@@ -114,6 +114,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
             pushCommand.execute();
         }
 
@@ -213,6 +214,7 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
             pushCommand.execute();
         }
 
@@ -264,7 +266,7 @@ public class PushCommandTest extends BaseCommandTest {
         Files.delete(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         // Push
-        String expected = "package md file cannot be empty";
+        String expected = "md file cannot be empty";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
