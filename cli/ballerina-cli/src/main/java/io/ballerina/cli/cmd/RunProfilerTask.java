@@ -27,7 +27,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME
 public class RunProfilerTask implements Task {
 
     private final String[] args;
-    private final transient PrintStream err;
+    private final PrintStream err;
+    private static final String JAVA_OPTS = "JAVA_OPTS";
 
     public RunProfilerTask(PrintStream errStream, String[] args) {
         this.err = errStream;
@@ -62,6 +63,7 @@ public class RunProfilerTask implements Task {
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             pb.directory(new File(project.targetDir() + "/bin"));
+            pb.environment().put(JAVA_OPTS, getAgentArgs());
             Process process = pb.start();
             process.waitFor();
             int exitValue = process.exitValue();
@@ -76,5 +78,13 @@ public class RunProfilerTask implements Task {
     @Override
     public void execute(Project project) {
         initiateProfiler(project, this.args);
+    }
+
+    private String getAgentArgs() {
+        // add jacoco agent
+        String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
+                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
+                        .resolve("build").resolve("jacoco").resolve("test.exec");
+        return jacocoArgLine + " ";
     }
 }
