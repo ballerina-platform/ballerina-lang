@@ -5886,7 +5886,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             fieldNames.add(fieldName);
             BInvokableSymbol invokableSymbol = entry.getValue();
-            BLangExpression expression = getInvocation(invokableSymbol);
+            BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
             if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
                 expression = visitCloneReadonly(expression, invokableSymbol.retType);
             }
@@ -6499,14 +6499,6 @@ public class Desugar extends BLangNodeVisitor {
         funcInvocation.symbol = symbol;
         funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
         return visitFunctionPointerInvocation(funcInvocation);
-    }
-
-    private BLangInvocation getInvocation(BInvokableSymbol symbol) {
-        BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.setBType(symbol.retType);
-        funcInvocation.symbol = symbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
-        return funcInvocation;
     }
 
     @Override
