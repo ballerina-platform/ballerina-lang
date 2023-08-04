@@ -76,13 +76,13 @@ public class LargeMethodOptimizer {
     private static final String SPLIT_METHOD = "$split$method$_";
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
-    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 2;
+    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1;
     // splits are done only if the newly created method will contain more instructions than the below number
-    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 2;
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 1;
     // splits are done only if the newly created method will have less function arguments than the below number
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 125;
     // total least no. of terminators and non-terminators that should be there to make the periodic split
-    private static final int INS_COUNT_PERIODIC_SPLIT_THRESHOLD = 2;
+    private static final int INS_COUNT_PERIODIC_SPLIT_THRESHOLD = 1;
     // current BIR package id
     private PackageID currentPackageId;
     // newly created split BIR function number

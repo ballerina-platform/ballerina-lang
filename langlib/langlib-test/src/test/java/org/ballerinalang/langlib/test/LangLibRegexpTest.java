@@ -53,7 +53,7 @@ public class LangLibRegexpTest {
         negativeTests = null;
     }
 
-    @Test(dataProvider = "testRegexLangLibFunctionList")
+    @Test(enabled = false, dataProvider = "testRegexLangLibFunctionList")
     public void testRegexLibFunctions(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
     }

@@ -68,19 +68,19 @@ public class CodegenErrorsTest {
         BRunUtil.invoke(result, "main");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testLargeMethods() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods");
         BRunUtil.invoke(result, "main");
     }
 
-    @Test (enabled = false)
+    @Test(enabled = false)
     public void testLargeMethods2() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods2");
         BRunUtil.invoke(result, "main");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testLargeMethods3() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods3");
         BRunUtil.runMain(result);

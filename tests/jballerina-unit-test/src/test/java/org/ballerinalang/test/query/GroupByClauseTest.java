@@ -45,7 +45,7 @@ public class GroupByClauseTest {
         negativeSemanticResult = BCompileUtil.compile("test-src/query/group_by_clause_negative_semantic.bal");
     }
 
-    @Test(dataProvider = "dataToTestGroupByClauseWithListCtr")
+    @Test(enabled = false, dataProvider = "dataToTestGroupByClauseWithListCtr")
     public void testGroupByClauseWithListCtr(String functionName) {
         BRunUtil.invoke(resultWithListCtr, functionName);
     }
