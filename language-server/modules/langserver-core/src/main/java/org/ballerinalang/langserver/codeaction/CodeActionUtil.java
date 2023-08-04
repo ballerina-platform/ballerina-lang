@@ -673,9 +673,17 @@ public class CodeActionUtil {
                             || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION
                             || parentNode.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR)) {
                 isFunctionDef = true;
-            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
-                    parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
-                isFunctionDef = true;
+            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                NonTerminalNode evalNode = parentNode.parent();
+                if (evalNode.kind() == SyntaxKind.SERVICE_DECLARATION) {
+                    isFunctionDef = true;
+                } else if (evalNode.kind() == SyntaxKind.CLASS_DEFINITION) {
+                    isFunctionDef = ((ClassDefinitionNode) evalNode)
+                            .classTypeQualifiers().stream()
+                            .anyMatch(qualifier-> qualifier.kind() == SyntaxKind.CLIENT_KEYWORD);
+                } else if (evalNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+                    isFunctionDef = true;
+                }
             }
 
             if (isFunctionDef) {
