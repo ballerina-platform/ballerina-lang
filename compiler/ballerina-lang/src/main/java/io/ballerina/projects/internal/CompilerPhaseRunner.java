@@ -25,15 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.*;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -71,6 +63,7 @@ public class CompilerPhaseRunner {
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
+    private final DeadCodeAnalyzer deadCodeAnalyzer;
     private boolean isToolingCompilation;
 
 
@@ -102,6 +95,7 @@ public class CompilerPhaseRunner {
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
+        this.deadCodeAnalyzer = DeadCodeAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -137,6 +131,11 @@ public class CompilerPhaseRunner {
         }
 
         propagateConstants(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        deadCodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
@@ -222,6 +221,9 @@ public class CompilerPhaseRunner {
 
     private BLangPackage birEmit(BLangPackage pkgNode) {
         return this.birEmitter.emit(pkgNode);
+    }
+    private BLangPackage deadCodeAnalyze(BLangPackage pkgNode) {
+        return this.deadCodeAnalyzer.analyze(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
