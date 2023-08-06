@@ -64,8 +64,8 @@ public class CompilerPhaseRunner {
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
+    private final DeadCodeAnalyzer deadCodeAnalyzer;
     private final boolean isToolingCompilation;
-
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {
         CompilerPhaseRunner compilerDriver = context.get(COMPILER_DRIVER_KEY);
@@ -92,6 +92,7 @@ public class CompilerPhaseRunner {
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
+        this.deadCodeAnalyzer = DeadCodeAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -127,6 +128,11 @@ public class CompilerPhaseRunner {
         }
 
         propagateConstants(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        deadCodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
@@ -212,6 +218,9 @@ public class CompilerPhaseRunner {
 
     private BLangPackage birEmit(BLangPackage pkgNode) {
         return this.birEmitter.emit(pkgNode);
+    }
+    private BLangPackage deadCodeAnalyze(BLangPackage pkgNode) {
+        return this.deadCodeAnalyzer.analyze(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
