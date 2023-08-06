@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 5,
+    "character": 38
+  },
+  "source": "expression_context/source/on_fail_check_ctx_source5.bal",
+  "description": "Test completion for check on fail expression",
+  "items": [
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "error",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "error",
+      "insertText": "error(\"${1}\")",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

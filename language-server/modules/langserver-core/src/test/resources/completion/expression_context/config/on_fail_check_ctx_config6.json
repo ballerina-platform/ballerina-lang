@@ -1,0 +1,9 @@
+{
+  "position": {
+    "line": 5,
+    "character": 34
+  },
+  "source": "expression_context/source/on_fail_check_ctx_source6.bal",
+  "description": "Test completion for check on fail expression",
+  "items": []
+}
