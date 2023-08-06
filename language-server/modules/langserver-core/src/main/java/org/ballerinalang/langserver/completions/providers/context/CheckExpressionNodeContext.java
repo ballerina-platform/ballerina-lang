@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -74,6 +75,10 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
                 //We add the action keywords in order to support the check action context completions.
                 completionItems.addAll(this.actionKWCompletions(ctx));
                 completionItems.addAll(this.expressionCompletions(ctx));
+                if (CommonUtil.onSuggestionsAfterCheckExpression(node)) {
+                    completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ONFAIL.get()));
+                    completionItems.add(new SnippetCompletionItem(ctx, Snippet.CLAUSE_ON_FAIL_CHECK.get()));
+                }
                 completionItems.add(new SnippetCompletionItem(ctx, Snippet.STMT_COMMIT.get()));
             }
         }

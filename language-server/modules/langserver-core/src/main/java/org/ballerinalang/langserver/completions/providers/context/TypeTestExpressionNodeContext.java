@@ -34,11 +34,13 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -64,6 +66,10 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.onExpressionContext(context, node)) {
             completionItems.addAll(this.expressionCompletions(context, node));
+            if (CommonUtil.onSuggestionsAfterCheckExpression(node)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ONFAIL.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL_CHECK.get()));
+            }
         } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);

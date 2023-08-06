@@ -93,6 +93,10 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.addAll(getStatementCompletionItems(context, node));
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.addAll(this.getSymbolCompletions(context));
+            if (CommonUtil.onSuggestionsAfterCheckExpression(nodeAtCursor)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ONFAIL.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL_CHECK.get()));
+            }
         }
         this.sort(context, node, completionItems);
 

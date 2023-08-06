@@ -30,6 +30,7 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
@@ -671,5 +672,30 @@ public class CommonUtil {
                         || node.kind() == SyntaxKind.SPECIFIC_FIELD
                         || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
         return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
+    }
+
+    /**
+     * Check if the cursor is positioned after the check expression.
+     *
+     * @param initializer node
+     * @return whether the cursor is positioned after the check expression
+     */
+    public static boolean onSuggestionsAfterCheckExpression(NonTerminalNode initializer) {
+        if (initializer.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            initializer = initializer.parent();
+        }
+        if (initializer.kind() == SyntaxKind.CHECK_EXPRESSION || (initializer.kind() == SyntaxKind.BINARY_EXPRESSION &&
+                ((BinaryExpressionNode) initializer).operator().isMissing())) {
+            return true;
+        } else {
+            for (Node child : initializer.children()) {
+                if (child.kind() == SyntaxKind.BINARY_EXPRESSION
+                        && ((BinaryExpressionNode) child).operator().isMissing()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

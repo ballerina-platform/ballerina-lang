@@ -115,6 +115,10 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         if (withinTransactionStatementNode(context)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
         }
+        if (CommonUtil.onSuggestionsAfterCheckExpression((NonTerminalNode) initializer)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ONFAIL.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL_CHECK.get()));
+        }
         return completionItems;
     }
 

@@ -297,6 +297,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get on fail Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnFailCheckKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ONFAIL_KEYWORD, ItemResolverConstants.ONFAIL_KEYWORD,
+                "on fail ", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
      * Get Collect Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1179,6 +1189,19 @@ public class SnippetGenerator {
                 + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.ON_FAIL_CLAUSE,
+                generateFilterText(Arrays.asList(ItemResolverConstants.ON, ItemResolverConstants.FAIL_KEYWORD)),
+                snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get on fail check clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnFailCheckClauseSnippet() {
+        String snippet = "on fail ${1:e} => error(\"${2}\")";
+
+        return new SnippetBlock(ItemResolverConstants.ON_FAIL_CHECK_CLAUSE,
                 generateFilterText(Arrays.asList(ItemResolverConstants.ON, ItemResolverConstants.FAIL_KEYWORD)),
                 snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }

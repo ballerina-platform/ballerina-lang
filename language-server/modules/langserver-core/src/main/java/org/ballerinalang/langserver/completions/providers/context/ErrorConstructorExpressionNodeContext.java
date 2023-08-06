@@ -39,9 +39,11 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -80,6 +82,9 @@ public class ErrorConstructorExpressionNodeContext extends
                 2. error ErrorType(<cursor>)
              */
             completionItems.addAll(getCompletionWithinArgs(context, node));
+        } else if (node.errorKeyword().isMissing() && node.parent().kind() == SyntaxKind.ON_FAIL_CHECK) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
         } else if (withinTypeRefContext(context, node)) {
             /*
             Covers the following

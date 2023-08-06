@@ -187,6 +187,8 @@ public enum Snippet {
 
     KW_GROUPBY(SnippetGenerator.getGroupByKeywordSnippet()),
 
+    KW_ONFAIL(SnippetGenerator.getOnFailCheckKeywordSnippet()),
+
     KW_COLLECT(SnippetGenerator.getCollectKeywordSnippet()),
 
     KW_ORDERBY(SnippetGenerator.getOrderByKeywordSnippet()),
@@ -366,6 +368,8 @@ public enum Snippet {
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
 
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
+
+    CLAUSE_ON_FAIL_CHECK(SnippetGenerator.getOnFailCheckClauseSnippet()),
 
     CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet());
 
