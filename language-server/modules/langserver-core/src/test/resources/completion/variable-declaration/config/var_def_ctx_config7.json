@@ -748,6 +748,24 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "on fail",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "DQ",
+      "filterText": "on fail",
+      "insertText": "on fail ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "on fail check clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "DP",
+      "filterText": "on_fail",
+      "insertText": "on fail ${1:e} => error(\"${2}\")",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
