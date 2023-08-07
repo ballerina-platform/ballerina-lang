@@ -75,13 +75,13 @@ public class ReoccurringTypesTest {
         Assert.assertEquals(recordType.fields.get(0).name, "field1");
         Assert.assertEquals(recordType.fields.get(0).typeName, SymbolServiceTestUtil.ARRAY);
         Assert.assertTrue(recordType.fields.get(0).isOptional());
-        ArrayType arrayType0 = (ArrayType)recordType.fields.get(0);
+        ArrayType arrayType0 = (ArrayType) recordType.fields.get(0);
         assertIntOrStringType(arrayType0.memberType);
 
         Assert.assertEquals(recordType.fields.get(1).name, "field2");
         Assert.assertEquals(recordType.fields.get(1).typeName, SymbolServiceTestUtil.ARRAY);
         Assert.assertTrue(recordType.fields.get(1).isOptional());
-        ArrayType arrayType1 = (ArrayType)recordType.fields.get(1);
+        ArrayType arrayType1 = (ArrayType) recordType.fields.get(1);
         assertIntOrStringType(arrayType1.memberType);
 
         Assert.assertEquals(recordType.fields.get(2).name, "rec1");
