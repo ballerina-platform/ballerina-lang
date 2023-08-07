@@ -20,6 +20,7 @@ package io.ballerina.cli.launcher.util;
 
 import io.ballerina.cli.cmd.CommandUtil;
 import io.ballerina.cli.cmd.ToolCommand;
+import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
@@ -35,7 +36,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,9 +126,9 @@ public class BalToolsUtil {
                 .flatMap(List::stream).noneMatch(commandName::equals);
     }
 
-    public static URLClassLoader getCustomToolClassLoader(String commandName) {
-        List<File> jars = getToolCommandJarAndDependenciesPath(commandName);
-        URL[] urls = jars.stream()
+    public static CustomToolClassLoader getCustomToolClassLoader(String commandName) {
+        List<File> toolJars = getToolCommandJarAndDependencyJars(commandName);
+        URL[] urls = toolJars.stream()
                 .map(file -> {
                     try {
                         return file.toURI().toURL();
@@ -140,7 +140,7 @@ public class BalToolsUtil {
                 .toArray(URL[]::new);
         // Combine custom class loader with system class loader
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        return new URLClassLoader(urls, systemClassLoader);
+        return new CustomToolClassLoader(urls, systemClassLoader);
     }
 
     public static void addToolIfCommandIsABuiltInTool(String commandName) {
@@ -158,7 +158,7 @@ public class BalToolsUtil {
         toolCommand.pullToolAndUpdateBalToolsToml(commandName, Names.EMPTY.getValue());
     }
 
-    private static List<File> getToolCommandJarAndDependenciesPath(String commandName) {
+    private static List<File> getToolCommandJarAndDependencyJars(String commandName) {
         Path userHomeDirPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME);
         Path balToolsTomlPath = userHomeDirPath.resolve(Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
         Path centralBalaDirPath = userHomeDirPath.resolve(

@@ -26,7 +26,6 @@ import picocli.CommandLine;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -164,11 +163,13 @@ public class Main {
         if (null != args && args.length > 0 && BalToolsUtil.isToolCommand(args[0])) {
             String commandName = args[0];
             BalToolsUtil.addToolIfCommandIsABuiltInTool(commandName);
-            URLClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(commandName);
+            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(commandName);
+            Thread.currentThread().setContextClassLoader(customToolClassLoader);
             return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
         } else if (null == args || args.length == 0
                 || Arrays.asList(HELP_COMMAND, HELP_OPTION, HELP_SHORT_OPTION).contains(args[0])) {
-            URLClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
+            CustomToolClassLoader customToolClassLoader = BalToolsUtil.getCustomToolClassLoader(HELP_COMMAND);
+            Thread.currentThread().setContextClassLoader(customToolClassLoader);
             return ServiceLoader.load(BLauncherCmd.class, customToolClassLoader);
         }
         return ServiceLoader.load(BLauncherCmd.class);
