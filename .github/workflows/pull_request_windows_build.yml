@@ -20,7 +20,7 @@ jobs:
     name: Build with some tests on Windows
     runs-on: windows-latest
     timeout-minutes: 240
-    concurrency:
+    concurrency: 
        group: ${{ github.head_ref }}-windows
        cancel-in-progress: true
 
