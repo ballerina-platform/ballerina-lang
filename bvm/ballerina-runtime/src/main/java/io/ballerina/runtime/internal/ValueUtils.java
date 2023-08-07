@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
@@ -39,7 +40,6 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -49,7 +49,7 @@ import io.ballerina.runtime.internal.values.ValueCreator;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -98,7 +98,14 @@ public class ValueUtils {
         }
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
-            populateInitialValuesWithNoStrand(recordValue, type);
+            try {
+                final CountDownLatch latch = new CountDownLatch(defaultValues.size());
+                populateInitialValuesWithNoStrand(recordValue, type, latch);
+                latch.await();
+            } catch (InterruptedException e) {
+                throw ErrorCreator.createError(
+                        StringUtils.fromString("Error occurred when populating default values"), e);
+            }
         } else {
             for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
                 recordValue.populateInitialValue(StringUtils.fromString(field.getKey()),
@@ -108,33 +115,33 @@ public class ValueUtils {
         return recordValue;
     }
 
-    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, BRecordType recordType) {
+    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, BRecordType recordType,
+                                                          CountDownLatch latch) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = recordType.getDefaultValues();
         String[] fields = defaultValues.keySet().toArray(new String[0]);
         invokeFPAsyncIterativelyWithNoStrand(recordValue, defaultValues, fields, "default",
                 ValueCreator.getMainStrand().getMetadata(), defaultValues.size(), o -> {
-        }, ValueCreator.getMainStrand().scheduler);
+        }, ValueCreator.getMainStrand().scheduler, latch);
     }
 
     public static void invokeFPAsyncIterativelyWithNoStrand(BMap<BString, Object> recordValue,
                                                             Map<String, BFunctionPointer<Object, ?>> defaultValues,
                                                             String[] fields, String strandName, StrandMetadata metadata,
                                                             int noOfIterations, Consumer<Object> futureResultConsumer,
-                                                            Scheduler scheduler) {
+                                                            Scheduler scheduler, CountDownLatch latch) {
         if (noOfIterations <= 0) {
             return;
         }
         AtomicInteger callCount = new AtomicInteger(0);
-        Semaphore sem = new Semaphore(1);
         scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations, callCount,
-                futureResultConsumer, scheduler, sem);
+                futureResultConsumer, scheduler, latch);
     }
 
     private static void scheduleNextFunction(BMap<BString, Object> recordValue,
                                              Map<String, BFunctionPointer<Object, ?>> defaultValues, String[] fields,
                                              String strandName, StrandMetadata metadata, int noOfIterations,
                                              AtomicInteger callCount, Consumer<Object> futureResultConsumer,
-                                             Scheduler scheduler, Semaphore sem) {
+                                             Scheduler scheduler, CountDownLatch latch) {
         BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
         Type retType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
         FutureValue future = scheduler.createFuture(null, null, null, retType, strandName, metadata);
@@ -142,12 +149,12 @@ public class ValueUtils {
             @Override
             public void notifySuccess(Object result) {
                 futureResultConsumer.accept(getFutureResult());
-                sem.release();
+                recordValue.populateInitialValue(StringUtils.fromString(fields[callCount.get()]), result);
                 int i = callCount.incrementAndGet();
-                recordValue.populateInitialValue(StringUtils.fromString(fields[i]), result);
+                latch.countDown();
                 if (i != noOfIterations) {
                     scheduleNextFunction(recordValue, defaultValues, fields, strandName, metadata, noOfIterations,
-                            callCount, futureResultConsumer, scheduler, sem);
+                            callCount, futureResultConsumer, scheduler, latch);
                 }
             }
 
@@ -157,20 +164,26 @@ public class ValueUtils {
             }
         };
 
-        invokeFunctionPointerAsync(func, retType, future, callback, scheduler, strandName, metadata, sem);
+        invokeFunctionPointerAsync(func, retType, future, callback, scheduler, strandName, metadata);
     }
 
     private static void invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Type returnType, FutureValue future,
                                                    AsyncFunctionCallback callback, Scheduler scheduler,
-                                                   String strandName, StrandMetadata metadata, Semaphore sem) {
+                                                   String strandName, StrandMetadata metadata) {
         future.callback = callback;
         callback.setFuture(future);
-        try {
-            sem.acquire();
-        } catch (InterruptedException e) {
-            RuntimeUtils.printCrashLog(e);
-        }
-        scheduler.scheduleFunction(new Object[1], func, null, returnType, strandName, metadata);
+        AsyncFunctionCallback childCallback = new AsyncFunctionCallback(future.strand) {
+            @Override
+            public void notifySuccess(Object result) {
+                callback.notifySuccess(result);
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                callback.notifyFailure(error);
+            }
+        };
+        scheduler.scheduleFunction(new Object[1], func, null, returnType, strandName, metadata, childCallback);
     }
 
     /**

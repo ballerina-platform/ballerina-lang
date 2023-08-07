@@ -132,6 +132,11 @@ public class Scheduler {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 
+    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
+                                        String strandName, StrandMetadata metadata , Callback callback) {
+        return schedule(params, fp.getFunction(), parent, callback, null, returnType, strandName, metadata);
+    }
+
     /**
      * Schedules given function to the callers strand group.
      *
