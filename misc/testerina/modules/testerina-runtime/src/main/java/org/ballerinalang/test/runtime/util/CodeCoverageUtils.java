@@ -347,10 +347,21 @@ public class CodeCoverageUtils {
      */
     private static List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
         List<ILine> modifiedLines = new ArrayList<>();
-        for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
-            ILine line = sourcefile.getLine(i);
+        int i = sourcefile.getFirstLine();
+        ILine line;
+        // Jacoco gives coverage to line 0 which is not exist. This causes codecov processing to fail. Those lines
+        // will be removed from coverage report.
+        if (i == 0 && ((line = sourcefile.getLine(i)).getInstructionCounter().getTotalCount() > 0 ||
+                line.getBranchCounter().getTotalCount() > 0)) {
+            i = 1;
+            ILine modifiedLine = new PartialCoverageModifiedLine(null, null);
+            modifiedLines.add(modifiedLine);
+        }
+        while (i <= sourcefile.getLastLine()) {
+            line = sourcefile.getLine(i);
             ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(), line.getBranchCounter());
             modifiedLines.add(modifiedLine);
+            i++;
         }
         return modifiedLines;
     }
