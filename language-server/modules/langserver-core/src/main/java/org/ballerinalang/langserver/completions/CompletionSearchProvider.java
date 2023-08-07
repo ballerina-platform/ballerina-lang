@@ -85,4 +85,13 @@ public class CompletionSearchProvider {
     public boolean checkModuleIndexed(ModuleID moduleName) {
         return indexedModules.contains(moduleName);
     }
+
+    /**
+     * Add central packages to the trie.
+     *
+     * @param packages    list of packages.
+     */
+    public void addCentralPackagesToTrie(List<String> packages) {
+        packages.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
+    }
 }

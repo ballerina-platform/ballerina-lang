@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -318,28 +319,53 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<LSPackageLoader.ModuleInfo> moduleList =
-                LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
-        moduleList.forEach(ballerinaPackage -> {
-            String packageName = ballerinaPackage.packageName().value();
-            String insertText;
-            if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
-                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
-                if (orgName.equals(Names.BALLERINA_ORG.value)
-                        && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
-                    insertText = getLangLibModuleNameInsertText(packageName);
-                } else {
-                    insertText = packageName;
-                }
-                addedPkgNames.add(packageName);
-                // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
-                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+        List<LSPackageLoader.ModuleInfo> moduleList;
+
+        if (orgName.equals("ballerinax")) {
+            List<String> packageList = new ArrayList<>();
+            String prefix = context.getTokenAtCursor().text();
+            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages(serverContext);
+            moduleList.forEach(ballerinaPackage -> {
+                String packageName = ballerinaPackage.packageName().value();
+                packageList.add(packageName);
+            });
+            List<String> filteredPackages = getFilteredPackages(packageList, prefix, context);
+            for (String filteredPackage : filteredPackages) {
+                LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
                 completionItems.add(completionItem);
             }
-        });
+        } else {
+            moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
+            moduleList.forEach(ballerinaPackage -> {
+                String packageName = ballerinaPackage.packageName().value();
+                String insertText;
+                if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
+                        && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
+                    if (orgName.equals(Names.BALLERINA_ORG.value)
+                            && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
+                        insertText = getLangLibModuleNameInsertText(packageName);
+                    } else {
+                        insertText = packageName;
+                    }
+                    addedPkgNames.add(packageName);
+                    // Do not add the semi colon at the end of the insert text since the user might type the as keyword
+                    LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
+                    completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                    completionItems.add(completionItem);
+                }
+            });
+        }
 
         return completionItems;
+    }
+
+
+    private static List<String> getFilteredPackages(List<String> packageList, String prefix,
+                                                   BallerinaCompletionContext context) {
+        CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
+                .getInstance(context.languageServercontext());
+        completionSearchProvider.addCentralPackagesToTrie(packageList);
+        return completionSearchProvider.getSuggestions(prefix);
     }
 
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ImportDeclarationNode node) {
