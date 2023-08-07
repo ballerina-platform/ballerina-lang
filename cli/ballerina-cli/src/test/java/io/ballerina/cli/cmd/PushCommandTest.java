@@ -36,9 +36,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 
 /**
  * Push command tests.
@@ -49,6 +51,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 public class PushCommandTest extends BaseCommandTest {
 
     private static final String VALID_PROJECT = "validApplicationProject";
+    private static final String POM_EXTENSION = ".pom";
     private Path testResources;
 
     @BeforeClass
@@ -78,6 +81,40 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "path provided for the bala file does not exist: " + invalidPath + ".";
         Assert.assertTrue(actual.contains(expected));
     }
+
+    @Test (description = "Push a package to a remote repository")
+    public void testPushPackage() throws IOException {
+        String org = "luheerathan";
+        String packageName = "pact1";
+        String version = "0.1.0";
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        Files.createDirectories(mockRepo);
+        Files.copy(testResources.resolve("custom-repo").resolve("Settings.toml"),
+                mockRepo.resolve("Settings.toml"), StandardCopyOption.REPLACE_EXISTING);
+        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "luheerathan-pact1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=repo-push-pull" };
+        new CommandLine(pushCommand).parse(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            pushCommand.execute();
+        }
+        pushCommand.execute();
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+
+        String artifact = packageName + "-" + version + BALA_EXTENSION;
+        String pomFile = packageName + "-" + version + POM_EXTENSION;
+        String pushPullRepo = mockRepo.resolve("repositories").resolve("repo-push-pull").resolve("bala").resolve(org)
+                .resolve(packageName).resolve(version).toAbsolutePath().toString();
+        for (String ext : new String[]{".sha1", ".md5", ""}) {
+            Assert.assertTrue(Paths.get(pushPullRepo, artifact + ext).toFile().exists());
+            Assert.assertTrue(Paths.get(pushPullRepo, pomFile + ext).toFile().exists());
+        }
+    }
+
 
     @Test(description = "Push package with invalid file extension")
     public void testPushWithInvalidFileExtension() throws IOException {
