@@ -16,6 +16,10 @@
 
 import bir/objs;
 
+public type Foo distinct isolated client object {
+    public isolated function execute() returns anydata|error;
+};
+
 public type Quxx isolated client object {
     public isolated function execute() returns anydata|error;
 };
@@ -35,6 +39,14 @@ function testObjectTypeAssignabilityWithQualifiers() {
     assertTrue(foo is objs:Foo);
     assertTrue(<any>foo is objs:Foo);
     assertFalse(<any>foo is objs:Bar);
+    assertFalse(<any>foo is Foo);
+    
+    Foo foo2 = isolated client object {
+        public isolated function execute() returns anydata|error {
+            return "foo";
+        }
+    };
+    assertFalse(<any>foo2 is objs:Foo);
     
     objs:Baz baz = isolated client object {
         public isolated function execute() returns anydata|error {
