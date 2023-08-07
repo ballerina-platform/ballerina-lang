@@ -91,7 +91,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT_REPLACER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAR_EXTENSION;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAVA_11_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAVA_17_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FUNC_NAME_PREFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
@@ -309,7 +309,7 @@ public class RunNativeImageTestTask implements Task {
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> updatedSingleExecTests;
@@ -699,7 +699,7 @@ public class RunNativeImageTestTask implements Task {
             //Load all classes within module jar
             Map<String, byte[]> unmodifiedFiles = loadUnmodifiedFilesWithinJar(mainJarPath);
             String modifiedJarPath = (target.path().resolve(CACHE_DIR).resolve(testSuite.getOrgName()).resolve
-                    (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_11_DIR)).toString()
+                    (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_17_DIR)).toString()
                     + PATH_SEPARATOR + modifiedJarName;
             //Dump modified jar
             dumpJar(modifiedClassDef, unmodifiedFiles, modifiedJarPath);
