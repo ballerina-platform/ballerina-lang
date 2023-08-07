@@ -44,3 +44,7 @@ type A1 record {|
 |};
 
 const A1 B1 = {b : ()};
+
+const map<float>|map<decimal> mUnion1 = {a: 1, b: 2.0}; // Ambiguous type.
+const map<string>|map<boolean> mUnion2 = {a: 1, b: 2}; // Incompatible type.
+const int|float|string mUnion3 = {a: 1, b: 2}; // Incompatible type.

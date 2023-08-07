@@ -299,21 +299,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         BLangBinaryExpr bLangBinaryExpr = (BLangBinaryExpr) bLangNode;
         BLangExpression rhs = bLangBinaryExpr.rhsExpr;
         BLangExpression lhs = bLangBinaryExpr.lhsExpr;
-        if (rhs.expectedType.getKind() == TypeKind.OTHER &&
-                lhs.expectedType.getKind() == TypeKind.OTHER) {
+        BType rhsExpType = rhs.expectedType;
+        if (rhsExpType == null || lhs.expectedType == null) {
             return Optional.empty();
         }
-
-        if (rhs.expectedType.getKind() != TypeKind.OTHER) {
+        if (rhsExpType.getKind() != TypeKind.OTHER) {
             return getExpectedType(rhs);
-
         }
-
-        if (lhs.expectedType.getKind() != TypeKind.OTHER) {
-            return getExpectedType(lhs);
-        }
-
-        return Optional.empty();
+        return getExpectedType(lhs);
     }
 
     @Override
@@ -392,11 +385,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        BType returnType = ((BLangArrowFunction) bLangNode).funcType.getReturnType();
         if (!node.rightDoubleArrow().isMissing() &&
                 node.rightDoubleArrow().lineRange().endLine().offset() <= linePosition.offset()) {
             // Cursor is at the expression node.
-            return Optional.of(typesFactory.getTypeDescriptor(returnType));
+            BType funcType = ((BLangArrowFunction) bLangNode).funcType;
+            if (funcType == null) {
+                return Optional.empty();
+            }
+            return Optional.of(typesFactory.getTypeDescriptor(funcType.getReturnType()));
         }
 
         return Optional.empty();
