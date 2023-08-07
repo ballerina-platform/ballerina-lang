@@ -16,10 +16,9 @@ module io.ballerina.cli {
     requires io.ballerina.central.client;
     requires io.ballerina.docerina;
     requires jdk.httpserver;
-    requires slf4j.api;
+    requires org.slf4j;
     requires io.ballerina.shell.cli;
     requires io.ballerina.toml;
     requires io.ballerina.identifier;
     requires org.objectweb.asm;
-    requires org.objectweb.asm.commons;
 }

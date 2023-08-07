@@ -7,7 +7,7 @@ module io.ballerina.runtime {
     requires io.opentelemetry.api;
     requires io.opentelemetry.context;
     requires java.transaction.xa;
-    requires slf4j.api;
+    requires org.slf4j;
     requires axiom.impl;
     requires io.ballerina.toml;
     requires io.ballerina.tools.api;

@@ -8,13 +8,13 @@ keywords= ["toml", "ballerina"]
 repository=true
 visibility= "public"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 path = "../dummy-jars/toml4j.txt"
 artifactId = "toml4j"
 version = "0.7.2"
 groupId = "com.moandjiezana.toml"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 path = "path/to/swagger.txt"
 artifactId = "swagger"
 version = "0.7.2"

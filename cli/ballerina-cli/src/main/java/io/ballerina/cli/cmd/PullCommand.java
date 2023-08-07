@@ -275,13 +275,14 @@ public class PullCommand implements BLauncherCmd {
         }
 
         CommandUtil.setPrintStream(errStream);
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+        for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
+            String supportedPlatform = SUPPORTED_PLATFORMS[i];
             try {
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
                         settings.getProxy().password(), getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                   RepoUtils.getBallerinaVersion(), false);
+                        RepoUtils.getBallerinaVersion(), false);
                 if (version.equals(Names.EMPTY.getValue())) {
                     List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
                             RepoUtils.getBallerinaVersion());
@@ -297,11 +298,13 @@ public class PullCommand implements BLauncherCmd {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
             } catch (CentralClientException e) {
-                errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
+                if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
+                    continue;
+                }
+                errStream.println("package not found: " + orgName + "/" + packageName);
                 CommandUtil.exitError(this.exitWhenFinish);
             }
         }
-
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
