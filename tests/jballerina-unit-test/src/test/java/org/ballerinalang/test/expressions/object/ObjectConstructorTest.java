@@ -92,7 +92,7 @@ public class ObjectConstructorTest {
     }
 
     @Test(dataProvider = "ObjectCtorTestFunctionList")
-    public void testCompiledConstructedObjects(String funcName) {
+    public void testImplementationdConstructedObjects(String funcName) {
         BRunUtil.invoke(compiledConstructedObjects, funcName);
     }
 

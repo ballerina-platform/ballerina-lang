@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -314,6 +315,12 @@ public class LengthOperationTest {
         Assert.assertEquals(resNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 31, 21);
         BAssertUtil.validateError(resNegative, 1, "undefined method 'length' in object 'Person'", 36, 21);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resNegative = null;
     }
 
 }

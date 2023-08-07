@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -182,5 +183,10 @@ public class ArraysOfArraysTest {
         for (int i = 0; i < jBytes.length; i++) {
             Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
         }
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -117,6 +117,7 @@ public class CommandUtil {
     private static PrintStream outStream;
     private static Path homeCache;
     private static boolean exitWhenFinish;
+    private static String platform;
 
     static void setPrintStream(PrintStream errStream) {
         CommandUtil.errStream = errStream;
@@ -175,12 +176,7 @@ public class CommandUtil {
 
     static void applyTemplate(String orgName, String templatePkgName, String version, String packageName,
                               Path projectPath, Path balaCache, List<Path> filesInDir) {
-        Path balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
-        //First we will check for a bala that match any platform
-        String platform = findPlatform(balaPath);
-        balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, platform));
+        Path balaPath = getPlatformSpecificBalaPath(orgName, templatePkgName, version, balaCache);
         if (!Files.exists(balaPath)) {
             CommandUtil.printError(errStream,
                     "unable to find the bala: " + balaPath,
@@ -189,7 +185,7 @@ public class CommandUtil {
             CommandUtil.exitError(exitWhenFinish);
         }
         try {
-            addModules(balaPath, projectPath, packageName, platform);
+            addModules(balaPath, projectPath, packageName);
         } catch (IOException e) {
             ProjectUtils.deleteSelectedFilesInDirectory(projectPath, filesInDir);
             CommandUtil.printError(errStream,
@@ -200,7 +196,7 @@ public class CommandUtil {
         }
     }
 
-    private static void addModules(Path balaPath, Path projectPath, String packageName, String platform)
+    private static void addModules(Path balaPath, Path projectPath, String packageName)
             throws IOException {
         Gson gson = new Gson();
         Path packageJsonPath = balaPath.resolve(PACKAGE_JSON);
@@ -315,7 +311,7 @@ public class CommandUtil {
         }
 
         copyIcon(balaPath, projectPath);
-        copyPlatformLibraries(balaPath, projectPath, platform);
+        copyPlatformLibraries(balaPath, projectPath);
         copyIncludeFiles(balaPath, projectPath, templatePackageJson);
     }
 
@@ -340,7 +336,7 @@ public class CommandUtil {
         }
     }
 
-    private static void copyPlatformLibraries(Path balaPath, Path projectPath, String platform) throws IOException {
+    private static void copyPlatformLibraries(Path balaPath, Path projectPath) throws IOException {
         Path platformLibPath = balaPath.resolve("platform").resolve(platform);
         if (Files.exists(platformLibPath)) {
             Path libs = projectPath.resolve("libs");
@@ -394,12 +390,7 @@ public class CommandUtil {
         String orgName = findOrg(template);
         String version = findPkgVersion(template);
         if (version != null) {
-            //First we will check for a bala that match any platform
-            Path balaPath = balaCache.resolve(
-                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
-            String platform = findPlatform(balaPath);
-            balaPath = balaCache.resolve(
-                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, platform));
+            Path balaPath = getPlatformSpecificBalaPath(orgName, packageName, version, balaCache);
             if (Files.exists(balaPath)) {
                 return balaPath;
             } else {
@@ -453,7 +444,8 @@ public class CommandUtil {
 
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
             throws CentralClientException {
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+        for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
+            String supportedPlatform = SUPPORTED_PLATFORMS[i];
             Settings settings;
             try {
                 settings = readSettings();
@@ -466,8 +458,15 @@ public class CommandUtil {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings));
-            client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
-                    RepoUtils.getBallerinaVersion(), false);
+            try {
+                client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
+                        RepoUtils.getBallerinaVersion(), false);
+            } catch (CentralClientException e) {
+                if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
+                    continue;
+                }
+                throw e;
+            }
         }
     }
 
@@ -598,6 +597,25 @@ public class CommandUtil {
             pkgDesc.append("\n");
         }
         Files.writeString(depsTomlPath, pkgDesc.toString(), StandardOpenOption.APPEND);
+    }
+
+    private static Path getPlatformSpecificBalaPath(String orgName, String templatePkgName, String version,
+                                                    Path balaCache) {
+        Path balaPath = balaCache.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
+        //First we will check for a bala that match any platform
+        platform = ANY_PLATFORM;
+        if (!Files.exists(balaPath)) {
+            for (JvmTarget supportedPlatform : JvmTarget.values()) {
+                balaPath = balaCache.resolve(
+                        ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, supportedPlatform.code()));
+                if (Files.exists(balaPath)) {
+                    platform = supportedPlatform.code();
+                    break;
+                }
+            }
+        }
+        return balaPath;
     }
 
     /**
@@ -775,23 +793,6 @@ public class CommandUtil {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Find the platform of the module for a given template.
-     *
-     * @param balaPath path to the module
-     * @return platform - platform of the module
-     */
-    public static String findPlatform(Path balaPath) {
-        String platform = "";
-        if (!Files.exists(balaPath)) {
-            //If bala for any platform not exist check for specific platform
-            platform = JvmTarget.JAVA_11.code();
-        } else {
-            platform = ANY_PLATFORM;
-        }
-        return platform;
     }
 
     /**
@@ -1074,18 +1075,18 @@ public class CommandUtil {
         Path templateDir = getTemplatePath().resolve(template);
         Stream<Path> paths = Files.list(templateDir);
         List<Path> templateFilePathList = paths.collect(Collectors.toList());
-        String existingFiles = "";
+        StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());
             if (fileNameOptional.isPresent()) {
                 String fileName = fileNameOptional.get();
                 if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
                         Files.exists(packagePath.resolve(fileName))) {
-                    existingFiles += fileName + FILE_STRING_SEPARATOR;
+                    existingFiles.append(fileName).append(FILE_STRING_SEPARATOR);
                 }
             }
         }
-        return existingFiles;
+        return existingFiles.toString();
     }
 
     /**
@@ -1096,14 +1097,13 @@ public class CommandUtil {
     public static String checkPackageFilesExists(Path packagePath) {
         String[] packageFiles = {DEPENDENCIES_TOML, BAL_TOOL_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
                 ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME};
-        String existingFiles = "";
-
+        StringBuilder existingFiles = new StringBuilder();
         for (String file : packageFiles) {
             if (Files.exists(packagePath.resolve(file))) {
-                existingFiles += file + FILE_STRING_SEPARATOR;
+                existingFiles.append(file).append(FILE_STRING_SEPARATOR);
             }
         }
-        return existingFiles;
+        return existingFiles.toString();
     }
 
     /**
@@ -1172,7 +1172,7 @@ public class CommandUtil {
             return true;
         }
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (!backendDiagnostics.isEmpty()) {
             printDiagnostics(backendDiagnostics);

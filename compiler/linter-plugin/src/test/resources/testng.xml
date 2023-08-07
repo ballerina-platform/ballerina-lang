@@ -17,10 +17,10 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-compiler-linter-test">
-    <test name="ballerina-compiler-linter-code-action-test" preserve-order="true" parallel="false">
+    <test name="ballerina-compiler-linter-code-action-test" preserve-order="true">
         <packages>
             <package name="io.ballerina.compiler.linter.codeactions.test"/>
         </packages>

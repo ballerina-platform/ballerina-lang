@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -109,5 +110,11 @@ public class AccessTest {
     public void testAccessOnGroupedExpressions() {
         Object returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
         Assert.assertTrue((Boolean) returns);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
     }
 }

@@ -1,7 +1,6 @@
 module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
     requires java.compiler;
-    requires toml4j;
     requires com.google.gson;
     requires java.xml;
     requires org.objectweb.asm;
@@ -13,7 +12,6 @@ module io.ballerina.lang {
     requires org.apache.commons.io;
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
-    requires java.semver;
     requires io.ballerina.identifier;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;

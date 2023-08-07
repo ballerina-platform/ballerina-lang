@@ -36,11 +36,11 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     implementation "org.javatuples:javatuples:${project.javaTuples}"
 
-    testCompile 'org.testng:testng'
-    testCompile project(':ballerina-lang')
-    testCompile project(':formatter:formatter-core')
-    testCompile project(':language-server:language-server-commons')
-    testCompile "org.javatuples:javatuples:${project.javaTuples}"
+    testImplementation 'org.testng:testng'
+    testImplementation project(':ballerina-lang')
+    testImplementation project(':formatter:formatter-core')
+    testImplementation project(':language-server:language-server-commons')
+    testImplementation "org.javatuples:javatuples:${project.javaTuples}"
 }
 
 test {

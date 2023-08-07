@@ -35,11 +35,17 @@ dependencies {
 
 configurations {
     commonBackend
+    [apiElements, runtimeElements].each {
+        it.outgoing.artifacts.removeIf {
+            it.buildDependencies.getDependencies(null).contains(jar)
+        }
+        it.outgoing.artifact(shadowJar)
+    }
 }
 
 jar {
     enabled = false
-    dependsOn(shadowJar { classifier = null })
+    dependsOn(shadowJar { archiveClassifier = null })
     manifest {
         attributes(
                 'Implementation-Title': 'Ballerina - Test Utils',

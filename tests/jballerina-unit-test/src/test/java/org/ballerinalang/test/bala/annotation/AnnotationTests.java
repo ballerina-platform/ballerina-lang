@@ -641,5 +641,6 @@ public class AnnotationTests {
     @AfterClass
     public void tearDown() {
         result = null;
+        birTestResult = null;
     }
 }

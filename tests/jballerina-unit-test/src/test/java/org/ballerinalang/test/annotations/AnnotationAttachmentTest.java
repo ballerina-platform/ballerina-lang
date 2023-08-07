@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar;
@@ -589,5 +590,10 @@ public class AnnotationAttachmentTest {
             }
         }
         throw new RuntimeException("Class Definition '" + name + "' not found.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -22,3 +22,5 @@ dependencies {
 }
 
 description = 'Debugger adapter runtime utils implementation'
+
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":debug-adapter:debug-adapter-runtime:copyInteropImports")

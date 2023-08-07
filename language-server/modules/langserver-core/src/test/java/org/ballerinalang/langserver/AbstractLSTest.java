@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -45,7 +44,6 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.0
  */
-@PrepareForTest({LSPackageLoader.class, CentralPackageDescriptorLoader.class})
 public abstract class AbstractLSTest {
 
     private static final Gson GSON = new Gson();

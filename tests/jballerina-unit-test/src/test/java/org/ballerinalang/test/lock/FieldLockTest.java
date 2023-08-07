@@ -20,6 +20,7 @@ package org.ballerinalang.test.lock;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -67,5 +68,11 @@ public class FieldLockTest {
 
         Object returns2 = BRunUtil.invoke(compileResult2, "arrayFieldLock");
         assertTrue((returns2.toString().equals("1001000") || returns2.toString().equals("500500")));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        compileResult2 = null;
     }
 }

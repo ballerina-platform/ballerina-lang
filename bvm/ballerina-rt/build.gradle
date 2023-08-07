@@ -15,10 +15,11 @@
  *
  */
 
-//apply from: "$rootDir/gradle/javaProject.gradle"
-apply plugin: 'java'
-apply plugin: 'checkstyle'
-apply plugin: "com.github.spotbugs"
+plugins {
+    id 'java-library'
+    id 'checkstyle'
+    id 'com.github.spotbugs'
+}
 
 apply from: "$rootDir/gradle/repositories.gradle"
 

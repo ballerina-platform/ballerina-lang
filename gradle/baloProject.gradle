@@ -60,45 +60,6 @@ task copySelfToExternal(type: Copy) {
     rename '.*', "${project.ext.moduleName}.jar"
 }
 
-task createOldBirJar() {
-//    dependsOn deleteBalBuildLog
-//    dependsOn configurations.bala
-//    dependsOn convertDuplicateSrcToProject
-//    dependsOn copySelfToExternal
-//    workingDir "$buildDir/duplicate-src"
-//    dependsOn jar
-//
-////    environment 'BALLERINA_REPO_LOOKUP_VERBOSE': 'true'
-////    environment 'BAL_JAVA_DEBUG': '5005'
-//
-//    doFirst {
-//        if (file("$buildDir/classes/java/main/META-INF/this.map.json").exists()) {
-//        }
-//        configurations.bala.each {
-//            if (OperatingSystem.current().isWindows()) {
-//                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--offline', '-c', '--skip-tests', project.ext.moduleName
-//            } else {
-//                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--offline', '-c', '--skip-tests', project.ext.moduleName
-//            }
-//            println commandLine
-//        }
-//    }
-//
-//    doLast {
-//        if (buildLog.exists()) {
-//            println "contents of " + buildLog + " :"
-//            println file(buildLog).text
-//            throw new GradleException("ballerina internal error")
-//        }
-//    }
-//
-//    inputs.files configurations.bala
-//    inputs.dir "src/main/ballerina/"
-//    outputs.dir "build/duplicate-src/target"
-//    outputs.dir balxCreationPath
-//    outputs.cacheIf { true }
-}
-
 task copyBirJar(type: Copy){
     from "$buildDir/duplicate-src/target/caches"
     into "$buildDir/generated-bir-jar"
@@ -133,3 +94,9 @@ spotbugsMain {
     enabled = false
 }
 
+test {
+    dependsOn copySelfToTestBalHome
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}

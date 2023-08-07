@@ -143,5 +143,6 @@ public class StructNegativeTest {
     @AfterClass
     public void tearDown() {
         result = null;
+        result2 = null;
     }
 }

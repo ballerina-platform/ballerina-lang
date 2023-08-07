@@ -614,14 +614,6 @@ public class BIRPackageSymbolEnter {
             return;
         }
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
-        List<BVarSymbol> params = new ArrayList<>(invokableType.paramTypes.size());
-        for (BType paramType : invokableType.paramTypes) {
-            BVarSymbol varSymbol = new BVarSymbol(paramType.flags, Names.EMPTY, //TODO: should be written/read to BIR
-                                                  this.env.pkgSymbol.pkgID, paramType, null, symTable.builtinPos,
-                                                  COMPILED_SOURCE);
-            params.add(varSymbol);
-        }
-        tsymbol.params = params;
 
         if (invokableType.restType != null) {
             tsymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.pkgSymbol.pkgID, invokableType.restType, null,

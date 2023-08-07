@@ -34,9 +34,9 @@ dependencies {
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.slf4j:slf4j-jdk14'
 
-    testCompile 'org.awaitility:awaitility'
-    testCompile 'commons-io:commons-io'
-    testCompile 'org.testng:testng'
+    testImplementation 'org.awaitility:awaitility'
+    testImplementation 'commons-io:commons-io'
+    testImplementation 'org.testng:testng'
     ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     ballerina project(path: ':ballerina', configuration: 'resourceFiles')
@@ -66,8 +66,8 @@ test {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
 
 description = 'Ballerina - Tools Integration Test'

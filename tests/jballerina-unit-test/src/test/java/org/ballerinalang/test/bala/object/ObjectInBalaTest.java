@@ -546,6 +546,11 @@ public class ObjectInBalaTest {
                 "no implementation found for the method 'toString' of class 'FrameImpl'", 53, 1);
     }
 
+    @Test(description = "Test object inclusion with remote method with parameters")
+    public void testObjectInclusionWithMethodWithParameters() {
+        BRunUtil.invoke(result, "testObjectInclusionWithMethodWithParameters");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

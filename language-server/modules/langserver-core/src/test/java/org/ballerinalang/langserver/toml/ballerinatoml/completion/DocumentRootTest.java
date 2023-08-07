@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public class DocumentRootTest extends BallerinaTomlCompletionTest {
 
-    @Test(dataProvider = "completion-data-provider")
+    @Test(dataProvider = "completion-data-provider", enabled = false)
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);

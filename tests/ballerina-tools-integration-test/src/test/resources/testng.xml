@@ -15,7 +15,7 @@
  ~ limitations under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="Ballerina-Test-Suite">
     <listeners>
@@ -24,7 +24,7 @@
         <!--<listener class-name="org.ballerinalang.test.listener.TestNGListener"/>-->
     </listeners>
 
-    <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-packaging-sample-tests" preserve-order="true">
         <classes>
             <class name="org.ballerinalang.test.packaging.ConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
@@ -45,25 +45,25 @@
         </classes>
     </test>
 
-    <test name="ballerina-cli-parsing-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-cli-parsing-tests" preserve-order="true">
         <packages>
             <package name="org.ballerinalang.test.command.*"/>
         </packages>
     </test>
 
-    <test name="ballerina-run-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-run-tests" preserve-order="true">
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
     </test>
 
-    <test name="ballerina-openapi-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-openapi-tests" preserve-order="true">
         <packages>
             <package name="org.ballerinalang.test.openapi.*"/>
         </packages>
     </test>
 
-    <test name="jballerina-test" parallel="false">
+    <test name="jballerina-test">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>

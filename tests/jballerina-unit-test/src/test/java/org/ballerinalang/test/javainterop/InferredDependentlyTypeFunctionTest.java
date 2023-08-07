@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -216,5 +217,10 @@ public class InferredDependentlyTypeFunctionTest {
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 208, 13);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 210, 87);
         Assert.assertEquals(index, negativeResult.getErrorCount());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

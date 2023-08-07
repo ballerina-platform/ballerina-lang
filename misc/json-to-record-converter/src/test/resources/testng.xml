@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="json-to-record-direct-converter-test-suite">
-    <test name="json-to-record-direct-converter-test" parallel="false">
+    <test name="json-to-record-direct-converter-test">
         <classes>
             <class name="io.ballerina.jsonmapper.JsonToRecordMapperTests"/>
         </classes>

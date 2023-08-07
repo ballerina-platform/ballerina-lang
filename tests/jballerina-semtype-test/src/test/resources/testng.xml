@@ -18,10 +18,10 @@
   ~
   -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-new-parser-test-suite">
-    <test name="jballerina-semtype-test" parallel="false">
+    <test name="jballerina-semtype-test">
         <packages>
             <package name="io.ballerina.test.*"/>
         </packages>

@@ -539,14 +539,17 @@ public class ToolCommand implements BLauncherCmd {
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(), getAccessTokenOfCLI(settings));
-            ToolSearchResult toolSearchResult = client.searchTool(keyword,
-                    JvmTarget.JAVA_11.code(),
-                    RepoUtils.getBallerinaVersion());
-
-            List<Tool> tools = toolSearchResult.getTools();
-            if (tools != null && tools.size() > 0) {
-                printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
-            } else {
+            boolean foundTools = false;
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                ToolSearchResult toolSearchResult = client.searchTool(keyword, jvmTarget.code(),
+                        RepoUtils.getBallerinaVersion());
+                List<Tool> tools = toolSearchResult.getTools();
+                if (tools != null && tools.size() > 0) {
+                    foundTools = true;
+                    printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
+                }
+            }
+            if (!foundTools) {
                 outStream.println("no tools found.");
             }
         } catch (CentralClientException e) {

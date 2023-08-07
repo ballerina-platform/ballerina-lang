@@ -831,7 +831,7 @@ public class ValueCreator {
      * @return               value of the record
      * @throws BError        if given record type is not defined in the ballerina module.
      */
-    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
+    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) throws BError {
         return ValueUtils.createRecordValue(packageId, recordTypeName);
     }
 
@@ -846,7 +846,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
-                                                          Map<String, Object> valueMap) {
+                                                          Map<String, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
@@ -862,7 +862,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
-                                                                  Map<String, Object> valueMap) {
+                                                                  Map<String, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
@@ -881,7 +881,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
-                                                          BMap<BString, Object> valueMap) {
+                                                          BMap<BString, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
@@ -897,7 +897,7 @@ public class ValueCreator {
      * @throws BError        if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
-                                                                  BMap<BString, Object> valueMap) {
+                                                                  BMap<BString, Object> valueMap) throws BError {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
@@ -926,7 +926,8 @@ public class ValueCreator {
      * @return               value of the object
      * @throws BError        if given object type is not defined in the ballerina module.
      */
-    public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
+    public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues)
+            throws BError {
         return ValueUtils.createObjectValue(packageId, objectTypeName, fieldValues);
     }
 

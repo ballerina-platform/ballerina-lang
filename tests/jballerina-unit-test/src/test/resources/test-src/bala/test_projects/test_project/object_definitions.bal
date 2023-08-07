@@ -294,3 +294,7 @@ public function getObjectWithModuleLevelVisibilityMethod() returns ObjectWithMod
     new (2, false);
 
 public function getObjectWithPublicFieldsAndMethods() returns ObjectWithPublicFieldsAndMethods => new (3);
+
+public type FooObj readonly & distinct service object {
+    isolated remote function execute(string aVar, int bVar);
+};

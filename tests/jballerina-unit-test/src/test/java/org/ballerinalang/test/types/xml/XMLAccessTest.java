@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -306,5 +307,15 @@ public class XMLAccessTest {
         BAssertUtil.validateError(navigationFilterNegative, index++,
                 "cannot find xml namespace prefix 'foo'", 13, 16);
         Assert.assertEquals(navigationFilterNegative.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        elementAccess = null;
+        navigation = null;
+        negativeResult = null;
+        navigationNegative = null;
+        navigationFilterNegative = null;
     }
 }

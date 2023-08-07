@@ -21,8 +21,9 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation 'org.hdrhistogram:HdrHistogram'
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
+    testImplementation "org.testng:testng:${project.testngVersion}"
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
 }
 
 description = 'Ballerina - Metrics Extension'

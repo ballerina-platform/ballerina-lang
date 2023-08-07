@@ -24,9 +24,9 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':toml-parser')
 
-    testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-lang')
-    testRuntime project(':ballerina-runtime')
+    testImplementation project(':ballerina-test-utils')
+    testImplementation project(':ballerina-lang')
+    testRuntimeOnly project(':ballerina-runtime')
     testImplementation 'org.testng:testng'
     testImplementation 'com.google.code.gson:gson'
 }

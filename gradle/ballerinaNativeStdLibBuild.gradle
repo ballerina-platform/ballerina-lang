@@ -77,10 +77,10 @@ compileJava {
 }
 
 class BallerinaLangLibBuildTask extends JavaExec {
-    def projectDir = ''
-    def distCache = ''
-    def pkgName = project.name
-    def skipBootstrap = 'false'
+    @Internal def projectDir = ''
+    @Internal def distCache = ''
+    @Internal def pkgName = project.name
+    @Internal def skipBootstrap = 'false'
 
     BallerinaLangLibBuildTask() {
         setMain('org.ballerinalang.stdlib.utils.BuildLangLib')

@@ -45,7 +45,7 @@ public class CompilerPluginTest {
     }
 
     @Test(description = "Test compiler plugin")
-    public void testCompilerPlugin() {
+    public void testImplementationrPlugin() {
 
         Assert.assertEquals(compileResult.getErrorCount(), 0, "There are compilation errors");
         Assert.assertEquals(compileResult.getWarnCount(), 1);

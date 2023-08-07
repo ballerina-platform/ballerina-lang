@@ -173,7 +173,7 @@ public class DeprecateCommand implements BLauncherCmd {
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings));
             client.deprecatePackage(packageValue, deprecationMsg,
-                    JvmTarget.JAVA_11.code(),
+                    JvmTarget.JAVA_17.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();

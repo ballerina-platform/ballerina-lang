@@ -36,7 +36,7 @@ public class BLangOnConflictClause extends BLangNode implements OnConflictClause
     // BLangNodes
     public BLangExpression expression;
 
-    public BLangOnConflictClause(){
+    public BLangOnConflictClause() {
     }
 
     @Override

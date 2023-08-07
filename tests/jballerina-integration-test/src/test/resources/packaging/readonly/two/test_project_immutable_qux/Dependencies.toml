@@ -5,6 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
+distribution-version = "2201.6.0-SNAPSHOT"
 
 [[package]]
 org = "testorg"
@@ -44,5 +45,4 @@ dependencies = [
 modules = [
 	{org = "testorg", packageName = "selectively_immutable_qux2", moduleName = "selectively_immutable_qux2"}
 ]
-
 

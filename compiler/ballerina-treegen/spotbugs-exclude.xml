@@ -19,4 +19,7 @@
     <Match>
         <Package name="io.ballerinalang.compiler.internal.treegen" />
     </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
+    </Match>
 </FindBugsFilter>

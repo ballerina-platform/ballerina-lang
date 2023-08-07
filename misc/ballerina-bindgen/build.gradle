@@ -19,8 +19,8 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
 
 dependencies {
@@ -38,12 +38,13 @@ dependencies {
     implementation project(':maven-resolver')
     implementation project(':ballerina-lang:annotations')
     implementation 'com.moandjiezana.toml:toml4j'
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
 }
 
 description = 'Ballerina - Bindings generator for Java APIs'
 
 test {
+    dependsOn ':testerina:testerina-core:copyInteropImports'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

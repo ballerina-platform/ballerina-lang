@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/jballerina.java;
 
 function init() {
-    io:println("Initializing module 'current'");
+    print("Initializing module 'current'");
     worker w1 {
-        io:println("executing worker 'w1'");
+        print("executing worker 'w1'");
         while true {
             
         }
@@ -27,5 +27,22 @@ function init() {
 }
 
 public function main() {
-    io:println("main function invoked for 'current' module");
+    print("main function invoked for 'current' module");
 }
+
+function print(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printInternal(stdout1, strValue);
+}
+
+function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+function printInternal(handle receiver, handle strValue) = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

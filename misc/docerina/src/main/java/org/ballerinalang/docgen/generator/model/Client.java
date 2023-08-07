@@ -45,13 +45,13 @@ public class Client extends BClass {
                 .collect(Collectors.toList());
     }
 
-    public List<Function> getRemoteMethods() {
+    private List<Function> getRemoteMethods() {
         return this.methods.stream()
                 .filter(function -> function.isRemote)
                 .collect(Collectors.toList());
     }
 
-    public List<Function> getResourceMethods() {
+    private List<Function> getResourceMethods() {
         return this.methods.stream()
                 .filter(function -> function.isResource)
                 .collect(Collectors.toList());

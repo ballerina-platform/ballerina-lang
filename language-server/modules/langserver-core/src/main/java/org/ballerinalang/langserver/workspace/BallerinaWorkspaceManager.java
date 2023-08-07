@@ -602,7 +602,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (packageCompilation.isEmpty()) {
             return Optional.empty();
         }
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_17);
         Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
             String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
@@ -1519,6 +1519,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Represents a map of Path to ProjectContext.
      * <p>
+     *
+     * @param <K> cache key
+     * @param <V> cache value
      * Clear out front-faced cache implementation whenever a modification operation triggered for this map.
      */
     private static class SourceRootToProjectMap<K, V> extends HashMap<K, V> {

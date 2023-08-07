@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -255,5 +256,12 @@ public class FuncInvocationExprTest {
                 44, 26);
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'boolean', found 'float'", 50, 22);
         Assert.assertEquals(i, methodInvocationNegative.getErrorCount());
+    }
+
+    @AfterClass
+    public void tearDown() {
+        funcInvocationNegative = null;
+        funcInvocationNegative = null;
+        methodInvocationNegative = null;
     }
 }

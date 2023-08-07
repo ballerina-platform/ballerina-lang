@@ -28,7 +28,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     testImplementation 'com.google.code.gson:gson'
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
 }
 
 description = 'Ballerina - Formatter Core'
@@ -58,3 +58,4 @@ task parserTests(type: Copy) {
 }
 
 tasks.test.dependsOn("parserTests")
+tasks.checkstyleTest.dependsOn(":formatter:formatter-core:parserTests")

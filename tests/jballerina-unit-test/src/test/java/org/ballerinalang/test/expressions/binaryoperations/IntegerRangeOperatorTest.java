@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -201,4 +202,10 @@ public class IntegerRangeOperatorTest {
         BAssertUtil.validateError(negativeResult, 7, "operator '..<' not defined for 'int' and 'float'", 16, 25);
     }
 
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negativeResult = null;
+        negativeResult = null;
+    }
 }

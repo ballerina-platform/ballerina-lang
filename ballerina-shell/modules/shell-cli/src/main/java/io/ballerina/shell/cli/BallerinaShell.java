@@ -240,7 +240,7 @@ public class BallerinaShell {
      *
      * @return Command attached handler.
      */
-    protected CommandHandler createCommandHandler() {
+    private CommandHandler createCommandHandler() {
         CommandHandler commandHandler = new CommandHandler();
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_EXIT), new ExitCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_HELP), new HelpCommand(this));

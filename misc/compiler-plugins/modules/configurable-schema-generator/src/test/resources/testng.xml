@@ -17,10 +17,10 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="config-schema-generator-test-suite">
-    <test name="config-schema-generator-test" preserve-order="true" parallel="false">
+    <test name="config-schema-generator-test" preserve-order="true">
         <packages>
             <package name="org.ballerinalang.config.schema.generator.*" />
         </packages>

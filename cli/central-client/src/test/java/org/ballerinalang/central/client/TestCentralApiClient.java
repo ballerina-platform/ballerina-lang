@@ -66,7 +66,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DI
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -761,6 +761,6 @@ public class TestCentralApiClient extends CentralAPIClient {
         Assert.assertEquals(module.getPackageName(), "fb");
 
         PackageNameResolutionResponse.Module unresolvedModule = packageResolutionResponse.unresolvedModules().get(0);
-        Assert.assertEquals(unresolvedModule.getPackageName(), null);
+        Assert.assertNull(unresolvedModule.getPackageName());
     }
 }

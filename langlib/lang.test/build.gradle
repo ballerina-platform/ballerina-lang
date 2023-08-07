@@ -38,4 +38,6 @@ task updateVersion {
 
 copyBallerinaProject.finalizedBy(updateVersion)
 
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(':ballerina-lang-test:copyInteropImports')
+
 description = 'ballerina/lang.test Implementation'

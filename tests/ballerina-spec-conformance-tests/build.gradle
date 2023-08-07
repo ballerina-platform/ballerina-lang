@@ -25,10 +25,10 @@ dependencies {
     testImplementation project(':ballerina-lang:annotations')
     testImplementation project(':testerina:testerina-core')
 
-    testCompile'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-api'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation'org.testng:testng'
+    testImplementation 'org.slf4j:slf4j-api'
+    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }

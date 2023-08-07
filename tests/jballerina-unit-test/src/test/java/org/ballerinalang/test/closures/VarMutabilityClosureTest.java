@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -164,6 +165,11 @@ public class VarMutabilityClosureTest {
         Assert.assertEquals(((BError) returns).getErrorMessage().toString(), "Account Not Found");
         String s = ((BError) returns).getDetails().toString();
         Assert.assertEquals(s, "{\"accountID\":222}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
 }

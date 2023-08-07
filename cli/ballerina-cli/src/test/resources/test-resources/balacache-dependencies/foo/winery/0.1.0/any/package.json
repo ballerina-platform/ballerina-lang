@@ -30,10 +30,10 @@
   "ballerina_version": "2201.2.0-SNAPSHOT",
   "implementation_vendor": "WSO2",
   "language_spec_version": "2022R2",
-  "platform": "java11",
+  "platform": "java17",
   "platformDependencies": [
     {
-      "path": "platform/java11/ballerina-io-1.0.0-java.txt",
+      "path": "platform/java17/ballerina-io-1.0.0-java.txt",
       "artifactId": "ldap",
       "groupId": "ballerina",
       "version": "1.0.0"

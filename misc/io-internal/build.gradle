@@ -32,4 +32,6 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
 }
 
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(':ballerina-io-internal:copyInteropImports')
+
 description = 'Ballerina - I/O Internal'

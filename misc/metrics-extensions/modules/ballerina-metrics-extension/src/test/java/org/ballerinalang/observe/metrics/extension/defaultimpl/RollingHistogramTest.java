@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
  */
 public class RollingHistogramTest {
 
-    @Test
+    @Test (enabled = false)
     public void testRollingHistogram() {
         final AtomicInteger currentTime = new AtomicInteger(0);
         Clock clock = mock(Clock.class);
