@@ -25,7 +25,7 @@ dependencies {
     implementation project(':ballerina-cli')
     implementation project(':formatter:formatter-core')
 
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
     testImplementation "commons-io:commons-io:${project.commonsIoVersion}"
 }
 

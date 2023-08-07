@@ -156,13 +156,16 @@ build {
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.
-project.afterEvaluate {
-    configurations.dist.dependencies
-        .findAll { it instanceof ProjectDependency }
-        .each {
-            it.dependencyProject.afterEvaluate {
-                def dependencyCheck = it.tasks.find { it.name == 'check' }
-                check.dependsOn dependencyCheck
-            }
-        }
+tasks.whenTaskAdded { task ->
+    if (task.name == 'check') {
+        configurations.dist.dependencies
+                .findAll { it instanceof ProjectDependency }
+                .each { dependency ->
+                    dependency.dependencyProject.afterEvaluate {
+                        def dependencyCheck = tasks.named('check')
+                        task.dependsOn dependencyCheck
+                    }
+                }
+    }
 }
+tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')
