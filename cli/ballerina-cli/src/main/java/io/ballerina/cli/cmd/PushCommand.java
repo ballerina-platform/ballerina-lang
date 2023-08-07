@@ -52,6 +52,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -154,7 +155,7 @@ public class PushCommand implements BLauncherCmd {
             Settings settings = RepoUtils.readSettings();
 
             // If the repository flag is specified, validate and push to the provided repo
-            if (repositoryName != null) {
+            if (repositoryName != null && settings.getRepositories() != null) {
                 boolean isCustomRepository = false;
                 Repository targetRepository = null;
                 for (Repository repository : settings.getRepositories()) {
@@ -201,7 +202,9 @@ public class PushCommand implements BLauncherCmd {
 
                 Path customRepoLocalCache = RepoUtils.createAndGetHomeReposPath()
                         .resolve(ProjectConstants.REPOSITORIES_DIR)
-                        .resolve(targetRepository.id());
+                        .resolve(targetRepository.id())
+                        .resolve(ProjectConstants.BALA_DIR_NAME)
+                        .resolve("temp");
 
 
                 if (balaPath == null && isCustomRepository) {
@@ -475,7 +478,13 @@ public class PushCommand implements BLauncherCmd {
 
             try {
                 client.pushPackage(balaPath, org, name, version, customRepoPath);
-            } catch (MavenResolverClientException e) {
+                if (Files.exists(customRepoPath)) {
+                    Files.walk(customRepoPath)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                }
+            } catch (MavenResolverClientException | IOException e) {
                 throw new ProjectException(e.getMessage());
             }
 

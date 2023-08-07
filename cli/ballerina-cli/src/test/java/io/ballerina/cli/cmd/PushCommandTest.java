@@ -22,6 +22,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.maven.bala.client.MavenResolverClient;
+import org.ballerinalang.maven.bala.client.MavenResolverClientException;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -31,12 +33,14 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -53,6 +57,8 @@ public class PushCommandTest extends BaseCommandTest {
     private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
+    public static final String BALA_EXTENSION = ".bala";
+    public static final String POM_EXTENSION = ".pom";
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -66,6 +72,38 @@ public class PushCommandTest extends BaseCommandTest {
             Assert.fail("error loading resources");
         }
     }
+
+    @Test (description = "Push a package to a remote repository")
+    public void testPushPackage() throws IOException {
+        String org = "luheerathan";
+        String packageName = "pact1";
+        String version = "0.1.0";
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+//        Files.createDirectories(mockRepo);
+//        Files.copy(testResources.resolve("custom-repo").resolve("Settings.toml"),
+//                mockRepo.resolve("Settings.toml"), StandardCopyOption.REPLACE_EXISTING);
+        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "luheerathan-pact1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=repo-push-pull" };
+        new CommandLine(pushCommand).parse(args);
+        PowerMockito.mockStatic(RepoUtils.class);
+        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
+        pushCommand.execute();
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+
+        String artifact = packageName + "-" + version + BALA_EXTENSION;
+        String pomFile = packageName + "-" + version + POM_EXTENSION;
+        String pushPullRepo = mockRepo.resolve("repositories").resolve("repo-push-pull").resolve("bala").resolve(org)
+                .resolve(packageName).resolve(version).toAbsolutePath().toString();
+        for (String ext : new String[]{".sha1", ".md5", ""}) {
+            Assert.assertTrue(Paths.get(pushPullRepo, artifact + ext).toFile().exists());
+            Assert.assertTrue(Paths.get(pushPullRepo, pomFile + ext).toFile().exists());
+        }
+    }
+
 
     @Test(description = "Push package with invalid path")
     public void testPushWithInvalidPath() throws IOException {
