@@ -39,7 +39,7 @@ public class ArrayFillTestRuntime {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/array_fill_runtime_test.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void runtimeArrayFillTest() {
         BRunUtil.runMain(compileResult, new String[]{});
     }

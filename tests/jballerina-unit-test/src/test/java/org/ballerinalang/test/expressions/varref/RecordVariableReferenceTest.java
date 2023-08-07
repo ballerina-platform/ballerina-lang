@@ -174,7 +174,7 @@ public class RecordVariableReferenceTest {
 //        Assert.assertEquals(((BMap) returns[2]).get(StringUtils.fromString("format")).toString(), "Y");
 //    }
 
-    @Test(enabled = false)
+    @Test
     public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
         BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
     }

@@ -118,7 +118,7 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testNoDefFiniteTyped2DArrays");
     }
 
-    @Test(dataProvider = "arrayFillerValueTestFunctions", enabled = false)
+    @Test(dataProvider = "arrayFillerValueTestFunctions")
     public void testArrayFillerValues(String function) {
         BRunUtil.invoke(compileResult, function);
     }

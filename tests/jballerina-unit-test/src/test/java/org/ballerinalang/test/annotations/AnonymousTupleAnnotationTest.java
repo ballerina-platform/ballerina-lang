@@ -43,7 +43,7 @@ public class AnonymousTupleAnnotationTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test(dataProvider = "dataToTestAnnotationsOfLocalTuple", enabled = false)
+    @Test(dataProvider = "dataToTestAnnotationsOfLocalTuple")
     public void testLocalRecordAnnotations(String function) {
         BRunUtil.invoke(result, function);
     }

@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.0
  */
-
+@Test
 public class CodegenErrorsTest {
 
     @Test
@@ -62,7 +62,7 @@ public class CodegenErrorsTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTooLargeProject() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largePackage");
         BRunUtil.invoke(result, "main");

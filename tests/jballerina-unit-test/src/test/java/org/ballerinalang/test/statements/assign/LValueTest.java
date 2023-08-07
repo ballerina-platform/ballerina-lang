@@ -175,7 +175,7 @@ public class LValueTest {
         BRunUtil.invoke(result, "testFrozenValueUpdate");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testListFillMember() {
         Object returns = BRunUtil.invoke(result, "testArrayFillSuccess1");
         Assert.assertTrue((Boolean) returns);

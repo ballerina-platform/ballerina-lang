@@ -420,7 +420,7 @@ public class RecordVariableDefinitionTest {
         BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields9");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
         BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
     }

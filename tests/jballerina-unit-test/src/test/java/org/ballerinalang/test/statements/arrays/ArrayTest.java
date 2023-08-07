@@ -181,7 +181,7 @@ public class ArrayTest {
         Assert.assertEquals(arr.toString(), "[1,3]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testArraysOfCyclicDependentTypes() {
         Object retVals = BRunUtil.invoke(compileResult, "testArraysOfCyclicDependentTypes");
         BArray arr = (BArray) retVals;
@@ -190,7 +190,7 @@ public class ArrayTest {
                         "\"a1\":\"A1\"}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testArraysOfCyclicDependentTypes2() {
         Object retVals = BRunUtil.invoke(compileResult, "testArraysOfCyclicDependentTypes2");
         BArray arr = (BArray) retVals;
