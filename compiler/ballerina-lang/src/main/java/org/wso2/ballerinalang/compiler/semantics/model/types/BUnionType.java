@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -44,11 +43,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
-
     public boolean resolvingToString = false;
-
-    private BIntersectionType intersectionType = null;
-
     private boolean nullable;
     private String cachedToString;
 
@@ -407,7 +402,7 @@ public class BUnionType extends BType implements UnionType {
     public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
-                    BType refType = getReferredType(type);
+                    BType refType = getReferredType(type, false);
                     if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
                         return ((BUnionType) refType).memberTypes.stream();
                     }
@@ -415,11 +410,21 @@ public class BUnionType extends BType implements UnionType {
                 }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static BType getReferredType(BType type) {
+    public static BType getReferredType(BType type) {
+        return getReferredType(type, true);
+    }
+
+    private static BType getReferredType(BType type, boolean effectiveType) {
         BType constraint = type;
+
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType, effectiveType);
         }
+
+        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
+            return getReferredType(((BIntersectionType) type).effectiveType);
+        }
+
         return constraint;
     }
 
@@ -510,15 +515,5 @@ public class BUnionType extends BType implements UnionType {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

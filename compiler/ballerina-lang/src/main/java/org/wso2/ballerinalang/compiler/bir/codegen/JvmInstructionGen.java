@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -401,7 +400,7 @@ public class JvmInstructionGen {
     }
 
     private void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
-
+        targetType = JvmCodeGenUtil.getReferredType(targetType);
         switch (targetType.tag) {
             case TypeTags.BYTE: // Wouldn't reach here for int atm.
             case TypeTags.UNSIGNED8_INT:
@@ -418,8 +417,6 @@ public class JvmInstructionGen {
                 mv.visitInsn(L2I);
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 return;
-            case TypeTags.TYPEREFDESC:
-                generateIntToUnsignedIntConversion(mv, JvmCodeGenUtil.getReferredType(targetType));
         }
     }
 
@@ -448,6 +445,7 @@ public class JvmInstructionGen {
     }
 
     private void generateVarLoadForType (MethodVisitor mv, BType bType, int valueIndex) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LLOAD, valueIndex);
             return;
@@ -478,7 +476,6 @@ public class JvmInstructionGen {
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.TUPLE:
             case TypeTags.RECORD:
             case TypeTags.ERROR:
@@ -495,9 +492,6 @@ public class JvmInstructionGen {
                 break;
             case JTypeTags.JTYPE:
                 generateJVarLoad(mv, (JType) bType, valueIndex);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateVarLoadForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -521,6 +515,7 @@ public class JvmInstructionGen {
     }
 
     private void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);
             return;
@@ -549,7 +544,6 @@ public class JvmInstructionGen {
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.TUPLE:
             case TypeTags.DECIMAL:
             case TypeTags.RECORD:
@@ -566,9 +560,6 @@ public class JvmInstructionGen {
                 break;
             case JTypeTags.JTYPE:
                 generateJVarStore(mv, (JType) bType, valueIndex);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateVarStoreForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -1387,7 +1378,7 @@ public class JvmInstructionGen {
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
         // visit map_ref
         this.loadVar(mapStoreIns.lhsOp.variableDcl);
-        BType varRefType = mapStoreIns.lhsOp.variableDcl.type;
+        BType varRefType = JvmCodeGenUtil.getReferredType(mapStoreIns.lhsOp.variableDcl.type);
 
         // visit key_expr
         this.loadVar(mapStoreIns.keyOp.variableDcl);
@@ -1412,7 +1403,7 @@ public class JvmInstructionGen {
     void generateMapLoadIns(BIRNonTerminator.FieldAccess mapLoadIns) {
         // visit map_ref
         this.loadVar(mapLoadIns.rhsOp.variableDcl);
-        BType varRefType = mapLoadIns.rhsOp.variableDcl.type;
+        BType varRefType = JvmCodeGenUtil.getReferredType(mapLoadIns.rhsOp.variableDcl.type);
         jvmCastGen.addUnboxInsn(this.mv, varRefType);
 
         // visit key_expr
@@ -1515,8 +1506,7 @@ public class JvmInstructionGen {
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
 
-            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+            if (elementType.tag == TypeTags.RECORD) {
                 visitNewRecordArray(elementType);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
@@ -1534,8 +1524,6 @@ public class JvmInstructionGen {
 
     private void visitNewRecordArray(BType type) {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
-        elementType = elementType.tag == TypeTags.INTERSECTION ?
-                ((BIntersectionType) elementType).effectiveType : elementType;
         String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
                 jvmTypeGen.getTypedescFieldName(toNameString(elementType));
@@ -1933,7 +1921,7 @@ public class JvmInstructionGen {
         // visit element name/index expr
         this.loadVar(xmlLoadIns.keyOp.variableDcl);
 
-        if (TypeTags.isStringTypeTag(xmlLoadIns.keyOp.variableDcl.type.tag)) {
+        if (TypeTags.isStringTypeTag(JvmCodeGenUtil.getReferredType(xmlLoadIns.keyOp.variableDcl.type).tag)) {
             // invoke `children(name)` method
             this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "children",
                     XML_CHILDREN_FROM_STRING, false);

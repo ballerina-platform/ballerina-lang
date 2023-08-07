@@ -23,6 +23,6 @@ package org.ballerinalang.model.types;
  *
  * @since 1.3.0
  */
-public interface SelectivelyImmutableReferenceType extends IntersectableReferenceType {
+public interface SelectivelyImmutableReferenceType {
 
 }

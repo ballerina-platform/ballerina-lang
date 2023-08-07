@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.IntersectableReferenceType;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -505,6 +505,7 @@ public class JvmTypeGen {
     }
 
     private String loadTypeClass(BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (bType == null || bType.tag == TypeTags.NIL) {
             return LOAD_NULL_TYPE;
         } else {
@@ -552,8 +553,6 @@ public class JvmTypeGen {
                     return LOAD_READONLY_TYPE;
                 case TypeTags.UNION:
                     return LOAD_UNION_TYPE;
-                case TypeTags.TYPEREFDESC:
-                    return loadTypeClass(JvmCodeGenUtil.getReferredType(bType));
                 default:
                     return LOAD_TYPE;
             }
@@ -722,15 +721,13 @@ public class JvmTypeGen {
     }
 
     public void loadCyclicFlag(MethodVisitor mv, BType valueType) {
+        valueType = JvmCodeGenUtil.getReferredType(valueType);
         switch (valueType.tag) {
             case TypeTags.UNION:
                 mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
                 break;
             case TypeTags.TUPLE:
                 mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadCyclicFlag(mv, JvmCodeGenUtil.getReferredType(valueType));
                 break;
         }
     }
@@ -803,6 +800,7 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, INTERSECTION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
+        mv.visitLdcInsn(Utils.decodeIdentifier(bType.tsymbol.name.value));
         String varName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
         // Create the constituent types array.
@@ -830,7 +828,7 @@ public class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
         String effectiveTypeClass;
-        if (bType.effectiveType instanceof IntersectableReferenceType) {
+        if (bType.effectiveType instanceof SelectivelyImmutableReferenceType) {
             effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
         } else {
             effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;
@@ -1043,7 +1041,7 @@ public class JvmTypeGen {
     }
 
     public static String getTypeDesc(BType bType) {
-
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -1066,7 +1064,6 @@ public class JvmTypeGen {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
@@ -1095,8 +1092,6 @@ public class JvmTypeGen {
                 return GET_HANDLE_VALUE;
             case TypeTags.INVOKABLE:
                 return GET_FUNCTION_POINTER;
-            case TypeTags.TYPEREFDESC:
-                return getTypeDesc(JvmCodeGenUtil.getReferredType(bType));
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -1124,7 +1119,7 @@ public class JvmTypeGen {
 
             JvmCodeGenUtil.loadConstantValue(valueType, value, mv, jvmConstantsGen);
 
-            if (TypeTags.isIntegerTypeTag(valueType.tag)) {
+            if (TypeTags.isIntegerTypeTag(JvmCodeGenUtil.getReferredType(valueType).tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF,
                         false);
             } else {
@@ -1144,6 +1139,7 @@ public class JvmTypeGen {
     }
 
     private void loadValueType(MethodVisitor mv, BType valueType) {
+        valueType = JvmCodeGenUtil.getReferredType(valueType);
         switch (valueType.tag) {
             case TypeTags.BOOLEAN:
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
@@ -1156,9 +1152,6 @@ public class JvmTypeGen {
             case TypeTags.BYTE:
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
                         INT_VALUE_OF_METHOD, false);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadValueType(mv, JvmCodeGenUtil.getReferredType(valueType));
         }
     }
 

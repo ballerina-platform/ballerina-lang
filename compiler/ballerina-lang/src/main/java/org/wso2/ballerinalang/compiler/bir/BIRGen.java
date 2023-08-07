@@ -361,10 +361,11 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BType type = getDefinedType(astTypeDefinition);
+        BType referredType = Types.getReferredType(type);
         BSymbol symbol = astTypeDefinition.symbol;
         Name displayName = symbol.name;
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
+        if (referredType.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) referredType;
             if (recordType.shouldPrintShape()) {
                 displayName = new Name(recordType.toString());
             }
@@ -1726,7 +1727,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONAccessExpr astJSONFieldAccessExpr) {
-        if (astJSONFieldAccessExpr.indexExpr.getBType().tag == TypeTags.INT) {
+        if (Types.getReferredType(astJSONFieldAccessExpr.indexExpr.getBType()).tag == TypeTags.INT) {
             generateArrayAccess(astJSONFieldAccessExpr);
             return;
         }
@@ -2915,7 +2916,7 @@ public class BIRGen extends BLangNodeVisitor {
             setScopeAndEmit(new BIRNonTerminator.XMLAccess(xmlAccessExpr.pos, InstructionKind.XML_LOAD_ALL, tempVarRef,
                     varRefRegIndex));
             return;
-        } else if (xmlAccessExpr.indexExpr.getBType().tag == TypeTags.STRING) {
+        } else if (Types.getReferredType(xmlAccessExpr.indexExpr.getBType()).tag == TypeTags.STRING) {
             insKind = InstructionKind.XML_LOAD;
         } else {
             insKind = InstructionKind.XML_SEQ_LOAD;

@@ -139,7 +139,8 @@ public class JvmObjectGen {
 
             mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
                     methodSig, false);
-            if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
+            int retTypeTag = JvmCodeGenUtil.getReferredType(retType).tag;
+            if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 jvmCastGen.addBoxInsn(mv, retType);

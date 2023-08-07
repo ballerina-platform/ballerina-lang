@@ -362,8 +362,8 @@ public class ReadOnlyUtils {
      */
     public static Type getMutableType(BIntersectionType intersectionType) {
         for (Type type : intersectionType.getConstituentTypes()) {
-            Type referredType = TypeUtils.getReferredType(type);
-            if (intersectionType.getEffectiveType().getTag() == referredType.getTag()) {
+            Type referredType = TypeUtils.getConclusiveType(type);
+            if (TypeUtils.getConclusiveType(intersectionType.getEffectiveType()).getTag() == referredType.getTag()) {
                 return referredType;
             }
         }

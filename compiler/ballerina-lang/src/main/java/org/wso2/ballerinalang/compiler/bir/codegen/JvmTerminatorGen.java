@@ -277,7 +277,6 @@ public class JvmTerminatorGen {
             case TypeTags.ANYDATA:
             case TypeTags.OBJECT:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.RECORD:
             case TypeTags.TUPLE:
             case TypeTags.FUTURE:
@@ -1276,7 +1275,7 @@ public class JvmTerminatorGen {
 
     private void loadFpReturnType(BIROperand lhsOp) {
 
-        BType futureType = lhsOp.variableDcl.type;
+        BType futureType = JvmCodeGenUtil.getReferredType(lhsOp.variableDcl.type);
         BType returnType = symbolTable.anyType;
         if (futureType.tag == TypeTags.FUTURE) {
             returnType = ((BFutureType) futureType).constraint;
@@ -1335,6 +1334,7 @@ public class JvmTerminatorGen {
 
     private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func,
                                             int invocationVarIndex) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
@@ -1352,7 +1352,6 @@ public class JvmTerminatorGen {
             case TypeTags.MAP:
             case TypeTags.ARRAY:
             case TypeTags.ANY:
-            case TypeTags.INTERSECTION:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
             case TypeTags.ANYDATA:
@@ -1389,10 +1388,6 @@ public class JvmTerminatorGen {
                 this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex, invocationVarIndex);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateReturnTermFromType(returnVarRefIndex, JvmCodeGenUtil.getReferredType(bType), func,
-                        invocationVarIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

@@ -39,7 +39,7 @@ public class Pop {
     private static final String FUNCTION_SIGNATURE = "pop()";
 
     public static Object pop(BArray arr) {
-        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), FUNCTION_SIGNATURE);
+        checkIsArrayOnlyOperation(TypeUtils.getConclusiveType(arr.getType()), FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }
 }

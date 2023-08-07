@@ -414,8 +414,9 @@ public class LambdaGen {
     }
 
     private void populateLambdaReturnType(BIRInstruction ins, LambdaDetails lambdaDetails) {
-        if (lambdaDetails.lhsType.tag == TypeTags.FUTURE) {
-            lambdaDetails.returnType = ((BFutureType) lambdaDetails.lhsType).constraint;
+        BType lhsType = JvmCodeGenUtil.getReferredType(lambdaDetails.lhsType);
+        if (lhsType.tag == TypeTags.FUTURE) {
+            lambdaDetails.returnType = ((BFutureType) lhsType).constraint;
         } else if (ins instanceof BIRNonTerminator.FPLoad) {
             lambdaDetails.returnType = ((BInvokableType) ((BIRNonTerminator.FPLoad) ins).type).retType;
         } else {

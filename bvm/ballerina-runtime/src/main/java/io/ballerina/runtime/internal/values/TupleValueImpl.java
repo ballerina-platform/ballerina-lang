@@ -141,7 +141,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues) {
         this.type = type;
-        this.tupleType = (TupleType) TypeUtils.getReferredType(type);
+        this.tupleType = (TupleType) TypeUtils.getConclusiveType(type);
         List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
@@ -596,7 +596,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.tupleType = (TupleType) TypeUtils.getReferredType(type);
+        this.tupleType = (TupleType) TypeUtils.getConclusiveType(type);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof BRefValue) {

@@ -94,7 +94,8 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check
      */
     private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
-        return targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType);
+        return JvmCodeGenUtil.getReferredType(targetType).tag == TypeTags.NIL &&
+                types.isAssignable(targetType, sourceType);
     }
 
     /**
@@ -106,13 +107,14 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for null
      */
     private boolean canOptimizeNilUnionCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getReferredType(sourceType);
         if (isInValidUnionType(sourceType)) {
             return false;
         }
         boolean foundNil = false;
         BType otherType = null;
         for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (bType.tag == TypeTags.NIL) {
+            if (JvmCodeGenUtil.getReferredType(bType).tag == TypeTags.NIL) {
                 foundNil = true;
             } else {
                 otherType = bType;
@@ -130,6 +132,8 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getReferredType(sourceType);
+        targetType = JvmCodeGenUtil.getReferredType(targetType);
         if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
             return false;
         }
@@ -154,6 +158,7 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getReferredType(sourceType);
         if (isInValidUnionType(sourceType)) {
             return false;
         }
@@ -180,7 +185,7 @@ public class JvmTypeTestGen {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, typeTestIns.rhsOp.variableDcl.type);
         Label ifLabel = new Label();
-        if (typeTestIns.type.tag == TypeTags.NIL) {
+        if (JvmCodeGenUtil.getReferredType(typeTestIns.type).tag == TypeTags.NIL) {
             mv.visitJumpInsn(IFNONNULL, ifLabel);
         } else {
             mv.visitJumpInsn(IFNULL, ifLabel);

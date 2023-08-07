@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -307,7 +306,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
-            BMapType mapType = (BMapType) getMapType(queryExpr.getBType());
+            BMapType mapType = getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
             result = getStreamFunctionVariableRef(queryBlock,
@@ -348,11 +347,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         return streamStmtExpr;
     }
 
-    private BType getMapType(BType type) {
-        BType resultantType = types.getSafeType(Types.getReferredType(type), false, true);
-        if (resultantType.tag == TypeTags.INTERSECTION) {
-            return getMapType(((BIntersectionType) resultantType).effectiveType);
-        }
+    private BMapType getMapType(BType type) {
+        BMapType resultantType = (BMapType) Types.getReferredType(types.getSafeType(type, false, true));
         return resultantType;
     }
 
@@ -370,8 +366,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 return true;
-            case TypeTags.INTERSECTION:
-                return isXml(((BIntersectionType) refType).getEffectiveType());
             default:
                 return false;
         }
@@ -1022,9 +1016,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                 int memberTypeTag = Types.getReferredType(memberType).tag;
                 if (memberTypeTag == TypeTags.TABLE) {
                     tableType = memberType;
-                } else if (memberTypeTag == TypeTags.INTERSECTION &&
-                        ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
-                    tableType = ((BIntersectionType) memberType).effectiveType;
                 }
             }
         }

@@ -57,8 +57,8 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         isPureType = true;
     }
 
-    private boolean isAnydata(BType type) {
-        switch (type.tag) {
+    private boolean isAnyData(BType type) {
+        switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
@@ -80,15 +80,9 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.CHAR_STRING:
                 return true;
-            case TypeTags.TYPEREFDESC:
-                return isAnydata(((BTypeReferenceType) type).referredType);
             default:
                 return false;
         }
-    }
-
-    private boolean isAnyData(BType type) {
-        return type.tag == TypeTags.ANYDATA || isAnydata(type);
     }
 
     @Override
