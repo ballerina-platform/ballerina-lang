@@ -153,3 +153,40 @@ function testInvalidArgOrder() {
                 where name == "XX"
                 collect int:max(...[price]); // error
 }
+
+class NumberGenerator {
+    int i = 0;
+    boolean resultError = false;
+    public isolated function next() returns record {|int value;|}|error? {
+        if self.i > 5 {
+            if self.resultError {
+                return error("Number exceed 5");
+            }
+            return ();
+        }
+        int value = self.i;
+        self.i += 1;
+        return {value};
+    }
+
+    function init(boolean resultError = false) {
+        self.resultError = resultError;
+    }
+}
+
+function testErrorCompletion() {
+    NumberGenerator numGenrator = new();
+    stream<int, error?> numberStream = new (numGenrator);
+    int _ = from int number in numberStream
+        collect sum(number);
+
+    int _ = from int num1 in 1...5
+        join int num2 in numberStream
+        on num1 equals num2
+        collect sum(num1);
+
+    _ = from int number in 1...5
+        let int sum = from int i in numberStream
+                              collect sum(i)
+        select number;
+}
