@@ -2280,7 +2280,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean isOpenRecord = isRecord && !((BRecordType) referredType).sealed;
 
         // A record type is inferred for a record literal even if the contextually expected type is a map, if the
-        // mapping constructor expression has `readonly` recordLiteralFields.
+        // mapping constructor expression has `readonly` fields.
         boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
