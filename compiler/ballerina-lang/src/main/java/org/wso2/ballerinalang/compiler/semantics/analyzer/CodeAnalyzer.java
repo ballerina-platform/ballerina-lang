@@ -2234,9 +2234,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         BType referredType = Types.getReferredType(recordLiteral.getBType());
-        List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        boolean isRecord = referredType.tag == TypeTags.RECORD;
+        List<RecordLiteralNode.RecordField> recordLiteralFields = recordLiteral.fields;
 
-        for (RecordLiteralNode.RecordField field : fields) {
+        LinkedHashMap<String, BField> recordFields = null;
+        if (isRecord) {
+            recordFields = ((BRecordType) referredType).getFields();
+        }
+
+        for (RecordLiteralNode.RecordField field : recordLiteralFields) {
             if (field.isKeyValueField()) {
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr, data);
                 reportIfDeprecatedUsage(((BLangRecordKeyValueField) field).key.fieldSymbol, recordLiteral,
@@ -2246,9 +2252,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         = (BLangRecordLiteral.BLangRecordVarNameField) field;
                 analyzeExpr(recField, data);
 
-                if (referredType.tag == TypeTags.RECORD) {
-                    BField matchingField = ((BRecordType) referredType).getFields().get(recField.symbol
-                            .getName().getValue());
+                if (isRecord) {
+                    BField matchingField = recordFields.get(recField.symbol.getName().getValue());
                     if (matchingField != null) {
                         reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, recField.pos);
                     }
@@ -2259,11 +2264,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 analyzeExpr(spreadField.expr, data);
 
                 BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
-                if (spreadFieldType != null && spreadFieldType.tag == TypeTags.RECORD
-                        && referredType.tag == TypeTags.RECORD) {
+                if (spreadFieldType != null && spreadFieldType.tag == TypeTags.RECORD && isRecord) {
                     for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
-                        BRecordType recordType = (BRecordType) referredType;
-                        BField matchingField = recordType.getFields().get(fieldEntry.getName().getValue());
+                        BField matchingField = recordFields.get(fieldEntry.getName().getValue());
                         if (matchingField != null) {
                             reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, spreadField.expr.pos);
                         }
@@ -2274,16 +2277,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         Set<Object> names = new HashSet<>();
         Set<Object> neverTypedKeys = new HashSet<>();
-        boolean isRecord = referredType.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) referredType).sealed;
 
         // A record type is inferred for a record literal even if the contextually expected type is a map, if the
-        // mapping constructor expression has `readonly` fields.
+        // mapping constructor expression has `readonly` recordLiteralFields.
         boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
         BLangRecordLiteral.BLangRecordSpreadOperatorField inclusiveTypeSpreadField = null;
-        for (RecordLiteralNode.RecordField field : fields) {
+        for (RecordLiteralNode.RecordField field : recordLiteralFields) {
 
             BLangExpression keyExpr;
 
@@ -2303,7 +2305,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                     inclusiveTypeSpreadField = spreadOpField;
 
-                    if (fields.size() > 1) {
+                    if (recordLiteralFields.size() > 1) {
                         if (names.size() > 0) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
