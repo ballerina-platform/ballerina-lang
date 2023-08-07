@@ -5,6 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
+distribution-version = "2201.6.0-SNAPSHOT"
 
 [[package]]
 org = "ballerina"
@@ -16,8 +17,8 @@ modules = [
 
 [[package]]
 org = "ballerina"
-name = "observe"
-version = "1.0.0"
+name = "lang.error"
+version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -27,22 +28,11 @@ org = "ballerina"
 name = "test"
 version = "0.0.0"
 dependencies = [
-	{org = "ballerina", name = "jballerina.java"}
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}
-]
-
-[[package]]
-org = "ballerinai"
-name = "observe"
-version = "0.0.0"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "observe"}
-]
-modules = [
-	{org = "ballerinai", packageName = "observe", moduleName = "observe"}
 ]
 
 [[package]]
@@ -52,7 +42,6 @@ version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "test"},
-	{org = "ballerinai", name = "observe"},
 	{org = "testOrg", name = "functionsLib"}
 ]
 modules = [
@@ -66,12 +55,10 @@ name = "functionsLib"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "test"},
-	{org = "ballerinai", name = "observe"}
+	{org = "ballerina", name = "test"}
 ]
 modules = [
 	{org = "testOrg", packageName = "functionsLib", moduleName = "functionsLib"},
 	{org = "testOrg", packageName = "functionsLib", moduleName = "functionsLib.mod1"}
 ]
-
 

@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -118,5 +119,11 @@ public class BuiltinOperationsTest {
         BAssertUtil.validateError(resNegative, 2, "undefined function 'isFinite' in type 'int'", 22, 28);
         BAssertUtil.validateError(resNegative, 3, "undefined function 'isNaN' in type 'int'", 24, 25);
         BAssertUtil.validateError(resNegative, 4, "undefined function 'isInfinite' in type 'int'", 25, 34);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resNegative = null;
     }
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -355,5 +356,13 @@ public class WhileStmtTest {
                 BCompileUtil.compile("test-src/statements/whilestatement/while_stmt_type_narrowing_positive.bal");
         Object returns = BRunUtil.invoke(compileResult, "testWhileStmtTypeNarrow");
         Assert.assertTrue((Boolean) returns);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        positiveCompileResult = null;
+        negativeCompileResult = null;
+        onfailCompileResult = null;
+        onfailNegativeCompileResult = null;
     }
 }
