@@ -106,7 +106,7 @@ public class Cast {
                 return createError(StringUtils.fromString(moduleName + " Cannot cast `" + valueObjName + "` to `" +
                         castObjTypeName + "`"));
             }
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             return createError(StringUtils.fromString(moduleName + " Error while casting `" + valueObjName +
                     "` object to the typedesc provided: " + e));
         }
