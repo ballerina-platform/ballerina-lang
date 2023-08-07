@@ -2246,7 +2246,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         = (BLangRecordLiteral.BLangRecordVarNameField) field;
                 analyzeExpr(recField, data);
 
-                if (referredType.getKind() == TypeKind.RECORD) {
+                if (referredType.tag == TypeTags.RECORD) {
                     BField matchingField = ((BRecordType) referredType).getFields().get(recField.symbol
                             .getName().getValue());
                     if (matchingField != null) {
@@ -2259,8 +2259,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 analyzeExpr(spreadField.expr, data);
 
                 BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
-                if (spreadFieldType != null && spreadFieldType.getKind() == TypeKind.RECORD
-                        && referredType.getKind() == TypeKind.RECORD) {
+                if (spreadFieldType != null && spreadFieldType.tag == TypeTags.RECORD
+                        && referredType.tag == TypeTags.RECORD) {
                     for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
                         BRecordType recordType = (BRecordType) referredType;
                         BField matchingField = recordType.getFields().get(fieldEntry.getName().getValue());
