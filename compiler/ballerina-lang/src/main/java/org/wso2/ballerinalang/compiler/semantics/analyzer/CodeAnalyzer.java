@@ -31,7 +31,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -3959,7 +3958,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 reportIfDeprecatedUsage(restParamSymbol, expr, expr.pos);
                 continue;
             }
-            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP ) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
                 if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
                     analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr, data,
