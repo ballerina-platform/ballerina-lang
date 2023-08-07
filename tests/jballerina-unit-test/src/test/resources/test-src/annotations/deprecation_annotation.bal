@@ -442,7 +442,7 @@ function fooFn(int x1, @deprecated int x2){
 function barFn(string s, *Company company) {
 }
 
-function bazFn(string a, @deprecated int... c) {
+function bazFn(string a, @deprecated string b, @deprecated int... c) {
 }
 
 function quxFn(@deprecated string y1 = "Qux", @deprecated int y2 = 10) {
@@ -473,9 +473,10 @@ public function testDeprecatedParamUsages() {
     );
     bazFn(
         "A",
-        1,  // warning
-        2,  // warning
-        3   // warning
+        "B",    // warning
+        1,      // warning
+        2,      // warning
+        3       // warning
     );
     quxFn(
         "Quux", // warning
@@ -492,4 +493,36 @@ public function testDeprecatedParamUsages() {
             age: 12     // warning
         }
     });
+
+    // As rest args
+    [int, int] argX = [1, 2];
+    fooFn(...argX);
+    fooFn(...[
+            1,
+            2           // warning
+        ]
+    );
+    var fn1 = function ()  returns int => 1;
+    fooFn(...[
+        1,
+        ...[
+            fn1()       // warning
+            ]
+        ]
+    );
+    var fn2 = function () returns [int, int] => [1, 2];
+    fooFn(...[
+        ...[
+            ...fn2()    // warning
+            ]
+        ]
+    );
+    bazFn(
+        "A",
+        ...[
+            "B",    // warning
+            1,      // warning
+            3       // warning
+        ]
+    );
 }

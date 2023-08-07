@@ -131,14 +131,22 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'city' is deprecated", 470, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'country' is deprecated", 471, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'name' is deprecated", 472, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'c' is deprecated", 476, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'b' is deprecated", 476, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'c' is deprecated", 477, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'c' is deprecated", 478, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y1' is deprecated", 481, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y2' is deprecated", 482, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y1' is deprecated", 485, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y2' is deprecated", 486, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'age' is deprecated", 492, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'c' is deprecated", 479, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y1' is deprecated", 482, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y2' is deprecated", 483, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y1' is deprecated", 486, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'y2' is deprecated", 487, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'age' is deprecated", 493, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'x2' is deprecated", 499, 11);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'x2' is deprecated", 502, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'x2' is deprecated", 509, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'x2' is deprecated", 516, 16);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'b' is deprecated", 523, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'c' is deprecated", 524, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'c' is deprecated", 525, 13);
         Assert.assertEquals(compileResult.getWarnCount(), i);
     }
 

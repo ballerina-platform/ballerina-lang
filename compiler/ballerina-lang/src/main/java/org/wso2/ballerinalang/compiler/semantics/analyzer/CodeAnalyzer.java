@@ -2626,11 +2626,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private String generateDeprecatedConstructString(BLangExpression expr, String fieldOrMethodName,
                                                      BSymbol symbol) {
         BType bType = expr.getBType();
-        if (bType.tag == TypeTags.TYPEREFDESC) {
+        if (bType != null && bType.tag == TypeTags.TYPEREFDESC) {
             return bType + "." + fieldOrMethodName;
         }
 
-        if (bType.tag == TypeTags.OBJECT) {
+        if (bType != null &&  bType.tag == TypeTags.OBJECT) {
             BObjectType objectType = (BObjectType) bType;
             // for anonymous objects, only the field name will be in the error msg
             if (objectType.classDef == null || objectType.classDef.internal == false) {
@@ -3905,33 +3905,75 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         BType invocableType = Types.getReferredType(iExpr.symbol.type);
         BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
+        List<BVarSymbol> reqParamSymbols = invokableSymbol.params;
         int parameterCountForPositionalArgs = ((BInvokableType) invocableType).getParameterTypes().size();
 
-        int i = 0;
+        // data.visitedArgCount must be 0
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
                     reportIfDeprecatedUsage(((BLangNamedArgsExpression) expr).varSymbol, expr, expr.pos);
-                    i++;
+                    data.visitedArgCount++;
                     break;
                 case REST_ARGS_EXPR:
-                    if (i > parameterCountForPositionalArgs) {
+                    if (data.visitedArgCount >= parameterCountForPositionalArgs) {
                         reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
+                    } else {
+                        BLangExpression restExpr = ((BLangRestArgsExpression) expr).expr;
+                        if (restExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                            analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) restExpr, data,
+                                    reqParamSymbols, invokableSymbol.restParam);
+                        } else {
+                            for (int i = data.visitedArgCount; i < parameterCountForPositionalArgs; i++) {
+                                if (reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos)) {
+                                    break;
+                                }
+                            }
+                        }
                     }
                     break;
                 default:    // positional args
-                    if (i < parameterCountForPositionalArgs) {
-                        BVarSymbol paramSymbol = invokableSymbol.params.get(i);
+                    if (data.visitedArgCount < parameterCountForPositionalArgs) {
+                        BVarSymbol paramSymbol = reqParamSymbols.get(data.visitedArgCount);
                         reportIfDeprecatedUsage(paramSymbol, expr, expr.pos);
-                        if (Symbols.isFlagOn(invokableSymbol.params.get(i).flags, Flags.INCLUDED)) {
+                        if (Symbols.isFlagOn(reqParamSymbols.get(data.visitedArgCount).flags, Flags.INCLUDED)) {
                             analyzeExpr(expr, data);
                         }
                     } else {
                         reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
                     }
-                    i++;
+                    data.visitedArgCount++;
             }
         }
+        // Reset the visited arg count for the next invocation
+        data.visitedArgCount = 0;
+    }
+
+    private void analyzeRestArgsAgainstReqParams(BLangListConstructorExpr listConstructorExpr, AnalyzerData data,
+                                                 List<BVarSymbol> reqParamSymbols, BVarSymbol restParamSymbol) {
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (data.visitedArgCount >= reqParamSymbols.size()) {
+                // Visiting args matching with the rest-param
+                reportIfDeprecatedUsage(restParamSymbol, expr, expr.pos);
+                continue;
+            }
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP ) {
+                BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+                if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                    analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr, data,
+                            reqParamSymbols, restParamSymbol);
+                } else {
+                    for (int i = data.visitedArgCount; i < reqParamSymbols.size(); i++) {
+                        if (reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos)) {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                reportIfDeprecatedUsage(reqParamSymbols.get(data.visitedArgCount++), expr, expr.pos);
+            }
+        }
+
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -3984,11 +4026,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return errorType;
     }
 
-    private void reportIfDeprecatedUsage(BSymbol constructSymbol, BLangExpression expr, Location usagePos) {
+    private boolean reportIfDeprecatedUsage(BSymbol constructSymbol, BLangExpression expr, Location usagePos) {
         if (constructSymbol != null && Symbols.isFlagOn(constructSymbol.flags, Flags.DEPRECATED)) {
             dlog.warning(usagePos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
                     generateDeprecatedConstructString(expr, constructSymbol.name.getValue(), constructSymbol));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -4273,5 +4317,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
+        // Field related to args and params
+        int visitedArgCount = 0;
     }
 }
