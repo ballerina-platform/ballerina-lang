@@ -323,7 +323,10 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
         if (orgName.equals("ballerinax")) {
             List<String> packageList = new ArrayList<>();
-            String prefix = context.getTokenAtCursor().text();
+            String prefix = node.moduleName().stream().filter(identifierToken -> !identifierToken.isMissing())
+                    .map(IdentifierToken::text)
+                    .collect(Collectors.joining("."));
+
             moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages(serverContext);
             moduleList.forEach(ballerinaPackage -> {
                 String packageName = ballerinaPackage.packageName().value();
@@ -332,6 +335,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             List<String> filteredPackages = getFilteredPackages(packageList, prefix, context);
             for (String filteredPackage : filteredPackages) {
                 LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
+                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
                 completionItems.add(completionItem);
             }
         } else {
