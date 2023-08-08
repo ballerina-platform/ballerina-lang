@@ -1123,6 +1123,63 @@ public class CentralAPIClient {
     }
 
     /**
+     * Get packages from central.
+     *
+     * @param params            Search query param map.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  The ballerina version.
+     * @return Package list
+     * @throws CentralClientException Central client exception.
+     */
+    public JsonElement getPackages(Map<String, String> params, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
+
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(PACKAGES);
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
+
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(httpBuilder.build())
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            ResponseBody responseBody = searchResponse.body();
+            body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
+            if (body.isPresent()) {
+                MediaType contentType = body.get().contentType();
+                if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().toJsonTree(body.get().string());
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_SEARCH);
+            return new JsonArray();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+
+    /**
      * Get connectors with search filters.
      *
      * @param params            Search query param map.
