@@ -59,14 +59,14 @@ function testInvalidAssignment() {
 
 function testUndefinedModule() {
     int sum = from var {name, price} in [{name: "Saman", price: 11}]
-                    collect foo:sum(price);  // error   
+                    collect foo:sum(price);  // error
 }
 
 function testUserDefinedFunctions() {
     int sum = from var {name, price} in [{name: "Saman", price: 11}]
-                    collect sumy(price);          
+                    collect sumy(price);
     sum = from var {name, price} in [{name: "Saman", price: 11}]
-                    collect sumx(price); 
+                    collect sumx(price);
 }
 
 function sumx(int... p) returns int {
@@ -79,11 +79,11 @@ function testQueryConstructTypes() {
     var sum1 = stream from var {name, price1, price2} in input
                     collect sum(price1); // error
     var sum2 = map from var {name, price1, price2} in input
-                    collect sum(price1); // error    
+                    collect sum(price1); // error
     map<int> sum3 = map from var {name, price1, price2} in input
-                    collect sum(price1); // error 
+                    collect sum(price1); // error
     var sum4 = table key(name) from var {name, price1, price2} in input
-                                collect sum(price1); // error  
+                                collect sum(price1); // error
 }
 
 function testInvalidExpressions2() {
@@ -117,7 +117,7 @@ function testVariablesSeqMoreThanOnce() {
                     {name: "Kamal", price1: 10, price2: 9},
                     {name: "Amal", price1: 11, price2: 13},
                     {name: "Amal", price1: 11, price2: 15}];
-    
+
     var x1 = from var {name, price1, price2} in input1
                 group by name
                 collect [price1]; // error
@@ -131,7 +131,7 @@ function testVariablesSeqMoreThanOnce() {
 function testInvalidReturnTypesForEmptyGroups() {
     int x7 = from var {name, price1} in [{name: "Saman", price1: 2}]
                 where name == "X"
-                collect max(price1); // error   
+                collect max(price1); // error
 }
 
 function testInvalidArgOrder() {
@@ -175,18 +175,31 @@ class NumberGenerator {
 }
 
 function testErrorCompletion() {
-    NumberGenerator numGenrator = new();
+    NumberGenerator numGenrator = new ();
     stream<int, error?> numberStream = new (numGenrator);
     int _ = from int number in numberStream
         collect sum(number);
 
-    int _ = from int num1 in 1...5
+    int _ = from int num1 in 1 ... 5
         join int num2 in numberStream
         on num1 equals num2
         collect sum(num1);
 
-    _ = from int number in 1...5
+    _ = from int number in 1 ... 5
         let int sum = from int i in numberStream
-                              collect sum(i)
+            collect sum(i)
         select number;
+
+    _ = from int number in 1 ... 5
+        do {
+            int _ = from int i in numberStream
+                collect sum(i);
+        };
+
+    _ = from int number in 1 ... 5
+        do {
+            int _ = from int i in 1 ... 3
+                from int j in numberStream
+                collect sum(i);
+        };
 }
