@@ -3043,8 +3043,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER ||
                 parentCtx == ParserRuleContext.CLASS_MEMBER ||
                 parentCtx == ParserRuleContext.OBJECT_TYPE_MEMBER ||
-                parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL ||
-                parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
+                parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL) {
             nextContext = ParserRuleContext.SEMICOLON;
         } else if (parentCtx == ParserRuleContext.ANNOTATIONS) {
             nextContext = ParserRuleContext.ANNOTATION_END;
@@ -3079,6 +3078,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.EQUALS_KEYWORD;
         } else if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
+            nextContext = ParserRuleContext.ON_FAIL_CHECK_END;
         } else if (parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
             STToken nextToken = this.tokenReader.peek(lookahead);
             STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
@@ -3493,6 +3494,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CHECKING_EXPRESSION_END:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
+            case ON_FAIL_CHECK_END:
+                endContext();
+                endContext();
+                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -3580,10 +3585,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 if (parentCtx == ParserRuleContext.ERROR_CONSTRUCTOR) {
                     endContext();
-                    if (getParentContext() == ParserRuleContext.ON_FAIL_CHECK) {
-                        endContext();
-                        return ParserRuleContext.CHECKING_EXPRESSION_END;
-                    }
                 }
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
@@ -3798,7 +3799,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 // in expr-func-body, it is used by a different alias.
                 if (getParentContext() == ParserRuleContext.ON_FAIL_CHECK) {
                     endContext();
-                    return ParserRuleContext.ERROR_CONSTRUCTOR;
+                    return ParserRuleContext.EXPRESSION;
                 }
                 return ParserRuleContext.BLOCK_STMT;
             case LIST_MATCH_PATTERN:
@@ -5091,8 +5092,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return getNextRuleForSemicolon(nextLookahead);
         } else if (isExpressionContext(parentCtx)) {
             // A semicolon after an expression also means its an end of a statement/field, Hence pop the ctx.
-            endContext();
-            return getNextRuleForSemicolon(nextLookahead);
+            endContext(); // end statement
+            return ParserRuleContext.STATEMENT;
         } else if (parentCtx == ParserRuleContext.VAR_DECL_STMT) {
             endContext(); // end var-decl
             parentCtx = getParentContext();

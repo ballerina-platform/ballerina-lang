@@ -134,5 +134,9 @@
     "SpreadMemberNode": {
         "createdYear": "2022",
         "since": "2201.1.0"
+    },
+    "OnFailCheckNode": {
+        "createdYear": "2023",
+        "since": "2201.8.0"
     }
 }

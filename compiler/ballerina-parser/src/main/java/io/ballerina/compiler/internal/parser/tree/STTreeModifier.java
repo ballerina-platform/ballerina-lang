@@ -2926,13 +2926,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode failKeyword = modifyNode(onFailCheckNode.failKeyword);
         STNode identifier = modifyNode(onFailCheckNode.identifier);
         STNode rightArrowToken = modifyNode(onFailCheckNode.rightArrowToken);
-        STNode errorConstructor = modifyNode(onFailCheckNode.errorConstructor);
+        STNode expression = modifyNode(onFailCheckNode.expression);
         return onFailCheckNode.modify(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor);
+                expression);
     }
 
     // Tokens

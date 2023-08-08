@@ -2720,14 +2720,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode failKeyword,
             STNode identifier,
             STNode rightArrowToken,
-            STNode errorConstructor) {
+            STNode expression) {
 
         return new STOnFailCheckNode(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor);
+                expression);
     }
 }
 

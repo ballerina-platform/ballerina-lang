@@ -3597,19 +3597,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token failKeyword,
             IdentifierToken identifier,
             Token rightArrowToken,
-            ExpressionNode errorConstructor) {
+            ExpressionNode expression) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
-        Objects.requireNonNull(errorConstructor, "errorConstructor must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stOnFailCheckNode = STNodeFactory.createOnFailCheckNode(
                 onKeyword.internalNode(),
                 failKeyword.internalNode(),
                 identifier.internalNode(),
                 rightArrowToken.internalNode(),
-                errorConstructor.internalNode());
+                expression.internalNode());
         return stOnFailCheckNode.createUnlinkedFacade();
     }
 }

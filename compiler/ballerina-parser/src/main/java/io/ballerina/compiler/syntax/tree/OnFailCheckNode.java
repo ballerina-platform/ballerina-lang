@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class OnFailCheckNode extends NonTerminalNode {
 
@@ -102,7 +102,7 @@ public class OnFailCheckNode extends NonTerminalNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2201.7.0
+     * @since 2201.8.0
      */
     public static class OnFailCheckNodeModifier {
         private final OnFailCheckNode oldNode;

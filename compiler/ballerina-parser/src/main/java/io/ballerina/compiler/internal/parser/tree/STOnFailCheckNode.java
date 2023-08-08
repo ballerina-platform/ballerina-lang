@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -28,27 +28,27 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class STOnFailCheckNode extends STNode {
     public final STNode onKeyword;
     public final STNode failKeyword;
     public final STNode identifier;
     public final STNode rightArrowToken;
-    public final STNode errorConstructor;
+    public final STNode expression;
 
     STOnFailCheckNode(
             STNode onKeyword,
             STNode failKeyword,
             STNode identifier,
             STNode rightArrowToken,
-            STNode errorConstructor) {
+            STNode expression) {
         this(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor,
+                expression,
                 Collections.emptyList());
     }
 
@@ -57,21 +57,21 @@ public class STOnFailCheckNode extends STNode {
             STNode failKeyword,
             STNode identifier,
             STNode rightArrowToken,
-            STNode errorConstructor,
+            STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ON_FAIL_CHECK, diagnostics);
         this.onKeyword = onKeyword;
         this.failKeyword = failKeyword;
         this.identifier = identifier;
         this.rightArrowToken = rightArrowToken;
-        this.errorConstructor = errorConstructor;
+        this.expression = expression;
 
         addChildren(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor);
+                expression);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -80,7 +80,7 @@ public class STOnFailCheckNode extends STNode {
                 this.failKeyword,
                 this.identifier,
                 this.rightArrowToken,
-                this.errorConstructor,
+                this.expression,
                 diagnostics);
     }
 
@@ -89,13 +89,13 @@ public class STOnFailCheckNode extends STNode {
             STNode failKeyword,
             STNode identifier,
             STNode rightArrowToken,
-            STNode errorConstructor) {
+            STNode expression) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor)) {
+                expression)) {
             return this;
         }
 
@@ -104,7 +104,7 @@ public class STOnFailCheckNode extends STNode {
                 failKeyword,
                 identifier,
                 rightArrowToken,
-                errorConstructor,
+                expression,
                 diagnostics);
     }
 

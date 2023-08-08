@@ -44,7 +44,7 @@ public class CheckedOnFailExprNegativeTest {
         validateWarning(negativeResult, i++, "invalid usage of the 'check' expression operator: " +
                 "no expression type is equivalent to error type", 25, 25);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '()'", 26, 16);
-        validateError(negativeResult, i++, "operator '+' not defined for 'int' and 'float'", 32, 15);
+        validateError(negativeResult, i++, "operator '+' not defined for 'error' and 'float'", 32, 47);
         validateError(negativeResult, i++, "incompatible types: expected 'error', found 'int'", 36, 41);
         validateError(negativeResult, i++, "incompatible types: expected 'error', found '(int|error)'", 37, 41);
         Assert.assertEquals(negativeResult.getDiagnosticResult().diagnosticCount(), i);

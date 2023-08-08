@@ -9119,7 +9119,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * <p>
      * <code>
-     * on-fail-check := on-keyword fail-keyword variable-name => error-constructor
+     * on-fail-check := on-keyword fail-keyword variable-name => expression
      * </code>
      *
      * @return on-fail-check node
@@ -9130,7 +9130,7 @@ public class BallerinaParser extends AbstractParser {
         STNode failKeyword = parseFailKeyword();
         STNode varName = parseVariableName();
         STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.RIGHT_DOUBLE_ARROW);
-        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, true, false);
+        STNode expr = parseExpression(OperatorPrecedence.REMOTE_CALL_ACTION, true, false);
         endContext();
         return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow, expr);
     }

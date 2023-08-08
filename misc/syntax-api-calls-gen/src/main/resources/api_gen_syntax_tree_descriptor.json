@@ -4973,8 +4973,8 @@
           "type": "Token"
         },
         {
-          "name": "errorConstructor",
-          "type": "ErrorConstructorExpressionNode"
+          "name": "expression",
+          "type": "ExpressionNode"
         }
       ]
     }

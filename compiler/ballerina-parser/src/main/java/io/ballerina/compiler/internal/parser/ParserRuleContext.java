@@ -735,7 +735,8 @@ public enum ParserRuleContext {
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     TUPLE_MEMBERS("tuple-members"),
     TUPLE_MEMBER("tuple-member"),
-    ON_FAIL_CHECK("on-fail-check")
+    ON_FAIL_CHECK("on-fail-check"),
+    ON_FAIL_CHECK_END("on-fail-check-end")
     ;
 
     private String value;
