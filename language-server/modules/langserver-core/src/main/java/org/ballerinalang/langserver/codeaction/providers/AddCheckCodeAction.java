@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -43,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Code Action for error type handle.
@@ -120,8 +122,14 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             pos = PositionUtil.toRange(expressionNode.get().location().lineRange()).getStart();
         }
 
+        List<TypeSymbol> errorTypeSymbols = ((UnionTypeSymbol) foundType.get()).memberTypeDescriptors().stream()
+                .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
+
+        ImportsAcceptor acceptor = new ImportsAcceptor(context);
         List<TextEdit> edits = new ArrayList<>(CodeActionUtil.getAddCheckTextEdits(
-                pos, positionDetails.matchedNode(), context));
+                pos, positionDetails.matchedNode(), context, errorTypeSymbols, acceptor));
+        edits.addAll(acceptor.getNewImportTextEdits());
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
