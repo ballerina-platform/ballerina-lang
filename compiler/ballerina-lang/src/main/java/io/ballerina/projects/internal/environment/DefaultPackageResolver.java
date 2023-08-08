@@ -33,7 +33,6 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
-import io.ballerina.projects.internal.repositories.CustomPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.util.ArrayList;
@@ -150,10 +149,12 @@ public class DefaultPackageResolver implements PackageResolver {
                 localRepo.getPackageMetadata(localRepoRequests, options);
 
         Collection<PackageMetadataResponse> allCustomRepoPackages = new ArrayList<>();
-        for (Map.Entry<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestEntry : customRepoRequestMap.entrySet()) {
+        for (Map.Entry<PackageRepository, ArrayList<ResolutionRequest>> customRepoRequestEntry :
+                customRepoRequestMap.entrySet()) {
             PackageRepository customRepository = customRepoRequestEntry.getKey();
             ArrayList<ResolutionRequest> customRepoRequests = customRepoRequestEntry.getValue();
-            Collection<PackageMetadataResponse> customRepoPackages = customRepoRequests.isEmpty() ? Collections.emptyList() : customRepository.getPackageMetadata(customRepoRequests, options);
+            Collection<PackageMetadataResponse> customRepoPackages = customRepoRequests.isEmpty() ?
+                    Collections.emptyList() : customRepository.getPackageMetadata(customRepoRequests, options);
             allCustomRepoPackages.addAll(customRepoPackages);
         }
 

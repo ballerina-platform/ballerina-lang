@@ -22,7 +22,6 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.repositories.CustomPackageRepository;
-import io.ballerina.projects.internal.repositories.CustomRepositoryHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -49,18 +48,19 @@ import java.util.Optional;
  */
 public class CustomPackageRepositoryTests {
 
-    class MockCustomPackageRepository extends CustomPackageRepository implements CustomRepositoryHelper {
+    class MockCustomPackageRepository extends CustomPackageRepository {
 
-        public MockCustomPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
-                                            String repoId) {
-            super(environment, cacheDirectory, distributionVersion, repoId);
+        public MockCustomPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
+            super(environment, cacheDirectory, distributionVersion);
         }
 
 
         @Override
         public boolean getPackageFromRemoteRepo(String org, String name, String version) {
-            Path sourceFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources").resolve("remote-custom-repo").resolve(name);
-            Path destinationFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources").resolve("local-custom-repo")
+            Path sourceFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
+                    .resolve("remote-custom-repo").resolve(name);
+            Path destinationFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
+                    .resolve("local-custom-repo")
                     .resolve("bala").resolve(org).resolve(name);
 
             try {
@@ -74,7 +74,8 @@ public class CustomPackageRepositoryTests {
 
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.copy(file, destinationFolderPath.resolve(sourceFolderPath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(file, destinationFolderPath.resolve(sourceFolderPath.relativize(file)),
+                                StandardCopyOption.REPLACE_EXISTING);
                         return FileVisitResult.CONTINUE;
                     }
                 });
@@ -87,7 +88,8 @@ public class CustomPackageRepositoryTests {
     }
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources").resolve("local-custom-repo");
+    private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
+            .resolve("local-custom-repo");
     private CustomPackageRepository customPackageRepository;
 
     @BeforeSuite
@@ -97,26 +99,31 @@ public class CustomPackageRepositoryTests {
             public <T> T getService(Class<T> clazz) {
                 return null;
             }
-        }, TEST_REPO, "1.2.3", "local-custom-repo");
+        }, TEST_REPO, "1.2.3");
     }
 
     @Test(description = "Test package existence in custom repository")
     public void testIsPackageExist() throws IOException {
-        boolean isPackageExists = customPackageRepository.isPackageExists(PackageOrg.from("luheerathan"), PackageName.from("pact"), PackageVersion.from("0.1.0"));
+        boolean isPackageExists = customPackageRepository.isPackageExists(
+                PackageOrg.from("luheerathan"), PackageName.from("pact"),
+                PackageVersion.from("0.1.0"));
         Assert.assertTrue(isPackageExists);
         deleteRemotePackage();
     }
 
     @Test(description = "Test non-existing package in custom repository")
     public void testNonExistingPkg()  {
-        boolean isPackageExists = customPackageRepository.isPackageExists(PackageOrg.from("luheerathan"), PackageName.from("pact1"), PackageVersion.from("0.1.0"));
+        boolean isPackageExists = customPackageRepository.isPackageExists(
+                PackageOrg.from("luheerathan"),
+                PackageName.from("pact1"), PackageVersion.from("0.1.0"));
         Assert.assertTrue(!isPackageExists);
     }
 
     @Test(description = "Test package version existence in custom repository")
     public void testGetPackageVersions() throws IOException {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("luheerathan"), PackageName.from("pact"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = customPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -128,39 +135,42 @@ public class CustomPackageRepositoryTests {
     @Test(description = "Test getPackage (existing package) in custom repository")
     public void testGetPackage() throws IOException {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("luheerathan"), PackageName.from("pact"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
-        Optional<Package> package_ = customPackageRepository.getPackage(resolutionRequest,
+        Optional<Package> packageOptional = customPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
-        Assert.assertFalse(package_.isEmpty());
-        Assert.assertEquals(PackageOrg.from("luheerathan"), package_.get().packageOrg());
+        Assert.assertFalse(packageOptional.isEmpty());
+        Assert.assertEquals(PackageOrg.from("luheerathan"), packageOptional.get().packageOrg());
         deleteRemotePackage();
     }
 
     @Test(description = "Test getPackage (non existing package) in custom repository")
     public void testGetPackageNonExisting() throws IOException {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("luheerathan"), PackageName.from("pact1"), PackageVersion.from("0.1.0")),
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact1"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
-        Optional<Package> package_ = customPackageRepository.getPackage(resolutionRequest,
+        Optional<Package> repositoryPackage = customPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
-        Assert.assertTrue(package_.isEmpty());
+        Assert.assertTrue(repositoryPackage.isEmpty());
         deleteRemotePackage();
     }
 
     @Test(description = "Test getPackages")
     public void testGetPackages() throws IOException {
-        Map<String, List<String>> package_ = customPackageRepository.getPackages();
-        Assert.assertEquals(package_.keySet().size(), 1);
-        Assert.assertTrue(package_.containsKey("luheerathan"));
-        Assert.assertEquals(package_.get("luheerathan").size(), 2);
+        Map<String, List<String>> repositoryPackages = customPackageRepository.getPackages();
+        Assert.assertEquals(repositoryPackages.keySet().size(), 1);
+        Assert.assertTrue(repositoryPackages.containsKey("luheerathan"));
+        Assert.assertEquals(repositoryPackages.get("luheerathan").size(), 2);
         deleteRemotePackage();
     }
 
     @Test(description = "Test package version existence in custom repository")
     public void testGetNonExistingPackageVersions1() throws IOException {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("luheerathan"), PackageName.from("pact"), PackageVersion.from("0.2.0")),
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact"), PackageVersion.from("0.2.0")),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = customPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -170,7 +180,9 @@ public class CustomPackageRepositoryTests {
 
     @Test(description = "Test non-existing package modules in custom repository")
     public void testExistingPkgModules() throws IOException {
-        Collection<ModuleDescriptor> modules = customPackageRepository.getModules(PackageOrg.from("luheerathan"), PackageName.from("pact1"), PackageVersion.from("0.1.0"));
+        Collection<ModuleDescriptor> modules = customPackageRepository.getModules(
+                PackageOrg.from("luheerathan"),
+                PackageName.from("pact1"), PackageVersion.from("0.1.0"));
         Assert.assertTrue(modules.isEmpty());
         deleteRemotePackage();
     }
@@ -178,7 +190,9 @@ public class CustomPackageRepositoryTests {
 
     @Test(description = "Test existing package modules in custom repository")
     public void testNonExistingPkgModules() throws IOException {
-        Collection<ModuleDescriptor> modules = customPackageRepository.getModules(PackageOrg.from("luheerathan"), PackageName.from("pact"), PackageVersion.from("0.1.0"));
+        Collection<ModuleDescriptor> modules = customPackageRepository.getModules(
+                PackageOrg.from("luheerathan"), PackageName.from("pact"),
+                PackageVersion.from("0.1.0"));
         Assert.assertFalse(modules.isEmpty());
         deleteRemotePackage();
     }
@@ -186,7 +200,8 @@ public class CustomPackageRepositoryTests {
     @Test(description = "Test package version existence in custom repository")
     public void testGetNonExistingPackageVersions2() throws IOException {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("luheerathan"), PackageName.from("pact1"), PackageVersion.from("0.2.0")),
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact1"), PackageVersion.from("0.2.0")),
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = customPackageRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
@@ -196,7 +211,8 @@ public class CustomPackageRepositoryTests {
 
 
     private static void deleteRemotePackage() throws IOException {
-        Path destinationFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources").resolve("local-custom-repo")
+        Path destinationFolderPath = RESOURCE_DIRECTORY.resolve("custom-repo-resources").
+                resolve("local-custom-repo")
                 .resolve("bala").resolve("luheerathan").resolve("pact");
         if (Files.exists(destinationFolderPath)) {
             Files.walk(destinationFolderPath)

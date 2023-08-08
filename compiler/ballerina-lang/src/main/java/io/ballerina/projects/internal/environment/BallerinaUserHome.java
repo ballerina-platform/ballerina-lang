@@ -4,7 +4,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.model.Repository;
 import io.ballerina.projects.internal.repositories.CustomPackageRepository;

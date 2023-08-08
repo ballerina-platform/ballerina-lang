@@ -40,6 +40,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code SettingsBuilder} processes the settings toml file parsed and populate a {@link Settings}.
@@ -49,6 +50,12 @@ import java.util.List;
 public class SettingsBuilder {
 
     public static final String NAME = "name";
+    public static final String USER_ID = "userId";
+    public static final String TOKEN = "token";
+    public static final String NEXUS = "nexus";
+    public static final String ARTIFACTORY = "artifactory";
+    public static final String FILE_SYSTEM = "file-system";
+    public static final String GITHUB = "github";
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -130,16 +137,24 @@ public class SettingsBuilder {
                 accessToken = getStringOrDefaultFromTomlTableNode(centralNode, ACCESS_TOKEN, "");
             }
 
-            List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) tomlAstNode.entries().get(REPOSITORY))
-                    .children();
-            for (TomlTableNode repositoryNode : repositoryNodes) {
-                repoName = getStringOrDefaultFromTomlTableNode(repositoryNode, NAME, "");
-                url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
-                id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
-                repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
-                repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, PASSWORD, "");
-                repositories.add(Repository.from(id, repoName,url, repositoryUsername, repositoryPassword));
+            Map<String, TopLevelNode> repoEntries = ((TomlTableNode) tomlAstNode.entries().get(REPOSITORY)).entries();
+            for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
+                String repoKey = entry.getKey();
+                TopLevelNode repoValue = entry.getValue();
+                if (!NEXUS.equals(repoKey) && !ARTIFACTORY.equals(repoKey) && !FILE_SYSTEM.equals(repoKey) &&
+                        !GITHUB.equals(repoKey)) {
+                    continue;
+                }
+                List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
+                for (TomlTableNode repositoryNode : repositoryNodes) {
+                    url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
+                    id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
+                    repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USER_ID, "");
+                    repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, TOKEN, "");
+                    repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
+                }
             }
+
         }
 
         return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken),

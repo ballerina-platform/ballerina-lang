@@ -8,7 +8,6 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.Environment;
-
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 
@@ -23,12 +22,9 @@ import java.util.Optional;
 
 public abstract class CustomPackageRepository extends AbstractPackageRepository implements CustomRepositoryHelper {
     private final FileSystemRepository fileSystemRepository;
-    protected final String repoId;
 
-    public CustomPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
-                                   String repoId) {
+    public CustomPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
         this.fileSystemRepository = new FileSystemRepository(environment, cacheDirectory, distributionVersion);
-        this.repoId = repoId;
     }
 
     @Override

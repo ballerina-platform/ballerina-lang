@@ -25,7 +25,7 @@ import java.util.Comparator;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 
-public class MavenPackageRepository extends CustomPackageRepository implements CustomRepositoryHelper {
+public class MavenPackageRepository extends CustomPackageRepository {
 
     public static final String EMPTY = "";
 
@@ -34,14 +34,14 @@ public class MavenPackageRepository extends CustomPackageRepository implements C
     private final String repoLocation;
 
 
-    public MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion,
-                                  String repoId, MavenResolverClient client) {
-        super(environment, cacheDirectory, distributionVersion, repoId);
+    public MavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion
+            , MavenResolverClient client) {
+        super(environment, cacheDirectory, distributionVersion);
         this.client = client;
         this.repoLocation = cacheDirectory.resolve("bala").toAbsolutePath().toString();
     }
 
-    public static MavenPackageRepository from(Environment environment, Path cacheDirectory, Repository repository){
+    public static MavenPackageRepository from(Environment environment, Path cacheDirectory, Repository repository) {
         if (Files.notExists(cacheDirectory)) {
             throw new ProjectException("cache directory does not exists: " + cacheDirectory);
         }
@@ -66,7 +66,7 @@ public class MavenPackageRepository extends CustomPackageRepository implements C
         Proxy proxy = settings.getProxy();
         mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
-        return new MavenPackageRepository(environment, cacheDirectory, ballerinaShortVersion, repository.id(), mvnClient);
+        return new MavenPackageRepository(environment, cacheDirectory, ballerinaShortVersion, mvnClient);
     }
 
 
@@ -77,8 +77,6 @@ public class MavenPackageRepository extends CustomPackageRepository implements C
         try {
             this.client.pullPackage(org, name, version, this.repoLocation);
         } catch (MavenResolverClientException e) {
-            System.out.println("Error while pulling package [" + org + "/" + name + ":" + version + "]: " +
-                    e.getMessage());
             return false;
         }
 
@@ -105,8 +103,6 @@ public class MavenPackageRepository extends CustomPackageRepository implements C
                         .forEach(File::delete);
             }
         } catch (IOException e) {
-            System.out.println("Unable to create bala for the package [" + org + "/" + name + ":" + version + "]: " +
-                    e.getMessage());
             return false;
         }
         return true;

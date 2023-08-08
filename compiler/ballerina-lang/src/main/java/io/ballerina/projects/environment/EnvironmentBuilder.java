@@ -22,7 +22,6 @@ import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
-import io.ballerina.projects.internal.repositories.CustomPackageRepository;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -30,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 

@@ -18,6 +18,7 @@
 package org.ballerinalang.maven.bala.client;
 
 
+import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -42,12 +43,10 @@ import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.SubArtifact;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
-import org.apache.maven.model.Model;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-
 import java.nio.file.Path;
 
 
@@ -83,7 +82,6 @@ public class MavenResolverClient {
      * @param groupId    group ID of the dependency
      * @param artifactId artifact ID of the dependency
      * @param version    version of the dependency
-     * @return found/ not found status of the package
      * @throws MavenResolverClientException when specified dependency cannot be resolved
      */
     public void pullPackage(String groupId, String artifactId, String version, String targetLocation) throws
@@ -125,7 +123,7 @@ public class MavenResolverClient {
             File temporaryPom = generatePomFile(orgName, packageName, version);
             deployRequest.addArtifact(new SubArtifact(mainArtifact, "", POM, temporaryPom));
             system.deploy(session, deployRequest);
-        } catch (DeploymentException |IOException e) {
+        } catch (DeploymentException | IOException e) {
             throw new MavenResolverClientException(e.getMessage());
         }
     }
@@ -165,7 +163,7 @@ public class MavenResolverClient {
      * @param username username of the proxy
      * @param password password of the proxy
      */
-    public void setProxy(String url, int port,String username, String password) {
+    public void setProxy(String url, int port, String username, String password) {
         if ("".equals(url) || port == 0) {
             return;
         }

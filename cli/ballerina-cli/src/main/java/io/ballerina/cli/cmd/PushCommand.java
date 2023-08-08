@@ -59,7 +59,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
-import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
@@ -168,8 +167,8 @@ public class PushCommand implements BLauncherCmd {
 
                 if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME) && !isCustomRepository) {
                     String errMsg = "unsupported repository '" + repositoryName + "' found. Only '"
-                            + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository and repositories mentioned in the " +
-                            "Settings.toml are supported.";
+                            + ProjectConstants.LOCAL_REPOSITORY_NAME +
+                            "' repository and repositories mentioned in the Settings.toml are supported.";
                     CommandUtil.printError(this.errStream, errMsg, null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;

@@ -46,7 +46,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 
@@ -60,7 +59,6 @@ import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.createTempFile;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -206,7 +204,7 @@ public class PullCommand implements BLauncherCmd {
             return;
         }
 
-        if (targetRepository != null ) {
+        if (targetRepository != null) {
             MavenResolverClient mavenResolverClient = new MavenResolverClient();
             if (!"".equals(targetRepository.username()) && !"".equals(targetRepository.password())) {
                 mavenResolverClient.addRepository(targetRepository.id(), targetRepository.url(),
@@ -223,7 +221,8 @@ public class PullCommand implements BLauncherCmd {
                     .resolve(ProjectConstants.BALA_DIR_NAME);
 
             try {
-                mavenResolverClient.pullPackage(orgName, packageName, version, String.valueOf(mavenBalaCachePath.toAbsolutePath()));
+                mavenResolverClient.pullPackage(orgName, packageName, version,
+                        String.valueOf(mavenBalaCachePath.toAbsolutePath()));
                 Path balaDownloadPath = mavenBalaCachePath.resolve(orgName).resolve(packageName).resolve(version)
                         .resolve(packageName + "-" + version + BALA_EXTENSION);
                 Path balaHashPath = mavenBalaCachePath.resolve(orgName).resolve(packageName).resolve(version)
