@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -31,6 +32,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -43,6 +45,7 @@ import java.util.Locale;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -54,6 +57,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     Path testResources;
     Path centralCache;
+    private PrintStream errStream = System.err;
 
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
@@ -503,6 +507,81 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
+    @Test(description = "Test new command with tool template")
+    public void testNewCommandWithTool() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        Path packageDir = tmpDir.resolve("tool_sample");
+        String[] args = {packageDir.toString(), "-t", "tool"};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - BalTool.toml
+        // - Package.md
+        // - tool
+        // - .gitignore       <- git ignore file
+
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String packageName = Paths.get(args[0]).getFileName().toString();
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BAL_TOOL_TOML)));
+        String toolTomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BAL_TOOL_TOML), StandardCharsets.UTF_8);
+        String expectedToolTomlContent = "[tool]\n" +
+                "id = \"" + packageName + "\"\n\n" +
+                "[[dependency]]\n";
+        Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
+
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TOOL_DIR)));
+
+        Assert.assertTrue(readOutput().contains("Created new package"));
+
+        // Test building the package
+        System.setProperty("user.dir", packageDir.toString());
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            errStream.println(e.getDetailedMessages().toString());
+        }
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-tool-template.txt"));
+        Assert.assertTrue(packageDir.resolve("target").resolve("bin").resolve("tool_sample.jar")
+                .toFile().exists());
+
+        // Test packing the package
+        Files.copy(testResources.resolve("test-jar-files").resolve("tool-test.jar"),
+                packageDir.resolve(TOOL_DIR).resolve("tool-test.jar"));
+        String newToolTomlContent = toolTomlContent + "path = \"tool/tool-test.jar\"\n";
+        Files.writeString(packageDir.resolve(ProjectConstants.BAL_TOOL_TOML), newToolTomlContent);
+        System.setProperty("user.dir", packageDir.toString());
+        PackCommand packCommand = new PackCommand(packageDir, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String packBuildLog = readOutput(true);
+
+        Assert.assertEquals(packBuildLog.replaceAll("\r", ""), getOutput("pack-tool-template.txt"));
+        Assert.assertTrue(
+                packageDir.resolve("target").resolve("bala")
+                        .resolve("testuserorg-tool_sample-any-0.1.0.bala").toFile().exists());
+    }
+
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
     public void testNewCommandWithInvalidProjectName(String projectName, String derivedPkgName) throws IOException {
         // Test if no arguments was passed in
@@ -528,6 +607,68 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
         Assert.assertTrue(readOutput().contains("invalid package name provided"));
+    }
+
+    @Test(description = "Test new command by pulling a central tool template")
+    public void testNewCommandWithToolTemplateCentral() throws IOException {
+        String templateArg = "testorg/toolProject:1.0.0";
+        String packageName = "sample_tool_template";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"1.0.0\"\n" +
+                "export = [\"sample_tool_template\"]\n" +
+                "distribution = \"2201.6.0-SNAPSHOT\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+
+        String toolTomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BAL_TOOL_TOML), StandardCharsets.UTF_8);
+        String expectedToolTomlContent = "[tool]\n" +
+                "id = \"" + packageName + "\"\n\n" +
+                "[[dependency]]\n" +
+                "path = \"tool/libs/platform-io-1.3.0-java.jar\"\n";
+        Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Path dependencyPath = packageDir.resolve(TOOL_DIR).resolve("libs")
+                .resolve("platform-io-1.3.0-java.jar");
+        Assert.assertTrue(Files.exists(dependencyPath));
+        Assert.assertTrue(readOutput().contains("Created new package"));
+
+        // Test building the package
+        System.setProperty("user.dir", packageDir.toString());
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            errStream.println(e.getDetailedMessages().toString());
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"));
+        Assert.assertTrue(packageDir.resolve("target").resolve("bin").resolve("sample_tool_template.jar")
+                .toFile().exists());
+
+//        Test packing the package
+        System.setProperty("user.dir", packageDir.toString());
+        PackCommand packCommand = new PackCommand(packageDir, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String packBuildLog = readOutput(true);
+        Assert.assertEquals(packBuildLog.replaceAll("\r", ""), getOutput("pack-central-tool.txt"));
+        Assert.assertTrue(
+                packageDir.resolve("target").resolve("bala")
+                        .resolve("testorg-sample_tool_template-any-1.0.0.bala").toFile().exists());
     }
 
     @Test(description = "Test new command with central template in the local cache")
@@ -615,6 +756,47 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("docs").resolve("icon.png")));
         Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
+    @Test(description = "Test pulling a central template and replacing the template name in module imports")
+    public void testNewCommandCentralTemplateReplaceImports() throws IOException {
+        String templateArg = "testorg/centralSample:1.0.2";
+        String packageName = "central_sample";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"1.0.2\"\n" +
+                "export = [\"central_sample\"]\n" +
+                "distribution = \"2201.7.0-SNAPSHOT\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+
+        String mainContent = readFileAsString(packageDir.resolve("main.bal"));
+        Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(readOutput().contains("Created new package"));
+
+        System.setProperty("user.dir", packageDir.toString());
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            errStream.println(e.getDetailedMessages().toString());
+        }
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"));
     }
 
     @Test

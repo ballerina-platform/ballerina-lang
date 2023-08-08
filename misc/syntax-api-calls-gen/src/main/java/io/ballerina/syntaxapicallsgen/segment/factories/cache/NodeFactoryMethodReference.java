@@ -94,7 +94,7 @@ public class NodeFactoryMethodReference {
     /**
      * @return whether method requires a syntax kind as a parameter.
      */
-    public boolean requiresSyntaxKind() {
+    public final boolean requiresSyntaxKind() {
         if (parameterTypes.length == 0) {
             return false;
         }

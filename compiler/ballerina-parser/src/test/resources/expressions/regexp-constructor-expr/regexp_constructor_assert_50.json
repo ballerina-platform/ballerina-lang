@@ -1398,6 +1398,7 @@
                                         },
                                         {
                                           "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_START",
@@ -1405,7 +1406,11 @@
                                             },
                                             {
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "L"
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                              ],
+                                              "value": "Letter"
                                             }
                                           ]
                                         },
@@ -1416,39 +1421,6 @@
                                           "diagnostics": [
                                             "ERROR_MISSING_CLOSE_BRACE_TOKEN"
                                           ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACKSLASH"
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
-                                            "children": [
-                                              {
-                                                "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "etter"
-                                              }
-                                            ]
-                                          }
                                         }
                                       ]
                                     }
@@ -1789,124 +1761,92 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                          "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                              "kind": "RE_CHAR_SET_RANGE",
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "BACK_SLASH_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "RE_PROPERTY",
-                                                  "value": "p"
-                                                },
-                                                {
-                                                  "kind": "OPEN_BRACE_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                                  "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                                      "value": "Sc"
+                                                      "kind": "BACK_SLASH_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_PROPERTY",
+                                                      "value": "p"
+                                                    },
+                                                    {
+                                                      "kind": "OPEN_BRACE_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                                      "hasDiagnostics": true,
+                                                      "children": [
+                                                        {
+                                                          "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                          ],
+                                                          "value": "Script\u003dHiragana"
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACE_TOKEN"
                                                     }
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "CLOSE_BRACE_TOKEN",
-                                                  "isMissing": true,
-                                                  "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                                  "kind": "RE_LITERAL_CHAR",
+                                                  "value": "-"
+                                                },
+                                                {
+                                                  "kind": "RE_QUOTE_ESCAPE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "BACK_SLASH_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "BACK_SLASH_TOKEN"
+                                                    }
                                                   ]
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                              "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                                  "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                  ],
-                                                  "value": "ript\u003dHiragana"
+                                                  "kind": "RE_PROPERTY",
+                                                  "value": "p"
                                                 },
                                                 {
-                                                  "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH",
-                                                      "children": [
-                                                        {
-                                                          "kind": "CLOSE_BRACE_TOKEN"
-                                                        },
-                                                        {
-                                                          "kind": "RE_LITERAL_CHAR",
-                                                          "value": "-"
-                                                        },
-                                                        {
-                                                          "kind": "RE_QUOTE_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "BACK_SLASH_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "BACK_SLASH_TOKEN"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
+                                                      "kind": "OPEN_BRACE_TOKEN"
                                                     },
                                                     {
-                                                      "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+                                                      "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "RE_PROPERTY",
-                                                          "value": "p"
+                                                          "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                          ],
+                                                          "value": "Script\u003dKatakana"
                                                         },
                                                         {
-                                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
-                                                          "hasDiagnostics": true,
-                                                          "children": [
-                                                            {
-                                                              "kind": "OPEN_BRACE_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
-                                                              "hasDiagnostics": true,
-                                                              "children": [
-                                                                {
-                                                                  "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                                                  "value": "Sc"
-                                                                },
-                                                                {
-                                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
-                                                                  "hasDiagnostics": true,
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                                                      "hasDiagnostics": true,
-                                                                      "diagnostics": [
-                                                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                                      ],
-                                                                      "value": "ript\u003dKatakana"
-                                                                    },
-                                                                    {
-                                                                      "kind": "CLOSE_BRACE_TOKEN"
-                                                                    }
-                                                                  ]
-                                                                }
-                                                              ]
-                                                            }
-                                                          ]
+                                                          "kind": "CLOSE_BRACE_TOKEN"
                                                         }
                                                       ]
                                                     }

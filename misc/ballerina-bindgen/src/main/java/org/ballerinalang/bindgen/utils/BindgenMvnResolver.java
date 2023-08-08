@@ -126,7 +126,7 @@ public class BindgenMvnResolver {
             PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot)
                     .packageManifest();
             if (packageManifest != null) {
-                PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_11.code());
+                PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_17.code());
                 if (platform != null && platform.dependencies() != null) {
                     for (Map<String, Object> library : platform.dependencies()) {
                         if (library.get("path") == null &&
@@ -141,7 +141,7 @@ public class BindgenMvnResolver {
                 if (parent != null) {
                     fileWriter.write("# transitive dependency of " + parent + "\n");
                 }
-                fileWriter.write("[[platform.java11.dependency]]\n");
+                fileWriter.write("[[platform.java17.dependency]]\n");
                 String moduleName = getModuleName(projectRoot, env.getOutputPath());
                 if (moduleName != null) {
                     fileWriter.write("modules = [\"" + moduleName + "\"]\n");

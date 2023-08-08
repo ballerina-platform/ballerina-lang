@@ -123,7 +123,7 @@
       "label": "...config",
       "kind": "Variable",
       "detail": "MyConfig",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "config",
       "insertText": "...config",
       "insertTextFormat": "Snippet"
