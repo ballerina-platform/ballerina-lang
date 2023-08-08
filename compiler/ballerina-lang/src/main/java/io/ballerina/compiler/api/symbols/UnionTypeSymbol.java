@@ -17,6 +17,7 @@
 package io.ballerina.compiler.api.symbols;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents an union type descriptor.
@@ -39,4 +40,18 @@ public interface UnionTypeSymbol extends TypeSymbol {
      * @return {@link List} of expanded member types
      */
     List<TypeSymbol> memberTypeDescriptors();
+
+    /**
+     * Check whether the union type is an enum.
+     *
+     * @return {@code true} if the union type is an enum, {@code false} otherwise
+     */
+    boolean isEnum();
+
+    /**
+     * Get the enum symbol if the union type is an enum.
+     *
+     * @return Optional of {@link EnumSymbol} enum symbol
+     */
+    Optional<EnumSymbol> getEnumSymbol();
 }

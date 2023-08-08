@@ -19,10 +19,15 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -36,6 +41,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -58,6 +64,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private List<TypeSymbol> memberTypes;
     private List<TypeSymbol> originalMemberTypes;
     private String signature;
+    private boolean isEnum;
+    private EnumSymbol enumSymbol;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, BUnionType unionType) {
         super(context, TypeDescKind.UNION, unionType);
@@ -145,6 +153,32 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         }
 
         return this.signature;
+    }
+
+    @Override
+    public boolean isEnum() {
+        if (this.enumSymbol != null) {
+            return true;
+        }
+
+        return this.getBType().tsymbol.getKind() == SymbolKind.ENUM;
+    }
+
+    @Override
+    public Optional<EnumSymbol> getEnumSymbol() {
+        if (this.enumSymbol != null) {
+            return Optional.of(this.enumSymbol);
+        }
+
+        BTypeSymbol tsymbol = this.getBType().tsymbol;
+        if (tsymbol.getKind() != SymbolKind.ENUM) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.enumSymbol = symbolFactory.createEnumSymbol((BEnumSymbol) tsymbol, tsymbol.getName().value);;
+
+        return Optional.ofNullable(this.enumSymbol);
     }
 
     @Override
