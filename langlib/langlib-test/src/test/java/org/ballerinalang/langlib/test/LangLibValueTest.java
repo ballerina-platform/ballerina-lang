@@ -17,27 +17,17 @@
  */
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
-import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 
 /**
  * Test cases for value lib functions.
@@ -47,21 +37,15 @@ import static org.testng.Assert.assertNull;
 @Test
 public class LangLibValueTest {
 
-    private CompileResult compileResult, file;
+    private CompileResult file;
 
     @BeforeClass
     public void setup() {
 
-        compileResult = BCompileUtil.compile("test-src/valuelib_test.bal");
-        if (compileResult.getErrorCount() != 0) {
-            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
-            Assert.fail("Compilation contains error");
-        }
     }
 
     @AfterClass
     public void tearDown() {
-        compileResult = null;
         file = null;
     }
 
@@ -80,202 +64,6 @@ public class LangLibValueTest {
                 "found 'table<RecordWithHandleField>'", 55, 13);
         assertEquals(negativeResult.getErrorCount(), index - 1);
         assertEquals(negativeResult.getWarnCount(), 1);
-    }
-
-    @Test
-    public void testToJsonString() {
-
-        Object returns = BRunUtil.invoke(compileResult, "testToJsonString");
-        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
-
-        BMap<BString, BString> arr = (BMap<BString, BString>) returns;
-        assertEquals(arr.get(StringUtils.fromString("aNil")).toString(), "null");
-        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "\"aString\"");
-        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
-        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
-        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\", \"world\"]");
-        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
-                "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
-        assertEquals(arr.get(StringUtils.fromString("anotherMap")).toString(),
-                "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
-                        "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
-                        "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
-        assertEquals(arr.get(StringUtils.fromString("aStringMap")).toString(),
-                "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
-        assertEquals(arr.get(StringUtils.fromString("aArr")).toString(),
-                "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
-                        "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
-                        "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
-        assertEquals(arr.get(StringUtils.fromString("iArr")).toString(), "[0, 1, 255]");
-        assertEquals(arr.get(StringUtils.fromString("arr1")).toString(),
-                "{\"country\":\"x\", \"city\":\"y\", \"street\":\"z\", \"no\":3}");
-        assertEquals(arr.size(), 11);
-    }
-
-    @Test
-    public void testToJsonForNonJsonTypes() {
-        BRunUtil.invoke(compileResult, "testToJsonStringForNonJsonTypes");
-    }
-
-    @Test
-    public void testToStringOnCycles() {
-        BRunUtil.invoke(compileResult, "testToStringOnCycles");
-    }
-
-    @Test
-    public void testFromJsonString() {
-
-        Object returns = BRunUtil.invoke(compileResult, "testFromJsonString");
-        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
-
-        BMap<BString, Object> arr = (BMap<BString, Object>) returns;
-        assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
-        assertNull(arr.get(StringUtils.fromString("aNull")));
-        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
-        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
-        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
-        assertEquals(arr.get(StringUtils.fromString("positiveZero")).toString(), "0");
-        assertEquals(arr.get(StringUtils.fromString("negativeZero")).toString(), "-0.0");
-        assertEquals(arr.get(StringUtils.fromString("negativeNumber")).toString(), "-25");
-        assertEquals(arr.get(StringUtils.fromString("negativeFloatNumber")).toString(), "-10.5");
-        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\",\"world\"]");
-        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
-                "{\"name\":\"anObject\",\"value\":10,\"sub\":{\"subName\":\"subObject\",\"subValue\":10}}");
-        assertEquals(getType(arr.get(StringUtils.fromString("anInvalid"))).getTag(), TypeTags.ERROR_TAG);
-        assertEquals(arr.size(), 12);
-    }
-
-    @Test
-    public void testFromJsonStringNegative() {
-        BRunUtil.invoke(compileResult, "testFromJsonStringNegative");
-    }
-
-    @Test
-    public void testFromJsonFloatString() {
-
-        Object returns = BRunUtil.invoke(compileResult, "testFromJsonFloatString");
-        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
-
-        BMap<BString, Object> arr = (BMap<BString, Object>) returns;
-        assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
-        assertNull(arr.get(StringUtils.fromString("aNull")));
-        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
-        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10.0");
-        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
-        assertEquals(arr.get(StringUtils.fromString("positiveZero")).toString(), "0.0");
-        assertEquals(arr.get(StringUtils.fromString("negativeZero")).toString(), "-0.0");
-        assertEquals(arr.get(StringUtils.fromString("negativeNumber")).toString(), "-25.0");
-        assertEquals(arr.get(StringUtils.fromString("negativeFloatNumber")).toString(), "-10.5");
-        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\",\"world\"]");
-        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
-                "{\"name\":\"anObject\",\"value\":10.0,\"sub\":{\"subName\":\"subObject\",\"subValue\":10.0}}");
-        assertEquals(getType(arr.get(StringUtils.fromString("anInvalid"))).getTag(), TypeTags.ERROR_TAG);
-        assertEquals(arr.size(), 12);
-    }
-
-    @Test
-    public void testFromJsonDecimalString() {
-
-        Object returns = BRunUtil.invoke(compileResult, "testFromJsonDecimalString");
-        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
-
-        BMap<BString, Object> arr = (BMap<BString, Object>) returns;
-        assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
-        assertNull(arr.get(StringUtils.fromString("aNull")));
-        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
-        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
-        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
-        assertEquals(arr.get(StringUtils.fromString("positiveZero")).toString(), "0");
-        assertEquals(arr.get(StringUtils.fromString("negativeZero")).toString(), "0");
-        assertEquals(arr.get(StringUtils.fromString("negativeNumber")).toString(), "-25");
-        assertEquals(arr.get(StringUtils.fromString("negativeFloatNumber")).toString(), "-10.5");
-        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\",\"world\"]");
-        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
-                "{\"name\":\"anObject\",\"value\":10,\"sub\":{\"subName\":\"subObject\",\"subValue\":10}}");
-        assertEquals(getType(arr.get(StringUtils.fromString("anInvalid"))).getTag(), TypeTags.ERROR_TAG);
-        assertEquals(arr.size(), 12);
-    }
-
-    @Test
-    public void testToString() {
-        BRunUtil.invoke(compileResult, "testToStringMethod");
-
-        Object returns = BRunUtil.invoke(compileResult, "testToString");
-        BArray array = (BArray) returns;
-        int i = 0;
-        Assert.assertEquals(array.getString(i++), "6");
-        Assert.assertEquals(array.getString(i++), "6.0");
-        Assert.assertEquals(array.getString(i++), "toString");
-        Assert.assertEquals(array.getString(i++), "");
-        Assert.assertEquals(array.getString(i++), "true");
-        Assert.assertEquals(array.getString(i++), "345.2425341");
-        Assert.assertEquals(array.getString(i++), "{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
-                "\"e\":{\"x\":\"x\",\"y\":null}}");
-        Assert.assertEquals(array.getString(i++),
-                "<CATALOG>" +
-                        "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
-                        "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
-                        "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
-                        "</CATALOG>");
-        Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
-        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",error(\"ExampleError\")," +
-                "message=\"Test passing error union to a function\")");
-        Assert.assertEquals(array.getString(i++), "object Student");
-        Assert.assertEquals(array.getString(i++), "Rola from MMV");
-        Assert.assertEquals(array.getString(i++), "[object Student,Rola from MMV]");
-        Assert.assertEquals(array.getString(i++),
-                "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
-                        "\"street\":\"Palm Grove\"},\"age\":12}");
-        Assert.assertEquals(array.getString(i),
-                "{\"varInt\":6,\"varFloat\":6.0," +
-                        "\"varStr\":\"toString\"," +
-                        "\"varNil\":null," +
-                        "\"varBool\":true," +
-                        "\"varDecimal\":345.2425341," +
-                        "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4," +
-                        "\"d\":true,\"e\":{\"x\":\"x\",\"y\":null}}," +
-                        "\"varXml\":`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
-                        "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart" +
-                        "</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
-                        "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
-                        "\"varArr\":[\"str\",23,23.4,true],\"varErr\":error FirstError (\"Reason1\"," +
-                        "error(\"ExampleError\"),message=\"Test passing error union to a function\")," +
-                        "\"varObj\":object Student,\"varObj2\":Rola from MMV," +
-                        "\"varObjArr\":[object Student,Rola from MMV]," +
-                        "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
-                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
-    }
-
-    @Test
-    public void testToStringOnSubTypes() {
-        BRunUtil.invoke(compileResult, "testToStringOnSubTypes");
-    }
-
-    @Test
-    public void testToStringOnFiniteTypes() {
-        BRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
-    }
-
-    @Test
-    public void testXMLToStringWithXMLTextContainingAngleBrackets() {
-        BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
-    }
-
-    @Test
-    public void testToStringForTable() {
-        BRunUtil.invoke(compileResult, "testToStringMethodForTable");
-    }
-
-    @Test(dataProvider = "mergeJsonFunctions")
-    public void testMergeJson(String function) {
-        Object returns = BRunUtil.invoke(compileResult, function);
-        Assert.assertTrue((Boolean) returns);
-    }
-
-    @Test
-    public void xmlSequenceFragmentToString() {
-        Object returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
-        Assert.assertEquals((returns).toString(), "<def>DEF</def><ghi>1</ghi>");
     }
 
     @Test
@@ -342,51 +130,6 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "cloneWithTypeFunctions")
-    public void testCloneWithType(String function) {
-        BRunUtil.invoke(compileResult, function);
-    }
-
-    @DataProvider(name = "cloneWithTypeFunctions")
-    public Object[] cloneWithTypeFunctions() {
-        return new String[]{
-                "testCloneWithTypeJsonRec1", "testCloneWithTypeJsonRec2",
-                "testCloneWithTypeOptionalFieldToMandotoryField", "testCloneWithTypeAmbiguousTargetType",
-                "testCloneWithTypeForNilPositive", "testCloneWithTypeForNilNegative", "testCloneWithTypeNumeric1",
-                "testCloneWithTypeNumeric2", "testCloneWithTypeNumeric3", "testCloneWithTypeNumeric4",
-                "testCloneWithTypeNumeric5", "testCloneWithTypeNumeric6", "testCloneWithTypeNumeric7",
-                "testCloneWithTypeToArrayOfRecord", "testCloneWithTypeToArrayOfMap",
-                "testCloneWithTypeIntArrayToUnionArray", "testCloneWithTypeIntSubTypeArray",
-                "testCloneWithTypeStringArray", "testCloneWithTypeWithInferredArgument",
-                "testCloneWithTypeWithImmutableTypes", "testCloneWithTypeDecimalToInt",
-                "testCloneWithTypeDecimalToIntNegative", "testCloneWithTypeDecimalToByte",
-                "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
-                "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
-                "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
-                "testCloneWithTypeWithFiniteArrayTypeFromIntArray", "testCloneWithTypeToArrays",
-                "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
-                "testCloneWithTypeWithUnionTypeArrayFromIntArray",
-                "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
-                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
-                "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
-                "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
-                "testCloneWithTypeToUnion",
-                "testCloneWithTypeTable",
-                "testCloneWithTypeOnRegExp",
-                "testCloneWithTypeOnRegExpNegative",
-                "testCloneWithTypeWithXML", "testConversionsBetweenXml",
-                "testCloneWithTypeRecordWithXMLField",
-                "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
-                "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
-                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
-        };
-    }
-
-    @Test(dataProvider = "cloneWithTypeToTupleTypeFunctions")
-    public void testCloneWithTypeToTuple(String function) {
-        BRunUtil.invoke(compileResult, function);
-    }
-
     @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
     public Object[][] cloneWithTypeToTupleTypeFunctions() {
         return new Object[][]{
@@ -411,17 +154,6 @@ public class LangLibValueTest {
     public void testFromJsonWithType(String function) {
         file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
         BRunUtil.invoke(file, function);
-    }
-
-    @Test
-    public void testAssigningCloneableToAnyOrError() {
-        BRunUtil.invoke(compileResult, "testAssigningCloneableToAnyOrError");
-        BRunUtil.invoke(compileResult, "testUsingCloneableReturnType");
-    }
-
-    @Test
-    public void testDestructuredNamedArgs() {
-        BRunUtil.invoke(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")
@@ -474,73 +206,5 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "toJsonFunctions")
-    public void testToJson(String function) {
-        BRunUtil.invoke(compileResult, function);
-    }
 
-    @DataProvider(name = "toJsonFunctions")
-    public Object[][] toJsonFunctions() {
-        return new Object[][] {
-                { "testToJsonWithRecord1" },
-                { "testToJsonWithRecord2" },
-                { "testToJsonWithLiterals" },
-                { "testToJsonWithArray" },
-                { "testToJsonWithXML" },
-                { "testToJsonWithMap" },
-                { "testToJsonWithMapInt" },
-                { "testToJsonWithStringArray" },
-                { "testToJsonWithIntArray" },
-                { "testToJsonWithTable" },
-                { "testToJsonWithCyclicParameter" },
-                { "testTableToJsonConversion" }
-        };
-    }
-
-    @Test(dataProvider = "ensureTypeFunctions")
-    public void testEnsureType(String function) {
-        BRunUtil.invoke(compileResult, function);
-    }
-
-    @DataProvider(name = "ensureTypeFunctions")
-    public Object[][] ensureTypeFunctions() {
-        return new Object[][] {
-                { "testEnsureType" },
-                { "testEnsureTypeWithInferredArgument" }
-        };
-    }
-
-    @Test(dataProvider = "ensureTypeNegativeFunctions")
-    public void testEnsureTypeNegative(String function) {
-        BRunUtil.invoke(compileResult, function);
-    }
-
-    @DataProvider(name = "ensureTypeNegativeFunctions")
-    public Object[] ensureTypeNegativeFunctions() {
-        return new String[]{
-                "testEnsureTypeNegative", "testEnsureTypeJsonToNestedRecordsWithErrors",
-                "testEnsureTypeFloatToIntNegative"
-        };
-    }
-
-    @Test
-    public void testDecimalToString() {
-        BRunUtil.invoke(compileResult, "testDecimalZeroToString");
-        BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
-    }
-
-    @Test
-    public void testCount() {
-        BRunUtil.invoke(compileResult, "testCount");
-    }
-
-    @Test
-    public void testFirst() {
-        BRunUtil.invoke(compileResult, "testFirst");
-    }
-
-    @Test
-    public void testLast() {
-        BRunUtil.invoke(compileResult, "testLast");
-    }
 }
