@@ -64,7 +64,6 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private List<TypeSymbol> memberTypes;
     private List<TypeSymbol> originalMemberTypes;
     private String signature;
-    private boolean isEnum;
     private EnumSymbol enumSymbol;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, BUnionType unionType) {
