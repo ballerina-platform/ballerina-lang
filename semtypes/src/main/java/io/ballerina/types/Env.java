@@ -152,6 +152,6 @@ public class Env {
     }
 
     public Map<String, SemType> getTypeNameSemTypeMap() {
-        return this.types;
+        return new LinkedHashMap<>(this.types);
     }
 }
