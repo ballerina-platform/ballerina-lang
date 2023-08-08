@@ -5091,7 +5091,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType checkOperandTypeForAdditiveExpressions(BLangExpression expression, BType expectedType,
                                                         SymbolEnv exprEnv, AnalyzerData data) {
-        BType expressionType;
         BType silentType = checkExprSilent(nodeCloner
                 .cloneNode(expression), expectedType, data);
         if (TypeTags.isIntegerTypeTag(silentType.tag)
@@ -5099,11 +5098,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 || silentType.tag == TypeTags.FLOAT
                 || TypeTags.isStringTypeTag(silentType.tag)
                 || TypeTags.isXMLTypeTag(silentType.tag)) {
-            expressionType = checkExpr(expression, exprEnv, silentType, data);
+            return checkExpr(expression, exprEnv, silentType, data);
         } else {
-            expressionType = checkExpr(expression, exprEnv, data);
+            return checkExpr(expression, exprEnv, data);
         }
-        return expressionType;
     }
 
     private boolean isOptionalFloatOrDecimal(BType expectedType) {
