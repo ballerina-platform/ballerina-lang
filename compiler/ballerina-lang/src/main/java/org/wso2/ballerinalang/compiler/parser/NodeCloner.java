@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
@@ -1503,6 +1504,16 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.isRedundantChecking = source.isRedundantChecking;
+    }
+
+    @Override
+    public void visit(BLangCheckedOnFailExpr source) {
+
+        BLangCheckedOnFailExpr clone = new BLangCheckedOnFailExpr();
+        source.cloneRef = clone;
+        clone.checkedExpr = clone(source.checkedExpr);
+        clone.simpleVariable = clone(source.simpleVariable);
+        clone.errorConstructorExpr = clone(source.errorConstructorExpr);
     }
 
     @Override

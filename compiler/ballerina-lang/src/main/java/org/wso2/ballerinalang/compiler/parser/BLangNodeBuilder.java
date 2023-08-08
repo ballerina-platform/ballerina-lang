@@ -141,6 +141,7 @@ import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OnClauseNode;
 import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerina.compiler.syntax.tree.OnFailCheckNode;
 import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
@@ -346,6 +347,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -2025,6 +2027,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(CheckExpressionNode checkExpressionNode) {
         Location pos = getPosition(checkExpressionNode);
+        if (checkExpressionNode.onFailCheck().isPresent()) {
+            return createCheckOnFailExpr(pos, checkExpressionNode);
+        }
         BLangExpression expr = createExpression(checkExpressionNode.expression());
         if (checkExpressionNode.checkKeyword().kind() == SyntaxKind.CHECK_KEYWORD) {
             return createCheckExpr(pos, expr);
@@ -4513,13 +4518,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         if (pathSegments.size() == 0) {
             listConstructorExpr.pos = getPosition(clientResourceAccessActionNode.slashToken());
         } else {
-            listConstructorExpr.pos = 
-                    getPosition(clientResourceAccessActionNode.slashToken(), 
+            listConstructorExpr.pos =
+                    getPosition(clientResourceAccessActionNode.slashToken(),
                             resourceAccessPath.get(pathSegments.size() - 1));
         }
-        
+
         resourceInvocation.resourceAccessPathSegments = listConstructorExpr;
-        
+
         if (clientResourceAccessActionNode.methodName().isPresent()) {
             resourceInvocation.name = createIdentifier(clientResourceAccessActionNode.methodName().get().name());
         } else {
@@ -4529,7 +4534,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         if (clientResourceAccessActionNode.arguments().isPresent()) {
             resourceInvocation.argExprs = applyAll(clientResourceAccessActionNode.arguments().get().arguments());
         }
-        
+
         if (clientResourceAccessActionNode.expression().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode iNode = (QualifiedNameReferenceNode) clientResourceAccessActionNode.expression();
             Token modulePrefix = iNode.modulePrefix();
@@ -4537,7 +4542,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         } else {
             resourceInvocation.pkgAlias = this.createIdentifier(symTable.builtinPos, "");
         }
-        
+
         return resourceInvocation;
     }
 
@@ -5241,6 +5246,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return memberVar;
     }
 
+    private BLangSimpleVariable createSimpleVariable(Token identifier) {
+        Location pos = getPosition(identifier);
+        return (BLangSimpleVariable) createSimpleVariable(pos, identifier, pos);
+    }
+
     private BLangVariable getBLangVariableNode(BindingPatternNode bindingPattern, Location varPos) {
         Token varName;
         switch (bindingPattern.kind()) {
@@ -5429,6 +5439,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         checkedExpr.pos = pos;
         checkedExpr.expr = expr;
         return checkedExpr;
+    }
+
+    private BLangCheckedOnFailExpr createCheckOnFailExpr(Location pos, CheckExpressionNode checkExpressionNode) {
+        BLangCheckedOnFailExpr checkedOnFailExpr = (BLangCheckedOnFailExpr) TreeBuilder.createCheckedOnFailNode();
+        OnFailCheckNode onFailCheckNode = checkExpressionNode.onFailCheck().get();
+        BLangExpression expr = createExpression(checkExpressionNode.expression());
+        checkedOnFailExpr.pos = pos;
+
+        if (checkExpressionNode.checkKeyword().kind() == SyntaxKind.CHECK_KEYWORD) {
+            checkedOnFailExpr.checkedExpr = createCheckExpr(pos, expr);
+        } else {
+            checkedOnFailExpr.checkedExpr = createCheckPanickedExpr(pos, expr);
+        }
+
+        checkedOnFailExpr.simpleVariable = createSimpleVariable(onFailCheckNode.identifier());
+        checkedOnFailExpr.errorConstructorExpr = createExpression(onFailCheckNode.errorConstructor());
+        return checkedOnFailExpr;
     }
 
     private BLangCheckPanickedExpr createCheckPanickedExpr(Location pos, BLangExpression expr) {

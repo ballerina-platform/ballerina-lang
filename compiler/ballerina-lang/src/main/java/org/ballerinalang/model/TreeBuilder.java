@@ -247,6 +247,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
@@ -596,7 +597,7 @@ public class TreeBuilder {
     public static InvocationNode createInvocationNode() {
         return new BLangInvocation();
     }
-    
+
     public static CollectContextInvocationNode createCollectContextInvocationNode() {
         return new BLangCollectContextInvocation();
     }
@@ -631,6 +632,10 @@ public class TreeBuilder {
 
     public static CheckedExpressionNode createCheckExpressionNode() {
         return new BLangCheckedExpr();
+    }
+
+    public static CheckedExpressionNode createCheckedOnFailNode() {
+        return new BLangCheckedOnFailExpr();
     }
 
     public static FailStatementNode createFailNode() {

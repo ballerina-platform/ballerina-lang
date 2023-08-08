@@ -134,6 +134,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -5975,7 +5976,8 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
                 (ownerSymbol.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE ||
-                (ownerSymbol.tag & SymTag.LET) == SymTag.LET) {
+                (ownerSymbol.tag & SymTag.LET) == SymTag.LET ||
+                (ownerSymbol.tag & SymTag.CHECKED_ON_FAIL) == SymTag.CHECKED_ON_FAIL) {
             // Local variable in a function/resource/action/worker/let
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
@@ -8716,6 +8718,59 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangReFlagsOnOff reFlagsOnOff) {
         reFlagsOnOff.flags = rewriteExpr(reFlagsOnOff.flags);
         result = reFlagsOnOff;
+    }
+
+    public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
+
+        /*
+         * check doA() on fail e => error("Something went wrong", e);
+         *
+         * Above is desugared to
+         * $result;
+         * do {
+         *   $result = doA();
+         * } on fail var e {
+         *   error("Something went wrong", e);
+         * }
+         */
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(checkedOnFailExpr.pos);
+        BLangSimpleVariableDef tempVarDef = createVarDef("$result",
+                checkedOnFailExpr.checkedExpr.getBType(), checkedOnFailExpr.checkedExpr, checkedOnFailExpr.pos);
+        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(checkedOnFailExpr.pos, tempVarDef.var.symbol);
+
+        BLangDo doNode = (BLangDo) TreeBuilder.createDoNode();
+        doNode.pos = checkedOnFailExpr.pos;
+        BLangBlockStmt bLBlockStmt = ASTBuilderUtil.createBlockStmt(checkedOnFailExpr.pos);
+        bLBlockStmt.addStatement(tempVarDef);
+        doNode.setBody(bLBlockStmt);
+
+        BLangFail fail = ASTBuilderUtil.createFailNode(checkedOnFailExpr.pos, checkedOnFailExpr.errorConstructorExpr);
+        BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(checkedOnFailExpr.pos);
+        onFailBody.scope = new Scope(env.scope.owner);
+        fail.parent = onFailBody;
+        List<BLangStatement> failStmtList = new ArrayList<>();
+        failStmtList.add(fail);
+        onFailBody.stmts = failStmtList;
+
+        BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.pos = checkedOnFailExpr.pos;
+        onFailBody.parent = onFailClause;
+        onFailClause.setBody(onFailBody);
+        onFailClause.bodyContainsFail = true;
+        BLangSimpleVariableDef errorVariableDef =
+                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        errorVariableDef.pos = checkedOnFailExpr.pos;
+        errorVariableDef.var = checkedOnFailExpr.simpleVariable;
+        onFailClause.variableDefinitionNode = errorVariableDef;
+
+        onFailClause.parent = doNode;
+        doNode.onFailClause = onFailClause;
+
+        blockStmt.addStatement(doNode);
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
+        stmtExpr.setBType(checkedOnFailExpr.checkedExpr.getBType());
+        result = rewrite(stmtExpr, env);
     }
 
     // private functions

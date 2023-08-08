@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
@@ -2336,6 +2337,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         List<BLangExpression> interpolationsList =
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(interpolation -> analyzeNode(interpolation, env));
+    }
+
+    @Override
+    public void visit(BLangCheckedOnFailExpr checkedOnFailExpr) {
+        analyzeNode(checkedOnFailExpr.checkedExpr, env);
+        analyzeNode(checkedOnFailExpr.simpleVariable, env);
+        analyzeNode(checkedOnFailExpr.errorConstructorExpr, env);
     }
 
     /**

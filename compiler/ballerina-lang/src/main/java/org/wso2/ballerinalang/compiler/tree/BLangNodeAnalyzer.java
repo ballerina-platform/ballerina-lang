@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedOnFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
@@ -185,7 +186,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-
 
 /**
  * The {@link BLangNodeAnalyzer} is a {@link BLangNode} visitor.
@@ -331,6 +331,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangCheckedExpr node, T data);
 
     public abstract void visit(BLangCheckPanickedExpr node, T data);
+
+    public abstract void visit(BLangCheckedOnFailExpr node, T data);
 
     public abstract void visit(BLangCommitExpr node, T data);
 

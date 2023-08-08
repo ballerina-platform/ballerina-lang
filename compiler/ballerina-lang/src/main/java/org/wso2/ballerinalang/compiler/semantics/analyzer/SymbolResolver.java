@@ -324,8 +324,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
             // If the symbol being defined is inside a let expression and the existing symbol is defined inside a
             // function both symbols are in the same scope.
-            return  true;
-        }  else if (((symbol.owner.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) &&
+            return true;
+        } else if (((symbol.owner.tag & SymTag.CHECKED_ON_FAIL) == SymTag.CHECKED_ON_FAIL) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // If the symbol being defined is inside a checked on fail expression and the existing symbol is defined
+            // inside a function both symbols are in the same scope.
+            return true;
+        } else if (((symbol.owner.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
             // If the symbol being defined is inside a function type and the existing symbol is defined inside a
             // function both symbols are in the same scope.
