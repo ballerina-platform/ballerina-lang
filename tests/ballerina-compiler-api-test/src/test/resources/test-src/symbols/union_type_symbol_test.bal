@@ -39,3 +39,22 @@ type T9 int[]|T8;
 
 type Keyword KEY | boolean | "string" | 100 | "200" | true;
 const KEY = "int";
+
+enum State {
+    OPEN,
+    CLOSED
+}
+
+type FooState State;
+
+const ENABLED = "enabled";
+const DISABLED = "disabled";
+
+type BarState ENABLED | DISABLED;
+
+enum ConnectionState {
+  OK = "1",
+  ERROR = "0"
+}
+
+type BazConnectionState ConnectionState;

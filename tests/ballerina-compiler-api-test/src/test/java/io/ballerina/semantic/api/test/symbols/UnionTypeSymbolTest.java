@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -114,6 +115,32 @@ public class UnionTypeSymbolTest {
                                                     .map(TypeSymbol::signature)
                                                     .collect(Collectors.toList());
         assertList(signatures, List.of("\"int\"", "\"string\"", "100", "\"200\"", "true"));
+    }
+
+    @Test(dataProvider = "DataForEnumInUnionTypeSymbol")
+    public void testEnumSymbolInUnionTypeSymbols(int line, int col, String name, boolean expIsEnum,
+                                              String typeName, List<String> expEnumMembers) {
+        TypeDefinitionSymbol symbol = (TypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col, name,
+                                                                                      SymbolKind.TYPE_DEFINITION);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.UNION);
+        UnionTypeSymbol typeSymbol = (UnionTypeSymbol) symbol.typeDescriptor();
+        assertEquals(typeSymbol.isEnum(), expIsEnum);
+        assertEquals(typeSymbol.getEnumSymbol().isPresent(), expIsEnum);
+        typeSymbol.getEnumSymbol().ifPresent(enumSymbol -> {
+            assertTrue(enumSymbol.getName().isPresent());
+            assertEquals(enumSymbol.getName().get(), typeName);
+            assertEquals(enumSymbol.typeDescriptor().typeKind(), TypeDescKind.UNION);
+            SemanticAPITestUtils.assertList(enumSymbol.members(), expEnumMembers);
+        });
+    }
+
+    @DataProvider(name = "DataForEnumInUnionTypeSymbol")
+    public Object[][] getEnumDataInUnionType() {
+        return new Object[][]{
+                {47, 5, "FooState", true, "State", List.of("OPEN", "CLOSED")},
+                {52, 5, "BarState", false, null, List.of()},
+                {59, 5, "BazConnectionState", true, "ConnectionState", List.of("OK", "ERROR")},
+        };
     }
 
     public static <T> void assertList(List<T> actualValues, List<T> expectedValues) {
