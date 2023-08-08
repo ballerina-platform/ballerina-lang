@@ -111,11 +111,8 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
                     } else {
                         return false;
                     }
-                    if (typeDescriptor.typeKind() != TypeDescKind.ARRAY) {
-                        return false;
-                    }
-                    return ((ArrayTypeSymbol) typeDescriptor)
-                            .memberTypeDescriptor().subtypeOf(expectedType.get());
+                    return typeDescriptor.typeKind() == TypeDescKind.ARRAY &&
+                            ((ArrayTypeSymbol) typeDescriptor).memberTypeDescriptor().subtypeOf(expectedType.get());
                 }).map(symbol -> {
                     TypeSymbol typeDescriptor;
                     if (symbol.kind() == SymbolKind.VARIABLE) {
