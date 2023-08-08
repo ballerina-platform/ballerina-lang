@@ -115,6 +115,10 @@ function waitForAllTest2() {
     WaitResult res = wait {producer: Producer1|Producer2, consumer: Consumer1};
     res = wait {producer: Producer1, consumer: Consumer1|Consumer2};
     res = wait {producer: Producer1|Producer2, consumer: Consumer1|Consumer2};
+
+    res = wait {producer: (Producer1|(Producer2)), consumer: Consumer1};
+    res = wait {producer: Producer1, consumer: (((Consumer1|Consumer2)))};
+    res = wait {producer: (((((((Producer1|Producer2))))))), consumer: (Consumer1|Consumer2)};
 }
 
 function waitActionWithInvalidType() {
