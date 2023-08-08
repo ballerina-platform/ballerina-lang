@@ -81,6 +81,15 @@ function testRegExpValueWithCharacterClass() {
 
     string:RegExp x7 = re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??`;
     assertEquality("[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??", x7.toString());
+    
+    string:RegExp x8 = re `abc[a-z\]A-Z${"abc"}]`;
+    assertEquality("abc[a-z\\]A-Z${\"abc\"}]", x8.toString());
+    
+    string:RegExp x9 = re `abc\[a-z\]A-Z${"abc"}`;
+    assertEquality("abc\\[a-z\\]A-Zabc", x9.toString());
+    
+    string:RegExp x10 = re `\[${"a"}\]`;
+    assertEquality("\\[a\\]", x10.toString());
 }
 
 function testRegExpValueWithCharacterClass2() {

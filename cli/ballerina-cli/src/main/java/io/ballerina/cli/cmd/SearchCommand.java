@@ -140,14 +140,19 @@ public class SearchCommand implements BLauncherCmd {
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                                                            initializeProxy(settings.getProxy()),
-                                                           getAccessTokenOfCLI(settings));
-            PackageSearchResult packageSearchResult = client.searchPackage(query,
-                                                                           JvmTarget.JAVA_11.code(),
-                                                                           RepoUtils.getBallerinaVersion());
-
-            if (packageSearchResult.getCount() > 0) {
-                printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
-            } else {
+                                                            settings.getProxy().username(),
+                                                            settings.getProxy().password(),
+                                                                getAccessTokenOfCLI(settings));
+            boolean foundSearch = false;
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                PackageSearchResult packageSearchResult = client.searchPackage(query,
+                        jvmTarget.code(), RepoUtils.getBallerinaVersion());
+                if (packageSearchResult.getCount() > 0) {
+                    printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
+                    foundSearch = true;
+                }
+            }
+            if (!foundSearch) {
                 outStream.println("no modules found");
             }
         } catch (CentralClientException e) {
