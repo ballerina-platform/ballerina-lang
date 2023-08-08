@@ -44,5 +44,6 @@ public interface LSCompletionItem {
         TYPE,
         FUNCTION_POINTER,
         NAMED_ARG,
+        SPREAD
     }
 }

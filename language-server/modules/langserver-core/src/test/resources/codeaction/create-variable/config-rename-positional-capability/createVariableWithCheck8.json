@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 13,
+    "character": 15
+  },
+  "source": "testproject/modules/module3/module3.bal",
+  "description": "Parent function has an error return type",
+  "expected": [
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "int int1 = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "testproject/modules/module3/module3.bal",
+          {
+            "line": 13,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}
