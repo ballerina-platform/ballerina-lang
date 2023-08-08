@@ -109,8 +109,6 @@ public class MavenPackageRepository extends CustomPackageRepository implements C
                     e.getMessage());
             return false;
         }
-
-
         return true;
     }
 }

@@ -155,7 +155,7 @@ public class PushCommand implements BLauncherCmd {
             Settings settings = RepoUtils.readSettings();
 
             // If the repository flag is specified, validate and push to the provided repo
-            if (repositoryName != null && settings.getRepositories() != null) {
+            if (repositoryName != null) {
                 boolean isCustomRepository = false;
                 Repository targetRepository = null;
                 for (Repository repository : settings.getRepositories()) {

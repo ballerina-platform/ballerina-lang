@@ -19,9 +19,13 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -36,7 +40,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -82,36 +85,68 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test (description = "Push a package to a remote repository")
-    public void testPushPackage() throws IOException {
+    @Test (description = "Push a package to a custom remote repository")
+    public void testPushPackageCustom() throws IOException, SettingsTomlException {
         String org = "luheerathan";
         String packageName = "pact1";
         String version = "0.1.0";
+        String expected = "Successfully pushed src/test/resources/test-resources/custom-repo/" +
+                "luheerathan-pact1-any-0.1.0.bala to 'repo-push-pull' repository.\n";
 
-        Path mockRepo = Paths.get("build").resolve("ballerina-home");
-        Files.createDirectories(mockRepo);
-        Files.copy(testResources.resolve("custom-repo").resolve("Settings.toml"),
-                mockRepo.resolve("Settings.toml"), StandardCopyOption.REPLACE_EXISTING);
+        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
         Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
                 "luheerathan-pact1-any-0.1.0.bala");
         PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
         String[] args = { "--repository=repo-push-pull" };
         new CommandLine(pushCommand).parse(args);
-        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
-            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
+                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
             pushCommand.execute();
         }
-        pushCommand.execute();
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-
+        Assert.assertEquals(actual, expected);
         String artifact = packageName + "-" + version + BALA_EXTENSION;
         String pomFile = packageName + "-" + version + POM_EXTENSION;
-        String pushPullRepo = mockRepo.resolve("repositories").resolve("repo-push-pull").resolve("bala").resolve(org)
-                .resolve(packageName).resolve(version).toAbsolutePath().toString();
+        String pushPullPath = mockRepo.resolve(org).resolve(packageName).resolve(version).toAbsolutePath().toString();
         for (String ext : new String[]{".sha1", ".md5", ""}) {
-            Assert.assertTrue(Paths.get(pushPullRepo, artifact + ext).toFile().exists());
-            Assert.assertTrue(Paths.get(pushPullRepo, pomFile + ext).toFile().exists());
+            Assert.assertTrue(Paths.get(pushPullPath, artifact + ext).toFile().exists());
+            Assert.assertTrue(Paths.get(pushPullPath, pomFile + ext).toFile().exists());
+        }
+    }
+
+    @Test (description = "Push a package to a custom remote repository(not exist in Settings.toml)")
+    public void testPushPackageNonExistingCustom() throws IOException, SettingsTomlException {
+        String expected = "ballerina: unsupported repository 'repo-push-pul' found. " +
+                "Only 'local' repository and repositories mentioned in the Settings.toml are supported.\n";
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
+        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "luheerathan-pact1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=repo-push-pul" };
+        new CommandLine(pushCommand).parse(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
+                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
+            pushCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertEquals(actual, expected);
+    }
+
+    private static Settings readSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+        try {
+            String settingString = Files.readString(settingsFilePath);
+            settingString = settingString.replaceAll("REPO_PATH", repoPath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), settingString);
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
+        } catch (IOException e) {
+            return Settings.from();
         }
     }
 

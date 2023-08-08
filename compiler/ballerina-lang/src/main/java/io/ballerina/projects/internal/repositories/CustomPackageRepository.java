@@ -86,13 +86,19 @@ public abstract class CustomPackageRepository extends AbstractPackageRepository 
     @Override
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                     PackageVersion version) {
-        isPackageExists(org, name, version);
+        boolean packageExists = isPackageExists(org, name, version);
+        if (!packageExists) {
+            return DependencyGraph.emptyGraph();
+        }
         return this.fileSystemRepository.getDependencyGraph(org, name, version);
     }
 
     @Override
     public Collection<ModuleDescriptor> getModules(PackageOrg org, PackageName name, PackageVersion version) {
-        isPackageExists(org, name, version);
+        boolean packageExists = isPackageExists(org, name, version);
+        if (!packageExists) {
+            return Collections.emptyList();
+        }
         return this.fileSystemRepository.getModules(org, name, version);
     }
 }
