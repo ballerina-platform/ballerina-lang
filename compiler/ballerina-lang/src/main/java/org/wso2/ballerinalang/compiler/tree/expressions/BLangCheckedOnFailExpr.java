@@ -27,7 +27,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 /**
- * @since 22201.8.0
+ * {@code BLangCheckedOnFailExpr} represents a checked expression with an on fail clause.
+ * eg:
+ * int i = check foo() on fail e => error("Error occurred", e);
+ *
+ * @since 2201.8.0
  */
 public class BLangCheckedOnFailExpr extends BLangExpression implements CheckedExpressionNode {
 

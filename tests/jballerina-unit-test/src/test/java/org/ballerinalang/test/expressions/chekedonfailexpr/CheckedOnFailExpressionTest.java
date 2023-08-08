@@ -45,8 +45,13 @@ public class CheckedOnFailExpressionTest {
     }
 
     @Test
-    public void testCheckedOnFailExpressionPanicWithCustomError() {
-        BRunUtil.invoke(result, "testCheckedOnFailExpressionPanicWithCustomError");
+    public void testCheckedOnFailExpressionWithCustomError() {
+        BRunUtil.invoke(result, "testCheckedOnFailExpressionWithCustomError");
+    }
+
+    @Test
+    public void testCheckedOnFailExpressionWithQueryExpression() {
+        BRunUtil.invoke(result, "testCheckedOnFailExpressionWithQueryExpression");
     }
 
     @Test

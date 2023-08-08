@@ -1116,8 +1116,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         long ownerSymTag = currentEnv.scope.owner.tag;
         boolean isListenerDecl = varNode.flagSet.contains(Flag.LISTENER);
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET
-                || currentEnv.node.getKind() == NodeKind.LET_CLAUSE) {
-            // This is a variable declared in a function, let expression, an action or a resource
+                || currentEnv.node.getKind() == NodeKind.LET_CLAUSE
+                || (ownerSymTag & SymTag.CHECKED_ON_FAIL) == SymTag.CHECKED_ON_FAIL) {
+            // This is a variable declared in a function, let expression, an action or a resource, on-fail-check expr
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 analyzeVarNode(varNode, data, AttachPoint.Point.VAR);
@@ -1873,7 +1874,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 handleWildCardBindingVariable(simpleVariable, currentEnv);
 
                 long ownerSymTag = currentEnv.scope.owner.tag;
-                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
+                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET
+                        || (ownerSymTag & SymTag.CHECKED_ON_FAIL) == SymTag.CHECKED_ON_FAIL) {
                     // This is a variable declared in a function, an action or a resource
                     // If the variable is parameter then the variable symbol is already defined
                     if (simpleVariable.symbol == null) {
