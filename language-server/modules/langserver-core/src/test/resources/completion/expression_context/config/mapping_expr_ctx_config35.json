@@ -43,7 +43,7 @@
       "label": "...f",
       "kind": "Variable",
       "detail": "Foo",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "f",
       "insertText": "...f",
       "insertTextFormat": "Snippet"
