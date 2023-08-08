@@ -108,14 +108,8 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         }
         
         Position dependencyStart = new Position(getDependencyStartLine(toml.get()), 0);
-        String dependency = String.format("""
-                [[dependency]]
-                org = "%s"
-                name = "%s"
-                version = "%s"
-                repository = "local"
-
-                """, orgName, pkgName, getLatestVersion(loadedPackageVersions));
+        String dependency = String.format("[[dependency]]%norg = \"%s\"%nname = \"%s\"%nversion = " +
+                "\"%s\"%nrepository = \"local\"%n%n", orgName, pkgName, getLatestVersion(loadedPackageVersions));
         TextEdit textEdit = new TextEdit(new Range(dependencyStart, dependencyStart), dependency);
         CodeAction action = CodeActionUtil.createCodeAction(CommandConstants.ADD_MODULE_TO_BALLERINA_TOML, 
                 List.of(textEdit), project.get().sourceRoot().resolve(ProjectConstants.BALLERINA_TOML).toString(), 
