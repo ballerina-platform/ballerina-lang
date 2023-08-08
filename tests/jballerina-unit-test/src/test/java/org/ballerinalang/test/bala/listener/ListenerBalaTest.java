@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -50,5 +51,10 @@ public class ListenerBalaTest {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/" +
                 "listener/custom_listener_with_service.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

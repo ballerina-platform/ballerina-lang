@@ -34,9 +34,10 @@ dependencies {
     testImplementation ("guru.nidi:graphviz-java") {
         because("We use this library to execute package resolution tests")
     }
-    testCompile 'org.testng:testng'
-    testCompile "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.testng:testng:${project.testngVersion}"
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
+    testImplementation 'org.apache.commons:commons-lang3'
 }
 
 description = 'Ballerina - Lang'
