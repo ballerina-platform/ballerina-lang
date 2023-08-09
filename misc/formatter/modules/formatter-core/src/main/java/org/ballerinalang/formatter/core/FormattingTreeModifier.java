@@ -840,8 +840,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token failKeyword = formatToken(onFailCheckNode.failKeyword(), 1, 0);
         IdentifierToken identifier = formatToken(onFailCheckNode.identifier(), 1, 0);
         Token rightArrowToken = formatToken(onFailCheckNode.rightArrowToken(), 1, 0);
-        ExpressionNode expression = formatNode(onFailCheckNode.expression(),
-                                                                            env.trailingWS, env.trailingNL);
+        ExpressionNode expression = formatNode(onFailCheckNode.expression(), env.trailingWS, env.trailingNL);
         return onFailCheckNode.modify()
                 .withOnKeyword(onKeyword)
                 .withFailKeyword(failKeyword)

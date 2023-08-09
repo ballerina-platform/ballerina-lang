@@ -3495,8 +3495,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ON_FAIL_CHECK_END:
-                endContext();
-                endContext();
+                endContext(); // end on-fail-check
+                endContext(); // end checking-expr
                 return ParserRuleContext.EXPRESSION_RHS;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
@@ -5086,8 +5086,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext getNextRuleForSemicolon(int nextLookahead) {
         STToken nextToken;
         ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY || parentCtx == ParserRuleContext.ON_FAIL_CHECK
-                || parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
+        if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY || parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
             endContext();
             return getNextRuleForSemicolon(nextLookahead);
         } else if (isExpressionContext(parentCtx)) {

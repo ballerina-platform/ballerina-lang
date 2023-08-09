@@ -23,7 +23,7 @@ function testCheckedOnFailExprReturnsValue() {
     val = 2 + check returnInt() on fail e => error("Error occurred", e);
     assertEquals(5, val);
 
-    val = (check returnInt() on fail e => error("Error occurred", e)) is int ? 1 : 0;
+    val = check returnInt() on fail e => error("Error occurred", e) is int ? 1 : 0;
     assertEquals(1, val);
 }
 
