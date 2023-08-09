@@ -33,9 +33,9 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
  *
  * @since 2201.1.1
  */
-public class SpreadFieldCompletionItemBuilder {
+public class SpreadCompletionItemBuilder {
     
-    private static final String  SPREAD_OPERATOR = "...";
+    public static final String  SPREAD_OPERATOR = "...";
 
     /**
      * Build the constant {@link CompletionItem}.
@@ -46,7 +46,7 @@ public class SpreadFieldCompletionItemBuilder {
      */
     public static CompletionItem build(Symbol symbol, String typeName, BallerinaCompletionContext context) {
         if (symbol.kind() == FUNCTION) {
-            return SpreadFieldCompletionItemBuilder.build((FunctionSymbol) symbol, typeName, context);
+            return SpreadCompletionItemBuilder.build((FunctionSymbol) symbol, typeName, context);
         }
         String symbolName = symbol.getName().orElseThrow();
         String insertText = SPREAD_OPERATOR + symbolName;
