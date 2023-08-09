@@ -109,7 +109,7 @@ test {
     dependsOn copyCompilerPluginJars
 
     systemProperty "ballerina.home", "$buildDir"
-    jvmArgs = ['-Xms2g', '-Xmx4g']
+    jvmArgs = ['-Xms1g', '-Xmx4g']
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         if (!project.hasProperty("native.test")) {

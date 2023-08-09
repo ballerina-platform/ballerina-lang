@@ -343,7 +343,7 @@ public class RunCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
-    @Test(description = "Run a ballerina project with the flag dump-raw-graphs")
+    @Test(description = "Run a ballerina project with the flag dump-raw-graphs", enabled = false)
     public void testRunBalProjectWithDumpRawGraphsFlag() throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
         BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,

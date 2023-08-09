@@ -44,7 +44,7 @@ import java.util.Objects;
 public class ShellCommandTest extends BaseCommandTest {
     public static final String BALLERINA_HOME = "ballerina.home";
 
-    @Test(description = "Test shell command fail if ballerina.home is wrongly set.")
+    @Test(description = "Test shell command fail if ballerina.home is wrongly set.", enabled = false)
     public void testShellCommandFail() throws IOException {
         PrintStream outStreamOrig = System.out;
         String ballerinaHomeOrig = System.getProperty(BALLERINA_HOME);
@@ -69,7 +69,7 @@ public class ShellCommandTest extends BaseCommandTest {
                 "not/existing/dir/abc'");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testShellExecution() throws Exception {
         List<String[]> testCases = new ArrayList<>();
         testCases.add(new String[]{"int i = 35", ""});

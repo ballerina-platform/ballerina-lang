@@ -46,7 +46,7 @@ task extractDistribution(type: Copy) {
 test {
     mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
-
+    jvmArgs = ['-Xms1g', '-Xmx4g']
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"

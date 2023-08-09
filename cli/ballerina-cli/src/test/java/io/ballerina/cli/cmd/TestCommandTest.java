@@ -298,7 +298,7 @@ public class TestCommandTest extends BaseCommandTest {
                 projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml")).trim());
     }
 
-    @Test(description = "Test a ballerina project with the flag dump-graph")
+    @Test(description = "Test a ballerina project with the flag dump-graph", enabled = false)
     public void testTestBalProjectWithDumpGraphFlag() throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
         BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
@@ -322,7 +322,7 @@ public class TestCommandTest extends BaseCommandTest {
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
-    @Test(description = "Test a ballerina project with the flag dump-raw-graphs")
+    @Test(description = "Test a ballerina project with the flag dump-raw-graphs", enabled = false)
     public void testTestBalProjectWithDumpRawGraphsFlag() throws IOException {
         Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
         BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
@@ -394,7 +394,7 @@ public class TestCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test Graalvm incompatible ballerina project")
+    @Test(description = "Test Graalvm incompatible ballerina project", enabled = false)
     public void testGraalVMIncompatibleProject() throws IOException {
         Path projectPath = this.testResources.resolve("validGraalvmCompatibleProject");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());

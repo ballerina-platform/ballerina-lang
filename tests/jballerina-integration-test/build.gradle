@@ -92,7 +92,7 @@ test {
     // make sure ballerina zip is built before test run
     dependsOn ':jballerina-tools:build'
     systemProperty 'enableJBallerinaTests', 'true'
-
+    jvmArgs = ['-Xms1g', '-Xmx4g']
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
