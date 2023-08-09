@@ -1,0 +1,10 @@
+{
+  "position": {
+    "line": 2,
+    "character": 8
+  },
+  "source": "function_body/source/source19.bal",
+  "description": "Test completions after qualified name in module part node",
+  "items": [
+  ]
+}
