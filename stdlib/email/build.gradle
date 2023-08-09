@@ -40,7 +40,9 @@ dependencies {
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'com.sun.mail:javax.mail:1.6.2'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')

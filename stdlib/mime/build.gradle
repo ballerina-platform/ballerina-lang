@@ -53,7 +53,9 @@ dependencies {
     interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.6'
 
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'jakarta.activation:jakarta.activation-api'
 

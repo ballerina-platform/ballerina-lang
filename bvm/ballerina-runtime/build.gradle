@@ -18,9 +18,16 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.apache.ws.commons.axiom:axiom-impl'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation ('org.apache.ws.commons.axiom:axiom-impl') {
+        because 'woodstox-core-asl has vulnarabilities'
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-c14n') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
