@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -409,4 +409,6 @@ function testNumericLiteralAssignmentNegative2() {
     byte|2.1 _ = 2.1;
     byte|2.1 _ = 2.1f;
     byte|2.1 _ = 2.1d; //error: incompatible types: expected 'byte|2.1', found 'decimal'
+    byte|decimal _ = 1;
+    byte|int _ = 3;
 }

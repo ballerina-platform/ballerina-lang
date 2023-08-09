@@ -606,7 +606,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
             for (BType type: compatibleTypes) {
-                if (type.tag == i) {
+                if (Types.getReferredType(type).tag == i) {
                     return type;
                 }
             }
@@ -953,7 +953,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
-        if (finiteType != symTable.semanticError) {
+        if (finiteType.tag == TypeTags.FINITE) {
             return checkIfOutOfRangeAndReturnType((BFiniteType) finiteType, literalExpr, literalExpr.value, data);
         }
         return symTable.intType;
