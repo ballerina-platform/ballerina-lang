@@ -89,6 +89,7 @@
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>
             <Bug pattern="UUF_UNUSED_FIELD"/>
+            <Bug pattern="EI_EXPOSE_REP2"/>
             <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
         </Or>
     </Match>
