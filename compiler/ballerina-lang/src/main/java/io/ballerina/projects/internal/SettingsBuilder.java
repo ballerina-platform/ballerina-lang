@@ -137,24 +137,26 @@ public class SettingsBuilder {
                 accessToken = getStringOrDefaultFromTomlTableNode(centralNode, ACCESS_TOKEN, "");
             }
 
-            Map<String, TopLevelNode> repoEntries = ((TomlTableNode) tomlAstNode.entries().get(REPOSITORY)).entries();
-            for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
-                String repoKey = entry.getKey();
-                TopLevelNode repoValue = entry.getValue();
-                if (!NEXUS.equals(repoKey) && !ARTIFACTORY.equals(repoKey) && !FILE_SYSTEM.equals(repoKey) &&
-                        !GITHUB.equals(repoKey)) {
-                    continue;
-                }
-                List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
-                for (TomlTableNode repositoryNode : repositoryNodes) {
-                    url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
-                    id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
-                    repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USER_ID, "");
-                    repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, TOKEN, "");
-                    repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
+            TomlTableNode repository = (TomlTableNode) tomlAstNode.entries().get(REPOSITORY);
+            if (repository != null && repository.kind() != TomlType.NONE && repository.kind() == TomlType.TABLE) {
+                Map<String, TopLevelNode> repoEntries = repository.entries();
+                for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
+                    String repoKey = entry.getKey();
+                    TopLevelNode repoValue = entry.getValue();
+                    if (!NEXUS.equals(repoKey) && !ARTIFACTORY.equals(repoKey) && !FILE_SYSTEM.equals(repoKey) &&
+                            !GITHUB.equals(repoKey)) {
+                        continue;
+                    }
+                    List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
+                    for (TomlTableNode repositoryNode : repositoryNodes) {
+                        url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
+                        id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
+                        repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USER_ID, "");
+                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, TOKEN, "");
+                        repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
+                    }
                 }
             }
-
         }
 
         return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken),
