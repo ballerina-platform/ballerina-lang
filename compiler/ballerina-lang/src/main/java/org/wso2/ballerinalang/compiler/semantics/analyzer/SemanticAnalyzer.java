@@ -29,6 +29,8 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -2355,12 +2357,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         setTypeOfVarRef(tupleDeStmt.varRef, data);
 
+        if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
+            BLangListConstructorExpr  listConstrExpr = (BLangListConstructorExpr) tupleDeStmt.expr;
+            for (BLangExpression expression : listConstrExpr.exprs) {
+                if (expression.getKind() == RECORD_LITERAL_EXPR) {
+                    dlog.error(expression.getPosition(),
+                            DiagnosticErrorCode.RECORD_LITERAL_WITHIN_LIST_CONSTR_NOT_SUPPORTED_IN_LIST_BP);
+                }
+            }
+        }
+
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, data.env, tupleDeStmt.varRef.getBType(), data.prevEnvs,
                 data.commonAnalyzerData);
-
-        if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
-            dlog.error(tupleDeStmt.expr.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_IN_LIST_BINDING_PATTERN);
-        }
 
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
