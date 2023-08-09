@@ -19,6 +19,7 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -517,5 +518,10 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "expression is not a constant expression", line += 7, 16);
         validateError(compileResult, index++, "expression is not a constant expression", line += 9, 16);
         validateError(compileResult, index, "expression is not a constant expression", line + 7, 16);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

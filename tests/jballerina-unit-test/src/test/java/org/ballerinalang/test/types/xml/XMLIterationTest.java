@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -196,5 +197,11 @@ public class XMLIterationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results.toString();
         Assert.assertEquals(str, "bit of text\\u2702\\u2705\n");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }
