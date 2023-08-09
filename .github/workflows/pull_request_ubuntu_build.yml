@@ -64,6 +64,13 @@ jobs:
           ./gradlew build -Pnative.test --max-workers=2 --scan --no-daemon 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
+      - name: Upload Heap Dumps
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+         name: heap_dump-${{ matrix.branch }}.hprof
+         path: '*.hprof'
+
       - name: Generate Jacoco report
         if: github.event_name == 'pull_request'
         run: ./gradlew createCodeCoverageReport
