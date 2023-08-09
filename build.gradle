@@ -73,7 +73,3 @@ dependencies {
 allprojects {
     task printAllDependencies(type: DependencyReportTask) {}
 }
-
-subprojects {
-    task printSubDependencies(type: DependencyReportTask) {}
-}
