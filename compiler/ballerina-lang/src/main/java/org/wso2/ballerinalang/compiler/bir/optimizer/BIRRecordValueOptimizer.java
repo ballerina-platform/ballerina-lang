@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -18,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.CONST_LOAD;
 import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_CALL;
@@ -70,22 +89,11 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     @Override
     public void visit(BIRNode.BIRBasicBlock basicBlock) {
         List<BIRNonTerminator> instructions = basicBlock.instructions;
-        for (BIRNonTerminator inst: instructions) {
-            switch (inst.kind) {
-                case NEW_TYPEDESC:
-                    BType referredType = Types.getReferredType(((BIRNonTerminator.NewTypeDesc) inst).type);
-                    if (referredType.tag == TypeTags.RECORD) {
-                        recordOperandList.add(inst.lhsOp);
-                        recordOperandTypeMap.put(inst.lhsOp, (BRecordType) referredType);
-                    }
-                    break;
-                case NEW_STRUCTURE:
-                    BIRNonTerminator.NewStructure newStructure = (BIRNonTerminator.NewStructure) inst;
-                    recordOperandList.remove(newStructure.rhsOp);
-                    valueCreated = true;
-                    break;
-                default:
-                    break;
+        for (BIRNonTerminator inst : instructions) {
+            if (Objects.requireNonNull(inst.kind) == InstructionKind.NEW_TYPEDESC) {
+                handleNewTypeDesc(inst);
+            } else if (inst.kind == InstructionKind.NEW_STRUCTURE) {
+                handleNewStructure((BIRNonTerminator.NewStructure) inst);
             }
         }
         if (!fpRemoved) {
@@ -95,34 +103,55 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         }
 
         if (basicBlock.terminator.kind == FP_CALL) {
-            BIRTerminator.FPCall fpCall = (BIRTerminator.FPCall) basicBlock.terminator;
-            BIROperand recOperand = recordOperandList.isEmpty() ? null :
-                    recordOperandList.get(recordOperandList.size() - 1);
-            BRecordType recordType = recordOperandTypeMap.get(recOperand);
-            if (recordType != null && recordType.tsymbol != null) {
-                if (fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
-                    BIRNode.BIRFunction defaultFunction = getDefaultBIRFunction(fpCall.fp.variableDcl.name.value);
-                    if (defaultFunction == null) {
-                        resetBasicBlock(basicBlock);
-                        return;
-                    }
-                    BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
-                    lastBB = lastBB != null ? lastBB : basicBlock;
-                    if (containsOnlyConstantLoad(defaultFunction)) {
-                        moveConstLoadInstruction(fpCall, firstBB);
-                        lastBB.terminator = null;
-                        fpRemoved = true;
-                    } else {
-                        resetBasicBlock(basicBlock);
-                    }
-                } else {
-                    resetBasicBlock(basicBlock);
-                }
-            } else {
-                resetBasicBlock(basicBlock);
-            }
-        } else if (fpRemoved  && valueCreated) {
+            handleFPCall(basicBlock);
+        } else if (fpRemoved && valueCreated) {
             resetBasicBlock(basicBlock);
+        }
+    }
+
+    private void handleFPCall(BIRNode.BIRBasicBlock basicBlock) {
+        BIRTerminator.FPCall fpCall = (BIRTerminator.FPCall) basicBlock.terminator;
+        BIROperand recOperand = recordOperandList.isEmpty() ? null : recordOperandList.get(recordOperandList.size() - 1);
+        BRecordType recordType = recordOperandTypeMap.get(recOperand);
+
+        if (recordType == null || recordType.tsymbol == null) {
+            resetBasicBlock(basicBlock);
+            return;
+        }
+
+        if (!fpCall.fp.variableDcl.name.value.contains(recordType.tsymbol.name.value)) {
+            resetBasicBlock(basicBlock);
+            return;
+        }
+
+        BIRNode.BIRFunction defaultFunction = getDefaultBIRFunction(fpCall.fp.variableDcl.name.value);
+        if (defaultFunction == null) {
+            resetBasicBlock(basicBlock);
+            return;
+        }
+
+        BIRNode.BIRBasicBlock firstBB = defaultFunction.basicBlocks.get(0);
+        lastBB = lastBB != null ? lastBB : basicBlock;
+
+        if (containsOnlyConstantLoad(defaultFunction)) {
+            moveConstLoadInstruction(fpCall, firstBB);
+            lastBB.terminator = null;
+            fpRemoved = true;
+        } else {
+            resetBasicBlock(basicBlock);
+        }
+    }
+
+    private void handleNewStructure(BIRNonTerminator.NewStructure inst) {
+        recordOperandList.remove(inst.rhsOp);
+        valueCreated = true;
+    }
+
+    private void handleNewTypeDesc(BIRNonTerminator inst) {
+        BType referredType = Types.getReferredType(((BIRNonTerminator.NewTypeDesc) inst).type);
+        if (referredType.tag == TypeTags.RECORD) {
+            recordOperandList.add(inst.lhsOp);
+            recordOperandTypeMap.put(inst.lhsOp, (BRecordType) referredType);
         }
     }
 
@@ -136,22 +165,18 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             if (typecastVars.containsKey(tempVarName)) {
                 tempVar = typecastVars.get(tempVarName);
             } else {
-                tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type, new Name(tempVarName),
-                        VarScope.FUNCTION, VarKind.TEMP, "");
+                tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type, new Name(tempVarName), VarScope.FUNCTION, VarKind.TEMP, "");
                 typecastVars.put(tempVarName, tempVar);
                 currentFunction.localVars.add(tempVar);
             }
             BIROperand tempVarOperand = new BIROperand(tempVar);
-            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
-                    constantLoad.value, constantLoad.type, tempVarOperand);
+            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value, constantLoad.type, tempVarOperand);
             newConstLoad.scope = fpCall.scope;
             lastBB.instructions.add(newConstLoad);
-            BIRNonTerminator.TypeCast newTypeCast = new BIRNonTerminator.TypeCast(typeCast.pos, fpCall.lhsOp,
-                    tempVarOperand, typeCast.type, typeCast.checkTypes);
+            BIRNonTerminator.TypeCast newTypeCast = new BIRNonTerminator.TypeCast(typeCast.pos, fpCall.lhsOp, tempVarOperand, typeCast.type, typeCast.checkTypes);
             lastBB.instructions.add(newTypeCast);
         } else {
-            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
-                    constantLoad.value, constantLoad.type, fpCall.lhsOp);
+            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value, constantLoad.type, fpCall.lhsOp);
             lastBB.instructions.add(newConstLoad);
         }
     }
@@ -165,14 +190,11 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         if (!secondBB.instructions.isEmpty() || secondBB.terminator.kind != InstructionKind.RETURN) {
             return false;
         }
-        switch (firstBB.instructions.size()) {
-            case 1:
-                return firstBB.instructions.get(0).kind == CONST_LOAD;
-            case 2:
-                return firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST;
-            default:
-                return false;
-        }
+        return switch (firstBB.instructions.size()) {
+            case 1 -> firstBB.instructions.get(0).kind == CONST_LOAD;
+            case 2 -> firstBB.instructions.get(0).kind == CONST_LOAD && firstBB.instructions.get(1).kind == TYPE_CAST;
+            default -> false;
+        };
     }
 
     private void resetBasicBlock(BIRNode.BIRBasicBlock basicBlock) {
