@@ -801,7 +801,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EMPTY_REGEXP_STRING_DISALLOWED("BCE4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class"),
     USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
-            "BCE4050", "user.defined.functions.not.allowed.with.aggregated.variables"),
+            "BCE4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCE4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
     SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4048", "seq.arg.followed.by.another.seq.arg"),
