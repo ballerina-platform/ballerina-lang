@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -76,7 +77,7 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE4', found '3'", 44, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE5', found 'false'", 45, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '\"12\"'", 46, 16);
-        BAssertUtil.validateError(compileResult1, i++, "invalid usage of finite literal: duplicate key 'b'", 63, 46);
+        BAssertUtil.validateError(compileResult1, i++, "invalid record constructor: duplicate key 'b'", 63, 46);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE12', found " +
                 "'(record {| record {| record {| 1 a; |} b; |} a; (record {| (record {| 1 a; |} & readonly) a; " +
                 "(record {| 2 b; 3 c; |} & readonly) CMI2; record {| 1 d; |} c; |} & readonly) b; |} & readonly)'",
@@ -185,5 +186,10 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '123'", 24, 18);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '-1'", 24, 28);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

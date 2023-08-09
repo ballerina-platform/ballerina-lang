@@ -103,7 +103,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         virtualMachine.topLevelThreadGroups().forEach(this::threadGroupCreated);
     }
 
-    public VirtualMachine getVirtualMachine() {
+    public final VirtualMachine getVirtualMachine() {
         return myVirtualMachine;
     }
 
@@ -196,14 +196,14 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
                 Collectors.toList());
     }
 
-    public void threadGroupCreated(ThreadGroupReference threadGroupReference) {
+    private void threadGroupCreated(ThreadGroupReference threadGroupReference) {
         if (!isJ2ME()) {
             ThreadGroupReferenceProxyImpl proxy = new ThreadGroupReferenceProxyImpl(this, threadGroupReference);
             myThreadGroups.put(threadGroupReference, proxy);
         }
     }
 
-    public boolean isJ2ME() {
+    private boolean isJ2ME() {
         return isJ2ME(getVirtualMachine());
     }
 
@@ -305,7 +305,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
     };
 
     @Override
-    public boolean canWatchFieldModification() {
+    public final boolean canWatchFieldModification() {
         return myWatchFielsModification.isAvailable();
     }
 
@@ -429,7 +429,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         }
     };
 
-    public boolean canRedefineClasses() {
+    public final boolean canRedefineClasses() {
         return myRedefineClasses.isAvailable();
     }
 
@@ -462,7 +462,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         }
     };
 
-    public boolean canPopFrames() {
+    private boolean canPopFrames() {
         return myPopFrames.isAvailable();
     }
 
@@ -498,7 +498,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
         return myCanGetInstanceInfo.isAvailable();
     }
 
-    public boolean canBeModified() {
+    public final boolean canBeModified() {
         return myVirtualMachine.canBeModified();
     }
 

@@ -507,8 +507,8 @@ public class RegExpParser extends AbstractParser {
             openBrace = invalidateNonDigitNodesAndAddToTrailingMinutiae(openBrace, true);
         }
         STNode leastDigits = parseDigits(true);
-        STNode comma = null;
-        STNode mostDigits = null;
+        STNode comma = STNodeFactory.createEmptyNode();;
+        STNode mostDigits = STNodeFactory.createEmptyNodeList();
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.COMMA_TOKEN) {
             comma = consume();

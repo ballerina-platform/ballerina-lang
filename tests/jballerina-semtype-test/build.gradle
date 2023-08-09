@@ -30,8 +30,8 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
 
-    testCompile 'org.testng:testng'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation 'org.testng:testng'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
 description = 'JBallerina Semtype - Unit Test Module'
@@ -41,3 +41,5 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')

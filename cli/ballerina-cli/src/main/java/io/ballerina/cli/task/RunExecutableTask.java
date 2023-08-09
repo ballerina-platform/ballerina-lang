@@ -78,7 +78,7 @@ public class RunExecutableTask implements Task {
 
     private void runGeneratedExecutable(Module executableModule, Project project) {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
         String initClassName = JarResolver.getQualifiedClassName(

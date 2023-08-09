@@ -21,14 +21,12 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -58,7 +56,6 @@ import java.util.stream.Collectors;
 public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Create Variable";
-    private static final String RENAME_COMMAND = "Rename Variable";
 
     /**
      * {@inheritDoc}
@@ -110,8 +107,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
 
             CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-            addRenamePopup(context, edits, variableEdit, codeAction, createVarTextEdits.renamePositions.get(i),
-                    createVarTextEdits.varRenamePosition.get(i), createVarTextEdits.imports.size());
+            addRenamePopup(context, codeAction, createVarTextEdits.varRenamePosition.get(i),
+                    createVarTextEdits.imports.size());
             actions.add(codeAction);
         }
         return actions;
@@ -120,13 +117,13 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
     private boolean isCompilationErrorTyped(TypeSymbol typeSymbol) {
 
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-            return isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol);
+            return isCompilationErrorTyped((UnionTypeSymbol) typeSymbol);
         }
 
         return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR;
     }
 
-    protected boolean isUnionCompErrorTyped(UnionTypeSymbol unionTypeSymbol) {
+    protected boolean isCompilationErrorTyped(UnionTypeSymbol unionTypeSymbol) {
 
         return unionTypeSymbol.memberTypeDescriptors().stream()
                 .anyMatch(tSymbol -> tSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR);
@@ -215,8 +212,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         }
     }
 
-    public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, TextEdit variableEdit,
-                               CodeAction codeAction, int renameOffset,
+    public void addRenamePopup(CodeActionContext context, CodeAction codeAction,
                                Position varRenamePosition, int newImportsCount) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
@@ -225,45 +221,6 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
                     List.of(context.fileUri(),
                             new Position(varRenamePosition.getLine() + newImportsCount,
                                     varRenamePosition.getCharacter()))));
-            return;
         }
-
-        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        if (!lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported() || syntaxTree.isEmpty()) {
-            return;
-        }
-        /*
-        Ex: class Test {
-                function testFunc() returns error? {
-                    int testResult = check test();
-                }
-            }
-        1. startPos gives the start position of the variable type "int".
-        2. If any text edits are applied before the variable creation edit, the length of those edits is added to the
-           "sum". In the above example, the length of "error?" will be added.
-        3. renameOffset gives the length of the variable type and the white space between the variable type and the
-           variable. In the example, the renameOffset will be the length of "int ".
-        */
-
-        int startPos = CommonUtil.getTextEdit(syntaxTree.get(), variableEdit).range().startOffset();
-        int sum = 0;
-        for (TextEdit textEdit : textEdits) {
-            io.ballerina.tools.text.TextEdit edits = CommonUtil.getTextEdit(syntaxTree.get(), textEdit);
-            int startOffset = edits.range().startOffset();
-            int endOffset = edits.range().endOffset();
-            if (startOffset < startPos) {
-                sum = sum + edits.text().length();
-                if (startOffset < endOffset) {
-                    int returnTypeLength = endOffset - startOffset;
-                    sum = sum - returnTypeLength;
-                }
-            }
-        }
-
-        startPos = startPos + sum + renameOffset;
-
-        codeAction.setCommand(
-                new Command(CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.RENAME_COMMAND,
-                        List.of(context.fileUri(), startPos)));
     }
 }
