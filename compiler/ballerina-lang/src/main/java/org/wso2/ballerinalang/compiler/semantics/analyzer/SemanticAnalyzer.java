@@ -243,6 +243,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
+import static org.ballerinalang.model.tree.NodeKind.LIST_CONSTRUCTOR_EXPR;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
@@ -2356,6 +2357,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, data.env, tupleDeStmt.varRef.getBType(), data.prevEnvs,
                 data.commonAnalyzerData);
+
+        if (tupleDeStmt.expr.getKind() == LIST_CONSTRUCTOR_EXPR) {
+            dlog.error(tupleDeStmt.expr.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_IN_LIST_BINDING_PATTERN);
+        }
 
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,

@@ -342,7 +342,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TUPLE_LITERAL("BCE2585", "invalid.tuple.literal"),
     INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("BCE2586", "invalid.list.constructor.type"),
     INVALID_ARRAY_ELEMENT_TYPE("BCE2587", "invalid.array.element.type"),
-    INVALID_LIST_BINDING_PATTERN("BCE2588", "invalid.list.binding.pattern"),
+    INVALID_LIST_BINDING_PATTERN("BCE2588", ""),
     INVALID_LIST_BINDING_PATTERN_DECL("BCE2589", "invalid.list.binding.pattern.decl"),
     INVALID_LIST_BINDING_PATTERN_INFERENCE("BCE2590", "invalid.list.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("BCE2591", "mismatching.array.literal.values"),
@@ -423,6 +423,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
     FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
+    INVALID_LIST_CONSTRUCTOR_IN_LIST_BINDING_PATTERN("BCE2656", "invalid.list.constructor.in.list.binding"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
