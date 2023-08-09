@@ -787,23 +787,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     if (literalValueType != null) {
                         return literalValueType;
                     }
+                }
+                return literalExpr.getBType();
+            } else if (expectedType.tag == TypeTags.FLOAT) {
+                if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+                    data.resultType = symTable.semanticError;
                     return symTable.semanticError;
                 }
-            } else if (expectedType.tag == TypeTags.FLOAT) {
-                    if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-                        data.resultType = symTable.semanticError;
-                        return symTable.semanticError;
-                    }
-                    return symTable.floatType;
-            } else if (expectedType.tag == TypeTags.FINITE) {
-                BFiniteType finiteType = (BFiniteType) expectedType;
-                for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
-                    if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
-                        BType valueType = setLiteralValueAndGetType(literalExpr, symTable.getTypeFromTag(tag), data);
-                        setLiteralValueForFiniteType(literalExpr, valueType, data);
-                        return valueType;
-                    }
-                }
+                return symTable.floatType;
             } else if (expectedType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) expectedType;
                 for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
