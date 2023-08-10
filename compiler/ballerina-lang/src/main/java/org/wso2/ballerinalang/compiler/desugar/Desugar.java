@@ -5842,6 +5842,36 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
     }
 
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            return env.enclEnv;
+        }
+
+        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
+            return env.enclEnv;
+        }
+
+        if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
+            return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
+        }
+        return env;
+    }
+
+    private void updateClosureVariable(BVarSymbol varSymbol, BLangInvokableNode encInvokable, Location pos) {
+        Set<Flag> flagSet = encInvokable.flagSet;
+        boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
+                !flagSet.contains(Flag.ATTACHED);
+        if (!varSymbol.closure && isClosure) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, varSymbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol) {
+                varSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol, pos));
+            }
+        }
+    }
+
     private List<String> getNamesOfUserSpecifiedRecordFields(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         List<String> fieldNames = new ArrayList<>();
 
@@ -5904,7 +5934,9 @@ public class Desugar extends BLangNodeVisitor {
                 if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
                     expression = visitCloneReadonly(expression, invokableSymbol.retType);
                 }
-
+                if (env.enclInvokable != null) {
+                    updateClosureVariable((BVarSymbol) ((BLangInvocation) expression).symbol, env.enclInvokable, pos);
+                }
                 BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName,
                                                                                                            expression);
                 fields.add(member);

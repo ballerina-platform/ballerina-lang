@@ -558,10 +558,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BSymbol owner = getOwner(env);
         BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        if (varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) varNode.expr;
-            desugar.generateFieldsForUserUnspecifiedRecordFields(recordLiteral, recordLiteral.fields);
-        }
         returnStmt.expr = desugar.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
@@ -1136,6 +1132,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        bLangLambdaFunction.capturedClosureEnv = env.createClone();
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         result = bLangLambdaFunction;
     }
