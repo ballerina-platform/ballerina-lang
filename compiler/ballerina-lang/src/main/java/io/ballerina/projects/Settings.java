@@ -66,6 +66,9 @@ public class Settings {
     }
 
     public Repository[] getRepositories() {
+        if (repositories == null) {
+            return new Repository[0];
+        }
         return repositories;
     }
 
