@@ -1219,7 +1219,6 @@ types:
             'instruction_kind_enum::instruction_kind_new_re_flag_expr': instruction_new_re_flag_expr
             'instruction_kind_enum::instruction_kind_new_re_flag_on_off': instruction_new_re_flag_on_off
             'instruction_kind_enum::instruction_kind_new_re_quantifier': instruction_new_re_quantifier
-            'instruction_kind_enum::instruction_kind_record_default_fp_load': instruction_record_default_fp_load
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -1312,7 +1311,6 @@ types:
         99: instruction_kind_new_re_flag_expr
         100: instruction_kind_new_re_flag_on_off
         101: instruction_kind_new_re_quantifier
-        102: instruction_kind_record_default_fp_load
         128: instruction_kind_platform
   instruction_const_load:
     seq:
@@ -1678,6 +1676,10 @@ types:
         type: fp_load_function_param
         repeat: expr
         repeat-expr: fp_load_function_params_count
+      - id: enclosed_type_index
+        type: s4
+      - id: field_name
+        type: s4
   fp_load_function_param:
     seq:
       - id: kind
@@ -1902,14 +1904,6 @@ types:
         type: operand
       - id: non_greedy_char
         type: operand
-  instruction_record_default_fp_load:
-    seq:
-      - id: lhs_op
-        type: operand
-      - id: enclosed_type_index
-        type: s4
-      - id: field_name
-        type: s4
   operand:
     seq:
       - id: ignored_variable

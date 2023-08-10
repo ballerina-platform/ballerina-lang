@@ -480,7 +480,10 @@ public class BIRInstructionWriter extends BIRVisitor {
             writeType(param.type);
             buf.writeInt(addStringCPEntry(param.name.value));
         });
-
+        if (fpLoad.enclosedType != null) {
+            writeType(fpLoad.enclosedType);
+            buf.writeInt(addStringCPEntry(fpLoad.fieldName));
+        }
     }
 
     public void visit(BIRTerminator.Panic birPanic) {
@@ -632,13 +635,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewReFlagOnOff reFlagsOnOff) {
         reFlagsOnOff.lhsOp.accept(this);
         reFlagsOnOff.flags.accept(this);
-    }
-
-    @Override
-    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
-        recordDefaultFPLoad.lhsOp.accept(this);
-        writeType(recordDefaultFPLoad.enclosedType);
-        buf.writeInt(addStringCPEntry(recordDefaultFPLoad.fieldName));
     }
 
     // Positions

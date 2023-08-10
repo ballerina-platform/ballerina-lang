@@ -1803,6 +1803,24 @@ public class JvmInstructionGen {
 
         this.storeToVar(inst.lhsOp.variableDcl);
         asyncDataCollector.add(lambdaName, inst);
+        if (inst.enclosedType != null) {
+            jvmTypeGen.loadType(this.mv, inst.enclosedType);
+            this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
+            this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
+            this.loadVar(inst.lhsOp.variableDcl);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
+            Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, inst.enclosedType.tsymbol.pkgID,
+                    (SelectivelyImmutableReferenceType) inst.enclosedType);
+            if (immutableType.isEmpty()) {
+                return;
+            }
+            BRecordType effectiveType = (BRecordType) immutableType.get().effectiveType;
+            jvmTypeGen.loadType(this.mv, effectiveType);
+            this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
+            this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
+            this.loadVar(inst.lhsOp.variableDcl);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
+        }
     }
 
     void generateNewXMLElementIns(BIRNonTerminator.NewXMLElement newXMLElement) {
@@ -2203,26 +2221,6 @@ public class JvmInstructionGen {
                 false);
     }
 
-
-    private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
-        jvmTypeGen.loadType(this.mv, inst.enclosedType);
-        this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
-        this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
-        this.loadVar(inst.lhsOp.variableDcl);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
-        Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, inst.enclosedType.tsymbol.pkgID,
-                (SelectivelyImmutableReferenceType) inst.enclosedType);
-        if (immutableType.isEmpty()) {
-            return;
-        }
-        BRecordType effectiveType = (BRecordType) immutableType.get().effectiveType;
-        jvmTypeGen.loadType(this.mv, effectiveType);
-        this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
-        this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
-        this.loadVar(inst.lhsOp.variableDcl);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
-    }
-
     void generateInstructions(int localVarOffset, BIRInstruction inst) {
         if (inst instanceof BIRNonTerminator.BinaryOp) {
             generateBinaryOpIns((BIRNonTerminator.BinaryOp) inst);
@@ -2378,9 +2376,6 @@ public class JvmInstructionGen {
                     break;
                 case PLATFORM:
                     generatePlatformIns((JInstruction) inst, localVarOffset);
-                    break;
-                case RECORD_DEFAULT_FP_LOAD:
-                    generateRecordDefaultFPLoadIns((BIRNonTerminator.RecordDefaultFPLoad) inst);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for operation " + inst);

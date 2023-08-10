@@ -833,20 +833,18 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isWorker = lambdaExpr.function.flagSet.contains(Flag.WORKER);
 
         List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
-        setScopeAndEmit(
-                new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID, boundMethodPkgId != null ? boundMethodPkgId : pkgID,
-                                            funcName, lhsOp, params, closureMapOperands,
-                                            lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
-                                            lambdaExpr.function.symbol.schedulerPolicy, isWorker));
+        BIRNonTerminator.FPLoad fpLoad = new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID,
+                boundMethodPkgId != null ? boundMethodPkgId : pkgID, funcName, lhsOp, params, closureMapOperands,
+                lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
+                lambdaExpr.function.symbol.schedulerPolicy, isWorker);
+        setScopeAndEmit(fpLoad);
         BType targetType = getRecordTargetType(funcName.value);
         if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
                 targetType.tag == TypeTags.RECORD) {
             // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
-
-            setScopeAndEmit(
-                    new BIRNonTerminator.RecordDefaultFPLoad(lambdaExpr.pos, lhsOp, targetType,
-                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
+            fpLoad.enclosedType = targetType;
+            fpLoad.fieldName = getFieldName(funcName.value, targetType.tsymbol.name.value);
         }
         this.env.targetOperand = lhsOp;
     }

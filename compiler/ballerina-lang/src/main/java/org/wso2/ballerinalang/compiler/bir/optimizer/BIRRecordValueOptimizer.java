@@ -111,7 +111,8 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
     private void handleFPCall(BIRNode.BIRBasicBlock basicBlock) {
         BIRTerminator.FPCall fpCall = (BIRTerminator.FPCall) basicBlock.terminator;
-        BIROperand recOperand = recordOperandList.isEmpty() ? null : recordOperandList.get(recordOperandList.size() - 1);
+        BIROperand recOperand = recordOperandList.isEmpty() ? null :
+                recordOperandList.get(recordOperandList.size() - 1);
         BRecordType recordType = recordOperandTypeMap.get(recOperand);
 
         if (recordType == null || recordType.tsymbol == null) {
@@ -165,18 +166,22 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
             if (typecastVars.containsKey(tempVarName)) {
                 tempVar = typecastVars.get(tempVarName);
             } else {
-                tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type, new Name(tempVarName), VarScope.FUNCTION, VarKind.TEMP, "");
+                tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type, new Name(tempVarName),
+                        VarScope.FUNCTION, VarKind.TEMP, "");
                 typecastVars.put(tempVarName, tempVar);
                 currentFunction.localVars.add(tempVar);
             }
             BIROperand tempVarOperand = new BIROperand(tempVar);
-            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value, constantLoad.type, tempVarOperand);
+            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
+                    constantLoad.value, constantLoad.type, tempVarOperand);
             newConstLoad.scope = fpCall.scope;
             lastBB.instructions.add(newConstLoad);
-            BIRNonTerminator.TypeCast newTypeCast = new BIRNonTerminator.TypeCast(typeCast.pos, fpCall.lhsOp, tempVarOperand, typeCast.type, typeCast.checkTypes);
+            BIRNonTerminator.TypeCast newTypeCast = new BIRNonTerminator.TypeCast(typeCast.pos, fpCall.lhsOp,
+                    tempVarOperand, typeCast.type, typeCast.checkTypes);
             lastBB.instructions.add(newTypeCast);
         } else {
-            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos, constantLoad.value, constantLoad.type, fpCall.lhsOp);
+            BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
+                    constantLoad.value, constantLoad.type, fpCall.lhsOp);
             lastBB.instructions.add(newConstLoad);
         }
     }

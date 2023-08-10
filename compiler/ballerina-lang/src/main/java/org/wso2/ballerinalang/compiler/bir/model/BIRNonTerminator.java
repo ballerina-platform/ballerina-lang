@@ -872,6 +872,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public List<BIROperand> closureMaps;
         public BType type;
         public boolean isWorker;
+        public BType enclosedType = null;
+        public String fieldName;
+
 
         public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
                       List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
@@ -1427,38 +1430,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public void setRhsOperands(BIROperand[] operands) {
             this.quantifier = operands[0];
             this.nonGreedyChar = operands[1];
-        }
-    }
-
-    /**
-     * New RecordDefaultFPLoad instruction.
-     *
-     * @since 2201.6.0
-     */
-    public static class RecordDefaultFPLoad extends BIRNonTerminator {
-        public BType enclosedType;
-        public String fieldName;
-
-        public RecordDefaultFPLoad(Location pos, BIROperand lhsOp, BType enclosedType, String fieldName) {
-            super(pos, InstructionKind.RECORD_DEFAULT_FP_LOAD);
-            this.lhsOp = lhsOp;
-            this.enclosedType = enclosedType;
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-
-        @Override
-        public BIROperand[] getRhsOperands() {
-            return new BIROperand[]{this.lhsOp};
-        }
-
-        @Override
-        public void setRhsOperands(BIROperand[] operands) {
-            this.lhsOp = operands[0];
         }
     }
 }

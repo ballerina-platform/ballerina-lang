@@ -48,7 +48,7 @@ public class OptionTest {
     @Test
     public void testCliDefaultableOptional() {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_defaultable_optional.bal");
-        BRunUtil.runMain(compileResult, new String[0]);
+        BRunUtil.runMain(compileResult);
     }
 
     @Test
