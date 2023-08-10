@@ -70,7 +70,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "float_literal_source_07.bal",
                 "method_call_expr_source_03.bal",
                 "method_call_expr_source_05.bal",
-                "qualified_identifier_assert_08.bal",
+                "qualified_identifier_source_08.bal",
                 "conditional_expr_source_28.bal",
                 "resiliency_source_04.bal",
                 "record_type_def_source_14.bal",
