@@ -184,6 +184,11 @@ public class TypeDefinitionsTest {
         BRunUtil.invoke(recordFieldRes, "testRecordTypeResolvingWithTypeInclusion");
     }
 
+    @Test
+    public void testAnnotWithRecordTypeDefinition() {
+        BRunUtil.invoke(compileResult, "testAnnotWithRecordTypeDefinition");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

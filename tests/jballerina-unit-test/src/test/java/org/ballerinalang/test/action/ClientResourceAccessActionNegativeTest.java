@@ -21,6 +21,7 @@ package org.ballerinalang.test.action;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -30,7 +31,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  * Tests for invalid client resource access action.
  */
 public class ClientResourceAccessActionNegativeTest {
-    CompileResult clientResourceAccessNegative, clientResourcePathNegative,
+    private CompileResult clientResourceAccessNegative, clientResourcePathNegative,
             clientResourceParamsNegative, clientTransactionalResourceNegative;
 
     @BeforeClass
@@ -798,5 +799,13 @@ public class ClientResourceAccessActionNegativeTest {
                 "invoking transactional function outside transactional scope is prohibited",
                 26, 13);
         Assert.assertEquals(clientTransactionalResourceNegative.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        clientResourceAccessNegative = null;
+        clientResourceParamsNegative = null;
+        clientResourcePathNegative = null;
+        clientTransactionalResourceNegative = null;
     }
 }

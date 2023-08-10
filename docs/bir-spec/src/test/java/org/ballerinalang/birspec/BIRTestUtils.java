@@ -742,8 +742,13 @@ class BIRTestUtils {
                 Assert.assertEquals(booleanConstantInfo.valueBooleanConstant() == 1, expectedValue);
                 break;
             case TYPE_TAG_RECORD:
-                Bir.MapConstantInfo actualMapConst =
+                Bir.MapConstantInfo actualMapConst;
+                if (constantValueInfo instanceof Bir.MapConstantInfo) {
+                    actualMapConst = (Bir.MapConstantInfo) constantValueInfo;
+                } else {
+                    actualMapConst =
                         (Bir.MapConstantInfo) ((Bir.IntersectionConstantInfo) constantValueInfo).constantValueInfo();
+                }
                 Map<String, BIRNode.ConstValue> expectedMapConst = (Map<String, BIRNode.ConstValue>) expectedValue;
                 Assert.assertEquals(actualMapConst.mapConstantSize(), expectedMapConst.size());
                 break;
