@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -490,8 +491,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(SelectClauseNode selectClauseNode) {
         selectClauseNode.parent().parent().accept(this);
         if (resultFound) {
-            if (this.returnTypeSymbol.typeKind() == TypeDescKind.ARRAY) {
+            TypeDescKind kind = this.returnTypeSymbol.typeKind();
+            if (kind == TypeDescKind.ARRAY) {
                 checkAndSetTypeResult(((ArrayTypeSymbol) returnTypeSymbol).memberTypeDescriptor());
+            } else if (kind == TypeDescKind.STREAM) {
+                checkAndSetTypeResult(((StreamTypeSymbol) returnTypeSymbol).typeParameter());
             }
         }
     }

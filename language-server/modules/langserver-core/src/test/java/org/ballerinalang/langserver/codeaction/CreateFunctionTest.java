@@ -182,6 +182,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeAction28.json"},
                 {"undefinedFunctionCodeAction29.json"},
                 {"undefinedFunctionCodeAction30.json"},
+                {"undefinedFunctionCodeAction31.json"},
         };
     }
 
