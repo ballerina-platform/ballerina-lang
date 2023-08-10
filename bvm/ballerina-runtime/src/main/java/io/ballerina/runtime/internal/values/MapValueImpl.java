@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -41,6 +42,7 @@ import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -281,14 +283,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
-        List<String> definedFields = new ArrayList<>();
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
+        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            defaultValues.putAll(((BRecordType) type).getDefaultValues());
+        }
+
         for (BMapInitialValueEntry initialValue : initialValues) {
             if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
                         (MappingInitialValueEntry.KeyValueEntry) initialValue;
-                if (definedFields.contains(keyValueEntry.key.toString())) {
-                    continue;
-                }
+                    defaultValues.remove(keyValueEntry.key.toString());
                 populateInitialValue((K) keyValueEntry.key, (V) keyValueEntry.value);
                 continue;
             }
@@ -296,9 +300,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             MapValueImpl<K, V> values =
                     (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) initialValue).values;
             for (Map.Entry<K, V> entry : values.entrySet()) {
-                definedFields.add(entry.getKey().toString());
+                defaultValues.remove(entry.getKey().toString());
                 populateInitialValue(entry.getKey(), entry.getValue());
             }
+        }
+
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+            String key = entry.getKey();
+            BFunctionPointer<Object, ?> value = entry.getValue();
+            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{Scheduler.getStrand()}));
         }
     }
 
