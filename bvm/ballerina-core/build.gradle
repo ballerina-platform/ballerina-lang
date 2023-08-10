@@ -31,9 +31,15 @@ dependencies {
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.ws.commons.axiom:axiom-api'
-    implementation 'org.apache.ws.commons.axiom:axiom-impl'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation ('org.apache.ws.commons.axiom:axiom-impl') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-c14n') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
     implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec'
     implementation 'org.wso2.staxon:staxon-core'
     implementation 'com.fasterxml.woodstox:woodstox-core:6.5.0'

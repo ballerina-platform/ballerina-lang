@@ -30,7 +30,9 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-io')
     implementation 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
-    implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
+    implementation ('org.apache.ws.commons.axiom:axiom-impl:1.2.22') {
+        exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    }
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
