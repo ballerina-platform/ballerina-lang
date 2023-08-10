@@ -87,34 +87,49 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
             return Collections.emptyList();
         }
         
-        String orgName;
-        String pkgName;
-        String[] orgNameAndRest = msg.get().split("/");
-        if (orgNameAndRest.length == 2) {
-            orgName = orgNameAndRest[0];
-            String[] pkgNameAndRest = orgNameAndRest[1].split("\\.");
-            if (pkgNameAndRest.length == 0) {
-                return Collections.emptyList();
-            }
-            pkgName = pkgNameAndRest[0];
-        } else {
+        // Consider orgname empty case
+        String[] orgAndRest = msg.get().split("/");
+        if (orgAndRest.length != 2) {
             return Collections.emptyList();
         }
-        
-        List<PackageVersion> loadedPackageVersions = getAvailablePackageVersionsFromLocalRepo(
-                LSPackageLoader.getInstance(context.languageServercontext()), project.get(), orgName, pkgName);
+        String org = orgAndRest[0];
+        String[] moduleAndPrefix = orgAndRest[1].split(" as ");
+        List<PackageVersion> loadedPackageVersions = new ArrayList<>();
+        String pkg = getPkgAndVersions(LSPackageLoader.getInstance(context.languageServercontext()), project.get(), 
+                org, moduleAndPrefix[0], loadedPackageVersions);
         if (loadedPackageVersions.isEmpty()) {
             return Collections.emptyList();
         }
         
         Position dependencyStart = new Position(getDependencyStartLine(toml.get()), 0);
         String dependency = String.format("[[dependency]]%norg = \"%s\"%nname = \"%s\"%nversion = " +
-                "\"%s\"%nrepository = \"local\"%n%n", orgName, pkgName, getLatestVersion(loadedPackageVersions));
+                "\"%s\"%nrepository = \"local\"%n%n", org, pkg, getLatestVersion(loadedPackageVersions));
         TextEdit textEdit = new TextEdit(new Range(dependencyStart, dependencyStart), dependency);
         CodeAction action = CodeActionUtil.createCodeAction(CommandConstants.ADD_MODULE_TO_BALLERINA_TOML, 
                 List.of(textEdit), project.get().sourceRoot().resolve(ProjectConstants.BALLERINA_TOML).toString(), 
                 CodeActionKind.QuickFix);
         return Collections.singletonList(action);
+    }
+    
+    private String getPkgAndVersions(LSPackageLoader lsPackageLoader, Project project, String org, 
+                                     String moduleWithPkg, List<PackageVersion> versions) {
+        String names = moduleWithPkg;
+        while (true) {
+            int i = names.lastIndexOf(".");
+            if (i == -1) {
+                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, names));
+                if (!versions.isEmpty()) {
+                    return names;
+                }
+                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, moduleWithPkg));
+                return moduleWithPkg;
+            }
+            names = names.substring(0, i);
+            versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, names));
+            if (!versions.isEmpty()) {
+                return names;
+            }
+        }
     }
 
     @Override

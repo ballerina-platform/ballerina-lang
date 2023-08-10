@@ -59,7 +59,8 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
-            Map<String, String> localProjects = Map.of("pkg1", "main.bal", "pkg2", "main.bal");
+            Map<String, String> localProjects = Map.of("pkg1", "main.bal", "pkg2", "main.bal", "x", "main.bal", 
+                    "x.y", "main.bal");
             List<LSPackageLoader.ModuleInfo> localPackages = getLocalPackages(localProjects,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList());
@@ -84,6 +85,13 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
                 {"add_module1.json"},
                 {"add_module2.json"},
                 {"add_module3.json"},
+                {"add_module4.json"},
+                {"add_module5.json"},
+                {"add_module6.json"},
+                {"add_module7.json"},
+                {"add_module8.json"},
+                {"add_module9.json"},
+                {"add_module10.json"},
         };
     }
 
