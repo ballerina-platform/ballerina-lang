@@ -72,8 +72,8 @@ public class CompletionSearchProvider {
      */
     public void indexModule(ModuleID moduleName, List<String> stringList, List<String> namesWithModulePrefix) {
         indexedModules.add(moduleName);
-        stringList.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
-        namesWithModulePrefix.forEach((s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH))));
+        indexNames(stringList);
+        indexNames(namesWithModulePrefix);
     }
 
     /**
@@ -87,11 +87,11 @@ public class CompletionSearchProvider {
     }
 
     /**
-     * Add central packages to the trie.
+     * Add names to the trie.
      *
-     * @param packages    list of packages.
+     * @param names    list of names.
      */
-    public void addCentralPackagesToTrie(List<String> packages) {
-        packages.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
+    public void indexNames(List<String> names) {
+        names.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
     }
 }

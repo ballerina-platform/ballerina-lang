@@ -332,33 +332,33 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 String packageName = ballerinaPackage.packageName().value();
                 packageList.add(packageName);
             });
-            List<String> filteredPackages = getFilteredPackages(packageList, prefix, context);
-            for (String filteredPackage : filteredPackages) {
+            List<String> filteredPackageNames = getFilteredPackages(packageList, prefix, context);
+            for (String filteredPackage : filteredPackageNames) {
                 LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
                 completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
                 completionItems.add(completionItem);
             }
-        } else {
-            moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
-            moduleList.forEach(ballerinaPackage -> {
-                String packageName = ballerinaPackage.packageName().value();
-                String insertText;
-                if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
-                        && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
-                    if (orgName.equals(Names.BALLERINA_ORG.value)
-                            && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
-                        insertText = getLangLibModuleNameInsertText(packageName);
-                    } else {
-                        insertText = packageName;
-                    }
-                    addedPkgNames.add(packageName);
-                    // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                    LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
-                    completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
-                    completionItems.add(completionItem);
-                }
-            });
+            return completionItems;
         }
+        moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
+        moduleList.forEach(ballerinaPackage -> {
+            String packageName = ballerinaPackage.packageName().value();
+            String insertText;
+            if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
+                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
+                if (orgName.equals(Names.BALLERINA_ORG.value)
+                        && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
+                    insertText = getLangLibModuleNameInsertText(packageName);
+                } else {
+                    insertText = packageName;
+                }
+                addedPkgNames.add(packageName);
+                // Do not add the semicolon at the end of the insert text since the user might type the as keyword
+                LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
+                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                completionItems.add(completionItem);
+            }
+        });
 
         return completionItems;
     }
@@ -368,7 +368,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                                                    BallerinaCompletionContext context) {
         CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
                 .getInstance(context.languageServercontext());
-        completionSearchProvider.addCentralPackagesToTrie(packageList);
+        completionSearchProvider.indexNames(packageList);
         return completionSearchProvider.getSuggestions(prefix);
     }
 
