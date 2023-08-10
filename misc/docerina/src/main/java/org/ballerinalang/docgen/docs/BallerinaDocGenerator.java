@@ -495,8 +495,7 @@ public class BallerinaDocGenerator {
 
             // Loop through bal files
             for (Map.Entry<String, SyntaxTree> syntaxTreeMapEntry : moduleDoc.getValue().syntaxTreeMap.entrySet()) {
-                Generator.setModuleFromSyntaxTree(module,
-                        syntaxTreeMapEntry.getValue(), model);
+                Generator.setModuleFromSyntaxTree(module, syntaxTreeMapEntry.getValue(), model);
             }
             module.records.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
             module.functions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
