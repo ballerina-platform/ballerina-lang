@@ -2631,7 +2631,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return bType + "." + fieldOrMethodName;
         }
 
-        if (bType != null &&  bType.tag == TypeTags.OBJECT) {
+        if (bType.tag == TypeTags.OBJECT) {
             BObjectType objectType = (BObjectType) bType;
             // for anonymous objects, only the field name will be in the error msg
             if (objectType.classDef == null || objectType.classDef.internal == false) {
