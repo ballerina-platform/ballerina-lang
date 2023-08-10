@@ -105,11 +105,15 @@ public class RemotePackageRepository implements PackageRepository {
 
         // If environment is online pull from central
         if (!options.offline()) {
-            for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+            for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
+                String supportedPlatform = SUPPORTED_PLATFORMS[i];
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                             RepoUtils.getBallerinaVersion(), true);
                 } catch (CentralClientException e) {
+                    if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
+                        continue;
+                    }
                     boolean enableOutputStream =
                             Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
                     if (enableOutputStream) {
@@ -119,6 +123,7 @@ public class RemotePackageRepository implements PackageRepository {
 
                     }
                 }
+
             }
         }
 
@@ -143,9 +148,11 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code(),
-                    RepoUtils.getBallerinaVersion())) {
-                packageVersions.add(PackageVersion.from(version));
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                for (String version : this.client.getPackageVersions(orgName, packageName, jvmTarget.code(),
+                        RepoUtils.getBallerinaVersion())) {
+                    packageVersions.add(PackageVersion.from(version));
+                }
             }
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
@@ -171,10 +178,13 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
+            List<ImportModuleResponse> remote = new ArrayList<>();
             PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
-            PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
-                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion());
-            List<ImportModuleResponse> remote = toImportModuleResponses(requests, response);
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
+                        jvmTarget.code(), RepoUtils.getBallerinaVersion());
+                remote.addAll(toImportModuleResponses(requests, response));
+            }
             return mergeNameResolution(filesystem, remote);
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
@@ -278,12 +288,8 @@ public class RemotePackageRepository implements PackageRepository {
         if (!updatedRequests.isEmpty()) {
             try {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
-                PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
-                        packageResolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion());
-
                 Collection<PackageMetadataResponse> remotePackages =
-                        fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);
+                        fromPackageResolutionResponse(updatedRequests, packageResolutionRequest);
                 // Merge central requests and local requests
                 // Here we will pick the latest package from remote or local
                 return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
@@ -346,29 +352,40 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     private Collection<PackageMetadataResponse> fromPackageResolutionResponse(
-            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
-        // List<PackageResolutionResponse.Package> resolved = packageResolutionResponse.resolved();
+            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionRequest packageResolutionRequest)
+            throws CentralClientException {
         List<PackageMetadataResponse> response = new ArrayList<>();
-        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
-            // find response from server
-            // checked in resolved group
-            Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
-                    .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
-                            p.org().equals(resolutionRequest.orgName().value())).findFirst();
-            // If we found a match we will add it to response
-            if (match.isPresent()) {
-                PackageVersion version = PackageVersion.from(match.get().version());
-                DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
-                PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
-                        resolutionRequest.packageName(),
-                        version, match.get().getDeprecated(), match.get().getDeprecateMessage());
-                PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
-                        packageDescriptor,
-                        dependencies);
-                response.add(responseDescriptor);
-            } else {
-                // If the package is not in resolved we assume the package is unresolved
-                response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
+        Set<ResolutionRequest> resolvedRequests = new HashSet<>();
+        JvmTarget[] values = JvmTarget.values();
+        for (int i = 0; i < values.length; i++) {
+            JvmTarget jvmTarget = values[i];
+            PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+                    packageResolutionRequest, jvmTarget.code(), RepoUtils.getBallerinaVersion());
+            for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+                if (resolvedRequests.contains(resolutionRequest)) {
+                    continue;
+                }
+                // find response from server
+                // checked in resolved group
+                Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
+                        .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
+                                p.org().equals(resolutionRequest.orgName().value())).findFirst();
+                // If we found a match we will add it to response
+                if (match.isPresent()) {
+                    PackageVersion version = PackageVersion.from(match.get().version());
+                    DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
+                    PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
+                            resolutionRequest.packageName(),
+                            version, match.get().getDeprecated(), match.get().getDeprecateMessage());
+                    PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
+                            packageDescriptor,
+                            dependencies);
+                    response.add(responseDescriptor);
+                    resolvedRequests.add(resolutionRequest);
+                } else if (i == values.length - 1) {
+                    // If the package is not in resolved for all jvm platforms we assume the package is unresolved
+                    response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
+                }
             }
         }
         return response;

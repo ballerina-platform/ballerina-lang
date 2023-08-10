@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -560,6 +561,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
+    /**
+     * This method is similar to reportIncompatibleMappingConstructorError method in TypeChecker.java.
+     */
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
         if (expType == symTable.semanticError) {
             return;
@@ -568,7 +572,24 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (expType.tag != TypeTags.UNION) {
             dlog.error(mappingConstructorExpr.pos,
                     DiagnosticErrorCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
+            return;
         }
+
+        BUnionType unionType = (BUnionType) expType;
+        BType[] memberTypes = types.getAllTypes(unionType, true).toArray(new BType[0]);
+
+        // By this point, we know there aren't any types to which we can assign the mapping constructor. If this is
+        // case where there is at least one type with which we can use mapping constructors, but this particular
+        // mapping constructor is incompatible, we give an incompatible mapping constructor error.
+        for (BType bType : memberTypes) {
+            if (types.isMappingConstructorCompatibleType(bType)) {
+                dlog.error(mappingConstructorExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_MAPPING_CONSTRUCTOR, unionType);
+                return;
+            }
+        }
+
+        dlog.error(mappingConstructorExpr.pos,
+                DiagnosticErrorCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, unionType);
     }
 
     private BType checkMappingConstructorCompatibilityForUnionType(BType expType, BLangRecordLiteral mappingConstructor,
@@ -579,12 +600,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         this.dlog.mute();
 
         List<BType> compatibleTypes = new ArrayList<>();
-        boolean erroredExpType = false;
         for (BType memberType : ((BUnionType) expType).getMemberTypes()) {
             if (memberType == symTable.semanticError) {
-                if (!erroredExpType) {
-                    erroredExpType = true;
-                }
                 continue;
             }
 
@@ -610,7 +627,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         if (compatibleTypes.isEmpty()) {
-            dlog.error(mappingConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, mappingConstructor, expType);
+            reportIncompatibleMappingConstructorError(mappingConstructor, expType);
             return symTable.semanticError;
         } else if (compatibleTypes.size() != 1) {
             dlog.error(mappingConstructor.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, expType);
@@ -2026,8 +2043,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                            BRecordTypeSymbol recordSymbol) {
         Name fieldName = Names.fromString(key);
         if (fields.containsKey(key)) {
-            dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL, keyValueType.getKind().typeName(),
-                    key);
+            dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR, TypeKind.RECORD.typeName(), key);
             return false;
         }
         long flags = recordSymbol.flags | Flags.REQUIRED;

@@ -3,4 +3,4 @@ org-name = "jaz"
 version = "2.5.0"
 
 [dependencies]
-#"bcintegrationtest/bee" = { path = "../TestProject1/target/bala/bee-2020r2-java11-1.2.0.bala"}
+#"bcintegrationtest/bee" = { path = "../TestProject1/target/bala/bee-2020r2-java17-1.2.0.bala"}
