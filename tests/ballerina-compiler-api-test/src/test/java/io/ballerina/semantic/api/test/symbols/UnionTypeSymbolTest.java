@@ -128,6 +128,8 @@ public class UnionTypeSymbolTest {
         assertEquals(typeSymbol.getEnumSymbol().isPresent(), expIsEnum);
         typeSymbol.getEnumSymbol().ifPresent(enumSymbol -> {
             assertTrue(enumSymbol.getName().isPresent());
+            assertEquals(typeSymbol.isEnum(), expIsEnum);   // Check `isEnum()` when enumSymbol is not null.
+            assertEquals(enumSymbol.kind(), SymbolKind.ENUM);
             assertEquals(enumSymbol.getName().get(), typeName);
             assertEquals(enumSymbol.typeDescriptor().typeKind(), TypeDescKind.UNION);
             SemanticAPITestUtils.assertList(enumSymbol.members(), expEnumMembers);

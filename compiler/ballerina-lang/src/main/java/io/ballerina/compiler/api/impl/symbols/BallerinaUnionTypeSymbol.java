@@ -177,7 +177,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         this.enumSymbol = symbolFactory.createEnumSymbol((BEnumSymbol) tsymbol, tsymbol.getName().value);;
 
-        return Optional.ofNullable(this.enumSymbol);
+        return Optional.of(this.enumSymbol);
     }
 
     @Override
