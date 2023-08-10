@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.util.ProjectConstants;
@@ -156,7 +155,7 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         PackageVersion latestVersion = versions.get(0);
         for (int i = 1; i < versions.size(); i++) {
             PackageVersion version = versions.get(i);
-            if (version.compareTo(latestVersion) == SemanticVersion.VersionCompatibilityResult.GREATER_THAN) {
+            if (version.value().greaterThanOrEqualTo(latestVersion.value())) {
                 latestVersion = version;
             }
         }
