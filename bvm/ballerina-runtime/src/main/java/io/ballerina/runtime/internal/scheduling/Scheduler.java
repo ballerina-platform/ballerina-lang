@@ -85,6 +85,15 @@ public class Scheduler {
     private Semaphore mainBlockSem;
     private final RuntimeRegistry runtimeRegistry;
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
+    private static Strand daemonStrand = null;
+
+    public static void setDaemonStrand(Strand strand) {
+        daemonStrand = strand;
+    }
+
+    public static Strand getDaemonStrand() {
+        return daemonStrand;
+    }
 
     public Scheduler(boolean immortal) {
         this(getPoolSize(), immortal);

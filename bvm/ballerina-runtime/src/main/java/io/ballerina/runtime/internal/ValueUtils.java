@@ -104,7 +104,7 @@ public class ValueUtils {
                 latch.await();
             } catch (InterruptedException e) {
                 throw ErrorCreator.createError(
-                        StringUtils.fromString("Error occurred when populating default values"), e);
+                        StringUtils.fromString("error occurred when populating default values"), e);
             }
         } else {
             for (Map.Entry<String, BFunctionPointer<Object, ?>> field : defaultValues.entrySet()) {
@@ -120,8 +120,8 @@ public class ValueUtils {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = recordType.getDefaultValues();
         String[] fields = defaultValues.keySet().toArray(new String[0]);
         invokeFPAsyncIterativelyWithNoStrand(recordValue, defaultValues, fields, "default",
-                ValueCreator.getMainStrand().getMetadata(), defaultValues.size(), o -> {
-        }, ValueCreator.getMainStrand().scheduler, latch);
+                Scheduler.getDaemonStrand().getMetadata(), defaultValues.size(), o -> {
+        }, Scheduler.getDaemonStrand().scheduler, latch);
     }
 
     public static void invokeFPAsyncIterativelyWithNoStrand(BMap<BString, Object> recordValue,

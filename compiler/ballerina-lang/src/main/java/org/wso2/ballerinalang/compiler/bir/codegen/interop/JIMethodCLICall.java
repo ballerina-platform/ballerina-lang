@@ -26,23 +26,29 @@ import java.util.List;
 /**
  * Java method invocation call for internal cli argument population modeled as BIR terminator.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class JIMethodCLICall extends JTerminator {
 
-    public BIROperand receiver;
     public List<BIROperand> lhsArgs;
-    public List<BIROperand> args;
 
     public String jClassName;
     public String jMethodVMSig;
     public String name;
-    public int invocationType;
-    public boolean isInternal = false;
 
     public JIMethodCLICall(Location pos) {
         super(pos);
         this.jTermKind = JTermKind.JI_METHOD_CLI_CALL;
+    }
+
+    @Override
+    public BIROperand[] getRhsOperands() {
+        return lhsArgs.toArray(new BIROperand[0]);
+    }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        this.lhsArgs = List.of(operands);
     }
 
 }

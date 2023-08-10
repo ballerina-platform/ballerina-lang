@@ -167,7 +167,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
                 tempVar = typecastVars.get(tempVarName);
             } else {
                 tempVar = new BIRNode.BIRVariableDcl(null, constantLoad.type, new Name(tempVarName),
-                        VarScope.FUNCTION, VarKind.TEMP, "");
+                        VarScope.FUNCTION, VarKind.TEMP, null);
                 typecastVars.put(tempVarName, tempVar);
                 currentFunction.localVars.add(tempVar);
             }

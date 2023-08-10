@@ -531,11 +531,11 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
 
         this.mv.visitLabel(blockedOnExternLabel);
-        this.mv.visitVarInsn(ALOAD, 1);
+        this.mv.visitVarInsn(ALOAD, localVarOffset + 1);
         this.mv.visitTypeInsn(CHECKCAST, terminator.jClassName);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, terminator.jClassName, terminator.name, terminator.jMethodVMSig, false);
-        BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("arrayResult"),
-                VarScope.FUNCTION, VarKind.LOCAL);
+        BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("%arrayResult"),
+                VarScope.FUNCTION, VarKind.TEMP);
         int resultIndex = this.getJVMIndexOfVarRef(tempVar);
         this.mv.visitVarInsn(ASTORE, resultIndex);
         int paramIndex = 1;

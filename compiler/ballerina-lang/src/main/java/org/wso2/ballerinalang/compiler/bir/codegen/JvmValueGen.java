@@ -88,6 +88,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
@@ -431,7 +432,7 @@ public class JvmValueGen {
 
         if (!JvmCodeGenUtil.isAnonType(typedef)) {
             Label label = new Label();
-            if (typedef.pos != null && typedef.pos.lineRange().endLine().line() != 0x80000000) {
+            if (typedef.pos != null && typedef.pos.lineRange().endLine().line() != OVERFLOW_LINE_NUMBER) {
                 mv.visitLabel(label);
                 mv.visitLineNumber(typedef.pos.lineRange().endLine().line() + 1, label);
             }

@@ -453,8 +453,8 @@ public class JvmConstants {
     Max strings constant initializations per method = 64000/12 -> 5000
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
-
     public static final int VISIT_MAX_SAFE_MARGIN = 10;
+    public static final int OVERFLOW_LINE_NUMBER = 0x80000000;
 
     private JvmConstants() {
     }

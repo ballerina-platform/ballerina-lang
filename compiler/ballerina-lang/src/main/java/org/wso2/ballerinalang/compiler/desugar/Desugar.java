@@ -5845,18 +5845,19 @@ public class Desugar extends BLangNodeVisitor {
     private List<String> getNamesOfUserSpecifiedRecordFields(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         List<String> fieldNames = new ArrayList<>();
         for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
+            String fieldName = null;
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
                         (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
-                    fieldNames.add(((BLangLiteral) key).value.toString());
+                    fieldName = ((BLangLiteral) key).value.toString();
                 } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    fieldNames.add(((BLangSimpleVarRef) key).variableName.value);
+                    fieldName = ((BLangSimpleVarRef) key).variableName.value;
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
-                fieldNames.add(varRefField.variableName.value);
+                fieldName = varRefField.variableName.value;
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
                         (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
@@ -5865,8 +5866,11 @@ public class Desugar extends BLangNodeVisitor {
                     continue;
                 }
                 for (BField bField : ((BRecordType) type).fields.values()) {
-                    fieldNames.add(bField.name.value);
+                    fieldNames.add(Utils.unescapeBallerina(bField.name.value));
                 }
+            }
+            if (fieldName != null) {
+                fieldNames.add(Utils.unescapeBallerina(fieldName));
             }
         }
         return fieldNames;
@@ -5912,9 +5916,7 @@ public class Desugar extends BLangNodeVisitor {
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
         generateFieldsForUserUnspecifiedRecordFields(fields, fieldNames, defaultValues, pos,
                                                      Symbols.isFlagOn(recordType.flags, Flags.READONLY));
-
         List<BType> typeInclusions = recordType.typeInclusions;
-
         for (BType typeInclusion : typeInclusions) {
             generateFieldsForUserUnspecifiedRecordFields((BRecordType) Types.getReferredType(typeInclusion), fields,
                                                          fieldNames, pos);

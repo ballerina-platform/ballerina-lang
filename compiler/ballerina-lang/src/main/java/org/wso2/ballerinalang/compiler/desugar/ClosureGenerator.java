@@ -561,9 +561,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         if (lhsType.tag == TypeTags.NONE) {
             return expr;
         }
-
         BType rhsType = expr.getBType();
-
         if (lhsType.tag == TypeTags.TYPEREFDESC && rhsType.tag != TypeTags.TYPEREFDESC) {
             return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
         }

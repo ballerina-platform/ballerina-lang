@@ -1808,9 +1808,10 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
             this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
             this.loadVar(inst.lhsOp.variableDcl);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
-            Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, inst.enclosedType.tsymbol.pkgID,
-                    (SelectivelyImmutableReferenceType) inst.enclosedType);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue",
+                    SET_DEFAULT_VALUE_METHOD, false);
+            Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable,
+                    inst.enclosedType.tsymbol.pkgID, (SelectivelyImmutableReferenceType) inst.enclosedType);
             if (immutableType.isEmpty()) {
                 return;
             }
@@ -1819,7 +1820,8 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
             this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
             this.loadVar(inst.lhsOp.variableDcl);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue",
+                    SET_DEFAULT_VALUE_METHOD, false);
         }
     }
 

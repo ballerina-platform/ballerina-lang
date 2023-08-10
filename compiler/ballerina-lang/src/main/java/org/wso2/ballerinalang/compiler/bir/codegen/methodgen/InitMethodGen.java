@@ -150,14 +150,7 @@ public class InitMethodGen {
         MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
         String methodDesc;
-
-        //set main strand
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "setMainStrand",  SET_STRAND, false);
-
+        MethodGenUtils.callSetDaemonStrand(mv);
         //load strand as first arg
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
@@ -278,7 +271,7 @@ public class InitMethodGen {
                                                         BIRNode.BIRFunction mainFunc,
                                                         BIRNode.BIRFunction testExecuteFunc, String typeOwnerClass) {
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType,
-                new Name("%ret"), VarScope.FUNCTION, VarKind.RETURN, "");
+                new Name("%ret"), VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
         List<BIROperand> functionArgs = new ArrayList<>();
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
@@ -294,7 +287,7 @@ public class InitMethodGen {
             List<BIRNode.BIRFunctionParameter> mainParameters = mainFunc.parameters;
             Name argName = new Name("%_cli");
             cliArgVar = new BIRNode.BIRFunctionParameter(null, symbolTable.anyType, argName, VarScope.FUNCTION,
-                    VarKind.ARG, "", false, false);
+                    VarKind.ARG, null, false, false);
             paramTypes.add(symbolTable.anyType);
             parameters.add(cliArgVar);
             requiredParameters.add(new BIRNode.BIRParameter(null, argName, 0));
@@ -303,7 +296,7 @@ public class InitMethodGen {
 
             for (BIRNode.BIRFunctionParameter param : mainParameters) {
                 BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, param.type,
-                        new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.LOCAL, "");
+                        new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.LOCAL, null);
                 BIROperand varRef = new BIROperand(paramVar);
                 modExecFunc.localVars.add(paramVar);
                 functionArgs.add(varRef);
@@ -317,7 +310,7 @@ public class InitMethodGen {
             argsCount += modExecFunc.parameters.size();
             for (BIRNode.BIRFunctionParameter param : parameters) {
                 BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, param.type,
-                        new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.ARG, "");
+                        new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.ARG, null);
                 BIROperand varRef = new BIROperand(paramVar);
                 modExecFunc.localVars.add(paramVar);
                 functionArgs.add(varRef);
@@ -362,14 +355,11 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
         JIMethodCLICall jiMethodCall = new JIMethodCLICall(null);
         BIROperand argVarRef = new BIROperand(cliArgVar);
-        jiMethodCall.args = List.of(argVarRef);
         jiMethodCall.lhsArgs = functionArgs;
         jiMethodCall.jClassName = CLI_SPEC;
         jiMethodCall.jMethodVMSig = GET_MAIN_ARGS;
         jiMethodCall.name = "getMainArgs";
-        jiMethodCall.invocationType = INVOKEVIRTUAL;
         jiMethodCall.thenBB = addAndGetNextBasicBlock(modExecFunc);
-        jiMethodCall.isInternal = false;
         lastBB.terminator = jiMethodCall;
     }
 
@@ -450,7 +440,7 @@ public class InitMethodGen {
         nextVarId = 0;
 
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
-                                                                   VarScope.FUNCTION, VarKind.RETURN, "");
+                                                                   VarScope.FUNCTION, VarKind.RETURN, null);
         BIROperand retVarRef = new BIROperand(retVar);
 
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
