@@ -31,7 +31,7 @@ dependencies {
     implementation project(':ballerina-tools-api')
 
     testImplementation('org.testng:testng')
-    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 compileJava {

@@ -42,7 +42,7 @@
       "label": "...rec",
       "kind": "Variable",
       "detail": "module1:TestRecord1",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "rec",
       "insertText": "...rec",
       "insertTextFormat": "Snippet"

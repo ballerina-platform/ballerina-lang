@@ -185,7 +185,7 @@ public class ModuleVariableDeclarationNodeContext extends
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-                    completionItems.add(new SnippetCompletionItem(context, 
+                    completionItems.add(new SnippetCompletionItem(context,
                             Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
@@ -206,6 +206,10 @@ public class ModuleVariableDeclarationNodeContext extends
                 break;
             case CONFIGURABLE_KEYWORD:
                 completionItems.addAll(this.getTypeDescContextItems(context));
+                break;
+            case FINAL_KEYWORD:
+                completionItems.addAll(this.getTypeDescContextItems(context));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
                 break;
             default:
         }

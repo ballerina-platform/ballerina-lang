@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 60,
+    "character": 28
+  },
+  "source": "add_check_codeaction_source5.bal",
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 60,
+              "character": 24
+            },
+            "end": {
+              "line": 60,
+              "character": 24
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 44
+            },
+            "end": {
+              "line": 59,
+              "character": 59
+            }
+          },
+          "newText": "returns Error1|Error2?"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

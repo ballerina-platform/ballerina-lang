@@ -317,10 +317,9 @@ public class PackageUtils {
         if (path.startsWith(URI_SCHEME_BALA + ":")) {
             return false;
         }
-
         try {
             Paths.get(path);
-        } catch (InvalidPathException | NullPointerException ex) {
+        } catch (InvalidPathException ex) {
             return false;
         }
         return true;
