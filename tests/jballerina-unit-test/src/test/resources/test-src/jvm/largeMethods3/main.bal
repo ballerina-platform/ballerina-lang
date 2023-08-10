@@ -4419,7 +4419,7 @@ public function main(int intArgA = 2) returns error? {
         }
     };
 
-    [any] expectedStringMap = [{
+    [record {|(any|error)...;|}] expectedStringMap = [{
                     [globalStr1] : "globalStr1",
                     [globalStr2] : "globalStr2",
                     [globalStr3] : [globalInt1],

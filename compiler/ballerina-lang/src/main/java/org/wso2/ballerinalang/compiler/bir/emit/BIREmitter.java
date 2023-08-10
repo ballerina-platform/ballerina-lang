@@ -66,9 +66,7 @@ public class BIREmitter {
     }
 
     public BLangPackage emit(BLangPackage bLangPackage) {
-        if (dumpBIR) {
-            console.println(emitModule(bLangPackage.symbol.bir));
-        }
+        emit(bLangPackage.symbol.bir);
         return bLangPackage;
     }
 
