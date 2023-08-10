@@ -69,7 +69,14 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithAllQueryClauses",
                 "testQueryActionOrExprWithNestedQueryActionOrExpr",
                 "testQueryActionOrExprWithQueryConstructingTable",
-                "testQueryActionOrExprWithQueryConstructingStream"
+                "testQueryActionOrExprWithQueryConstructingStream",
+                "testQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionOrExprWithGroupedClientResourceAccessAction",
+                "testNestedQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionWithQueryExpression",
+                "testQueryActionWithRegexpLangLibs",
+                "testQueryExprWithRegExpLangLibs",
+                "testQueryActionWithInterpolationRegexpLangLibs"
         };
     }
 
@@ -91,8 +98,8 @@ public class QueryActionOrExprTest {
                 27, 23);
         validateError(negativeResult, i++, "incompatible types: '(int[]|error)' is not an iterable collection",
                 30, 24);
-        validateError(negativeResult, i++, "incompatible types: 'error?' is not an iterable collection", 39, 23);
-        validateError(negativeResult, i++, "incompatible types: 'error?' is not an iterable collection", 42, 24);
+        validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 39, 23);
+        validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 42, 24);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 51, 27);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 52, 25);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 53, 20);
@@ -183,6 +190,16 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "invalid worker receive statement position, must be a top level " +
                 "statement in a worker", 135, 20);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testMatchStatementInsideDoClause() {
+        CompileResult result = BCompileUtil.compile("test-src/query/match-stmt-in-do-clause.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+
+        BRunUtil.invoke(result, "testConstMatchPattern1");
+        BRunUtil.invoke(result, "testConstMatchPattern2");
+        BRunUtil.invoke(result, "testBindingPatternsInMatchStatement");
     }
 
     @AfterClass

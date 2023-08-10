@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
  */
 public class AnnotationDeclarationTest {
 
+    public static final String EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION = "expression is not a constant expression";
+
     @Test
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
@@ -43,7 +45,6 @@ public class AnnotationDeclarationTest {
         BAssertUtil.validateError(compileResult, index++, "missing source keyword", 19, 22);
         BAssertUtil.validateError(compileResult, index++, "missing source keyword", 20, 45);
         BAssertUtil.validateError(compileResult, index++, "missing source keyword", 21, 37);
-        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 22, 37);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
@@ -51,9 +52,9 @@ public class AnnotationDeclarationTest {
     public void testSourceAnnotDeclWithoutConst() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_annot_without_const_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
         String errorMessage = "annotation declaration with 'source' attach point(s) should be a 'const' declaration";
-        for (int index = 0; index < 10; index++) {
+        for (int index = 0; index < 9; index++) {
             BAssertUtil.validateError(compileResult, index, errorMessage, index + 17, 1);
         }
     }
@@ -73,7 +74,14 @@ public class AnnotationDeclarationTest {
     @Test
     public void testAnnotWithInvalidConsts() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_consts.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        BAssertUtil.validateError(compileResult, 0, "expression is not a constant expression", 35, 14);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 35, 14);
+//        https://github.com/ballerina-platform/ballerina-lang/issues/38746
+//        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 67, 14);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 80, 10);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 83, 16);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 86, 11);
+        BAssertUtil.validateError(compileResult, index++, EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION, 86, 14);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

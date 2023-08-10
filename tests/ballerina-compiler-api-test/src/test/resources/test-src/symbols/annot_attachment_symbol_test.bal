@@ -20,6 +20,12 @@
 }
 public type AG string;
 
+type T1 [@member int, @member int, @member AG];
+
+function testTupleAnnot() {
+    [@Annot string, @Annot int] thisOne = ["aaa", 2];
+}
+
 // utils
 type Person record {|
     int id;
@@ -27,3 +33,5 @@ type Person record {|
 |};
 
 const annotation Person personAnnot on type;
+const annotation member on field;
+annotation Annot;

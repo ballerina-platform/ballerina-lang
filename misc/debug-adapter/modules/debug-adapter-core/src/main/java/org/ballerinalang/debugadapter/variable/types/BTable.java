@@ -36,6 +36,8 @@ import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_TYPENAME;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_TYPE_PREFIX;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_TYPE_REF_TYPE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
@@ -49,6 +51,7 @@ public class BTable extends IndexedCompoundVariable {
     private final Map<String, Value> tableValues = new LinkedHashMap<>();
 
     private static final String FIELD_CONSTRAINT = "constraint";
+    private static final String FIELD_REFERRED_TYPE = "referredType";
     private static final String METHOD_SIZE = "size";
     private static final String METHOD_GET_ITERATOR = "getIterator";
     private static final String METHOD_HAS_NEXT = "hasNext";
@@ -96,20 +99,34 @@ public class BTable extends IndexedCompoundVariable {
     /**
      * Retrieves the constraint type of the table variable, in string format.
      */
-    private String getConstrainedTypeName() throws DebugVariableException {
-        Optional<Value> type = getFieldValue(jvmValue, FIELD_TYPE);
-        if (type.isEmpty()) {
+    private String getConstrainedTypeName() {
+        try {
+            Optional<Value> type = getFieldValue(jvmValue, FIELD_TYPE);
+            if (type.isPresent() && isTypeReferenceType(type.get())) {
+                type = getFieldValue(type.get(), FIELD_REFERRED_TYPE);
+            }
+            if (type.isEmpty()) {
+                return UNKNOWN_VALUE;
+            }
+
+            Optional<Value> constraint = getFieldValue(type.get(), FIELD_CONSTRAINT);
+            if (constraint.isEmpty()) {
+                return UNKNOWN_VALUE;
+            }
+
+            Optional<Value> constraintTypeName = getFieldValue(constraint.get(), FIELD_TYPENAME);
+            if (constraintTypeName.isEmpty()) {
+                return UNKNOWN_VALUE;
+            }
+
+            return getStringFrom(constraintTypeName.get());
+        } catch (DebugVariableException e) {
             return UNKNOWN_VALUE;
         }
-        Optional<Value> constraint = getFieldValue(type.get(), FIELD_CONSTRAINT);
-        if (constraint.isEmpty()) {
-            return UNKNOWN_VALUE;
-        }
-        Optional<Value> constraintTypeName = getFieldValue(constraint.get(), FIELD_TYPENAME);
-        if (constraintTypeName.isEmpty()) {
-            return UNKNOWN_VALUE;
-        }
-        return getStringFrom(constraintTypeName.get());
+    }
+
+    private boolean isTypeReferenceType(Value runtimeType) {
+        return runtimeType.type().name().equals(INTERNAL_TYPE_PREFIX + INTERNAL_TYPE_REF_TYPE);
     }
 
     private int getTableSize() {

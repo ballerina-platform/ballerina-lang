@@ -30,11 +30,11 @@ function test() {
               let string stringVal = "abc", int intVal = -1
               do { result = i + j + intVal; };
 
-    check from int i in arr1
-                join int j in arr2
-                on i equals j
-                do { };
+    from int i in arr1
+    join int j in arr2
+    on i equals j
+    do { };
 
-    checkpanic from int i in (from int k in arr1 select k)
-                do { };
+    from int i in (from int k in arr1 select k)
+    do { };
 }

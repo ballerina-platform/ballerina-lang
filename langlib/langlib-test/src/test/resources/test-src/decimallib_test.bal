@@ -396,6 +396,32 @@ function testFromStringFunctionWithInvalidValues() {
         assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
         assertEquality("'string' value '' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
     }
+
+    a1 = decimal:fromString("1e-6143");
+    assertEquality(false, a1 is error);
+    assertEquality(1e-6143d, checkpanic a1);
+
+    a1 = decimal:fromString("1e-6144");
+    assertEquality(false, a1 is error);
+    assertEquality(0d, checkpanic a1);
+
+    a1 = decimal:fromString("1e-6178");
+    assertEquality(false, a1 is error);
+    assertEquality(0d, checkpanic a1);
+
+    a1 = trap decimal:fromString("9.999999999999999999999999999999999E6145");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina}NumberOverflow", a1.message());
+        assertEquality("decimal range overflow", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = trap decimal:fromString("10E6145");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina}NumberOverflow", a1.message());
+        assertEquality("decimal range overflow", <string> checkpanic a1.detail()["message"]);
+    }
 }
 
 function testQuantize() {
@@ -506,9 +532,9 @@ function testQuantize() {
     assertEquality(decimal:quantize(-0.26E-2, 10E-2), -0.00d);
     assertEquality(decimal:quantize(-0.26E-2, 10E-1), 0d);
     assertEquality(decimal:quantize(-0.26E-2, 10E0), 0d);
-    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6144, 1E6144), 1.0E+6145d);
-    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6144, 1E6145), 1.0E+6145d);
-    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6144, 1E6145), 1.0E+6145d);
+    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6143, 1E6143), 1.0E+6144d);
+    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6143, 1E6144), 1.0E+6144d);
+    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6143, 1E6144), 1.0E+6144d);
     assertEquality(decimal:quantize(1E-6142, 1E0), 0d);
     assertEquality(decimal:quantize(1E-6142, 1E10), 0d);
     assertEquality(decimal:quantize(1E-6142, 1E-6142), 1E-6142d);
@@ -545,13 +571,47 @@ function testQuantizeFunctionWithInvalidOutput() {
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
     
-    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6176);
+    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6143, 1E-6143);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
-    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6175);
+    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6143, 1E-6142);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
+}
+
+function testAvg() {
+    decimal a1 = decimal:avg(1d, 2d, 3d, -4d, -5d);
+    test:assertValueEqual(-0.6d, a1);
+
+    a1 = 0d.avg(0, 1);
+    test:assertValueEqual(0.3333333333333333333333333333333333d, a1);
+
+    a1 = decimal:avg(0, 1);
+    test:assertValueEqual(0.5d, a1);
+
+    a1 = decimal:avg(<decimal>int:MAX_VALUE, <decimal>int:MAX_VALUE, <decimal>int:MAX_VALUE, <decimal>int:MAX_VALUE);
+    test:assertValueEqual(<decimal>int:MAX_VALUE, a1);
+
+    a1 = int:avg(int:MAX_VALUE, int:MIN_VALUE);
+    test:assertValueEqual(-0.5d, a1);
+
+    decimal[] arr = [2, 3, 4, 5];
+    a1 = decimal:avg(1, ...arr);
+    test:assertValueEqual(3d, a1);
+
+    a1 = decimal:avg(1, ...[2, 3, 4, 5]);
+    test:assertValueEqual(3d, a1);
+
+    arr = [];
+    foreach int i in 0...1000 {
+        arr.push(<decimal>int:MAX_VALUE);
+    }
+    test:assertValueEqual(<decimal>int:MAX_VALUE, decimal:avg(<decimal>int:MAX_VALUE, ...arr));
+
+    decimal|error d = trap decimal:avg(9.999999999999999999999999999999999e6144d, 9.999999999999999999999999999999999e6144d);
+    test:assertValueEqual(true, d is error);
+    test:assertValueEqual("{ballerina}NumberOverflow", (<error>d).message());
 }
 
 function assertEquality(any|error expected, any|error actual) {

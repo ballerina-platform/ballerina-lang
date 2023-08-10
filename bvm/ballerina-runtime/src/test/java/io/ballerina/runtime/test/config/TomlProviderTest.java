@@ -63,6 +63,7 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
 import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
+import static io.ballerina.runtime.test.config.ConfigTest.AMBIGUOUS_UNION;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM_UNION;
 
 /**
@@ -538,8 +539,8 @@ public class TomlProviderTest {
         VariableKey booleanArr = new VariableKey(ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE,
                 new BType[]{}, TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true);
         configVarMap.put(ROOT_MODULE, new VariableKey[]{intVar, stringVar, stringArr, booleanArr});
-        String tomlContent = "[rootOrg.test_module] intVar = 33 stringVar = \"xyz\" " +
-                "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
+        String tomlContent = "[rootOrg.test_module]\nintVar = 33\nstringVar = \"xyz\"\n" +
+                "stringArr = [\"aa\", \"bb\", \"cc\"]\nbooleanArr = [false, true, true, false]";
         ConfigResolver configResolver = new ConfigResolver(configVarMap, new RuntimeDiagnosticLog(),
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
@@ -651,9 +652,15 @@ public class TomlProviderTest {
                                                 })},
                 // Enum value given with toml
                 {"color", COLOR_ENUM_UNION, StringUtils.fromString("RED")},
+                // union with multiple matching types
+                {"ambiguousUnionVar", AMBIGUOUS_UNION, ValueCreator
+                        .createMapValue(TypeCreator.createMapType(TYPE_STRING),
+                        new BMapInitialValueEntry[]
+                                {
+                                        ValueCreator.createKeyFieldEntry(fromString("name"), fromString("Waruna"))
+                                })},
         };
     }
-
 
     @Test(dataProvider = "finite-data-provider")
     public void testTomlProviderFiniteType(String variableName, Type type, Object expectedValues) {
@@ -746,7 +753,7 @@ public class TomlProviderTest {
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
         Object value = configValueMap.get(intVar).getValue();
-        Assert.assertEquals(12L, value);
+        Assert.assertEquals(value, 12L);
     }
 
     @Test(dataProvider = "array-size-tests")

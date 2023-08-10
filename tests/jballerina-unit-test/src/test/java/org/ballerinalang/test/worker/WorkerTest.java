@@ -19,18 +19,16 @@ package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Arrays;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
@@ -100,13 +98,13 @@ public class WorkerTest {
         BRunUtil.invoke(result, "syncSendReceiveWithCheck", new Object[0]);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"err msg.*")
     public void receiveWithCheckpanic() {
         BRunUtil.invoke(result, "receiveWithCheckpanic");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"sync send err msg.*")
     public void syncSendReceiveWithCheckpanic() {
         BRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
@@ -242,13 +240,6 @@ public class WorkerTest {
         BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30595
-    public void sameStrandMultipleInvocation() {
-        for (int i = 0; i < 20; i++) {
-            sameStrandMultipleInvocationTest();
-        }
-    }
-
     @Test
     public void workerTestWithLambda() {
         Object returns = BRunUtil.invoke(result, "workerTestWithLambda");
@@ -256,7 +247,7 @@ public class WorkerTest {
         Assert.assertEquals(returns, 88L);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
     public void workerWithFutureTest1() {
         Object returns = BRunUtil.invoke(result, "workerWithFutureTest1");
@@ -277,23 +268,8 @@ public class WorkerTest {
             Object returns = BRunUtil.invoke(result, "workerWithFutureTest3");
 
             Assert.assertEquals(returns, 18L);
-        } catch (BLangRuntimeException e) {
+        } catch (BLangTestException e) {
             Assert.assertTrue(e.getMessage().contains("error: {ballerina/lang.future}FutureAlreadyCancelled"));
-        }
-    }
-
-    private void sameStrandMultipleInvocationTest() {
-        PrintStream defaultOut = System.out;
-        try {
-            ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(tempOutStream));
-            BRunUtil.invoke(result, "sameStrandMultipleInvocation");
-            String result = new String(tempOutStream.toByteArray());
-            // we cannot guarantee an ordering between message sends
-            Assert.assertTrue((result.contains("11 - 11") && result.contains("12 - 12")) ||
-                    (result.contains("11 - 12") && result.contains("12 - 11")), result);
-        } finally {
-            System.setOut(defaultOut);
         }
     }
 
@@ -310,7 +286,7 @@ public class WorkerTest {
         try {
             BRunUtil.invoke(result, "panicFunc");
             Assert.fail("Worker did not panic");
-        } catch (BLangRuntimeException e) {
+        } catch (BLangTestException e) {
             Assert.assertTrue(e.getMessage().contains("worker w5 panic"));
         }
     }
@@ -330,22 +306,22 @@ public class WorkerTest {
         BRunUtil.invoke(result, "testLambdaWithWorkerMessagePassing");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithWorkerInsideLock() {
         Object returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithWorkerInsideLockWithDepth3() {
         Object returns = BRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithStartInsideLock() {
         Object returns = BRunUtil.invoke(result, "testPanicStartInsideLock");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class)
+    @Test(expectedExceptions = BLangTestException.class)
     public void testFunctionWithStartInsideLockWithDepth3() {
         Object returns = BRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
     }

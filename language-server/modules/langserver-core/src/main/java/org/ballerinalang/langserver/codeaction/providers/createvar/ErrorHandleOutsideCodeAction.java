@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -48,19 +49,20 @@ import java.util.stream.Collectors;
 public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
     public static final String NAME = "Error Handle Outside";
-    public static final int UNION_ERROR_CHAR_OFFSET = 6;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public int priority() {
+
         return 998;
     }
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
+
         return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
                 CodeActionNodeValidator.validate(context.nodeAtRange());
     }
@@ -72,41 +74,45 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
+
         String uri = context.fileUri();
 
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION
+                || isCompilationErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
-        boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
-                .anyMatch(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR);
+        List<TypeSymbol> errorMemberTypes = unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR
                         && member.typeKind() != TypeDescKind.NIL)
                 .count();
-        if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
+        if (errorMemberTypes.isEmpty() || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        List<TextEdit> edits = new ArrayList<>();
-        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context, importsAcceptor);
-        edits.addAll(modifiedTextEdits.edits);
-        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, 
+                positionDetails, typeSymbol.get(), context, importsAcceptor);
+        List<TextEdit> edits = new ArrayList<>(modifiedTextEdits.edits);
+        List<TextEdit> addCheckTextEdits = CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
-                positionDetails.matchedNode(), context));
-
-        String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
+                positionDetails.matchedNode(), context, errorMemberTypes, importsAcceptor);
+        edits.addAll(addCheckTextEdits);
         edits.addAll(importsAcceptor.getNewImportTextEdits());
-        CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition);
+
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
+                edits, uri, CodeActionKind.QuickFix);
+        addRenamePopup(context, codeAction, modifiedTextEdits.varRenamePosition.get(0),
+                modifiedTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 
     @Override
     public String getName() {
+
         return NAME;
     }
 
@@ -126,6 +132,14 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
 
+        int lengthDiff = typeWithError.length() - typeWithoutError.length();
+
+        Position varRenamePosition = createVarTextEdits.varRenamePosition.get(0);
+        varRenamePosition.setCharacter(varRenamePosition.getCharacter() - lengthDiff);
+
+        Integer renamePos = createVarTextEdits.renamePositions.get(0);
+        createVarTextEdits.renamePositions.add(0, renamePos - lengthDiff);
+
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
         return createVarTextEdits;
@@ -133,6 +147,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
     private String getTypeWithoutError(UnionTypeSymbol unionTypeDesc, CodeActionContext context,
                                        ImportsAcceptor importsAcceptor) {
+
         return unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
                 .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, context, importsAcceptor).orElseThrow())

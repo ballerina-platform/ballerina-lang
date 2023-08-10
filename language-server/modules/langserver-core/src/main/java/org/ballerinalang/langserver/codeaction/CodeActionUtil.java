@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
@@ -53,10 +55,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
 import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -74,9 +78,11 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -187,17 +193,42 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, CodeActionContext context,
                                                 ImportsAcceptor importsAcceptor) {
+        return new ArrayList<>(getPossibleTypeSymbols(typeDescriptor, context, importsAcceptor).values());
+    }
+
+    public static Map<TypeSymbol, String> getPossibleTypeSymbols(TypeSymbol typeDescriptor,
+                                                                 List<TextEdit> importEdits,
+                                                                 CodeActionContext context) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        Map<TypeSymbol, String> possibleTypes = getPossibleTypeSymbols(typeDescriptor, context, importsAcceptor);
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
+        return possibleTypes;
+    }
+
+    public static Map<TypeSymbol, String> getPossibleTypeSymbols(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                                 ImportsAcceptor importsAcceptor) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
 
-        List<String> types = new ArrayList<>();
+        Map<TypeSymbol, String> typesMap = new HashMap<>();
+        Types types = semanticModel.get().types();
+        TypeBuilder typeBuilder = types.builder();
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
             // Handle ambiguous mapping construct types {}
 
-            // Matching Record type
-            for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
-                if (symbol instanceof TypeDefinitionSymbol &&
+            Position cursorPosition = new Position(context.range().getStart().getLine(),
+                    context.range().getStart().getCharacter());
+            List<Symbol> visibleSymbols = context.visibleSymbols(cursorPosition);
+
+            //Record type definitions - Find matching Record type definitions
+            for (Symbol symbol : visibleSymbols) {
+                if (symbol.kind() == SymbolKind.TYPE_DEFINITION &&
                         ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
                         typeDescriptor.subtypeOf(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
                     Optional<ModuleSymbol> module = symbol.getModule();
@@ -207,112 +238,82 @@ public class CodeActionUtil {
                         fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
                     }
                     String moduleQualifiedName = fqPrefix + symbol.getName().get();
-                    types.add(FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
+                    typesMap.put(((TypeDefinitionSymbol) symbol).typeDescriptor(),
+                            FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
                 }
             }
 
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
             // Anon Record
             String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
-            RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
-            types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
-
-            // A record can be an open record or a closed record:
-            //      record {| int field1; anydata...; |}
-            //      record {| int field1; |}
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
+            typesMap.put(recordTypeSymbol, (recordTypeSymbol.fieldDescriptors().size() > 0) ? rType : "record {}");
 
             // JSON - Record fields and rest type descriptor should be json subtypes
             boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
                     .allMatch(recordFieldSymbol -> isJsonMemberType(recordFieldSymbol.typeDescriptor())) &&
                     recordTypeSymbol.restTypeDescriptor().map(CodeActionUtil::isJsonMemberType).orElse(true);
             if (jsonSubType) {
-                types.add("json");
+                typesMap.put(types.JSON, types.JSON.signature());
             }
 
             // Map
-            TypeSymbol prevType = null;
-            boolean isConstrainedMap = true;
-            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors().values()) {
-                TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
-                if (prevType != null && typeDescKind != prevType.typeKind()) {
-                    isConstrainedMap = false;
-                }
-                prevType = recordField.typeDescriptor();
+            Optional<TypeSymbol> firstFieldType =
+                    recordTypeSymbol.fieldDescriptors().values().stream().findFirst()
+                            .map(RecordFieldSymbol::typeDescriptor);
+            boolean isConstrainedMap = firstFieldType
+                    .map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
+                            .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
+                                    type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
+            if (isConstrainedMap) {
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
+                typesMap.put(typeBuilder.MAP_TYPE
+                        .withTypeParam(firstFieldType.get()).build(), "map<" + type + ">");
+                return typesMap;
             }
-            if (isConstrainedMap && prevType != null) {
-                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevType, context);
-                types.add("map<" + type + ">");
-            } else {
-                types.add("map<any>");
-            }
+            typesMap.put(typeBuilder.MAP_TYPE.withTypeParam(types.ANY).build(), "map<any>");
+
         } else if (typeDescriptor.typeKind() == TypeDescKind.TUPLE) {
             // Handle ambiguous list construct types []
             TupleTypeSymbol tupleType = (TupleTypeSymbol) typeDescriptor;
-            String arrayType = null;
-            TypeSymbol prevType = null;
-            TypeSymbol prevInnerType = null;
-            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty();
-            for (TypeSymbol memberType : tupleType.memberTypeDescriptors()) {
-                // Here we check previous member-type with current member-type for equality
-                // 1. Check type-kind is differs Tuple vs int
-                // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
-                if (prevType != null &&
-                        (prevType.typeKind() != memberType.typeKind() ||
-                                !prevType.signature().equals(memberType.signature()))) {
-                    isArrayCandidate = false;
-                }
-                if (memberType.typeKind() == TypeDescKind.TUPLE && prevInnerType == null) {
-                    // Checks inner element's type equality
-                    TupleTypeSymbol nType = (TupleTypeSymbol) memberType;
-                    boolean isSameInnerType = true;
-                    // Here we check previous inner-member-type with current inner-member-type for equality
-                    // 1. Check type-kind is differs Tuple vs int
-                    // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
-                    for (TypeSymbol innerType : nType.memberTypeDescriptors()) {
-                        if (prevInnerType != null &&
-                                (prevInnerType.typeKind() != innerType.typeKind() ||
-                                        !prevInnerType.signature().equals(innerType.signature()))) {
-                            isSameInnerType = false;
-                        }
-                        prevInnerType = innerType;
-                    }
-                    if (isSameInnerType && prevInnerType != null) {
-                        String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevInnerType, context);
-                        arrayType = type + "[]";
-                    }
-                }
-                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, memberType, context);
-                prevType = memberType;
-                if (arrayType == null) {
-                    arrayType = type;
-                }
-            }
+            Optional<TypeSymbol> firstMemberType = tupleType.memberTypeDescriptors().stream().findFirst();
+            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty()
+                    && firstMemberType.map(first -> tupleType.memberTypeDescriptors().stream()
+                    .allMatch(typeSymbol -> typeSymbol.subtypeOf(first)
+                            || first.subtypeOf(typeSymbol))).orElse(false);
+
             // Add Array type if valid
             if (isArrayCandidate) {
-                types.add(arrayType + "[]");
+                getPossibleTypeSymbols(firstMemberType.get(), context, importsAcceptor).entrySet()
+                        .forEach(entry -> typesMap.put(typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build(),
+                                entry.getValue() + "[]"));
             }
             // Add tuple type
-            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
+            typesMap.put(tupleType, FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).stream()
-                    .map(m -> {
-                        switch (arrayTypeSymbol.memberTypeDescriptor().typeKind()) {
-                            case UNION:
+            getPossibleTypeSymbols(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).entrySet()
+                    .forEach(entry -> {
+                        ArrayTypeSymbol newArrType = typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build();
+                        String signature;
+                        switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
-                                return "(" + m + ")[]";
-
+                            case UNION:
+                                String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.memberTypeDescriptor().signature(), context);
+                                signature = "(" + typeName + ")[]";
+                                break;
                             default:
-                                return m + "[]";
+                                signature = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.signature(), context);
                         }
-                    })
-                    .collect(Collectors.toList());
+                        typesMap.put(newArrType, signature);
+                    });
         } else {
-            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
+            typesMap.put(typeDescriptor,
+                    FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
-
-        return types;
+        return typesMap;
     }
 
     /**
@@ -383,44 +384,45 @@ public class CodeActionUtil {
         String spaces = StringUtils.repeat(' ', range.getStart().getCharacter());
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
 
-        boolean hasError = CodeActionUtil.hasErrorMemberType(unionType);
+        List<TypeSymbol> errorMembers = unionType.memberTypeDescriptors().stream()
+                .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
-        long errorTypesCount = unionType.memberTypeDescriptors().stream()
-                .map(CommonUtil::getRawType)
-                .filter(t -> t.typeKind() == TypeDescKind.ERROR)
-                .count();
+
         if (members.size() == 1) {
             // Skip type guard
             return edits;
         }
-        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
+        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorMembers.size() == 1;
         if (transitiveBinaryUnion) {
-            members.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+            members.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
         }
-        // Check is binary union type with error type
-        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
+
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        // Check if a union type with error and one non-error type
+        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && !errorMembers.isEmpty()) {
             members.forEach(bType -> {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
-                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList("error"));
+                    String type = errorMembers.get(0).signature();
+                    type = FunctionGenerator.processModuleIDsInText(importsAcceptor, type, context);
+                    String newText = generateIfElseText(varName, spaces, padding, List.of(type));
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = CodeActionUtil.getPossibleType(bType, edits, context).orElseThrow();
-                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList(type));
+                    String newText = generateIfElseText(varName, spaces, padding, List.of(type));
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
         } else {
-            boolean addErrorTypeAtEnd;
+            boolean addErrorTypeAtEnd = false;
             List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
-            if (errorTypesCount > 1) {
+            if (errorMembers.size() > 1) {
                 // merge all error types into generic `error` type
-                tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+                tMembers.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
-            } else {
-                addErrorTypeAtEnd = false;
             }
             List<String> memberTypes = new ArrayList<>();
             for (TypeSymbol tMember : tMembers) {
@@ -431,6 +433,8 @@ public class CodeActionUtil {
             }
             edits.add(new TextEdit(newTextRange, generateIfElseText(varName, spaces, padding, memberTypes)));
         }
+
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
         return edits;
     }
 
@@ -449,78 +453,127 @@ public class CodeActionUtil {
     }
 
     public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
-                                                      CodeActionContext context) {
+                                                      CodeActionContext context,
+                                                      List<TypeSymbol> errorTypeSymbols,
+                                                      ImportsAcceptor acceptor) {
+        if (errorTypeSymbols.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<TextEdit> edits = new ArrayList<>();
-        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
+        Optional<FunctionDefinitionNode> enclosedFuncNode = getEnclosedFunction(matchedNode);
         String returnText = "";
         Range returnRange = null;
-        if (enclosedFunc.isPresent()) {
-            SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-            Document document = context.currentDocument().orElseThrow();
-            Optional<Symbol> optEnclosedFuncSymbol =
-                    semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
-            FunctionSymbol enclosedFuncSymbol = null;
-            if (optEnclosedFuncSymbol.isPresent()) {
-                Symbol funcSymbol = optEnclosedFuncSymbol.get();
-                if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
-                        funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                    enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
-                }
-            }
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        Optional<Document> document = context.currentDocument();
 
-            if (enclosedFuncSymbol != null) {
-                boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
-                boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
-                if (hasFuncNodeReturn && hasFuncSymbolReturn) {
-                    // Parent function already has a return-type
-                    TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
-                    ReturnTypeDescriptorNode enclosedRetTypeDescNode =
-                            enclosedFunc.get().functionSignature().returnTypeDesc().get();
-                    if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
-                        // Parent function already has a union return-type
-                        UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
-                        boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
-                                .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
-                        if (!hasErrorMember) {
-                            // Union has no error member-type
-                            String typeName =
-                                    CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context)
-                                            .orElseThrow();
-                            returnText = "returns " + typeName + "|error";
-                            returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
-                        }
-                    } else if (enclosedRetTypeDesc.typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                        String returnType = enclosedRetTypeDescNode.type().toString().replaceAll("\\s+", "");
-                        returnText = "returns " + returnType + "|error";
-                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
-                    } else {
-                        // Parent function already has another return-type
-                        if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
-                            String typeName =
-                                    CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                            returnText = "returns " + typeName + "|error";
-                        }
-                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
-                    }
-                } else {
-                    // Parent function has no return
-                    returnText = " returns error?";
-                    Position position = PositionUtil.toPosition(
-                            enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
-                    returnRange = new Range(position, position);
+        if (enclosedFuncNode.isPresent() && semanticModel.isPresent() && document.isPresent()) {
+            if (enclosedFuncNode.get().functionSignature().returnTypeDesc().isPresent()) {
+                // Enclosing function already has a return-type
+                ReturnTypeDescriptorNode enclosedRetTypeDescNode =
+                        enclosedFuncNode.get().functionSignature().returnTypeDesc().get();
+                Optional<TypeSymbol> returnTypeDescriptor =
+                        semanticModel.get().symbol(document.get(),
+                                        enclosedFuncNode.get().functionName().lineRange().startLine())
+                                .filter(funcSymbol -> funcSymbol.kind() == SymbolKind.FUNCTION
+                                        || funcSymbol.kind() == SymbolKind.METHOD
+                                        || funcSymbol.kind() == SymbolKind.RESOURCE_METHOD)
+                                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor());
+
+                if (returnTypeDescriptor.isEmpty()) {
+                    return Collections.emptyList();
                 }
+
+                List<TypeSymbol> allErrorTypes = new ArrayList<>(errorTypeSymbols);
+                Pair<List<TypeSymbol>, List<TypeSymbol>> errorAndNonErrorTypedSymbols =
+                        getErrorAndNonErrorTypedSymbols(returnTypeDescriptor.get());
+                allErrorTypes.addAll(errorAndNonErrorTypedSymbols.getRight());
+                List<TypeSymbol> errorSymbolsToAdd = filterErrorSubTypes(allErrorTypes);
+
+                boolean isNewErrorTypeAvailable = errorSymbolsToAdd.stream()
+                        .anyMatch(typeSymbol -> errorAndNonErrorTypedSymbols.getRight().stream()
+                                .noneMatch(otherSymbol -> otherSymbol.signature().equals(typeSymbol.signature())));
+                if (!errorSymbolsToAdd.isEmpty() && isNewErrorTypeAvailable) {
+                    if (returnTypeDescriptor.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                        String returnType = enclosedRetTypeDescNode.type().toString()
+                                .replaceAll("\\s+", "");
+                        UnionTypeSymbol newMemberType = semanticModel.get().types().builder().UNION_TYPE
+                                .withMemberTypes(errorSymbolsToAdd.toArray(new TypeSymbol[0])).build();
+                        returnText = String.format("returns %s|%s", returnType, newMemberType.signature());
+                    } else {
+                        List<TypeSymbol> memberTypes = new ArrayList<>();
+                        //Exclude NIL return type and add it to the end of the return statement
+                        boolean nilReturnType = errorAndNonErrorTypedSymbols.getLeft().stream()
+                                .anyMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NIL);
+                        memberTypes.addAll(errorAndNonErrorTypedSymbols.getLeft().stream()
+                                .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.NIL)
+                                .collect(Collectors.toList()));
+                        memberTypes.addAll(errorSymbolsToAdd);
+                        UnionTypeSymbol newType = semanticModel.get().types().builder().UNION_TYPE
+                                .withMemberTypes(memberTypes.toArray(new TypeSymbol[0])).build();
+                        String typeName = CodeActionUtil.getPossibleType(newType, context, acceptor).orElseThrow();
+                        returnText = String.format("returns %s", typeName + (nilReturnType ? "?" : ""));
+                    }
+                    returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                }
+            } else {
+                // Parent function has no return
+                List<TypeSymbol> errorSymbolsToAdd = filterErrorSubTypes(errorTypeSymbols);
+                UnionTypeSymbol newMemberType = semanticModel.get().types().builder().UNION_TYPE
+                        .withMemberTypes(errorSymbolsToAdd.toArray(new TypeSymbol[0])).build();
+                String typeName = CodeActionUtil.getPossibleType(newMemberType, context, acceptor).orElseThrow();
+                returnText = String.format(" returns %s?", typeName);
+                Position position = PositionUtil.toPosition(
+                        enclosedFuncNode.get().functionSignature().closeParenToken().lineRange().endLine());
+                returnRange = new Range(position, position);
             }
+        }
+        // If we are in a method call expression and the expression part already doesn't have a brace, we have to add
+        // braces to prevent the "check" being added to the entire method call expression.
+        if (matchedNode.kind() != SyntaxKind.BRACED_EXPRESSION &&
+                matchedNode.parent().kind() == SyntaxKind.METHOD_CALL) {
+            Position endPos = PositionUtil.toPosition(matchedNode.lineRange().endLine());
+            edits.add(new TextEdit(new Range(pos, pos), "("));
+            edits.add(new TextEdit(new Range(endPos, endPos), ")"));
         }
 
         // Add `check` expression text edit
-        Position insertPos = new Position(pos.getLine(), pos.getCharacter());
-        edits.add(new TextEdit(new Range(insertPos, insertPos), "check "));
+        edits.add(new TextEdit(new Range(pos, pos), "check "));
 
         // Add parent function return change text edits
         if (!returnText.isEmpty()) {
             edits.add(new TextEdit(returnRange, returnText));
         }
         return edits;
+    }
+
+    private static List<TypeSymbol> filterErrorSubTypes(List<TypeSymbol> errorTypeSymbols) {
+        if (errorTypeSymbols.size() == 1) {
+            return errorTypeSymbols;
+        }
+        List<TypeSymbol> errorTypeSymbolsClone = new ArrayList<>(errorTypeSymbols);
+        return errorTypeSymbolsClone.stream().filter(typeSymbol ->
+                errorTypeSymbols.stream().filter(other -> !other.signature().equals(typeSymbol.signature()))
+                        .noneMatch(typeSymbol::subtypeOf)).collect(Collectors.toList());
+    }
+
+    private static Pair<List<TypeSymbol>, List<TypeSymbol>> getErrorAndNonErrorTypedSymbols(
+            TypeSymbol returnTypeDescriptor) {
+        if (returnTypeDescriptor.typeKind() == TypeDescKind.UNION) {
+            List<TypeSymbol> errorTypeSymbols = new ArrayList<>();
+            List<TypeSymbol> nonErrorTypeSymbols = new ArrayList<>();
+            for (TypeSymbol typeSymbol : ((UnionTypeSymbol) returnTypeDescriptor).memberTypeDescriptors()) {
+                if (CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR) {
+                    errorTypeSymbols.add(typeSymbol);
+                } else {
+                    nonErrorTypeSymbols.add(typeSymbol);
+                }
+            }
+            return Pair.of(nonErrorTypeSymbols, errorTypeSymbols);
+        }
+        if (CommonUtil.getRawType(returnTypeDescriptor).typeKind() == TypeDescKind.ERROR) {
+            return Pair.of(Collections.emptyList(), List.of(returnTypeDescriptor));
+        }
+        return Pair.of(List.of(returnTypeDescriptor), Collections.emptyList());
     }
 
     /**
@@ -620,9 +673,17 @@ public class CodeActionUtil {
                             || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION
                             || parentNode.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR)) {
                 isFunctionDef = true;
-            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
-                    parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
-                isFunctionDef = true;
+            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                NonTerminalNode evalNode = parentNode.parent();
+                if (evalNode.kind() == SyntaxKind.SERVICE_DECLARATION) {
+                    isFunctionDef = true;
+                } else if (evalNode.kind() == SyntaxKind.CLASS_DEFINITION) {
+                    isFunctionDef = ((ClassDefinitionNode) evalNode)
+                            .classTypeQualifiers().stream()
+                            .anyMatch(qualifier-> qualifier.kind() == SyntaxKind.CLIENT_KEYWORD);
+                } else if (evalNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+                    isFunctionDef = true;
+                }
             }
 
             if (isFunctionDef) {
@@ -694,6 +755,10 @@ public class CodeActionUtil {
         return objectFieldNode.fieldName().lineRange().startLine().offset() <= context.cursorPosition().getCharacter()
                 && context.cursorPosition().getCharacter() <=
                 objectFieldNode.fieldName().lineRange().endLine().offset();
+    }
+
+    public static boolean isRangeSelection(Range range) {
+        return !range.getStart().equals(range.getEnd());
     }
 
     public static List<TextEdit> getGetterSetterCodeEdits(ObjectFieldNode objectFieldNode,
@@ -873,7 +938,7 @@ public class CodeActionUtil {
 
     /**
      * Returns if a new line should be appended to a new text edit at module level.
-     * 
+     *
      * @param enclosingNode Node at module level which is enclosing the cursor.
      * @return @link{Boolean} W
      */
@@ -887,5 +952,22 @@ public class CodeActionUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Add the positional rename command for the code action if the capability is supported.
+     *
+     * @param context        Code action context
+     * @param codeAction     Code action
+     * @param command        Title of the command
+     * @param renamePosition Position of renaming symbol
+     */
+    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command,
+                                      Position renamePosition) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(command, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(), renamePosition)));
+        }
     }
 }

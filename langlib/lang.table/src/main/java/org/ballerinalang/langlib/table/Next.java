@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.ITERATOR_MUTABILITY_ERROR;
 
 /**
  * Native implementation of lang.table.TableIterator:next().
@@ -90,7 +91,7 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) keys.getType());
+        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) TypeUtils.getReferredType(keys.getType()));
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);

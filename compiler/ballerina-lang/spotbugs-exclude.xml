@@ -190,6 +190,10 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
     </Match>
     <Match>
@@ -281,10 +285,6 @@
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.bala.IDLClientsJson"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
-    </Match>
-    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer$OptimizerEnv"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
@@ -314,11 +314,6 @@
     <Match>
         <Class name="io.ballerina.projects.internal.BalaFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
-    </Match>
-    <Match>
-        <Class name="io.ballerina.projects.internal.BalaFiles" />
-        <Method name="createIDLClientsMapFromJson" />
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.ProjectFiles" />
@@ -357,6 +352,16 @@
     <Match>
         <Class name="io.ballerina.projects.util.ProjectUtils"/>
         <Method name="extractBala"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.FileUtils" />
+        <Method name="getFilesInDirectory" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.model.BalToolDescriptor"/>
+        <Method name="getToolJarsMatchingPattern"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
@@ -441,5 +446,22 @@
         <Class name="io.ballerina.projects.util.ProjectUtils" />
         <Method name="addMatchingIncludePaths" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.impl.util.SymbolUtils" />
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.plugins.completion.CompletionUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.repositories.FileSystemRepository" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
     </Match>
 </FindBugsFilter>

@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,6 +39,9 @@ import org.testng.annotations.Test;
 public class ErrorVariableReferenceTest {
 
     private CompileResult result;
+    private static final String INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR =  "cannot use a wildcard binding " +
+            "pattern to bind the cause: a wildcard binding pattern can be used only with a value that belongs to " +
+            "type 'any'";
 
     @BeforeClass
     public void setup() {
@@ -223,6 +227,12 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.get(2).toString(), "1");
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38726
+    @Test(enabled = false)
+    public void testErrorDestructureWithErrorDeclaredWithReadOnlyIntersection() {
+        BRunUtil.invoke(result, "testErrorDestructureWithErrorDeclaredWithReadOnlyIntersection");
+    }
+
     @Test
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
@@ -354,7 +364,19 @@ public class ErrorVariableReferenceTest {
                 "invalid field binding pattern; can only bind required fields", 53, 14);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid field binding pattern; can only bind required fields", 54, 18);
-
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 81, 25);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 83, 18);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 85, 33);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 87, 26);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 89, 77);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 92, 77);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 95, 41);
+        BAssertUtil.validateError(resultNegative, i++, INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR, 97, 46);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

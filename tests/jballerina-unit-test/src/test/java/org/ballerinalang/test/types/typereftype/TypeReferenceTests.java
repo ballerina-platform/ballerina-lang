@@ -20,10 +20,13 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+
 /**
  * This class contains type reference type related test cases.
  */
@@ -36,29 +39,21 @@ public class TypeReferenceTests {
         result = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
     }
 
-    @Test
-    public void testTypeRef() {
-        BRunUtil.invoke(result, "testTypeRef");
+    @Test(dataProvider = "typeReferenceTestFunctions")
+    public void testTypeReferenceTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testTypeRef2() {
-        BRunUtil.invoke(result, "testTypeRef2");
-    }
-
-    @Test
-    public void testUnionTypeRefWithMap() {
-        BRunUtil.invoke(result, "testUnionTypeRefWithMap");
-    }
-
-    @Test
-    public void testObjectTypeReferenceType() {
-        BRunUtil.invoke(result, "testObjectTypeReferenceType");
-    }
-
-    @Test
-    public void testTableTypeReferenceType() {
-        BRunUtil.invoke(result, "testTableTypeReferenceType");
+    @DataProvider
+    public Object[] typeReferenceTestFunctions() {
+        return new Object[]{
+                "testTypeRef",
+                "testTypeRef2",
+                "testUnionTypeRefWithMap",
+                "testObjectTypeReferenceType",
+                "testTableTypeReferenceType",
+                "errorTypeReferenceTypeTest"
+        };
     }
 
     @Test(description = "Test basics types")
@@ -83,5 +78,10 @@ public class TypeReferenceTests {
         validateError(compileResult, index++, "incompatible types: expected 'BarTable', found 'string'", 67, 21);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'BTable'", 70, 16);
         Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -38,12 +38,14 @@ import org.testng.annotations.Test;
  */
 public class TupleVariableDefinitionTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative, tupleVarDefnSyntaxNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/variabledef/tuple-variable-definition.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/variabledef/tuple-variable-definition-negative.bal");
+        tupleVarDefnSyntaxNegative = BCompileUtil
+                .compile("test-src/statements/variabledef/tuple-variable-definition-syntax-negative.bal");
     }
 
     @Test(description = "Test tuple basic variable definition")
@@ -378,6 +380,16 @@ public class TupleVariableDefinitionTest {
         BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithRestBP");
     }
 
+    @Test
+    public void testReadOnlyListWithListBindingPatternInVarDecl() {
+        BRunUtil.invoke(result, "testReadOnlyListWithListBindingPatternInVarDecl");
+    }
+
+    @Test
+    public void testTupleVariableWithAnonymousRecordType() {
+        BRunUtil.invoke(result, "testTupleVariableWithAnonymousRecordType");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BArray returns) {
         Assert.assertEquals(returns.size(), 3);
 
@@ -439,13 +451,39 @@ public class TupleVariableDefinitionTest {
                 "but found 'Ints'", 128, 5);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
                 "but found 'IntsOrStrings'", 129, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '[(string[] & readonly)," +
+                "string]', found 'ReadOnlyTuple'", 136, 44);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+                "'int[]'", 140, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+                "'int[]'", 143, 9);
+    }
 
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    @Test
+    public void testTupleVarDefnSyntaxNegative() {
+        int i = -1;
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 18, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid binding pattern", 18, 34);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing close parenthesis token", 18, 41);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 19, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing error keyword", 19, 36);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 20, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid binding pattern", 20, 35);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing close parenthesis token", 20, 43);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 21, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid binding pattern", 21, 35);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing close parenthesis token", 21, 43);
+        Assert.assertEquals(tupleVarDefnSyntaxNegative.getErrorCount(), i + 1);
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
         resultNegative = null;
+        tupleVarDefnSyntaxNegative = null;
     }
 }

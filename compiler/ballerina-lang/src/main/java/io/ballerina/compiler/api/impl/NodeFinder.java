@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -59,8 +58,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -77,7 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -156,7 +158,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPatter
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -196,7 +197,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -211,13 +211,13 @@ class NodeFinder extends BaseVisitor {
     private LineRange range;
     private BLangNode enclosingNode;
     private BLangNode enclosingContainer;
-    private final boolean allowExprStmts;
+    private boolean allowExprStmts;
 
     NodeFinder(boolean allowExprStmts) {
         this.allowExprStmts = allowExprStmts;
     }
 
-    void lookup(BLangPackage module, LineRange range) {
+    BLangNode lookup(BLangPackage module, LineRange range) {
         List<TopLevelNode> topLevelNodes = new ArrayList<>(module.topLevelNodes);
         BLangTestablePackage tests = module.getTestablePkg();
 
@@ -225,7 +225,7 @@ class NodeFinder extends BaseVisitor {
             topLevelNodes.addAll(tests.topLevelNodes);
         }
 
-        lookupTopLevelNodes(topLevelNodes, range);
+        return lookupTopLevelNodes(topLevelNodes, range);
     }
 
     BLangNode lookup(BLangCompilationUnit unit, LineRange range) {
@@ -249,34 +249,49 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            BLangNode bLangNode = (BLangNode) node;
-            if (PositionUtil.isRangeWithinNode(this.range, node.getPosition())
-                    && !isLambdaFunction(node) && !isClassForService(node)) {
-                bLangNode.accept(this);
-                return this.enclosingNode;
+            if (!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) || isLambdaFunction(node)
+                    || isClassForService(node)) {
+                continue;
             }
+
+            ((BLangNode) node).accept(this);
+            break;
         }
+
         return this.enclosingNode;
     }
 
-    private boolean lookupNodes(List<? extends BLangNode> nodes) {
+    private void lookupNodes(List<? extends BLangNode> nodes) {
         for (BLangNode node : nodes) {
-            if (lookupNode(node)) {
-                return true;
+            if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
+                continue;
+            }
+
+            node.accept(this);
+
+            if (this.enclosingNode == null && !node.internal
+                    && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
+                this.enclosingNode = node;
+                return;
             }
         }
-        return false;
     }
 
-    private boolean lookupNode(BLangNode node) {
+    private void lookupNode(BLangNode node) {
         if (node == null) {
-            return false;
+            return;
         }
-        if (PositionUtil.isRangeWithinNode(this.range, node.pos)) {
-            node.accept(this);
-            return this.enclosingNode != null;
+
+        if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
+            return;
         }
-        return false;
+
+        node.accept(this);
+
+        if (this.enclosingNode == null && !node.internal
+                && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
+            this.enclosingNode = node;
+        }
     }
 
     @Override
@@ -285,32 +300,11 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangClientDeclarationStatement clientDeclStmt) {
-        lookupNode(clientDeclStmt.getClientDeclaration());
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        lookupNode((BLangNode) clientDeclNode.getUri());
-    }
-
-    @Override
     public void visit(BLangFunction funcNode) {
-        // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
-        // container of the function.
-        if (!this.range.equals(funcNode.symbol.pos.lineRange())) {
-            this.enclosingContainer = funcNode;
-        }
-
-        if (lookupNodes(funcNode.requiredParams)) {
-            return;
-        }
-        if (lookupNode(funcNode.restParam)) {
-            return;
-        }
-        if (lookupNode(funcNode.returnTypeNode)) {
-            return;
-        }
+        lookupNodes(funcNode.annAttachments);
+        lookupNodes(funcNode.requiredParams);
+        lookupNode(funcNode.restParam);
+        lookupNode(funcNode.returnTypeNode);
         lookupNode(funcNode.body);
     }
 
@@ -337,13 +331,9 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (lookupNodes(serviceNode.annAttachments)) {
-            return;
-        }
-        if (lookupNodes(serviceNode.attachedExprs)) {
-            return;
-        }
+        lookupNodes(serviceNode.annAttachments);
         lookupNode(serviceNode.serviceClass);
+        lookupNodes(serviceNode.attachedExprs);
     }
 
     @Override
@@ -353,47 +343,34 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        if (lookupNode(constant.typeNode)) {
-            return;
-        }
-        if (lookupNode(constant.expr)) {
-            return;
-        }
+        lookupNode(constant.typeNode);
+        lookupNode(constant.expr);
         setEnclosingNode(constant, constant.name.pos);
     }
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        if (lookupNodes(varNode.annAttachments)) {
-            return;
-        }
-        if (lookupNode(varNode.typeNode)) {
-            return;
-        }
-        if (lookupNode(varNode.expr)) {
-            return;
-        }
+        lookupNodes(varNode.annAttachments);
+        lookupNode(varNode.typeNode);
+        lookupNode(varNode.expr);
         setEnclosingNode(varNode, varNode.name.pos);
     }
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        if (lookupNode(annotationNode.typeNode)) {
-            return;
-        }
+        lookupNode(annotationNode.typeNode);
         setEnclosingNode(annotationNode, annotationNode.name.pos);
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        if (lookupNode(annAttachmentNode.expr)) {
-            return;
-        }
+        lookupNode(annAttachmentNode.expr);
         setEnclosingNode(annAttachmentNode, annAttachmentNode.annotationName.pos);
     }
 
     @Override
     public void visit(BLangTableKeySpecifier tableKeySpecifierNode) {
+
     }
 
     @Override
@@ -422,44 +399,32 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (lookupNode(assignNode.varRef)) {
-            return;
-        }
+        lookupNode(assignNode.varRef);
         lookupNode(assignNode.expr);
     }
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        if (lookupNode(compoundAssignNode.varRef)) {
-            return;
-        }
+        lookupNode(compoundAssignNode.varRef);
         lookupNode(compoundAssignNode.expr);
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if (lookupNode(retryNode.retryBody)) {
-            return;
-        }
-        if (lookupNode(retryNode.retrySpec)) {
-            return;
-        }
+        lookupNode(retryNode.retryBody);
+        lookupNode(retryNode.retrySpec);
         lookupNode(retryNode.onFailClause);
     }
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        if (lookupNode(retryTransaction.transaction)) {
-            return;
-        }
+        lookupNode(retryTransaction.transaction);
         lookupNode(retryTransaction.retrySpec);
     }
 
     @Override
     public void visit(BLangRetrySpec retrySpec) {
-        if (lookupNode(retrySpec.retryManagerType)) {
-            return;
-        }
+        lookupNode(retrySpec.retryManagerType);
         lookupNodes(retrySpec.argExprs);
     }
 
@@ -489,73 +454,48 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        if (lookupNode(ifNode.expr)) {
-            return;
-        }
-        if (lookupNode(ifNode.body)) {
-            return;
-        }
+        lookupNode(ifNode.expr);
+        lookupNode(ifNode.body);
         lookupNode(ifNode.elseStmt);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        if (lookupNodes(queryAction.queryClauseList)) {
-            return;
-        }
+        lookupNodes(queryAction.queryClauseList);
         lookupNode(queryAction.doClause);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        if (lookupNode((BLangNode) foreach.variableDefinitionNode)) {
-            return;
-        }
-        if (lookupNode(foreach.collection)) {
-            return;
-        }
-        if (lookupNode(foreach.body)) {
-            return;
-        }
+        lookupNode((BLangNode) foreach.variableDefinitionNode);
+        lookupNode(foreach.collection);
+        lookupNode(foreach.body);
         lookupNode(foreach.onFailClause);
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        if (lookupNode(fromClause.collection)) {
-            return;
-        }
-        if (lookupNode((BLangNode) fromClause.variableDefinitionNode)) {
-            return;
-        }
-        this.enclosingNode = fromClause;
+        lookupNode(fromClause.collection);
+        lookupNode((BLangNode) fromClause.variableDefinitionNode);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        if (lookupNode(joinClause.collection)) {
-            return;
-        }
-        if (lookupNode((BLangNode) joinClause.variableDefinitionNode)) {
-            return;
-        }
-        lookupNode(joinClause.onClause);
+        lookupNode(joinClause.collection);
+        lookupNode((BLangNode) joinClause.variableDefinitionNode);
+        lookupNode((BLangNode) joinClause.onClause);
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
         for (BLangLetVariable var : letClause.letVarDeclarations) {
-            if (lookupNode((BLangNode) var.definitionNode)) {
-                return;
-            }
+            lookupNode((BLangNode) var.definitionNode);
         }
     }
 
     @Override
     public void visit(BLangOnClause onClause) {
-        if (lookupNode(onClause.lhsExpr)) {
-            return;
-        }
+        lookupNode(onClause.lhsExpr);
         lookupNode(onClause.rhsExpr);
     }
 
@@ -567,11 +507,8 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangOrderByClause orderByClause) {
         for (OrderKeyNode key : orderByClause.orderByKeyList) {
-            if (lookupNode((BLangNode) key)) {
-                return;
-            }
+            lookupNode((BLangNode) key);
         }
-        this.enclosingNode = orderByClause;
     }
 
     @Override
@@ -601,52 +538,38 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        if (lookupNode(whileNode.expr)) {
-            return;
-        }
-        if (lookupNode(whileNode.body)) {
-            return;
-        }
+        lookupNode(whileNode.expr);
+        lookupNode(whileNode.body);
         lookupNode(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-        if (lookupNode(lockNode.body)) {
-            return;
-        }
+        lookupNode(lockNode.body);
         lookupNode(lockNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        if (lookupNode(transactionNode.transactionBody)) {
-            return;
-        }
+        lookupNode(transactionNode.transactionBody);
         lookupNode(transactionNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        if (lookupNode(stmt.expr)) {
-            return;
-        }
+        lookupNode(stmt.expr);
         lookupNode(stmt.varRef);
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        if (lookupNode(stmt.expr)) {
-            return;
-        }
+        lookupNode(stmt.expr);
         lookupNode(stmt.varRef);
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        if (lookupNode(stmt.expr)) {
-            return;
-        }
+        lookupNode(stmt.expr);
         lookupNode(stmt.varRef);
     }
 
@@ -657,9 +580,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        if (lookupNode(workerSendNode.expr)) {
-            return;
-        }
+        lookupNode(workerSendNode.expr);
         setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
     }
 
@@ -676,42 +597,30 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            if (lookupNode((BLangNode) field)) {
-                return;
-            }
+            lookupNode((BLangNode) field);
         }
-        this.enclosingNode = recordLiteral;
     }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        if (lookupNodes(varRefExpr.expressions)) {
-            return;
-        }
-        lookupNode(varRefExpr.restParam);
+        lookupNodes(varRefExpr.expressions);
+        lookupNode((BLangNode) varRefExpr.restParam);
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
-            if (lookupNode(recordRefField.getBindingPattern())) {
-                return;
-            }
+            lookupNode(recordRefField.getBindingPattern());
         }
+
         lookupNode(varRefExpr.restParam);
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        if (lookupNode(varRefExpr.message)) {
-            return;
-        }
-        if (lookupNodes(varRefExpr.detail)) {
-            return;
-        }
-        if (lookupNode(varRefExpr.cause)) {
-            return;
-        }
+        lookupNode(varRefExpr.message);
+        lookupNodes(varRefExpr.detail);
+        lookupNode(varRefExpr.cause);
         lookupNode(varRefExpr.restVar);
     }
 
@@ -735,24 +644,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        if (lookupNode(indexAccessExpr.expr)) {
-            return;
-        }
-        if (lookupNode(indexAccessExpr.indexExpr)) {
-            return;
-        }
-        this.enclosingNode = indexAccessExpr;
+        lookupNode(indexAccessExpr.expr);
+        lookupNode(indexAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
         // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
-        if (lookupNodes(invocationExpr.argExprs)) {
-            return;
-        }
-        if (lookupNode(invocationExpr.expr)) {
-            return;
-        }
+        lookupNodes(invocationExpr.argExprs);
+        lookupNode(invocationExpr.expr);
 
         if (setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
             return;
@@ -763,26 +663,17 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInit) {
-        if (lookupNode(typeInit.userDefinedType)) {
-            return;
-        }
-        if (lookupNodes(typeInit.argsExpr)) {
-            return;
-        }
+        lookupNode(typeInit.userDefinedType);
+        lookupNodes(typeInit.argsExpr);
         setEnclosingNode(typeInit, typeInit.pos);
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        if (lookupNodes(actionInvocationExpr.argExprs)) {
-            return;
-        }
-        if (lookupNodes(actionInvocationExpr.restArgs)) {
-            return;
-        }
-        if (lookupNode(actionInvocationExpr.expr)) {
-            return;
-        }
+        lookupNodes(actionInvocationExpr.argExprs);
+        lookupNodes(actionInvocationExpr.restArgs);
+        lookupNode(actionInvocationExpr.expr);
+
         if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
             return;
         }
@@ -792,80 +683,51 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        if (lookupNode(ternaryExpr.expr)) {
-            return;
-        }
-        if (lookupNode(ternaryExpr.thenExpr)) {
-            return;
-        }
-        if (lookupNode(ternaryExpr.elseExpr)) {
-            return;
-        }
-        this.enclosingNode = ternaryExpr;
+        lookupNode(ternaryExpr.expr);
+        lookupNode(ternaryExpr.thenExpr);
+        lookupNode(ternaryExpr.elseExpr);
     }
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
         lookupNodes(awaitExpr.exprList);
+        setEnclosingNode(awaitExpr, awaitExpr.pos);
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        if (lookupNode(trapExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = trapExpr;
+        lookupNode(trapExpr.expr);
     }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        if (lookupNode(binaryExpr.lhsExpr)) {
-            return;
-        }
-        if (lookupNode(binaryExpr.rhsExpr)) {
-            return;
-        }
-        if (PositionUtil.withinRange(binaryExpr.pos.lineRange(), this.range)) {
-            this.enclosingNode = binaryExpr;
-        }
+        lookupNode(binaryExpr.lhsExpr);
+        lookupNode(binaryExpr.rhsExpr);
     }
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        if (lookupNode(elvisExpr.lhsExpr)) {
-            return;
-        }
+        lookupNode(elvisExpr.lhsExpr);
         lookupNode(elvisExpr.rhsExpr);
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        if (lookupNode(groupExpr.expression)) {
-            return;
-        }
-        this.enclosingNode = groupExpr;
+        lookupNode(groupExpr.expression);
     }
 
     @Override
     public void visit(BLangLetExpression letExpr) {
         for (BLangLetVariable var : letExpr.letVarDeclarations) {
-            if (lookupNode((BLangNode) var.definitionNode)) {
-                return;
-            }
+            lookupNode((BLangNode) var.definitionNode);
         }
 
-        if (lookupNode(letExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = letExpr;
+        lookupNode(letExpr.expr);
     }
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        if (lookupNodes(listConstructorExpr.exprs)) {
-            return;
-        }
-        this.enclosingNode = listConstructorExpr;
+        lookupNodes(listConstructorExpr.exprs);
     }
 
     @Override
@@ -875,15 +737,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        if (lookupNode(tableConstructorExpr.tableKeySpecifier)) {
-            return;
-        }
-        if (lookupNodes(tableConstructorExpr.recordLiteralList)) {
-            return;
-        }
-        if (PositionUtil.withinRange(tableConstructorExpr.pos.lineRange(), this.range)) {
-            this.enclosingNode = tableConstructorExpr;
-        }
+        lookupNode(tableConstructorExpr.tableKeySpecifier);
+        lookupNodes(tableConstructorExpr.recordLiteralList);
     }
 
     @Override
@@ -898,10 +753,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        if (lookupNode(unaryExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = unaryExpr;
+        lookupNode(unaryExpr.expr);
     }
 
     @Override
@@ -911,16 +763,9 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        if (lookupNodes(conversionExpr.annAttachments)) {
-            return;
-        }
-        if (lookupNode(conversionExpr.typeNode)) {
-            return;
-        }
-        if (lookupNode(conversionExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = conversionExpr;
+        lookupNodes(conversionExpr.annAttachments);
+        lookupNode(conversionExpr.typeNode);
+        lookupNode(conversionExpr.expr);
     }
 
     @Override
@@ -940,92 +785,57 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        if (lookupNode(xmlElementLiteral.startTagName)) {
-            return;
-        }
-        if (lookupNodes(xmlElementLiteral.attributes)) {
-            return;
-        }
-        if (lookupNodes(xmlElementLiteral.children)) {
-            return;
-        }
-        if (lookupNode(xmlElementLiteral.endTagName)) {
-            return;
-        }
-        this.enclosingNode = xmlElementLiteral;
+        lookupNode(xmlElementLiteral.startTagName);
+        lookupNodes(xmlElementLiteral.attributes);
+        lookupNodes(xmlElementLiteral.children);
+        lookupNode(xmlElementLiteral.endTagName);
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        if (lookupNode(xmlTextLiteral.concatExpr)) {
-            return;
-        }
+        lookupNode(xmlTextLiteral.concatExpr);
         lookupNodes(xmlTextLiteral.textFragments);
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        if (lookupNode(xmlCommentLiteral.concatExpr)) {
-            return;
-        }
+        lookupNode(xmlCommentLiteral.concatExpr);
         lookupNodes(xmlCommentLiteral.textFragments);
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        if (lookupNode(xmlProcInsLiteral.dataConcatExpr)) {
-            return;
-        }
-        if (lookupNodes(xmlProcInsLiteral.dataFragments)) {
-            return;
-        }
+        lookupNode(xmlProcInsLiteral.dataConcatExpr);
+        lookupNodes(xmlProcInsLiteral.dataFragments);
         lookupNode(xmlProcInsLiteral.target);
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        if (lookupNode(xmlQuotedString.concatExpr)) {
-            return;
-        }
+        lookupNode(xmlQuotedString.concatExpr);
         lookupNodes(xmlQuotedString.textFragments);
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         lookupNodes(stringTemplateLiteral.exprs);
-        setEnclosingNode(stringTemplateLiteral, stringTemplateLiteral.pos);
     }
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
-        if (lookupNodes(rawTemplateLiteral.strings)) {
-            return;
-        }
-        if (lookupNodes(rawTemplateLiteral.insertions)) {
-            return;
-        }
-        this.enclosingNode = rawTemplateLiteral;
+        lookupNodes(rawTemplateLiteral.strings);
+        lookupNodes(rawTemplateLiteral.insertions);
     }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (lookupNode(bLangLambdaFunction.function)) {
-            return;
-        }
-        if (PositionUtil.withinRange(bLangLambdaFunction.pos.lineRange(), this.range)) {
-            this.enclosingNode = bLangLambdaFunction;
-        }
+        lookupNode(bLangLambdaFunction.function);
     }
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (lookupNodes(bLangArrowFunction.params)) {
-            return;
-        }
-        if (lookupNode(bLangArrowFunction.body)) {
-            return;
-        }
-        this.enclosingNode = bLangArrowFunction;
+        lookupNodes(bLangArrowFunction.params);
+        lookupNode(bLangArrowFunction.body);
     }
 
     @Override
@@ -1035,26 +845,19 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        if (lookupNode(bLangNamedArgsExpression.expr)) {
-            return;
-        }
+        lookupNode(bLangNamedArgsExpression.expr);
         setEnclosingNode(bLangNamedArgsExpression.name, bLangNamedArgsExpression.name.pos);
     }
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        if (lookupNode(assignableExpr.lhsExpr)) {
-            return;
-        }
+        lookupNode(assignableExpr.lhsExpr);
         lookupNode(assignableExpr.typeNode);
     }
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        if (lookupNode(checkedExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = checkedExpr;
+        lookupNode(checkedExpr.expr);
     }
 
     @Override
@@ -1064,10 +867,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        if (lookupNode(checkPanickedExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = checkPanickedExpr;
+        lookupNode(checkPanickedExpr.expr);
     }
 
     @Override
@@ -1077,37 +877,24 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        if (lookupNode(typeTestExpr.expr)) {
-            return;
-        }
-        if (lookupNode(typeTestExpr.typeNode)) {
-            return;
-        }
-        this.enclosingNode = typeTestExpr;
+        lookupNode(typeTestExpr.expr);
+        lookupNode(typeTestExpr.typeNode);
     }
 
     @Override
     public void visit(BLangIsLikeExpr typeTestExpr) {
-        if (lookupNode(typeTestExpr.expr)) {
-            return;
-        }
+        lookupNode(typeTestExpr.expr);
         lookupNode(typeTestExpr.typeNode);
     }
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-        if (lookupNode(annotAccessExpr.expr)) {
-            return;
-        }
-        this.enclosingNode = annotAccessExpr;
+        lookupNode(annotAccessExpr.expr);
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        if (lookupNodes(queryExpr.queryClauseList)) {
-            return;
-        }
-        this.enclosingNode = queryExpr;
+        lookupNodes(queryExpr.queryClauseList);
     }
 
     @Override
@@ -1122,20 +909,14 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangStreamType streamType) {
-        if (lookupNode(streamType.constraint)) {
-            return;
-        }
+        lookupNode(streamType.constraint);
         lookupNode(streamType.error);
     }
 
     @Override
     public void visit(BLangTableTypeNode tableType) {
-        if (lookupNode(tableType.constraint)) {
-            return;
-        }
-        if (lookupNode(tableType.tableKeySpecifier)) {
-            return;
-        }
+        lookupNode(tableType.constraint);
+        lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
     }
 
@@ -1146,12 +927,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        if (lookupNodes(functionTypeNode.params)) {
-            return;
-        }
-        if (lookupNode(functionTypeNode.restParam)) {
-            return;
-        }
+        lookupNodes(functionTypeNode.params);
+        lookupNode(functionTypeNode.restParam);
         lookupNode(functionTypeNode.returnTypeNode);
     }
 
@@ -1167,75 +944,35 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        if (lookupNodes(classDefinition.annAttachments)) {
-            return;
-        }
-        if (lookupNodes(classDefinition.fields)) {
-            return;
-        }
-        if (lookupNodes(classDefinition.referencedFields)) {
-            return;
-        }
-        if (lookupNode(classDefinition.initFunction)) {
-            return;
-        }
-        if (lookupNodes(classDefinition.functions)) {
-            return;
-        }
-        if (lookupAnnAttachmentsAttachedToFunctions(classDefinition.functions)) {
-            return;
-        }
-        if (lookupNodes(classDefinition.typeRefs)) {
-            return;
-        }
+        lookupNodes(classDefinition.annAttachments);
+        lookupNodes(classDefinition.fields);
+        lookupNodes(classDefinition.referencedFields);
+        lookupNode(classDefinition.initFunction);
+        lookupNodes(classDefinition.functions);
+        lookupNodes(classDefinition.typeRefs);
         setEnclosingNode(classDefinition, classDefinition.name.pos);
-    }
-
-    private boolean lookupAnnAttachmentsAttachedToFunctions(List<BLangFunction> functions) {
-        for (BLangFunction func : functions) {
-            if (lookupNodes(func.annAttachments)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
-        if (lookupNodes(resourceAccessInvocation.annAttachments)) {
-            return;
-        }
-        if (lookupNode(resourceAccessInvocation.expr)) {
-            return;
-        }
-        if (lookupNode(resourceAccessInvocation.resourceAccessPathSegments)) {
-            return;
-        }
-        if (lookupNodes(resourceAccessInvocation.requiredArgs)) {
-            return;
-        }
-        if (lookupNodes(resourceAccessInvocation.restArgs)) {
-            return;
-        }
+        lookupNodes(resourceAccessInvocation.annAttachments);
+        lookupNode(resourceAccessInvocation.expr);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNodes(resourceAccessInvocation.requiredArgs);
+        lookupNodes(resourceAccessInvocation.restArgs);
         setEnclosingNode(resourceAccessInvocation, resourceAccessInvocation.pos);
     }
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        if (lookupNodes(objectTypeNode.fields)) {
-            return;
-        }
-        if (lookupNodes(objectTypeNode.functions)) {
-            return;
-        }
+        lookupNodes(objectTypeNode.fields);
+        lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
     }
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        if (lookupNodes(recordTypeNode.fields)) {
-            return;
-        }
+        lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }
 
@@ -1246,9 +983,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        if (lookupNodes(tupleTypeNode.memberTypeNodes)) {
-            return;
-        }
+        lookupNodes(tupleTypeNode.members);
         lookupNode(tupleTypeNode.restParamType);
     }
 
@@ -1259,23 +994,14 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        if (lookupNode(errorConstructorExpr.errorTypeRef)) {
-            return;
-        }
-        if (lookupNodes(errorConstructorExpr.positionalArgs)) {
-            return;
-        }
-        if (lookupNodes(errorConstructorExpr.namedArgs)) {
-            return;
-        }
-        this.enclosingNode = errorConstructorExpr;
+        lookupNode(errorConstructorExpr.errorTypeRef);
+        lookupNodes(errorConstructorExpr.positionalArgs);
+        lookupNodes(errorConstructorExpr.namedArgs);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-        if (lookupNode(fieldAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(fieldAccessExpr.expr);
         lookupNode(fieldAccessExpr.indexExpr);
     }
 
@@ -1284,67 +1010,52 @@ class NodeFinder extends BaseVisitor {
         if (setEnclosingNode(functionVarRef, functionVarRef.field.pos)) {
             return;
         }
+
         lookupNode(functionVarRef.expr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-        if (lookupNode(mapKeyAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(mapKeyAccessExpr.expr);
         lookupNode(mapKeyAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-        if (lookupNode(arrayIndexAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(arrayIndexAccessExpr.expr);
         lookupNode(arrayIndexAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
-        if (lookupNode(tableKeyAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(tableKeyAccessExpr.expr);
         lookupNode(tableKeyAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
-        if (lookupNode(xmlAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(xmlAccessExpr.expr);
         lookupNode(xmlAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         for (RecordLiteralNode.RecordField field : mapLiteral.fields) {
-            if (lookupNode((BLangNode) field)) {
-                return;
-            }
+            lookupNode((BLangNode) field);
         }
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
         for (RecordLiteralNode.RecordField field : structLiteral.fields) {
-            if (lookupNode((BLangNode) field)) {
-                return;
-            }
+            lookupNode((BLangNode) field);
         }
     }
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-        if (lookupNodes(bFunctionPointerInvocation.requiredArgs)) {
-            return;
-        }
-        if (lookupNodes(bFunctionPointerInvocation.restArgs)) {
-            return;
-        }
+        lookupNodes(bFunctionPointerInvocation.requiredArgs);
+        lookupNodes(bFunctionPointerInvocation.restArgs);
         setEnclosingNode(bFunctionPointerInvocation, bFunctionPointerInvocation.name.pos);
     }
 
@@ -1354,12 +1065,8 @@ class NodeFinder extends BaseVisitor {
             return;
         }
 
-        if (lookupNode(iExpr.expr)) {
-            return;
-        }
-        if (lookupNodes(iExpr.requiredArgs)) {
-            return;
-        }
+        lookupNode(iExpr.expr);
+        lookupNodes(iExpr.requiredArgs);
         lookupNodes(iExpr.restArgs);
     }
 
@@ -1370,17 +1077,13 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-        if (lookupNode(jsonAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(jsonAccessExpr.expr);
         lookupNode(jsonAccessExpr.indexExpr);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
-        if (lookupNode(stringAccessExpr.expr)) {
-            return;
-        }
+        lookupNode(stringAccessExpr.expr);
         lookupNode(stringAccessExpr.indexExpr);
     }
 
@@ -1389,6 +1092,7 @@ class NodeFinder extends BaseVisitor {
         if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
             return;
         }
+
         lookupNode(xmlnsNode.namespaceURI);
     }
 
@@ -1408,26 +1112,16 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        if (lookupNode(bLangStatementExpression.stmt)) {
-            return;
-        }
+        lookupNode(bLangStatementExpression.stmt);
         lookupNode(bLangStatementExpression.expr);
     }
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
-        if (lookupNodes(bLangTupleVariable.annAttachments)) {
-            return;
-        }
-        if (lookupNode(bLangTupleVariable.typeNode)) {
-            return;
-        }
-        if (lookupNodes(bLangTupleVariable.memberVariables)) {
-            return;
-        }
-        if (lookupNode(bLangTupleVariable.restVariable)) {
-            return;
-        }
+        lookupNodes(bLangTupleVariable.annAttachments);
+        lookupNode(bLangTupleVariable.typeNode);
+        lookupNodes(bLangTupleVariable.memberVariables);
+        lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);
     }
 
@@ -1439,16 +1133,10 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         for (BLangRecordVariable.BLangRecordVariableKeyValue var : bLangRecordVariable.variableList) {
-            if (lookupNode(var.valueBindingPattern)) {
-                return;
-            }
+            lookupNode(var.valueBindingPattern);
         }
-        if (lookupNode(bLangRecordVariable.restParam)) {
-            return;
-        }
-        if (lookupNode(bLangRecordVariable.expr)) {
-            return;
-        }
+        lookupNode(bLangRecordVariable.restParam);
+        lookupNode(bLangRecordVariable.expr);
         lookupNodes(bLangRecordVariable.annAttachments);
     }
 
@@ -1459,34 +1147,18 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        if (lookupNodes(bLangErrorVariable.annAttachments)) {
-            return;
-        }
-        if (lookupNode(bLangErrorVariable.typeNode)) {
-            return;
-        }
-        if (lookupNode(bLangErrorVariable.message)) {
-            return;
-        }
+        lookupNodes(bLangErrorVariable.annAttachments);
+        lookupNode(bLangErrorVariable.typeNode);
+        lookupNode(bLangErrorVariable.message);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detail : bLangErrorVariable.detail) {
-            if (lookupNode(detail.valueBindingPattern)) {
-                return;
-            }
+            lookupNode(detail.valueBindingPattern);
         }
 
-        if (lookupNode(bLangErrorVariable.detailExpr)) {
-            return;
-        }
-        if (lookupNode(bLangErrorVariable.cause)) {
-            return;
-        }
-        if (lookupNode(bLangErrorVariable.reasonMatchConst)) {
-            return;
-        }
-        if (lookupNode(bLangErrorVariable.restDetail)) {
-            return;
-        }
+        lookupNode(bLangErrorVariable.detailExpr);
+        lookupNode(bLangErrorVariable.cause);
+        lookupNode(bLangErrorVariable.reasonMatchConst);
+        lookupNode(bLangErrorVariable.restDetail);
         lookupNode(bLangErrorVariable.expr);
     }
 
@@ -1502,9 +1174,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        if (lookupNode(syncSendExpr.expr)) {
-            return;
-        }
+        lookupNode(syncSendExpr.expr);
         setEnclosingNode(syncSendExpr, syncSendExpr.workerIdentifier.pos);
     }
 
@@ -1520,9 +1190,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
-        if (lookupNode(recordKeyValue.key)) {
-            return;
-        }
+        lookupNode(recordKeyValue.key);
         lookupNode(recordKeyValue.valueExpr);
     }
 
@@ -1538,9 +1206,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        if (lookupNode(waitKeyValue.keyExpr)) {
-            return;
-        }
+        lookupNode(waitKeyValue.keyExpr);
         lookupNode(waitKeyValue.valueExpr);
     }
 
@@ -1551,56 +1217,34 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
-        if (lookupNode(xmlElementAccess.expr)) {
-            return;
-        }
-        if (lookupNodes(xmlElementAccess.filters)) {
-            return;
-        }
-        this.enclosingNode = xmlElementAccess;
+        lookupNode(xmlElementAccess.expr);
+        lookupNodes(xmlElementAccess.filters);
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        if (lookupNode(xmlNavigation.expr)) {
-            return;
-        }
-        if (lookupNode(xmlNavigation.childIndex)) {
-            return;
-        }
-        if (lookupNodes(xmlNavigation.filters)) {
-            return;
-        }
-        this.enclosingNode = xmlNavigation;
+        lookupNode(xmlNavigation.expr);
+        lookupNode(xmlNavigation.childIndex);
+        lookupNodes(xmlNavigation.filters);
     }
 
     @Override
     public void visit(BLangMatchStatement matchStatementNode) {
-        if (lookupNode(matchStatementNode.expr)) {
-            return;
-        }
-        if (lookupNodes(matchStatementNode.matchClauses)) {
-            return;
-        }
+        lookupNode(matchStatementNode.expr);
+        lookupNodes(matchStatementNode.matchClauses);
         lookupNode(matchStatementNode.onFailClause);
     }
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        if (lookupNodes(matchClause.matchPatterns)) {
-            return;
-        }
-        if (lookupNode(matchClause.matchGuard)) {
-            return;
-        }
+        lookupNodes(matchClause.matchPatterns);
+        lookupNode(matchClause.matchGuard);
         lookupNode(matchClause.blockStmt);
     }
 
     @Override
     public void visit(BLangMappingMatchPattern mappingMatchPattern) {
-        if (lookupNodes(mappingMatchPattern.fieldMatchPatterns)) {
-            return;
-        }
+        lookupNodes(mappingMatchPattern.fieldMatchPatterns);
         lookupNode(mappingMatchPattern.restMatchPattern);
     }
 
@@ -1611,23 +1255,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangListMatchPattern listMatchPattern) {
-        if (lookupNodes(listMatchPattern.matchPatterns)) {
-            return;
-        }
+        lookupNodes(listMatchPattern.matchPatterns);
         lookupNode(listMatchPattern.restMatchPattern);
     }
 
     @Override
     public void visit(BLangErrorMatchPattern errorMatchPattern) {
-        if (lookupNode(errorMatchPattern.errorTypeReference)) {
-            return;
-        }
-        if (lookupNode(errorMatchPattern.errorMessageMatchPattern)) {
-            return;
-        }
-        if (lookupNode(errorMatchPattern.errorCauseMatchPattern)) {
-            return;
-        }
+        lookupNode(errorMatchPattern.errorTypeReference);
+        lookupNode(errorMatchPattern.errorMessageMatchPattern);
+        lookupNode(errorMatchPattern.errorCauseMatchPattern);
         lookupNode(errorMatchPattern.errorFieldMatchPatterns);
     }
 
@@ -1638,25 +1274,19 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorCauseMatchPattern errorCauseMatchPattern) {
-        if (lookupNode(errorCauseMatchPattern.simpleMatchPattern)) {
-            return;
-        }
+        lookupNode(errorCauseMatchPattern.simpleMatchPattern);
         lookupNode(errorCauseMatchPattern.errorMatchPattern);
     }
 
     @Override
     public void visit(BLangErrorFieldMatchPatterns errorFieldMatchPatterns) {
-        if (lookupNodes(errorFieldMatchPatterns.namedArgMatchPatterns)) {
-            return;
-        }
+        lookupNodes(errorFieldMatchPatterns.namedArgMatchPatterns);
         lookupNode(errorFieldMatchPatterns.restMatchPattern);
     }
 
     @Override
     public void visit(BLangSimpleMatchPattern simpleMatchPattern) {
-        if (lookupNode(simpleMatchPattern.constPattern)) {
-            return;
-        }
+        lookupNode(simpleMatchPattern.constPattern);
         lookupNode(simpleMatchPattern.varVariableName);
     }
 
@@ -1687,9 +1317,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMappingBindingPattern mappingBindingPattern) {
-        if (lookupNodes(mappingBindingPattern.fieldBindingPatterns)) {
-            return;
-        }
+        lookupNodes(mappingBindingPattern.fieldBindingPatterns);
         lookupNode(mappingBindingPattern.restBindingPattern);
     }
 
@@ -1705,15 +1333,9 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorBindingPattern errorBindingPattern) {
-        if (lookupNode(errorBindingPattern.errorMessageBindingPattern)) {
-            return;
-        }
-        if (lookupNode(errorBindingPattern.errorTypeReference)) {
-            return;
-        }
-        if (lookupNode(errorBindingPattern.errorCauseBindingPattern)) {
-            return;
-        }
+        lookupNode(errorBindingPattern.errorMessageBindingPattern);
+        lookupNode(errorBindingPattern.errorTypeReference);
+        lookupNode(errorBindingPattern.errorCauseBindingPattern);
         lookupNode(errorBindingPattern.errorFieldBindingPatterns);
     }
 
@@ -1724,17 +1346,13 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
-        if (lookupNode(errorCauseBindingPattern.simpleBindingPattern)) {
-            return;
-        }
+        lookupNode(errorCauseBindingPattern.simpleBindingPattern);
         lookupNode(errorCauseBindingPattern.errorBindingPattern);
     }
 
     @Override
     public void visit(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
-        if (lookupNodes(errorFieldBindingPatterns.namedArgBindingPatterns)) {
-            return;
-        }
+        lookupNodes(errorFieldBindingPatterns.namedArgBindingPatterns);
         lookupNode(errorFieldBindingPatterns.restBindingPattern);
     }
 
@@ -1755,38 +1373,14 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangListBindingPattern listBindingPattern) {
-        if (lookupNodes(listBindingPattern.bindingPatterns)) {
-            return;
-        }
+        lookupNodes(listBindingPattern.bindingPatterns);
         lookupNode(listBindingPattern.restBindingPattern);
     }
 
     @Override
     public void visit(BLangDo doNode) {
-        if (lookupNode(doNode.body)) {
-            return;
-        }
+        lookupNode(doNode.body);
         lookupNode(doNode.onFailClause);
-    }
-
-    @Override
-    public void visit(BLangLiteral literalExpr) {
-        this.enclosingNode = literalExpr;
-    }
-
-    @Override
-    public void visit(BLangValueType valueType) {
-        this.enclosingNode = valueType;
-    }
-
-    @Override
-    public void visit(BLangConstRef constRef) {
-        this.enclosingNode = constRef;
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        this.enclosingNode = nsPrefixedFieldBasedAccess;
     }
 
     @Override
@@ -1796,6 +1390,11 @@ class NodeFinder extends BaseVisitor {
 
         // Adding this as the last stmt to ensure that var define in on fail clause will also be considered.
         this.enclosingContainer = onFailClause;
+    }
+
+    @Override
+    public void visit(BLangLiteral literal) {
+        setEnclosingNode(literal, literal.pos);
     }
 
     @Override
@@ -1810,9 +1409,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        if (lookupNode(reAtomQuantifier.atom)) {
-            return;
-        }
+        lookupNode(reAtomQuantifier.atom);
         lookupNode(reAtomQuantifier.quantifier);
     }
 
@@ -1823,23 +1420,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-        if (lookupNode(reQuantifier.quantifier)) {
-            return;
-        }
+        lookupNode(reQuantifier.quantifier);
         lookupNode(reQuantifier.nonGreedyChar);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
-        if (lookupNode(reCharacterClass.characterClassStart)) {
-            return;
-        }
-        if (lookupNode(reCharacterClass.negation)) {
-            return;
-        }
-        if (lookupNode(reCharacterClass.charSet)) {
-            return;
-        }
+        lookupNode(reCharacterClass.characterClassStart);
+        lookupNode(reCharacterClass.negation);
+        lookupNode(reCharacterClass.charSet);
         lookupNode(reCharacterClass.characterClassEnd);
     }
 
@@ -1850,12 +1439,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReCharSetRange reCharSetRange) {
-        if (lookupNode(reCharSetRange.lhsCharSetAtom)) {
-            return;
-        }
-        if (lookupNode(reCharSetRange.dash)) {
-            return;
-        }
+        lookupNode(reCharSetRange.lhsCharSetAtom);
+        lookupNode(reCharSetRange.dash);
         lookupNode(reCharSetRange.rhsCharSetAtom);
     }
 
@@ -1867,12 +1452,8 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups) {
         lookupNode(reCapturingGroups.openParen);
-        if (lookupNode(reCapturingGroups.flagExpr)) {
-            return;
-        }
-        if (lookupNode(reCapturingGroups.disjunction)) {
-            return;
-        }
+        lookupNode(reCapturingGroups.flagExpr);
+        lookupNode(reCapturingGroups.disjunction);
         lookupNode(reCapturingGroups.closeParen);
     }
 
@@ -1888,13 +1469,29 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReFlagExpression reFlagExpression) {
-        if (lookupNode(reFlagExpression.questionMark)) {
-            return;
-        }
-        if (lookupNode(reFlagExpression.flagsOnOff)) {
-            return;
-        }
+        lookupNode(reFlagExpression.questionMark);
+        lookupNode(reFlagExpression.flagsOnOff);
         lookupNode(reFlagExpression.colon);
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        lookupNodes(groupByClause.getGroupingKeyList());
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+        lookupNode((BLangNode) groupingKeyClause.getGroupingKey());
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        lookupNode(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        lookupNode(invocation.invocation);
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
@@ -1904,10 +1501,7 @@ class NodeFinder extends BaseVisitor {
             this.enclosingNode = node;
             return true;
         }
-        if (this.enclosingNode == null && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
-            this.enclosingNode = node;
-            return true;
-        }
+
         return false;
     }
 
@@ -1925,6 +1519,7 @@ class NodeFinder extends BaseVisitor {
             return false;
         }
 
-        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE);
+        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE) && ((BLangClassDefinition) node).flagSet
+                .contains(Flag.ANONYMOUS);
     }
 }

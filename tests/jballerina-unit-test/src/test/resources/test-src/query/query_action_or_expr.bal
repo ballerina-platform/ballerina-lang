@@ -167,48 +167,56 @@ function testQueryActionOrExprWithParenthesizedClientRemoteMethodCall() {
 }
 
 function testQueryActionOrExprWithQueryAction() {
+    assertTrue(checkQueryActionExpressionNested() is ());
+}
+
+function checkQueryActionExpressionNested() returns error? {
     int sum = 0;
-    error?[] a = from int i in 1...5
-                 select from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        };
+    error?[] a = from int i in 1 ... 5
+        select from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            };
     assertEquality(75, sum);
 
     sum = 0;
-    error?[] b = from int i in 1...5
-                 let error? val = from var j in ["1", "2", "3"]
-                                  do {
-                                      int _ = check int:fromString(j);
-                                  }
-                 where val is ()
-                 select from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        };
+    error?[] b = from int i in 1 ... 5
+        let error? val = from var j in ["1", "2", "3"]
+            do {
+                int _ = check int:fromString(j);
+            }
+        where val is ()
+        select from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            };
     assertEquality(75, sum);
 }
 
 function testQueryActionOrExprWithParenthesizedQueryAction() {
+    assertTrue(checkQueryActionOrExprWithParenthesizedQueryAction() is ());
+}
+
+function checkQueryActionOrExprWithParenthesizedQueryAction() returns error? {
     int sum = 0;
-    error?[] a = from int i in 1...5
-                 select (from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        });
+    error?[] a = from int i in 1 ... 5
+        select (from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            });
     assertEquality(75, sum);
 
     sum = 0;
-    error?[] b = from int i in 1...5
-                 let error? val = (from var j in ["1", "2", "3"]
-                                  do {
-                                      int _ = check int:fromString(j);
-                                  })
-                 where val is ()
-                 select (from var j in 1...5
-                        do {
-                            sum = sum + j;
-                        });
+    error?[] b = from int i in 1 ... 5
+        let error? val = (from var j in ["1", "2", "3"]
+            do {
+                int _ = check int:fromString(j);
+            })
+        where val is ()
+        select (from var j in 1 ... 5
+            do {
+                sum = sum + j;
+            });
     assertEquality(75, sum);
 }
 
@@ -285,7 +293,7 @@ function testQueryActionOrExprWithCheckingActionOrExpr() returns error? {
 
     int sum = 0;
     int[] c = from var i in check obj->foo()
-              let () val = check from var j in 1...5
+              let () val = from var j in 1...5
                            do {
                                sum = sum + j;
                            }
@@ -320,7 +328,7 @@ function testQueryActionOrExprWithParenthesizedCheckingActionOrExpr() returns er
 
     int sum = 0;
     int[] c = from var i in check obj->foo()
-              let () val = check from var j in 1...5
+              let () val = from var j in 1...5
                            do {
                                sum = sum + j;
                            }
@@ -709,6 +717,239 @@ function testQueryingEmptyTuple() {
     assertEquality(0, count);
 }
 
+type Book record {|
+    readonly int id;
+    string name;
+|};
+
+const PATH = "someLongPathSegment";
+
+client class MyClient {
+    resource function get .() returns string {
+        return "book1";
+    }
+
+    resource function get books/names() returns string[2] {
+        return ["book1", "book2"];
+    }
+
+    resource function get books/[int id]() returns string {
+        return "book" + id.toString();
+    }
+
+    resource function get [int number]() returns string {
+        return string`data${number}`;
+    }
+
+    resource function bookDetails .(int no, string bookName) returns Book {
+            Book b = {id: no, name: bookName};
+            return b;
+    }
+
+    resource function put books/[PATH](int a) returns string {
+        return "book1";
+    }
+
+    resource function someOtherMethod books/[PATH...](string a) returns string[] {
+        return [a, "book4"];
+    }
+
+    resource function post game/[string name]/path/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
+}
+
+client class MyClient2 {
+    resource function get [string... a](string... b) returns string[][] {
+        return [a, b];
+    }
+
+    resource function get1 [string](int a, int b) returns int? {
+        return a;
+    }
+
+    resource function get path/[int a]/path2/[string](string b, int... c) returns [int, string, int[]] {
+        return [a, b, c];
+    }
+
+    resource function put [int](int a, int b = 5) returns int[2] {
+        return [a, b];
+    }
+}
+
+type Rec record {|
+    int a;
+    string b;
+|};
+
+client class MyClient3 {
+    resource function get [string]() returns Rec[] {
+        return [{a: 1, b: "A"}, {a: 2, b: "B"}];
+    }
+
+    resource function put path/[string](Rec r) returns int {
+        return r.a;
+    }
+}
+
+function testQueryActionOrExprWithClientResourceAccessAction() {
+    MyClient myClient = new;
+
+    string[] res = from var i in myClient->/books/names
+            let string book = myClient->/.get
+            where i == book
+            select myClient->/books/[1];
+    assertEquality(["book1"], res);
+
+    table<Book> key(id) res2 = table key(id) from var b in myClient->/books/names
+            let string book = myClient->/.get
+            where b == book
+            select myClient->/.bookDetails(1, b);
+    table<Book> key(id) tbl = table [{id: 1, name: "book1"}];
+    assertEquality(tbl, res2);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res3 = from var b in myClient->/books/names
+            let string book = myClient->/books/someLongPathSegment.put(1)
+            where b == book
+            select myClient->/.bookDetails(1, b);
+    assertEquality([{id: 1, name: "book1"}], res3);
+
+    var res4 = from var b in myClient->/books/names
+            select myClient->/books/someLongPathSegment.someOtherMethod(b);
+    assertEquality([["book1", "book4"], ["book2", "book4"]], res4);
+
+    var res5 = from var b in [1, 2]
+            select myClient->/[b];
+    assertEquality(["data1", "data2"], res5);
+
+    var res6 = from var b in [1, 2]
+            let [string, "path", int] gameDetails2 = ["Carrom", "path", 4]
+            select myClient->/game/[...gameDetails2].post;
+    assertEquality(["Carrom: 4", "Carrom: 4"], res6);
+
+    MyClient2 myClient2 = new;
+
+    var res7 = from string[] b in myClient2->/books/books2
+            where b.length() > 1
+            select myClient2->/(b[0], "pen");
+    assertEquality([[[], ["books", "pen"]]], res7);
+
+    var res8 = from int b in myClient2->/[5].put(1, 6)
+            let int[] arr = myClient2->/[5].put(b)
+            select myClient2->/path/[arr[0]]/path2/path3("book", arr[1]);
+    assertEquality([[1, "book", [5]], [6, "book", [5]]], res8);
+
+    MyClient3 myClient3 = new;
+
+    string a = "a";
+    var res9 = from Rec r in myClient3->/a.get()
+            where r.a == 1
+            select myClient3->/path/[a].put(r);
+    assertEquality([1], res9);
+}
+
+function testQueryActionOrExprWithGroupedClientResourceAccessAction() {
+    MyClient myClient = new;
+
+    string[] res = from var i in (myClient->/books/names)
+            let string book = (myClient->/.get)
+            where i == book
+            select (myClient->/books/[1]);
+    assertEquality(["book1"], res);
+
+    table<Book> key(id) res2 = table key(id) from var b in (myClient->/books/names)
+            let string book = myClient->/.get
+            where b == book
+            select (myClient->/.bookDetails(1, b));
+    table<Book> key(id) tbl = table [{id: 1, name: "book1"}];
+    assertEquality(tbl, res2);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res3 = from var b in myClient->/books/names
+            let string book = (myClient->/books/someLongPathSegment.put(1))
+            where b == book
+            select (myClient->/.bookDetails(1, b));
+    assertEquality([{id: 1, name: "book1"}], res3);
+}
+
+function testNestedQueryActionOrExprWithClientResourceAccessAction() {
+    MyClient myClient = new;
+
+    Book[] res = from var i in (from string k in myClient->/books/names
+                         let string book = myClient->/.get
+                         where k == book
+                         select myClient->/books/[1])
+            select myClient->/.bookDetails(1, i);
+    assertEquality([{id: 1, name: "book1"}], res);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res2 = from var b in myClient->/books/names
+            from string c in myClient->/books/someLongPathSegment.someOtherMethod("book2")
+            where b == c
+            select myClient->/.bookDetails(1, b);
+    assertEquality([{id: 1, name: "book2"}], res2);
+
+    string b1 = "book1";
+    var res3 = from var b in myClient->/books/names
+            from string c in myClient->/books/someLongPathSegment.someOtherMethod(b1)
+            where b == c
+            select myClient->/books/someLongPathSegment.someOtherMethod(b);
+    assertEquality([["book1", "book4"]], res3);
+}
+
+function testQueryActionWithQueryExpression() {
+    string[] res = [];
+    int[] res2 = [];
+
+    from var item in from string letter in ["a", "b", "c"] select letter
+    do {
+        res.push(item);
+    };
+
+    from var x in from int num in [2, -3, -4, 5] where num > 0 select num * num
+    do {
+        res2.push(x);
+    };
+
+    assertEquality([4, 25], res2);
+}
+
+
+function testQueryActionWithRegexpLangLibs() {
+    string[] res = [];
+
+    from var item in ["a", "aab", "bc", "ac"] 
+    do {
+        if re `a.*`.isFullMatch(item) {
+            res.push(item);
+        }
+    };
+    
+    assertEquality(["a", "aab", "ac"], res);
+}
+
+function testQueryExprWithRegExpLangLibs() {
+    string[] res = from var item in ["a", "aab", "bc", "ac"] 
+    where re `a.*`.isFullMatch(item)
+    select item;
+    
+    assertEquality(["a", "aab", "ac"], res);
+}
+
+function testQueryActionWithInterpolationRegexpLangLibs() {
+    string[] res = [];
+    string pattern = "a.*";
+    from var item in ["aa", "aaab", "bc", "aac"] 
+    do {
+        if re `a${pattern}`.isFullMatch(item) {
+            res.push(item);
+        }
+    };
+
+    assertEquality(["aa", "aaab", "aac"], res);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
@@ -718,4 +959,8 @@ function assertEquality(anydata expected, anydata actual) {
 
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+function assertTrue(anydata actual) {
+    return assertEquality(true, actual);
 }

@@ -26,7 +26,7 @@
               "character": 0
             }
           },
-          "newText": "XErr var1 \u003d error XErr(\"Whoops!\");\n"
+          "newText": "XErr var1 = error XErr(\"Whoops!\");\n"
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInErrorConstructor.bal",
+          {
+            "line": 5,
+            "character": 10
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

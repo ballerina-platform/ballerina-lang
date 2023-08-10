@@ -248,12 +248,12 @@ public class TestSingleFileProject {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
         Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
 
         Assert.assertEquals(
                 compilation.diagnosticResult().diagnostics().stream().findFirst().get().location().lineRange()
-                        .filePath(), "main_with_error.bal");
+                        .fileName(), "main_with_error.bal");
     }
 
     @Test

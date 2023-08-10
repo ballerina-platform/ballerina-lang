@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 2,
+    "character": 12
+  },
+  "source": "negativeFixReturnTypeWithMain1.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'error?'"
+    }
+  ]
+}

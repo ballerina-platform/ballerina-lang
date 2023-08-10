@@ -19,6 +19,8 @@
 package io.ballerina.compiler.api.impl;
 
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -42,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -49,6 +52,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,9 +73,10 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     private final Map<BType, BType> boundTypes = new HashMap<>();
     private final BType typeParam;
-
-    public TypeParamResolver(BType typeParam) {
+    private final Types types;
+    public TypeParamResolver(BType typeParam, CompilerContext context) {
         this.typeParam = typeParam;
+        types = Types.getInstance(context);
     }
 
     /**
@@ -100,6 +106,11 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BType typeInSymbol, BType boundType) {
+        if (Symbols.isFlagOn(Flags.TYPE_PARAM, typeInSymbol.flags)
+                && types.isAssignable(typeInSymbol, this.typeParam)) {
+            return boundType;
+        }
+
         return typeInSymbol;
     }
 
@@ -215,15 +226,16 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        List<BType> newTupleTypes = new ArrayList<>();
+        List<BTupleMember> newTupleMembers = new ArrayList<>();
 
-        List<BType> tupleTypes = typeInSymbol.tupleTypes;
+        List<BTupleMember> tupleMembers = typeInSymbol.getMembers();
         boolean areAllSameType = true;
 
-        for (BType type : tupleTypes) {
-            BType newType = resolve(type, boundType);
-            areAllSameType &= newType == type;
-            newTupleTypes.add(newType);
+        for (BTupleMember tupleMember : tupleMembers) {
+            BType newType = resolve(tupleMember.type, boundType);
+            areAllSameType &= newType == tupleMember.type;
+            BVarSymbol varSymbol = createNewVarSymbol(tupleMember.symbol, newType);
+            newTupleMembers.add(new BTupleMember(newType, varSymbol));
         }
 
         BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;
@@ -232,7 +244,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeInSymbol.tsymbol, newTupleTypes, newRestType, typeInSymbol.flags,
+        return new BTupleType(typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
                               typeInSymbol.isCyclic);
     }
 
@@ -282,7 +294,27 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             newReturnType = resolve(typeInSymbol.retType, boundType);
         }
 
-        return new BInvokableType(newParamTypes, newRestParamType, newReturnType, typeInSymbol.tsymbol);
+        BInvokableTypeSymbol invokableTypeSymbol = new BInvokableTypeSymbol(typeInSymbol.tsymbol.tag,
+                typeInSymbol.tsymbol.flags, typeInSymbol.tsymbol.pkgID, null, typeInSymbol.tsymbol.owner,
+                typeInSymbol.tsymbol.pos, typeInSymbol.tsymbol.origin);
+
+        if (typeInSymbol.tsymbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
+            BInvokableTypeSymbol currentTypeSymbol = (BInvokableTypeSymbol) typeInSymbol.tsymbol;
+            invokableTypeSymbol.params = new ArrayList<>();
+            for (BVarSymbol param : currentTypeSymbol.params) {
+                BType resolvedSymbolParamType = resolve(param.type, boundType);
+                BVarSymbol newVarSymbol = createNewVarSymbol(param, resolvedSymbolParamType);
+                invokableTypeSymbol.params.add(newVarSymbol);
+            }
+
+            invokableTypeSymbol.restParam = createNewVarSymbol(currentTypeSymbol.restParam, newRestParamType);
+        }
+
+        invokableTypeSymbol.returnType = newReturnType;
+        BInvokableType type = new BInvokableType(newParamTypes, newRestParamType, newReturnType, invokableTypeSymbol);
+        invokableTypeSymbol.type = type;
+
+        return type;
     }
 
     @Override

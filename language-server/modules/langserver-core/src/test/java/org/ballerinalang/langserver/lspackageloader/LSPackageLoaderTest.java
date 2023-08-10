@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,12 +50,11 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.1
  */
-@PrepareForTest({LSPackageLoader.class})
 public class LSPackageLoaderTest extends AbstractLSTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("lspackageloader");
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project3", "main.bal");
-    private List<LSPackageLoader.PackageInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
+    private List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemotePackages());
 
     @Test(dataProvider = "data-provider")
     public void test(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
@@ -72,7 +70,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
                 ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
                         languageServer.getWorkspaceManager(), LSContextOperation.WS_EXEC_CMD,
                         languageServer.getServerContext());
-        //PackageInfo count before adding a new package
+        //ModuleInfo count before adding a new package
         int packageCount = getLoadedPackagesFromLoader(documentServiceContext).size();
 
         //Publish a mock event using pull module publisher.
@@ -100,18 +98,18 @@ public class LSPackageLoaderTest extends AbstractLSTest {
             Object[] arguments = invocation.getArguments();
             if (arguments != null && arguments.length == 1 && arguments[0] != null) {
                 DocumentServiceContext context = (DocumentServiceContext) arguments[0];
-                LSPackageLoader.PackageInfo packageInfo = getPackages(REMOTE_PROJECTS,
+                LSPackageLoader.ModuleInfo moduleInfo = getPackages(REMOTE_PROJECTS,
                         context.workspace(), context.languageServercontext()).stream()
-                        .map(LSPackageLoader.PackageInfo::new)
+                        .map(LSPackageLoader.ModuleInfo::new)
                         .collect(Collectors.toList()).get(0);
-                this.remoteRepoPackages.add(packageInfo);
-                return List.of(packageInfo);
+                this.remoteRepoPackages.add(moduleInfo);
+                return List.of(moduleInfo);
             }
             return null;
         }).when(lsPackageLoader).updatePackageMap(Mockito.any());
     }
 
-    private List<LSPackageLoader.PackageInfo> getLoadedPackagesFromLoader(DocumentServiceContext context) {
+    private List<LSPackageLoader.ModuleInfo> getLoadedPackagesFromLoader(DocumentServiceContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -134,7 +132,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         return true;
     }
 
-    public List<LSPackageLoader.PackageInfo> getRemoteRepoPackages() {
+    public List<LSPackageLoader.ModuleInfo> getRemoteRepoPackages() {
         return remoteRepoPackages;
     }
 }

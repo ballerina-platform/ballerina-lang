@@ -32,9 +32,9 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -55,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -78,8 +77,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -97,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -125,6 +128,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReTerm;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
@@ -162,7 +176,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -734,20 +747,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-        BClientDeclarationSymbol symbol = (BClientDeclarationSymbol) clientDeclaration.symbol;
-        if (!symbol.used) {
-            BLangIdentifier prefix = clientDeclaration.prefix;
-            dlog.error(prefix.pos, DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX, prefix.value);
-        }
-    }
-    
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        analyzeNode(clientDeclarationStatement.clientDeclaration, env);
-    }
-
-    @Override
     public void visit(BLangIf ifNode) {
         analyzeNode(ifNode.expr, env);
         BranchResult ifResult = analyzeBranch(ifNode.body, env);
@@ -911,7 +910,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.lineRange().filePath());
+        Name compUnitName = names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -1307,10 +1306,84 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.GROUP_EXPR) {
             BLangGroupExpr groupExpr = (BLangGroupExpr) node;
             result = 31 * result + hash(groupExpr.expression);
+        } else if (node.getKind() == NodeKind.REG_EXP_TEMPLATE_LITERAL) {
+            result = 31 * result +
+                    generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
+    }
+
+    private Integer generateHashForRegExp(List<BLangExpression> exprs) {
+        int regexpHash = 0;
+        for (BLangExpression expr : exprs) {
+            if (expr.getKind() == NodeKind.REG_EXP_SEQUENCE) {
+                BLangReSequence reSequence = (BLangReSequence) expr;
+                for (BLangReTerm term : reSequence.termList) {
+                    if (term.getKind() == NodeKind.REG_EXP_ASSERTION) {
+                        regexpHash = regexpHash + hash(((BLangReAssertion) term).assertion);
+                    } else {
+                        regexpHash = regexpHash + generateHashForReAtomQuantifier((BLangReAtomQuantifier) term);
+                    }
+                }
+            } else {
+                regexpHash = regexpHash + hash(expr);
+            }
+        }
+        return regexpHash;
+    }
+
+    private Integer generateHashForReAtomQuantifier(BLangReAtomQuantifier reAtomQuantifier) {
+        int regexpHash = 0;
+        BLangExpression reAtom = reAtomQuantifier.atom;
+        if (reAtom.getKind() == NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+            regexpHash = regexpHash + hash(((BLangReAtomCharOrEscape) reAtom).charOrEscape);
+        } else if (reAtom.getKind() == NodeKind.REG_EXP_CHARACTER_CLASS) {
+            regexpHash = regexpHash + generateHashForReCharacterClass((BLangReCharacterClass) reAtom);
+        } else if (reAtom.getKind() == NodeKind.REG_EXP_CAPTURING_GROUP) {
+            regexpHash = regexpHash + generateHashForReCapturingGroup((BLangReCapturingGroups) reAtom);
+        }
+        if (reAtomQuantifier.quantifier != null) {
+            BLangReQuantifier reQuantifier = reAtomQuantifier.quantifier;
+            regexpHash = regexpHash + hash(reQuantifier.quantifier);
+            if (reQuantifier.nonGreedyChar != null) {
+                return regexpHash + hash(reQuantifier.nonGreedyChar);
+            }
+        }
+        return regexpHash;
+    }
+
+    private Integer generateHashForReCharacterClass(BLangReCharacterClass reCharacterClass) {
+        int regexpHash = hash(reCharacterClass.characterClassStart) + hash(reCharacterClass.characterClassEnd);
+        if (reCharacterClass.negation != null) {
+            regexpHash = regexpHash + hash(reCharacterClass.negation);
+        }
+        if (reCharacterClass.charSet == null) {
+            return regexpHash;
+        }
+        BLangReCharSet charSet = reCharacterClass.charSet;
+        for (BLangExpression charSetAtom : charSet.charSetAtoms) {
+            if (charSetAtom.getKind() == NodeKind.REG_EXP_CHAR_SET_RANGE) {
+                BLangReCharSetRange charSetRange = ((BLangReCharSetRange) charSetAtom);
+                regexpHash = regexpHash + hash(charSetRange.lhsCharSetAtom) +
+                        hash(charSetRange.dash) + hash(charSetRange.rhsCharSetAtom);
+            } else {
+                regexpHash = regexpHash + hash(charSetAtom);
+            }
+        }
+        return regexpHash;
+    }
+
+    private Integer generateHashForReCapturingGroup(BLangReCapturingGroups reCapturingGroup) {
+        int regexpHash = hash(reCapturingGroup.openParen) +
+                generateHashForRegExp(reCapturingGroup.disjunction.sequenceList) + hash(reCapturingGroup.closeParen);
+        if (reCapturingGroup.flagExpr == null) {
+            return regexpHash;
+        }
+        BLangReFlagExpression flagExpr = (BLangReFlagExpression) reCapturingGroup.flagExpr;
+        regexpHash = regexpHash + hash(flagExpr.questionMark) + hash(flagExpr.colon);
+        return regexpHash + hash(flagExpr.flagsOnOff.flags);
     }
 
     private Integer getTypeHash(BType type) {
@@ -1471,6 +1544,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        analyzeNode(collectContextInvocation.invocation, env);
+    }
+
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
             analyzeNode(positionalArg, env);
@@ -1549,8 +1627,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> analyzeNode(value, env));
+        replaceWithSeqSymbol(groupByClause.env);
+    }
+
+    private void replaceWithSeqSymbol(SymbolEnv env) {
+        for (Map.Entry<Name, Scope.ScopeEntry> symbolEntry : env.scope.entries.entrySet()) {
+            BSymbol sym = null;
+            Location loc = null;
+            for (Map.Entry<BSymbol, Location> unusedLocalVariable : this.unusedLocalVariables.entrySet()) {
+                BSymbol unusedVarSymbol = unusedLocalVariable.getKey();
+                if (unusedVarSymbol.name.equals(symbolEntry.getKey())) {
+                    sym = unusedLocalVariable.getKey();
+                    loc = unusedLocalVariable.getValue();
+                    break;
+                }
+            }
+            if (sym != null) {
+                this.unusedLocalVariables.remove(sym);
+                this.unusedLocalVariables.put(symbolEntry.getValue().symbol, loc);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        analyzeNode((BLangNode) groupingKey.getGroupingKey(), env);
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+        replaceWithSeqSymbol(bLangCollectClause.env);
+        analyzeNode(bLangCollectClause.expression, env);
     }
 
     @Override
@@ -1698,7 +1812,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
         providers.add(provider);
 
-        // Store the dependencies of functions seperately for lock optimization in later stage.
+        // Store the dependencies of functions separately for lock optimization in later stage.
         addFunctionToGlobalVarDependency(dependent, provider);
     }
 
@@ -2010,6 +2124,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             addTypeDependency(tsymbol, Types.getReferredType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
+            for (BLangAnnotationAttachment annotationAttachment : field.annAttachments) {
+                analyzeNode(annotationAttachment.expr, env);
+            }
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
     }
@@ -2052,7 +2169,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.memberTypeNodes.forEach(type -> analyzeNode(type, env));
+        for (BLangSimpleVariable member : tupleTypeNode.members) {
+            analyzeNode(member, env);
+            for (BLangAnnotationAttachment annotationAttachment : member.annAttachments) {
+                analyzeNode(annotationAttachment.expr, env);
+            }
+        }
     }
 
     @Override
@@ -2418,7 +2540,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
-            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.symbol);
+            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD,
+                    fieldAccess.symbol.originalName);
         }
     }
 

@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -1251,54 +1251,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModuleXMLNamespaceDeclarationNode.createUnlinkedFacade();
     }
 
-    public static ClientDeclarationNode createClientDeclarationNode(
-            NodeList<AnnotationNode> annotations,
-            Token clientKeyword,
-            BasicLiteralNode clientUri,
-            Token asKeyword,
-            IdentifierToken clientPrefix,
-            Token semicolonToken) {
-        Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(clientKeyword, "clientKeyword must not be null");
-        Objects.requireNonNull(clientUri, "clientUri must not be null");
-        Objects.requireNonNull(asKeyword, "asKeyword must not be null");
-        Objects.requireNonNull(clientPrefix, "clientPrefix must not be null");
-        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
-
-        STNode stClientDeclarationNode = STNodeFactory.createClientDeclarationNode(
-                annotations.underlyingListNode().internalNode(),
-                clientKeyword.internalNode(),
-                clientUri.internalNode(),
-                asKeyword.internalNode(),
-                clientPrefix.internalNode(),
-                semicolonToken.internalNode());
-        return stClientDeclarationNode.createUnlinkedFacade();
-    }
-
-    public static ModuleClientDeclarationNode createModuleClientDeclarationNode(
-            NodeList<AnnotationNode> annotations,
-            Token clientKeyword,
-            BasicLiteralNode clientUri,
-            Token asKeyword,
-            IdentifierToken clientPrefix,
-            Token semicolonToken) {
-        Objects.requireNonNull(annotations, "annotations must not be null");
-        Objects.requireNonNull(clientKeyword, "clientKeyword must not be null");
-        Objects.requireNonNull(clientUri, "clientUri must not be null");
-        Objects.requireNonNull(asKeyword, "asKeyword must not be null");
-        Objects.requireNonNull(clientPrefix, "clientPrefix must not be null");
-        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
-
-        STNode stModuleClientDeclarationNode = STNodeFactory.createModuleClientDeclarationNode(
-                annotations.underlyingListNode().internalNode(),
-                clientKeyword.internalNode(),
-                clientUri.internalNode(),
-                asKeyword.internalNode(),
-                clientPrefix.internalNode(),
-                semicolonToken.internalNode());
-        return stModuleClientDeclarationNode.createUnlinkedFacade();
-    }
-
     public static FunctionBodyBlockNode createFunctionBodyBlockNode(
             Token openBraceToken,
             NamedWorkerDeclarator namedWorkerDeclarator,
@@ -2115,18 +2067,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSelectClauseNode.createUnlinkedFacade();
     }
 
+    public static CollectClauseNode createCollectClauseNode(
+            Token collectKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(collectKeyword, "collectKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stCollectClauseNode = STNodeFactory.createCollectClauseNode(
+                collectKeyword.internalNode(),
+                expression.internalNode());
+        return stCollectClauseNode.createUnlinkedFacade();
+    }
+
     public static QueryExpressionNode createQueryExpressionNode(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause,
+            ClauseNode resultClause,
             OnConflictClauseNode onConflictClause) {
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(selectClause, "selectClause must not be null");
+        Objects.requireNonNull(resultClause, "resultClause must not be null");
 
         STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
                 getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
-                selectClause.internalNode(),
+                resultClause.internalNode(),
                 getOptionalSTNode(onConflictClause));
         return stQueryExpressionNode.createUnlinkedFacade();
     }
@@ -3084,6 +3048,39 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stOrderKeyNode.createUnlinkedFacade();
     }
 
+    public static GroupByClauseNode createGroupByClauseNode(
+            Token groupKeyword,
+            Token byKeyword,
+            SeparatedNodeList<Node> groupingKey) {
+        Objects.requireNonNull(groupKeyword, "groupKeyword must not be null");
+        Objects.requireNonNull(byKeyword, "byKeyword must not be null");
+        Objects.requireNonNull(groupingKey, "groupingKey must not be null");
+
+        STNode stGroupByClauseNode = STNodeFactory.createGroupByClauseNode(
+                groupKeyword.internalNode(),
+                byKeyword.internalNode(),
+                groupingKey.underlyingListNode().internalNode());
+        return stGroupByClauseNode.createUnlinkedFacade();
+    }
+
+    public static GroupingKeyVarDeclarationNode createGroupingKeyVarDeclarationNode(
+            TypeDescriptorNode typeDescriptor,
+            BindingPatternNode simpleBindingPattern,
+            Token equalsToken,
+            ExpressionNode expression) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(simpleBindingPattern, "simpleBindingPattern must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stGroupingKeyVarDeclarationNode = STNodeFactory.createGroupingKeyVarDeclarationNode(
+                typeDescriptor.internalNode(),
+                simpleBindingPattern.internalNode(),
+                equalsToken.internalNode(),
+                expression.internalNode());
+        return stGroupingKeyVarDeclarationNode.createUnlinkedFacade();
+    }
+
     public static OnFailClauseNode createOnFailClauseNode(
             Token onKeyword,
             Token failKeyword,
@@ -3564,6 +3561,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 mostTimesMatchedDigit.underlyingListNode().internalNode(),
                 closeBraceToken.internalNode());
         return stReBracedQuantifierNode.createUnlinkedFacade();
+    }
+
+    public static MemberTypeDescriptorNode createMemberTypeDescriptorNode(
+            NodeList<AnnotationNode> annotations,
+            TypeDescriptorNode typeDescriptor) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stMemberTypeDescriptorNode = STNodeFactory.createMemberTypeDescriptorNode(
+                annotations.underlyingListNode().internalNode(),
+                typeDescriptor.internalNode());
+        return stMemberTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

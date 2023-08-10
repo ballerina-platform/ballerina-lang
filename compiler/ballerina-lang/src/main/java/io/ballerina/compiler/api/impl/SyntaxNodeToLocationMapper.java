@@ -75,6 +75,7 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -89,6 +90,7 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
@@ -244,6 +246,16 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(SimpleNameReferenceNode simpleNameReferenceNode) {
         return simpleNameReferenceNode.name().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(StartActionNode startActionNode) {
+        return Optional.of(startActionNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(WaitActionNode waitActionNode) {
+        return Optional.of(waitActionNode.location());
     }
 
     @Override

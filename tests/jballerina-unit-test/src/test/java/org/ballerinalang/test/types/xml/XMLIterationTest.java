@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -85,6 +86,9 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected '(xml:Element|xml:Text)', found 'xml'",
                 59, 34);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(xml<xml:Element>|xml<xml:Text>)', found 'xml'",
+                60, 44);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
                 63, 13);
@@ -193,5 +197,11 @@ public class XMLIterationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results.toString();
         Assert.assertEquals(str, "bit of text\\u2702\\u2705\n");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

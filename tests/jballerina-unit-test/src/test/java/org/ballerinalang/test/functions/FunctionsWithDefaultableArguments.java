@@ -22,10 +22,10 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,6 +44,12 @@ public class FunctionsWithDefaultableArguments {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/functions_with_default_parameters.bal");
+    }
+
+    @Test
+    public void testFunctionCallInImportedModuleWithDefaultArguments() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/functions/testPackage");
+        BRunUtil.runMain(compileResult);
     }
 
     @Test(description = "Test functions arguments with function calls as default value")
@@ -168,7 +174,7 @@ public class FunctionsWithDefaultableArguments {
     }
 
     @Test(description = "Test functions arguments default value panicing",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: Panic!.*")
     public void testPanicWithinDefaultExpr() {
         Object returns = BRunUtil.invoke(result, "testPanicWithinDefaultExpr");
@@ -242,6 +248,21 @@ public class FunctionsWithDefaultableArguments {
         Assert.assertTrue(returns instanceof BString);
 
         Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");
+    }
+
+    @Test
+    public void testFuncWithComputedNameFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithComputedNameFieldInMappingConstructorForDefaultValue");
+    }
+
+    @Test
+    public void testFuncWithVariableNameFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithVariableNameFieldInMappingConstructorForDefaultValue");
+    }
+
+    @Test
+    public void testFuncWithSpreadFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithSpreadFieldInMappingConstructorForDefaultValue");
     }
 
     @AfterClass

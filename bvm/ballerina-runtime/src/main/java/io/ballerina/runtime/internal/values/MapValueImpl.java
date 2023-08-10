@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -38,14 +39,13 @@ import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,12 +65,13 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUpdate;
 
 /**
@@ -94,6 +95,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private static final long serialVersionUID = 1L;
     private BTypedesc typedesc;
     private Type type;
+    private Type referredType;
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
 
@@ -106,23 +108,21 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl(Type type) {
         super();
-        this.type = getReferredType(type);
-        this.typedesc = getTypedescValue(type, this);
+        this.type = type;
+        this.referredType = getReferredType(type);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
-        this.type = getReferredType(type);
+        this.type = type;
+        this.referredType = getReferredType(type);
         populateInitialValues(initialValues);
-        if (!type.isReadOnly()) {
-            this.typedesc = new TypedescValueImpl(type);
-        }
     }
 
     public MapValueImpl() {
         super();
         type = PredefinedTypes.TYPE_MAP;
-        this.typedesc = getTypedescValue(type, this);
+        this.referredType = this.type;
     }
 
     public Long getIntValue(BString key) {
@@ -162,7 +162,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     /**
      * Retrieve the value for the given key from map.
-     * A {@link BallerinaException} will be thrown if the key does not exists.
+     * A {@link BError} will be thrown if the key does not exists.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -170,7 +170,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
         return this.get(key);
     }
@@ -178,7 +178,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     /**
      * Retrieve the value for the given key from map. If the key does not exist, but there exists a filler value for
      * the expected type, a new value will be created and added and then returned.
-     * A {@link BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
+     * A {@link BError} will be thrown if the key does not exists and a filler value does not exist.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -191,8 +191,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         Type expectedType = null;
 
         // The type should be a record or map for filling read.
-        if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recordType = (BRecordType) this.type;
+        if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            BRecordType recordType = (BRecordType) this.referredType;
             Map fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
@@ -200,18 +200,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
                     throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                            BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                            ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
                 }
                 expectedType = recordType.restFieldType;
             }
         } else {
-            expectedType = ((BMapType) this.type).getConstrainedType();
+            expectedType = ((BMapType) this.referredType).getConstrainedType();
         }
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
 
         Object value = expectedType.getZeroValue();
@@ -276,7 +276,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
                                        StringUtils
-                                                .fromString(errMessage).concat(BLangExceptionHelper.getErrorMessage(
+                                                .fromString(errMessage).concat(ErrorHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 
@@ -298,18 +298,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     public void populateInitialValue(K key, V value) {
-        if (type.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
+        if (referredType.getTag() == TypeTags.MAP_TAG) {
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
-            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true)) {
+            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) referredType,
+                    true)) {
                 putValue(key, value);
             }
-        }
-
-        if (this.type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
         }
     }
 
@@ -352,6 +349,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
 
         if (mapValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (mapValue.referredType.getTag() != this.referredType.getTag()) {
             return false;
         }
 
@@ -449,7 +450,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         refs.put(this, newMap);
         for (Map.Entry<K, V> entry : this.entrySet()) {
             V value = entry.getValue();
-            value = value instanceof RefValue ? (V) ((RefValue) value).copy(refs) : value;
+            value = value instanceof BRefValue ? (V) ((BRefValue) value).copy(refs) : value;
             newMap.put(entry.getKey(), value);
         }
         return newMap;
@@ -488,7 +489,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                         sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
                         break;
                     default:
-                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value, mapParent));
+                        sj.add("\"" + key + "\":" + getStringVal(value, mapParent));
                         break;
                 }
             }
@@ -504,7 +505,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
             CycleUtils.Node mapParent = new CycleUtils.Node(this, node);
-            sj.add("\"" + key + "\":" + StringUtils.getExpressionStringValue(value, mapParent));
+            sj.add("\"" + key + "\":" + getExpressionStringVal(value, mapParent));
         }
         return "{" + sj.toString() + "}";
     }
@@ -524,25 +525,26 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
-            if (val instanceof RefValue) {
-                ((RefValue) val).freezeDirect();
+            if (val instanceof BRefValue) {
+                ((BRefValue) val).freezeDirect();
             }
         });
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     public String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.serialize(this);
             gen.flush();
+            return byteOut.toString();
         } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error in converting JSON to a string: " + e.getMessage()), e);
         }
-        return new String(byteOut.toByteArray());
     }
 
     @Override
@@ -552,6 +554,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     /**
      * {@link MapIterator} iteration provider for ballerina maps.
+     *
+     * @param <K> ballerina string key
+     * @param <V> ballerina value
      *
      * @since 0.995.0
      */
@@ -606,6 +611,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
     }
 
@@ -620,11 +628,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private void initializeIteratorNextReturnType() {
         Type type;
-        if (this.type.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
-            BMapType mapType = (BMapType) this.type;
+        if (this.referredType.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
+            BMapType mapType = (BMapType) this.referredType;
             type = mapType.getConstrainedType();
         } else {
-            BRecordType recordType = (BRecordType) this.type;
+            BRecordType recordType = (BRecordType) this.referredType;
             LinkedHashSet<Type> types = recordType.getFields().values().stream().map(Field::getFieldType)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             if (recordType.restFieldType != null) {

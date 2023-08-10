@@ -22,10 +22,11 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
 
 /**
  * Class that resolve the configurations on given providers.
@@ -115,11 +116,11 @@ public class ConfigResolver {
                 return configProvider -> configProvider.getAsStringAndMark(module, key);
             case TypeTags.RECORD_TYPE_TAG:
                 return configProvider -> configProvider.getAsRecordAndMark(module, key);
-            case TypeTags.XML_TEXT_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 return configProvider -> configProvider.getAsXmlAndMark(module, key);
             case TypeTags.FINITE_TYPE_TAG:
                 return configProvider -> configProvider.getAsFiniteAndMark(module, key);
@@ -135,12 +136,14 @@ public class ConfigResolver {
                 return configProvider -> configProvider.getAsUnionAndMark(module, key);
             case TypeTags.TUPLE_TAG:
                 return configProvider -> configProvider.getAsTupleAndMark(module, key);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getValueFunction(module, key, ((ReferenceType) type).getReferredType());
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 return getValueFunction(module, key, effectiveType);
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                    Utils.decodeIdentifier(type.toString()));
+                        Utils.decodeIdentifier(type.toString()));
         }
         return null;
     }
@@ -165,7 +168,7 @@ public class ConfigResolver {
             return configValue;
         }
         if (exceptionList.isEmpty() && key.isRequired) {
-            diagnosticLog.error(RuntimeErrors.CONFIG_VALUE_NOT_PROVIDED, key.location, key.variable);
+            diagnosticLog.error(ErrorCodes.CONFIG_VALUE_NOT_PROVIDED, key.location, key.variable);
             return configValue;
         }
         exceptionList.forEach(e -> diagnosticLog.error(e.getErrorCode(), key.location, e.getArgs()));

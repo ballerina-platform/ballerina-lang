@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -66,8 +66,10 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -84,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -173,7 +176,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPattern
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -289,20 +291,6 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNode(xmlnsNode.namespaceURI);
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        lookupNode(clientDeclarationStatement.getClientDeclaration());
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        if (setEnclosingNode(clientDeclNode.symbol, clientDeclNode.prefix.pos)) {
-            return;
-        }
-
-        lookupNode((BLangNode) clientDeclNode.getUri());
     }
 
     @Override
@@ -717,6 +705,23 @@ class SymbolFinder extends BaseVisitor {
         for (OrderKeyNode key : orderByClause.orderByKeyList) {
             lookupNode((BLangNode) key);
         }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        for (GroupingKeyNode key : groupByClause.getGroupingKeyList()) {
+            lookupNode((BLangNode) key.getGroupingKey());
+        }
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        lookupNode(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        lookupNode(invocation.invocation);
     }
 
     @Override
@@ -1264,6 +1269,10 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
+        for (BLangFunction method : classDefinition.functions) {
+            lookupNodes(method.annAttachments);
+        }
+
         lookupNodes(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
     }
@@ -1301,7 +1310,10 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        lookupNodes(tupleTypeNode.memberTypeNodes);
+        for (BLangSimpleVariable member : tupleTypeNode.getMemberNodes()) {
+            lookupNodes(member.getAnnotationAttachments());
+            lookupNode(member.getTypeNode());
+        }
         lookupNode(tupleTypeNode.restParamType);
     }
 
@@ -1549,6 +1561,11 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Ignore incomplete worker-flush expressions
+        // Ex: var a = flush;
+        if (workerFlushExpr.workerIdentifier == null) {
+            return;
+        }
         setEnclosingNode(workerFlushExpr.workerSymbol, workerFlushExpr.workerIdentifier.pos);
     }
 

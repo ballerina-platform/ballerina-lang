@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -56,9 +57,10 @@ public class EqualAndNotEqualOperationsTest {
     public Object[] getValueTestFunctions() {
         return new String[]{
                 "checkBooleanEquality", "checkIntEquality", "checkByteEquality", "checkFloatEquality",
-                "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality", "testIntByteEqualityPositive",
-                "testIntByteEqualityNegative", "testIntersectingUnionEquality", "testTableEquality",
-                "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes", "checkFiniteTypeEquality"
+                "checkDecimalEquality", "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality",
+                "testIntByteEqualityPositive", "testIntByteEqualityNegative", "testIntersectingUnionEquality",
+                "testTableEquality", "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes",
+                "checkFiniteTypeEquality"
         };
     }
 
@@ -339,5 +341,11 @@ public class EqualAndNotEqualOperationsTest {
                 "testEqualityWithUnionOfSimpleTypes",
                 "testExactEqualityWithUnionOfNonSimpleTypes"
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

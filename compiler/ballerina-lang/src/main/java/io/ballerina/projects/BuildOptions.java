@@ -17,10 +17,13 @@
  */
 package io.ballerina.projects;
 
+import java.util.Objects;
+
 /**
  * Build options of a project.
  */
 public class BuildOptions {
+
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
@@ -28,9 +31,13 @@ public class BuildOptions {
     private CompilationOptions compilationOptions;
     private String targetDir;
     private Boolean enableCache;
+    private Boolean nativeImage;
+    private Boolean exportComponentModel;
+    private String graalVMBuildOptions;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache) {
+                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -38,6 +45,10 @@ public class BuildOptions {
         this.compilationOptions = compilationOptions;
         this.targetDir = targetPath;
         this.enableCache = enableCache;
+        this.nativeImage = nativeImage;
+        this.exportComponentModel = exportComponentModel;
+        this.graalVMBuildOptions = graalVMBuildOptions;
+
     }
 
     public boolean testReport() {
@@ -63,6 +74,10 @@ public class BuildOptions {
 
     public boolean sticky() {
         return this.compilationOptions.sticky();
+    }
+
+    public boolean disableSyntaxTree() {
+        return this.compilationOptions.disableSyntaxTree();
     }
 
     /**
@@ -96,8 +111,20 @@ public class BuildOptions {
         return this.compilationOptions.exportOpenAPI();
     }
 
+    public boolean exportComponentModel() {
+        return this.compilationOptions.exportComponentModel();
+    }
+
     public boolean enableCache() {
         return this.compilationOptions.enableCache();
+    }
+
+    public boolean nativeImage() {
+        return toBooleanDefaultIfNull(this.nativeImage);
+    }
+
+    public String graalVMBuildOptions() {
+        return Objects.requireNonNullElse(this.graalVMBuildOptions, "");
     }
 
     /**
@@ -138,6 +165,21 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setEnableCache(this.enableCache);
         }
+        if (theirOptions.nativeImage != null) {
+            buildOptionsBuilder.setNativeImage(theirOptions.nativeImage);
+        } else {
+            buildOptionsBuilder.setNativeImage(this.nativeImage);
+        }
+        if (theirOptions.exportComponentModel != null) {
+            buildOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
+        } else {
+            buildOptionsBuilder.setExportComponentModel(this.exportComponentModel);
+        }
+        if (theirOptions.graalVMBuildOptions != null) {
+            buildOptionsBuilder.setGraalVMBuildOptions(theirOptions.graalVMBuildOptions);
+        } else {
+            buildOptionsBuilder.setGraalVMBuildOptions(this.graalVMBuildOptions);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -151,6 +193,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
 
         return buildOptionsBuilder.build();
@@ -186,7 +229,10 @@ public class BuildOptions {
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
-        TARGET_DIR("targetDir");
+        TARGET_DIR("targetDir"),
+        NATIVE_IMAGE("graalvm"),
+        EXPORT_COMPONENT_MODEL("exportComponentModel"),
+        GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions");
 
         private final String name;
 
@@ -206,6 +252,7 @@ public class BuildOptions {
      * @since 2.0.0
      */
     public static class BuildOptionsBuilder {
+
         private Boolean testReport;
         private Boolean codeCoverage;
         private Boolean dumpBuildTime;
@@ -213,9 +260,18 @@ public class BuildOptions {
         private String targetPath;
         private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
+        private Boolean nativeImage;
+        private Boolean exportComponentModel;
+        private String graalVMBuildOptions;
+
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
+            return this;
         }
 
         public BuildOptionsBuilder setTestReport(Boolean value) {
@@ -250,6 +306,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setOffline(Boolean value) {
             compilationOptionsBuilder.setOffline(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
+            graalVMBuildOptions = value;
             return this;
         }
 
@@ -309,16 +370,27 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setExportComponentModel(Boolean value) {
+            compilationOptionsBuilder.setExportComponentModel(value);
+            exportComponentModel = value;
+            return this;
+        }
+
         public BuildOptionsBuilder setEnableCache(Boolean value) {
             compilationOptionsBuilder.setEnableCache(value);
             enableCache = value;
             return this;
         }
 
+        public BuildOptionsBuilder setNativeImage(Boolean value) {
+            nativeImage = value;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache);
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions);
         }
     }
 }

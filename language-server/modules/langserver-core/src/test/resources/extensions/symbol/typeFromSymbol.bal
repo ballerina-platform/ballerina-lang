@@ -65,12 +65,12 @@ type MessageProperties record {
     string MessageId;
 };
 
-function transform(Input input, Input2 Input2) returns Output => {
+function transform(Input input, Input2 Input2) returns Output => let string oType = item.Type in {
     data: {
         MessageContent: {
             Assets: from var item in input.Assets
                 select {
-                    OType: item.Type,
+                    OType: oType,
                     OId: item.Id,
                     OConfirmed: item.Confirmed
                 }

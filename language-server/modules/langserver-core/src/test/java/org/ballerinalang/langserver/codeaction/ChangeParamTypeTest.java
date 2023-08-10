@@ -49,6 +49,21 @@ public class ChangeParamTypeTest extends AbstractCodeActionTest {
                 {"changeParamType2.json"},
                 {"changeParamType3.json"},
                 {"changeParamTypeInService1.json"},
+                {"changeParamTypeWithDefaultable.json"},
+                {"changeParamTypeRestParam.json"}
+        };
+    }
+    
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"changeParamTypeInFieldAccess.json"}
         };
     }
 }

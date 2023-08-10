@@ -26,7 +26,7 @@
               "character": 5
             }
           },
-          "newText": "int|error var1 \u003d trap foo();\n     "
+          "newText": "int|error var1 = trap foo();\n     "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInTrapExpression.bal",
+          {
+            "line": 2,
+            "character": 24
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

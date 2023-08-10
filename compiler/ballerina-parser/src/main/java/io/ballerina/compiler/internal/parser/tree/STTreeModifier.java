@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 LLC. (http://www.wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -1015,42 +1015,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STClientDeclarationNode transform(
-            STClientDeclarationNode clientDeclarationNode) {
-        STNode annotations = modifyNode(clientDeclarationNode.annotations);
-        STNode clientKeyword = modifyNode(clientDeclarationNode.clientKeyword);
-        STNode clientUri = modifyNode(clientDeclarationNode.clientUri);
-        STNode asKeyword = modifyNode(clientDeclarationNode.asKeyword);
-        STNode clientPrefix = modifyNode(clientDeclarationNode.clientPrefix);
-        STNode semicolonToken = modifyNode(clientDeclarationNode.semicolonToken);
-        return clientDeclarationNode.modify(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    @Override
-    public STModuleClientDeclarationNode transform(
-            STModuleClientDeclarationNode moduleClientDeclarationNode) {
-        STNode annotations = modifyNode(moduleClientDeclarationNode.annotations);
-        STNode clientKeyword = modifyNode(moduleClientDeclarationNode.clientKeyword);
-        STNode clientUri = modifyNode(moduleClientDeclarationNode.clientUri);
-        STNode asKeyword = modifyNode(moduleClientDeclarationNode.asKeyword);
-        STNode clientPrefix = modifyNode(moduleClientDeclarationNode.clientPrefix);
-        STNode semicolonToken = modifyNode(moduleClientDeclarationNode.semicolonToken);
-        return moduleClientDeclarationNode.modify(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    @Override
     public STFunctionBodyBlockNode transform(
             STFunctionBodyBlockNode functionBodyBlockNode) {
         STNode openBraceToken = modifyNode(functionBodyBlockNode.openBraceToken);
@@ -1713,16 +1677,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STCollectClauseNode transform(
+            STCollectClauseNode collectClauseNode) {
+        STNode collectKeyword = modifyNode(collectClauseNode.collectKeyword);
+        STNode expression = modifyNode(collectClauseNode.expression);
+        return collectClauseNode.modify(
+                collectKeyword,
+                expression);
+    }
+
+    @Override
     public STQueryExpressionNode transform(
             STQueryExpressionNode queryExpressionNode) {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
-        STNode selectClause = modifyNode(queryExpressionNode.selectClause);
+        STNode resultClause = modifyNode(queryExpressionNode.resultClause);
         STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -2506,6 +2480,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STGroupByClauseNode transform(
+            STGroupByClauseNode groupByClauseNode) {
+        STNode groupKeyword = modifyNode(groupByClauseNode.groupKeyword);
+        STNode byKeyword = modifyNode(groupByClauseNode.byKeyword);
+        STNode groupingKey = modifyNode(groupByClauseNode.groupingKey);
+        return groupByClauseNode.modify(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    @Override
+    public STGroupingKeyVarDeclarationNode transform(
+            STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        STNode typeDescriptor = modifyNode(groupingKeyVarDeclarationNode.typeDescriptor);
+        STNode simpleBindingPattern = modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern);
+        STNode equalsToken = modifyNode(groupingKeyVarDeclarationNode.equalsToken);
+        STNode expression = modifyNode(groupingKeyVarDeclarationNode.expression);
+        return groupingKeyVarDeclarationNode.modify(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
+    }
+
+    @Override
     public STOnFailClauseNode transform(
             STOnFailClauseNode onFailClauseNode) {
         STNode onKeyword = modifyNode(onFailClauseNode.onKeyword);
@@ -2905,6 +2905,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 commaToken,
                 mostTimesMatchedDigit,
                 closeBraceToken);
+    }
+
+    @Override
+    public STMemberTypeDescriptorNode transform(
+            STMemberTypeDescriptorNode memberTypeDescriptorNode) {
+        STNode annotations = modifyNode(memberTypeDescriptorNode.annotations);
+        STNode typeDescriptor = modifyNode(memberTypeDescriptorNode.typeDescriptor);
+        return memberTypeDescriptorNode.modify(
+                annotations,
+                typeDescriptor);
     }
 
     // Tokens

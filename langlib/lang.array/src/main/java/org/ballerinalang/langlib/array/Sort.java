@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.array;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -29,8 +30,8 @@ import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_TYPE_TO_SORT;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
@@ -41,7 +42,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Sort {
 
     public static BArray sort(BArray arr, Object direction, Object func) {
-        checkIsArrayOnlyOperation(arr.getType(), "sort()");
+        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "sort()");
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
 
         Object[][] sortArr = new Object[arr.size()][2];

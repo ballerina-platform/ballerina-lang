@@ -1045,15 +1045,15 @@ function testUnreachableStatementInQueryAction() {
 }
 
 function testUnreachableStatementInQueryAction2() returns error? {
-    check from var item in 1 ... 5
-        where false
-        do {
-            int _ = 10; // unreachable code
-        };
+    from var item in 1 ... 5
+    where false
+    do {
+        int _ = 10; // unreachable code
+    };
 }
 
 function testUnreachableStatementInQueryAction3() returns error? {
-    checkpanic from var item in 1 ... 5
+    checkpanic from var _ in new IterableWithError()
         where false
         do {
             int _ = 10; // unreachable code
@@ -1091,7 +1091,7 @@ function testUnreachableStatementInQueryAction6() returns error? {
 }
 
 function testUnreachableStatementInQueryAction7() returns error? {
-    return check from var item in 1 ... 5
+    return from var item in 1 ... 5
         where false
         do {
             int _ = 10; // unreachable code
@@ -1099,7 +1099,7 @@ function testUnreachableStatementInQueryAction7() returns error? {
 }
 
 function testUnreachableStatementInQueryAction8() returns error? {
-    return checkpanic from var item in 1 ... 5
+    checkpanic from var _ in new IterableWithError()
         where false
         do {
             int _ = 10; // unreachable code
@@ -1171,7 +1171,7 @@ function testUnreachableStatementInQueryAction15() {
 }
 
 function testUnreachableStatementInQueryAction16() returns error? {
-    match check from var item in 1 ... 5
+    match from var item in 1 ... 5
         where false
         do {
             int _ = 10; // unreachable code
@@ -1214,22 +1214,22 @@ function testUnreachableStatementInQueryAction19() returns error? {
 
 function testUnreachableStatementInQueryAction20() returns error? {
     error? a = ();
-    check from var item in 1 ... 5
-        where item < 2
-        do {
-            a = (from var value in 1 ... 5
-                where false
-                where value < 2
-                do {
-                    int _ = 10; // unreachable code
-                });
-        };
+    from var item in 1 ... 5
+    where item < 2
+    do {
+        a = (from var value in 1 ... 5
+            where false
+            where value < 2
+            do {
+                int _ = 10; // unreachable code
+            });
+    };
 
     return a;
 }
 
 function testUnreachableStatementInQueryAction21() returns error? {
-    check from var item in 1 ... 5
+    from var item in 1 ... 5
     where false
     do {
         int _ = 1; // unreachable code
@@ -1423,7 +1423,7 @@ function testLoggingExpectedUnreachableErrors16() {
 }
 
 function testUnreachableStatementInQueryAction25() returns error? {
-    check from var item in 1 ... 5
+    from var item in 1 ... 5
     where true
     do {
         while true {
@@ -1435,59 +1435,59 @@ function testUnreachableStatementInQueryAction25() returns error? {
 
 function testUnreachableStatementInQueryAction26() returns error? {
     string m;
-    check from var item in 1 ... 5
-        where true
-        do {
-            m = "Error";
-            while m is string {
-                int _ = 3;
-            }
-            int _ = 2; // unreachable code
-        };
+    from var item in 1 ... 5
+    where true
+    do {
+        m = "Error";
+        while m is string {
+            int _ = 3;
+        }
+        int _ = 2; // unreachable code
+    };
 }
 
 function testUnreachableStatementInQueryAction27() returns error? {
-    check from var item in 1 ... 5
-        where true
-        do {
-            if true {
-                return;
-            }
-            int _ = 2; // unreachable code
-        };
+    from var item in 1 ... 5
+    where true
+    do {
+        if true {
+            return;
+        }
+        int _ = 2; // unreachable code
+    };
 }
 
 function testUnreachableStatementInQueryAction28() returns error? {
-    check from var item in 1 ... 5
-        where false
-        do {
-            panic error("Panic!");
-            int _ = 2; // unreachable code
-        };
+    from var item in 1 ... 5
+    where false
+    do {
+        panic error("Panic!");
+        int _ = 2; // unreachable code
+    };
 }
 
 function testUnreachableStatementInQueryAction29() returns error? {
-    check from var item in 1 ... 5
-        where true
-        do {
-            while true {
-                int _ = 3;
-            }
-            panic error("Panic!");
-            int _ = 2; // unreachable code
-        };
+    from var item in 1 ... 5
+    where true
+    do {
+        while true {
+            int _ = 3;
+        }
+        panic error("Panic!");
+        int _ = 2; // unreachable code
+    };
 }
 
 function testUnreachableStatementInQueryAction30() returns error? {
-    check from var item in 1 ... 5
-        where true
-        do {
-            if true {
-                return;
-            }
-            panic error("Panic!");
-            int _ = 2; // unreachable code
-        };
+    from var item in 1 ... 5
+    where true
+    do {
+        if true {
+            return;
+        }
+        panic error("Panic!");
+        int _ = 2; // unreachable code
+    };
 }
 
 function testUnreachabilityWithIfElseHavingUnreachablePanic(float? v) returns int {
@@ -1755,4 +1755,18 @@ function testUnreachabilityWithCombinationOfBreakAndContinue10() returns int {
         }
     }
     return 4;
+}
+
+class IterableWithError {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|error?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|error? {
+               return error("Custom error thrown.");
+            }
+        };
+    }
 }

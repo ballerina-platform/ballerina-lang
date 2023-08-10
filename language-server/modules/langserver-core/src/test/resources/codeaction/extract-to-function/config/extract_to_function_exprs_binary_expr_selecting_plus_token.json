@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_binary_expr.bal",
+  "description": "Extract to function for expressions, binary expressions selecting(highlighting) the plus token",
   "expected": [
     {
       "title": "Extract to function",
@@ -41,8 +42,19 @@
           },
           "newText": "extracted(moduleVar)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_binary_expr.bal",
+          {
+            "line": 5,
+            "character": 16
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, binary expressions selecting(highlighting) the plus token"
+  ]
 }

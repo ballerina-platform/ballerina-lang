@@ -26,7 +26,7 @@
               "character": 0
             }
           },
-          "newText": "record {|string field2;|} var1 \u003d {field2: \"\"};\n"
+          "newText": "record {|string field2;|} var1 = {field2: \"\"};\n"
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInMappingConstructor.bal",
+          {
+            "line": 12,
+            "character": 15
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

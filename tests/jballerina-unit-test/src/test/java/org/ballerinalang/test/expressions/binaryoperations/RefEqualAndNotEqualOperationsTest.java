@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -105,6 +106,11 @@ public class RefEqualAndNotEqualOperationsTest {
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected floats to be identified as reference equal");
+    }
+
+    @Test
+    public void testDecimalRefEqualityPositive() {
+        BRunUtil.invoke(result, "checkDecimalRefEquality");
     }
 
     @Test(dataProvider = "unequalFloatValues")
@@ -491,5 +497,11 @@ public class RefEqualAndNotEqualOperationsTest {
                 {StringUtils.fromString("Hi from Ballerina!")},
                 {ValueCreator.createMapValue()}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
     }
 }

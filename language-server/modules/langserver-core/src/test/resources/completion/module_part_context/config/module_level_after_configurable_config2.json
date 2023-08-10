@@ -1,0 +1,167 @@
+{
+  "position": {
+    "line": 2,
+    "character": 21
+  },
+  "source": "module_part_context/source/source16.bal",
+  "description": "Test completions after configurable keyword with qualified name ref",
+  "items": [
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "A",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "A",
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "A",
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "A",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "A",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "A",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "A",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "B",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "B",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "B",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "sortText": "B",
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "sortText": "B",
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "B",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "B",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "B",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "B",
+      "insertText": "TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "B",
+      "insertText": "TargetType",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

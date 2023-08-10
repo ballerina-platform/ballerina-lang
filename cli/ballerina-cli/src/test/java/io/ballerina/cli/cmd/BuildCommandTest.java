@@ -21,18 +21,22 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,9 +47,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 
 /**
  * Build command tests.
@@ -87,7 +95,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
         // name of the file as argument
-        new CommandLine(buildCommand).parse(validBalFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(validBalFilePath.toString());
         buildCommand.execute();
 
         String buildLog = readOutput(true);
@@ -115,7 +123,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "foo.jar");
         // name of the file as argument
-        new CommandLine(buildCommand).parse("-o", "foo.jar", validBalFilePath.toString());
+        new CommandLine(buildCommand).parseArgs("-o", "foo.jar", validBalFilePath.toString());
         buildCommand.execute();
 
         String buildLog = readOutput(true);
@@ -127,7 +135,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         // only give the name of the file without extension
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, "bar");
-        new CommandLine(buildCommand).parse("-o", "bar", validBalFilePath.toString());
+        new CommandLine(buildCommand).parseArgs("-o", "bar", validBalFilePath.toString());
         buildCommand.execute();
 
         buildLog = readOutput(true);
@@ -142,7 +150,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path helloExecutableTmpDir = Files.createTempDirectory("hello_executable-");
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false,
                 helloExecutableTmpDir.toAbsolutePath().toString());
-        new CommandLine(buildCommand).parse("-o", helloExecutableTmpDir.toAbsolutePath().toString(),
+        new CommandLine(buildCommand).parseArgs("-o", helloExecutableTmpDir.toAbsolutePath().toString(),
                 validBalFilePath.toString());
         buildCommand.execute();
 
@@ -157,7 +165,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // create executable in a different path with .jar extension
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false,
                 helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString());
-        new CommandLine(buildCommand).parse("-o",
+        new CommandLine(buildCommand).parseArgs("-o",
                 helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString(),
                 validBalFilePath.toString());
         buildCommand.execute();
@@ -176,12 +184,12 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testNonBalFileBuild() throws IOException {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
         BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse(nonBalFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(nonBalFilePath.toString());
         buildCommand.execute();
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath.toString()));
+                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
     }
 
     @Test(description = "Build non existing bal file")
@@ -190,11 +198,11 @@ public class BuildCommandTest extends BaseCommandTest {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file").resolve("xyz.bal");
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse(validBalFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(validBalFilePath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("The file does not exist: " + validBalFilePath.toString()));
+                .contains("The file does not exist: " + validBalFilePath));
     }
 
     @Test(enabled = false, description = "Build bal file with no entry")
@@ -203,7 +211,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("valid-bal-file-with-no-entry").resolve("hello_world.bal");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse(projectPath.toString());
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
         try {
             buildCommand.execute();
 
@@ -218,7 +226,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse(balFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
@@ -234,7 +242,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
         // non existing bal file
-        new CommandLine(buildCommand).parse(balFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
@@ -251,7 +259,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
@@ -259,7 +267,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -269,30 +277,31 @@ public class BuildCommandTest extends BaseCommandTest {
         String generatedSource = "dummyfunc-generated_1.class";
         String generatedResource = "resources/$anon/./0/openapi-spec.yaml";
 
-        JarFile execJar = new JarFile(execPath.toString());
-        Assert.assertNull(execJar.getJarEntry(generatedSource));
-        Assert.assertNotNull(execJar.getJarEntry(generatedResource));
-
+        try (JarFile execJar = new JarFile(execPath.toString())) {
+            Assert.assertNull(execJar.getJarEntry(generatedSource));
+            Assert.assertNotNull(execJar.getJarEntry(generatedResource));
+        }
     }
 
     @Test(dependsOnMethods = "testBuildBalProject")
     public void testCodeGeneratorForBuildProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path thinJarPath = projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar");
         Path execPath = projectPath.resolve("target").resolve("bin").resolve("winery.jar");
         String generatedSource = "foo/winery/0/dummyfunc-generated_1.class";
         String generatedResource = "resources/foo/winery/0/openapi-spec.yaml";
 
-        JarFile thinJar = new JarFile(thinJarPath.toString());
-        JarFile execJar = new JarFile(execPath.toString());
+        try (JarFile thinJar = new JarFile(thinJarPath.toString())) {
+            Assert.assertNotNull(thinJar.getJarEntry(generatedSource));
+            Assert.assertNotNull(thinJar.getJarEntry(generatedResource));
+        }
 
-        Assert.assertNotNull(thinJar.getJarEntry(generatedSource));
-        Assert.assertNotNull(thinJar.getJarEntry(generatedResource));
-
-        Assert.assertNotNull(execJar.getJarEntry(generatedSource));
-        Assert.assertNotNull(execJar.getJarEntry(generatedResource));
+        try (JarFile execJar = new JarFile(execPath.toString())) {
+            Assert.assertNotNull(execJar.getJarEntry(generatedSource));
+            Assert.assertNotNull(execJar.getJarEntry(generatedResource));
+        }
     }
 
     /**
@@ -340,7 +349,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("projectWithConflictedJars");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
 
@@ -350,17 +359,17 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
-                                  .resolve("conflictProject").resolve("0.1.7").resolve("java11")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("java17")
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
     @Test(description = "Build a valid ballerina project with java imports")
-    public void testBuildJava11BalProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validJava11Project");
+    public void testBuildJavaBalProject() throws IOException {
+        Path projectPath = this.testResources.resolve("validJavaProject");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
@@ -368,7 +377,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                                  .resolve("winery").resolve("0.1.0").resolve("java11")
+                                  .resolve("winery").resolve("0.1.0").resolve("java17")
                                   .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -377,14 +386,14 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse(projectPath.toString());
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project.txt"));
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -394,14 +403,14 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project-with-tests.txt"));
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -411,7 +420,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         String actualOutput1 = getOutput("build-multi-module-project-winery.txt");
@@ -421,11 +430,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
 
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery.storage-0.1.0.jar").toFile().exists());
     }
 
@@ -435,17 +444,17 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-project-default-build-options.txt"));
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-testable-0.1.0.jar").toFile().exists());
     }
 
@@ -456,7 +465,7 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
@@ -470,11 +479,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
 
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
         Assert.assertFalse(
                 projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
@@ -487,7 +496,7 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
@@ -512,7 +521,7 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(
                 projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
@@ -535,7 +544,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
         // name of the file as argument
-        new CommandLine(buildCommand).parse(balFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(balFilePath.toString());
 
         try {
             buildCommand.execute();
@@ -553,7 +562,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // set valid source root
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false);
         // name of the file as argument
-        new CommandLine(buildCommand).parse(balFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(balFilePath.toString());
 
         try {
             buildCommand.execute();
@@ -571,7 +580,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non-existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-project-with-empty-ballerina-toml.txt"));
@@ -587,7 +596,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
 
@@ -601,7 +610,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
 
@@ -615,7 +624,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
 
@@ -629,7 +638,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
 
@@ -643,7 +652,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
@@ -657,13 +666,13 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.name", "$org");
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         String buildLog = readOutput(true);
 
         Assert.assertTrue(buildLog.contains("_org/validProjectWithEmptyBallerinaToml:0.1.0"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("_org")
-                                  .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0").resolve("java11")
+                                  .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0").resolve("java17")
                                   .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
     }
 
@@ -681,7 +690,7 @@ public class BuildCommandTest extends BaseCommandTest {
         // Check build output which contains conflicted jars for 10 consecutive builds
         for (int i = 0; i < 10; i++) {
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
-            new CommandLine(buildCommand).parse();
+            new CommandLine(buildCommand).parseArgs();
             buildCommand.execute();
             String buildLog = readOutput(true);
             Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-conflicted-jars-project.txt"));
@@ -693,10 +702,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false , true);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
+
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "").contains(getOutput("dump-build-time-package.txt")));
+        validateBuildTimeInfo(buildLog.replaceAll("\r", ""));
 
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("build-time.json")));
         Assert.assertTrue(projectPath.resolve("target").resolve("build-time.json").toFile().length() > 0);
@@ -708,10 +719,13 @@ public class BuildCommandTest extends BaseCommandTest {
 
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false , true);
-        new CommandLine(buildCommand).parse(balFilePath.toString());
+        new CommandLine(buildCommand).parseArgs(balFilePath.toString());
         buildCommand.execute();
+
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "").contains(getOutput("dump-build-time-standalone.txt")));
+        validateBuildTimeInfo(buildLog.replaceAll("\r", ""));
+
         Assert.assertTrue(Files.exists(this.testResources.resolve("valid-bal-file").resolve("build-time.json")));
         Assert.assertTrue(
                 this.testResources.resolve("valid-bal-file").resolve("build-time.json").toFile().length() > 0);
@@ -724,7 +738,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
 
         Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
@@ -740,7 +754,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, customTargetDir);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
 
         Assert.assertTrue(Files.exists(customTargetDir.resolve("bin")));
@@ -758,7 +772,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
 
         String buildLog = readOutput(true);
@@ -772,7 +786,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
 
         String buildLog = readOutput(true);
@@ -798,7 +812,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("package_a").resolve("0.1.0").resolve("java17")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -822,7 +836,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("package_a").resolve("0.1.0").resolve("java17")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -866,8 +880,308 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
-        Assert.assertTrue(firstCodeGenDuration > secondCodeGenDuration,
+        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
                 "second code gen duration is greater than the expected value");
+    }
+
+    @Test(description = "Build a valid ballerina project with a custom maven repo")
+    public void testBuildBalProjectWithCustomMavenRepo() throws IOException {
+        String username = System.getenv("publishUser");
+        String password = System.getenv("publishPAT");
+
+        if (username != null && password != null) {
+            Path projectPath = this.testResources.resolve("validProjectWithCustomMavenRepo");
+            String content = Files.readString(projectPath.resolve("Ballerina.toml"), Charset.defaultCharset())
+                    .replace("{{username}}", username).replace("{{password}}", password);
+            Files.write(projectPath.resolve("Ballerina.toml"), content.getBytes(Charset.defaultCharset()));
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parseArgs(projectPath.toString());
+            buildCommand.execute();
+            Assert.assertTrue(projectPath.resolve("target").resolve("platform-libs").resolve("org")
+                    .resolve("ballerinalang").resolve("ballerina-command-distribution")
+                    .resolve("0.8.14").resolve("ballerina-command-distribution-0.8.14.jar").toFile().exists());
+        }
+    }
+
+    @BeforeGroups(value = {"proj-with-deps-update-policy"})
+    public void publishDependencies() {
+        Path distVersionTestResources = testResources.resolve("dep-dist-version-projects");
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_1_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_1_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_1_0_1"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_1_0_1"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_1_1_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_1_1_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_2_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_2_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+    }
+
+    @Test(description = "Build a new ballerina project without sticky flag", groups = {"proj-with-deps-update-policy"})
+    public void testBuildNewBalProjectWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-new-proj-with-dep.txt"));
+
+        // Dependencies.toml should have the latest versions of the dependencies
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("new-pkg.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Delete dependencies.toml from the project
+        Files.delete(actualDependenciesToml);
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a new ballerina project with sticky flag", groups = {"proj-with-deps-update-policy"})
+    public void testBuildNewBalProjectWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-new-proj-with-dep.txt"));
+
+        // Dependencies.toml should have the latest versions of the dependencies
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("new-pkg.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Delete dependencies.toml from the project
+        Files.delete(actualDependenciesToml);
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an older distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithOlderDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
+
+        // Dependencies.toml should be updated to the latest minor versions.
+        // depA:1.0.0 -> depA:1.1.0
+        // depB:1.0.0 -> depB:1.1.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.1.0", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithOlderDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-with-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an U4 or older distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithNoDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(
+                projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", "4 or an older Update"));
+
+        // Dependencies.toml should be updated to the latest minor versions.
+        // depA:1.0.0 -> depA:1.1.0
+        // depB:1.0.0 -> depB:1.1.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.1.0", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with U4 or older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithNoDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(
+                projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-with-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", "4 or an older Update"));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with the current distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithCurrentDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
+
+        // Dependencies.toml should be updated to the latest patch versions.
+        // depA:1.0.0 -> depA:1.0.1
+        // depB:1.0.0 -> depB:1.0.1
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("curr-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.0.1", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithCurrentDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    private String getNewVersionForOldDistWarning() {
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+        if (currentDistributionVersion.patch() != 0) {
+            currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+        }
+        return currentVersionForDiagnostic;
+    }
+
+    private String getOldVersionForOldDistWarning(String version) {
+        SemanticVersion prevDistributionVersion = SemanticVersion.from(version);
+        String prevVersionForDiagnostic;
+        if (null != prevDistributionVersion) {
+            prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+            if (prevDistributionVersion.patch() != 0) {
+                prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+            }
+        } else {
+            prevVersionForDiagnostic = "4 or an older Update";
+        }
+        return prevVersionForDiagnostic;
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
@@ -908,7 +1222,84 @@ public class BuildCommandTest extends BaseCommandTest {
 
     private void cleanTarget(Path projectPath) {
         CleanCommand cleanCommand = new CleanCommand(projectPath, false);
-        new CommandLine(cleanCommand).parse();
+        new CommandLine(cleanCommand).parseArgs();
         cleanCommand.execute();
+    }
+
+    private void validateBuildTimeInfo(String buildLog) {
+        Assert.assertTrue(buildLog.contains("timestamp"),
+                "Missing timestamp field in build time logs");
+        Assert.assertTrue(buildLog.contains("offline"),
+                "Missing offline field in build time logs");
+        Assert.assertTrue(buildLog.contains("compile"),
+                "Missing compile field in build time logs");
+        Assert.assertTrue(buildLog.contains("projectLoadDuration"),
+                "Missing projectLoadDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("packageResolutionDuration"),
+                "Missing packageResolutionDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("codeGeneratorPluginDuration"),
+                "Missing codeGeneratorPluginDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("codeModifierPluginDuration"),
+                "Missing codeModifierPluginDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("packageCompilationDuration"),
+                "Missing packageCompilationDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("codeGenDuration"), "Missing codeGenDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("emitArtifactDuration"),
+                "Missing emitArtifactDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("testingExecutionDuration"),
+                "Missing testingExecutionDuration field in build time logs");
+        Assert.assertTrue(buildLog.contains("totalDuration"), "Missing totalDuration field in build time logs");
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfJavaImportedProject() throws IOException {
+        // Project contains only dist provided Java dependencies
+        Path projectPath = this.testResources.resolve("validJavaProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0") &&
+                    !buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfJavaProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") &&
+                    buildLog.contains("sameera/myproject:0.1.0") &&
+                    buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfAnyProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0")
+                    && !buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
     }
 }

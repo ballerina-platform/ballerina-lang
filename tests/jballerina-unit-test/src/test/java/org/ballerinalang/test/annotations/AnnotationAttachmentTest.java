@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -557,6 +559,15 @@ public class AnnotationAttachmentTest {
         Assert.assertNull(((BLangLiteral) keyValuePair.getValue()).value);
     }
 
+    @Test
+    public void testAnnotOnTupleMember() {
+        BLangTupleTypeNode tp = (BLangTupleTypeNode) getTypeDefinition(
+                compileResult.getAST().getTypeDefinitions(), "Tp").getTypeNode();
+        BLangSimpleVariable m1 = tp.getMemberNodes().get(0);
+        Assert.assertEquals(m1.annAttachments.size(), 1);
+        Assert.assertEquals(m1.annAttachments.get(0).annotationName.getValue(), "v30");
+    }
+
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;
@@ -579,5 +590,10 @@ public class AnnotationAttachmentTest {
             }
         }
         throw new RuntimeException("Class Definition '" + name + "' not found.");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

@@ -36,8 +36,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.model.elements.PackageID;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -45,7 +43,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +52,7 @@ import java.util.stream.Collectors;
  */
 public class PackageConfigCreator {
 
-    public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
         // TODO Create the PackageManifest from the BallerinaToml file
@@ -79,20 +76,31 @@ public class PackageConfigCreator {
                 DependencyManifestBuilder.from(dependenciesToml, packageManifest.descriptor());
         DependencyManifest dependencyManifest = dependencyManifestBuilder.dependencyManifest();
 
-        return createPackageConfig(packageData, packageManifest, dependencyManifest);
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
+                Collections.emptyMap(), disableSyntaxTree);
     }
 
-    public static PackageConfig createSingleFileProjectConfig(Path filePath) {
+
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
+       return createBuildProjectConfig(projectDirPath, false);
+    }
+
+    public static PackageConfig createSingleFileProjectConfig(Path filePath, Boolean disableSyntaxTree) {
         ProjectFiles.validateSingleFileProjectFilePath(filePath);
 
         // Create a PackageManifest instance
         PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
                 PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
-        DependencyManifest dependencyManifest = DependencyManifest.from(null, Collections.emptyList());
+        DependencyManifest dependencyManifest = DependencyManifest.from(null, null, Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
-        return createPackageConfig(packageData, packageManifest, dependencyManifest);
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
+                Collections.emptyMap(), disableSyntaxTree);
+    }
+
+    public static PackageConfig createSingleFileProjectConfig(Path filePath) {
+        return createSingleFileProjectConfig(filePath, false);
     }
 
     public static PackageConfig createBalaProjectConfig(Path balaPath) {
@@ -111,15 +119,15 @@ public class PackageConfigCreator {
                                                     PackageManifest packageManifest,
                                                     DependencyManifest dependencyManifest) {
         return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
-                Collections.emptyMap());
+                Collections.emptyMap(), false);
     }
 
-    public static PackageConfig createPackageConfig(PackageData packageData,
+    private static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
                                                     DependencyManifest dependencyManifest,
                                                     DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                                     Map<ModuleDescriptor, List<ModuleDescriptor>>
-                                                            moduleDependencyGraph) {
+                                                            moduleDependencyGraph, boolean disableSyntaxTree) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -146,18 +154,26 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig compilerPluginToml = packageData.compilerPluginToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
+        DocumentConfig balToolToml = packageData.balToolToml()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
-                      dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs,
-                      packageDependencyGraph);
+                        dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
+                        packageDependencyGraph, disableSyntaxTree);
+    }
+    public static PackageConfig createPackageConfig(PackageData packageData,
+                                                    PackageManifest packageManifest,
+                                                    DependencyManifest dependencyManifest,
+                                                    DependencyGraph<PackageDescriptor> packageDependencyGraph,
+                                                    Map<ModuleDescriptor, List<ModuleDescriptor>>
+                                                            moduleDependencyGraph) {
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, packageDependencyGraph,
+                moduleDependencyGraph, true);
     }
 
-    public static Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> getIDLClientMap (Path balaPath) {
-        return BalaFiles.createIDLClientsMapFromJson(balaPath);
-    }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
                                                           ModuleData moduleData,

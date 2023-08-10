@@ -63,7 +63,7 @@ public class OperandTest {
     @Test
     public void testDecimal() {
         Operand[] operands = {new Operand(false, "opDecimal", PredefinedTypes.TYPE_DECIMAL)};
-        String val = "1e10111";
+        String val = "9.999999999999999999999999999999999e6144";
         Object[] args = new CliSpec(null, operands, val).getMainArgs();
         Assert.assertTrue(args[1] instanceof BDecimal);
         Assert.assertEquals(((BDecimal) args[1]).value(), new BigDecimal(val));

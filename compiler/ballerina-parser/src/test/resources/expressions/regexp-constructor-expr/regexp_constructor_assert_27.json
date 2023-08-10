@@ -128,16 +128,33 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_QUOTE_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                            "ERROR_INVALID_RE_SYNTAX_CHAR"
                                           ],
-                                          "value": "\\p"
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "RE_LITERAL_CHAR",
+                                                    "value": "p"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -253,7 +270,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "sd\u003dGreek"
                                             }
@@ -376,7 +393,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "sc-Greek"
                                             }
@@ -503,7 +520,7 @@
                                               "kind": "RE_UNICODE_PROPERTY_VALUE",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "#"
                                             }
@@ -626,7 +643,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "gd\u003dLu"
                                             }
@@ -749,7 +766,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "gc-Lu"
                                             }
@@ -876,7 +893,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "#"
                                             }

@@ -364,3 +364,46 @@ function testTypeDefinitionForReadOnlyIntersectionWithBuiltinTypeNegative() {
         z: b // OK
     };
 }
+
+type MyJson int|float|decimal|boolean|string|()|map<MyJson>|MyJson[];
+
+function testReadOnlyIntersectionWithJsonAndAnydataNegative() {
+    anydata & readonly a = 1;
+    string|error b = a; // error
+
+    json & readonly c = 1;
+    string|error d = c; // error
+
+    any|error e = a; // OK
+    any|error f = c; // OK
+
+    anydata & readonly _ = a; // OK
+    json & readonly _ = c; // OK
+
+    anydata & readonly _ = c; // OK
+    json & readonly _ = a; // error
+
+    MyJson & readonly g = 1;
+    json & readonly h = 1;
+
+    json _ = g; // OK
+    MyJson _ = h; // OK
+    json & readonly _ = g; // OK
+    MyJson & readonly _ = h; // OK
+    (json & readonly)|xml _ = g; // OK
+    xml|(MyJson & readonly) _ = h; // OK
+
+    json i = 1;
+    MyJson j = 1;
+    MyJson _ = i; // OK
+    json _ = j; // OK
+
+    (json & readonly)[] k = [];
+    MyJson[] l = k; // OK
+    (json & readonly)[] _ = l; // error
+    json[] m = l; // OK
+    (MyJson & readonly)[] _ = m; // error
+
+    (xml & readonly)[] n = k; // error
+    (json & readonly)[] _ = n; // error
+}

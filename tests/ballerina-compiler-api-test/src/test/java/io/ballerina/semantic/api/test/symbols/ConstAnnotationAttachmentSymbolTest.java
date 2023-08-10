@@ -21,11 +21,14 @@ package io.ballerina.semantic.api.test.symbols;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
-import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -76,14 +79,11 @@ public class ConstAnnotationAttachmentSymbolTest {
         ConstantValue constVal = annotAttachment.attachmentValue().get();
 
         // Test type-descriptor
-        assertEquals(constVal.valueType().typeKind(), TypeDescKind.INTERSECTION);
-        assertEquals(((IntersectionTypeSymbol) constVal.valueType()).memberTypeDescriptors().get(0).typeKind(),
-                TypeDescKind.RECORD);
-        assertEquals(((IntersectionTypeSymbol) constVal.valueType()).memberTypeDescriptors().get(1).typeKind(),
-                TypeDescKind.READONLY);
+        assertEquals(constVal.valueType().typeKind(), TypeDescKind.RECORD);
         RecordTypeSymbol recTypeSymbol =
-                (RecordTypeSymbol) ((IntersectionTypeSymbol) constVal.valueType()).memberTypeDescriptors().get(0);
-        assertEquals(recTypeSymbol.signature(), "record {|1 id; record {|1 a; 2 b;|} perm;|}");
+                (RecordTypeSymbol) constVal.valueType();
+        assertEquals(recTypeSymbol.signature(), "record {|readonly 1 id; readonly record " +
+                "{|readonly 1 a; readonly 2 b;|} perm;|}");
 
         // Test const value
         assertTrue(constVal.value() instanceof HashMap);
@@ -97,14 +97,48 @@ public class ConstAnnotationAttachmentSymbolTest {
 
         assertTrue(valueMap.get("perm") instanceof BallerinaConstantValue);
         BallerinaConstantValue permValue = (BallerinaConstantValue) valueMap.get("perm");
-        assertEquals(permValue.valueType().typeKind(), TypeDescKind.INTERSECTION);
-        assertEquals(((IntersectionTypeSymbol) permValue.valueType()).effectiveTypeDescriptor().typeKind(),
-                TypeDescKind.RECORD);
+        assertEquals(permValue.valueType().typeKind(), TypeDescKind.RECORD);
         assertTrue(permValue.value() instanceof HashMap);
         HashMap permMap = (HashMap) permValue.value();
         assertEquals(((BallerinaConstantValue) permMap.get("a")).value(), 1L);
         assertEquals(((BallerinaConstantValue) permMap.get("a")).valueType().typeKind(), TypeDescKind.INT);
         assertEquals(((BallerinaConstantValue) permMap.get("b")).value(), 2L);
         assertEquals(((BallerinaConstantValue) permMap.get("b")).valueType().typeKind(), TypeDescKind.INT);
+    }
+
+    @Test
+    public void testAnnotInTupleMembers1() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(22, 5));
+        assertTrue(symbol.isPresent());
+        TypeSymbol typeSymbol = ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TUPLE);
+        TupleTypeSymbol tupleSymbol = (TupleTypeSymbol) typeSymbol;
+
+        // tuple members
+        List<MemberTypeSymbol> members = tupleSymbol.members();
+        members.forEach(member -> {
+            List<AnnotationAttachmentSymbol> attachments = member.annotAttachments();
+            assertEquals(attachments.size(), 1);
+            AnnotationAttachmentSymbol annotAtt = attachments.get(0);
+            assertEquals(annotAtt.typeDescriptor().getName().get(), "member");
+        });
+    }
+
+    @Test
+    public void testAnnotInTupleMembers2() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(25, 32));
+        assertTrue(symbol.isPresent());
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TUPLE);
+        TupleTypeSymbol tupleSymbol = (TupleTypeSymbol) typeSymbol;
+
+        // tuple members
+        List<MemberTypeSymbol> members = tupleSymbol.members();
+        members.forEach(member -> {
+            List<AnnotationAttachmentSymbol> attachments = member.annotAttachments();
+            assertEquals(attachments.size(), 1);
+            AnnotationAttachmentSymbol annotAtt = attachments.get(0);
+            assertEquals(annotAtt.typeDescriptor().getName().get(), "Annot");
+        });
     }
 }

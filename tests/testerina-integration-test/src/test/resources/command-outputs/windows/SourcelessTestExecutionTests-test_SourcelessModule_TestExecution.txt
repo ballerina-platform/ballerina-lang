@@ -1,0 +1,24 @@
+Compiling source
+	wso2/sourcelessModulesTest:0.0.0
+
+Running Tests with Coverage
+
+	sourcelessModulesTest.module1
+		[pass] test1
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+	sourcelessModulesTest.module2
+		[pass] test2
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	sourceless-modules-test\target\report\test_results.json
+

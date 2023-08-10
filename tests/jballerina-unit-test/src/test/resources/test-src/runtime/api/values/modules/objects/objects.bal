@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import testorg/runtime_api.records;
+import testorg/values.records;
 
 public class Person {
 

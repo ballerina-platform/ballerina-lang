@@ -15,10 +15,11 @@
  *
  */
 
-//apply from: "$rootDir/gradle/javaProject.gradle"
-apply plugin: 'java'
-apply plugin: 'checkstyle'
-apply plugin: "com.github.spotbugs"
+plugins {
+    id 'java-library'
+    id 'checkstyle'
+    id 'com.github.spotbugs'
+}
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
@@ -89,7 +90,7 @@ dependencies {
     dist "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
-    dist "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+    dist "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
     dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
 
     // runtime

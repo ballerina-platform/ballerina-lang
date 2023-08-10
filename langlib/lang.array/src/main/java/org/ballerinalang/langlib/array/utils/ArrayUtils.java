@@ -26,17 +26,18 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility functions for dealing with ArrayValue.
@@ -74,6 +75,8 @@ public class ArrayUtils {
                 return BArray::get;
             case TypeTags.TUPLE_TAG:
                 return BArray::getRefValue;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getElementAccessFunction(TypeUtils.getReferredType(arrType), funcName);
             default:
                 throw createOpNotSupportedError(arrType, funcName);
         }
@@ -88,11 +91,11 @@ public class ArrayUtils {
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
+                ErrorHelper.getErrorDetails(ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, op, type));
     }
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         TupleType tupleType = (TupleType) arrType;
         List<Type> memTypes = new ArrayList<>();
         List<Type> tupleTypes = tupleType.getTupleTypes();

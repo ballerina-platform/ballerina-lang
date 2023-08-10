@@ -1,4 +1,4 @@
 [package]
 org= "testorg"
-name="runtime_api"
+name="stop_handler"
 version= "1.0.0"

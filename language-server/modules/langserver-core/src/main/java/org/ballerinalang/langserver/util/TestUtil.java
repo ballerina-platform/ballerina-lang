@@ -39,8 +39,10 @@ import org.ballerinalang.langserver.extensions.ballerina.packages.PackageCompone
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeActionResolveSupportCapabilities;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionContext;
@@ -63,6 +65,7 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.Range;
@@ -135,6 +138,8 @@ public class TestUtil {
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final String CODE_ACTION_RESOLVE = "codeAction/resolve";
+
+    private static final String INLAY_HINT = "textDocument/inlayHint";
 
     private static final String FORMATTING = "textDocument/formatting";
 
@@ -343,6 +348,13 @@ public class TestUtil {
      */
     public static String getCodeActionResolveResponse(Endpoint serviceEndpoint, Object codeAction) {
         CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION_RESOLVE, codeAction);
+        return getResponseString(result);
+    }
+
+    public static String getInlayHintsResponse(Endpoint serviceEndpoint, String filePath, Range range) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        InlayHintParams inlayHintsParams = new InlayHintParams(identifier, range);
+        CompletableFuture<?> result = serviceEndpoint.request(INLAY_HINT, inlayHintsParams);
         return getResponseString(result);
     }
 
@@ -676,7 +688,7 @@ public class TestUtil {
         return identifier;
     }
 
-    private static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
+    public static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setTextDocument(getTextDocumentIdentifier(filePath));
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
@@ -873,9 +885,17 @@ public class TestUtil {
 
                 textDocumentClientCapabilities.setCompletion(completionCapabilities);
                 textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+                // Code action capabilities
+                CodeActionResolveSupportCapabilities resolveSupportCapabilities = 
+                        new CodeActionResolveSupportCapabilities(List.of("edit"));
+                CodeActionCapabilities codeActionCapabilities = new CodeActionCapabilities();
+                codeActionCapabilities.setResolveSupport(resolveSupportCapabilities);
+                textDocumentClientCapabilities.setCodeAction(codeActionCapabilities);
+                // Folding range capabilities
                 FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
                 foldingRangeCapabilities.setLineFoldingOnly(true);
                 textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+                // Rename capabilities
                 RenameCapabilities renameCapabilities = new RenameCapabilities();
                 renameCapabilities.setPrepareSupport(true);
                 renameCapabilities.setHonorsChangeAnnotations(true);
@@ -899,8 +919,8 @@ public class TestUtil {
 
             Map<String, Object> initializationOptions = new HashMap<>();
             initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
+            initializationOptions.put(InitializationOptions.KEY_ENABLE_INLAY_HINTS, true);
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
-            initializationOptions.put(InitializationOptions.KEY_RENAME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
             }

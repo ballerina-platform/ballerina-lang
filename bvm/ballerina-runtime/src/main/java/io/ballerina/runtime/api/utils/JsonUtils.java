@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -39,8 +40,8 @@ import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.IOException;
@@ -49,16 +50,17 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
- * Class @{@link JsonParser} provides APIs to handle json values.
+ * Class {@link JsonParser} provides APIs to handle json values.
  *
  * @since 2.0.0
  */
@@ -234,8 +236,7 @@ public class JsonUtils {
      * @throws BError If error occur while serialize json construct.
      */
     public static void serialize(Object json, OutputStream out) throws BError {
-        try {
-            JsonGenerator gen = new JsonGenerator(out);
+        try (JsonGenerator gen = new JsonGenerator(out)) {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
@@ -252,8 +253,7 @@ public class JsonUtils {
      * @throws BError If error occur while serialize json construct.
      */
     public static void serialize(Object json, OutputStream out, Charset charset) throws BError {
-        try {
-            JsonGenerator gen = new JsonGenerator(out, charset);
+        try (JsonGenerator gen = new JsonGenerator(out, charset)) {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
@@ -269,8 +269,7 @@ public class JsonUtils {
      * @throws BError If error occur while serialize json construct.
      */
     public static void serialize(Object json, Writer writer) throws BError {
-        try {
-            JsonGenerator gen = new JsonGenerator(writer);
+        try (JsonGenerator gen = new JsonGenerator(writer)) {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
@@ -278,13 +277,38 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * Create a json value from the given source value.
+     *
+     * @param value source value
+     * @return      json value
+     */
+    public static Object convertToJson(Object value) {
+        return convertToJsonType(value, new ArrayList<>());
+    }
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    /**
+     * Create a json value from the given source value.
+     *
+     * @param value             source value
+     * @param unresolvedValues  list of unresolved values
+     * @return                  json value
+     * @deprecated              use {@link #convertToJson(Object)} instead.
+     */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static Object convertToJson(Object value, List<TypeValuePair> unresolvedValues) {
+        return convertToJsonType(value, unresolvedValues);
+    }
+
+    private static Object convertToJsonType(Object value, List<TypeValuePair> unresolvedValues) {
         Type jsonType = PredefinedTypes.TYPE_JSON;
         if (value == null) {
             return null;
         }
         Type sourceType = TypeChecker.getType(value);
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
+        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
+                jsonType)) {
             return value;
         }
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
@@ -292,8 +316,14 @@ public class JsonUtils {
             throw createCyclicValueReferenceError(value);
         }
         unresolvedValues.add(typeValuePair);
-        Object newValue;
+        Object newValue = getJsonObject(value, unresolvedValues, jsonType, sourceType);
+        unresolvedValues.remove(typeValuePair);
+        return newValue;
+    }
 
+    private static Object getJsonObject(Object value, List<TypeValuePair> unresolvedValues, Type jsonType,
+                                    Type sourceType) {
+        Object newValue;
         switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -301,7 +331,7 @@ public class JsonUtils {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.REG_EXP_TYPE_TAG:
-                newValue = StringUtils.fromString(StringUtils.getStringValue(value, null));
+                newValue = StringUtils.fromString(StringUtils.getStringValue(value));
                 break;
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
@@ -309,7 +339,7 @@ public class JsonUtils {
                 break;
             case TypeTags.TABLE_TAG:
                 BTable bTable = (BTable) value;
-                Type constrainedType = ((TableType) bTable.getType()).getConstrainedType();
+                Type constrainedType = ((TableType) sourceType).getConstrainedType();
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
@@ -324,11 +354,14 @@ public class JsonUtils {
             case TypeTags.MAP_TAG:
                 newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
                 break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                newValue = getJsonObject(value, unresolvedValues, jsonType,
+                        ((ReferenceType) sourceType).getReferredType());
+                break;
             case TypeTags.ERROR_TAG:
             default:
                 throw createConversionError(value, jsonType);
         }
-        unresolvedValues.remove(typeValuePair);
         return newValue;
     }
 
@@ -348,7 +381,7 @@ public class JsonUtils {
         BMap<BString, Object> newMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
         for (Map.Entry entry : map.entrySet()) {
-            Object newValue = convertToJson(entry.getValue(), unresolvedValues);
+            Object newValue = convertToJsonType(entry.getValue(), unresolvedValues);
             newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
@@ -357,7 +390,7 @@ public class JsonUtils {
     private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
         BArray newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
-            Object newValue = convertToJson(array.get(i), unresolvedValues);
+            Object newValue = convertToJsonType(array.get(i), unresolvedValues);
             newArray.add(i, newValue);
         }
         return newArray;
@@ -365,19 +398,19 @@ public class JsonUtils {
 
     private static BError createConversionError(Object inputValue, Type targetType) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
+                ErrorHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
     private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, ErrorHelper.getErrorMessage(
                         INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": ".concat(detailMessage))));
     }
 
     private static BError createCyclicValueReferenceError(Object value) {
-        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper.getErrorDetails(
-                RuntimeErrors.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType()));
+        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, ErrorHelper.getErrorDetails(
+                ErrorCodes.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType()));
     }
 
     /**

@@ -20,8 +20,11 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -29,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -60,8 +62,10 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -78,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -106,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -158,7 +164,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPatter
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -285,18 +290,6 @@ public class ReferenceFinder extends BaseVisitor {
         find(xmlnsNode.namespaceURI);
         addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.prefix.pos);
     }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclStmt) {
-        find(clientDeclStmt.getClientDeclaration());
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        find((BLangNode) clientDeclNode.getUri());
-        addIfSameSymbol(clientDeclNode.symbol, clientDeclNode.prefix.pos);
-    }
-
     @Override
     public void visit(BLangFunction funcNode) {
         find(funcNode.annAttachments);
@@ -306,7 +299,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(funcNode.returnTypeNode);
         find(funcNode.body);
 
-        if (funcNode.symbol.origin != VIRTUAL) {
+        if (funcNode.symbol != null && funcNode.symbol.origin != VIRTUAL) {
             addIfSameSymbol(funcNode.symbol, funcNode.name.pos);
         }
     }
@@ -654,6 +647,29 @@ public class ReferenceFinder extends BaseVisitor {
         for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
             find((BLangOrderKey) orderKeyNode);
         }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        for (GroupingKeyNode keyNode : groupByClause.getGroupingKeyList()) {
+            Node groupingKey = keyNode.getGroupingKey();
+            if (groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
+                find((BLangSimpleVariableDef) keyNode.getGroupingKey());
+            } else if (groupingKey.getKind() == NodeKind.VARIABLE
+                    || groupingKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                find((BLangSimpleVarRef) keyNode.getGroupingKey());
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        find(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        find(invocation.invocation);
     }
 
     @Override
@@ -1149,7 +1165,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        find(tupleTypeNode.memberTypeNodes);
+        find(tupleTypeNode.members);
         find(tupleTypeNode.restParamType);
     }
 
@@ -1225,6 +1241,11 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Ignore incomplete worker-flush expressions
+        // Ex: var a = flush;
+        if (workerFlushExpr.workerIdentifier == null) {
+            return;
+        }
         addIfSameSymbol(workerFlushExpr.workerSymbol, workerFlushExpr.workerIdentifier.pos);
     }
 
@@ -1367,6 +1388,12 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        find(reCharSetRange.lhsCharSetAtom);
+        find(reCharSetRange.rhsCharSetAtom);
+    }
+
+    @Override
     public void visit(BLangReAssertion reAssertion) {
         find(reAssertion.assertion);
     }
@@ -1409,7 +1436,7 @@ public class ReferenceFinder extends BaseVisitor {
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)
                 && this.targetSymbol.pos.equals(symbol.pos)
-                && (this.withDefinition || !symbol.pos.equals(location))) {
+                && (this.withDefinition || (symbol.getOrigin() != VIRTUAL && !symbol.pos.equals(location)))) {
             this.referenceLocations.add(location);
             return true;
         }
@@ -1431,7 +1458,7 @@ public class ReferenceFinder extends BaseVisitor {
      */
     private Location getLocationForLiteral(Location location) {
         LineRange lineRange = location.lineRange();
-        return new BLangDiagnosticLocation(lineRange.filePath(),
+        return new BLangDiagnosticLocation(lineRange.fileName(),
                                            lineRange.startLine().line(), lineRange.endLine().line(),
                                            lineRange.startLine().offset() + 1, lineRange.endLine().offset() - 1,
                                            location.textRange().startOffset(), location.textRange().length());

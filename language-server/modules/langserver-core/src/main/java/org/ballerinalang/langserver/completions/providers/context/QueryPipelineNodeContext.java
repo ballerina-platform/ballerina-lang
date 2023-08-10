@@ -15,12 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -29,6 +35,7 @@ import org.ballerinalang.langserver.completions.providers.context.util.QueryExpr
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -67,6 +74,15 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
             completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
+
+            if (onSuggestDirectionKeywords(context, node)) {
+                /*
+                    Covers the following. 
+                    order by key d<cursor>
+                 */
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ASCENDING.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DESCENDING.get()));
+            }
         } else if (onMissingJoinKeyword(context)) {
             /* Covers the following
             (1) [intermediate-clause] outer <cursor>
@@ -93,5 +109,44 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
         
         return !evalNode.isMissing() && evalNode.kind() == SyntaxKind.JOIN_CLAUSE 
                 && ((JoinClauseNode) evalNode).joinKeyword().isMissing();
+    }
+
+    /**
+     * Check if order direction keywords can be suggested.
+     * @param context completion context
+     * @param node QueryPipeLine node
+     * @return
+     */
+    private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, QueryPipelineNode node) {
+        if (!onMissingWhereNode(context) || context.currentSyntaxTree().isEmpty()) {
+            return false;
+        }
+
+        int cursor = context.getCursorPositionInTree();
+        NonTerminalNode nextIntermediate = context.getNodeAtCursor().parent();
+        LinePosition startLinePosition = nextIntermediate.lineRange().startLine();
+        int startOffset = PositionUtil.getPositionOffset(PositionUtil.toPosition(startLinePosition),
+                context.currentSyntaxTree().get());
+
+        Iterator<IntermediateClauseNode> iterator = node.intermediateClauses().iterator();
+        IntermediateClauseNode closestNode = null;
+        while (iterator.hasNext()) {
+            IntermediateClauseNode next = iterator.next();
+            int endOffset = PositionUtil.getPositionOffset(PositionUtil.toPosition(next.lineRange().endLine()),
+                    context.currentSyntaxTree().get());
+            if (endOffset < startOffset) {
+                closestNode = next;
+            }
+        }
+        if (closestNode == null || closestNode.kind() != SyntaxKind.ORDER_BY_CLAUSE) {
+            return false;
+        }
+        SeparatedNodeList<OrderKeyNode> orderKeyNodes = ((OrderByClauseNode) closestNode).orderKey();
+        if (orderKeyNodes.isEmpty()) {
+            return false;
+        }
+
+        OrderKeyNode lastOrderKey = orderKeyNodes.get(orderKeyNodes.size() - 1);
+        return cursor > lastOrderKey.textRange().endOffset();
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.eventsync.subscribers;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
@@ -32,18 +33,22 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class PublishDiagnosticSubscriber implements EventSubscriber {
+
     public static final String NAME = "Publish diagnostic subscriber";
 
     @Override
     public EventKind eventKind() {
         return EventKind.PROJECT_UPDATE;
     }
-    
+
     @Override
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
                         LanguageServerContext languageServerContext) {
-        DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(languageServerContext);
-        diagnosticsHelper.compileAndSendDiagnostics(client, context);
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (!lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
+            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(languageServerContext);
+            diagnosticsHelper.compileAndSendDiagnostics(client, context);
+        }
     }
 
     @Override

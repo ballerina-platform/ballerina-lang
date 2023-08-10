@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -221,7 +223,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
 
         if (hasMatchedTupleType) {
-            if (expTupleType.tupleTypes.size() != originalType.tupleTypes.size()) {
+            if (expTupleType.getMembers().size() != originalType.getMembers().size()) {
                 hasMatchedTupleType = false;
             } else {
                 BType expRestType = expTupleType.restType;
@@ -233,15 +235,15 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        List<BType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
+        List<BType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.getTupleTypes()) :
                 Collections.singletonList(null);
 
-        List<BType> members = new ArrayList<>();
+        List<BTupleMember> members = new ArrayList<>();
         int delta = hasMatchedTupleType ? 1 : 0;
 
         boolean errored = false;
 
-        List<BType> tupleTypes = originalType.tupleTypes;
+        List<BType> tupleTypes = originalType.getTupleTypes();
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
             if (this.visitedTypes.contains(tupleTypes.get(i))) {
                 continue;
@@ -249,7 +251,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType member = tupleTypes.get(i);
             BType expMember = expTupleTypes.get(j);
             BType newMem = member.accept(this, expMember);
-            members.add(newMem);
+            BVarSymbol varSymbol = new BVarSymbol(newMem.flags, null, null, newMem, null, null, null);
+            members.add(new BTupleMember(newMem, varSymbol));
 
             if (isSemanticErrorInInvocation(newMem)) {
                 errored = true;
@@ -549,12 +552,13 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     if (!paramValueTypes.containsKey(paramVarName)) {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
-                        dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramVarName);
+                        logCannotInferTypedescArgumentError(paramVarName);
                         return symbolTable.semanticError;
                     }
 
                     BType type = paramValueTypes.get(paramVarName);
-                    return type == symbolTable.semanticError ? expType : ((BTypedescType) type).constraint;
+                    return type.tag == TypeTags.SEMANTIC_ERROR ? expType : 
+                            ((BTypedescType) Types.getReferredType(type)).constraint;
                 }
 
                 if (!types.isAssignable(expType, paramSymbolType)) {
@@ -578,7 +582,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     return getConstraintTypeIfNotError(paramValueTypes.get(paramVarName));
                 }
 
-                dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramVarName);
+                logCannotInferTypedescArgumentError(paramVarName);
                 return symbolTable.semanticError;
             }
 
@@ -604,6 +608,18 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             type = ((BTypedescType) getConstraintFromReferenceType(originalType.paramSymbol.type)).constraint;
         }
         return type;
+    }
+
+    private void logCannotInferTypedescArgumentError(String paramName) {
+        if (invocation.expectedType == symbolTable.noType) {
+            dlog.error(invocation.pos,
+                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET,
+                    paramName);
+        } else {
+            dlog.error(invocation.pos,
+                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_FROM_CET, paramName,
+                    invocation.expectedType, ((BInvokableSymbol) invocation.symbol).retType);
+        }
     }
 
     public BType visit(BTypeReferenceType t, BType s) {
@@ -653,7 +669,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             if (restArgType.tag == TypeTags.RECORD) {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
             }
-            return getConstraintTypeIfNotError(((BTupleType) restArgType).tupleTypes.get(index - requiredArgCount));
+            return getConstraintTypeIfNotError(
+                    ((BTupleType) restArgType).getTupleTypes().get(index - requiredArgCount));
         }
 
         BLangNamedArgsExpression namedArg = createTypedescExprNamedArg(expType, paramName);
@@ -665,6 +682,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private BType getConstraintTypeIfNotError(BType type) {
         if (type == symbolTable.semanticError) {
             return type;
+        }
+
+        if (type.getKind() == TypeKind.TYPEREFDESC) {
+            return ((BTypedescType) (Types.getReferredType(type))).constraint;
         }
 
         return ((BTypedescType) type).constraint;
@@ -798,7 +819,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void populateParamMapFromTupleRestArg(List<BVarSymbol> params, int currentParamIndex,
                                                   BTupleType tupleType) {
         int tupleIndex = 0;
-        List<BType> tupleTypes = tupleType.tupleTypes;
+        List<BType> tupleTypes = tupleType.getTupleTypes();
         for (int i = currentParamIndex; i < params.size(); i++) {
             paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++));
         }
@@ -835,7 +856,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return symbolTable.noType;
             }
 
-            BType paramType = requiredParam.getBType();
+            BType paramType = Types.getReferredType(requiredParam.getBType());
             if (paramType.tag != TypeTags.TYPEDESC) {
                 return symbolTable.noType;
             }
@@ -1071,8 +1092,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
 
-                for (BType tupleMemType : tupleType.tupleTypes) {
-                    if (refersInferableParamName(paramsWithInferredTypedescDefault, tupleMemType, unresolvedTypes)) {
+                for (BType tupleMember : tupleType.getTupleTypes()) {
+                    if (refersInferableParamName(
+                            paramsWithInferredTypedescDefault, tupleMember, unresolvedTypes)) {
                         return true;
                     }
                 }

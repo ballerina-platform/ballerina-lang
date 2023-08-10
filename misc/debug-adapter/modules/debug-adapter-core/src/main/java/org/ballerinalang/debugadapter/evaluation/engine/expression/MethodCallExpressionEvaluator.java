@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.projects.Package;
@@ -233,9 +232,8 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         }
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
-        FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
         NodeBasedArgProcessor argProcessor = new NodeBasedArgProcessor(context, methodName, langLibMethod
-                .getJDIMethodRef(), functionSignature);
+                .getJDIMethodRef(), langLibFunctionDef);
         List<Value> orderedArgsList = argProcessor.process(argEvaluators);
         langLibMethod.setArgValues(orderedArgsList);
         return langLibMethod.invokeSafely();

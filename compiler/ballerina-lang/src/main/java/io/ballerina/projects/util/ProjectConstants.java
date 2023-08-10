@@ -30,7 +30,9 @@ public class ProjectConstants {
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
     public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
+    public static final String BAL_TOOL_TOML = "BalTool.toml";
     public static final String SETTINGS_TOML = "Settings.toml";
+    public static final String BAL_TOOLS_TOML = "bal-tools.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
@@ -41,14 +43,18 @@ public class ProjectConstants {
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
+    public static final String BAL_TOOL_JSON = "bal-tool.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
-    public static final String IDL_CLIENTS_JSON = "idl-clients.json";
+    public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
+
+    public static final String NATIVE_DIR_NAME = "native";
+    public static final String NATIVE_CONFIG_DIR_NAME = "native-config";
 
     public static final String CACHES_DIR_NAME = "cache";
 
@@ -58,12 +64,15 @@ public class ProjectConstants {
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
+    public static final String IMPORT_PREFIX = "import ";
+    public static final String EMPTY_STRING = "";
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
     public static final String GENERATED_MODULES_ROOT = "generated";
     public static final String LIB_DIR = "lib";
     public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
+    public static final String TOOL_DIR = "tool";
 
     public static final String BALA_DIR_NAME = "bala";
     public static final String BALA_CACHE_DIR_NAME = "bala_cache";
@@ -77,7 +86,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
-    public static final String IDL_CACHE_FILE = "idl-plugin-cache.json";
 
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";
@@ -101,11 +109,11 @@ public class ProjectConstants {
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
     public static final String TEST_SUITE = "test_suite";
 
-    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";
-    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.5.jar";
-    public static final String ASM_JAR = "asm-7.2.jar";
-    public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
-    public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
+    public static final String ASM_JAR = "asm-9.5.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-9.5.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-9.5.jar";
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 
@@ -115,4 +123,7 @@ public class ProjectConstants {
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
+    public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
+    public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
+    public static final String CONFIG_DIR = ".config";
 }

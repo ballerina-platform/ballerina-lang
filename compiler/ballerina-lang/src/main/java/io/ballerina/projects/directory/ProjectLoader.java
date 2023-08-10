@@ -57,7 +57,7 @@ public class ProjectLoader {
      * @throws ProjectException if an invalid path is provided
      */
     public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
-                                      BuildOptions buildOptions) {
+                                      BuildOptions buildOptions) throws ProjectException {
         Path absFilePath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (!Files.exists(path)) {
@@ -66,6 +66,13 @@ public class ProjectLoader {
         if (absFilePath.toFile().isDirectory()) {
             if (ProjectConstants.MODULES_ROOT.equals(
                     Optional.of(absFilePath.getParent()).get().toFile().getName())) {
+                projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.equals(absFilePath.toFile().getName())) {
+                // Generated default module
+                projectRoot = Optional.of(absFilePath.getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.
+                    equals(Optional.of(absFilePath.getParent()).get().toFile().getName())) {
+                // Generated non default module
                 projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
             } else {
                 projectRoot = absFilePath;

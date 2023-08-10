@@ -29,8 +29,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -47,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -139,7 +143,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -232,6 +235,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangRecordVariable.BLangRecordVariableKeyValue node, T data);
 
     public abstract void visit(BLangResourceFunction node, T data);
+    
+    public abstract void visit(BLangResourcePathSegment node, T data);
 
     public abstract void visit(BLangRetrySpec node, T data);
 
@@ -254,8 +259,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangXMLNS.BLangLocalXMLNS node, T data);
 
     public abstract void visit(BLangXMLNS.BLangPackageXMLNS node, T data);
-
-    public abstract void visit(BLangClientDeclaration node, T data);
 
     // Binding-patterns
 
@@ -307,7 +310,13 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangOrderKey node, T data);
 
+    public abstract void visit(BLangGroupByClause node, T data);
+
+    public abstract void visit(BLangGroupingKey node, T data);
+
     public abstract void visit(BLangSelectClause node, T data);
+
+    public abstract void visit(BLangCollectClause node, T data);
 
     public abstract void visit(BLangWhereClause node, T data);
 
@@ -368,6 +377,7 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangInferredTypedescDefaultNode node, T data);
 
     public abstract void visit(BLangInvocation node, T data);
+    public abstract void visit(BLangCollectContextInvocation node, T data);
 
     public abstract void visit(BLangInvocation.BFunctionPointerInvocation node, T data);
 
@@ -622,8 +632,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangWorkerSend node, T data);
 
     public abstract void visit(BLangXMLNSStatement node, T data);
-
-    public abstract void visit(BLangClientDeclarationStatement node, T data);
 
     // Types
 

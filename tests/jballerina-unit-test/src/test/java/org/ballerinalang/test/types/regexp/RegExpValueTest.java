@@ -66,7 +66,8 @@ public class RegExpValueTest {
                 "testComplexRegExpValue2",
                 "testEqualityWithRegExp",
                 "testExactEqualityWithRegExp",
-                "testInvalidInsertionsInRegExp"
+                "testInvalidInsertionsInRegExp",
+                "testFreezeDirectWithRegExp"
         };
     }
 
@@ -95,6 +96,24 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 61);
         validateError(negativeResult, index++, "duplicate flag 'x'", 28, 67);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 75);
+        validateError(negativeResult, index++, "invalid char after backslash", 29, 30);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 37);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 31, 43);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 32, 14);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 33, 21);
+        validateError(negativeResult, index++, "empty character class disallowed", 34, 27);
+        validateError(negativeResult, index++, "empty character class disallowed", 35, 37);
+        validateError(negativeResult, index++, "empty character class disallowed", 36, 31);
+        validateError(negativeResult, index++, "invalid token in regular expression", 37, 16);
+        validateError(negativeResult, index++, "invalid token in regular expression", 38, 16);
+        validateError(negativeResult, index++, "invalid token in regular expression", 39, 16);
+        validateError(negativeResult, index++, "incompatible types: expected 'boolean', found " +
+                "'regexp:RegExp'", 40, 9);
+        validateError(negativeResult, index++, "missing backtick token", 42, 1);
+        validateError(negativeResult, index++, "missing close brace token", 42, 1);
+        validateError(negativeResult, index++, "missing colon token", 42, 1);
+        validateError(negativeResult, index++, "missing expression", 42, 1);
+        validateError(negativeResult, index++, "missing semicolon token", 42, 1);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 

@@ -1,7 +1,7 @@
-import ballerina/codeModifier;
+import samjs/package_comp_plugin_code_modify_add_function as _;
 
 public function main() {
-    codeModifier:doSomething();
+    _ = intAdd(1,2);
 }
 
 function intAdd(int a, int b) returns (int) {

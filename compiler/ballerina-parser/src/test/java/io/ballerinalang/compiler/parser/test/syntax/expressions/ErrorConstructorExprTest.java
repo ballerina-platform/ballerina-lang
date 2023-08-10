@@ -115,4 +115,12 @@ public class ErrorConstructorExprTest extends AbstractExpressionsTest {
         test("error(\"ERROR_REASON\", message = \"error message\", ... messages)",
                 "error-constructor-expr/error_constructor_expr_assert_11.json");
     }
+
+    @Test
+    public void testWithInvalidNamedArg() {
+        test("error(\"er:ror!\", err:code = 1001)",
+                "error-constructor-expr/error_constructor_expr_assert_12.json");
+        test("error(\"er:ror!\", e = 2,  err:code = 1001)",
+                "error-constructor-expr/error_constructor_expr_assert_13.json");
+    }
 }

@@ -55,20 +55,26 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             throw new AssertionError("ModuleName cannot be empty");
         }
 
-        List<LSPackageLoader.PackageInfo> packagesList =
-                new ArrayList<>(LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages());
-        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packagesList);
+        List<LSPackageLoader.ModuleInfo> packages;
+        if (orgName.equals("ballerinax")) {
+            packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getCentralPackages(
+                    ctx.languageServercontext());
+        } else {
+            packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
+        }
+        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packages);
+
         this.sort(ctx, node, completionItems);
 
         return completionItems;
     }
 
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context, String orgName,
-                                                                     List<LSPackageLoader.PackageInfo> packagesList) {
+                                                                     List<LSPackageLoader.ModuleInfo> moduleList) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
 
-        packagesList.forEach(ballerinaPackage -> {
+        moduleList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !pkgNameLabels.contains(packageName)

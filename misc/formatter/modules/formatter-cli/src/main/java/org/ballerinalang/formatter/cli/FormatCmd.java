@@ -22,11 +22,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
+
 /**
  * Class to implement "format" command for ballerina.
  * Ex: bal format [ballerinaFile | ModuleName] [-d | --dry-run]
  */
-@CommandLine.Command(name = "format", description = "format given Ballerina source file")
+@CommandLine.Command(name = "format", description = "Format Ballerina source files")
 public class FormatCmd implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
 
@@ -39,11 +41,17 @@ public class FormatCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-d", "--dry-run"})
     private boolean dryRun;
 
+    @CommandLine.Option(names = "--module")
+    private String moduleName;
+
+    @CommandLine.Option(names = "--file")
+    private String fileName;
+
     @Override
     public void execute() {
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        FormatUtil.execute(argList, helpFlag, dryRun, sourceRootPath);
+        FormatUtil.execute(argList, helpFlag, moduleName, fileName, dryRun, sourceRootPath);
     }
 
     @Override
@@ -53,7 +61,7 @@ public class FormatCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-
+        out.append(BLauncherCmd.getCommandUsageInfo(FORMAT_COMMAND));
     }
 
     @Override

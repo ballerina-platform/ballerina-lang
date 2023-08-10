@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const boolean CONST \u003d true;\n"
+          "newText": "const boolean CONST = true;\n"
         },
         {
           "range": {
@@ -35,7 +35,19 @@
           },
           "newText": "CONST"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename constant",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConstant.bal",
+          {
+            "line": 25,
+            "character": 28
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

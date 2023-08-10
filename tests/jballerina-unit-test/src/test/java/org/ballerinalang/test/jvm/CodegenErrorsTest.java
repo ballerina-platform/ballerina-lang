@@ -74,6 +74,12 @@ public class CodegenErrorsTest {
         BRunUtil.invoke(result, "main");
     }
 
+    @Test (enabled = false)
+    public void testLargeMethods2() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods2");
+        BRunUtil.invoke(result, "main");
+    }
+
     @Test
     public void testLargeNumberOfListeners() {
         CompileResult compileResult = BCompileUtil.compile("test-src/jvm/large-number-of-listeners.bal");
@@ -87,6 +93,18 @@ public class CodegenErrorsTest {
     public void testTooLargeHardCodedStringValue() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largeStringConstants");
         Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "main");
+    }
+
+    @Test
+    public void testTooLargeMethodWithMultipleCheckedExpression() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/checked_expr_method_too_large.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @Test
+    public void testTooLargeStringConstantClass() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/tooLargeStringConstantClass");
         BRunUtil.invoke(result, "main");
     }
 }

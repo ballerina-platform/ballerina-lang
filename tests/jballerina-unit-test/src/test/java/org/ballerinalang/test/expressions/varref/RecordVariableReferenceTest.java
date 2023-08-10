@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -174,9 +175,24 @@ public class RecordVariableReferenceTest {
 //    }
 
     @Test
+    public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
+        BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
+    }
+
+    @Test
+    public void testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() {
+        BRunUtil.invoke(result, "testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment");
+    }
+
+    @Test
+    public void testMappingBindingWithSingleNameFieldBinding() {
+        BRunUtil.invoke(result, "testMappingBindingWithSingleNameFieldBinding");
+    }
+
+    @Test
     public void testRecordVariablesSemanticsNegative() {
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
-                "-semantics-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/record-variable-reference-semantics-negative.bal");
         final String undefinedSymbol = "undefined symbol ";
 
         int i = -1;
@@ -203,10 +219,8 @@ public class RecordVariableReferenceTest {
                 "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 119, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 119, 26);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "unknown type 'Data'", 123, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "unknown type 'Data'", 128, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unknown type 'Data'", 123, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'map<int>', found 'record {| never name?; boolean married; int...; |}'",
                 161, 16);
@@ -223,6 +237,11 @@ public class RecordVariableReferenceTest {
                 "invalid field binding pattern; can only bind required fields", 237, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 243, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                                  "incompatible types: expected 'string[] & readonly', found '(int[] & readonly)'",
+                                  255, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                                  "incompatible types: expected 'int[] & readonly', found 'int[]'", 265, 9);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
@@ -260,5 +279,12 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, i++, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 36, 27);
         Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

@@ -29,8 +29,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -139,7 +142,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -269,6 +271,10 @@ public abstract class BLangNodeTransformer<T, R> {
     public R transform(BLangResourceFunction node, T data) {
         return transformNode(node, data);
     }
+    
+    public R transform(BLangResourcePathSegment node, T data) {
+        return transformNode(node, data);
+    }
 
     public R transform(BLangRetrySpec node, T data) {
         return transformNode(node, data);
@@ -311,10 +317,6 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangXMLNS.BLangPackageXMLNS node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangClientDeclaration node, T data) {
         return transformNode(node, data);
     }
 
@@ -414,7 +416,19 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
+    public R transform(BLangGroupByClause node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangGroupingKey node, T data) {
+        return transformNode(node, data);
+    }
+
     public R transform(BLangSelectClause node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangCollectClause node, T data) {
         return transformNode(node, data);
     }
 
@@ -1033,10 +1047,6 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangXMLNSStatement node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangClientDeclarationStatement node, T data) {
         return transformNode(node, data);
     }
 

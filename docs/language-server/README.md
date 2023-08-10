@@ -10,15 +10,24 @@ Welcome to the Ballerina Language Server documentation. This section contains,
 These documentations are intended for the developers who wish to understand the internals of the Ballerina language
 server implementation and for developers who are willing to write new language server features.
 
+# Overview
+* [Language Server Overview](Overview.md)
+
 ## Features
-* [Ballerina Language Server Features](Features.md)
+* [Completions and Code Actions](Features.md)
+
+## Document Event Sync PubSub Model
+A mechanism to get notified on project update, document change and other interested events across the Language Server.
+
+* [Design](DocumentEventSyncPublisherSubscriberDesign.md)
+* [Developer Guide](DocumentEventSyncPublisherSubscriberDeveloperGuide.md)
 
 ## Extended Language Server Services
 * [Writing Extended Services for Language Server](WritingExtendedServices.md)
 * [Extension Development Best Practices](ExtensionDevelopmentBestPractices.md)
 
-# Compiler Plugins
+## Compiler Plugins
 * [Compiler Plugin Code Actions](CompilerPluginCodeActions.md)
 
-# Other Resources
+## Other Resources
 * [LSP, Ballerina Language Server and Blogs](Resources.md)

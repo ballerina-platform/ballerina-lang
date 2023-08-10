@@ -935,11 +935,11 @@ function testTypeNarrowingWithEqualityInCondition() {
 }
 
 function testReachableStatementInQueryAction1() returns error? {
-    check from var item in 1 ... 5
-        where true
-        do {
-            int _ = 10;
-        };
+    from var item in 1 ... 5
+    where true
+    do {
+        int _ = 10;
+    };
 }
 
 function testReachableStatementInQueryAction2() returns error? {
@@ -1016,16 +1016,16 @@ function testReachableStatementInQueryAction8() returns int {
 
 function testReachableStatementInQueryAction9() returns error? {
     error? a = ();
-    check from var item in 1 ... 5
-        where item < 2
-        do {
-            a = (from var value in 1 ... 5
-                where value is int
-                where value < 2
-                do {
-                    int _ = 10;
-                });
-        };
+    from var item in 1 ... 5
+    where item < 2
+    do {
+        a = (from var value in 1 ... 5
+            where value is int
+            where value < 2
+            do {
+                int _ = 10;
+            });
+    };
 
     return a;
 }

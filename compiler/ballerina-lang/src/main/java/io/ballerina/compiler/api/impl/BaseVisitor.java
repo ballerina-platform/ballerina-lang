@@ -21,7 +21,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -56,8 +55,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -74,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -106,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
@@ -160,7 +164,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -229,10 +232,6 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDecl) {
     }
 
     @Override
@@ -345,10 +344,6 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
     }
 
     @Override
@@ -1083,5 +1078,25 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
     }
 }

@@ -25,11 +25,13 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,8 +40,8 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility methods for map lib functions.
@@ -54,6 +56,8 @@ public class MapLibUtils {
                 return ((MapType) mapType).getConstrainedType();
             case TypeTags.RECORD_TYPE_TAG:
                 return getCommonTypeForRecordField((RecordType) mapType);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getFieldType(((ReferenceType) mapType).getReferredType(), funcName);
             default:
                 throw createOpNotSupportedError(mapType, funcName);
         }
@@ -75,7 +79,7 @@ public class MapLibUtils {
     }
 
     public static void validateRecord(BMap m) {
-        Type type = m.getType();
+        Type type = TypeUtils.getReferredType(m.getType());
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
@@ -96,12 +100,12 @@ public class MapLibUtils {
 
     private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
         return ErrorCreator.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BLangExceptionHelper.getErrorDetails(
-                        RuntimeErrors.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorHelper.getErrorDetails(
+                        ErrorCodes.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
     }
 
     public static void validateRequiredFieldForRecord(BMap m, String k) {
-        Type type = m.getType();
+        Type type = TypeUtils.getReferredType(m.getType());
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
         }

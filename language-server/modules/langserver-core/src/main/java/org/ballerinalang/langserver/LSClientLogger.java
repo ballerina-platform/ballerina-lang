@@ -122,6 +122,20 @@ public class LSClientLogger {
             this.languageClient.logMessage(new MessageParams(MessageType.Info, message));
         }
     }
+
+    /**
+     * Logs a warning log through LSP protocol. Logs only when trace logs are enabled.
+     *
+     * @param message log message
+     */
+    public void logWarning(String message) {
+        if (!this.isInitializedOnce) {
+            return;
+        }
+        if (this.configHolder.getConfig().isTraceLogEnabled() && this.languageClient != null) {
+            this.languageClient.logMessage(new MessageParams(MessageType.Warning, message));
+        }
+    }
     
     /**
      * Logs an info message through the LSP protocol.

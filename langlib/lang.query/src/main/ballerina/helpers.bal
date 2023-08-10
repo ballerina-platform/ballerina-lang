@@ -16,12 +16,13 @@
 
 import ballerina/lang.'xml;
 import ballerina/jballerina.java;
+import ballerina/lang.'error;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
-        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd)
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd, boolean isLazyLoading)
             returns _StreamPipeline {
-    return new _StreamPipeline(collection, constraintTd, completionTd);
+    return new _StreamPipeline(collection, constraintTd, completionTd, isLazyLoading);
 }
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
@@ -63,9 +64,17 @@ function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
     return new _OrderByFunction(orderFunc);
 }
 
+function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns _StreamFunction {
+    return new _GroupByFunction(keys, nonGroupingKeys);
+}
+
 function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
         returns _StreamFunction {
     return new _SelectFunction(selectFunc);
+}
+
+function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
+    return new _CollectFunction(nonGroupingKeys, collectFunc);
 }
 
 function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
@@ -106,6 +115,11 @@ function createArray(stream<Type, CompletionType> strm, Type[] arr) returns Type
         return v;
     }
     return arr;
+}
+
+function collectQuery(stream<Type, CompletionType> strm) returns Type|error {
+    record {| Type value; |}|error? v = strm.next();
+    return v is record {| Type value; |} ? v.value : v;
 }
 
 function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
@@ -240,3 +254,26 @@ function createImmutableValue(any mutableValue) = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",
     name: "createImmutableValue"
 } external;
+
+# Prepare `error` as a distinct `Error`.
+#
+# + err - `error` instance
+# + return - Prepared `Error` instance
+public isolated function prepareQueryBodyError(error err) returns Error {
+    Error queryError = error Error("", err);
+    return queryError;
+}
+
+# Prepare `error` as a distinct `CompleteEarlyError`.
+#
+# + err - `error` instance
+# + return - Prepared `CompleteEarlyError` instance
+public isolated function prepareCompleteEarlyError(error err) returns CompleteEarlyError {
+    CompleteEarlyError completeEarlyErr = error CompleteEarlyError("", err);
+    return completeEarlyErr;
+}
+
+public isolated function getQueryErrorRootCause(error err) returns error {
+    error? cause = error:cause(err);
+    return cause is error ? cause : err;
+}

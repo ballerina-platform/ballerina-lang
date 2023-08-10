@@ -16,7 +16,15 @@
  */
 package org.ballerinalang.test.types.tuples;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -182,7 +190,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 44);
+        Assert.assertEquals(resultNegative.getErrorCount(), 55);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++,
@@ -323,6 +331,68 @@ public class BasicTupleTest {
     @Test
     public void testTupleAsTupleFirstMember() {
         BRunUtil.invoke(result, "testTupleAsTupleFirstMember");
+    }
+
+    @Test(description = "Test the tuple annotations")
+    public void testTupleAnnotations1() {
+        int i = 44;
+        BAssertUtil.validateError(resultNegative, i++,
+                "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on field",
+                239, 7);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                240, 7);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                241, 15);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                242, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on field",
+                245, 10);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                246, 10);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                247, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                248, 23);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                250, 1);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined annotation 'annot'",
+                253, 1);
+        BAssertUtil.validateError(resultNegative, i++,
+                "annotations not allowed for tuple rest descriptor",
+                256, 24);
+    }
+
+    @Test(description = "Test tuple member annotations")
+    public void testTupleAnnotations2() {
+        Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations2", new Object[]{});
+        TupleValueImpl returnTuple = (TupleValueImpl) returns;
+
+        Type t1 = TypeUtils.getType(returnTuple.get(0));
+        Type t2 = TypeUtils.getType(returnTuple.get(1));
+        Type t3 = TypeUtils.getType(returnTuple.get(2));
+        Type t4 = TypeUtils.getType(returnTuple.get(3));
+
+        Object annot1 = ((BAnnotatableType) t1).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot2 = ((BAnnotatableType) t2).getAnnotation(StringUtils.fromString("$field$.1"));
+        Object annot3 = ((BAnnotatableType) t3).getAnnotation(StringUtils.fromString("$field$.0"));
+        Object annot4 = ((BAnnotatableType) t4).getAnnotation(StringUtils.fromString("$field$.0"));
+
+        BMap<BString, Object> expected = ValueCreator.createMapValue();
+        expected.put(StringUtils.fromString("member"), true);
+
+        Assert.assertEquals(annot1, expected);
+        Assert.assertEquals(annot2, expected);
+        Assert.assertEquals(annot3, expected);
+        Assert.assertEquals(annot4, expected);
     }
 
     @AfterClass

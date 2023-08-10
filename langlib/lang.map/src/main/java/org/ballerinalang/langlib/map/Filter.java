@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -50,7 +51,7 @@ public class Filter {
                                                                       MAP_VERSION, "filter");
 
     public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
-        Type mapType = m.getType();
+        Type mapType = TypeUtils.getReferredType(m.getType());
         Type constraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:

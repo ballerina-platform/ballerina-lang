@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -178,24 +179,40 @@ public class AnnotationRuntimeTest {
         Assert.assertTrue((Boolean) annotValue);
     }
 
+    @Test
     public void testRecordTypeAnnotationReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
     }
 
+    @Test
     public void testAnnotationOnObjectTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
     }
 
+    @Test
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
     }
 
+    @Test
     public void testReadonlyTypeAnnotationAttachment() {
         CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
         BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 
+    @Test
     public void testAnnotOnBoundMethod() {
         BRunUtil.invoke(resultOne, "testAnnotOnBoundMethod");
+    }
+
+    @Test
+    public void testListExprInConstAnnot() {
+        BRunUtil.invoke(resultOne, "testListExprInConstAnnot");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultOne = null;
+        resultAccessNegative = null;
     }
 }

@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -47,8 +46,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -142,7 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -337,6 +339,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
         rewrite(bLangInvocationNode.requiredArgs);
         rewrite(bLangInvocationNode.restArgs);
         result = bLangInvocationNode;
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        collectContextInvocation.invocation = rewrite(collectContextInvocation.invocation);
+        result = collectContextInvocation;
     }
 
     @Override
@@ -976,6 +984,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectClause collectClause) {
+        collectClause.expression = rewrite(collectClause.expression);
+        result = collectClause;
+    }
+
+    @Override
     public void visit(BLangWhereClause whereClause) {
         whereClause.expression = rewrite(whereClause.expression);
         result = whereClause;
@@ -1010,6 +1024,18 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value));
         result = orderByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> rewrite((BLangNode) value));
+        result = groupByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        groupingKey.setGroupingKey(rewrite((BLangNode) groupingKey.getGroupingKey()));
+        result = groupingKey;
     }
 
     @Override
@@ -1084,6 +1110,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
             BType literalType = Types.getReferredType(constSymbol.literalType);
+            BType varRefType = Types.getReferredType(varRefExpr.getBType());
+
+            // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
+            if (literalType.tag == TypeTags.INT && types.isContainSubtypeOfInt(varRefType)) {
+                literalType = varRefType;
+            }
+
             if (literalType.tag <= TypeTags.BOOLEAN || literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, literalType,
                                                                             constSymbol.value.value);
@@ -1099,23 +1132,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefExpr.getBType());
+                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefType);
                 }
                 result = constRef;
                 return;
             }
         }
         result = varRefExpr;
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-        result = clientDeclaration;
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        result = clientDeclarationStatement;
     }
 
     @Override

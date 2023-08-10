@@ -135,4 +135,10 @@ public class ServiceDeclTest {
         validateError(compileResult, index++, "missing identifier", 49, 36);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
+
+    @Test
+    public void testServiceDeclNoWarnings() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_no_warnings.bal");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+    }
 }

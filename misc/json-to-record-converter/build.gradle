@@ -17,6 +17,7 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     compile.transitive = false
@@ -27,6 +28,7 @@ dependencies {
     compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
     compileOnly project(':formatter:formatter-core')
+    compileOnly project(':language-server:language-server-commons')
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
@@ -34,8 +36,11 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     implementation "org.javatuples:javatuples:${project.javaTuples}"
 
-    testCompile 'org.testng:testng'
-    testCompile project(':formatter:formatter-core')
+    testImplementation 'org.testng:testng'
+    testImplementation project(':ballerina-lang')
+    testImplementation project(':formatter:formatter-core')
+    testImplementation project(':language-server:language-server-commons')
+    testImplementation "org.javatuples:javatuples:${project.javaTuples}"
 }
 
 test {

@@ -16,7 +16,6 @@
 package org.ballerinalang.debugger.test.utils.client;
 
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
-import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.CapabilitiesEventArguments;
 import org.eclipse.lsp4j.debug.CompletionsArguments;
 import org.eclipse.lsp4j.debug.CompletionsResponse;
@@ -52,7 +51,11 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -68,14 +71,11 @@ public class DAPRequestManager {
     private boolean didRunInIntegratedTerminal;
     private boolean isProjectBasedTest;
 
-    public DAPRequestManager(DAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
-                             Capabilities serverCapabilities) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DAPRequestManager.class);
+
+    public DAPRequestManager(DAPClientConnector clientConnector, IDebugProtocolServer server) {
         this.clientConnector = clientConnector;
         this.server = server;
-    }
-
-    public DAPClientConnector getClientConnector() {
-        return clientConnector;
     }
 
     // ------------------------------- Client to Server --------------------------------------------//
@@ -190,8 +190,14 @@ public class DAPRequestManager {
 
     public VariablesResponse variables(VariablesArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
+            Instant start = Instant.now();
             CompletableFuture<VariablesResponse> resp = server.variables(args);
-            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            VariablesResponse variablesResponse = resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            Instant end = Instant.now();
+            // Todo - remove after monitoring if the debugger integration tests are failing due to averagely high
+            //  response times or, due to sudden spikes (potential concurrency issues?)
+            LOGGER.info(String.format("debug variables request took %s ms", Duration.between(start, end).toMillis()));
+            return variablesResponse;
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -203,8 +209,14 @@ public class DAPRequestManager {
 
     public EvaluateResponse evaluate(EvaluateArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
+            Instant start = Instant.now();
             CompletableFuture<EvaluateResponse> resp = server.evaluate(args);
-            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            EvaluateResponse evaluateResponse = resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            Instant end = Instant.now();
+            // Todo - remove after monitoring if the debugger integration tests are failing due to averagely high
+            //  response times or, due to sudden spikes (potential concurrency issues?)
+            LOGGER.info(String.format("evaluation request took %s ms", Duration.between(start, end).toMillis()));
+            return evaluateResponse;
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -375,8 +387,8 @@ public class DAPRequestManager {
         THREADS(2000),
         STACK_TRACE(7000),
         SCOPES(2000),
-        VARIABLES(20000),
-        EVALUATE(15000),
+        VARIABLES(30000),
+        EVALUATE(20000),
         COMPLETIONS(10000),
         STEP_OVER(5000),
         STEP_IN(10000),

@@ -48,6 +48,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -223,6 +226,21 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     }
 
     @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangGroupByClause node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, AnalyzerData data) {
+
+    }
+
+    @Override
     public void visit(BLangClassDefinition classDefinition, AnalyzerData data) {
         validateParameters(classDefinition, classDefinition.fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
                 DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
@@ -316,7 +334,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
     private DocReferenceErrorType validateIdentifier(BLangMarkdownReferenceDocumentation reference,
                                                      DocumentableNode documentableNode, AnalyzerData data) {
-        int tag = -1;
+        long tag = -1;
         SymbolEnv env = data.env;
         // Lookup namespace to validate the identifier.
         switch (reference.getType()) {
@@ -362,7 +380,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     }
 
     private BSymbol resolveFullyQualifiedSymbol(Location location, SymbolEnv env, String packageId,
-                                                String type, String identifier, int tag) {
+                                                String type, String identifier, long tag) {
         Name identifierName = names.fromString(identifier);
         Name pkgName = names.fromString(packageId);
         Name typeName = names.fromString(type);
@@ -370,7 +388,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
         if (pkgName != Names.EMPTY) {
             BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
-                    names.fromString(location.lineRange().filePath()));
+                    names.fromString(location.lineRange().fileName()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
                 return symTable.notFoundSymbol;
