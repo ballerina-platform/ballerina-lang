@@ -136,21 +136,6 @@ function testDefaultVal() {
     assert(10, a.b.c);
 }
 
-function testOpenRecordWithSpreadOperator() {
-    record {| int x; int y?; |} r = {x: 123};
-    Bar2 b = {...r};
-    assert(123, b.x);
-    assert(102, b.y);
-    // record {| int x; int y?; |} r1 = {x: 123, y: 456};
-    // Bar2 b1 = {...r1};
-    // assert(123, b1.x);
-    // assert(102, b1.y);
-    // map<int> r2 = {x: 123};
-    // Bar2 b2 = {...r2};
-    // assert(101, b2.x);
-    // assert(102, b2.y);
-}
-
 function testNestedFieldDefaultVal () returns [string, string, int] {
     Department dpt = {};
     dpt.employees = [];
@@ -784,22 +769,30 @@ function testWithMultipleTypeInclusions() {
     assert(40, baz.b);
 }
 
-type Foo4 record {|
+type Foo4 record {
     int x = 10;
     int y = 10;
-|};
+};
 
 function testSpreadOperatorWithOpenRecord() {
-    record {|int x; int y?;|} r = {x:14};
+    record {int x; int y?;} r = {x: 14};
     Foo4 f = { ...r};
     assert(14, f.x);
     assert(10, f.y);
-    record {|int x; int y?;|} r1 = {x:14, y:15};
+    record {int x; int y?;} r1 = {x: 14, y: 15};
     Foo4 f1 = { ...r1};
     assert(14, f1.x);
     assert(15, f1.y);
-    record {|int x?; int y?;|} r2 = {};
+    record {int x?; int y?;} r2 = {};
     Foo4 f2 = { ...r2};
     assert(10, f2.x);
     assert(10, f2.y);
+    record {|int x?;|} r3 = {x: 21};
+    Foo4 f3 = { ...r3, y: 12};
+    assert(21, f3.x);
+    assert(12, f3.y);
+    record {|int x?;|} r4 = {};
+    Foo4 f4 = { ...r4, y: 12};
+    assert(10, f4.x);
+    assert(12, f4.y);
 }

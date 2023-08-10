@@ -79,10 +79,6 @@ public class OpenRecordTest {
     public void testDefaultValue() {
         BRunUtil.invoke(compileResult, "testDefaultVal");
     }
-    @Test
-    public void testOpenRecordWithSpreadOperator() {
-        BRunUtil.invoke(compileResult, "testOpenRecordWithSpreadOperator");
-    }
 
     @Test
     public void testWithMultipleTypeInclusions() {
