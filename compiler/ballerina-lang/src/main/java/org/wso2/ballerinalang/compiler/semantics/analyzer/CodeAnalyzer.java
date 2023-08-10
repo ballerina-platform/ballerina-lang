@@ -2627,7 +2627,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private String generateDeprecatedConstructString(BLangExpression expr, String fieldOrMethodName,
                                                      BSymbol symbol) {
         BType bType = expr.getBType();
-        if (bType != null && bType.tag == TypeTags.TYPEREFDESC) {
+        if (bType.tag == TypeTags.TYPEREFDESC) {
             return bType + "." + fieldOrMethodName;
         }
 
@@ -3956,14 +3956,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 reportIfDeprecatedUsage(restParamSymbol, expr, expr.pos);
                 continue;
             }
+
             if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
                 if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                    analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr, visitedArgCount,
-                            reqParamSymbols, restParamSymbol);
+                    visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr,
+                            visitedArgCount, reqParamSymbols, restParamSymbol);
                 } else {
                     for (int i = visitedArgCount; i < reqParamSymbols.size(); i++) {
-                        if (reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos)) {
+                        if (reportIfDeprecatedUsage(reqParamSymbols.get(i), innerExpr, innerExpr.pos)) {
                             break;
                         }
                     }
