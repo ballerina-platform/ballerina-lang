@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -62,7 +61,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class TypeParamFinder implements TypeVisitor {
+public class TypeParamFinder extends TypeVisitor {
 
     private final Set<BType> visited = new HashSet<>();
     private BType typeParam;
@@ -164,7 +163,7 @@ public class TypeParamFinder implements TypeVisitor {
     }
 
     @Override
-    public void visit(BNilType bNilType) {
+    public void visitNilType(BType btype) {
     }
 
     @Override
@@ -233,10 +232,6 @@ public class TypeParamFinder implements TypeVisitor {
         for (BAttachedFunction method : ((BObjectTypeSymbol) bObjectType.tsymbol).attachedFuncs) {
             find(method.type);
         }
-    }
-
-    @Override
-    public void visit(BType bType) {
     }
 
     @Override

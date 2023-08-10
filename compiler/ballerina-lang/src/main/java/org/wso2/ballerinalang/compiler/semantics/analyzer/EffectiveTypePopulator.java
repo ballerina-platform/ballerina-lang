@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -83,7 +82,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
  *
  * @since 2201.7.0
  */
-public class EffectiveTypePopulator implements TypeVisitor {
+public class EffectiveTypePopulator extends TypeVisitor {
 
     private static final CompilerContext.Key<EffectiveTypePopulator> UPDATE_IMMUTABLE_TYPE_KEY =
                 new CompilerContext.Key<>();
@@ -226,7 +225,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
     }
 
     @Override
-    public void visit(BNilType bNilType) {
+    public void visitNilType(BType bNilType) {
 
     }
 
@@ -440,11 +439,6 @@ public class EffectiveTypePopulator implements TypeVisitor {
             }
             bObjectType.mutableType = null;
         }
-    }
-
-    @Override
-    public void visit(BType bType) {
-
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,6 +25,8 @@ import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
@@ -55,6 +58,8 @@ public class BType implements ValueType {
     public long flags;
 
     private SemType semtype;
+    private final boolean isNullable;
+    private final String toString;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this(tag, tsymbol, Names.EMPTY, 0, null);
@@ -76,12 +81,27 @@ public class BType implements ValueType {
         this(tag, tsymbol, Names.EMPTY, flags, semType);
     }
 
+    public BType(int tag, BTypeSymbol tsymbol, long flags, SemType semType, boolean isNullable, String toString) {
+        this(tag, tsymbol, Names.EMPTY, flags, semType, isNullable, toString);
+    }
+
     public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
+        this(tag, tsymbol, name, flags, semType, false, null);
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType, boolean nullable,
+                 String toString) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
         this.semtype = semType;
+        this.isNullable = nullable;
+        this.toString = toString == null ? getKind().typeName() : toString;
+    }
+
+    public static BType createNilType() {
+        return new BType(TypeTags.NIL, null, Flags.READONLY, PredefinedType.NIL, true, Names.NIL_VALUE.value);
     }
 
     public SemType getSemtype() {
@@ -97,7 +117,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return false;
+        return isNullable;
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
@@ -143,7 +163,7 @@ public class BType implements ValueType {
 
     @Override
     public String toString() {
-        return getKind().typeName();
+        return toString;
     }
 
     public String getQualifiedTypeName() {

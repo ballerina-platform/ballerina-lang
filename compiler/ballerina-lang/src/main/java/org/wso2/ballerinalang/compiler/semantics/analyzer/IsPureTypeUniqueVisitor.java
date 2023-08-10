@@ -16,7 +16,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -42,7 +41,7 @@ import java.util.HashSet;
  * This is introduced to handle cyclic unions.
  * @since slp4
  */
-public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
+public class IsPureTypeUniqueVisitor extends UniqueTypeVisitor<Boolean> {
 
     private HashSet<BType> visited;
     private boolean isPureType;
@@ -181,7 +180,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     @Override
-    public Boolean visit(BNilType type) {
+    public Boolean visitNilType(BType type) {
         return isAnyData(type);
     }
 
@@ -257,8 +256,10 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     @Override
-    public Boolean visit(BType type) {
+    public Boolean visit(BType type) { // TODO: can move to the abstract class?
         switch (type.tag) {
+            case TypeTags.NIL:
+                return visitNilType(type);
             case TypeTags.TABLE:
                 return visit((BTableType) type);
             case TypeTags.ANYDATA:

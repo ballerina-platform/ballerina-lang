@@ -60,7 +60,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -2196,7 +2195,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     /**
      * @since 2201.7.0
      */
-    public static class FillMembers implements TypeVisitor {
+    public static class FillMembers extends TypeVisitor {
 
         private static final CompilerContext.Key<ConstantTypeChecker.FillMembers> FILL_MEMBERS_KEY =
                 new CompilerContext.Key<>();
@@ -2396,7 +2395,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         @Override
-        public void visit(BNilType bNilType) {
+        public void visitNilType(BType bType) {
             data.resultType = symTable.nilType;
         }
 
@@ -2494,7 +2493,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         @Override
-        public void visit(BType type) {
+        public void visit(BType type) { // TODO: Can we get rid of refType switch?
+            switch (type.tag) {
+                case TypeTags.NIL:
+                    visitNilType(type);
+                    return;
+            }
+
             BType refType = Types.getReferredType(type);
             switch (refType.tag) {
                 case TypeTags.BOOLEAN:

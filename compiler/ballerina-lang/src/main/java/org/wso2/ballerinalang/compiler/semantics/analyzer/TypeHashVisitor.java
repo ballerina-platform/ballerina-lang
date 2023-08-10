@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
@@ -73,7 +72,7 @@ import static java.util.Objects.hash;
  *
  * @since 2.0.0
  */
-public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
+public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
     private final Map<BType, Integer> visited;
     private final Set<BType> unresolvedTypes;
     private final Map<BType, Integer> cache;
@@ -106,7 +105,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     }
 
     @Override
-    public Integer visit(BType type) {
+    public Integer visit(BType type) { // TODO: can move to the abstract class?
         if (type == null) {
             return 0;
         }
@@ -115,7 +114,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
             case TypeTags.ANY:
                 return visit((BAnyType) type);
             case TypeTags.NIL:
-                return visit((BNilType) type);
+                return visitNilType(type);
             case TypeTags.NEVER:
                 return visit((BNeverType) type);
             case TypeTags.ANYDATA:
@@ -369,7 +368,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     }
 
     @Override
-    public Integer visit(BNilType type) {
+    public Integer visitNilType(BType type) {
         if (isVisited(type)) {
             return visited.get(type);
         }

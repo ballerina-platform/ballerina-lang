@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -116,7 +115,7 @@ public class SymbolTable {
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
-    public final BType nilType = new BNilType();
+    public final BType nilType = BType.createNilType();
     public final BType neverType = new BNeverType();
     public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY, PredefinedType.INT);
     public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY, PredefinedType.BYTE);

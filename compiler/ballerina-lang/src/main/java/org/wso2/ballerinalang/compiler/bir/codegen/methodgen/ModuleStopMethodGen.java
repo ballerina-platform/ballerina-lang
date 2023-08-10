@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 
@@ -210,7 +210,7 @@ public class ModuleStopMethodGen {
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        jvmTypeGen.loadType(mv, new BNilType());
+        jvmTypeGen.loadType(mv, BType.createNilType());
         MethodGenUtils.submitToScheduler(mv, initClass, "stop", asyncDataCollector);
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ASTORE, futureIndex);
