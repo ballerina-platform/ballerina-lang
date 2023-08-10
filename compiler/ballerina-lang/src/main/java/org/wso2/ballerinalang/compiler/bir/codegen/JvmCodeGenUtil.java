@@ -124,7 +124,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_DESCRIPTOR_FOR_STRING_CONCAT;
@@ -146,7 +146,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_J
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_REGEX_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_STREAM_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
@@ -245,7 +245,7 @@ public class JvmCodeGenUtil {
                 case TypeTags.STREAM:
                     return GET_STREAM_VALUE;
                 case TypeTags.TABLE:
-                    return GET_TABLE_VALUE_IMPL;
+                    return GET_TABLE_VALUE;
                 case TypeTags.ARRAY:
                 case TypeTags.TUPLE:
                     return GET_ARRAY_VALUE;
@@ -436,7 +436,7 @@ public class JvmCodeGenUtil {
             case TypeTags.STREAM:
                 return GET_STREAM_VALUE;
             case TypeTags.TABLE:
-                return GET_TABLE_VALUE_IMPL;
+                return GET_TABLE_VALUE;
             case TypeTags.INVOKABLE:
                 return GET_FUNCTION_POINTER;
             case TypeTags.TYPEDESC:
@@ -491,7 +491,7 @@ public class JvmCodeGenUtil {
             case TypeTags.STREAM:
                 return RETURN_STREAM_VALUE;
             case TypeTags.TABLE:
-                return RETURN_TABLE_VALUE_IMPL;
+                return RETURN_TABLE_VALUE;
             case TypeTags.FUTURE:
                 return RETURN_FUTURE_VALUE;
             case TypeTags.TYPEDESC:

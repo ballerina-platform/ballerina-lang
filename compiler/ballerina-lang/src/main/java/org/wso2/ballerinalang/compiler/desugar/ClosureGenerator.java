@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -617,9 +618,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BTypeSymbol symbol = env.node.getBType().tsymbol;
         if (symbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
             updateFunctionParams(function, ((BInvokableTypeSymbol) symbol).params, paramName);
-            ((BInvokableTypeSymbol) symbol).defaultValues.put(paramName, varSymbol);
+            ((BInvokableTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
         } else {
-            ((BRecordTypeSymbol) symbol).defaultValues.put(paramName, varSymbol);
+            ((BRecordTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
             lambdaFunction.function.flagSet.add(Flag.RECORD);
         }
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
