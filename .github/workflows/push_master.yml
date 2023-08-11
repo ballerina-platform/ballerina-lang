@@ -39,7 +39,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build --max-workers=2 --scan --no-daemon
+          ./gradlew build --scan --no-daemon
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
   windows_build:
@@ -146,7 +146,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build sonarqube --info --max-workers=2 --scan --no-daemon -x test -x check 
+          ./gradlew build sonarqube --info --scan --no-daemon -x test -x check 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
         
       - name: Print log message  
