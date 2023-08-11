@@ -25,3 +25,7 @@ readonly class Bar {
 function v() {
     records:Config k = {interceptors: [new PersonInterceptor()], foo: [new Bar()]};
 }
+
+function testRecordReadonlyIntersection() {
+    records:Foo1 & readonly _ = {};
+}
