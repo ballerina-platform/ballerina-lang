@@ -3919,18 +3919,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 case REST_ARGS_EXPR:
                     if (visitedArgCount >= parameterCountForPositionalArgs) {
                         reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
-                    } else {
-                        BLangExpression restExpr = ((BLangRestArgsExpression) expr).expr;
-                        if (restExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                            visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) restExpr,
-                                    visitedArgCount, reqParamSymbols, invokableSymbol.restParam);
-                        } else {
-                            for (int i = visitedArgCount; i < parameterCountForPositionalArgs; i++) {
-                                if (reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos)) {
-                                    break;
-                                }
-                            }
-                        }
+                        continue;
+                    }
+
+                    BLangExpression restExpr = ((BLangRestArgsExpression) expr).expr;
+                    if (restExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                        visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) restExpr,
+                                visitedArgCount, reqParamSymbols, invokableSymbol.restParam);
+                        continue;
+                    }
+
+                    for (int i = visitedArgCount; i < parameterCountForPositionalArgs; i++) {
+                        reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos);
                     }
                     break;
                 default:    // positional args
@@ -3957,20 +3957,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 continue;
             }
 
-            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-                if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                    visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr,
-                            visitedArgCount, reqParamSymbols, restParamSymbol);
-                } else {
-                    for (int i = visitedArgCount; i < reqParamSymbols.size(); i++) {
-                        if (reportIfDeprecatedUsage(reqParamSymbols.get(i), innerExpr, innerExpr.pos)) {
-                            break;
-                        }
-                    }
-                }
-            } else {
+            if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 reportIfDeprecatedUsage(reqParamSymbols.get(visitedArgCount++), expr, expr.pos);
+                continue;
+            }
+
+            BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr,
+                        visitedArgCount, reqParamSymbols, restParamSymbol);
+                continue;
+            }
+
+            for (int i = visitedArgCount; i < reqParamSymbols.size(); i++) {
+                reportIfDeprecatedUsage(reqParamSymbols.get(i), innerExpr, innerExpr.pos);
             }
         }
         return visitedArgCount;
