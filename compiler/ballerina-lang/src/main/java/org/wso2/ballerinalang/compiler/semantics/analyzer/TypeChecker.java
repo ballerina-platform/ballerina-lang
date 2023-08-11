@@ -2682,7 +2682,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (hasReadOnlyIntersection) {
             BRecordType mutableType = getRecordTypeInIntersection(type.getIntersectionType().get());
-            if (type.tsymbol == null || data.env.enclPkg.packageID == type.tsymbol.pkgID) {
+            if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
                 findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType,
                                                       typesOfDefaultValues);
             } else {
@@ -2697,7 +2697,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             String fieldName = field.name.value;
             boolean isFieldRequired = Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED);
 
-            if (hasReadOnlyIntersection && field.symbol.isDefaultable) {
+            if (hasReadOnlyIntersection && !isFieldRequired) {
                 if (typesOfDefaultValues.containsKey(fieldName) &&
                         !types.isAssignable(typesOfDefaultValues.get(fieldName), symTable.cloneableType)) {
                     isFieldRequired = true;

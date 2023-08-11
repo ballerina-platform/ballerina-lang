@@ -307,3 +307,19 @@ function testRecordReadonlynessWithNeverFieldsNegative() {
     } r3 = {x: 1};
     readonly z = r3;
 }
+
+type Foo1 record {|
+    any[] x = [1, 2];
+|};
+
+class Test {
+}
+
+type Foo2 record {
+    Test y = new();
+};
+
+function testRecordReadonlyIntersection() {
+    Foo1 & readonly _ = {};
+    Foo2 & readonly _ = {};
+}
