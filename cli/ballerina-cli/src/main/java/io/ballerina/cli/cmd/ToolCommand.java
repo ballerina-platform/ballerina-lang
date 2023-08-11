@@ -22,7 +22,6 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
@@ -64,7 +63,6 @@ import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateToolName;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the "bal tool" command.
@@ -153,57 +151,31 @@ public class ToolCommand implements BLauncherCmd {
 
         String command = argList.get(0);
         switch (command) {
-            case TOOL_PULL_COMMAND:
-                handlePullCommand();
-                break;
-            case TOOL_USE_COMMAND:
-                handleUseCommand();
-                break;
-            case TOOL_LIST_COMMAND:
-                handleListCommand();
-                break;
-            case TOOL_SEARCH_COMMAND:
-                handleSearchCommand();
-                break;
-            case TOOL_REMOVE_COMMAND:
-                handleRemoveCommand();
-                break;
-            case TOOL_UPDATE_COMMAND:
-                handleUpdateCommand();
-                break;
-            default:
+            case TOOL_PULL_COMMAND -> handlePullCommand();
+            case TOOL_USE_COMMAND -> handleUseCommand();
+            case TOOL_LIST_COMMAND -> handleListCommand();
+            case TOOL_SEARCH_COMMAND -> handleSearchCommand();
+            case TOOL_REMOVE_COMMAND -> handleRemoveCommand();
+            case TOOL_UPDATE_COMMAND -> handleUpdateCommand();
+            default -> {
                 CommandUtil.printError(this.errStream, "invalid sub-command given.", TOOL_USAGE_TEXT, false);
                 CommandUtil.exitError(this.exitWhenFinish);
-                break;
+            }
         }
     }
 
     private void handleHelpFlag() {
         String commandUsageInfo;
         String command = (argList == null || argList.isEmpty()) ? TOOL_COMMAND : argList.get(0);
-        switch (command) {
-            case TOOL_PULL_COMMAND:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_PULL_COMMAND);
-                break;
-            case TOOL_USE_COMMAND:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_USE_COMMAND);
-                break;
-            case TOOL_LIST_COMMAND:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_LIST_COMMAND);
-                break;
-            case TOOL_REMOVE_COMMAND:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_REMOVE_COMMAND);
-                break;
-            case TOOL_SEARCH_COMMAND:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_SEARCH_COMMAND);
-                break;
-            case TOOL_UPDATE_COMMAND:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_UPDATE_COMMAND);
-                break;
-            default:
-                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
-                break;
-        }
+        commandUsageInfo = switch (command) {
+            case TOOL_PULL_COMMAND -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_PULL_COMMAND);
+            case TOOL_USE_COMMAND -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_USE_COMMAND);
+            case TOOL_LIST_COMMAND -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_LIST_COMMAND);
+            case TOOL_REMOVE_COMMAND -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_REMOVE_COMMAND);
+            case TOOL_SEARCH_COMMAND -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_SEARCH_COMMAND);
+            case TOOL_UPDATE_COMMAND -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_UPDATE_COMMAND);
+            default -> BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
+        };
         outStream.println(commandUsageInfo);
     }
 
@@ -436,22 +408,22 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            try {
-                if (isToolAvailableLocally(toolId, version)) {
-                    outStream.println("tool " + toolId + ":" + version + " is already available locally.");
-                } else {
-                    pullToolFromCentral(supportedPlatform, balaCacheDirPath);
-                }
-                addToBalToolsToml();
-            } catch (PackageAlreadyExistsException e) {
-                errStream.println(e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException | ProjectException e) {
-                CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
-                        null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
+        // TODO: make supportedPlatform = "java11,java17" once central is fixed
+        String supportedPlatform = "java11";
+        try {
+            if (isToolAvailableLocally(toolId, version)) {
+                outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+            } else {
+                pullToolFromCentral(supportedPlatform, balaCacheDirPath);
             }
+            addToBalToolsToml();
+        } catch (PackageAlreadyExistsException e) {
+            errStream.println(e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (CentralClientException | ProjectException e) {
+            CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
         }
     }
 
@@ -590,14 +562,14 @@ public class ToolCommand implements BLauncherCmd {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(), getAccessTokenOfCLI(settings));
             boolean foundTools = false;
-            for (JvmTarget jvmTarget : JvmTarget.values()) {
-                ToolSearchResult toolSearchResult = client.searchTool(keyword, jvmTarget.code(),
-                        RepoUtils.getBallerinaVersion());
-                List<Tool> tools = toolSearchResult.getTools();
-                if (tools != null && tools.size() > 0) {
-                    foundTools = true;
-                    printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
-                }
+            // TODO: make supportedPlatform = "java11,java17" once central is fixed
+            String supportedPlatform = "java11";
+            ToolSearchResult toolSearchResult = client.searchTool(keyword, supportedPlatform,
+                    RepoUtils.getBallerinaVersion());
+            List<Tool> tools = toolSearchResult.getTools();
+            if (tools != null && tools.size() > 0) {
+                foundTools = true;
+                printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
             }
             if (!foundTools) {
                 outStream.println("no tools found.");
@@ -701,28 +673,28 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            try {
-                version = getLatestVersionForUpdateCommand(tool.get());
-                if (tool.get().version().equals(version)) {
-                    outStream.println("tool '" + toolId + "' is already up-to-date.");
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                if (isToolAvailableLocally(toolId, version)) {
-                    outStream.println("tool " + toolId + ":" + version + " is already available locally.");
-                } else {
-                    pullToolFromCentral(supportedPlatform, balaCacheDirPath);
-                }
-                addToBalToolsToml();
-            } catch (PackageAlreadyExistsException e) {
-                errStream.println(e.getMessage());
+        // TODO: make supportedPlatform = "java11,java17" once central is fixed
+        String supportedPlatform = "java11";
+        try {
+            version = getLatestVersionForUpdateCommand(tool.get());
+            if (tool.get().version().equals(version)) {
+                outStream.println("tool '" + toolId + "' is already up-to-date.");
                 CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException | ProjectException e) {
-                CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
-                        null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
+                return;
             }
+            if (isToolAvailableLocally(toolId, version)) {
+                outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+            } else {
+                pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+            }
+            addToBalToolsToml();
+        } catch (PackageAlreadyExistsException e) {
+            errStream.println(e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (CentralClientException | ProjectException e) {
+            CommandUtil.printError(errStream, "unexpected error occurred while pulling tool:" + e.getMessage(),
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
         }
     }
 
