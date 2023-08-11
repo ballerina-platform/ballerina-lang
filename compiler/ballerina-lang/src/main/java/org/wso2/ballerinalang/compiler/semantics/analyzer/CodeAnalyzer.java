@@ -1771,7 +1771,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean isValidVariableForInferredArray(BLangNode node) {
         switch (node.getKind()) {
             case LITERAL:
-                if (node.getBType().tag == TypeTags.ARRAY) {
+                if (node.getBType().tag == TypeTags.ARRAY || node.getBType().tag == TypeTags.TUPLE) {
                     return true;
                 }
                 break;

@@ -255,6 +255,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return;
         }
 
+        if (literalType.tag == TypeTags.BYTE_ARRAY) {
+            literalType = rewriteByteArrayLiteral(literalExpr, data);
+        }
+
         if (literalExpr.isFiniteContext) {
             return;
         }
@@ -266,6 +270,24 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return;
         }
         data.resultType = finiteType;
+    }
+
+    private BType rewriteByteArrayLiteral(BLangLiteral literalExpr, AnalyzerData data) {
+        byte[] values = types.convertToByteArray((String) literalExpr.value);
+
+        List<BType> memberTypes = new ArrayList<>();
+        for (byte b : values) {
+            memberTypes.add(getFiniteType(Byte.toUnsignedLong(b), data.constantSymbol, literalExpr.pos,
+                    symTable.intType));
+        }
+
+        BType expType = Types.getReferredType(data.expType);
+        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.INFERRED) {
+            ((BArrayType) expType).size = memberTypes.size();
+            ((BArrayType) expType).state = BArrayState.CLOSED;
+        }
+
+        return createNewTupleType(literalExpr.pos, memberTypes, data);
     }
 
     @Override
@@ -1090,6 +1112,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         switch (possibleType.tag) {
             case TypeTags.ARRAY:
+            case TypeTags.BYTE_ARRAY:
                 return checkArrayType((BArrayType) possibleType, listConstructor, data);
             case TypeTags.TUPLE:
                 return checkTupleType((BTupleType) possibleType, listConstructor, data);
@@ -1362,6 +1385,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private BType getListConstructorCompatibleNonUnionType(BType type, AnalyzerData data) {
         switch (type.tag) {
             case TypeTags.ARRAY:
+            case TypeTags.BYTE_ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.READONLY:
             case TypeTags.TYPEDESC:
@@ -1713,12 +1737,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 setLiteralValueForFiniteType(literalExpr, literalType, data);
                 return literalType;
             }
-        }
-
-        // Byte arrays are not yet supported in constants.
-        if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-            return symTable.semanticError;
         }
 
         return literalType;
