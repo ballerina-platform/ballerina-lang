@@ -70,7 +70,8 @@ public class CompletionSearchProvider {
      * @param moduleName    module name.
      * @param stringList    list of words.
      */
-    public void indexModule(ModuleID moduleName, List<String> stringList, List<String> namesWithModulePrefix) {
+    public void indexModuleAndModuleSymbolNames(ModuleID moduleName, List<String> stringList,
+                                                List<String> namesWithModulePrefix) {
         indexedModules.add(moduleName);
         indexNames(stringList);
         indexNames(namesWithModulePrefix);
