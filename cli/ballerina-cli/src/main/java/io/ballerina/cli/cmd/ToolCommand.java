@@ -181,7 +181,7 @@ public class ToolCommand implements BLauncherCmd {
 
     private void handlePullCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no tool id given.", TOOL_PULL_USAGE_TEXT, false);
+            CommandUtil.printError(this.errStream, "tool id is not provided.", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -329,7 +329,7 @@ public class ToolCommand implements BLauncherCmd {
 
     private void handleRemoveCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no tool id given.", TOOL_REMOVE_USAGE_TEXT, false);
+            CommandUtil.printError(this.errStream, "tool id is not provided.", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
