@@ -35,27 +35,20 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  * @since 2201.7.0
  */
 public class HTTPServer {
+
+    private HTTPServer() {
+    }
+
     public static void initializeHTMLExport() throws IOException {
         OUT.printf(" ○ Output: " + Constants.ANSI_YELLOW
                 + "target/bin/ProfilerOutput.html" + Constants.ANSI_RESET + "%n");
         String content = readData();
         String htmlData = getSiteData(content);
         String fileName = "ProfilerOutput.html";
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(fileName, StandardCharsets.UTF_8);
-            fileWriter.write(htmlData);
+        try (FileWriter writer = new FileWriter(fileName, StandardCharsets.UTF_8)) {
+            writer.write(htmlData);
         } catch (IOException e) {
             OUT.printf(e + "%n");
-        } finally {
-            if (fileWriter != null) {
-                try {
-                    fileWriter.close();
-                } catch (IOException e) {
-                    // Handle the exception if closing the writer fails
-                    OUT.printf(e + "%n");
-                }
-            }
         }
     }
 

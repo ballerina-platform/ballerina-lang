@@ -23,6 +23,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
+import static io.ballerina.runtime.profiler.util.Constants.STRAND_CLASS;
+
 /**
  * This class is used as the advice adapter for the ballerina profiler.
  * This class only manages the functions that contain the strand parameter.
@@ -55,6 +57,7 @@ public class StrandCheckAdapter extends AdviceAdapter {
 
     /*  This method is called when the visitCode() method is called on the MethodVisitor
     It adds a label to the try block of the wrapped method  */
+    @Override
     public void visitCode() {
         super.visitCode();
         mv.visitLabel(tryStart);
@@ -62,10 +65,11 @@ public class StrandCheckAdapter extends AdviceAdapter {
 
     /*  This method is called when the wrapped method is entered
     It retrieves the profiler instance, gets the strand id and starts the profiling */
+    @Override
     protected void onMethodEnter() {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
         mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/Strand", "getId", "()I", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "getId", "()I", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/profiler/runtime/Profiler", "start", "(I)V", false);
     }
 
@@ -74,6 +78,7 @@ public class StrandCheckAdapter extends AdviceAdapter {
      If the exit is not due to an exception, it calls the onFinally method.
      @param opcode - the opcode of the instruction that caused the method exit.
      */
+    @Override
     protected void onMethodExit(int opcode) {
         if (opcode != ATHROW) {
             onFinally();
@@ -86,6 +91,7 @@ public class StrandCheckAdapter extends AdviceAdapter {
      @param maxStack - the maximum stack size.
      @param maxLocals - the maximum number of local variables.
      */
+    @Override
     public void visitMaxs(int maxStack, int maxLocals) {
         Label tryEnd = new Label();
         mv.visitTryCatchBlock(tryStart, tryEnd, tryEnd, null);
@@ -100,12 +106,12 @@ public class StrandCheckAdapter extends AdviceAdapter {
     private void onFinally() {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
         mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/Strand",
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS,
                 "getState", "()Lio/ballerina/runtime/internal/scheduling/State;", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/State",
                 "toString", "()Ljava/lang/String;", false);
         mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/Strand", "getId", "()I", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "getId", "()I", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, profilerOwner, "stop", "(Ljava/lang/String;I)V", false);
     }
 }

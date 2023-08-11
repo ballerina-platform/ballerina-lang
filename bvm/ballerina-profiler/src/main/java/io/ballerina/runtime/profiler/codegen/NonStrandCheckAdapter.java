@@ -29,26 +29,30 @@ import org.objectweb.asm.commons.AdviceAdapter;
  * @since 2201.7.0
  */
 public class NonStrandCheckAdapter extends AdviceAdapter {
+
     String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
     String profilerDescriptor = "()Lio/ballerina/runtime/profiler/runtime/Profiler;";
 
     /**
-     Constructor for MethodWrapperAdapter.
-     @param access - access flag of the method that is wrapped.
-     @param mv - MethodVisitor instance to generate the bytecode.
-     @param methodName - name of the method that is wrapped.
-     @param description - description of the method that is wrapped.
+     * Constructor for MethodWrapperAdapter.
+     *
+     * @param access      - access flag of the method that is wrapped.
+     * @param mv          - MethodVisitor instance to generate the bytecode.
+     * @param methodName  - name of the method that is wrapped.
+     * @param description - description of the method that is wrapped.
      */
 
     public NonStrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description) {
         super(Opcodes.ASM9, mv, access, methodName, description);
     }
 
+    @Override
     protected void onMethodEnter() {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
         mv.visitMethodInsn(INVOKEVIRTUAL, profilerOwner, "start", "()V", false);
     }
 
+    @Override
     protected void onMethodExit(int opcode) {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
         mv.visitMethodInsn(INVOKEVIRTUAL, profilerOwner, "stop", "()V", false);

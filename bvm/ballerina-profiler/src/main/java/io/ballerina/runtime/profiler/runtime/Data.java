@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2201.7.0
  */
 public class Data {
-    private String name;
+    private final String name;
     private long startTime;
     private long totalTime;
     private long minTime;
@@ -66,11 +66,8 @@ public class Data {
         sb.append("{");
         sb.append("\"time\": \"").append(time).append("\", ");
         sb.append("\"stackTrace\": ");
-        for (int i = 0; i < stackTrace.length; i++) {
-            sb.append(stackTrace[i]);
-            if (i < stackTrace.length - 1) {
-                sb.append(", ");
-            }
+        for (String s : stackTrace) {
+            sb.append(s);
         }
         sb.append("},");
         return sb.toString();

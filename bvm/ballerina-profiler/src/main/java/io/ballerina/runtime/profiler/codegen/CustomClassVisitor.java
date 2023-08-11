@@ -23,14 +23,15 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import static io.ballerina.runtime.profiler.util.Constants.STRAND;
+import static io.ballerina.runtime.profiler.util.Constants.STRAND_ARG;
 
 /**
  * This class is used as a custom class visitor for the ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class CustomClassVisitor extends ClassVisitor {
+
     public CustomClassVisitor(ClassVisitor classVisitor) {
         super(Opcodes.ASM9, classVisitor);
     }
@@ -38,10 +39,10 @@ public class CustomClassVisitor extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        if (!name.startsWith("$") && desc.startsWith(STRAND)) {
+        if (!name.startsWith("$") && desc.startsWith(STRAND_ARG)) {
             Main.incrementBalFunctionCount();
         }
-        if (desc.startsWith(STRAND)) {
+        if (desc.startsWith(STRAND_ARG)) {
             return new StrandCheckAdapter(access, methodVisitor, name, desc, (access & Opcodes.ACC_STATIC));
         }
         return new NonStrandCheckAdapter(access, methodVisitor, name, desc);

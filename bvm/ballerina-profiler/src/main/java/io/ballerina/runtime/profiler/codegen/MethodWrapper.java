@@ -19,13 +19,13 @@
 package io.ballerina.runtime.profiler.codegen;
 
 import io.ballerina.runtime.profiler.util.Constants;
+import io.ballerina.runtime.profiler.util.ProfilerException;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +38,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import static io.ballerina.runtime.profiler.Main.getBalJarArgs;
+import static io.ballerina.runtime.profiler.util.Constants.ERROR;
 import static io.ballerina.runtime.profiler.util.Constants.OUT;
 
 /**
@@ -46,6 +47,7 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  * @since 2201.7.0
  */
 public class MethodWrapper extends ClassLoader {
+
     public static void invokeMethods() throws IOException, InterruptedException {
         String balJarArgs = getBalJarArgs();
         String[] command = {"java", "-jar", Constants.TEMP_JAR_FILE_NAME};
@@ -57,8 +59,8 @@ public class MethodWrapper extends ClassLoader {
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         OUT.printf(Constants.ANSI_CYAN + "[5/6] Running Executable..." + Constants.ANSI_RESET + "%n");
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
+                StandardCharsets.UTF_8))) {
             reader.lines().forEach(OUT::println);
         }
         process.waitFor();
@@ -69,9 +71,10 @@ public class MethodWrapper extends ClassLoader {
             URL manifestURL = manifestClassLoader.findResource("META-INF/MANIFEST.MF");
             Manifest manifest = new Manifest(manifestURL.openStream());
             Attributes attributes = manifest.getMainAttributes();
-            return attributes.getValue("Main-Class").replace(".$_init", "").replace(".", "/");
-        } catch (Exception | Error throwable) {
-            System.err.printf(throwable + "%n");
+            return attributes.getValue("Main-Class").replace(".$_init", "")
+                    .replace(".", "/");
+        } catch (Throwable throwable) {
+            ERROR.println(throwable + "%n");
             return null;
         }
     }
@@ -80,14 +83,14 @@ public class MethodWrapper extends ClassLoader {
         byte[] code;
         try {
             ClassReader reader = new ClassReader(inputStream);
-            ClassWriter classWriter = new CustomClassWriter(reader,
-                    ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+            ClassWriter classWriter = new CustomClassWriter(reader, ClassWriter.COMPUTE_MAXS |
+                    ClassWriter.COMPUTE_FRAMES);
             ClassVisitor change = new CustomClassVisitor(classWriter);
             reader.accept(change, ClassReader.EXPAND_FRAMES);
             code = classWriter.toByteArray();
             return code;
-        } catch (Exception | Error e) {
-            OUT.printf(e + "%n");
+        } catch (Throwable e) {
+            ERROR.println(e + "%n");
         }
         return new byte[0]; // Return a zero-length byte array if the code was not modified
     }
@@ -107,10 +110,8 @@ public class MethodWrapper extends ClassLoader {
 
         try (FileOutputStream fos = new FileOutputStream(className)) {
             fos.write(code); // Write the code to the output stream
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException  e) {
+            throw new ProfilerException(e);
         }
     }
 }

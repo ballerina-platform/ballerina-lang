@@ -16,35 +16,18 @@
  * under the License.
  */
 
-package io.ballerina.runtime.profiler.codegen;
-
-import org.objectweb.asm.ClassReader;
+package io.ballerina.runtime.profiler.runtime;
 
 import static io.ballerina.runtime.profiler.util.Constants.ERROR;
 
 /**
- * This class is used as a custom class loader for the ballerina profiler.
+ * This class is used as a runtime exception class for profiler.
  *
  * @since 2201.8.0
  */
-public class CustomClassLoader extends ClassLoader {
+public class ProfilerRuntimeException extends RuntimeException {
 
-    public CustomClassLoader(ClassLoader parent) {
-        super(parent);
-    }
-
-    public void loadClass(byte[] code) {
-        String name = readClassName(code);
-        try {
-            defineClass(name, code, 0, code.length);
-        } catch (Throwable e) {
-            ERROR.println(name + "\n");
-        }
-    }
-
-    public String readClassName(final byte[] byteCode) {
-        String className;
-        className = new ClassReader(byteCode).getClassName().replace("/", ".");
-        return className;
+    public ProfilerRuntimeException(String message) {
+        ERROR.printf(String.format("%s%n", message));
     }
 }

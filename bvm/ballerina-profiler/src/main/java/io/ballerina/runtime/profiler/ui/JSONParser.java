@@ -18,10 +18,10 @@
 
 package io.ballerina.runtime.profiler.ui;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,6 +40,12 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  * @since 2201.7.0
  */
 public class JSONParser {
+
+    private JSONParser() {
+    }
+
+    private static final String VALUE_KEY = "value";
+
     public static void initializeCPUParser(String skipFunctionString) {
         ArrayList<String> skipList = new ArrayList<>();
         skipList = skipFunctionString != null ? parseSkipFunctionStringToList(skipFunctionString) : skipList;
@@ -49,27 +55,25 @@ public class JSONParser {
     }
 
     private static ArrayList<String> parseSkipFunctionStringToList(String skipFunctionString) {
-        ArrayList<String> skipList = new ArrayList<>();
         String[] elements = skipFunctionString.replace("[", "").replace("]", "").split(", ");
-        skipList.addAll(Arrays.asList(elements));
-        return skipList;
+        return new ArrayList<>(Arrays.asList(elements));
     }
 
-    public static int getTotalTime(JSONObject node) {
+    public static int getTotalTime(JsonObject node) {
         int totalTime = 0; // Initialize total time
-        JSONArray children = node.optJSONArray("children"); // Get the "children" array from the JSONObject
+        JsonArray children = node.getAsJsonArray("children"); // Get the "children" array from the JSONObject
         if (children != null) {
-            for (int i = 0; i < children.length(); i++) {
-                if (children.getJSONObject(i).getInt("value") != -1) {
-                    totalTime += children.getJSONObject(i).getInt("value"); // Add the value to the total time
+            for (int i = 0; i < children.size(); i++) {
+                if (children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt() != -1) {
+                    totalTime += children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt(); // Add the value to the total time
                 }
             }
         }
         return totalTime;
     }
 
-    public static String readFileAsString(String file) throws Exception {
-        return new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8); // Read Files as a String
+    public static String readFileAsString(String file) throws IOException {
+        return Files.readString(Paths.get(file)); // Read Files as a String
     }
 
     static void writer(String parsedJson) {
@@ -82,7 +86,7 @@ public class JSONParser {
         }
     }
 
-    public static boolean containsAnySkipList(String str, ArrayList<String> arrayList) {
+    public static boolean containsAnySkipList(String str, List<String> arrayList) {
         for (String s : arrayList) {
             if (str.contains(s)) {
                 return true;
@@ -97,69 +101,83 @@ public class JSONParser {
             String jsonInput = readFileAsString(file); // Read the json file as a string
 
             // Removes the trailing comma
-            StringBuffer jsonInputStringBuffer = new StringBuffer(jsonInput);
+            StringBuilder jsonInputStringBuffer = new StringBuilder(jsonInput);
             jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
             jsonInput = jsonInputStringBuffer.toString();
-
-            ObjectMapper mapper = new ObjectMapper(); // Create an ObjectMapper object to map json to Java objects
-            List<Item> input = mapper.readValue(jsonInput, new TypeReference<List<Item>>() {
-            }); // Map the json input to a list of Item objects
-
+            // Populate the input list
+            List<StackTraceItem> input = populateStackTraceItems(jsonInput);
             // Create a Data object to store the output
-            Data output = new Data();
-            output.name = "Root";
-            output.value = input.get(0).time;
-            output.children = new ArrayList<>();
-
+            Data output = new Data("Root", input.get(0).time, new ArrayList<>());
             // Iterate through the input list
-            for (Item item : input) {
-                if (item.stackTrace.size() == 1) {
-                    output.value = Math.max(output.value, item.time); // Update the value of the root node
+            for (StackTraceItem stackTraceItem : input) {
+                if (stackTraceItem.stackTrace.size() == 1) {
+                    // Update the value of the root node
+                    output.value = Math.max(output.value, stackTraceItem.time);
                 } else {
-                    Data current = output;
                     // Iterate through the stack trace
-                    for (int i = 1; i < item.stackTrace.size(); i++) {
-                        String name = item.stackTrace.get(i);
-                        if (name.contains("$configureInit()")) {
-                            removeChildrenByNodeName(output, name);
-                            break;
-                        }
-                        if (!containsAnySkipList(name, skipList)) {
-
-                            boolean found = false;
-                            // Check if the child node already exists
-                            for (Data child : current.children) {
-                                if (child.name.equals(name)) {
-                                    // Update the value of the existing child node
-                                    child.value = Math.max(child.value, item.time);
-                                    current = child;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                // Create a new child node if it doesn't exist
-                                Data newChild = new Data();
-                                newChild.name = name;
-                                newChild.value = item.time;
-                                newChild.children = new ArrayList<>();
-                                current.children.add(newChild);
-                                current = newChild;
-                            }
-                        }
-                    }
+                    analyseStackTraceItems(skipList, stackTraceItem, output);
                 }
             }
-
-            String jsonString = mapper.writeValueAsString(output); // Convert the output data object to a json string
-            JSONObject jsonObject = new JSONObject(jsonString); // Convert the json string to a JSONObject
-            int totalTime = getTotalTime(jsonObject); // Calculate the total time
-            jsonObject.remove("value"); // Remove the "value" key
-            jsonObject.put("value", totalTime); // Add the total time as the value
-            writer(jsonObject.toString()); // write the json object to a file
-        } catch (Exception | Error throwable) {
-            OUT.printf(throwable + "%n");
+            writeToValueJson(output);
+        } catch (Exception throwable) {
+            OUT.println(throwable + "%n");
         }
+    }
+
+    private static void analyseStackTraceItems(ArrayList<String> skipList, StackTraceItem stackTraceItem, Data output) {
+        Data current = output;
+        for (int i = 1; i < stackTraceItem.stackTrace.size(); i++) {
+            String name = stackTraceItem.stackTrace.get(i);
+            if (name.contains("$configureInit()")) {
+                removeChildrenByNodeName(output, name);
+                break;
+            }
+            if (!containsAnySkipList(name, skipList)) {
+                current = populateChildNodes(stackTraceItem, current, name);
+            }
+        }
+    }
+
+    private static void writeToValueJson(Data output) {
+        Gson gson = new Gson();
+        String json = gson.toJson(output);
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        int totalTime = getTotalTime(jsonObject); // Calculate the total time
+        jsonObject.remove(VALUE_KEY); // Remove the "value" key
+        jsonObject.addProperty(VALUE_KEY, totalTime); // Add the total time as the value
+        writer(jsonObject.toString()); // write the json object to a file
+    }
+
+    private static Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String name) {
+        boolean found = false;
+        // Check if the child node already exists
+        for (Data child : current.children) {
+            if (child.name.equals(name)) {
+                // Update the value of the existing child node
+                child.value = Math.max(child.value, stackTraceItem.time);
+                current = child;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // Create a new child node if it doesn't exist
+            Data newChild = new Data(name, stackTraceItem.time, new ArrayList<>());
+            current.children.add(newChild);
+            current = newChild;
+        }
+        return current;
+    }
+
+    private static List<StackTraceItem> populateStackTraceItems(String jsonInput) {
+        Gson gson = new Gson();
+        JsonArray jsonArr = gson.fromJson(jsonInput, JsonArray.class);
+        List<StackTraceItem> stackTraceItems = new ArrayList<>();
+        for (JsonElement jsonElement : jsonArr) {
+            StackTraceItem person = gson.fromJson(jsonElement, StackTraceItem.class);
+            stackTraceItems.add(person);
+        }
+        return stackTraceItems;
     }
 
     private static void removeChildrenByNodeName(Data node, String nodeName) {
@@ -177,14 +195,12 @@ public class JSONParser {
      *
      * @since 2201.7.0
      */
-    public static class Item {
-        public int time;
-        public List<String> stackTrace;
+    public static class StackTraceItem {
 
-        public Item() {
-        }
+        int time;
+        List<String> stackTrace;
 
-        public Item(int time, List<String> stackTrace) {
+        public StackTraceItem(int time, List<String> stackTrace) {
             this.time = time;
             this.stackTrace = stackTrace;
         }
@@ -196,12 +212,10 @@ public class JSONParser {
      * @since 2201.7.0
      */
     static class Data {
-        public String name;
-        public int value;
-        public List<Data> children;
 
-        public Data() {
-        }
+        String name;
+        int value;
+        List<Data> children;
 
         Data(String name, int value, List<Data> children) {
             this.name = name;

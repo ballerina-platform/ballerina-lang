@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.profiler.runtime;
 
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -37,15 +36,14 @@ import java.util.stream.Collectors;
 /**
  * This class is used as the main profiler class for the ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class Profiler {
     private final HashMap<String, Data> profiles = new HashMap<>();
     private final ArrayList<Data> profilesStack = new ArrayList<>();
-    private ArrayList<String> blockedMethods = new ArrayList<>();
-    private List<String> methodNames = new ArrayList<>();
-    private static List<String> skippedList = new ArrayList<>();
-    private static Set<String> skippedClasses = new HashSet<>(skippedList);
+    private final ArrayList<String> blockedMethods = new ArrayList<>();
+    private static final List<String> skippedList = new ArrayList<>();
+    private static final Set<String> skippedClasses = new HashSet<>(skippedList);
 
     private static final String GENERATED_METHOD_PREFIX = "$gen$";
 
@@ -57,6 +55,7 @@ public class Profiler {
             skippedList.addAll(skippedListRead);
             skippedClasses.addAll(skippedList);
         } catch (IOException ignored) {
+            throw new ProfilerRuntimeException("Error occurred while reading the usedPathsList.txt file");
         }
     }
 
@@ -87,14 +86,13 @@ public class Profiler {
     public void start(int id) {
         String name = getStackTrace();
         if (!blockedMethods.contains(getMethodName() + id)) {
-            Data p = (Data) this.profiles.get(name);
+            Data p = this.profiles.get(name);
             if (p == null) {
                 p = new Data(name);
                 this.profiles.put(name, p);
                 this.profilesStack.add(p);
             }
             p.start();
-            methodNames.add(getMethodName()); // add the current method name to the methodNames set
             removeDuplicates(blockedMethods);
         }
         blockedMethods.remove(getMethodName() + id);
@@ -102,23 +100,21 @@ public class Profiler {
 
     public void start() {
         String name = getStackTrace();
-        Data p = (Data) this.profiles.get(name);
+        Data p = this.profiles.get(name);
         if (p == null) {
             p = new Data(name);
             this.profiles.put(name, p);
             this.profilesStack.add(p);
         }
         p.start();
-        methodNames.add(getMethodName()); // add the current method name to the methodNames set
         removeDuplicates(blockedMethods);
     }
 
     public void stop(String strandState, int id) {
         String name = getStackTrace();
-        Data p = (Data) this.profiles.get(name);
+        Data p = this.profiles.get(name);
         if (strandState.equals("RUNNABLE")) {
-            if (p == null) {
-            } else {
+            if (p != null) {
                 p.stop();
             }
         } else {
@@ -128,18 +124,16 @@ public class Profiler {
 
     public void stop() {
         String name = getStackTrace();
-        Data p = (Data) this.profiles.get(name);
-        if (p == null) {
-        } else {
+        Data p = this.profiles.get(name);
+        if (p != null) {
             p.stop();
         }
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("[");
+        StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < this.profilesStack.size(); i++) {
-            sb.append(this.profilesStack.get(i) + "\n");
+            sb.append(this.profilesStack.get(i)).append("\n");
         }
         sb.append("]");
         return sb.toString();
@@ -149,7 +143,7 @@ public class Profiler {
         try (Writer myWriter = new FileWriter("CpuPre.json", StandardCharsets.UTF_8)) {
             myWriter.write(dataStream);
         } catch (IOException e) {
-            System.out.printf("An error occurred." + "%n");
+            throw new ProfilerRuntimeException("Error occurred while writing to the CpuPre.json file");
         }
     }
 

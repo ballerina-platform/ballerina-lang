@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.profiler.util;
 
+import static io.ballerina.runtime.profiler.util.Constants.ERROR;
 import static io.ballerina.runtime.profiler.util.Constants.OUT;
 
 /**
@@ -27,14 +28,14 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  */
 public class ProfilerException extends RuntimeException {
     public ProfilerException(String message) {
-        OUT.printf(String.format("%s%n", message));
+        ERROR.printf(String.format("%s%n", message));
     }
 
     public ProfilerException(Throwable cause) {
-        OUT.printf(String.format("%s%n", cause));
+        ERROR.printf(String.format("%s%n", cause));
     }
 
     public ProfilerException(String message, Throwable cause) {
-        OUT.printf(String.format("%s%s%n", message, cause));
+        ERROR.printf(String.format("%s%s%n", message, cause));
     }
 }

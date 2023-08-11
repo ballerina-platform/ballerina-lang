@@ -24,9 +24,10 @@ import org.objectweb.asm.ClassWriter;
 /**
  * This class is used as a custom class writer for the ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class CustomClassWriter extends ClassWriter {
+
     private static final String OBJECT_CLASS = "java/lang/Object";
 
     public CustomClassWriter(ClassReader classReader, int flags) {

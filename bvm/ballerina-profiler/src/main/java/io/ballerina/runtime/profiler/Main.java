@@ -94,38 +94,62 @@ public class Main {
         if (args.length == 0) {
             return;
         }
+
+        List<String> usedArgs = new ArrayList<>();
+
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
-                case "--file":
-                    balJarName = args[i + 1];
-                    if (!balJarName.endsWith(".jar")) {
-                        throw new ProfilerException("Invalid JAR file found : " + balJarName);
-                    }
-                    break;
-                case "--args":
-                    balJarArgs = args[i + 1];
-                    if (balJarArgs == null || !balJarArgs.startsWith("[") || !balJarArgs.endsWith("]")) {
-                        throw new ProfilerException("Invalid JAR arguments found : " + balJarArgs);
-                    }
-                    balJarArgs = balJarArgs.substring(1, balJarArgs.length() - 1);
-                    break;
-//                TODO: Implement skip function
-                case "--skip":
-                    skipFunctionString = args[i + 1];
-                    if (skipFunctionString == null || !skipFunctionString.matches("\\[.*\\]")) {
-                        throw new ProfilerException("Invalid skip functions found : " + skipFunctionString);
-                    }
-                    skipFunctionString = skipFunctionString.substring(1, skipFunctionString.length() - 1);
-                    break;
-                case "--target":
+                case "--file" -> {
+                    balJarName = extractFileArg(args[i + 1]);
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--args" -> {
+                    balJarArgs = extractBalJarArgs(args[i + 1]);
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--skip" -> {
+                    skipFunctionString = extractSkipFunctionString(args[i + 1]);
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--target" -> {
                     targetDir = args[i + 1];
-                    break;
-                default:
-                    // Handle unrecognized arguments here
-                    break;
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                default -> handleUnrecognizedArgument(args[i], usedArgs);
             }
         }
+    }
 
+    private static String extractFileArg(String value) {
+        if (!value.endsWith(".jar")) {
+            throw new ProfilerException("Invalid file argument found: " + value);
+        }
+        return value;
+    }
+
+    private static String extractBalJarArgs(String value) {
+        if (value == null || !value.startsWith("[") || !value.endsWith("]")) {
+            throw new ProfilerException("Invalid JAR arguments found: " + value);
+        }
+        return value.substring(1, value.length() - 1);
+    }
+
+    private static String extractSkipFunctionString(String value) {
+        if (value == null || !value.matches("\\[.*\\]")) {
+            throw new ProfilerException("Invalid skip functions found: " + value);
+        }
+        return value.substring(1, value.length() - 1);
+    }
+
+    private static void handleUnrecognizedArgument(String argument, List<String> usedArgs) {
+        if (!usedArgs.contains(argument)) {
+            throw new ProfilerException("Unrecognized argument found: " + argument);
+        }
+    }
+
+    private static void addToUsedArgs(String[] args, List<String> usedArgs, int i) {
+        usedArgs.add(args[i]);
+        usedArgs.add(args[i + 1]);
     }
 
     private static void extractProfiler() throws ProfilerException {

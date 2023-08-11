@@ -13,8 +13,14 @@ public class Constants {
     public static final String ANSI_CYAN = "\033[1;38;2;32;182;176m";
     public static final String ANSI_YELLOW = "\033[1;38;2;255;255;0m";
     public static final String TEMP_JAR_FILE_NAME = "temp.jar";
-    public static final String STRAND = "(Lio/ballerina/runtime/internal/scheduling/Strand";
+    public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
+    public static final String STRAND_ARG = "(L" + STRAND_CLASS;
+
     public static final PrintStream OUT = System.out;
     public static final PrintStream ERROR = System.err;
+
     public static final String CLASS_SUFFIX = ".class";
+
+    private Constants() {
+    }
 }
