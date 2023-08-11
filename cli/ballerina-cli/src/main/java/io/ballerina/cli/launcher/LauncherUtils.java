@@ -101,11 +101,15 @@ public class LauncherUtils {
     static String generateGeneralHelp(Map<String, CommandLine> subCommands) {
         StringBuilder helpBuilder = new StringBuilder();
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
-        helpBuilder.append("\n\n   Tool Commands:");
-        subCommands.keySet().stream()
+
+        // if there are any tools, add Tool Commands section
+        List<String> toolNames = subCommands.keySet().stream()
                 .filter(BalToolsUtil::isNonBuiltInToolCommand)
-                .sorted()
-                .forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder));
+                .sorted().toList();
+        if (!toolNames.isEmpty()) {
+            helpBuilder.append("\n\n   Tool Commands:");
+            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder));
+        }
         return helpBuilder.toString();
     }
 
