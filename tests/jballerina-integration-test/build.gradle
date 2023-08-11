@@ -123,6 +123,7 @@ task copyToLib(type: Copy) {
 }
 
 test.dependsOn(copyToLib)
+generateMetadataFileForMavenJavaPublication.dependsOn(copyToLib)
 
 task createLaunchListenerUtilsLib(type: Copy) {
     from configurations.launchListenerTestUtils
