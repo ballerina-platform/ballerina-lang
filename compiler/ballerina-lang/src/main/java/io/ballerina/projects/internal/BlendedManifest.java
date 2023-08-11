@@ -63,7 +63,8 @@ public class BlendedManifest {
     public static BlendedManifest from(DependencyManifest dependencyManifest,
                                        PackageManifest packageManifest,
                                        AbstractPackageRepository localPackageRepository,
-                                       Map<String, CustomPackageRepository> customPackageRepositoryMap) {
+                                       Map<String, CustomPackageRepository> customPackageRepositoryMap,
+                                       boolean offline) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
         for (DependencyManifest.Package pkgInDepManifest : dependencyManifest.packages()) {
@@ -116,8 +117,8 @@ public class BlendedManifest {
 
                 if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
                     targettedRepository = customPackageRepositoryMap.get(depInPkgManifest.repository());
-                    if (!targettedRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
-                            depInPkgManifest.version())) {
+                    if (!((CustomPackageRepository) targettedRepository).isPackageExists(depInPkgManifest.org(),
+                            depInPkgManifest.name(), depInPkgManifest.version(), offline)) {
                         var diagnosticInfo = new DiagnosticInfo(
                                 ProjectDiagnosticErrorCode.PACKAGE_NOT_FOUND.diagnosticId(),
                                 "Dependency version (" + depInPkgManifest.version() +

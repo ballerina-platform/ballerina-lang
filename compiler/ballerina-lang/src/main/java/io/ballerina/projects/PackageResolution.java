@@ -95,7 +95,8 @@ public class PackageResolution {
         this.resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
+        this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
+                this.resolutionOptions.offline());
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
@@ -481,12 +482,12 @@ public class PackageResolution {
     }
 
     private BlendedManifest createBlendedManifest(PackageContext rootPackageContext,
-                                                  ProjectEnvironment projectEnvContext) {
+                                                  ProjectEnvironment projectEnvContext, boolean offline) {
         Map<String, CustomPackageRepository> customPackageRepositoryMap =
                 projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomPackageRepositories();
         return BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),
-                projectEnvContext.getService(LocalPackageRepository.class), customPackageRepositoryMap);
+                projectEnvContext.getService(LocalPackageRepository.class), customPackageRepositoryMap, offline);
     }
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,

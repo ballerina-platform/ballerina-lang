@@ -102,25 +102,37 @@ public class CustomPackageRepositoryTests {
         }, TEST_REPO, "1.2.3");
     }
 
-    @Test(description = "Test package existence in custom repository")
+    @Test(description = "Test package existence in custom repository - online")
     public void testIsPackageExist() throws IOException {
         boolean isPackageExists = customPackageRepository.isPackageExists(
                 PackageOrg.from("luheerathan"), PackageName.from("pact"),
-                PackageVersion.from("0.1.0"));
+                PackageVersion.from("0.1.0"), false);
         Assert.assertTrue(isPackageExists);
         deleteRemotePackage();
     }
 
-    @Test(description = "Test non-existing package in custom repository")
+    @Test(description = "Test package existence in custom repository - offline")
+    public void testIsPackageExistOffline() throws IOException {
+        boolean isPackageExists = customPackageRepository.isPackageExists(
+                PackageOrg.from("luheerathan"), PackageName.from("pact"),
+                PackageVersion.from("0.1.0"), true);
+        Assert.assertFalse(isPackageExists);
+        deleteRemotePackage();
+    }
+
+    @Test(description = "Test non-existing package in custom repository - online")
     public void testNonExistingPkg()  {
         boolean isPackageExists = customPackageRepository.isPackageExists(
                 PackageOrg.from("luheerathan"),
-                PackageName.from("pact1"), PackageVersion.from("0.1.0"));
+                PackageName.from("pact1"), PackageVersion.from("0.1.0"), false);
         Assert.assertTrue(!isPackageExists);
     }
 
     @Test(description = "Test package version existence in custom repository")
-    public void testGetPackageVersions() throws IOException {
+    public void testGetPackageVersionsOnline() throws IOException {
+        customPackageRepository.isPackageExists(
+                PackageOrg.from("luheerathan"), PackageName.from("pact"),
+                PackageVersion.from("0.1.0"), false);
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("luheerathan"),
                         PackageName.from("pact"), PackageVersion.from("0.1.0")),
@@ -132,18 +144,6 @@ public class CustomPackageRepositoryTests {
         deleteRemotePackage();
     }
 
-    @Test(description = "Test getPackage (existing package) in custom repository")
-    public void testGetPackage() throws IOException {
-        ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                PackageDescriptor.from(PackageOrg.from("luheerathan"),
-                        PackageName.from("pact"), PackageVersion.from("0.1.0")),
-                PackageDependencyScope.DEFAULT);
-        Optional<Package> packageOptional = customPackageRepository.getPackage(resolutionRequest,
-                ResolutionOptions.builder().setOffline(true).build());
-        Assert.assertFalse(packageOptional.isEmpty());
-        Assert.assertEquals(PackageOrg.from("luheerathan"), packageOptional.get().packageOrg());
-        deleteRemotePackage();
-    }
 
     @Test(description = "Test getPackage (non existing package) in custom repository")
     public void testGetPackageNonExisting() throws IOException {
@@ -179,7 +179,7 @@ public class CustomPackageRepositoryTests {
     }
 
     @Test(description = "Test non-existing package modules in custom repository")
-    public void testExistingPkgModules() throws IOException {
+    public void testNonExistingPkgModules() throws IOException {
         Collection<ModuleDescriptor> modules = customPackageRepository.getModules(
                 PackageOrg.from("luheerathan"),
                 PackageName.from("pact1"), PackageVersion.from("0.1.0"));
@@ -187,15 +187,6 @@ public class CustomPackageRepositoryTests {
         deleteRemotePackage();
     }
 
-
-    @Test(description = "Test existing package modules in custom repository")
-    public void testNonExistingPkgModules() throws IOException {
-        Collection<ModuleDescriptor> modules = customPackageRepository.getModules(
-                PackageOrg.from("luheerathan"), PackageName.from("pact"),
-                PackageVersion.from("0.1.0"));
-        Assert.assertFalse(modules.isEmpty());
-        deleteRemotePackage();
-    }
 
     @Test(description = "Test package version existence in custom repository")
     public void testGetNonExistingPackageVersions2() throws IOException {

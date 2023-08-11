@@ -40,13 +40,11 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
@@ -189,7 +187,7 @@ public class PullCommand implements BLauncherCmd {
         Repository targetRepository = null;
         if (repositoryName != null) {
             for (Repository repository : settings.getRepositories()) {
-                if (repository.id().equals(repositoryName)) {
+                if (repositoryName.equals(repository.id())) {
                     targetRepository = repository;
                     break;
                 }
@@ -221,33 +219,23 @@ public class PullCommand implements BLauncherCmd {
                     .resolve(ProjectConstants.BALA_DIR_NAME);
 
             try {
+                Path tmpDownloadDirectory = Files.createTempDirectory("ballerina-" + System.nanoTime());
                 mavenResolverClient.pullPackage(orgName, packageName, version,
-                        String.valueOf(mavenBalaCachePath.toAbsolutePath()));
-                Path balaDownloadPath = mavenBalaCachePath.resolve(orgName).resolve(packageName).resolve(version)
+                        String.valueOf(tmpDownloadDirectory.toAbsolutePath()));
+                Path balaDownloadPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName).resolve(version)
                         .resolve(packageName + "-" + version + BALA_EXTENSION);
-                Path balaHashPath = mavenBalaCachePath.resolve(orgName).resolve(packageName).resolve(version)
-                        .resolve(packageName + "-" + version + BALA_EXTENSION + ".sha1");
-                Path temporaryExtractionPath = mavenBalaCachePath.resolve(orgName).resolve(packageName)
+                Path temporaryExtractionPath = tmpDownloadDirectory.resolve(orgName).resolve(packageName)
                         .resolve(version).resolve(PLATFORM);
                 ProjectUtils.extractBala(balaDownloadPath, temporaryExtractionPath);
                 Path packageJsonPath = temporaryExtractionPath.resolve("package.json");
-                BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8);
-                JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
-                String platform = resultObj.get(PLATFORM).getAsString();
-                Path actualBalaPath = mavenBalaCachePath.resolve(orgName).resolve(packageName)
-                        .resolve(version).resolve(platform);
-                temporaryExtractionPath.toFile().renameTo(actualBalaPath.toFile());
-
-                Files.delete(balaDownloadPath);
-                Files.delete(balaHashPath);
-                Files.delete(balaDownloadPath.getParent().resolve("_remote.repositories"));
-                if (Files.exists(temporaryExtractionPath)) {
-                    Files.walk(temporaryExtractionPath)
-                            .sorted(Comparator.reverseOrder())
-                            .map(Path::toFile)
-                            .forEach(File::delete);
+                try (BufferedReader bufferedReader = Files.newBufferedReader(packageJsonPath, StandardCharsets.UTF_8)) {
+                    JsonObject resultObj = new Gson().fromJson(bufferedReader, JsonObject.class);
+                    String platform = resultObj.get(PLATFORM).getAsString();
+                    Path actualBalaPath = mavenBalaCachePath.resolve(orgName).resolve(packageName)
+                            .resolve(version).resolve(platform);
+                    org.apache.commons.io.FileUtils.copyDirectory(temporaryExtractionPath.toFile(),
+                            actualBalaPath.toFile());
                 }
-
             } catch (MavenResolverClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);

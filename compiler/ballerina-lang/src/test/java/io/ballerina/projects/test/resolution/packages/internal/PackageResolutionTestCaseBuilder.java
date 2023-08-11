@@ -88,7 +88,7 @@ public class PackageResolutionTestCaseBuilder {
                 filePaths.expectedGraphNoStickyPath().orElse(null));
 
         BlendedManifest blendedManifest = BlendedManifest.from(dependencyManifest,
-                packageManifest, packageResolver.localRepo(), new HashMap<>());
+                packageManifest, packageResolver.localRepo(), new HashMap<>(), false);
         ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
                 blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());

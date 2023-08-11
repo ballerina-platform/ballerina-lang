@@ -52,7 +52,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -66,7 +65,6 @@ import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static java.nio.file.Files.createDirectories;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -158,7 +156,7 @@ public class PushCommand implements BLauncherCmd {
                 boolean isCustomRepository = false;
                 Repository targetRepository = null;
                 for (Repository repository : settings.getRepositories()) {
-                    if (repository.id().equals(repositoryName)) {
+                    if (repositoryName.equals(repository.id())) {
                         isCustomRepository = true;
                         targetRepository = repository;
                         break;
@@ -199,15 +197,8 @@ public class PushCommand implements BLauncherCmd {
                 Proxy proxy = settings.getProxy();
                 mvnClient.setProxy(proxy.host(), proxy.port(), proxy.username(), proxy.password());
 
-                Path customRepoLocalCache = RepoUtils.createAndGetHomeReposPath()
-                        .resolve(ProjectConstants.REPOSITORIES_DIR)
-                        .resolve(targetRepository.id())
-                        .resolve(ProjectConstants.BALA_DIR_NAME)
-                        .resolve("temp");
-
-
                 if (balaPath == null && isCustomRepository) {
-                    pushPackage(project, mvnClient, customRepoLocalCache);
+                    pushPackage(project, mvnClient);
                 } else if (isCustomRepository) {
                     if (!balaPath.toFile().exists()) {
                         throw new ProjectException("path provided for the bala file does not exist: " + balaPath + ".");
@@ -216,7 +207,7 @@ public class PushCommand implements BLauncherCmd {
                         throw new ProjectException("file provided is not a bala file: " + balaPath + ".");
                     }
                     validatePackageMdAndBalToml(balaPath);
-                    pushBalaToCustomRepo(balaPath, mvnClient, customRepoLocalCache);
+                    pushBalaToCustomRepo(balaPath, mvnClient);
                 }
 
 
@@ -278,9 +269,9 @@ public class PushCommand implements BLauncherCmd {
         pushBalaToCustomRepo(balaFilePath);
     }
 
-    private void pushPackage(BuildProject project, MavenResolverClient client, Path customRepoPath) {
+    private void pushPackage(BuildProject project, MavenResolverClient client) {
         Path balaFilePath = validateBalaFile(project, this.balaPath);
-        pushBalaToCustomRepo(balaFilePath, client, customRepoPath);
+        pushBalaToCustomRepo(balaFilePath, client);
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client)
@@ -459,12 +450,7 @@ public class PushCommand implements BLauncherCmd {
         }
     }
 
-    private void pushBalaToCustomRepo(Path balaPath, MavenResolverClient client, Path customRepoPath) {
-        try {
-            createDirectories(customRepoPath);
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage());
-        }
+    private void pushBalaToCustomRepo(Path balaPath, MavenResolverClient client) {
         Path balaFileName = balaPath.getFileName();
         if (null != balaFileName) {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -476,13 +462,8 @@ public class PushCommand implements BLauncherCmd {
             String version = balaProject.currentPackage().manifest().version().toString();
 
             try {
+                Path customRepoPath = Files.createTempDirectory("ballerina-" + System.nanoTime());
                 client.pushPackage(balaPath, org, name, version, customRepoPath);
-                if (Files.exists(customRepoPath)) {
-                    Files.walk(customRepoPath)
-                            .sorted(Comparator.reverseOrder())
-                            .map(Path::toFile)
-                            .forEach(File::delete);
-                }
             } catch (MavenResolverClientException | IOException e) {
                 throw new ProjectException(e.getMessage());
             }

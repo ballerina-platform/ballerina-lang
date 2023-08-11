@@ -29,14 +29,6 @@ public abstract class CustomPackageRepository extends AbstractPackageRepository 
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
-        String packageName = request.packageName().value();
-        String orgName = request.orgName().value();
-        String version = request.version().isPresent() ?
-                request.version().get().toString() : "0.0.0";
-        Path balaPath = this.fileSystemRepository.getPackagePath(orgName, packageName, version);
-        if (!Files.exists(balaPath)) {
-            getPackageFromRemoteRepo(orgName, packageName, version);
-        }
         return this.fileSystemRepository.getPackage(request, options);
     }
 
@@ -56,11 +48,18 @@ public abstract class CustomPackageRepository extends AbstractPackageRepository 
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
                                    PackageVersion version) {
+        return this.fileSystemRepository.isPackageExists(org, name, version);
+    }
+
+    // This method should be called before calling other methods
+    public boolean isPackageExists(PackageOrg org,
+                                   PackageName name,
+                                   PackageVersion version, boolean offline) {
         boolean isPackageExist = this.fileSystemRepository.isPackageExists(org, name, version);
-        if (!isPackageExist) {
+        if (!isPackageExist && !offline) {
             return getPackageFromRemoteRepo(org.value(), name.value(), version.value().toString());
         }
-        return true;
+        return isPackageExist;
     }
 
     @Override
@@ -68,8 +67,6 @@ public abstract class CustomPackageRepository extends AbstractPackageRepository 
         if (version == null) {
             return Collections.emptyList();
         }
-
-        isPackageExists(org, name, version);
 
         Path balaPath = this.fileSystemRepository.getPackagePath(org.toString(), name.toString(), version.toString());
         if (Files.exists(balaPath)) {
@@ -82,10 +79,6 @@ public abstract class CustomPackageRepository extends AbstractPackageRepository 
     @Override
     protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org, PackageName name,
                                                                     PackageVersion version) {
-        boolean packageExists = isPackageExists(org, name, version);
-        if (!packageExists) {
-            return DependencyGraph.emptyGraph();
-        }
         return this.fileSystemRepository.getDependencyGraph(org, name, version);
     }
 
