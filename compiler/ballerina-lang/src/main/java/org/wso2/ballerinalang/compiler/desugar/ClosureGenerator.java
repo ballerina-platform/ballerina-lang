@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -555,7 +556,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
-        symbol.defaultValues.put(paramName, varSymbol);
+        symbol.defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
         return returnStmt.expr;
     }
 

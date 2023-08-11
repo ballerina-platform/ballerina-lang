@@ -324,7 +324,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private BType getDeterminedType(BLangNode node, LineRange range) {
-        if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
+        if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType() != null
+                && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
             BLangInvocation invocationNode = (BLangInvocation) node;
             if (invocationNode.isAsync()
                     && PositionUtil.withinBlock(range.startLine(), invocationNode.getName().getPosition())) {

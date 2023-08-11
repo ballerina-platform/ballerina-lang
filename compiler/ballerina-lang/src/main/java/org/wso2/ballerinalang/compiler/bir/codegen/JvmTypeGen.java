@@ -144,7 +144,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
@@ -983,7 +983,8 @@ public class JvmTypeGen {
             } else {
                 mv.visitInsn(ICONST_0);
             }
-            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.originalName.value);
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(
+                    Utils.decodeIdentifier(paramSymbol.name.value));
             if (bInvokableSymbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
@@ -1083,7 +1084,7 @@ public class JvmTypeGen {
             case TypeTags.STREAM:
                 return GET_STREAM_VALUE;
             case TypeTags.TABLE:
-                return GET_TABLE_VALUE_IMPL;
+                return GET_TABLE_VALUE;
             case TypeTags.DECIMAL:
                 return GET_BDECIMAL;
             case TypeTags.OBJECT:

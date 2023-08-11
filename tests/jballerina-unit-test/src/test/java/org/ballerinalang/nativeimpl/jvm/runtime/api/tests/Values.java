@@ -478,6 +478,13 @@ public class Values {
         return StringUtils.fromString(parameter.name);
     }
 
+    public static BString getParameterDefaultFunctionNameFromResource(BTypedesc type) {
+        BServiceType serviceType = (BServiceType) type.getDescribingType();
+        ResourceMethodType resourceMethod = serviceType.getResourceMethods()[1];
+        Parameter parameter = resourceMethod.getParameters()[0];
+        return StringUtils.fromString(parameter.defaultFunctionName);
+    }
+
     public static BArray getParamNamesFromObjectInit(BObject object) {
         ObjectType objectType = object.getType();
         MethodType initMethodtype = objectType.getInitMethod();
