@@ -61,11 +61,13 @@ public class JSONParser {
 
     public static int getTotalTime(JsonObject node) {
         int totalTime = 0; // Initialize total time
-        JsonArray children = node.getAsJsonArray("children"); // Get the "children" array from the JSONObject
+        // Get the "children" array from the JSONObject
+        JsonArray children = node.getAsJsonArray("children");
         if (children != null) {
             for (int i = 0; i < children.size(); i++) {
                 if (children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt() != -1) {
-                    totalTime += children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt(); // Add the value to the total time
+                    // Add the value to the total time
+                    totalTime += children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt();
                 }
             }
         }

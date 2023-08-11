@@ -19,7 +19,6 @@
 package io.ballerina.runtime.profiler.util;
 
 import static io.ballerina.runtime.profiler.util.Constants.ERROR;
-import static io.ballerina.runtime.profiler.util.Constants.OUT;
 
 /**
  * This class is used as a profiler exception class.
