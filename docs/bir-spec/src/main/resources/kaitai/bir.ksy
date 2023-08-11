@@ -1672,10 +1672,14 @@ types:
         type: fp_load_function_param
         repeat: expr
         repeat-expr: fp_load_function_params_count
+      - id: has_enclosed_type
+        type: u1
       - id: enclosed_type_index
         type: s4
+        if: has_enclosed_type == 1
       - id: field_name
         type: s4
+        if: has_enclosed_type == 1
   fp_load_function_param:
     seq:
       - id: kind

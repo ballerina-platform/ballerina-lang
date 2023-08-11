@@ -480,7 +480,9 @@ public class BIRInstructionWriter extends BIRVisitor {
             writeType(param.type);
             buf.writeInt(addStringCPEntry(param.name.value));
         });
-        if (fpLoad.enclosedType != null) {
+        boolean enclosedTypeExist = fpLoad.enclosedType != null;
+        buf.writeBoolean(enclosedTypeExist);
+        if (enclosedTypeExist) {
             writeType(fpLoad.enclosedType);
             buf.writeInt(addStringCPEntry(fpLoad.fieldName));
         }
