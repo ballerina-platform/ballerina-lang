@@ -204,7 +204,7 @@ public class JSONParser {
 
         public StackTraceItem(int time, List<String> stackTrace) {
             this.time = time;
-            this.stackTrace = stackTrace;
+            this.stackTrace = new ArrayList<>(stackTrace);
         }
     }
 
