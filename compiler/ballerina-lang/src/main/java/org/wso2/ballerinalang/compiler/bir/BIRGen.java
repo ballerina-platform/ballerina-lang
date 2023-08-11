@@ -1572,6 +1572,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
         BType type = astMapLiteralExpr.getBType();
+        this.env.isInArrayOrStructure++;
         visitTypedesc(astMapLiteralExpr.pos, type, Collections.emptyList(), getAnnotations(type.tsymbol, this.env));
 
         BIRVariableDcl tempVarDcl =
@@ -1583,6 +1584,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, toVarRef, this.env.targetOperand,
                                                generateMappingConstructorEntries(astMapLiteralExpr.fields)));
         this.env.targetOperand = toVarRef;
+        this.env.isInArrayOrStructure--;
     }
 
     @Override
@@ -1603,6 +1605,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral astStructLiteralExpr) {
+        this.env.isInArrayOrStructure++;
         BType type = astStructLiteralExpr.getBType();
         visitTypedesc(astStructLiteralExpr.pos, type, Collections.emptyList(), getAnnotations(type.tsymbol, this.env));
 
@@ -1618,6 +1621,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(instruction);
 
         this.env.targetOperand = toVarRef;
+        this.env.isInArrayOrStructure--;
     }
 
     @Override
@@ -1855,14 +1859,17 @@ public class BIRGen extends BLangNodeVisitor {
                 setScopeAndEmit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
             }
         } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.getBType(),
-                                                           this.env.nextLocalVarId(names), VarScope.FUNCTION,
-                                                           VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            BIROperand tempVarRef = new BIROperand(tempVarDcl);
-            BIROperand fromVarRef = new BIROperand(getVarRef(astPackageVarRefExpr));
-            setScopeAndEmit(new Move(astPackageVarRefExpr.pos, fromVarRef, tempVarRef));
-            this.env.targetOperand = tempVarRef;
+            if (this.env.isInArrayOrStructure > 0) {
+                BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.getBType(),
+                        this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+                this.env.enclFunc.localVars.add(tempVarDcl);
+                BIROperand tempVarRef = new BIROperand(tempVarDcl);
+                BIROperand fromVarRef = new BIROperand(getVarRef(astPackageVarRefExpr));
+                setScopeAndEmit(new Move(astPackageVarRefExpr.pos, fromVarRef, tempVarRef));
+                this.env.targetOperand = tempVarRef;
+            } else {
+                this.env.targetOperand = new BIROperand(getVarRef(astPackageVarRefExpr));
+            }
         }
         this.varAssignment = variableStore;
     }
@@ -1959,6 +1966,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        this.env.isInArrayOrStructure++;
         visitTypedesc(waitLiteral.pos, waitLiteral.getBType());
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
         addToTrapStack(thenBB);
@@ -1984,6 +1992,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
+        this.env.isInArrayOrStructure--;
     }
 
     @Override
@@ -2671,6 +2680,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {
+        this.env.isInArrayOrStructure++;
         // Emit create array instruction
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(listConstructorExpr.getBType(), this.env.nextLocalVarId(names),
                                                        VarScope.FUNCTION, VarKind.TEMP);
@@ -2720,6 +2730,7 @@ public class BIRGen extends BLangNodeVisitor {
                             initialValues));
         }
         this.env.targetOperand = toVarRef;
+        this.env.isInArrayOrStructure--;
     }
 
     private void generateArrayAccess(BLangIndexBasedAccess astArrayAccessExpr) {
