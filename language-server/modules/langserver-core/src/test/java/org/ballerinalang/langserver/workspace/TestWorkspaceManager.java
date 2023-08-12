@@ -78,6 +78,7 @@ import static org.awaitility.Awaitility.await;
 public class TestWorkspaceManager {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/project");
     private final String dummyContent = "function foo() {" + CommonUtil.LINE_SEPARATOR + "}";
+    private final String dummyDidChangeContent = "function foo1() {" + CommonUtil.LINE_SEPARATOR + "}";
     private BallerinaWorkspaceManager workspaceManager;
 
     @BeforeMethod
@@ -97,20 +98,66 @@ public class TestWorkspaceManager {
         Assert.assertEquals(document.get().syntaxTree().textDocument().toString(), dummyContent);
     }
 
+    @Test(dataProvider = "fileOpenWithDuplicateFilesDataProvider")
+    public void testOpenDocumentWithDuplicateFiles(Path filePath) throws IOException,
+            WorkspaceDocumentException {
+        try {
+            // Inputs from lang server
+            openFile(filePath);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof WorkspaceDocumentException);
+            Path projectRoot = workspaceManager.projectRoot(filePath);
+            BallerinaWorkspaceManager.ProjectContext projectContext =
+                    workspaceManager.sourceRootToProject.get(projectRoot);
+            Assert.assertTrue(projectContext == null || projectContext.isProjectCrashed());
+        }
+    }
+
+    @Test
+    public void testOpenNewDuplicateFile() throws WorkspaceDocumentException, IOException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("pkg_with_generated_sources1")
+                .resolve("main.bal").toAbsolutePath();
+
+        // Open project
+        openFile(filePath);
+        Path projectRoot = workspaceManager.projectRoot(filePath);
+        BallerinaWorkspaceManager.ProjectContext projectContext =
+                workspaceManager.sourceRootToProject.get(projectRoot);
+        Assert.assertTrue(projectContext != null && !projectContext.isProjectCrashed());
+
+        // Create a new file and send CREATED event
+        Path newFile = RESOURCE_DIRECTORY.resolve("pkg_with_generated_sources1").resolve("modules")
+                .resolve("mod1").resolve("mod1.bal").toAbsolutePath();
+        Files.write(newFile, "int b =10".getBytes());
+        try {
+            openFile(newFile);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e instanceof WorkspaceDocumentException
+                    && projectContext.isProjectCrashed());
+        } finally {
+            Files.deleteIfExists(newFile);
+        }
+    }
+
     @Test(dataProvider = "fileOpenUpdateTestDataProvider", dependsOnMethods = "testOpenDocument")
     public void testUpdateDocument(Path filePath) throws WorkspaceDocumentException {
+        //Trigger didOpen to create a project instance corresponding to the filePath
+        openFile(filePath);
+
         // Inputs from lang server
         DidChangeTextDocumentParams params = new DidChangeTextDocumentParams();
         VersionedTextDocumentIdentifier doc = new VersionedTextDocumentIdentifier(filePath.toUri().toString(), 1);
         params.setTextDocument(doc);
-        params.getContentChanges().add(new TextDocumentContentChangeEvent(dummyContent));
+        params.getContentChanges().add(new TextDocumentContentChangeEvent(dummyDidChangeContent));
 
         // Notify workspace manager
         workspaceManager.didChange(filePath, params);
 
         Optional<Document> document = workspaceManager.document(filePath);
         Assert.assertNotNull(document.get());
-        Assert.assertEquals(document.get().syntaxTree().textDocument().toString(), dummyContent);
+        Assert.assertEquals(document.get().syntaxTree().textDocument().toString(), dummyDidChangeContent);
     }
 
     @Test
@@ -544,7 +591,7 @@ public class TestWorkspaceManager {
     }
 
     @Test
-    public void testWorkspaceProjects() throws WorkspaceDocumentException, 
+    public void testWorkspaceProjects() throws WorkspaceDocumentException,
             ExecutionException, InterruptedException {
 
         Path workspacePath = RESOURCE_DIRECTORY.resolve("workspace");
@@ -553,12 +600,12 @@ public class TestWorkspaceManager {
         Path singleFileProject = workspacePath.resolve("workspace2").resolve("single.bal");
         Path project2File = workspacePath.resolve("workspace3").resolve("project2").resolve("main.bal");
         Path project3File = workspacePath.resolve("workspace3").resolve("project3").resolve("main.bal");
-      
-        
+
+
         //Mock the ExtendedLanguageClient
         MockSettings mockSettings = Mockito.withSettings().stubOnly();
         ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
-        CompletableFuture<List<WorkspaceFolder>> workspaceFolders = 
+        CompletableFuture<List<WorkspaceFolder>> workspaceFolders =
                 CompletableFuture.supplyAsync(this::mockWorkspaceFolders);
         Mockito.when(languageClient.workspaceFolders()).thenReturn(workspaceFolders);
 
@@ -572,7 +619,7 @@ public class TestWorkspaceManager {
         openFile(project2File);
         openFile(project3File);
         openFile(singleFileProject);
-        
+
         //Get and assert response
         Map<Path, Project> pathProjectMap = workspaceManager.workspaceProjects().get();
         Assert.assertEquals(pathProjectMap.size(), 4);
@@ -607,6 +654,15 @@ public class TestWorkspaceManager {
         return new Path[]{
                 RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal").toAbsolutePath(),
                 RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath()
+        };
+    }
+
+    @DataProvider
+    public Object[] fileOpenWithDuplicateFilesDataProvider() {
+        return new Path[]{
+                RESOURCE_DIRECTORY.resolve("pkg_with_duplicate_files1").resolve("main.bal").toAbsolutePath(),
+                RESOURCE_DIRECTORY.resolve("pkg_with_duplicate_files2").resolve("main.bal").toAbsolutePath()
+
         };
     }
 

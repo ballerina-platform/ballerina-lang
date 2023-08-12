@@ -307,7 +307,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Optional<Module> module = this.module(filePath);
         Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(filePath);
         Optional<ProjectContext> projectPair = projectContext(projectRoot(filePath));
-        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty() 
+        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty()
                 || projectPair.get().compilationCrashed()) {
             return Optional.empty();
         }
@@ -319,7 +319,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Optional<Module> module = this.module(filePath);
         Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(filePath, cancelChecker);
         Optional<ProjectContext> projectPair = projectContext(projectRoot(filePath));
-        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty() 
+        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty()
                 || projectPair.get().compilationCrashed()) {
             return Optional.empty();
         }
@@ -410,7 +410,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Create or update BalTool.toml
             updateBalToolToml(params.getTextDocument().getText(), projectContext, true);
         } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
-            // Create or update .bal document
+            // Create a new .bal document.
             createBalDocument(filePath, params.getTextDocument().getText(), projectContext);
         }
     }
@@ -1264,7 +1264,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             if (document.isEmpty()) {
                 throw new WorkspaceDocumentException("Document does not exist in path: " + filePath.toString());
             }
-            Document updatedDoc = document.get().modify().withContent(content).apply();
+            document.get().modify().withContent(content).apply();
         } finally {
             // Unlock Project Instance
             lock.unlock();
@@ -1280,16 +1280,18 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     createProjectContext(filePath, LSContextOperation.TXT_DID_OPEN.getName());
             if (newProjectContext.isEmpty()) {
                 //Client is notified about the error in the createProjectContext method.
-                return;
+                throw new WorkspaceDocumentException("Could not find the project for file path: "
+                        + filePath.toString());
             }
-            projectContext.setProject(newProjectContext.get().project());
-            Optional<Document> document = document(filePath, projectContext.project(), null);
+            Optional<Document> document = document(filePath, newProjectContext.get().project(), null);
             if (document.isEmpty()) {
+                projectContext.setProjectCrashed(true);
                 throw new WorkspaceDocumentException("Could not create a new document for file path: "
                         + filePath.toString());
             }
+            //Update the document with the content received via the request
             Document updatedDoc = document.get().modify().withContent(content).apply();
-            // Update project instance
+            //Update project instance
             projectContext.setProject(updatedDoc.module().project());
         } finally {
             // Unlock Project Instance
@@ -1445,7 +1447,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             throws WorkspaceDocumentException {
         Path projectRoot = projectRoot(filePath);
         ProjectContext projectContext = sourceRootToProject.get(projectRoot);
-        //Check if the project is crashed and a exception is present and create a new project.
+        //Check if the project is crashed and create a new project if there is a change in the source files.
         if (projectContext == null || (projectContext.projectCrashed && isSourceChange)) {
             //Try to create the project again.
             Optional<ProjectContext> newProjectContext = createProjectContext(projectRoot, operationName);
@@ -1669,15 +1671,5 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
     private static boolean isError(Diagnostic diagnostic) {
         return diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR);
-    }
-
-    private boolean isGeneratedModulesRoot(Path filepath) {
-        Path absFilePath = filepath.toAbsolutePath().normalize();
-        Optional<Path> projectRoot = findProjectRoot(absFilePath);
-        if (projectRoot.isPresent()) {
-            Path generatedModulesRoot = projectRoot.get().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-            return absFilePath.toString().contains(generatedModulesRoot.toAbsolutePath().normalize().toString());
-        }
-        return false;
     }
 }
