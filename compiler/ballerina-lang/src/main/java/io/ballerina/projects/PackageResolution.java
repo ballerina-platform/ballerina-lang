@@ -19,14 +19,7 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
-import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.PackageLockingMode;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.environment.ResolutionOptions;
-import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.ResolutionResponse;
+import io.ballerina.projects.environment.*;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.ImportModuleRequest;
@@ -164,6 +157,15 @@ public class PackageResolution {
         var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
+
+//        reportDiagnostic(((TomlTableNode) packageNode).entries().get(DISTRIBUTION),
+//                "Detected an attempt to compile this package using a lower patch version " +
+//                        buildEnvVersion
+//                        + " of Ballerina than the version " + tomlVersion + " specified in Ballerina.toml. "
+//                        + "This may cause compatibility issues. It is adviced to use the same or a higher " +
+//                        "patch version than the version specified in Ballerina.toml to compile this package.",
+//                ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_PATCH_VERSION.diagnosticId(),
+//                DiagnosticSeverity.WARNING);
     }
 
     public boolean autoUpdate() {
@@ -187,7 +189,8 @@ public class PackageResolution {
                     // if distribution is not same, we anyway return sticky as false
                     if (buildJson != null && buildJson.distributionVersion() != null &&
                             buildJson.distributionVersion().equals(RepoUtils.getBallerinaShortVersion()) &&
-                            !buildJson.isExpiredLastUpdateTime()) {
+                            !buildJson.isExpiredLastUpdateTime() &&
+                            isTomlDistVersionsMatched(rootPackageContext)) {
                         this.autoUpdate = false;
                         return true;
                     } else {
@@ -204,6 +207,24 @@ public class PackageResolution {
         }
         this.autoUpdate = true;
         return false;
+    }
+
+    private boolean isTomlDistVersionsMatched (PackageContext rootPackageContext) {
+        //TODO: check the new version obejcts
+        if (rootPackageContext.dependenciesTomlContext().isEmpty()) {
+            return false;
+        } else if (rootPackageContext.dependenciesTomlContext().isPresent() &&
+                rootPackageContext.dependencyManifest().distributionVersion() == null) {//TODO: check if this is null or empty
+            return false;
+        } else if (rootPackageContext.dependenciesTomlContext().isPresent() &&
+                rootPackageContext.dependencyManifest().distributionVersion() != null &&//TODO: check if this is null or empty
+                rootPackageContext.packageManifest().ballerinaVersion() != null && //TODO: check if this is null or empty
+                !rootPackageContext.dependencyManifest().distributionVersion()
+                        .equals(SemanticVersion.from(rootPackageContext.packageManifest().
+                                ballerinaVersion().getVersionString()))) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -277,8 +298,11 @@ public class PackageResolution {
 
     private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
-        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
-
+        // Have an empty list of ModuleLoadRequests when there are PackageResolution errors.
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
+        if (!this.diagnosticResult().hasErrors()) {
+            moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+        }
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
                 blendedManifest, packageResolver, moduleResolver, resolutionOptions);
@@ -486,43 +510,200 @@ public class PackageResolution {
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
                                                    CompilationOptions compilationOptions) {
+        // TODO: Test the new rules
         boolean sticky = getSticky(rootPackageContext);
-        PackageLockingMode packageLockingMode;
-        SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
-        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+//        DependencyManifest.DistributionVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
+//        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
+
+        //TODO: Find a better way to exclude the langlibs
+        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
+//        !rootPackageContext.packageManifest().name().toString().contains("lang") &&
+//                !rootPackageContext.packageManifest().name().toString().contains("jballerina") &&
+//                !rootPackageContext.packageManifest().ballerinaVersion().getVersionString().isEmpty()                 !rootPackageContext.packageManifest().name().toString().contains("jballerina")
+        if (bootstrapLangLibName == null) {
+            SemanticVersion buildEnvVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+            SemanticVersion ballerinaTomlDistVersion = SemanticVersion.from(rootPackageContext.packageManifest()
+                    .ballerinaVersion().getVersionString());
+            SemanticVersion depsTomlDistVersion = null;
+
+            String packageName = rootPackageContext.descriptor().name().toString();
+//
+            //Ballerina update used to build != distribution version in Ballerina.toml -> error diagnostic
+            if (buildEnvVersion.major() == ballerinaTomlDistVersion.major() &&
+                    buildEnvVersion.minor() == ballerinaTomlDistVersion.minor()) {
+                // if sticky == false,
+                // patch version used to build < patch version in Ballerina.toml -> give warning diagnostic
+                // If sticky == true -> give error diagnostic.
+                if (ballerinaTomlDistVersion.patch() != 0 &&
+                        buildEnvVersion.patch() < ballerinaTomlDistVersion.patch()) {
+                    if (sticky) {
+                        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                                ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_PATCH_VERSION.diagnosticId(),
+                                "Detected an attempt to compile this package using Swan Lake " +
+                                        buildEnvVersion
+                                        + ". However, " + ballerinaTomlDistVersion + " is specified in Ballerina.toml " +
+                                        "as the minimum Swan Lake Update to build the package. "
+                                        + "Use a distribution version equal or higher than the distribution version " +
+                                        "specified in Ballerina.toml to build with the sticky flag set to true.",
+                                DiagnosticSeverity.ERROR);
+                        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                        diagnosticList.add(diagnostic);
+
+                        return ResolutionOptions.builder()
+                                .setOffline(compilationOptions.offlineBuild())
+                                .setSticky(sticky)
+                                .setDumpGraph(compilationOptions.dumpGraph())
+                                .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
+                                .setPackageLockingMode(PackageLockingMode.UNRESOLVED)
+                                .build();
+                    } else {
+                        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                                ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_PATCH_VERSION.diagnosticId(),
+                                "Detected an attempt to compile this package using Swan Lake " +
+                                        buildEnvVersion
+                                        + ". However, " + ballerinaTomlDistVersion + " is specified in Ballerina.toml " +
+                                        "as the minimum Swan Lake Update to build the package. "
+                                        + "This may cause compatibility issues. It is adviced to use the same or a higher " +
+                                        "patch version than the distribution version specified in Ballerina.toml to " +
+                                        "compile this package.",
+                                DiagnosticSeverity.WARNING);
+                        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                        diagnosticList.add(diagnostic);
+                    }
+                }
+
+                // For new projects, the locking mode will be SOFT unless sticky == true
+                // If sticky == true for a new project, we will issue an error diagnostic.
+                if (rootPackageContext.dependenciesTomlContext().isPresent()) {
+                    // Existing project
+                    if (rootPackageContext.dependencyManifest().distributionVersion().getDistributionVersion().isPresent()) {
+                        depsTomlDistVersion = rootPackageContext.dependencyManifest().distributionVersion()
+                                .getDistributionVersion().get();
+                    }
+                    if (depsTomlDistVersion == null) {
+                        // Built with Update 4 or less. do a build before a sticky build
+                        if (sticky) {
+                            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                                    ProjectDiagnosticErrorCode.STICKY_BUILD_WITH_OLDER_SL_UPDATE.diagnosticId(),
+                                    "Detected an attempt to build this package with the sticky flag with " +
+                                            "an outdated Dependencies.toml file. Build the package the first time without" +
+                                            " the sticky flag to update the Dependencies.toml file.",
+                                    DiagnosticSeverity.ERROR);
+                            PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                            diagnosticList.add(diagnostic);
+                            packageLockingMode = PackageLockingMode.UNRESOLVED;
+                        } else {
+                            packageLockingMode = PackageLockingMode.SOFT;
+                            //TODO: addOlderSLUpdateDistributionDiagnostic
+                        }
+                    } else {
+                        // Build with Update 5 or above
+                        if (!(depsTomlDistVersion.minor() == ballerinaTomlDistVersion.minor() &&
+                                depsTomlDistVersion.patch() == ballerinaTomlDistVersion.patch()) && sticky) {
+                            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                                    ProjectDiagnosticErrorCode.STICKY_BUILD_WITH_DIFFERENT_UPDATES.diagnosticId(),
+                                    "Detected an attempt to build this package with the sticky flag. " +
+                                            " But the toml files have different versions. Build the package the first " +
+                                            "time without" +
+                                            " the sticky flag to create the Dependencies.toml file.",
+                                    DiagnosticSeverity.ERROR);
+                            PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                            diagnosticList.add(diagnostic);
+                            packageLockingMode = PackageLockingMode.UNRESOLVED;
+                        } else if (depsTomlDistVersion.minor() == ballerinaTomlDistVersion.minor() &&
+                                depsTomlDistVersion.patch() != ballerinaTomlDistVersion.patch()) {
+                            packageLockingMode = PackageLockingMode.MEDIUM;
+                        } else if (depsTomlDistVersion.minor() < ballerinaTomlDistVersion.minor()) {
+                            packageLockingMode = PackageLockingMode.SOFT;
+                        } else if (depsTomlDistVersion.minor() > ballerinaTomlDistVersion.minor()) {
+                            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                                    ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_MINOR_VERSION.diagnosticId(),
+                                    "Detected an attempt to compile this package using a lower minor version " +
+                                            ballerinaTomlDistVersion
+                                            + " of Ballerina than the version " + depsTomlDistVersion + " last used to build the package. "
+                                            + "To successfully build this package, use the same or a higher minor version than the version " +
+                                            "specified in Dependencies.toml or delete the Dependencies.toml and build again.",
+                                    DiagnosticSeverity.ERROR);
+                            PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                            diagnosticList.add(diagnostic);
+                            packageLockingMode = PackageLockingMode.UNRESOLVED;
+                        }
+                    }
+                } else {
+                    // New project
+                    if (sticky) {
+                        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                                ProjectDiagnosticErrorCode.STICKY_BUILD_WITH_NO_DEPENDENCIES_TOML.diagnosticId(),
+                                "Detected an attempt to build this package with the sticky flag without an " +
+                                        "existing Dependencies.toml file. Build the package the first time without" +
+                                        " the sticky flag to create the Dependencies.toml file.",
+                                DiagnosticSeverity.ERROR);
+                        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                        diagnosticList.add(diagnostic);
+                        packageLockingMode = PackageLockingMode.UNRESOLVED;
+                    } else {
+                        packageLockingMode = PackageLockingMode.SOFT;
+                    }
+                }
+            } else {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_DIFFERENT_DITRIBUTION_VERSION.diagnosticId(),
+                        "Detected an attempt to compile this package using Swan Lake " +
+                                buildEnvVersion
+                                + ". However, " + ballerinaTomlDistVersion + " is specified in Ballerina.toml " +
+                                "as the minimum Swan Lake Update to build the package. "
+                                + "To successfully build this package, use the distribution specified in Ballerina.toml " +
+                                "or change the distribution in Ballerina.toml to the desired Ballerina " +
+                                "distribution version.",
+                        DiagnosticSeverity.ERROR);
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+                diagnosticList.add(diagnostic);
+                packageLockingMode = PackageLockingMode.UNRESOLVED;
+            }
+
+        }
+//        String packageName = rootPackageContext.descriptor().name().toString();
+//
+//        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+//                ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_PATCH_VERSION.diagnosticId(),
+//                "Test warning outside loop",
+//                DiagnosticSeverity.WARNING);
+//        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo, packageName);
+//        diagnosticList.add(diagnostic);
 
         // For new projects, the locking mode will be SOFT unless sticky == true.
         // For existing projects, if the package was built with a previous distribution, the locking mode
         // will be SOFT unless sticky == true. A warning is issued to notify the detection of the new distribution.
-        if (rootPackageContext.dependenciesTomlContext().isPresent()) {
-            // existing project
-            if (prevDistributionVersion == null) {
-                // Built with Update 4 or less. Therefore, we issue a warning
-                addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
-                if (!sticky) {
-                    packageLockingMode = PackageLockingMode.SOFT;
-                } else {
-                    packageLockingMode = PackageLockingMode.MEDIUM;
-                }
-            } else {
-                // Built with Update 5 or above
-                boolean newUpdateDistribution =
-                        isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
-                if (newUpdateDistribution) {
-                    addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion, currentDistributionVersion);
-                    packageLockingMode = PackageLockingMode.SOFT;
-                } else {
-                    packageLockingMode = PackageLockingMode.MEDIUM;
-                }
-            }
-        } else {
-            // new project
-            if (!sticky) {
-                packageLockingMode = PackageLockingMode.SOFT;
-            } else {
-                packageLockingMode = PackageLockingMode.MEDIUM;
-            }
-        }
+//        if (rootPackageContext.dependenciesTomlContext().isPresent()) {
+//            // existing project
+//            if (prevDistributionVersion == null) {
+//                // Built with Update 4 or less. Therefore, we issue a warning
+//                addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
+//                if (!sticky) {
+//                    packageLockingMode = PackageLockingMode.SOFT;
+//                } else {
+//                    packageLockingMode = PackageLockingMode.MEDIUM;
+//                }
+//            } else {
+//                // Built with Update 5 or above
+//                boolean newUpdateDistribution =
+//                        isNewUpdateDistribution(prevDistributionVersion.getDistributionVersion().get(), currentDistributionVersion);
+//                if (newUpdateDistribution) {
+//                    addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion.getDistributionVersion().get(), currentDistributionVersion);
+//                    packageLockingMode = PackageLockingMode.SOFT;
+//                } else {
+//                    packageLockingMode = PackageLockingMode.MEDIUM;
+//                }
+//            }
+//        } else {
+//            // new project
+//            if (!sticky) {
+//                packageLockingMode = PackageLockingMode.SOFT;
+//            } else {
+//                packageLockingMode = PackageLockingMode.MEDIUM;
+//            }
+//        }
 
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())

@@ -54,7 +54,8 @@ public class DependenciesTomlTests {
         List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(depsManifest.dependenciesTomlVersion(), "2");
         Assert.assertEquals(dependencies.size(), 3);
-        Assert.assertEquals(depsManifest.distributionVersion().toString(), "2201.5.0-20230328-002700-db7a81cf");
+        Assert.assertEquals(depsManifest.distributionVersion().getDistributionVersion().get().toString(),
+                "2201.5.0-20230328-002700-db7a81cf");
 
         DependencyManifest.Package rootPackage = dependencies.get(0);
         Assert.assertEquals(rootPackage.org().value(), "winery");

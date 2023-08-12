@@ -35,13 +35,13 @@ import java.util.Optional;
 public class DependencyManifest {
 
     private final String dependenciesTomlVersion;
-    private final SemanticVersion distributionVersion;
+    private final DistributionVersion distributionVersion;
     private final List<Package> packages;
     private final DiagnosticResult diagnostics;
     private final PackageContainer<Package> pkgContainer;
 
     private DependencyManifest(String dependenciesTomlVersion,
-                               SemanticVersion distributionVersion,
+                               DistributionVersion distributionVersion,
                                List<Package> packages,
                                DiagnosticResult diagnostics) {
         this.dependenciesTomlVersion = dependenciesTomlVersion;
@@ -57,14 +57,14 @@ public class DependencyManifest {
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
-                                          SemanticVersion distributionVersion,
+                                          DistributionVersion distributionVersion,
                                           List<Package> dependencies,
                                           DiagnosticResult diagnostics) {
         return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, diagnostics);
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
-                                            SemanticVersion distributionVersion,
+                                            DistributionVersion distributionVersion,
                                           List<Package> dependencies) {
         return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies,
                                       new DefaultDiagnosticResult(Collections.emptyList()));
@@ -74,7 +74,7 @@ public class DependencyManifest {
         return dependenciesTomlVersion;
     }
 
-    public SemanticVersion distributionVersion() {
+    public DistributionVersion distributionVersion() {
         return distributionVersion;
     }
 
@@ -186,6 +186,24 @@ public class DependencyManifest {
         }
 
         public Optional<Location> location() {
+            return Optional.ofNullable(location);
+        }
+    }
+
+    public static class DistributionVersion {
+        private final SemanticVersion distributionVersion;
+        private final Location location;
+
+        public DistributionVersion(SemanticVersion distributionVersion, Location location) {
+            this.distributionVersion = distributionVersion;
+            this.location = location;
+        }
+
+        public Optional<SemanticVersion> getDistributionVersion() {
+            return Optional.ofNullable(distributionVersion);
+        }
+
+        public Optional<Location> getLocation() {
             return Optional.ofNullable(location);
         }
     }

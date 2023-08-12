@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
+import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -95,7 +96,8 @@ public class CompileTask implements Task {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
-            printWarningForHigherDistribution(project);
+//            TODO: Check if below needs to change
+//            printWarningForHigherDistribution(project);
             List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
 
@@ -113,7 +115,7 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
             }
-
+//TODO: can we dumpGraphs if there are resolution errors?
             if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                 packageResolution.dumpGraphs(out);
             }
@@ -160,7 +162,7 @@ public class CompileTask implements Task {
 
             // We dump the raw graphs twice only if code generator/modifier plugins are engaged
             // since the package has changed now
-
+//TODO: if Packageresolution has errors, should the below part execute?
             Set<String> newPackageImports = ProjectUtils.getPackageImports(project.currentPackage());
             ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
             if (!packageImports.equals(newPackageImports)) {
@@ -234,7 +236,7 @@ public class CompileTask implements Task {
      * @param project project instance
      */
     private void printWarningForHigherDistribution(Project project) {
-        SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
+        DependencyManifest.DistributionVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
 
         if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
@@ -244,9 +246,9 @@ public class CompileTask implements Task {
             }
             String prevVersionForDiagnostic;
             if (null != prevDistributionVersion) {
-                prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
-                if (prevDistributionVersion.patch() != 0) {
-                    prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+                prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.getDistributionVersion().get().minor());
+                if (prevDistributionVersion.getDistributionVersion().get().patch() != 0) {
+                    prevVersionForDiagnostic += DOT + prevDistributionVersion.getDistributionVersion().get().patch();
                 }
             } else {
                 prevVersionForDiagnostic = "4 or an older Update";
@@ -254,11 +256,12 @@ public class CompileTask implements Task {
             String warning = null;
             // existing project
             if (prevDistributionVersion == null
-                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion)) {
+                    || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion.getDistributionVersion().get(), currentDistributionVersion)) {
                 // Built with a previous Update. Therefore, we issue a warning
                 warning = "Detected an attempt to compile this package using Swan Lake Update "
                         + currentVersionForDiagnostic +
                         ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic + ".";
+//                TODO: This part should be removed as a sticky build in this condition will fail
                 if (project.buildOptions().sticky()) {
                     warning += "\nHINT: Execute the bal command with --sticky=false";
                 } else {

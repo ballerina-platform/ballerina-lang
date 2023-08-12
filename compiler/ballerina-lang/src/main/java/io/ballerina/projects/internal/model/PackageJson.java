@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.internal.model;
 
+import io.ballerina.projects.PackageManifest.BallerinaVersion;
+
 import java.util.List;
 
 /**
@@ -143,8 +145,8 @@ public class PackageJson {
         this.visibility = visibility;
     }
 
-    public String getBallerinaVersion() {
-        return ballerina_version;
+    public BallerinaVersion getBallerinaVersion() {
+        return new BallerinaVersion(ballerina_version);
     }
 
     public void setBallerinaVersion(String ballerina_version) {

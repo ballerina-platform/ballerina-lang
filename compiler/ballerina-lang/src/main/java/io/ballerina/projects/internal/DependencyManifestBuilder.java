@@ -19,6 +19,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyManifest;
+import io.ballerina.projects.DependencyManifest.DistributionVersion;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
@@ -120,7 +121,7 @@ public class DependencyManifestBuilder {
         String dependenciesTomlVersion = getDependenciesTomlVersion();
 
         // Check `distribution-version` exists
-        SemanticVersion distributionVersion = getDistributionVersion();
+        DistributionVersion distributionVersion = getDistributionVersion();
 
         // Latest `Dependencies.toml`
         try {
@@ -184,36 +185,38 @@ public class DependencyManifestBuilder {
         return null;
     }
 
-    private SemanticVersion getDistributionVersion() {
+    private DistributionVersion getDistributionVersion() {
         if (dependenciesToml.isEmpty()) {
-            return null;
+            return new DistributionVersion(null, null);
         }
 
         TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
         if (tomlTableNode.entries().isEmpty()) {
-            return null;
+            return new DistributionVersion(null, null);
         }
 
         TopLevelNode ballerinaEntries = tomlTableNode.entries().get(BALLERINA);
         if (ballerinaEntries == null || ballerinaEntries.kind() == TomlType.NONE) {
-            return null;
+            return new DistributionVersion(null, null);
         }
 
         if (ballerinaEntries.kind() == TomlType.TABLE) {
             TomlTableNode ballerinaTableNode = (TomlTableNode) ballerinaEntries;
             String distributionVersionString = getStringValueFromDependencyNode(ballerinaTableNode,
                     DISTRIBUTION_VERSION_NAME);
+            TopLevelNode distLocation = ballerinaTableNode.entries().get(DISTRIBUTION_VERSION_NAME);
             if (distributionVersionString == null) {
-                return null;
+                return new DistributionVersion(null, null);
             }
             try {
-                return SemanticVersion.from(distributionVersionString);
+                return new DistributionVersion(SemanticVersion.from(distributionVersionString),
+                        distLocation.location());
             } catch (ProjectException ignore) {
                 // Ignore the exception and return null
-                return null;
+                return new DistributionVersion(null, null);
             }
         }
-        return null;
+        return new DistributionVersion(null, null);
     }
 
     private List<DependencyManifest.Package> getPackages() {

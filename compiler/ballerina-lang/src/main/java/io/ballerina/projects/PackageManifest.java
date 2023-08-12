@@ -43,7 +43,7 @@ public class PackageManifest {
     private final String repository;
     private final List<String> exportedModules;
     private final List<String> includes;
-    private final String ballerinaVersion;
+    private final BallerinaVersion ballerinaVersion;
     private final String visibility;
     private boolean template;
     private final String icon;
@@ -70,7 +70,7 @@ public class PackageManifest {
         this.exportedModules = Collections.emptyList();
         this.includes = Collections.emptyList();
         this.repository = "";
-        this.ballerinaVersion = "";
+        this.ballerinaVersion = new PackageManifest.BallerinaVersion("");
         this.visibility = "";
         this.icon = "";
     }
@@ -87,7 +87,7 @@ public class PackageManifest {
                             List<String> exportedModules,
                             List<String> includes,
                             String repository,
-                            String ballerinaVersion,
+                            BallerinaVersion ballerinaVersion,
                             String visibility,
                             boolean template,
                             String icon) {
@@ -134,7 +134,7 @@ public class PackageManifest {
                                        List<String> export,
                                        List<String> include,
                                        String repository,
-                                       String ballerinaVersion,
+                                       BallerinaVersion ballerinaVersion,
                                        String visibility,
                                        boolean template,
                                        String icon) {
@@ -152,7 +152,7 @@ public class PackageManifest {
                                        List<String> export,
                                        List<String> include,
                                        String repository,
-                                       String ballerinaVersion,
+                                       BallerinaVersion ballerinaVersion,
                                        String visibility,
                                        boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
@@ -221,7 +221,7 @@ public class PackageManifest {
         return dependencies;
     }
 
-    public String ballerinaVersion() {
+    public BallerinaVersion ballerinaVersion() {
         return ballerinaVersion;
     }
 
@@ -339,6 +339,29 @@ public class PackageManifest {
         }
 
         public Optional<Location> location() {
+            return Optional.ofNullable(location);
+        }
+    }
+
+    public static class BallerinaVersion {
+        private final String ballerinaVersion;
+        private final Location location;
+
+        public BallerinaVersion(String ballerinaVersion, Location location) {
+            this.ballerinaVersion = ballerinaVersion;
+            this.location = location;
+        }
+
+        public BallerinaVersion(String ballerinaVersion) {
+            this.ballerinaVersion = ballerinaVersion;
+            this.location = null;
+        }
+
+        public String getVersionString() {
+            return ballerinaVersion;
+        }
+
+        public Optional<Location> getLocation() {
             return Optional.ofNullable(location);
         }
     }

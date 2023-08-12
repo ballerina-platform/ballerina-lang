@@ -314,7 +314,8 @@ public class BuildProject extends Project {
             pkgDependencies.sort(comparator);
 
             Path dependenciesTomlFile = currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML);
-            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies,
+                    currentPackage.manifest().ballerinaVersion().getVersionString());
             if (!pkgDependencies.isEmpty()) {
                 // write content to Dependencies.toml file
                 createIfNotExists(dependenciesTomlFile);

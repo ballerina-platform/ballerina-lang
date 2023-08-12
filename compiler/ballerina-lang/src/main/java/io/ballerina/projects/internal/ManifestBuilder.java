@@ -22,6 +22,7 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageManifest.BallerinaVersion;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
@@ -47,6 +48,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -170,7 +172,7 @@ public class ManifestBuilder {
         List<String> exported = Collections.emptyList();
         List<String> includes = Collections.emptyList();
         String repository = "";
-        String ballerinaVersion = "";
+        BallerinaVersion ballerinaVersion = new BallerinaVersion("");
         String visibility = "";
         boolean template = false;
         String icon = "";
@@ -185,7 +187,7 @@ public class ManifestBuilder {
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
                 includes = getStringArrayFromPackageNode(pkgNode, INCLUDE);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
-                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, DISTRIBUTION, "");
+                ballerinaVersion = getBallerinaVersion(pkgNode);
                 visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
                 icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
@@ -526,6 +528,19 @@ public class ManifestBuilder {
         return dependencies;
     }
 
+    private BallerinaVersion getBallerinaVersion(TomlTableNode tomlTableNode) {
+        TopLevelNode topLevelNode = tomlTableNode.entries().get(DISTRIBUTION);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            // return default value
+            return new BallerinaVersion("");
+        }
+        String value = getStringFromTomlTableNode(topLevelNode);
+        if (value == null) {
+            return new BallerinaVersion("");
+        }
+        return new BallerinaVersion(value, topLevelNode.location());
+    }
+
     private void reportDiagnostic(TopLevelNode tomlTableNode,
                                   String message,
                                   String messageFormat,
@@ -724,6 +739,41 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    void validateDistirbutionVersion(TopLevelNode packageNode) {
+        SemanticVersion buildEnvVersion = SemanticVersion.from(RepoUtils.getBallerinaVersion());
+        SemanticVersion tomlVersion = SemanticVersion.from(getStringValueFromTomlTableNode(
+                (TomlTableNode) packageNode, DISTRIBUTION, ""));
+        //build major == toml major and build minor == toml minor
+        // toml patch = 0
+        // build patch >= toml patch ok
+        //toml patch != 0
+        // build patch >= toml patch ok
+        // build patch < toml patch warning
+        // else error
+        if (buildEnvVersion.major() == tomlVersion.major() && buildEnvVersion.minor() == tomlVersion.minor()) {
+            if (tomlVersion.patch() != 0 && buildEnvVersion.patch() < tomlVersion.patch()) {
+                reportDiagnostic(((TomlTableNode) packageNode).entries().get(DISTRIBUTION),
+                        "Detected an attempt to compile this package using a lower patch version " +
+                                buildEnvVersion
+                                + " of Ballerina than the version " + tomlVersion + " specified in Ballerina.toml. "
+                                + "This may cause compatibility issues. It is adviced to use the same or a higher " +
+                                "patch version than the version specified in Ballerina.toml to compile this package.",
+                        ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_PATCH_VERSION.diagnosticId(),
+                        DiagnosticSeverity.WARNING);
+            }
+
+        } else {
+            reportDiagnostic(((TomlTableNode) packageNode).entries().get(DISTRIBUTION),
+                    "Detected an attempt to compile this package using a different version " +
+                            buildEnvVersion
+                            + " of Ballerina than the version " + tomlVersion + " specified in Ballerina.toml. "
+                            + "To ensure compatibility, use the distribution specified in Ballerina.toml or change " +
+                            "the distribution in Ballerina.toml to the desired Ballerina distribution version.",
+                    ProjectDiagnosticErrorCode.BUILT_WITH_DIFFERENT_DITRIBUTION_VERSION.diagnosticId(),
+                    DiagnosticSeverity.ERROR);
+        }
     }
 
     /**

@@ -227,7 +227,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
                 Path pkgJsonPath = getPackagePath(org.value(), name.value(),
                         Optional.of(ver.getFileName()).get().toFile().getName()).resolve(ProjectConstants.PACKAGE_JSON);
                 if (Files.exists(pkgJsonPath)) {
-                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion();
+                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion().getVersionString();
                     String packVer = RepoUtils.getBallerinaShortVersion();
                     if (!isCompatible(packageVer, packVer)) {
                         incompatibleVersions.add(ver);
