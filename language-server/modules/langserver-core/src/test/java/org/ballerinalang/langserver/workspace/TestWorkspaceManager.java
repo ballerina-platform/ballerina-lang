@@ -129,6 +129,7 @@ public class TestWorkspaceManager {
         // Create a new file and send CREATED event
         Path newFile = RESOURCE_DIRECTORY.resolve("pkg_with_generated_sources1").resolve("modules")
                 .resolve("mod1").resolve("mod1.bal").toAbsolutePath();
+        Files.deleteIfExists(newFile);
         Files.write(newFile, "int b =10".getBytes());
         try {
             openFile(newFile);
