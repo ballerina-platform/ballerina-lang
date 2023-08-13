@@ -1,17 +1,8 @@
 @xmldata:Name {
-    value: "address"
-}
-type Address record {
-    string street;
-    string city;
-    string country;
-};
-
-@xmldata:Name {
     value: "codes"
 }
 type Codes record {
-    int[] item;
+    (decimal|int|string)[] item;
 };
 
 @xmldata:Name {
@@ -21,7 +12,6 @@ type Bookstore record {
     string storeName;
     int postalCode;
     boolean isOpen;
-    Address address;
     Codes codes;
     @Attribute
     string status;
