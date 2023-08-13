@@ -295,24 +295,25 @@ public class LargeMethodOptimizer {
                 if (isTempOrSyntheticVar(valueVarDcl)) {
                     // value is a temp/synthetic operand
                     // if the key is also a temp/synthetic operand, we need to populate it as
-                    // soon as value is found if the key is populated before that
+                    // soon as value is found if the key is populated before that --- (1)
                     if (isTempOrSyntheticVar(keyVarDcl)) {
                         birOperands.put(valueOp, new BIRMappingConstructorEntryWithIndex(
                                 value, arrIndex));
                         mapValuesOperands.add(valueOp);
                     } else {
-                        // if the key is a global/arg operand, need to populate it as soon as the value operand is found
+                        // if the key is a global/arg operand,
+                        // we need to populate it as soon as the value operand is found --- (2)
                         globalAndArgVarKeyOrValueLhsOperands.put(
                                 valueOp, new BIRMappingConstructorEntryWithIndex(value, arrIndex));
                     }
                 } else {
                     // value is a global/arg operand
-                    // if the key is a temp/synthetic operand, we need to populate it as soon as key is found
+                    // if the key is a temp/synthetic operand, we need to populate it as soon as key is found --- (3)
                     if (isTempOrSyntheticVar(keyVarDcl)) {
                         globalAndArgVarKeyOrValueLhsOperands.put(
                                 keyOp, new BIRMappingConstructorEntryWithIndex(value, arrIndex));
                     } else {
-                        // if the key is also a global/arg operand, we can populate at the end
+                        // if the key is also a global/arg operand, we can populate at the end --- (4)
                         setMapElement(globalAndArgVarIns, handleArrayOperand, valueOp, value, arrIndex,
                                 parentFuncTempVars);
                     }
@@ -325,9 +326,11 @@ public class LargeMethodOptimizer {
                         (BIRNode.BIRMappingConstructorSpreadFieldEntry) value;
                 BIROperand exprOp = spreadFieldEntry.exprOp;
                 if (isTempOrSyntheticVar(exprOp.variableDcl)) {
+                    // done same as (1)
                     birOperands.put(exprOp, new BIRMappingConstructorEntryWithIndex(value, arrIndex));
                     mapValuesOperands.add(exprOp);
                 } else {
+                    // done same as (4)
                     setMapElement(globalAndArgVarIns, handleArrayOperand, exprOp, value, arrIndex,
                             parentFuncTempVars);
                 }

@@ -19,6 +19,8 @@ type PeopleNames record {|
     string lastName;
 |};
 
+string global_str1 = "I am a global string.";
+string global_str2 = "another global string";
 string[] global_str_arr1 = ["a","b","c"];
 PeopleNames peopleNamesGlobalRecord = {firstName:"John", lastName:"Doe"};
 
@@ -3040,6 +3042,8 @@ public function largeMethod() returns boolean|error {
             string middleName1;
             string middleName2;
         |} peopleNamesLocalRecord = {middleName1:"Jane", middleName2:"Doe"};
+    string strA = "strA";
+    string strB = "strB";
 
     json j3 = {"part1": {
         "0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": str1,
@@ -3062,19 +3066,19 @@ public function largeMethod() returns boolean|error {
         "16aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "16bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         ...peopleNamesLocalRecord,
         "17aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "17bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "18aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "18bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "18aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": global_str1,
         "19aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "19bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "20aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "20bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        [global_str1]: global_str1,
         "21aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "21bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        [global_str2]: global_str1,
         "23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "23bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "24aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "24bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        ...{"key1":"value1","key2":"value2"},
         "25aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "25bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "26aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "26bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "26aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": strA,
         "27aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "27bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "28aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "28bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        [strA]: strA,
         "29aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "29bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "30aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "30bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        [strB]: strA,
         "31aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "31bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "32aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "32bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "33aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "33bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
