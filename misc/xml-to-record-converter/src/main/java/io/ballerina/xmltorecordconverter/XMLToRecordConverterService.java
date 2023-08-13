@@ -20,10 +20,8 @@ package io.ballerina.xmltorecordconverter;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -35,13 +33,6 @@ import java.util.concurrent.CompletableFuture;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("xmlToRecord")
 public class XMLToRecordConverterService implements ExtendedLanguageServerService {
-    private WorkspaceManager workspaceManager;
-
-    @Override
-    public void init(LanguageServer langServer, WorkspaceManager workspaceManager) {
-        ExtendedLanguageServerService.super.init(langServer, workspaceManager);
-        this.workspaceManager = workspaceManager;
-    }
 
     @Override
     public Class<?> getRemoteInterface() {

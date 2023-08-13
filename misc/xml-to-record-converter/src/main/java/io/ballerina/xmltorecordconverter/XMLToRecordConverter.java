@@ -44,7 +44,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.xmltorecordconverter.diagnostic.DiagnosticMessage;
 import io.ballerina.xmltorecordconverter.diagnostic.DiagnosticUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,22 +51,23 @@ import org.ballerinalang.formatter.core.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormattingOptions;
-import org.ballerinalang.langserver.commons.toml.visitor.Array;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import static io.ballerina.xmltorecordconverter.util.ConverterUtils.escapeIdentifier;
 import static io.ballerina.xmltorecordconverter.util.ConverterUtils.extractUnionTypeDescNode;
@@ -91,7 +91,7 @@ public class XMLToRecordConverter {
 
         try {
             // Convert the XML string to an InputStream
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlValue.getBytes());
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlValue.getBytes(StandardCharsets.UTF_8));
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
@@ -107,7 +107,8 @@ public class XMLToRecordConverter {
 
         }
 
-        io.ballerina.compiler.syntax.tree.NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
+        io.ballerina.compiler.syntax.tree.NodeList<ImportDeclarationNode> imports =
+                AbstractNodeFactory.createEmptyNodeList();
         List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodes.entrySet().stream()
                 .map(entry -> {
                     String recordName = entry.getKey();
@@ -116,8 +117,8 @@ public class XMLToRecordConverter {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(recordTypeName);
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-                    return NodeFactory.createTypeDefinitionNode(metadata, null, typeKeyWord, typeName, entry.getValue(),
-                            semicolon);
+                    return NodeFactory.createTypeDefinitionNode(metadata, null, typeKeyWord, typeName,
+                            entry.getValue(), semicolon);
                 }).collect(Collectors.toList());
 
         NodeList<ModuleMemberDeclarationNode> moduleMembers =
@@ -181,8 +182,10 @@ public class XMLToRecordConverter {
                             .equals(recordField.fieldName().text()))) {
                         int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
                                 .filter(j -> ((RecordFieldNode) recordFields.get(j)).fieldName().text()
-                                        .equals(recordField.fieldName().text()) && (isLeafXMLElementNode ^ ((RecordFieldNode) recordFields.get(j)).typeName().kind()
-                                        .equals(SyntaxKind.IDENTIFIER_TOKEN)))
+                                        .equals(recordField.fieldName().text()) &&
+                                        (isLeafXMLElementNode ^
+                                                ((RecordFieldNode) recordFields.get(j)).typeName().kind()
+                                                        .equals(SyntaxKind.IDENTIFIER_TOKEN)))
                                 .findFirst().orElse(-1);
                         if (indexOfRecordFieldNode == -1) {
                             recordFields.add(recordField);
@@ -192,7 +195,6 @@ public class XMLToRecordConverter {
                             RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
                             recordFields.add(indexOfRecordFieldNode, updatedRecordField);
                         }
-
                     } else {
                         recordFields.add(recordField);
                     }
@@ -237,22 +239,12 @@ public class XMLToRecordConverter {
             // At the moment all are considered as Objects here
             String elementKey = xmlElementNode.getNodeName().trim();
             String type = escapeIdentifier(StringUtils.capitalize(elementKey));
-//            String updatedType = getAndUpdateFieldNames(type, false, existingFieldNames, updatedFieldNames);
             typeName = AbstractNodeFactory.createIdentifierToken(type);
         }
         fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
         recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                 fieldTypeName, fieldName,
                 optionalFieldToken, semicolonToken);
-//        else if (entry.getValue().isJsonArray()) {
-//            Map.Entry<String, JsonArray> jsonArrayEntry =
-//                    new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsJsonArray());
-//            ArrayTypeDescriptorNode arrayTypeName =
-//                    getArrayTypeDescriptorNode(jsonArrayEntry, existingFieldNames, updatedFieldNames);
-//            recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-//                    arrayTypeName, fieldName,
-//                    optionalFieldToken, semicolonToken);
-//        }
         return recordFieldNode;
     }
 
@@ -286,7 +278,8 @@ public class XMLToRecordConverter {
                 List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(extractedTypeDescNodes);
                 TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
                 ParenthesisedTypeDescriptorNode parenTypeDescNode =
-                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
+                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode,
+                                closeParenToken);
                 ArrayTypeDescriptorNode updatedTypeName = getArrayTypeDesc(parenTypeDescNode);
                 return existingRecordFieldNode.modify().withTypeName(updatedTypeName).apply();
             }
@@ -302,7 +295,8 @@ public class XMLToRecordConverter {
                         sortTypeDescriptorNodes(List.of(existingTypeName, newTypeName));
                 TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
                 ParenthesisedTypeDescriptorNode parenTypeDescNode =
-                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
+                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode,
+                                closeParenToken);
                 ArrayTypeDescriptorNode updatedTypeName = getArrayTypeDesc(parenTypeDescNode);
                 return existingRecordFieldNode.modify().withTypeName(updatedTypeName).apply();
             }
@@ -317,40 +311,6 @@ public class XMLToRecordConverter {
         NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createNodeList(arrayDimension);
 
         return NodeFactory.createArrayTypeDescriptorNode(typeDescNode, arrayDimensions);
-
-//        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
-//        Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
-//        Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-//
-//        List<TypeDescriptorNode> extractedTypeDescNodes = extractUnionTypeDescNode(typeDescNode1);
-//
-//        if (typeDescNode1.kind().equals(SyntaxKind.PARENTHESISED_TYPE_DESC)) {
-//            TypeDescriptorNode innerTypeDescNode = ((ParenthesisedTypeDescriptorNode) typeDescNode1).typedesc();
-//            if (innerTypeDescNode.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-//                List<TypeDescriptorNode> extractedTypeDescNodes =
-//                        extractUnionTypeDescNode((UnionTypeDescriptorNode) innerTypeDescNode);
-//                extractedTypeDescNodes.add(typeDescNode2);
-//                List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(extractedTypeDescNodes);
-//                UnionTypeDescriptorNode unionTypeDescNode =
-//                        (UnionTypeDescriptorNode) joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
-//                ParenthesisedTypeDescriptorNode parenTypeDescNode =
-//                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode,
-//                                closeParenToken);
-//                return NodeFactory.createArrayTypeDescriptorNode(parenTypeDescNode, arrayDimensions);
-//            } else {
-//                UnionTypeDescriptorNode unionTypeDescNode =
-//                        NodeFactory.createUnionTypeDescriptorNode(innerTypeDescNode, pipeToken, typeDescNode2);
-//                ParenthesisedTypeDescriptorNode parenTypeDescNode =
-//                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
-//                return NodeFactory.createArrayTypeDescriptorNode(parenTypeDescNode, arrayDimensions);
-//            }
-//        } else {
-//            List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(List.of(typeDescNode1, typeDescNode2));
-//            TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
-//            ParenthesisedTypeDescriptorNode parenTypeDescNode =
-//                    NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
-//            return NodeFactory.createArrayTypeDescriptorNode(parenTypeDescNode, arrayDimensions);
-//        }
     }
 
     private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {

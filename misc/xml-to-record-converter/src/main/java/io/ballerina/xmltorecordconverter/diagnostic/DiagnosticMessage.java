@@ -22,6 +22,11 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Objects;
 
+/**
+ * Contains diagnostic messages of the XML to Record converter.
+ *
+ * @since 2201.7.2
+ */
 public class DiagnosticMessage {
 
     private final String code;
