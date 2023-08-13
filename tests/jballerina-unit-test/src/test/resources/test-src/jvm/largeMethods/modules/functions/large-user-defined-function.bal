@@ -14,12 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type PeopleNames record {|
+    string firstName;
+    string lastName;
+|};
+
+string[] global_str_arr1 = ["a","b","c"];
+PeopleNames peopleNamesGlobalRecord = {firstName:"John", lastName:"Doe"};
+
 public function largeMethod() returns boolean|error {
 
     string local_str1 = "qwerty3";
     string local_str2 = "qwerty4";
     int local_integer1 = 300;
     int local_integer2 = 400;
+    string[] local_str_arr1 = ["a","b","c"];
 
     (string|error)[][] & readonly arr3 = [[
         str1,
@@ -42,7 +51,9 @@ public function largeMethod() returns boolean|error {
         "17aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         check getWordOrError(false),
         "19aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        ...global_str_arr1,
         "20aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        ...local_str_arr1,
         "21aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -3025,6 +3036,11 @@ public function largeMethod() returns boolean|error {
         "1499aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "1500aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]];
 
+    record {|
+            string middleName1;
+            string middleName2;
+        |} peopleNamesLocalRecord = {middleName1:"Jane", middleName2:"Doe"};
+
     json j3 = {"part1": {
         "0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": str1,
         "1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "1bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -3042,7 +3058,9 @@ public function largeMethod() returns boolean|error {
         "13aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "13bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "14aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": check getWordOrError(false),
         "15aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "15bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        ...peopleNamesGlobalRecord,
         "16aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "16bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        ...peopleNamesLocalRecord,
         "17aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "17bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "18aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "18bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "19aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "19bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -4532,6 +4550,10 @@ public function largeMethod() returns boolean|error {
 }
 
 public function largeMethodWithCheck() returns boolean|error {
+    record {|
+        string middleName1;
+        string middleName2;
+    |} peopleNamesLocalRecord = {middleName1:"Jane", middleName2:"Doe"};
     string[] & readonly arr4 = [
 		"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",
 		"1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1",
@@ -4602,7 +4624,9 @@ public function largeMethodWithCheck() returns boolean|error {
         "14aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": check getWordOrError(true),
         "15aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "15bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "16aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "16bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        ...peopleNamesLocalRecord,
         "17aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "17bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        ...peopleNamesGlobalRecord,
         "18aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "18bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "19aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "19bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "20aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "20bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
