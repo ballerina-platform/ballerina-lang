@@ -19,6 +19,8 @@
 package io.ballerina.xmltorecordconverter.util;
 
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -28,6 +30,8 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.identifier.Utils.escapeSpecialCharacters;
 import static io.ballerina.identifier.Utils.unescapeUnicodeCodepoints;
@@ -67,26 +71,73 @@ public class ConverterUtils {
         }
     }
 
-    public static List<TypeDescriptorNode> sortTypeDescNodes(List<TypeDescriptorNode> typeDescNodes) {
-        typeDescNodes.sort(Comparator.comparing(TypeDescriptorNode::toSourceCode));
-        return typeDescNodes;
+    /**
+     * This method returns the sorted TypeDescriptorNode list.
+     *
+     * @param typeDescriptorNodes List of TypeDescriptorNodes has to be sorted.
+     * @return {@link List<TypeDescriptorNode>} The sorted TypeDescriptorNode list.
+     */
+    public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
+        List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
+                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
+                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        nonArrayNodes.sort(Comparator.comparing(TypeDescriptorNode::toSourceCode));
+        arrayNodes.sort((node1, node2) -> {
+            ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
+            ArrayTypeDescriptorNode arrayNode2 = (ArrayTypeDescriptorNode) node2;
+            return getNumberOfDimensions(arrayNode1).equals(getNumberOfDimensions(arrayNode2)) ?
+                    (arrayNode1).memberTypeDesc().toSourceCode()
+                            .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
+                    getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
+        });
+        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
     }
 
-    public static List<TypeDescriptorNode> extractUnionTypeDescNode(UnionTypeDescriptorNode unionTypeDescNode) {
-        List<TypeDescriptorNode> extractedTypeDescNodes = new ArrayList<>();
-        TypeDescriptorNode leftTypeDescNode = unionTypeDescNode.leftTypeDesc();
-        TypeDescriptorNode rightTypeDescNode = unionTypeDescNode.rightTypeDesc();
-        if (leftTypeDescNode.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-            extractedTypeDescNodes.addAll(extractUnionTypeDescNode((UnionTypeDescriptorNode) leftTypeDescNode));
-        } else {
-            extractedTypeDescNodes.add(leftTypeDescNode);
+    /**
+     * This method returns the number of dimensions of an ArrayTypeDescriptorNode.
+     *
+     * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated.
+     * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode.
+     */
+    public static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
+        int totalDimensions = arrayNode.dimensions().size();
+        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
+            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
         }
-        if (rightTypeDescNode.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-            extractedTypeDescNodes.addAll(extractUnionTypeDescNode((UnionTypeDescriptorNode) rightTypeDescNode));
+        return totalDimensions;
+    }
+
+    /**
+     * This method returns a list of TypeDescriptorNodes extracted from a UnionTypeDescriptorNode.
+     *
+     * @param typeDescNode UnionTypeDescriptorNode for which that has to be extracted.
+     * @return {@link List<TypeDescriptorNode>} The list of extracted TypeDescriptorNodes.
+     */
+    public static List<TypeDescriptorNode> extractUnionTypeDescNode(TypeDescriptorNode typeDescNode) {
+        List<TypeDescriptorNode> extractedTypeDescNodes = new ArrayList<>();
+        TypeDescriptorNode extractedTypeDescNode = typeDescNode;
+        if (typeDescNode.kind().equals(SyntaxKind.PARENTHESISED_TYPE_DESC)) {
+            extractedTypeDescNode = extractParenthesisedTypeDescNode(typeDescNode);
+        }
+        if (extractedTypeDescNode.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+            UnionTypeDescriptorNode unionTypeDescNode = (UnionTypeDescriptorNode) extractedTypeDescNode;
+            TypeDescriptorNode leftTypeDescNode = unionTypeDescNode.leftTypeDesc();
+            TypeDescriptorNode rightTypeDescNode = unionTypeDescNode.rightTypeDesc();
+            extractedTypeDescNodes.addAll(extractUnionTypeDescNode(leftTypeDescNode));
+            extractedTypeDescNodes.addAll(extractUnionTypeDescNode(rightTypeDescNode));
         } else {
-            extractedTypeDescNodes.add(rightTypeDescNode);
+            extractedTypeDescNodes.add(extractedTypeDescNode);
         }
         return extractedTypeDescNodes;
+    }
+
+    private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
+        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
+            return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
+        } else {
+            return typeDescNode;
+        }
     }
 
     /**

@@ -70,7 +70,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.ballerina.xmltorecordconverter.util.ConverterUtils.escapeIdentifier;
+import static io.ballerina.xmltorecordconverter.util.ConverterUtils.extractUnionTypeDescNode;
 import static io.ballerina.xmltorecordconverter.util.ConverterUtils.getPrimitiveTypeName;
+import static io.ballerina.xmltorecordconverter.util.ConverterUtils.sortTypeDescriptorNodes;
 
 /**
  * APIs for conversion from XML to Ballerina records.
@@ -170,19 +172,27 @@ public class XMLToRecordConverter {
 
                 if (xmlNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
                     Element xmlElementNode = (Element) xmlNode;
-                    if (!isLeafXMLElementNode(xmlElementNode)) {
+                    boolean isLeafXMLElementNode = isLeafXMLElementNode(xmlElementNode);
+                    if (!isLeafXMLElementNode) {
                         generateRecords(xmlElementNode, isClosed, recordToTypeDescNodes, diagnosticMessages);
                     }
                     RecordFieldNode recordField = getRecordField(xmlElementNode, null, null, false);
-                    if (recordFields.stream().anyMatch(recField ->
-                            ((RecordFieldNode) recField).fieldName().text().equals(recordField.fieldName().text()))) {
+                    if (recordFields.stream().anyMatch(recField -> ((RecordFieldNode) recField).fieldName().text()
+                            .equals(recordField.fieldName().text()))) {
                         int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
                                 .filter(j -> ((RecordFieldNode) recordFields.get(j)).fieldName().text()
-                                        .equals(recordField.fieldName().text())).findFirst().orElse(-1);
-                        RecordFieldNode existingRecordField =
-                                (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
-                        RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
-                        recordFields.add(indexOfRecordFieldNode, updatedRecordField);
+                                        .equals(recordField.fieldName().text()) && (isLeafXMLElementNode ^ ((RecordFieldNode) recordFields.get(j)).typeName().kind()
+                                        .equals(SyntaxKind.IDENTIFIER_TOKEN)))
+                                .findFirst().orElse(-1);
+                        if (indexOfRecordFieldNode == -1) {
+                            recordFields.add(recordField);
+                        } else {
+                            RecordFieldNode existingRecordField =
+                                    (RecordFieldNode) recordFields.remove(indexOfRecordFieldNode);
+                            RecordFieldNode updatedRecordField = mergeRecordFields(existingRecordField, recordField);
+                            recordFields.add(indexOfRecordFieldNode, updatedRecordField);
+                        }
+
                     } else {
                         recordFields.add(recordField);
                     }
@@ -264,43 +274,69 @@ public class XMLToRecordConverter {
         TypeDescriptorNode newTypeName = (TypeDescriptorNode) newRecordFieldNode.typeName();
 
         if (existingTypeName.kind().equals(SyntaxKind.ARRAY_TYPE_DESC)) {
-            TypeDescriptorNode extractedTypeName = ((ArrayTypeDescriptorNode) existingTypeName).memberTypeDesc();
-            if (extractedTypeName.kind().equals(newTypeName.kind())) {
+            TypeDescriptorNode memberTypeDescNode = ((ArrayTypeDescriptorNode) existingTypeName).memberTypeDesc();
+            if (memberTypeDescNode.toSourceCode().strip().equals(newTypeName.toSourceCode().strip())) {
                 return existingRecordFieldNode;
             } else {
+                Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+                Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
 
+                List<TypeDescriptorNode> extractedTypeDescNodes = extractUnionTypeDescNode(memberTypeDescNode);
+                extractedTypeDescNodes.add(newTypeName);
+                List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(extractedTypeDescNodes);
+                TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
+                ParenthesisedTypeDescriptorNode parenTypeDescNode =
+                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
+                ArrayTypeDescriptorNode updatedTypeName = getArrayTypeDesc(parenTypeDescNode);
+                return existingRecordFieldNode.modify().withTypeName(updatedTypeName).apply();
             }
         } else {
-            if (existingTypeName.kind().equals(newTypeName.kind())) {
-                Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-                Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-                ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
-                        closeSBracketToken);
-                NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createNodeList(arrayDimension);
-                ArrayTypeDescriptorNode updatedTypeName =
-                        NodeFactory.createArrayTypeDescriptorNode(existingTypeName, arrayDimensions);
+            if (existingTypeName.toSourceCode().strip().equals(newTypeName.toSourceCode().strip())) {
+                ArrayTypeDescriptorNode updatedTypeName = getArrayTypeDesc(existingTypeName);
                 return existingRecordFieldNode.modify().withTypeName(updatedTypeName).apply();
             } else {
+                Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+                Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
 
+                List<TypeDescriptorNode> sortedTypeDescNodes =
+                        sortTypeDescriptorNodes(List.of(existingTypeName, newTypeName));
+                TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
+                ParenthesisedTypeDescriptorNode parenTypeDescNode =
+                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
+                ArrayTypeDescriptorNode updatedTypeName = getArrayTypeDesc(parenTypeDescNode);
+                return existingRecordFieldNode.modify().withTypeName(updatedTypeName).apply();
             }
         }
-        return existingRecordFieldNode;
     }
 
-//    private static ArrayTypeDescriptorNode getArrayTypeOfUnion(TypeDescriptorNode typeDescNode1,
-//                                                               TypeDescriptorNode typeDescNode2) {
-//        Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-//        Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-//        ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
-//                closeSBracketToken);
-//        NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createNodeList(arrayDimension);
+    private static ArrayTypeDescriptorNode getArrayTypeDesc(TypeDescriptorNode typeDescNode) {
+        Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+        Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+        ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
+                closeSBracketToken);
+        NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createNodeList(arrayDimension);
+
+        return NodeFactory.createArrayTypeDescriptorNode(typeDescNode, arrayDimensions);
+
 //        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
 //        Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
 //        Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+//
+//        List<TypeDescriptorNode> extractedTypeDescNodes = extractUnionTypeDescNode(typeDescNode1);
+//
 //        if (typeDescNode1.kind().equals(SyntaxKind.PARENTHESISED_TYPE_DESC)) {
 //            TypeDescriptorNode innerTypeDescNode = ((ParenthesisedTypeDescriptorNode) typeDescNode1).typedesc();
 //            if (innerTypeDescNode.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-//
+//                List<TypeDescriptorNode> extractedTypeDescNodes =
+//                        extractUnionTypeDescNode((UnionTypeDescriptorNode) innerTypeDescNode);
+//                extractedTypeDescNodes.add(typeDescNode2);
+//                List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(extractedTypeDescNodes);
+//                UnionTypeDescriptorNode unionTypeDescNode =
+//                        (UnionTypeDescriptorNode) joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
+//                ParenthesisedTypeDescriptorNode parenTypeDescNode =
+//                        NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode,
+//                                closeParenToken);
+//                return NodeFactory.createArrayTypeDescriptorNode(parenTypeDescNode, arrayDimensions);
 //            } else {
 //                UnionTypeDescriptorNode unionTypeDescNode =
 //                        NodeFactory.createUnionTypeDescriptorNode(innerTypeDescNode, pipeToken, typeDescNode2);
@@ -309,13 +345,24 @@ public class XMLToRecordConverter {
 //                return NodeFactory.createArrayTypeDescriptorNode(parenTypeDescNode, arrayDimensions);
 //            }
 //        } else {
-//            UnionTypeDescriptorNode unionTypeDescNode =
-//                    NodeFactory.createUnionTypeDescriptorNode(typeDescNode1, pipeToken, typeDescNode2);
+//            List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(List.of(typeDescNode1, typeDescNode2));
+//            TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
 //            ParenthesisedTypeDescriptorNode parenTypeDescNode =
 //                    NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken, unionTypeDescNode, closeParenToken);
 //            return NodeFactory.createArrayTypeDescriptorNode(parenTypeDescNode, arrayDimensions);
 //        }
-//    }
+    }
+
+    private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
+        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
+
+        TypeDescriptorNode unionTypeDescNode = typeNames.get(0);
+        for (int i = 1; i < typeNames.size(); i++) {
+            unionTypeDescNode =
+                    NodeFactory.createUnionTypeDescriptorNode(unionTypeDescNode, pipeToken, typeNames.get(i));
+        }
+        return unionTypeDescNode;
+    }
 
     private static boolean isLeafXMLElementNode(Element xmlElementNode) {
         return xmlElementNode.getChildNodes().getLength() == 1 &&
