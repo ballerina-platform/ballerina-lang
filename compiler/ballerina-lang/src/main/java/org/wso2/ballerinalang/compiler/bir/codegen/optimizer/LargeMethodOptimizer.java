@@ -226,16 +226,8 @@ public class LargeMethodOptimizer {
             parentFunc.localVars.add(parentFuncTempVars.arrayIndexVarDcl);
             parentFunc.localVars.add(parentFuncTempVars.typeCastVarDcl);
         }
-        for (BIRVariableDcl localVar : parentFunc.localVars) {
-            if (localVar.kind == VarKind.LOCAL) {
-                if (localVar.startBB != null) {
-                    localVar.startBB = parentFuncStartBB;
-                }
-                if (localVar.endBB != null) {
-                    localVar.endBB = parentFuncExitBB;
-                }
-            }
-        }
+        // parent function would not have VarKind.LOCAL parentFunc.localVars.
+        // Hence no need to correct localVar.startBB and localVar.endBB
     }
 
     private void periodicSplitArray(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
@@ -838,7 +830,8 @@ public class LargeMethodOptimizer {
         newlyAddingFunctions.add(splitBirFunc);
 
         fixErrorTableInPeriodicSplitFunc(splitFuncEnv, splitBirFunc);
-        fixLocalVarStartAndEndBBsInPeriodicSplitFunc(splitFuncEnv, splitBirFunc);
+        // split function would not have VarKind.LOCAL splitBirFunc.localVars.
+        // Hence no need to correct localVar.startBB and localVar.endBB
 
         // now we need to call this function from parent func
         List<BIROperand> args = new ArrayList<>();
@@ -922,20 +915,6 @@ public class LargeMethodOptimizer {
             parentFuncEnv.errorTableIndex++;
         }
         splitBirFunc.errorTable = splitFuncEnv.splitFuncErrorTable;
-    }
-
-    private void fixLocalVarStartAndEndBBsInPeriodicSplitFunc(SplitFuncEnv splitFuncEnv, BIRFunction splitBirFunc) {
-        Map<Integer, BIRBasicBlock> changedBBs = splitFuncEnv.splitFuncChangedBBs;
-        for (BIRVariableDcl localVar : splitBirFunc.localVars) {
-            if (localVar.kind == VarKind.LOCAL) {
-                if (localVar.startBB != null && changedBBs.containsKey(localVar.startBB.number)) {
-                    localVar.startBB = changedBBs.get(localVar.startBB.number);
-                }
-                if (localVar.endBB != null && changedBBs.containsKey(localVar.endBB.number)) {
-                    localVar.endBB = changedBBs.get(localVar.endBB.number);
-                }
-            }
-        }
     }
 
     private void fixErrorTableInPeriodicSplitFunc(SplitFuncEnv splitFuncEnv, BIRFunction splitBirFunc) {
