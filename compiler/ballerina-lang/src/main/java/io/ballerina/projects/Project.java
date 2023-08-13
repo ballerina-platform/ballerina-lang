@@ -53,7 +53,13 @@ public abstract class Project {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
-        this.buildOptions = BuildOptions.builder().build();
+//        if (System.getProperty("BOOTSTRAP_LANG_LIB") != null) {
+//            this.buildOptions = BuildOptions.builder().setSticky(false).build();
+//        } else {
+        this.buildOptions = BuildOptions.builder()
+                .setSticky(false)
+                .build();
+//        }
     }
 
     void setBuildOptions(BuildOptions buildOptions) {

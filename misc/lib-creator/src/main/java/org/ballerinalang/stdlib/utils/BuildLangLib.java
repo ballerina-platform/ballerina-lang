@@ -75,7 +75,7 @@ public class BuildLangLib {
             }
             System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
             System.setProperty("LANG_REPO_BUILD", "true");
-            out.println("Building langlib ...");
+            out.println("Building langlib ..." + pkgName + " bootstrap is skipped: " + skipBootstrap);
             out.println("Project Dir: " + projectDir);
 
             if (!skipBootstrap) {
@@ -87,7 +87,9 @@ public class BuildLangLib {
             Path pkgTargetPath = targetPath.resolve(pkgName);
             ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
 
-            BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
+            BuildOptions defaultOptions = BuildOptions.builder().setOffline(true)
+//                    .setSticky(false)
+                    .setDumpBirFile(true).build();
             Project project = BuildProject.load(environmentBuilder, projectDir, defaultOptions);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
