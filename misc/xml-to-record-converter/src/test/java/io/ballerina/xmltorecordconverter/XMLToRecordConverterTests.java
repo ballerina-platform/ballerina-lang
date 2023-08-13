@@ -64,6 +64,16 @@ public class XMLToRecordConverterTests {
     private final Path sample4Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_4.bal");
 
+    private final Path sample5XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_5.xml");
+    private final Path sample5Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_5.bal");
+
+    private final Path sample6XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_6.xml");
+    private final Path sample6Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_6.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -109,6 +119,24 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample4Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testBasicXMLWithNodesWithSameNameAndDifferentDataTypes")
+    public void testBasicXMLWithNodesWithSameNameAndDifferentDataTypes() throws IOException {
+        String xmlFileContent = Files.readString(sample5XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample5Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testBasicXMLWithNodesWithPrimitiveAndOtherDataTypes")
+    public void testBasicXMLWithNodesWithPrimitiveAndOtherDataTypes() throws IOException {
+        String xmlFileContent = Files.readString(sample6XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample6Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
