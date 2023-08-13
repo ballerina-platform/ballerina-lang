@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 /**
@@ -31,6 +32,10 @@ import org.testng.annotations.Test;
  */
 @Test
 public class CodegenErrorsTest {
+
+    private CompileResult testLargeMethodsResult = null;
+    private CompileResult testLargeMethods2Result = null;
+    private CompileResult testLargeMethods3Result = null;
 
     @Test
     public void testTooLargeMethod() {
@@ -68,22 +73,34 @@ public class CodegenErrorsTest {
         BRunUtil.invoke(result, "main");
     }
 
-    @Test(enabled = false)
+    @BeforeGroups("TestLargeMethods")
+    public void beforeTestLargeMethods() {
+        testLargeMethodsResult = BCompileUtil.compile("test-src/jvm/largeMethods");
+    }
+
+    @Test(groups = {"TestLargeMethods"}, enabled = false)
     public void testLargeMethods() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods");
-        BRunUtil.invoke(result, "main");
+        BRunUtil.invoke(testLargeMethodsResult, "main");
     }
 
-    @Test(enabled = false)
+    @BeforeGroups("TestLargeMethods2")
+    public void beforeTestLargeMethods2() {
+        testLargeMethods2Result = BCompileUtil.compile("test-src/jvm/largeMethods2");
+    }
+
+    @Test(groups = {"TestLargeMethods2"}, enabled = false)
     public void testLargeMethods2() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods2");
-        BRunUtil.invoke(result, "main");
+        BRunUtil.invoke(testLargeMethods2Result, "main");
     }
 
-    @Test(enabled = false)
+    @BeforeGroups("TestLargeMethods3")
+    public void beforeTestLargeMethods3() {
+        testLargeMethods3Result = BCompileUtil.compile("test-src/jvm/largeMethods3");
+    }
+
+    @Test(groups = {"TestLargeMethods3"}, enabled = false)
     public void testLargeMethods3() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods3");
-        BRunUtil.runMain(result);
+        BRunUtil.runMain(testLargeMethods3Result);
     }
 
     @Test

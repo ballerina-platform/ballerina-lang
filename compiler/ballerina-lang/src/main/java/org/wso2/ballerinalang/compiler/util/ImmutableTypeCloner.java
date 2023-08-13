@@ -232,6 +232,7 @@ public class ImmutableTypeCloner {
                 return defineImmutableXMLType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
                         unresolvedTypes, (BXMLType) type);
             case TypeTags.ARRAY:
+            case TypeTags.BYTE_ARRAY:
                 return defineImmutableArrayType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
                         unresolvedTypes, (BArrayType) type);
             case TypeTags.TUPLE:
