@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collections;
@@ -345,9 +346,9 @@ public class PackageManifest {
 
     public static class BallerinaVersion {
         private final String ballerinaVersion;
-        private final Location location;
+        private final TomlNodeLocation location;
 
-        public BallerinaVersion(String ballerinaVersion, Location location) {
+        public BallerinaVersion(String ballerinaVersion, TomlNodeLocation location) {
             this.ballerinaVersion = ballerinaVersion;
             this.location = location;
         }
@@ -361,7 +362,7 @@ public class PackageManifest {
             return ballerinaVersion;
         }
 
-        public Optional<Location> getLocation() {
+        public Optional<TomlNodeLocation> getLocation() {
             return Optional.ofNullable(location);
         }
     }

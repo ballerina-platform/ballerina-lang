@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageContainer;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collection;
@@ -192,9 +193,9 @@ public class DependencyManifest {
 
     public static class DistributionVersion {
         private final SemanticVersion distributionVersion;
-        private final Location location;
+        private final TomlNodeLocation location;
 
-        public DistributionVersion(SemanticVersion distributionVersion, Location location) {
+        public DistributionVersion(SemanticVersion distributionVersion, TomlNodeLocation location) {
             this.distributionVersion = distributionVersion;
             this.location = location;
         }
@@ -203,7 +204,7 @@ public class DependencyManifest {
             return Optional.ofNullable(distributionVersion);
         }
 
-        public Optional<Location> getLocation() {
+        public Optional<TomlNodeLocation> getLocation() {
             return Optional.ofNullable(location);
         }
     }

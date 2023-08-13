@@ -741,41 +741,6 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    void validateDistirbutionVersion(TopLevelNode packageNode) {
-        SemanticVersion buildEnvVersion = SemanticVersion.from(RepoUtils.getBallerinaVersion());
-        SemanticVersion tomlVersion = SemanticVersion.from(getStringValueFromTomlTableNode(
-                (TomlTableNode) packageNode, DISTRIBUTION, ""));
-        //build major == toml major and build minor == toml minor
-        // toml patch = 0
-        // build patch >= toml patch ok
-        //toml patch != 0
-        // build patch >= toml patch ok
-        // build patch < toml patch warning
-        // else error
-        if (buildEnvVersion.major() == tomlVersion.major() && buildEnvVersion.minor() == tomlVersion.minor()) {
-            if (tomlVersion.patch() != 0 && buildEnvVersion.patch() < tomlVersion.patch()) {
-                reportDiagnostic(((TomlTableNode) packageNode).entries().get(DISTRIBUTION),
-                        "Detected an attempt to compile this package using a lower patch version " +
-                                buildEnvVersion
-                                + " of Ballerina than the version " + tomlVersion + " specified in Ballerina.toml. "
-                                + "This may cause compatibility issues. It is adviced to use the same or a higher " +
-                                "patch version than the version specified in Ballerina.toml to compile this package.",
-                        ProjectDiagnosticErrorCode.BUILT_WITH_LOWER_PATCH_VERSION.diagnosticId(),
-                        DiagnosticSeverity.WARNING);
-            }
-
-        } else {
-            reportDiagnostic(((TomlTableNode) packageNode).entries().get(DISTRIBUTION),
-                    "Detected an attempt to compile this package using a different version " +
-                            buildEnvVersion
-                            + " of Ballerina than the version " + tomlVersion + " specified in Ballerina.toml. "
-                            + "To ensure compatibility, use the distribution specified in Ballerina.toml or change " +
-                            "the distribution in Ballerina.toml to the desired Ballerina distribution version.",
-                    ProjectDiagnosticErrorCode.BUILT_WITH_DIFFERENT_DITRIBUTION_VERSION.diagnosticId(),
-                    DiagnosticSeverity.ERROR);
-        }
-    }
-
     /**
      * Check file name has {@code .png} extension.
      *

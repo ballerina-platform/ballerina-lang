@@ -53,5 +53,4 @@ public enum PackageLockingMode {
     /**
      * No locking mode is specified as there are error diagnostics in the package resolution stage.
      */
-    UNRESOLVED //TODO: remove this
 }
