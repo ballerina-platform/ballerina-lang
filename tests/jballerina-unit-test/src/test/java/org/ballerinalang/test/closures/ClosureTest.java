@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -265,8 +266,13 @@ public class ClosureTest {
         BRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
     }
 
+
     @Test(description = "Test closure levels with forEach")
     public void forEachWithClosure() {
         BRunUtil.invoke(compileResult, "test30");
+    }
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

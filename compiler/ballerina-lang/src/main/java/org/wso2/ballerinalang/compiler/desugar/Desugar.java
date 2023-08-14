@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -780,8 +781,9 @@ public class Desugar extends BLangNodeVisitor {
         annotationDesugar.initializeAnnotationMap(pkgNode);
 
         pkgNode.constants.stream()
-                .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
+                .filter(constant -> (constant.expr.getKind() == NodeKind.LITERAL ||
                         constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
+                        && constant.expr.getBType().tag != TypeTags.TUPLE)
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
@@ -883,13 +885,20 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
             for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
-                if (memberType.tag != TypeTags.RECORD) {
-                    continue;
+                BLangType typeNode;
+                switch (memberType.tag) {
+                    case TypeTags.RECORD:
+                        typeNode = constant.associatedTypeDefinition.typeNode;
+                        break;
+                    case TypeTags.TUPLE:
+                        typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+                        break;
+                    default:
+                        continue;
                 }
                 BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
                 constant.expr = rewrite(constant.expr,
-                        SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
-                                pkgNode.initFunction.symbol.scope, env));
+                        SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env));
                 BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
                         constant.expr);
                 initFnBody.stmts.add(constInit);
@@ -5786,7 +5795,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.ARRAY) {
+        int tag = Types.getReferredType(literalExpr.getBType()).tag;
+        if (tag == TypeTags.ARRAY || tag == TypeTags.TUPLE) {
             // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
@@ -5885,7 +5895,8 @@ public class Desugar extends BLangNodeVisitor {
                         continue;
                     }
                 } else {
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = spreadOpType.tag == TypeTags.INTERSECTION ?
+                            (BTupleType) ((BIntersectionType) spreadOpType).effectiveType : (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         i += spreadOpTuple.getMembers().size();
                         continue;
@@ -6467,7 +6478,7 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            BInvokableSymbol invokableSymbol = defaultValues.get(paramName);
+            BInvokableSymbol invokableSymbol = defaultValues.get(Utils.unescapeBallerina(paramName));
             BLangInvocation closureInvocation = getInvocation(invokableSymbol);
             for (int m = 0; m < invokableSymbol.params.size(); m++) {
                 String langLibFuncParam = invokableSymbol.params.get(m).name.value;

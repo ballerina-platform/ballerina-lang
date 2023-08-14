@@ -1,0 +1,5 @@
+[tool]
+id = "emptyProjWithTool"
+
+[[dependency]]
+path = "tool/libs/platform-io-1.3.0-java.txt"

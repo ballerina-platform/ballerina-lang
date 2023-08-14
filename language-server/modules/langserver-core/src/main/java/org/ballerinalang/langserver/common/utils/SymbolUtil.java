@@ -462,7 +462,7 @@ public class SymbolUtil {
         CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
                 .getInstance(context.languageServercontext());
         if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
-            completionSearchProvider.indexModule(moduleId, symbolList.stream()
+            completionSearchProvider.indexModuleAndModuleSymbolNames(moduleId, symbolList.stream()
                     .map(symbol -> symbol.getName().get())
                     .collect(Collectors.toList()), new ArrayList<>(symbolMapWithPrefix.keySet()));
         }
