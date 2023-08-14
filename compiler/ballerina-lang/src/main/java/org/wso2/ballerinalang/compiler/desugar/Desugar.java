@@ -5949,8 +5949,9 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangRecordLiteral.BLangRecordKeyValueField createRecordKeyValueField(Location pos,
                                                                                   String fieldName,
-                                                                                  BLangExpression expression) {    BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
-            member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
+                                                                                  BLangExpression expression) {
+        BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
+        member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
                     Utils.unescapeJava(fieldName)));
         member.valueExpr = addConversionExprIfRequired(expression, expression.getBType());
         return member;
