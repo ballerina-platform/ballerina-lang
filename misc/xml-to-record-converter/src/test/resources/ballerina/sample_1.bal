@@ -8,7 +8,7 @@ type Book record {
     decimal price;
     string publish_date;
     string description;
-    @Attribute
+    @xmldata:Attribute
     string id;
 };
 
