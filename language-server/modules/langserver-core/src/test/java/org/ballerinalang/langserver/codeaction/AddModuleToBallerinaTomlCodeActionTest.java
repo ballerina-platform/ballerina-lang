@@ -94,13 +94,13 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
         };
     }
 
-    @Test(dataProvider = "negativeDataProvider")
+    @Test(dataProvider = "negative-test-data-provider")
     @Override
     public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
         super.negativeTest(config);
     }
 
-    @DataProvider
+    @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"add_module_negative_1.json"},
@@ -119,7 +119,7 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
     }
 
     private static List<Package> getLocalPackages(Map<String, String> projects, WorkspaceManager workspaceManager,
-                                                    LanguageServerContext context)
+                                                  LanguageServerContext context)
             throws WorkspaceDocumentException, IOException {
         List<Package> packages = new ArrayList<>();
         for (Map.Entry<String, String> entry : projects.entrySet()) {

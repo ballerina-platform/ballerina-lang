@@ -21,16 +21,13 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
-import io.ballerina.toml.syntax.tree.NodeList;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.LSPackageLoader.ModuleInfo;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -62,16 +59,13 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return CodeActionNodeValidator.validate(context.nodeAtRange());
+        return diagnostic.diagnosticInfo().code().equals(DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId());
     }
 
     @Override
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId())) {
-            return Collections.emptyList();
-        }
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -94,8 +88,8 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         String org = orgAndRest[0];
         String[] moduleAndPrefix = orgAndRest[1].split(" as ");
         List<PackageVersion> loadedPackageVersions = new ArrayList<>();
-        String pkg = getPkgAndVersions(LSPackageLoader.getInstance(context.languageServercontext()), project.get(), 
-                org, moduleAndPrefix[0], loadedPackageVersions);
+        String pkg = resolvePackageVersionsAndName(LSPackageLoader.getInstance(context.languageServercontext()), 
+                project.get(), org, moduleAndPrefix[0], loadedPackageVersions);
         if (loadedPackageVersions.isEmpty()) {
             return Collections.emptyList();
         }
@@ -110,23 +104,23 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         return Collections.singletonList(action);
     }
     
-    private String getPkgAndVersions(LSPackageLoader lsPackageLoader, Project project, String org, 
-                                     String moduleWithPkg, List<PackageVersion> versions) {
-        String names = moduleWithPkg;
+    private String resolvePackageVersionsAndName(LSPackageLoader lsPackageLoader, Project project, String org,
+                                                 String moduleName, List<PackageVersion> versions) {
+        String packageName = moduleName;
         while (true) {
-            int i = names.lastIndexOf(".");
+            int i = packageName.lastIndexOf(".");
             if (i == -1) {
-                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, names));
+                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, packageName));
                 if (!versions.isEmpty()) {
-                    return names;
+                    return packageName;
                 }
-                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, moduleWithPkg));
-                return moduleWithPkg;
+                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, moduleName));
+                return moduleName;
             }
-            names = names.substring(0, i);
-            versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, names));
+            packageName = packageName.substring(0, i);
+            versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, packageName));
             if (!versions.isEmpty()) {
-                return names;
+                return packageName;
             }
         }
     }
@@ -164,15 +158,11 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
     
     private int getDependencyStartLine(BallerinaToml toml) {
         DocumentNode tomlSyntaxTree = toml.tomlDocument().syntaxTree().rootNode();
-        NodeList<DocumentMemberDeclarationNode> members = tomlSyntaxTree.members();
-        for (DocumentMemberDeclarationNode member : members) {
-            if (member.kind() == SyntaxKind.TABLE) {
-                TableNode tableNode = (TableNode) member;
-                if (TomlSyntaxTreeUtil.toQualifiedName(tableNode.identifier().value()).equals("package")) {
-                    return tableNode.lineRange().endLine().line() + 2;
-                }
-            }
-        }   
-        return 0;
+        return tomlSyntaxTree.members().stream()
+                .filter(member -> member.kind().equals(SyntaxKind.TABLE) &&
+                        TomlSyntaxTreeUtil.toQualifiedName(((TableNode) member).identifier().value()).equals("package"))
+                .findFirst()
+                .map(member -> ((TableNode) member).lineRange().endLine().line() + 2)
+                .orElse(0);
     }
 }
