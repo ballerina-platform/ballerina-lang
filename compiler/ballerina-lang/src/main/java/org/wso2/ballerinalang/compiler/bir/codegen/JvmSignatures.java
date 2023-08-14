@@ -110,7 +110,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
@@ -253,7 +252,7 @@ public class JvmSignatures {
     public static final String GET_STRING = "L" + STRING_VALUE + ";";
     public static final String GET_STRING_AT = "(L" + B_STRING_VALUE + ";J)L" + B_STRING_VALUE + ";";
     public static final String GET_STRING_FROM_ARRAY = "(J)L" + OBJECT + ";";
-    public static final String GET_TABLE_VALUE_IMPL = "L" + TABLE_VALUE_IMPL + ";";
+    public static final String GET_TABLE_VALUE = "L" + TABLE_VALUE + ";";
     public static final String GET_THROWABLE = "L" + THROWABLE + ";";
     public static final String GET_TUPLE_TYPE_IMPL = "L" + TUPLE_TYPE_IMPL + ";";
     public static final String GET_TYPE = "L" + TYPE + ";";
@@ -418,7 +417,7 @@ public class JvmSignatures {
     public static final String RETURN_MAP_VALUE = ")L" + MAP_VALUE + ";";
     public static final String RETURN_OBJECT = "()L" + OBJECT + ";";
     public static final String RETURN_STREAM_VALUE = ")L" + STREAM_VALUE + ";";
-    public static final String RETURN_TABLE_VALUE_IMPL = ")L" + TABLE_VALUE_IMPL + ";";
+    public static final String RETURN_TABLE_VALUE = ")L" + TABLE_VALUE + ";";
     public static final String RETURN_TYPEDESC_VALUE = ")L" + TYPEDESC_VALUE + ";";
     public static final String RETURN_XML_VALUE = ")L" + XML_VALUE + ";";
     public static final String SCHEDULE_LOCAL = "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" +
