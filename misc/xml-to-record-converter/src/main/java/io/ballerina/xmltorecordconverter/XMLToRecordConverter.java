@@ -182,11 +182,7 @@ public class XMLToRecordConverter {
                             .equals(recordField.fieldName().text()))) {
                         int indexOfRecordFieldNode = IntStream.range(0, recordFields.size())
                                 .filter(j -> ((RecordFieldNode) recordFields.get(j)).fieldName().text()
-                                        .equals(recordField.fieldName().text()) &&
-                                        (isLeafXMLElementNode ^
-                                                ((RecordFieldNode) recordFields.get(j)).typeName().kind()
-                                                        .equals(SyntaxKind.IDENTIFIER_TOKEN)))
-                                .findFirst().orElse(-1);
+                                        .equals(recordField.fieldName().text())).findFirst().orElse(-1);
                         if (indexOfRecordFieldNode == -1) {
                             recordFields.add(recordField);
                         } else {
@@ -274,7 +270,10 @@ public class XMLToRecordConverter {
                 Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
 
                 List<TypeDescriptorNode> extractedTypeDescNodes = extractUnionTypeDescNode(memberTypeDescNode);
-                extractedTypeDescNodes.add(newTypeName);
+                if (extractedTypeDescNodes.stream().filter(node -> node.toSourceCode()
+                        .equals(newTypeName.toSourceCode())).findFirst().isEmpty()) {
+                    extractedTypeDescNodes.add(newTypeName);
+                }
                 List<TypeDescriptorNode> sortedTypeDescNodes = sortTypeDescriptorNodes(extractedTypeDescNodes);
                 TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(sortedTypeDescNodes);
                 ParenthesisedTypeDescriptorNode parenTypeDescNode =
@@ -360,8 +359,10 @@ public class XMLToRecordConverter {
     private static MetadataNode getXMLAttributeNode() {
         Token atToken = AbstractNodeFactory.createToken(SyntaxKind.AT_TOKEN);
 
-        IdentifierToken name = AbstractNodeFactory.createIdentifierToken("Attribute");
-        Node annotReference = NodeFactory.createSimpleNameReferenceNode(name);
+        IdentifierToken modulePrefix = AbstractNodeFactory.createIdentifierToken("xmldata");
+        Token colon = AbstractNodeFactory.createToken(SyntaxKind.COLON_TOKEN);
+        IdentifierToken identifier = AbstractNodeFactory.createIdentifierToken("Attribute");
+        Node annotReference = NodeFactory.createQualifiedNameReferenceNode(modulePrefix, colon, identifier);
 
         AnnotationNode annotation = NodeFactory.createAnnotationNode(atToken, annotReference, null);
         NodeList<AnnotationNode> annotations = AbstractNodeFactory.createSeparatedNodeList(annotation);

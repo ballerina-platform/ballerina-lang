@@ -74,6 +74,11 @@ public class XMLToRecordConverterTests {
     private final Path sample6Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_6.bal");
 
+    private final Path sample7XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_7.xml");
+    private final Path sample7Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_7.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -137,6 +142,15 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample6Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testBasicXMLWithMultipleLevelsOfNodes")
+    public void testBasicXMLWithMultipleLevelsOfNodes() throws IOException {
+        String xmlFileContent = Files.readString(sample7XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample7Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 

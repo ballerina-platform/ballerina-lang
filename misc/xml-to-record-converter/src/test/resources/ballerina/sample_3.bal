@@ -23,8 +23,8 @@ type Bookstore record {
     boolean isOpen;
     Address address;
     Codes codes;
-    @Attribute
+    @xmldata:Attribute
     string status;
-    @Attribute
+    @xmldata:Attribute
     string xmlns\:ns0;
 };
