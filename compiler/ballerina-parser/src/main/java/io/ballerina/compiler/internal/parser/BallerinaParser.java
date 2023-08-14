@@ -4145,17 +4145,19 @@ public class BallerinaParser extends AbstractParser {
                 STToken colon = consume();
                 STNode varOrFuncName = consume();
                 return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
-            case MAP_KEYWORD:
-                colon = consume();
-                STToken mapKeyword = consume();
-                STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
-                        mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
-                return createQualifiedNameReferenceNode(identifier, colon, refName);
             case COLON_TOKEN:
                 // specially handle cases where there are more than one colon.
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(identifier, isInConditionalExpr);
             default:
+                if (nextNextToken.kind == SyntaxKind.MAP_KEYWORD && peek(3).kind != SyntaxKind.LT_TOKEN) {
+                    colon = consume();
+                    STToken mapKeyword = consume();
+                    STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(),
+                            mapKeyword.leadingMinutiae(), mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+                    return createQualifiedNameReferenceNode(identifier, colon, refName);
+                }
+
                 if (isInConditionalExpr) {
                     return ConditionalExprResolver.getSimpleNameRefNode(identifier);
                 }
