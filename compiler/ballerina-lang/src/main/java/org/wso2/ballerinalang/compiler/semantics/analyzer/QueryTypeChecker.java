@@ -465,6 +465,14 @@ public class QueryTypeChecker extends TypeChecker {
                 if (actualQueryType != symTable.semanticError) {
                     types.checkType(queryExpr, actualQueryType,
                             BUnionType.create(null, new LinkedHashSet<>(expTypes)));
+                    errorTypes.forEach(expType -> {
+                        if (expType.tag == TypeTags.UNION) {
+                            checkExpr(selectExp, env, expType, data);
+                            selectExp.typeChecked = false;
+                        }
+                    });
+                    selectExp.typeChecked = true;
+                    return;
                 }
             }
             errorTypes.forEach(expType -> {
