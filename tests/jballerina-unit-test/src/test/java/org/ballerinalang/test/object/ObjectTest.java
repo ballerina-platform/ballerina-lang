@@ -47,14 +47,14 @@ public class ObjectTest {
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
-    private CompileResult checkModuleVariableReferencesResult;
+    private CompileResult checkObjectWithDefaultableFieldsResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-        checkModuleVariableReferencesResult =
-                            BCompileUtil.compile("test-src/object/object-referencing-module-variable.bal");
+        checkObjectWithDefaultableFieldsResult =
+                                            BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
     }
 
     @Test(description = "Test Basic object as struct")
@@ -130,8 +130,7 @@ public class ObjectTest {
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithSimpleInit");
+        BArray returns = (BArray) BRunUtil.invoke(checkObjectWithDefaultableFieldsResult, "testObjectWithSimpleInit");
 
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -945,13 +944,13 @@ public class ObjectTest {
     }
 
     @Test
-    public void testClassReferencingModuleVariable() {
-        BRunUtil.invoke(checkModuleVariableReferencesResult, "testClassReferencingModuleVariable");
+    public void testClassWithModuleDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultableFieldsResult, "testClassWithModuleDefaultValue");
     }
 
     @Test
-    public void testLocalObjectConstructorReferencingModuleVariable() {
-        BRunUtil.invoke(checkModuleVariableReferencesResult, "testLocalObjectConstructorReferencingModuleVariable");
+    public void testObjectWithModuleDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultableFieldsResult, "testObjectWithModuleDefaultValue");
     }
 
     @AfterClass

@@ -18,3 +18,43 @@ class Person {
         self.month = val1;
     }
 }
+
+final int classI = 111222;
+
+class ModuleVariableReferencingClass {
+    int i = classI;
+}
+
+function value(int k = classI) returns int {
+    return k;
+}
+
+ModuleVariableReferencingClass c1 = new;
+
+function testClassWithModuleDefaultValue() {
+    ModuleVariableReferencingClass c = new;
+    assertEquality(111222, c.i);
+    assertEquality(111222, c1.i);
+}
+
+function testObjectWithModuleDefaultValue() {
+    var value = object {
+        int i = classI;
+    };
+    assertEquality(111222, value.i);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any expected, any actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
