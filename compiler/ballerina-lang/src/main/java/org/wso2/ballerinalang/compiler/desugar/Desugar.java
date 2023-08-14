@@ -5911,15 +5911,12 @@ public class Desugar extends BLangNodeVisitor {
     private void addRequiredFieldsFromSpreadOperator(RecordLiteralNode.RecordField field, List<String> fieldNames) {
         BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
                 (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
-        BType type = spreadOpField.expr.getBType();
-
-        if (type.tag == TypeTags.RECORD) {
-            for (BField bField : ((BRecordType) type).fields.values()) {
-                if (!Symbols.isFlagOn(bField.symbol.flags, Flags.REQUIRED)) {
-                    continue;
-                }
-                fieldNames.add(bField.name.value);
-            }
+        BType type = Types.getReferredType(spreadOpField.expr.getBType());
+        if (type.tag != TypeTags.RECORD) {
+            return;
+        }
+        for (BField bField : ((BRecordType) type).fields.values()) {
+            fieldNames.add(bField.name.value);
         }
     }
 
