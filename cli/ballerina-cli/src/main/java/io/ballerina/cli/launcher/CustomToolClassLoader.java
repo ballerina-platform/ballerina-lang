@@ -24,6 +24,8 @@ import java.net.URLClassLoader;
 /**
  * Custom class loader used to load the tool implementation classes.
  * This prioritizes the classes from the tool jars over the classes from the parent class loader.
+ *
+ * @since 2201.8.0
  */
 public class CustomToolClassLoader extends URLClassLoader {
 

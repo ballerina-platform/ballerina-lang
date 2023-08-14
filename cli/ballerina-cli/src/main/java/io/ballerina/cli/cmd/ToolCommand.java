@@ -46,6 +46,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -480,6 +481,8 @@ public class ToolCommand implements BLauncherCmd {
         List<BalToolsManifest.Tool> flattenedTools = new ArrayList<>();
         balToolsManifest.tools().values().stream()
                 .flatMap(map -> map.values().stream())
+                .sorted(Comparator.comparing(BalToolsManifest.Tool::id)
+                        .thenComparing(BalToolsManifest.Tool::version).reversed())
                 .forEach(flattenedTools::add);
         return flattenedTools;
     }
