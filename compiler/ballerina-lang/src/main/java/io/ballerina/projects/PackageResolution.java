@@ -280,6 +280,19 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
+    private LinkedHashSet<ModuleLoadRequest> getEmptyModuleLoadRequestsOfDirectDependencies() {
+        LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
+        for (ModuleId moduleId : rootPackageContext.moduleIds()) {
+            ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
+            allModuleLoadRequests.addAll(moduleContext.populateEmptyModuleLoadRequests());
+        }
+
+        for (ModuleId moduleId : rootPackageContext.moduleIds()) {
+            ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
+            allModuleLoadRequests.addAll(moduleContext.populateEmptyTestSrcModuleLoadRequests());
+        }
+        return allModuleLoadRequests;
+    }
     private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies() {
         // 1) Convert package descriptor graph to DependencyNode graph
         DependencyGraph<DependencyNode> dependencyNodeGraph = createDependencyNodeGraph(
@@ -292,10 +305,12 @@ public class PackageResolution {
 
     private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
-        // Have an empty list of ModuleLoadRequests when there are PackageResolution errors.
-        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
+        // Get an empty list of ModuleLoadRequests when there are PackageResolution errors.
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests;
         if (!this.diagnosticResult().hasErrors()) {
             moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+        } else {
+            moduleLoadRequests = getEmptyModuleLoadRequestsOfDirectDependencies();
         }
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
@@ -510,9 +525,6 @@ public class PackageResolution {
 
         //TODO: Find a better way to exclude the langlibs
         String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
-//        !rootPackageContext.packageManifest().name().toString().contains("lang") &&
-//                !rootPackageContext.packageManifest().name().toString().contains("jballerina") &&
-//                !rootPackageContext.packageManifest().ballerinaVersion().getVersionString().isEmpty()                 !rootPackageContext.packageManifest().name().toString().contains("jballerina")
         if (bootstrapLangLibName == null &&
                 !rootPackageContext.packageManifest().ballerinaVersion().getVersionString().isEmpty()) {
             SemanticVersion buildEnvVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());

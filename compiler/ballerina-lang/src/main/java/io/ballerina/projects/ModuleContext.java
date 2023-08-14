@@ -228,6 +228,18 @@ class ModuleContext {
         return allModuleLoadRequests;
     }
 
+    Set<ModuleLoadRequest> populateEmptyModuleLoadRequests() {
+        if (allModuleLoadRequests != null) {
+            return allModuleLoadRequests;
+        }
+        allModuleLoadRequests = new OverwritableLinkedHashSet();
+        for (DocumentContext docContext : srcDocContextMap.values()) {
+            allModuleLoadRequests.addAll(docContext.emptyModuleLoadRequests());
+        }
+
+        return allModuleLoadRequests;
+    }
+
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
         if (allTestModuleLoadRequests != null) {
             return allTestModuleLoadRequests;
@@ -236,6 +248,18 @@ class ModuleContext {
         for (DocumentContext docContext : testDocContextMap.values()) {
             allTestModuleLoadRequests.addAll(
                     docContext.moduleLoadRequests(moduleDescriptor, PackageDependencyScope.TEST_ONLY));
+        }
+
+        return allTestModuleLoadRequests;
+    }
+
+    Set<ModuleLoadRequest> populateEmptyTestSrcModuleLoadRequests() {
+        if (allTestModuleLoadRequests != null) {
+            return allTestModuleLoadRequests;
+        }
+        allTestModuleLoadRequests = new OverwritableLinkedHashSet();
+        for (DocumentContext docContext : testDocContextMap.values()) {
+            allTestModuleLoadRequests.addAll(docContext.emptyModuleLoadRequests());
         }
 
         return allTestModuleLoadRequests;

@@ -127,6 +127,15 @@ class DocumentContext {
         return this.moduleLoadRequests;
     }
 
+    Set<ModuleLoadRequest> emptyModuleLoadRequests() {
+        if (this.moduleLoadRequests != null) {
+            return this.moduleLoadRequests;
+        }
+
+        this.moduleLoadRequests = new LinkedHashSet<>();
+        return this.moduleLoadRequests;
+    }
+
     private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleDescriptor currentModuleDesc,
                                                          PackageDependencyScope scope) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
