@@ -41,7 +41,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
 
 /**
- * Task for running the jBallerina profiler.
+ * Task for running the Ballerina profiler.
  *
  * @since 2201.8.0
  */
@@ -124,6 +124,7 @@ public class RunProfilerTask implements Task {
                         .resolve("build").resolve("jacoco").resolve("test.exec");
         return jacocoArgLine + " ";
     }
+
     private Path getExecutablePath(Project project, String fileName) {
 
         Path currentDir = Paths.get(System.getProperty(USER_DIR));

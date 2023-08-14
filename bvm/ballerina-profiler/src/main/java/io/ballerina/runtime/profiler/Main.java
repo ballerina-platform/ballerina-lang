@@ -361,8 +361,7 @@ public class Main {
     private static String getFileNameWithoutExtension(String balJarName) {
         if (null != balJarName) {
             int index = FilenameUtils.indexOfExtension(balJarName);
-            return index == -1 ? balJarName.toString() :
-                    balJarName.toString().substring(0, index);
+            return index == -1 ? balJarName : balJarName.substring(0, index);
         } else {
             return null;
         }
