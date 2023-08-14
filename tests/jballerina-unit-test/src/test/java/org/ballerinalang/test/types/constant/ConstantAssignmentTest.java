@@ -102,6 +102,11 @@ public class ConstantAssignmentTest {
     }
 
     @Test
+    public void testAssignListConstToByteArray() {
+        BRunUtil.invoke(positiveCompileResult, "assignListConstToByteArray");
+    }
+
+    @Test
     public void testConstantAssignmentNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'float'",
@@ -116,6 +121,22 @@ public class ConstantAssignmentTest {
                 12, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected '8', found 'int'",
                 13, 16);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
+                23, 20);
+        BAssertUtil.validateError(negativeCompileResult, i++, "undefined field 'c' in record 'Foo'", 23,
+                37);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
+                24, 38);
+        BAssertUtil.validateError(negativeCompileResult, i++, "undefined field 'c' in record " +
+                "'record {| (record {| \"a\" a; |} & readonly) x; int i; |}'", 24, 55);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
+                26, 14);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string[]', found '[170,187]'", 28, 20);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected '[string,int]', found '[170,187]'", 30, 26);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected '[170]', found '[170,187]'", 32, 19);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

@@ -22,9 +22,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,8 +45,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  *
  * @since 2.0.0
  */
-@PrepareForTest({ RepoUtils.class })
-@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
+//@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
 public class PushCommandTest extends BaseCommandTest {
 
     private static final String VALID_PROJECT = "validApplicationProject";
@@ -113,9 +111,11 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse(args);
 
         Path mockRepo = Paths.get("build").resolve("ballerina-home");
-        PowerMockito.mockStatic(RepoUtils.class);
-        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
-        pushCommand.execute();
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            pushCommand.execute();
+        }
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
@@ -213,9 +213,11 @@ public class PushCommandTest extends BaseCommandTest {
         String[] args = { "--repository=local" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
-        PowerMockito.mockStatic(RepoUtils.class);
-        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
-        pushCommand.execute();
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            pushCommand.execute();
+        }
+
         try {
             ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
                     .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));

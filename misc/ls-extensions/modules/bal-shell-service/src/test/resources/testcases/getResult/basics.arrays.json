@@ -85,9 +85,9 @@
   {
     "source": "const int[] constArray = [4, 5 , 6]",
     "result": {
-      "errors":["Invocation of the snippet failed."],
-      "diagnostics":["error: constant declaration not yet supported for type \u0027int[]\u0027\n\tconst int[] constArray \u003d [4, 5 , 6];\n\t      ^---^","error: expression is not a constant expression\n\tconst int[] constArray \u003d [4, 5 , 6];\n\t                         ^--------^","Compilation aborted due to errors."],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["constArray"]},
       "consoleOut":""
     }
   }
