@@ -308,6 +308,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItem.setInsertText(moduleName + ":" + insertText);
                 completionItem.setLabel(moduleName + ":" + label);
                 completionItems.add(lsCompletionItem);
+                if (completionItem.getFilterText() != null) {
+                    completionItem.setFilterText(moduleName + "_" + completionItem.getFilterText());
+                }
             }
         });
         return completionItems;
@@ -471,7 +474,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param symbol symbol Entry
      * @return completion item
      */
-    private List<LSCompletionItem> populateBallerinaFunctionCompletionItems(FunctionSymbol symbol,
+    protected List<LSCompletionItem> populateBallerinaFunctionCompletionItems(FunctionSymbol symbol,
                                                                             BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Optional<TypeSymbol> contextType = context.getContextType();

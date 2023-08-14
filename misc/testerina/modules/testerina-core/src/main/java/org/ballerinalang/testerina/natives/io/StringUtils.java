@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
 import java.io.UnsupportedEncodingException;
@@ -77,8 +77,8 @@ public class StringUtils {
             return Pattern.matches(((String) encodedFunctionPattern).replace(TesterinaConstants.WILDCARD,
                     TesterinaConstants.DOT + TesterinaConstants.WILDCARD), (String) encodedFunctionName);
         } catch (PatternSyntaxException e) {
-            return BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
+            return ErrorHelper.getRuntimeException(
+                    ErrorCodes.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
         }
     }
 
@@ -152,8 +152,8 @@ public class StringUtils {
                     encodedKey = encodedKey.replace(character, encodedValue);
                 }
             } catch (UnsupportedEncodingException e) {
-                return BLangExceptionHelper.getRuntimeException(
-                        RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+                return ErrorHelper.getRuntimeException(
+                        ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
             }
         }
         return encodedKey;
@@ -167,8 +167,8 @@ public class StringUtils {
             return io.ballerina.runtime.api.utils.StringUtils.fromString(
                     URLDecoder.decode(javaStr, charset.getValue()));
         } catch (UnsupportedEncodingException | IllegalArgumentException e) {
-            return BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while decoding: " + e.getMessage());
+            return ErrorHelper.getRuntimeException(
+                    ErrorCodes.INCOMPATIBLE_ARGUMENTS, "Error while decoding: " + e.getMessage());
         }
     }
 
@@ -183,7 +183,7 @@ public class StringUtils {
 
                 if (k >= args.length) {
                     // there's not enough arguments
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                    throw ErrorHelper.getRuntimeException(ErrorCodes.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
                 while (Character.isDigit(format.getValue().charAt(j)) || format.getValue().charAt(j) == '.') {
@@ -199,7 +199,7 @@ public class StringUtils {
                         case 'd':
                         case 'f':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw ErrorHelper.getRuntimeException(ErrorCodes.ILLEGAL_FORMAT_CONVERSION,
                                         format.getValue().charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref));
@@ -207,7 +207,7 @@ public class StringUtils {
                         case 'x':
                         case 'X':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw ErrorHelper.getRuntimeException(ErrorCodes.ILLEGAL_FORMAT_CONVERSION,
                                         format.getValue().charAt(j) + " != ()");
                             }
                             formatHexString(result, k, padding, formatSpecifier, args);
@@ -223,11 +223,11 @@ public class StringUtils {
                             break;
                         default:
                             // format string not supported
-                            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_FORMAT_SPECIFIER,
+                            throw ErrorHelper.getRuntimeException(ErrorCodes.INVALID_FORMAT_SPECIFIER,
                                     format.getValue().charAt(j));
                     }
                 } catch (IllegalFormatConversionException e) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                    throw ErrorHelper.getRuntimeException(ErrorCodes.ILLEGAL_FORMAT_CONVERSION,
                             format.getValue().charAt(j) + " != " +
                                     TypeChecker.getType(args[k]));
                 }

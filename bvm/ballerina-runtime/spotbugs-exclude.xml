@@ -26,7 +26,7 @@
         <Package name="io.ballerina.runtime.internal.types"/>
     </Match>
     <Match>
-        <Package name="io.ballerina.runtime.internal.util.exceptions"/>
+        <Package name="io.ballerina.runtime.internal.errors"/>
     </Match>
     <Match>
         <Package name="io.ballerina.runtime.internal.commons"/>

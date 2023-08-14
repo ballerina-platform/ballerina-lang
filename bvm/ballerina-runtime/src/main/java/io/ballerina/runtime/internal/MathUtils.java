@@ -20,7 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 /**
  * Common utility methods used for arithmetic operations.
@@ -41,9 +41,9 @@ public class MathUtils {
             return numerator / denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw ErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
+                throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
-                throw ErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
+                throw ErrorCreator.createError(ErrorReasons.ARITHMETIC_OPERATION_ERROR,
                                                StringUtils.fromString(e.getMessage()));
             }
         }
@@ -54,9 +54,9 @@ public class MathUtils {
             return numerator % denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw ErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
+                throw ErrorCreator.createError(ErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
-                throw ErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
+                throw ErrorCreator.createError(ErrorReasons.ARITHMETIC_OPERATION_ERROR,
                                                StringUtils.fromString(e.getMessage()));
             }
         }

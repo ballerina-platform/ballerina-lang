@@ -63,6 +63,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeAction5.json"},
                 {"undefinedFunctionCodeAction6.json"},
                 {"undefinedFunctionCodeAction20.json"},
+                {"undefinedFunctionCodeAction24.json"},
                 // TODO Doesn't support method creation in objects
                 // {"undefinedFunctionCodeAction7.json", "createUndefinedFunction5.bal"},
                 // TODO Doesn't support methods inside services yet
@@ -174,6 +175,14 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"create_function_in_local_var1.json"},
                 {"create_function_in_local_var2.json"},
                 {"create_function_in_start_action1.json"},
+
+                {"undefinedFunctionCodeAction25.json"},
+                {"undefinedFunctionCodeAction26.json"},
+                {"undefinedFunctionCodeAction27.json"},
+                {"undefinedFunctionCodeAction28.json"},
+                {"undefinedFunctionCodeAction29.json"},
+                {"undefinedFunctionCodeAction30.json"},
+                {"undefinedFunctionCodeAction31.json"},
         };
     }
 
