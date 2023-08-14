@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This class is used as the main profiler class for the ballerina profiler.
+ * This class is used as the main profiler class for the Ballerina profiler.
  *
  * @since 2201.8.0
  */

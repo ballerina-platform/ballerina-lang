@@ -32,12 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.ballerina.runtime.profiler.util.Constants.OUT;
+import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
 /**
- * This class contains the JSON parser of the ballerina profiler.
+ * This class contains the JSON parser of the Ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class JsonParser {
 
@@ -84,7 +84,7 @@ public class JsonParser {
             myWriter.write(parsedJson); // Write the parsed json string to the file
             myWriter.flush(); // Flush the writer
         } catch (IOException e) {
-            OUT.printf("An error occurred.%n"); // Print an error message
+            OUT_STREAM.printf("An error occurred.%n"); // Print an error message
         }
     }
 
@@ -122,7 +122,7 @@ public class JsonParser {
             }
             writeToValueJson(output);
         } catch (Exception throwable) {
-            OUT.println(throwable + "%n");
+            OUT_STREAM.println(throwable + "%n");
         }
     }
 
@@ -195,7 +195,7 @@ public class JsonParser {
     /**
      * This class is used as a custom data class.
      *
-     * @since 2201.7.0
+     * @since 2201.8.0
      */
     public static class StackTraceItem {
 
@@ -211,7 +211,7 @@ public class JsonParser {
     /**
      * This class is used as a custom data class.
      *
-     * @since 2201.7.0
+     * @since 2201.8.0
      */
     static class Data {
 

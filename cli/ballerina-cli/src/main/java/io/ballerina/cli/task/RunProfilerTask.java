@@ -93,7 +93,7 @@ public class RunProfilerTask implements Task {
                 throw new RuntimePanicException(exitValue);
             }
         } catch (IOException | InterruptedException e) {
-            throw createLauncherException("Error occurred while running the profiler ", e);
+            throw createLauncherException("error occurred while running the profiler ", e);
         }
     }
 
@@ -126,14 +126,11 @@ public class RunProfilerTask implements Task {
     }
 
     private Path getExecutablePath(Project project, String fileName) {
-
         Path currentDir = Paths.get(System.getProperty(USER_DIR));
-
         // If the --output flag is not set, create the executable in the current directory
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return currentDir.resolve(fileName + BLANG_COMPILED_JAR_EXT);
         }
-
         return project.targetDir().resolve("bin").resolve(fileName + BLANG_COMPILED_JAR_EXT);
     }
 }

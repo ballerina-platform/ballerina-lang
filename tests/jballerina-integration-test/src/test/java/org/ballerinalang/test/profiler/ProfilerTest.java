@@ -31,7 +31,7 @@ import java.util.Map;
 
 
 /**
- * Tests ballerina profiler.
+ * Tests Ballerina profiler.
  *
  * @since 2201.8.0
  */
@@ -61,17 +61,18 @@ public class ProfilerTest extends BaseTest {
 
     private LogLeecher[] getProfilerLogLeechers(int moduleCount, int functionCount) {
         return new LogLeecher[]{
-                new LogLeecher("[1/6] Initializing Profiler..."),
-                new LogLeecher("[2/6] Copying Executable..."),
-                new LogLeecher("[3/6] Performing Analysis..."),
-                new LogLeecher("[4/6] Instrumenting Functions..."),
-                new LogLeecher("○ Instrumented Module Count: " + moduleCount),
-                new LogLeecher("○ Instrumented Function Count: " + functionCount),
-                new LogLeecher("[5/6] Running Executable..."),
-                new LogLeecher("[6/6] Generating Output..."),
-                new LogLeecher("○ Execution Time:"),
+                new LogLeecher("[1/6] Initializing..."),
+                new LogLeecher("[2/6] Copying the executable..."),
+                new LogLeecher("[3/6] Performing analysis..."),
+                new LogLeecher("[4/6] Instrumenting functions..."),
+                new LogLeecher("○ Instrumented module count: " + moduleCount),
+                new LogLeecher("○ Instrumented function count: " + functionCount),
+                new LogLeecher("[5/6] Running executable..."),
+                new LogLeecher("[6/6] Generating output..."),
+                new LogLeecher("○ Execution time:"),
                 new LogLeecher("○ Output: ")};
     }
+
     @Test
     public void testProfilerExecutionWithSingleBalFile() throws BallerinaTestException {
         String sourceRoot = testFileLocation + "/";

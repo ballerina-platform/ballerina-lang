@@ -38,7 +38,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 /**
  * Profile command tests.
  *
- * @since 2.0.0
+ * @since 2201.8.0
  */
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;

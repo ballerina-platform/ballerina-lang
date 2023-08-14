@@ -23,38 +23,37 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
 /**
- * This class is used as the advice adapter for the ballerina profiler.
+ * This class is used as the advice adapter for the Ballerina profiler.
  * This class only manages the functions that doesn't contain the strand parameter.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class NonStrandCheckAdapter extends AdviceAdapter {
 
-    String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
-    String profilerDescriptor = "()Lio/ballerina/runtime/profiler/runtime/Profiler;";
+    private  static final String PROFILER_OWNER = "io/ballerina/runtime/profiler/runtime/Profiler";
+    private  static final String PROFILER_DESCRIPTOR = "()L" + PROFILER_OWNER + ";";
 
     /**
      * Constructor for MethodWrapperAdapter.
      *
-     * @param access      - access flag of the method that is wrapped.
-     * @param mv          - MethodVisitor instance to generate the bytecode.
-     * @param methodName  - name of the method that is wrapped.
-     * @param description - description of the method that is wrapped.
+     * @param access      access flag of the method that is wrapped
+     * @param mv          MethodVisitor instance to generate the bytecode
+     * @param methodName  name of the method that is wrapped
+     * @param description description of the method that is wrapped
      */
-
     public NonStrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description) {
         super(Opcodes.ASM9, mv, access, methodName, description);
     }
 
     @Override
     protected void onMethodEnter() {
-        mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, profilerOwner, "start", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, PROFILER_OWNER, "getInstance", PROFILER_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILER_OWNER, "start", "()V", false);
     }
 
     @Override
     protected void onMethodExit(int opcode) {
-        mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, profilerOwner, "stop", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, PROFILER_OWNER, "getInstance", PROFILER_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILER_OWNER, "stop", "()V", false);
     }
 }

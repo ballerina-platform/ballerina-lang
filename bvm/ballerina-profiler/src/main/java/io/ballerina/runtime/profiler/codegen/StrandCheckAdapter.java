@@ -26,10 +26,10 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import static io.ballerina.runtime.profiler.util.Constants.STRAND_CLASS;
 
 /**
- * This class is used as the advice adapter for the ballerina profiler.
+ * This class is used as the advice adapter for the Ballerina profiler.
  * This class only manages the functions that contain the strand parameter.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class StrandCheckAdapter extends AdviceAdapter {
     String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
@@ -38,14 +38,13 @@ public class StrandCheckAdapter extends AdviceAdapter {
     int load;
 
     /**
-     Constructor for MethodWrapperAdapter.
-     @param access - access flag of the method that is wrapped.
-     @param mv - MethodVisitor instance to generate the bytecode.
-     @param methodName - name of the method that is wrapped.
-     @param description - description of the method that is wrapped.
-     @param load - the index of the local variable that holds the strand instance.
+     *
+     * @param access        access flag of the method that is wrapped
+     * @param mv            MethodVisitor instance to generate the bytecode
+     * @param methodName    name of the method that is wrapped
+     * @param description   description of the method that is wrapped
+     * @param load          the index of the local variable that holds the strand instance
      */
-
     public StrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description, int load) {
         super(Opcodes.ASM9, mv, access, methodName, description);
         if (load == 0) {
@@ -55,16 +54,20 @@ public class StrandCheckAdapter extends AdviceAdapter {
         }
     }
 
-    /*  This method is called when the visitCode() method is called on the MethodVisitor
-    It adds a label to the try block of the wrapped method  */
+    /**
+     * This method is called when the visitCode() method is called on the MethodVisitor.
+     * It adds a label to the try block of the wrapped method.
+     */
     @Override
     public void visitCode() {
         super.visitCode();
         mv.visitLabel(tryStart);
     }
 
-    /*  This method is called when the wrapped method is entered
-    It retrieves the profiler instance, gets the strand id and starts the profiling */
+    /**
+     * This method is called when the wrapped method is entered.
+     * It retrieves the profiler instance, gets the strand id and starts the profiling.
+     */
     @Override
     protected void onMethodEnter() {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
@@ -74,9 +77,9 @@ public class StrandCheckAdapter extends AdviceAdapter {
     }
 
     /**
-     This method is called when the wrapped method is exited.
-     If the exit is not due to an exception, it calls the onFinally method.
-     @param opcode - the opcode of the instruction that caused the method exit.
+     * This method is called when the wrapped method is exited.
+     * If the exit is not due to an exception, it calls the onFinally method.
+     * @param opcode the opcode of the instruction that caused the method exit
      */
     @Override
     protected void onMethodExit(int opcode) {
@@ -86,10 +89,10 @@ public class StrandCheckAdapter extends AdviceAdapter {
     }
 
     /**
-     This method is called to generate the max stack and max locals for the wrapped method.
-     It adds a try-catch block to the wrapped method and calls the onFinally method in the catch block.
-     @param maxStack - the maximum stack size.
-     @param maxLocals - the maximum number of local variables.
+     * This method is called to generate the max stack and max locals for the wrapped method.
+     * It adds a try-catch block to the wrapped method and calls the onFinally method in the catch block.
+     * @param maxStack maximum stack size of the method.
+     * @param maxLocals maximum number of local variables for the method.
      */
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
@@ -101,8 +104,10 @@ public class StrandCheckAdapter extends AdviceAdapter {
         mv.visitMaxs(-1, -1);
     }
 
-    /*  This method stops the profiling for the wrapped method
-    It retrieves the profiler instance, gets the strand state and id, and stops the profiling   */
+    /**
+     * This method stops the profiling for the wrapped method.
+     * It retrieves the profiler instance, gets the strand state and id, and stops the profiling.
+     */
     private void onFinally() {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
         mv.visitVarInsn(ALOAD, load);

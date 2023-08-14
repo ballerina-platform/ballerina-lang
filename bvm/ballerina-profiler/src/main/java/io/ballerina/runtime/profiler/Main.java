@@ -48,12 +48,12 @@ import java.util.zip.ZipInputStream;
 
 import static io.ballerina.runtime.profiler.ui.HttpServer.initializeHTMLExport;
 import static io.ballerina.runtime.profiler.ui.JsonParser.initializeCPUParser;
-import static io.ballerina.runtime.profiler.util.Constants.OUT;
+import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
 /**
- * This class is used to as the driver class of the ballerina profiler.
+ * This class is used to as the driver class of the Ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class Main {
 
@@ -76,18 +76,18 @@ public class Main {
         printHeader(); // Print the program header
         handleProfilerArguments(args); // Handle command line arguments
         extractProfiler(); // Extract the profiler used by the program
-        createTempJar(balJarName); // Create a temporary JAR file inside target/bin
-        initializeProfiling(balJarName); // Initialize profiling
+        createTempJar(); // Create a temporary JAR file inside target/bin
+        initializeProfiling(); // Initialize profiling
     }
 
     private static void printHeader() {
-        OUT.printf("%n%s================================================================================%s",
+        OUT_STREAM.printf("%n%s================================================================================%s",
                 Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT.printf("%n%sBallerina Profiler%s", Constants.ANSI_CYAN, Constants.ANSI_RESET);
-        OUT.printf("%s: Profiling...%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT.printf("%n%s================================================================================%s",
+        OUT_STREAM.printf("%n%sBallerina Profiler%s", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%s: Profiling...%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%n%s================================================================================%s",
                 Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT.printf("%n%sNote: This is an experimental feature, which supports only a limited set of " +
+        OUT_STREAM.printf("%n%sNote: This is an experimental feature, which supports only a limited set of " +
                         "functionality.%s%n", Constants.ANSI_GRAY, Constants.ANSI_RESET);
     }
 
@@ -95,9 +95,7 @@ public class Main {
         if (args.length == 0) {
             return;
         }
-
         List<String> usedArgs = new ArrayList<>();
-
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "--file" -> {
@@ -154,7 +152,7 @@ public class Main {
     }
 
     private static void extractProfiler() throws ProfilerException {
-        OUT.printf("%s[1/6] Initializing Profiler...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%s[1/6] Initializing...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try {
             new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime").start().waitFor();
         } catch (IOException | InterruptedException exception) {
@@ -162,9 +160,9 @@ public class Main {
         }
     }
 
-    public static void createTempJar(String balJarName) {
+    private static void createTempJar() {
         try {
-            OUT.printf("%s[2/6] Copying Executable...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+            OUT_STREAM.printf("%s[2/6] Copying the executable...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
             Path sourcePath = Paths.get(balJarName);
             Path destinationPath = Paths.get(Constants.TEMP_JAR_FILE_NAME);
             Files.copy(sourcePath, destinationPath);
@@ -173,16 +171,16 @@ public class Main {
         }
     }
 
-    private static void initializeProfiling(String balJarName) throws ProfilerException {
-        OUT.printf("%s[3/6] Performing Analysis...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+    private static void initializeProfiling() throws ProfilerException {
+        OUT_STREAM.printf("%s[3/6] Performing analysis...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         ArrayList<String> classNames = new ArrayList<>();
         try {
             findAllClassNames(balJarName, classNames);
             findUtilityClasses(classNames);
         } catch (Exception e) {
-            throw new ProfilerException("Error occurred while performing analysis", e);
+            throw new ProfilerException("error occurred while performing analysis", e);
         }
-        OUT.printf("%s[4/6] Instrumenting Functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%s[4/6] Instrumenting functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try (JarFile jarFile = new JarFile(balJarName)) {
             String mainClassPackage = ProfilerMethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{
                     new File(balJarName).toURI().toURL()}));
@@ -205,11 +203,11 @@ public class Main {
                     moduleCount++;
                 }
             }
-            OUT.printf(" ○ Instrumented Module Count: %d%n", moduleCount);
+            OUT_STREAM.printf(" ○ Instrumented module count: %d%n", moduleCount);
             try (PrintWriter printWriter = new PrintWriter("usedPathsList.txt", StandardCharsets.UTF_8)) {
                 printWriter.println(String.join(", ", usedPaths));
             }
-            OUT.printf(" ○ Instrumented Function Count: %d%n", balFunctionCount);
+            OUT_STREAM.printf(" ○ Instrumented function count: %d%n", balFunctionCount);
             modifyJar();
         } catch (Throwable throwable) {
             throw new ProfilerException(throwable);
@@ -278,7 +276,6 @@ public class Main {
 
     private static void findUtilityClasses(ArrayList<String> classNames) {
         populateInitPaths(classNames);
-
         for (String name : classNames) {
             for (String path : UTIL_INIT_PATHS) {
                 if (name.startsWith(path)) {
@@ -321,16 +318,16 @@ public class Main {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS)
                         - profilerStartTime;
                 deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
-                OUT.printf("%s[6/6] Generating Output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+                OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 Thread.sleep(100);
                 initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
                 deleteFileIfExists("CpuPre.json");
-                OUT.printf(" ○ Execution Time: %d Seconds %n", profilerTotalTime / 1000);
+                OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
                 initializeHTMLExport();
                 deleteFileIfExists("performance_report.json");
-                OUT.println("--------------------------------------------------------------------------------");
+                OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException | InterruptedException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);
             } finally {
@@ -358,6 +355,7 @@ public class Main {
     public static String getBalJarArgs() {
         return balJarArgs;
     }
+
     private static String getFileNameWithoutExtension(String balJarName) {
         if (null != balJarName) {
             int index = FilenameUtils.indexOfExtension(balJarName);

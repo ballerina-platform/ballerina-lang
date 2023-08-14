@@ -18,23 +18,23 @@
 
 package io.ballerina.runtime.profiler.util;
 
-import static io.ballerina.runtime.profiler.util.Constants.ERROR;
+import static io.ballerina.runtime.profiler.util.Constants.ERROR_STREAM;
 
 /**
  * This class is used as a profiler exception class.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class ProfilerException extends RuntimeException {
     public ProfilerException(String message) {
-        ERROR.printf(String.format("%s%n", message));
+        ERROR_STREAM.printf(String.format("%s%n", message));
     }
 
     public ProfilerException(Throwable cause) {
-        ERROR.printf(String.format("%s%n", cause));
+        ERROR_STREAM.printf(String.format("%s%n", cause));
     }
 
     public ProfilerException(String message, Throwable cause) {
-        ERROR.printf(String.format("%s%s%n", message, cause));
+        ERROR_STREAM.printf(String.format("%s%s%n", message, cause));
     }
 }

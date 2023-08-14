@@ -19,9 +19,9 @@
 package io.ballerina.runtime.profiler.ui;
 
 /**
- * This class is contains the front end of the ballerina profiler.
+ * This class contains the front end of the Ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class FrontEnd {
 

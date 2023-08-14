@@ -22,7 +22,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
 /**
- * This class is used as a class writer for the ballerina profiler.
+ * This class is used as a class writer for the Ballerina profiler.
  *
  * @since 2201.8.0
  */
