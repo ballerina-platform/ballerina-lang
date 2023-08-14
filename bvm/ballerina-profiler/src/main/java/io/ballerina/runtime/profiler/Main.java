@@ -87,8 +87,8 @@ public class Main {
         OUT.printf("%s: Profiling...%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
         OUT.printf("%n%s================================================================================%s",
                 Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT.printf("%n%sNote : Ballerina Profiler is an experimental feature.%s%n", Constants.ANSI_GRAY,
-                Constants.ANSI_RESET);
+        OUT.printf("%n%sNote: This is an experimental feature, which supports only a limited set of " +
+                        "functionality.%s%n", Constants.ANSI_GRAY, Constants.ANSI_RESET);
     }
 
     private static void handleProfilerArguments(String[] args) {

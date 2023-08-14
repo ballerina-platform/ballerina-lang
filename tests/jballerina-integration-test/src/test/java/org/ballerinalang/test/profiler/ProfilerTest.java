@@ -52,7 +52,7 @@ public class ProfilerTest extends BaseTest {
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
         LogLeecher[] leechers = getProfilerLogLeechers(26, 602);
-        bMainInstance.runMain("run", new String[]{"--profile", packageName}, envProperties,
+        bMainInstance.runMain("profile", new String[]{packageName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
@@ -79,7 +79,7 @@ public class ProfilerTest extends BaseTest {
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
         LogLeecher[] leechers = getProfilerLogLeechers(25, 781);
-        bMainInstance.runMain("run", new String[]{"--profile", fileName}, envProperties,
+        bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);

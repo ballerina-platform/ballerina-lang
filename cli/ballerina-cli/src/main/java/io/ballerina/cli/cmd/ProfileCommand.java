@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -26,6 +26,7 @@ import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
+import io.ballerina.cli.task.RunProfilerTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -37,32 +38,27 @@ import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * This class represents the "run" command and it holds arguments and flags specified by the user.
+ * This class represents the "profile" command, and it holds arguments and flags specified by the user.
  *
- * @since 2.0.0
+ * @since 2.8.0
  */
-@CommandLine.Command(name = RUN_COMMAND, description = "Compile and run the current package")
-public class RunCommand implements BLauncherCmd {
+@CommandLine.Command(name = PROFILE_COMMAND, description = "Compile and profile the current package")
+public class ProfileCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
     private boolean exitWhenFinish;
-
-    private static final PathMatcher JAR_EXTENSION_MATCHER =
-            FileSystems.getDefault().getPathMatcher("glob:**.jar");
 
     @CommandLine.Parameters(description = "Program arguments")
     private final List<String> argList = new ArrayList<>();
@@ -76,24 +72,6 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
-
-
-    @CommandLine.Option(names = "--dump-bir", hidden = true)
-    private boolean dumpBIR;
-
-    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
-            "when run is used with a source file or a module.")
-    private Boolean observabilityIncluded;
-
-    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
-    private Boolean sticky;
-
-    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
-    private boolean dumpGraph;
-
-    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
-            "dependency resolution process.", hidden = true)
-    private boolean dumpRawGraphs;
 
     private String output;
 
@@ -115,13 +93,13 @@ public class RunCommand implements BLauncherCmd {
                     "    bal run [--offline]\n" +
                     "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
-    public RunCommand() {
+    public ProfileCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.err;
         this.errStream = System.err;
     }
 
-    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
+    ProfileCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
@@ -129,7 +107,7 @@ public class RunCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
+    ProfileCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = projectPath;
         this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
@@ -140,7 +118,7 @@ public class RunCommand implements BLauncherCmd {
 
     public void execute() {
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(RUN_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PROFILE_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }
@@ -155,18 +133,6 @@ public class RunCommand implements BLauncherCmd {
         if (!argList.isEmpty()) {
             if (!argList.get(0).equals("--")) { // project path provided
                 this.projectPath = Paths.get(argList.get(0));
-                if (RunCommand.JAR_EXTENSION_MATCHER.matches(this.projectPath)) {
-                    CommandUtil.printError(this.errStream, "unsupported option(s) provided for jar execution",
-                            runCmd, true);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                if (argList.size() > 1 && !argList.get(1).equals("--")) {
-                    CommandUtil.printError(this.errStream,
-                            "unmatched command argument found: " + argList.get(1), runCmd, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
                 if (argList.size() > 2 && argList.get(1).equals("--")) { // args to main provided
                     args = argList.subList(2, argList.size()).toArray(new String[0]);
                 }
@@ -175,10 +141,6 @@ public class RunCommand implements BLauncherCmd {
                     args = argList.subList(1, argList.size()).toArray(new String[0]);
                 }
             }
-        }
-
-        if (sticky == null) {
-            sticky = false;
         }
 
         // load project
@@ -214,25 +176,28 @@ public class RunCommand implements BLauncherCmd {
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
+        boolean enableProfiler = true;
+        project.buildOptions().dumpBuildTime();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
                         buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output), false)
-                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new RunExecutableTask(args, outStream, errStream), false).build();
+                .addTask(new CreateExecutableTask(outStream, this.output), !enableProfiler)
+                .addTask(new DumpBuildTimeTask(outStream), false)
+                .addTask(new RunProfilerTask(errStream, args), !enableProfiler)
+                .addTask(new RunExecutableTask(args, outStream, errStream), enableProfiler).build();
         taskExecutor.executeTasks(project);
     }
 
     @Override
     public String getName() {
-        return RUN_COMMAND;
+        return PROFILE_COMMAND;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append(BLauncherCmd.getCommandUsageInfo(RUN_COMMAND));
+        out.append(BLauncherCmd.getCommandUsageInfo(PROFILE_COMMAND));
     }
 
     @Override
@@ -254,10 +219,6 @@ public class RunCommand implements BLauncherCmd {
                 .setOffline(offline)
                 .setSkipTests(true)
                 .setTestReport(false)
-                .setObservabilityIncluded(observabilityIncluded)
-                .setSticky(sticky)
-                .setDumpGraph(dumpGraph)
-                .setDumpRawGraphs(dumpRawGraphs)
                 .setConfigSchemaGen(configSchemaGen)
                 .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 

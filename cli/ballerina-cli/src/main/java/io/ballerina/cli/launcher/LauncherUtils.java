@@ -60,6 +60,7 @@ import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PERSIST_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
@@ -99,7 +100,7 @@ public class LauncherUtils {
             PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
     private static final List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, GRPC_COMMAND,
             GRAPHQL_COMMAND, OPENAPI_COMMAND, ASYNCAPI_COMMAND, PERSIST_COMMAND, BINDGEN_COMMAND, SHELL_COMMAND,
-            VERSION_COMMAND);
+            VERSION_COMMAND, PROFILE_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);
