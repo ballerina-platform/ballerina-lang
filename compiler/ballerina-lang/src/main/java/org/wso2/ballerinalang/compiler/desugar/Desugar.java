@@ -791,7 +791,7 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
-        // Add getInvocation for user specified module init function (`init()`) if present and return.
+        // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
 
         //Sort type definitions with precedence
@@ -2907,7 +2907,7 @@ public class Desugar extends BLangNodeVisitor {
             cause.varRef = parentErrorVarRef.cause;
         }
 
-        // When no detail nor rest detail are to be destructured, we don't need to generate the detail getInvocation.
+        // When no detail nor rest detail are to be destructured, we don't need to generate the detail invocation.
         if (parentErrorVarRef.detail.isEmpty() && isIgnoredErrorRefRestVar(parentErrorVarRef)) {
             return;
         }
@@ -5842,38 +5842,83 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
     }
 
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            return env.enclEnv;
+        }
+
+        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
+            return env.enclEnv;
+        }
+
+        if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
+            return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
+        }
+        return env;
+    }
+
+    private void updateClosureVariable(BVarSymbol varSymbol, BLangInvokableNode encInvokable, Location pos) {
+        Set<Flag> flagSet = encInvokable.flagSet;
+        boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
+                !flagSet.contains(Flag.ATTACHED);
+        if (!varSymbol.closure && isClosure) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, varSymbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol) {
+                varSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol, pos));
+            }
+        }
+    }
+
     private List<String> getNamesOfUserSpecifiedRecordFields(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         List<String> fieldNames = new ArrayList<>();
+
         for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
             String fieldName = null;
             if (field.isKeyValueField()) {
-                BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
-                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
-                    fieldName = ((BLangLiteral) key).value.toString();
+                    fieldNames.add(getLiteralKeyName(key));
                 } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    fieldName = ((BLangSimpleVarRef) key).variableName.value;
+                    fieldNames.add(getVariableKeyName(key));
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
-                fieldName = varRefField.variableName.value;
+                fieldNames.add(getVariableFieldName(field));
             } else {
-                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
-                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
-                BType type = Types.getReferredType(spreadOpField.expr.getBType());
-                if (type.tag != TypeTags.RECORD) {
-                    continue;
-                }
-                for (BField bField : ((BRecordType) type).fields.values()) {
-                    fieldNames.add(Utils.unescapeBallerina(bField.name.value));
-                }
-            }
-            if (fieldName != null) {
-                fieldNames.add(Utils.unescapeBallerina(fieldName));
+                addRequiredFieldsFromSpreadOperator(field, fieldNames);
             }
         }
+
         return fieldNames;
+    }
+
+    private String getLiteralKeyName(BLangExpression key) {
+        return ((BLangLiteral) key).value.toString();
+    }
+
+    private String getVariableKeyName(BLangExpression key) {
+        return ((BLangSimpleVarRef) key).variableName.value;
+    }
+
+    private String getVariableFieldName(RecordLiteralNode.RecordField field) {
+        return ((BLangSimpleVarRef) field).variableName.value;
+    }
+
+    private void addRequiredFieldsFromSpreadOperator(RecordLiteralNode.RecordField field, List<String> fieldNames) {
+        BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+        BType type = spreadOpField.expr.getBType();
+
+        if (type.tag == TypeTags.RECORD) {
+            for (BField bField : ((BRecordType) type).fields.values()) {
+                if (!Symbols.isFlagOn(bField.symbol.flags, Flags.REQUIRED)) {
+                    continue;
+                }
+                fieldNames.add(bField.name.value);
+            }
+        }
     }
 
     private void generateFieldsForUserUnspecifiedRecordFields(List<RecordLiteralNode.RecordField> fields,
@@ -5882,21 +5927,31 @@ public class Desugar extends BLangNodeVisitor {
                                                               Location pos, boolean isReadonly) {
         for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
             String fieldName = entry.getKey();
-            if (fieldNames.contains(fieldName)) {
-                continue;
+            if (!fieldNames.contains(fieldName)) {
+                fieldNames.add(fieldName);
+                BInvokableSymbol invokableSymbol = entry.getValue();
+                BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
+
+                if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
+                    expression = visitCloneReadonly(expression, invokableSymbol.retType);
+                }
+                if (env.enclInvokable != null) {
+                    updateClosureVariable((BVarSymbol) ((BLangInvocation) expression).symbol, env.enclInvokable, pos);
+                }
+                BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName,
+                                                                                                           expression);
+                fields.add(member);
             }
-            fieldNames.add(fieldName);
-            BInvokableSymbol invokableSymbol = entry.getValue();
-            BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
-            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
-                expression = visitCloneReadonly(expression, invokableSymbol.retType);
-            }
-            BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
+        }
+    }
+
+    private BLangRecordLiteral.BLangRecordKeyValueField createRecordKeyValueField(Location pos,
+                                                                                  String fieldName,
+                                                                                  BLangExpression expression) {    BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
             member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
                     Utils.unescapeJava(fieldName)));
-            member.valueExpr = addConversionExprIfRequired(expression, expression.getBType());
-            fields.add(member);
-        }
+        member.valueExpr = addConversionExprIfRequired(expression, expression.getBType());
+        return member;
     }
 
     public void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
@@ -6597,7 +6652,7 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.startTransactionCoordinatorOnce(env, resourceAccessInvocation.pos);
         }
 
-        // Create virtual getInvocation to reorder resource path parameters
+        // Create virtual invocation to reorder resource path parameters
         BLangInvocation pathParamInvocation = createInvocationForPathParams(resourceAccessInvocation);
         reorderArguments(pathParamInvocation);
 
@@ -6673,7 +6728,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createInvocationForPathParams(
             BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
-        // This method will create an getInvocation in which all the resource path types will be a parameter of the
+        // This method will create an invocation in which all the resource path types will be a parameter of the
         // invokable symbol and all the path segments will be the arguments.
         // ex: 1
         // Target resource function
@@ -6683,7 +6738,7 @@ public class Desugar extends BLangNodeVisitor {
         // a->/path/[1].get("hello")
         //
         // Generated invokable symbol params: ("path" _, int _)
-        // Generated getInvocation requiredArgs: ("path", 1)
+        // Generated invocation requiredArgs: ("path", 1)
         //
         // ex:2
         // Target resource function
@@ -6695,7 +6750,7 @@ public class Desugar extends BLangNodeVisitor {
         //
         // Generated invokable symbol params: ("books" _)
         // Generated invokable symbol restParam: "books"[]
-        // Generated getInvocation restArgs: BLangRestArgsExpression booksArray
+        // Generated invocation restArgs: BLangRestArgsExpression booksArray
         BLangInvocation bLangInvocation = new BLangInvocation();
 
         BInvokableSymbol invokableSymbol = new BInvokableSymbol(
@@ -6854,7 +6909,7 @@ public class Desugar extends BLangNodeVisitor {
             return genIExpr;
         }
 
-        // why we dont consider whole action getInvocation
+        // why we dont consider whole action invocation
         BType originalInvType = genIExpr.getBType();
         if (!genIExpr.async) {
             genIExpr.setBType(returnTypeOfInvokable);
@@ -9062,9 +9117,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * Reorder the getInvocation arguments to match the original function signature.
+     * Reorder the invocation arguments to match the original function signature.
      *
-     * @param iExpr Function getInvocation expressions to reorder the arguments
+     * @param iExpr Function invocation expressions to reorder the arguments
      */
     private void reorderArguments(BLangInvocation iExpr) {
         BSymbol symbol = iExpr.symbol;

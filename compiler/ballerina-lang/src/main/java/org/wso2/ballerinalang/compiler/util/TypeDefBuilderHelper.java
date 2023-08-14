@@ -337,6 +337,7 @@ public class TypeDefBuilderHelper {
                         fieldType, structureSymbol,
                         origField.symbol.pos, SOURCE);
             }
+            fieldSymbol.isDefaultable = origField.symbol.isDefaultable;
             String nameString = origFieldName.value;
             fields.put(nameString, new BField(origFieldName, null, fieldSymbol));
             structureSymbol.scope.define(origFieldName, fieldSymbol);

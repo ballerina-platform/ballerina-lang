@@ -107,8 +107,20 @@ type Bar2 record {
     int x = xFn();
     int y = yFn();
 };
+
+isolated int  gVal = 100;
+
 isolated function fn() returns int {
+    lock {
+        gVal = 15;
+    }
     return 10;
+}
+
+isolated function getValue() returns int {
+    lock {
+        return gVal;
+    }
 }
 
 isolated function xFn() returns int {
@@ -119,9 +131,19 @@ isolated function yFn() returns int {
     return 102;
 }
 
+record {int a; int b = xFn();} gVal2 = {a: 10};
+
+record {int a; int b = xFn();} gVal3 = {a: 10, b: 25};
+
+type Bal record {
+    string[] x = ["foo", "bar"];
+};
+
+Bal gVal4 = {readonly x: ["bal"]};
+
 function testDefaultVal() {
     Person p = {};
-    Mat m = {};
+    Mat m = {x: 90};
     Mat m2 = {x: 1};
     record {
         record {
@@ -131,9 +153,34 @@ function testDefaultVal() {
     assert("default first name", p.name);
     assert("", p.lname);
     assert(999, p.age);
-    assert(10, m.x);
+    assert(90, m.x);
+    assert(100, getValue());
     assert(1, m2.x);
     assert(10, a.b.c);
+
+    Mat m3 = {};
+    assert(10, m3.x);
+    assert(15, getValue());
+
+    record {|int a = 10;|} l;
+    function() returns record {|int a = 10;|} f = function() returns record {|int a = 10;|} {
+        l = {};
+        assert(10, l.a);
+        l = {a: 25};
+        assert(25, l.a);
+        return l;
+    };
+
+    l = f();
+    assert(25, l.a);
+
+    assert(10, gVal2.a);
+    assert(101, gVal2.b);
+
+    assert(10, gVal3.a);
+    assert(25, gVal3.b);
+
+    assert("bal", gVal4.x[0]);
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {

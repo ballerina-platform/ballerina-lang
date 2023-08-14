@@ -180,7 +180,6 @@ import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -196,7 +195,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * ClosureGenerator for create closures for default values.
+ * ClosureGenerator for creating closures for default values.
  *
  * @since 2201.3.0
  */
@@ -205,7 +204,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private Queue<BLangSimpleVariableDef> queue;
     private Queue<BLangSimpleVariableDef> annotationClosureReferences;
     private SymbolTable symTable;
-    private BLangType typeNodeOfRecordField;
     private SymbolEnv env;
     private BLangNode result;
     private SymbolResolver symResolver;
@@ -557,59 +555,11 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return symbolEnv.enclPkg.symbol;
     }
 
-    BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
-        if (lhsType.tag == TypeTags.NONE) {
-            return expr;
-        }
-        BType rhsType = expr.getBType();
-        if (lhsType.tag == TypeTags.TYPEREFDESC && rhsType.tag != TypeTags.TYPEREFDESC) {
-            return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
-        }
-
-        if (types.isSameType(rhsType, lhsType)) {
-            return expr;
-        }
-
-        types.setImplicitCastExpr(expr, rhsType, lhsType);
-        if (expr.impConversionExpr != null) {
-            BLangExpression impConversionExpr = expr.impConversionExpr;
-            expr.impConversionExpr = null;
-            return impConversionExpr;
-        }
-
-        if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
-            return expr;
-        }
-
-        if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
-            return expr;
-        }
-
-        if (lhsType.tag == TypeTags.ARRAY && rhsType.tag == TypeTags.TUPLE) {
-            return expr;
-        }
-
-        // Create a type cast expression
-        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
-                TreeBuilder.createTypeConversionNode();
-        conversionExpr.expr = expr;
-        conversionExpr.targetType = lhsType;
-        conversionExpr.setBType(lhsType);
-        conversionExpr.pos = expr.pos;
-        conversionExpr.checkTypes = false;
-        conversionExpr.internal = true;
-        return conversionExpr;
-    }
-
     private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
         BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        if (varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) varNode.expr;
-            desugar.generateFieldsForUserUnspecifiedRecordFields(recordLiteral, recordLiteral.fields);
-        }
-        returnStmt.expr = addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
+        returnStmt.expr = desugar.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
@@ -1186,6 +1136,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        bLangLambdaFunction.capturedClosureEnv = env.createClone();
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         result = bLangLambdaFunction;
     }

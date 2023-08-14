@@ -482,11 +482,11 @@ public class BIRPackageSymbolEnter {
                             new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                     symTable.builtinPos);
                     BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                    if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
-                            || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName) ||
+                            funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                         if (structureTypeSymbol.getKind() == SymbolKind.OBJECT) {
-                        ((BObjectTypeSymbol) structureTypeSymbol).initializerFunc = attachedFunc;
-                    }
+                            ((BObjectTypeSymbol) structureTypeSymbol).initializerFunc = attachedFunc;
+                        }
                     } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
                         ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
                     } else {
@@ -1311,9 +1311,7 @@ public class BIRPackageSymbolEnter {
 
                     int defaultValues = inputStream.readInt();
                     for (int i = 0; i < defaultValues; i++) {
-                        String fieldName = getStringCPEntryValue(inputStream);
-                        BInvokableSymbol invokableSymbol = getSymbolOfClosure();
-                        recordSymbol.defaultValues.put(fieldName, invokableSymbol);
+                        recordSymbol.defaultValues.put(getStringCPEntryValue(inputStream), getSymbolOfClosure());
                     }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix

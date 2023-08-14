@@ -1571,6 +1571,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
+        this.env.isInArrayOrStructure++;
+
         BType type = astMapLiteralExpr.getBType();
         this.env.isInArrayOrStructure++;
         visitTypedesc(astMapLiteralExpr.pos, type, Collections.emptyList(), getAnnotations(type.tsymbol, this.env));
