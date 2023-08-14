@@ -439,14 +439,6 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BObjectType bObjectType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
-            buff.writeByte(1);
-        } else {
-            buff.writeByte(0);
-        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
@@ -460,9 +452,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeDefinitionSymbol typDefSymbol = ((BObjectTypeSymbol) tSymbol).typeDefinitionSymbol;
         buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.value));
 
-        //TODO below two line are a temp solution, introduce a generic concept
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
+        buff.writeLong(tSymbol.flags);
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
