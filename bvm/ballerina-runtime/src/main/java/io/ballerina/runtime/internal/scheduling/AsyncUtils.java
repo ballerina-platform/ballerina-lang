@@ -96,7 +96,7 @@ public class AsyncUtils {
                 handleRuntimeErrors(parent, error);
             }
         };
-        BFunctionType funcType = (BFunctionType) TypeUtils.getConclusiveType(func.getType());
+        BFunctionType funcType = (BFunctionType) TypeUtils.getRepresentedType(func.getType());
         blockStrand(parent);
         FutureValue future = scheduler.createFuture(parent, null, null, funcType.retType, strandName, metadata);
         AsyncUtils.getArgsWithDefaultValues(scheduler, func, new Callback() {
@@ -141,7 +141,7 @@ public class AsyncUtils {
         Strand parent = Scheduler.getStrand();
         blockStrand(parent);
         AtomicInteger callCount = new AtomicInteger(0);
-        BFunctionType funcType = (BFunctionType) TypeUtils.getConclusiveType(func.getType());
+        BFunctionType funcType = (BFunctionType) TypeUtils.getRepresentedType(func.getType());
         scheduleNextFunction(func, funcType, parent, strandName, metadata, noOfIterations, callCount, argsSupplier,
                 futureResultConsumer, returnValueSupplier, scheduler);
 
@@ -149,7 +149,7 @@ public class AsyncUtils {
 
     public static void getArgsWithDefaultValues(Scheduler scheduler, BObject object,
                                                 String methodName, Callback callback, Object... args) {
-        ObjectType objectType = (ObjectType) TypeUtils.getConclusiveType(object.getType());
+        ObjectType objectType = (ObjectType) TypeUtils.getRepresentedType(object.getType());
         Module module = objectType.getPackage();
         if (args.length == 0 || module == null) {
             callback.notifySuccess(args);
@@ -166,7 +166,7 @@ public class AsyncUtils {
 
     private static void getArgsWithDefaultValues(Scheduler scheduler, BFunctionPointer<?, ?> func, Callback callback,
                                                  Object... args) {
-        FunctionType functionType = (FunctionType) TypeUtils.getConclusiveType(func.getType());
+        FunctionType functionType = (FunctionType) TypeUtils.getRepresentedType(func.getType());
         Module module = functionType.getPackage();
         if (args.length == 0 || module == null) {
             callback.notifySuccess(args);

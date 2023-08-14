@@ -101,7 +101,7 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type elementType = TypeUtils.getConclusiveType(bArray.getElementType());
+        Type elementType = TypeUtils.getRepresentedType(bArray.getElementType());
         if (elementType == PredefinedTypes.TYPE_INT) {
             return convertIntArrayToJSON(bArray);
         } else if (elementType == PredefinedTypes.TYPE_BOOLEAN) {
@@ -228,7 +228,7 @@ public class JsonInternalUtils {
         if (!(json instanceof BRefValue)) {
             return false;
         }
-        return TypeUtils.getConclusiveType(((BRefValue) json).getType()).getTag() == TypeTags.ARRAY_TAG;
+        return TypeUtils.getRepresentedType(((BRefValue) json).getType()).getTag() == TypeTags.ARRAY_TAG;
     }
 
     /**
@@ -242,7 +242,7 @@ public class JsonInternalUtils {
             return false;
         }
 
-        Type type = TypeUtils.getConclusiveType(((BRefValue) json).getType());
+        Type type = TypeUtils.getRepresentedType(((BRefValue) json).getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
@@ -262,7 +262,7 @@ public class JsonInternalUtils {
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
-        Type mapConstraint = TypeUtils.getConclusiveType(mapType.getConstrainedType());
+        Type mapConstraint = TypeUtils.getRepresentedType(mapType.getConstrainedType());
         if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
                 mapConstraint.getTag() == TypeTags.JSON_TAG) {
             ((MapValueImpl<BString, Object>) json).forEach(map::put);
@@ -313,7 +313,7 @@ public class JsonInternalUtils {
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
-        targetType = TypeUtils.getConclusiveType(targetType);
+        targetType = TypeUtils.getRepresentedType(targetType);
         Type matchingType;
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
@@ -391,7 +391,7 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type type = TypeUtils.getConclusiveType(TypeChecker.getType(source));
+        Type type = TypeUtils.getRepresentedType(TypeChecker.getType(source));
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
@@ -431,8 +431,8 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type j1Type = TypeUtils.getConclusiveType(TypeChecker.getType(j1));
-        Type j2Type = TypeUtils.getConclusiveType(TypeChecker.getType(j2));
+        Type j1Type = TypeUtils.getRepresentedType(TypeChecker.getType(j1));
+        Type j2Type = TypeUtils.getRepresentedType(TypeChecker.getType(j2));
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR,
@@ -484,8 +484,8 @@ public class JsonInternalUtils {
         }
 
         if (checkMergeability) {
-            Type j1Type = TypeUtils.getConclusiveType(TypeChecker.getType(j1));
-            Type j2Type = TypeUtils.getConclusiveType(TypeChecker.getType(j2));
+            Type j1Type = TypeUtils.getRepresentedType(TypeChecker.getType(j1));
+            Type j2Type = TypeUtils.getRepresentedType(TypeChecker.getType(j2));
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return ErrorCreator.createError(ErrorReasons.MERGE_JSON_ERROR,
@@ -512,7 +512,7 @@ public class JsonInternalUtils {
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
-        Type targetElementType = TypeUtils.getConclusiveType(targetArrayType.getElementType());
+        Type targetElementType = TypeUtils.getRepresentedType(targetArrayType.getElementType());
         ArrayValue jsonArray = (ArrayValue) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -690,7 +690,7 @@ public class JsonInternalUtils {
                 json.append(null);
             }
 
-            Type type = TypeUtils.getConclusiveType(TypeChecker.getType(value));
+            Type type = TypeUtils.getRepresentedType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.JSON_TAG:
                     json.append(value);
@@ -777,7 +777,7 @@ public class JsonInternalUtils {
                 return;
             }
 
-            Type type = TypeUtils.getConclusiveType(TypeChecker.getType(value));
+            Type type = TypeUtils.getRepresentedType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:

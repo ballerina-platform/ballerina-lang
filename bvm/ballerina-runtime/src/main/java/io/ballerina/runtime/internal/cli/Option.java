@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static io.ballerina.runtime.api.utils.TypeUtils.getConclusiveType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getRepresentedType;
 
 /**
  * Represents the option passed via the cli.
@@ -55,7 +55,7 @@ public class Option {
     private static final Pattern HEX_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
     public Option(Type recordType, int location) {
-        this((RecordType) getConclusiveType(recordType),
+        this((RecordType) getRepresentedType(recordType),
                 ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
     }
 
@@ -131,7 +131,7 @@ public class Option {
     }
 
     private void handleOptionArgument(String val, String optionStr, BString optionName) {
-        Type fieldType = getConclusiveType(recordType.getFields().get(optionName.getValue()).getFieldType());
+        Type fieldType = getRepresentedType(recordType.getFields().get(optionName.getValue()).getFieldType());
         validateOptionArgument(optionStr, val);
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
@@ -156,14 +156,14 @@ public class Option {
     }
 
     private boolean handleBooleanTrue(BString paramName) {
-        Type fieldType = getConclusiveType(recordType.getFields().get(paramName.getValue()).getFieldType());
+        Type fieldType = getRepresentedType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (isABoolean(fieldType)) {
             validateRepeatingOptions(paramName);
             recordVal.put(paramName, true);
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(paramName, (ArrayType) fieldType);
-            Type elementType = getConclusiveType(bArray.getElementType());
+            Type elementType = getRepresentedType(bArray.getElementType());
             if (isABoolean(elementType)) {
                 bArray.append(true);
                 return true;
@@ -175,7 +175,7 @@ public class Option {
     private void validateRecordKeys() {
         for (BString key : recordVal.getKeys()) {
             if (!recordKeysFound.contains(key) && isRequired(recordType, key.getValue())) {
-                Type fieldType = getConclusiveType(recordType.getFields().get(key.getValue()).getFieldType());
+                Type fieldType = getRepresentedType(recordType.getFields().get(key.getValue()).getFieldType());
                 if (CliUtil.isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
                         handleBooleanFalse(key, fieldType)) {
                     continue;
@@ -195,9 +195,9 @@ public class Option {
     }
 
     private boolean isSupportedArrayType(BString key, Type fieldType) {
-        if (getConclusiveType(fieldType).getTag() == TypeTags.ARRAY_TAG) {
+        if (getRepresentedType(fieldType).getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
-            Type elementType = getConclusiveType(bArray.getElementType());
+            Type elementType = getRepresentedType(bArray.getElementType());
             if (CliUtil.isSupportedType(elementType.getTag())) {
                 if (recordVal.get(key) == null) {
                     recordVal.put(key, bArray);
@@ -229,12 +229,12 @@ public class Option {
     }
 
     private boolean isABoolean(Type fieldType) {
-        return getConclusiveType(fieldType).getTag() == TypeTags.BOOLEAN_TAG;
+        return getRepresentedType(fieldType).getTag() == TypeTags.BOOLEAN_TAG;
     }
 
     private void processNamedArg(String arg, BString paramName) {
         String val = getValueString(arg);
-        Type fieldType = getConclusiveType(recordType.getFields().get(paramName.getValue()).getFieldType());
+        Type fieldType = getRepresentedType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;
@@ -245,7 +245,7 @@ public class Option {
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
-        Type arrayType = getConclusiveType(bArray.getElementType());
+        Type arrayType = getRepresentedType(bArray.getElementType());
         bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 

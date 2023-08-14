@@ -33,7 +33,7 @@ public class GetReturnType {
 
     public static BTypedesc getReturnType(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
-        FunctionType functionType = (FunctionType) TypeUtils.getConclusiveType(bFunctionPointer.getType());
+        FunctionType functionType = (FunctionType) TypeUtils.getRepresentedType(bFunctionPointer.getType());
         return ValueCreator.createTypedescValue(functionType.getReturnType());
     }
 }

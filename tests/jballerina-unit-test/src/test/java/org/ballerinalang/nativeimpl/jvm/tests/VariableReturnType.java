@@ -152,7 +152,7 @@ public class VariableReturnType {
 
     public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
         RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
-        assert streamConstraint == TypeUtils.getConclusiveType(strm.getConstraintType());
+        assert streamConstraint == TypeUtils.getRepresentedType(strm.getConstraintType());
         return strm;
     }
 
@@ -237,7 +237,7 @@ public class VariableReturnType {
     }
 
     public static BXml getXml(BTypedesc td, BXml val) {
-        Type describingType = TypeUtils.getConclusiveType(td.getDescribingType());
+        Type describingType = TypeUtils.getRepresentedType(td.getDescribingType());
         if (describingType.getTag() == XML_ELEMENT_TAG) {
             return val;
         }
@@ -482,7 +482,7 @@ public class VariableReturnType {
     }
 
     public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
-        int tag = ((BStreamType) TypeUtils.getConclusiveType(td.getDescribingType())).getConstrainedType().getTag();
+        int tag = ((BStreamType) TypeUtils.getRepresentedType(td.getDescribingType())).getConstrainedType().getTag();
 
         if (tag == INT_TAG) {
             return strm;

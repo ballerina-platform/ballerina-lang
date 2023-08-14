@@ -49,7 +49,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 public class MapUtils {
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        updateMapValue(TypeUtils.getConclusiveType(mapValue.getType()), mapValue, fieldName, value);
+        updateMapValue(TypeUtils.getRepresentedType(mapValue.getType()), mapValue, fieldName, value);
     }
 
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
@@ -113,7 +113,7 @@ public class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        type = TypeUtils.getConclusiveType(type);
+        type = TypeUtils.getRepresentedType(type);
         int tag = type.getTag();
         if (tag == TypeTags.UNION_TAG) {
             List<Type> memTypes = ((BUnionType) type).getMemberTypes();
@@ -132,7 +132,7 @@ public class MapUtils {
     }
 
     public static void checkIsMapOnlyOperation(Type mapType, String op) {
-        switch (TypeUtils.getConclusiveType(mapType).getTag()) {
+        switch (TypeUtils.getRepresentedType(mapType).getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:

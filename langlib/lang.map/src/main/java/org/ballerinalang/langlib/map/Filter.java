@@ -51,7 +51,7 @@ public class Filter {
                                                                       MAP_VERSION, "filter");
 
     public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
-        Type mapType = TypeUtils.getConclusiveType(m.getType());
+        Type mapType = TypeUtils.getRepresentedType(m.getType());
         Type constraint;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:

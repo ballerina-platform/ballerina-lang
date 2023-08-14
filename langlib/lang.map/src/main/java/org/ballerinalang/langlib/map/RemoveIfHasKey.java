@@ -40,7 +40,7 @@ public class RemoveIfHasKey {
     public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
-        checkIsMapOnlyOperation(TypeUtils.getConclusiveType(m.getType()), op);
+        checkIsMapOnlyOperation(TypeUtils.getRepresentedType(m.getType()), op);
         validateRequiredFieldForRecord(m, k.getValue());
         try {
             return m.remove(k);

@@ -379,7 +379,7 @@ public class ObserveUtils {
         }   // Else normal function
 
         if (typeDef != null) {
-            ObjectType type = (ObjectType) TypeUtils.getConclusiveType(typeDef.getType());
+            ObjectType type = (ObjectType) TypeUtils.getRepresentedType(typeDef.getType());
             Module typeModule = type.getPackage();
             String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
 

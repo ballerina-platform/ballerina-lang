@@ -316,7 +316,7 @@ public class Utils {
 
     private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
-            if (TypeUtils.getConclusiveType(TypeChecker.getType(value)).getTag() == tag) {
+            if (TypeUtils.getRepresentedType(TypeChecker.getType(value)).getTag() == tag) {
                 if (tag == TypeTags.DECIMAL_TAG) {
                     return doubleValue == ((DecimalValue) value).floatValue();
                 } else {
@@ -355,7 +355,7 @@ public class Utils {
             int typeTag = effectiveType.getTag();
             if (typeTag == TypeTags.FINITE_TYPE_TAG) {
                 for (Object obj : ((FiniteType) effectiveType).getValueSpace()) {
-                    if (TypeUtils.getConclusiveType(TypeChecker.getType(obj)).getTag() == tag) {
+                    if (TypeUtils.getRepresentedType(TypeChecker.getType(obj)).getTag() == tag) {
                         return true;
                     }
                 }

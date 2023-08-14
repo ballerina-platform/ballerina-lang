@@ -122,7 +122,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     public TableValueImpl(Type type, ArrayValue data, ArrayValue fieldNames) {
-        this((TableType) TypeUtils.getConclusiveType(type), data, fieldNames);
+        this((TableType) TypeUtils.getRepresentedType(type), data, fieldNames);
         this.type = type;
     }
 
@@ -708,7 +708,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             public DefaultKeyWrapper() {
                 if (fieldNames.length == 1) {
                     keyType = getTableConstraintField(tableType.getConstrainedType(), fieldNames[0]);
-                    if (keyType != null && TypeUtils.getConclusiveType(keyType).getTag() == TypeTags.INT_TAG) {
+                    if (keyType != null && TypeUtils.getRepresentedType(keyType).getTag() == TypeTags.INT_TAG) {
                         nextKeySupported = true;
                     }
                 }
@@ -724,7 +724,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             public MultiKeyWrapper() {
                 super();
                 List<Type> keyTypes = new ArrayList<>();
-                Type constraintType = TypeUtils.getConclusiveType(tableType.getConstrainedType());
+                Type constraintType = TypeUtils.getRepresentedType(tableType.getConstrainedType());
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BRecordType recordType = (BRecordType) constraintType;
                     Arrays.stream(fieldNames)

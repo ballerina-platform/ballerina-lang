@@ -108,7 +108,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) TypeUtils.getConclusiveType(type)).setTypeIdSet(typeIdSet);
+        ((BErrorType) TypeUtils.getRepresentedType(type)).setTypeIdSet(typeIdSet);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ErrorValue extends BError implements RefValue {
                 sj.add(key + "=null");
             } else {
                 Type type = TypeChecker.getType(value);
-                switch (TypeUtils.getConclusiveType(type).getTag()) {
+                switch (TypeUtils.getRepresentedType(type).getTag()) {
                     case TypeTags.STRING_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:
@@ -189,7 +189,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
-        Type type = TypeUtils.getConclusiveType(this.type);
+        Type type = TypeUtils.getRepresentedType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }

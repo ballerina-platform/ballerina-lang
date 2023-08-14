@@ -61,7 +61,7 @@ public class Slice {
                     .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        Type arrType = TypeUtils.getConclusiveType(arr.getType());
+        Type arrType = TypeUtils.getRepresentedType(arr.getType());
         BArray slicedArr;
 
         switch (arrType.getTag()) {

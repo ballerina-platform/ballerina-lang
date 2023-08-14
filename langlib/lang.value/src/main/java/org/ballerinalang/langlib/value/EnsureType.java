@@ -31,10 +31,10 @@ import io.ballerina.runtime.internal.TypeChecker;
  */
 public class EnsureType {
     public static Object ensureType(Object value, BTypedesc type) {
-        if (TypeUtils.getConclusiveType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
+        if (TypeUtils.getRepresentedType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }
-        return convert(TypeUtils.getConclusiveType(type.getDescribingType()), value);
+        return convert(TypeUtils.getRepresentedType(type.getDescribingType()), value);
     }
 
     public static Object convert(Type convertType, Object inputValue) {

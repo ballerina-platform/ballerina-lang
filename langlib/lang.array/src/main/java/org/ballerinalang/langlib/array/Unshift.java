@@ -31,7 +31,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Unshift {
 
     public static void unshift(BArray arr, Object... vals) {
-        checkIsArrayOnlyOperation(TypeUtils.getConclusiveType(arr.getType()), "unshift()");
+        checkIsArrayOnlyOperation(TypeUtils.getRepresentedType(arr.getType()), "unshift()");
         arr.unshift(vals);
     }
 }

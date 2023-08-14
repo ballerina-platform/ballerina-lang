@@ -49,7 +49,7 @@ public class Filter {
 
     public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
         BArray newArr;
-        Type arrType = TypeUtils.getConclusiveType(arr.getType());
+        Type arrType = TypeUtils.getRepresentedType(arr.getType());
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));

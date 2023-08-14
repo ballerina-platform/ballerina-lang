@@ -142,7 +142,7 @@ public class StackTrace {
 
         @Override
         public ObjectType getType() {
-            return (ObjectType) TypeUtils.getConclusiveType(type);
+            return (ObjectType) TypeUtils.getRepresentedType(type);
         }
 
         @Override

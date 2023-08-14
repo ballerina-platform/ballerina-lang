@@ -241,7 +241,7 @@ public class GenericMockObjectValue implements ObjectValue {
         int i = 0;
         while (i < args.length) {
             if (args[i] != null &&
-                    (TypeUtils.getConclusiveType(TypeUtils.getType(args[i])).getTag() != TypeTags.TYPEDESC_TAG)) {
+                    (TypeUtils.getRepresentedType(TypeUtils.getType(args[i])).getTag() != TypeTags.TYPEDESC_TAG)) {
                 newArgs.add(args[i]);
             }
             i += 1;

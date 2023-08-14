@@ -34,7 +34,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 public class GetCompletionType {
 
     public static BTypedesc getCompletionType(BTypedesc td) {
-        Type type = TypeUtils.getConclusiveType(td.getDescribingType());
+        Type type = TypeUtils.getRepresentedType(td.getDescribingType());
         if (type.getTag() == TypeTags.STREAM_TAG) {
             return ValueCreator.createTypedescValue(((StreamType) type).getCompletionType());
         }

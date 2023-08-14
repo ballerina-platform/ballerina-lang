@@ -67,7 +67,7 @@ public class TableUtils {
             }
 
             BRefValue refValue = (BRefValue) obj;
-            Type refType = TypeUtils.getConclusiveType(refValue.getType());
+            Type refType = TypeUtils.getRepresentedType(refValue.getType());
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue mapValue = (MapValue) refValue;
                 for (Object entry : mapValue.entrySet()) {

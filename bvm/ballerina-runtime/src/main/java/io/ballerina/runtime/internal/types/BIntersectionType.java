@@ -202,11 +202,6 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.immutableType = immutableType;
     }
 
-    @Override
-    public Type getReferredType() {
-        return this.effectiveType;
-    }
-
     public Type getEffectiveType() {
         return this.effectiveType;
     }

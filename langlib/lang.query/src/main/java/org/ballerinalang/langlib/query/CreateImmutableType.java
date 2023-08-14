@@ -25,18 +25,18 @@ public class CreateImmutableType {
 
     public static BTable createImmutableTable(BTable tbl, BArray arr) {
         Type type =  tbl.getType();
-        TableType tableType = (TableType) TypeUtils.getConclusiveType(type);
+        TableType tableType = (TableType) TypeUtils.getRepresentedType(type);
         BTable immutableTable = new TableValueImpl(type,
-                new ArrayValueImpl(arr.getValues(), (ArrayType) TypeUtils.getConclusiveType(arr.getType())),
+                new ArrayValueImpl(arr.getValues(), (ArrayType) TypeUtils.getRepresentedType(arr.getType())),
                 new ArrayValueImpl(tableType.getFieldNames(), true));
         immutableTable.freezeDirect();
         return immutableTable;
     }
 
     public static BTable createTableWithKeySpecifier(BTable immutableTable, BTypedesc tableType) {
-        TableType type = (TableType) TypeUtils.getConclusiveType(tableType.getDescribingType());
+        TableType type = (TableType) TypeUtils.getRepresentedType(tableType.getDescribingType());
         BTable tbl = new TableValueImpl(type,
-                new ArrayValueImpl(((TableType) TypeUtils.getConclusiveType(immutableTable.getType())).getFieldNames(),
+                new ArrayValueImpl(((TableType) TypeUtils.getRepresentedType(immutableTable.getType())).getFieldNames(),
                         false));
         return tbl;
     }

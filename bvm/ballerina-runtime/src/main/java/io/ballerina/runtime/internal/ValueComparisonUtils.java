@@ -180,8 +180,8 @@ public class ValueComparisonUtils {
      * 0 left hand side value = right hand side value
      */
     public static int compareValues(Object lhsValue, Object rhsValue, String direction) {
-        int lhsTypeTag = TypeUtils.getConclusiveType(TypeChecker.getType(lhsValue)).getTag();
-        int rhsTypeTag = TypeUtils.getConclusiveType(TypeChecker.getType(rhsValue)).getTag();
+        int lhsTypeTag = TypeUtils.getRepresentedType(TypeChecker.getType(lhsValue)).getTag();
+        int rhsTypeTag = TypeUtils.getRepresentedType(TypeChecker.getType(rhsValue)).getTag();
         boolean inRelationalExpr = false;
         if (direction.isEmpty()) {
             inRelationalExpr = true;
