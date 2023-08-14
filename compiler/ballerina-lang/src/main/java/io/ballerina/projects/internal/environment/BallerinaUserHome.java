@@ -6,7 +6,6 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.model.Repository;
-import io.ballerina.projects.internal.repositories.CustomPackageRepository;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.MavenPackageRepository;
@@ -34,7 +33,7 @@ public final class BallerinaUserHome {
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
     private final LocalPackageRepository localPackageRepository;
-    private final Map<String, CustomPackageRepository> customRepositories;
+    private final Map<String, MavenPackageRepository> mavenCustomRepositories;
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
@@ -53,11 +52,11 @@ public final class BallerinaUserHome {
         this.remotePackageRepository = RemotePackageRepository
                 .from(environment, remotePackageRepositoryPath, readSettings());
         this.localPackageRepository = createLocalRepository(environment);
-        this.customRepositories = createCustomRepositories(environment);
+        this.mavenCustomRepositories = createMavenCustomRepositories(environment);
     }
 
-    private Map<String, CustomPackageRepository> createCustomRepositories(Environment environment) {
-        Map<String, CustomPackageRepository> customRepositories = new HashMap<>();
+    private Map<String, MavenPackageRepository> createMavenCustomRepositories(Environment environment) {
+        Map<String, MavenPackageRepository> customRepositories = new HashMap<>();
         Repository[] repositories = readSettings().getRepositories();
         for (Repository repository : repositories) {
             Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
@@ -95,12 +94,12 @@ public final class BallerinaUserHome {
         return this.remotePackageRepository;
     }
 
-    public Map<String, CustomPackageRepository> customRepositories() {
-        return this.customRepositories;
+    public Map<String, MavenPackageRepository> customRepositories() {
+        return this.mavenCustomRepositories;
     }
 
     public CustomPkgRepositoryContainer customPkgRepositoryContainer() {
-        return new CustomPkgRepositoryContainer(customRepositories);
+        return new CustomPkgRepositoryContainer(mavenCustomRepositories);
     }
 
     public LocalPackageRepository localPackageRepository() {

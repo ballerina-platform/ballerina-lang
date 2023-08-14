@@ -1,19 +1,17 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package io.ballerina.projects;
@@ -21,7 +19,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.internal.repositories.CustomPackageRepository;
+import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -42,16 +40,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Test file system repository.
+ * Test maven package repository.
  *
  * @since 2.0.0
  */
-public class CustomPackageRepositoryTests {
+public class MavenPackageRepositoryTests {
 
-    class MockCustomPackageRepository extends CustomPackageRepository {
 
-        public MockCustomPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
-            super(environment, cacheDirectory, distributionVersion);
+    class MockMavenPackageRepository extends MavenPackageRepository {
+
+        public MockMavenPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
+            super(environment, cacheDirectory, distributionVersion, null, null);
         }
 
 
@@ -90,11 +89,11 @@ public class CustomPackageRepositoryTests {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
     private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("custom-repo-resources")
             .resolve("local-custom-repo");
-    private CustomPackageRepository customPackageRepository;
+    private MavenPackageRepository customPackageRepository;
 
     @BeforeSuite
     public void setup() {
-        customPackageRepository = new MockCustomPackageRepository(new Environment() {
+        customPackageRepository = new MockMavenPackageRepository(new Environment() {
             @Override
             public <T> T getService(Class<T> clazz) {
                 return null;
@@ -145,11 +144,47 @@ public class CustomPackageRepositoryTests {
     }
 
 
-    @Test(description = "Test getPackage (non existing package) in custom repository")
-    public void testGetPackageNonExisting() throws IOException {
+    @Test(description = "Test getPackage (non existing package) in custom repository - offline")
+    public void testGetPackageNonExistingOffline() throws IOException {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("luheerathan"),
                         PackageName.from("pact1"), PackageVersion.from("0.1.0")),
+                PackageDependencyScope.DEFAULT);
+        Optional<Package> repositoryPackage = customPackageRepository.getPackage(resolutionRequest,
+                ResolutionOptions.builder().setOffline(true).build());
+        Assert.assertTrue(repositoryPackage.isEmpty());
+        deleteRemotePackage();
+    }
+
+    @Test(description = "Test getPackage (non existing package) in custom repository - online")
+    public void testGetPackageNonExistingOnline() throws IOException {
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact1"), PackageVersion.from("0.1.0")),
+                PackageDependencyScope.DEFAULT);
+        Optional<Package> repositoryPackage = customPackageRepository.getPackage(resolutionRequest,
+                ResolutionOptions.builder().setOffline(false).build());
+        Assert.assertTrue(repositoryPackage.isEmpty());
+        deleteRemotePackage();
+    }
+
+    @Test(description = "Test getPackage (existing package) in custom repository - online")
+    public void testGetPackageExistingOnline() throws IOException {
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact"), PackageVersion.from("0.1.0")),
+                PackageDependencyScope.DEFAULT);
+        Optional<Package> repositoryPackage = customPackageRepository.getPackage(resolutionRequest,
+                ResolutionOptions.builder().setOffline(false).build());
+        Assert.assertFalse(repositoryPackage.isEmpty());
+        deleteRemotePackage();
+    }
+
+    @Test(description = "Test getPackage (existing package) in custom repository - offline")
+    public void testGetPackageExistingOffline() throws IOException {
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("luheerathan"),
+                        PackageName.from("pact"), PackageVersion.from("0.1.0")),
                 PackageDependencyScope.DEFAULT);
         Optional<Package> repositoryPackage = customPackageRepository.getPackage(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());

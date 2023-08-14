@@ -38,9 +38,9 @@ import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
-import io.ballerina.projects.internal.repositories.CustomPackageRepository;
 import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
+import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -483,7 +483,7 @@ public class PackageResolution {
 
     private BlendedManifest createBlendedManifest(PackageContext rootPackageContext,
                                                   ProjectEnvironment projectEnvContext, boolean offline) {
-        Map<String, CustomPackageRepository> customPackageRepositoryMap =
+        Map<String, MavenPackageRepository> customPackageRepositoryMap =
                 projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomPackageRepositories();
         return BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),

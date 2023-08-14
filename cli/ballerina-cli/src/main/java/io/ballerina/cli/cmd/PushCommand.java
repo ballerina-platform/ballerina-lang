@@ -188,7 +188,7 @@ public class PushCommand implements BLauncherCmd {
                 }
 
                 MavenResolverClient mvnClient = new MavenResolverClient();
-                if (!"".equals(targetRepository.username()) && !"".equals(targetRepository.password())) {
+                if (!targetRepository.username().isEmpty() && !targetRepository.password().isEmpty()) {
                     mvnClient.addRepository(targetRepository.id(), targetRepository.url(), targetRepository.username(),
                                             targetRepository.password());
                 } else {

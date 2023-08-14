@@ -26,7 +26,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
-import io.ballerina.projects.internal.repositories.CustomPackageRepository;
+import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -63,7 +63,7 @@ public class BlendedManifest {
     public static BlendedManifest from(DependencyManifest dependencyManifest,
                                        PackageManifest packageManifest,
                                        AbstractPackageRepository localPackageRepository,
-                                       Map<String, CustomPackageRepository> customPackageRepositoryMap,
+                                       Map<String, MavenPackageRepository> mavenPackageRepositoryMap,
                                        boolean offline) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
@@ -78,7 +78,7 @@ public class BlendedManifest {
         }
 
         for (PackageManifest.Dependency depInPkgManifest : packageManifest.dependencies()) {
-            AbstractPackageRepository targettedRepository = localPackageRepository;
+            AbstractPackageRepository targetRepository = localPackageRepository;
             Optional<Dependency> existingDepOptional = depContainer.get(
                     depInPkgManifest.org(), depInPkgManifest.name());
             Repository depInPkgManifestRepo = depInPkgManifest.repository() != null &&
@@ -87,7 +87,7 @@ public class BlendedManifest {
 
             if (depInPkgManifest.repository() != null) {
                 if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) &&
-                    !customPackageRepositoryMap.containsKey(depInPkgManifest.repository())) {
+                    !mavenPackageRepositoryMap.containsKey(depInPkgManifest.repository())) {
                     var diagnosticInfo = new DiagnosticInfo(
                             ProjectDiagnosticErrorCode.CUSTOM_REPOSITORY_NOT_FOUND.diagnosticId(),
                             "Provided custom repository (" + depInPkgManifest.repository() +
@@ -116,8 +116,8 @@ public class BlendedManifest {
                 }
 
                 if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                    targettedRepository = customPackageRepositoryMap.get(depInPkgManifest.repository());
-                    if (!((CustomPackageRepository) targettedRepository).isPackageExists(depInPkgManifest.org(),
+                    targetRepository = mavenPackageRepositoryMap.get(depInPkgManifest.repository());
+                    if (!((MavenPackageRepository) targetRepository).isPackageExists(depInPkgManifest.org(),
                             depInPkgManifest.name(), depInPkgManifest.version(), offline)) {
                         var diagnosticInfo = new DiagnosticInfo(
                                 ProjectDiagnosticErrorCode.PACKAGE_NOT_FOUND.diagnosticId(),
@@ -145,7 +145,7 @@ public class BlendedManifest {
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
                         new Dependency(depInPkgManifest.org(),
                                 depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
-                                depInPkgManifestRepo, moduleNames(depInPkgManifest, targettedRepository),
+                                depInPkgManifestRepo, moduleNames(depInPkgManifest, targetRepository),
                                 DependencyOrigin.USER_SPECIFIED));
             } else {
                 Dependency existingDep = existingDepOptional.get();
@@ -155,7 +155,7 @@ public class BlendedManifest {
                         compatibilityResult == VersionCompatibilityResult.GREATER_THAN) {
                     Dependency newDep = new Dependency(depInPkgManifest.org(), depInPkgManifest.name(),
                             depInPkgManifest.version(), DependencyRelation.UNKNOWN, depInPkgManifestRepo,
-                            moduleNames(depInPkgManifest, targettedRepository), DependencyOrigin.USER_SPECIFIED);
+                            moduleNames(depInPkgManifest, targetRepository), DependencyOrigin.USER_SPECIFIED);
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 } else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(

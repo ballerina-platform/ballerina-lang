@@ -204,7 +204,7 @@ public class PullCommand implements BLauncherCmd {
 
         if (targetRepository != null) {
             MavenResolverClient mavenResolverClient = new MavenResolverClient();
-            if (!"".equals(targetRepository.username()) && !"".equals(targetRepository.password())) {
+            if (!targetRepository.username().isEmpty() && !targetRepository.password().isEmpty()) {
                 mavenResolverClient.addRepository(targetRepository.id(), targetRepository.url(),
                         targetRepository.username(), targetRepository.password());
             } else {

@@ -1,19 +1,17 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.ballerinalang.maven.bala.client;
 
@@ -51,8 +49,11 @@ import java.nio.file.Path;
 
 
 /**
- * Maven dependency resolving.
+ * Maven bala dependency resolving.
+ *
+ * @since 2201.8.0
  */
+
 public class MavenResolverClient {
     public static final String PLATFORM = "platform";
     public static final String BALA_EXTENSION = "bala";
@@ -104,10 +105,10 @@ public class MavenResolverClient {
 
     /**
      * Deploys provided artifact into the repository.
-     * @param balaPath path to the bala
-     * @param orgName organization name
-     * @param packageName package name
-     * @param version version of the package
+     * @param balaPath      path to the bala
+     * @param orgName       organization name
+     * @param packageName   package name
+     * @param version       version of the package
      * @throws MavenResolverClientException when deployment fails
      */
     public void pushPackage(Path balaPath, String orgName, String packageName, String version, Path localRepoPath)
@@ -164,7 +165,7 @@ public class MavenResolverClient {
      * @param password password of the proxy
      */
     public void setProxy(String url, int port, String username, String password) {
-        if ("".equals(url) || port == 0) {
+        if (url.isEmpty() || port == 0) {
             return;
         }
 
