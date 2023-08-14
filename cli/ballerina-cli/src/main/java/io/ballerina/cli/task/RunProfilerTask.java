@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,9 @@ import java.util.List;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME;
 
 /**
@@ -57,8 +61,9 @@ public class RunProfilerTask implements Task {
         String profilerArguments = String.join(" ", args);
         String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
+        ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
-        Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
+        Path targetPath = getExecutablePath(project, "Profiler" );
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
         try {
             Files.copy(sourcePath, targetPath, copyOption);
@@ -71,7 +76,7 @@ public class RunProfilerTask implements Task {
             commands.add("Profiler.jar");
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("--file");
-            commands.add(project.currentPackage().packageName() + ".jar");
+            commands.add(getPackageJarName(project, projectKind));
             commands.add("--target");
             commands.add(targetPath.toString());
             if (args.length != 0) {
@@ -79,8 +84,8 @@ public class RunProfilerTask implements Task {
                 commands.add("[" + profilerArguments + "]");
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
-            pb.directory(new File(project.targetDir() + "/bin"));
             pb.environment().put(JAVA_OPTS, getAgentArgs());
+            setWorkingDirectory(project, projectKind, pb);
             Process process = pb.start();
             process.waitFor();
             int exitValue = process.exitValue();
@@ -88,8 +93,23 @@ public class RunProfilerTask implements Task {
                 throw new RuntimePanicException(exitValue);
             }
         } catch (IOException | InterruptedException e) {
-            throw createLauncherException("Error occurred while running the profiler ", e.getCause());
+            throw createLauncherException("Error occurred while running the profiler ", e);
         }
+    }
+
+    private static void setWorkingDirectory(Project project, ProjectKind projectKind, ProcessBuilder pb) {
+        if (projectKind == ProjectKind.BUILD_PROJECT) {
+            pb.directory(new File(project.targetDir() + "/bin"));
+        } else {
+            pb.directory(new File(System.getProperty(USER_DIR)));
+        }
+    }
+
+    private static String getPackageJarName(Project project, ProjectKind kind) {
+        if (kind == ProjectKind.SINGLE_FILE_PROJECT) {
+            return getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT;
+        }
+        return project.currentPackage().packageName() + ".jar";
     }
 
     @Override
@@ -100,8 +120,19 @@ public class RunProfilerTask implements Task {
     private String getAgentArgs() {
         // add jacoco agent
         String jacocoArgLine = "-javaagent:" + Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
-                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty("user.dir"))
+                "jacocoagent.jar") + "=destfile=" + Paths.get(System.getProperty(USER_DIR))
                         .resolve("build").resolve("jacoco").resolve("test.exec");
         return jacocoArgLine + " ";
+    }
+    private Path getExecutablePath(Project project, String fileName) {
+
+        Path currentDir = Paths.get(System.getProperty(USER_DIR));
+
+        // If the --output flag is not set, create the executable in the current directory
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return currentDir.resolve(fileName + BLANG_COMPILED_JAR_EXT);
+        }
+
+        return project.targetDir().resolve("bin").resolve(fileName + BLANG_COMPILED_JAR_EXT);
     }
 }

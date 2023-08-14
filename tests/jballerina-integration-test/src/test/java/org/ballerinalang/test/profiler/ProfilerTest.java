@@ -46,7 +46,7 @@ public class ProfilerTest extends BaseTest {
     }
 
     @Test
-    public void testProfilerExecution() throws BallerinaTestException {
+    public void testProfilerExecutionWithBalPackage() throws BallerinaTestException {
         String sourceRoot = testFileLocation + "/";
         String packageName = "testProject";
         Map<String, String> envProperties = new HashMap<>();
@@ -72,13 +72,17 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("○ Execution Time:"),
                 new LogLeecher("○ Output: ")};
     }
-//    @Test
-//    public void testProfilerOutput() throws BallerinaTestException {
-//        String dirPath = Paths.get(testFileLocation, "singleBalFile", "target", "bin").toString();
-//        Path expectedOutputFilePath = Paths.get(dirPath, "ProfilerOutput.html");
-//        File file = new File(expectedOutputFilePath.toUri());
-//        if (!file.exists()) {
-//            throw new BallerinaTestException("Failure to read from the file: " + expectedOutputFilePath);
-//        }
-//    }
+    @Test
+    public void testProfilerExecutionWithSingleBalFile() throws BallerinaTestException {
+        String sourceRoot = testFileLocation + "/";
+        String fileName = "identifier_clash.bal";
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        LogLeecher[] leechers = getProfilerLogLeechers(23, 715);
+        bMainInstance.runMain("run", new String[]{"--profile", fileName}, envProperties,
+                null, leechers, sourceRoot);
+        for (LogLeecher leecher : leechers) {
+            leecher.waitForText(5000);
+        }
+    }
 }

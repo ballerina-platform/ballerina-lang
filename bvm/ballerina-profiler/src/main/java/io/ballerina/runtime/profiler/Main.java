@@ -23,6 +23,7 @@ import io.ballerina.runtime.profiler.codegen.MethodWrapper;
 import io.ballerina.runtime.profiler.util.Constants;
 import io.ballerina.runtime.profiler.util.ProfilerException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -197,7 +198,7 @@ public class Main {
                         byte[] code = MethodWrapper.modifyMethods(inputStream);
                         customClassLoader.loadClass(code);
                         usedPaths.add(className.replace(Constants.CLASS_SUFFIX, "").replace("/", "."));
-                        MethodWrapper.printCode(className, code);
+                        MethodWrapper.printCode(className, code, getFileNameWithoutExtension(balJarName));
                     }
                 }
                 if (className.endsWith("/$_init.class")) {
@@ -255,7 +256,7 @@ public class Main {
                     if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
                         fileEntryString = fileEntryString.replaceAll(absolutePath, "");
                         int index = fileEntryString.lastIndexOf('/');
-                        fileEntryString = fileEntryString.substring(0, index);
+                        fileEntryString = index == -1 ? "" : fileEntryString.substring(0, index);
                         String[] fileEntryParts = fileEntryString.split("/");
                         INSTRUMENTED_PATHS.add(fileEntryParts[0]);
                         INSTRUMENTED_FILES.add(fileEntryString);
@@ -356,5 +357,14 @@ public class Main {
 
     public static String getBalJarArgs() {
         return balJarArgs;
+    }
+    private static String getFileNameWithoutExtension(String balJarName) {
+        if (null != balJarName) {
+            int index = FilenameUtils.indexOfExtension(balJarName);
+            return index == -1 ? balJarName.toString() :
+                    balJarName.toString().substring(0, index);
+        } else {
+            return null;
+        }
     }
 }

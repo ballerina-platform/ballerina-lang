@@ -96,9 +96,14 @@ public class MethodWrapper extends ClassLoader {
     }
 
     // Print out the modified class code
-    public static void printCode(String className, byte[] code) {
+    public static void printCode(String className, byte[] code, String balJarName) {
         int lastSlashIndex = className.lastIndexOf('/');
-        String output = className.substring(0, lastSlashIndex);
+        String output;
+        if (lastSlashIndex == -1) {
+            output = balJarName;
+        } else {
+            output = className.substring(0, lastSlashIndex);
+        }
         File directory = new File(output);
 
         if (!directory.exists()) {
