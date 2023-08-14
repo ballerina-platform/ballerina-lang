@@ -1144,7 +1144,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     projectContext.setProject(pkg.project());
                     return;
                 }
-                throw new WorkspaceDocumentException(ProjectConstants.DEPENDENCIES_TOML + " does not exists!");
+                throw new WorkspaceDocumentException(ProjectConstants.DEPENDENCIES_TOML + " does not exist!");
             }
             // Update toml
             DependenciesToml updatedToml = dependenciesToml.get().modify().withContent(content).apply();
@@ -1448,15 +1448,21 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectRoot(filePath);
         ProjectContext projectContext = sourceRootToProject.get(projectRoot);
         //Check if the project is crashed and create a new project if there is a change in the source files.
-        if (projectContext == null || (projectContext.projectCrashed && isSourceChange)) {
-            //Try to create the project again.
-            Optional<ProjectContext> newProjectContext = createProjectContext(projectRoot, operationName);
-            if (newProjectContext.isEmpty()) {
-                throw new WorkspaceDocumentException("Cannot find the project of uri: " + filePath.toString());
-            }
-            sourceRootToProject.put(projectRoot, newProjectContext.get());
-            return newProjectContext.get();
+        if (projectContext != null && !(projectContext.isProjectCrashed() && isSourceChange)) {
+            return projectContext;
         }
+        //Try to create the project again.
+        Optional<ProjectContext> newProjectContext = createProjectContext(projectRoot, operationName);
+        if (newProjectContext.isEmpty()) {
+            throw new WorkspaceDocumentException("Cannot find the project of uri: " + filePath.toString());
+        }
+        if (projectContext == null) {
+            projectContext = newProjectContext.get();
+            sourceRootToProject.put(projectRoot, projectContext);
+            return projectContext;
+        }
+        projectContext.setProject(newProjectContext.get().project());
+        projectContext.setProjectCrashed(false);
         return projectContext;
     }
 

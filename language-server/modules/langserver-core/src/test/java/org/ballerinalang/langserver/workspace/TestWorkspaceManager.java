@@ -602,7 +602,6 @@ public class TestWorkspaceManager {
         Path project2File = workspacePath.resolve("workspace3").resolve("project2").resolve("main.bal");
         Path project3File = workspacePath.resolve("workspace3").resolve("project3").resolve("main.bal");
 
-
         //Mock the ExtendedLanguageClient
         MockSettings mockSettings = Mockito.withSettings().stubOnly();
         ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
@@ -663,7 +662,6 @@ public class TestWorkspaceManager {
         return new Path[]{
                 RESOURCE_DIRECTORY.resolve("pkg_with_duplicate_files1").resolve("main.bal").toAbsolutePath(),
                 RESOURCE_DIRECTORY.resolve("pkg_with_duplicate_files2").resolve("main.bal").toAbsolutePath()
-
         };
     }
 
