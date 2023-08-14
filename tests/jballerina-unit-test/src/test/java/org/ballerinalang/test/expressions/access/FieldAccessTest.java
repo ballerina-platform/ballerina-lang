@@ -146,6 +146,12 @@ public class FieldAccessTest {
                 , 393, 19);
         validateError(negativeResult, i++, "invalid operation: type 'map<(xml|json)>' does not support field access"
                 , 399, 24);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support " +
+                        "optional field access", 404, 13);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support " +
+                "optional field access", 409, 14);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support " +
+                "optional field access", 414, 13);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -296,6 +302,11 @@ public class FieldAccessTest {
     @Test
     public void testAccessingMethodOnUnionObjectType() {
         BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
+    }
+
+    @Test
+    public void testValidXMLmapFieldAccess() {
+        BRunUtil.invoke(result, "testValidXMLmapFieldAccess");
     }
 
     @Test(dataProvider = "fieldAccessOnJsonTypedRecordFields")

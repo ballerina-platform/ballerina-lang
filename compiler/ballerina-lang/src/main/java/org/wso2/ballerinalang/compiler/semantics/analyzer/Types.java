@@ -274,11 +274,7 @@ public class Types {
 
     public boolean isLaxFieldAccessAllowed(BType type) {
         Set<BType> visited = new HashSet<>();
-        int result = isLaxType(type, visited);
-        if (result == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT) {
-            return true;
-        }
-        return false;
+        return isLaxType(type, visited) == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT;
     }
 
     // TODO : clean
