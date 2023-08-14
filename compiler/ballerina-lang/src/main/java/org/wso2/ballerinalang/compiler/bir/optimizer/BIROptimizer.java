@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -475,8 +476,28 @@ public class BIROptimizer {
                 this.env.newInstructions.add(birMove);
                 return;
             }
+            if (isIrreplaceableVar(birMove.rhsOp.variableDcl)) {
+                this.env.newInstructions.add(birMove);
+                this.env.irreplaceableTempVars.add(birMove.lhsOp.variableDcl);
+                return;
+            }
             if (birMove.rhsOp.variableDcl.kind != VarKind.TEMP) {
                 this.env.tempVars.put(birMove.lhsOp.variableDcl, birMove.rhsOp.variableDcl);
+            }
+        }
+
+        private boolean isIrreplaceableVar(BIRVariableDcl variableDcl) {
+            if (variableDcl.kind != VarKind.GLOBAL) {
+                return false;
+            }
+            int typeTag = variableDcl.type.tag;
+            switch (typeTag) {
+                case TypeTags.BYTE:
+                case TypeTags.BOOLEAN:
+                case TypeTags.FLOAT:
+                    return true;
+                default:
+                    return TypeTags.isIntegerTypeTag(typeTag);
             }
         }
 
@@ -741,6 +762,8 @@ public class BIROptimizer {
         // key - temp var, value - real var
         private final Map<BIRVariableDcl, BIRVariableDcl> tempVars = new HashMap<>();
 
+        private final Set<BIRVariableDcl> irreplaceableTempVars = new HashSet<>();
+
         private List<BIRNonTerminator> newInstructions;
 
         private final List<BIROperand> tempVarsList = new ArrayList<>();
@@ -757,7 +780,7 @@ public class BIROptimizer {
 
         public void addTempBirOperand(BIROperand birOperand) {
             BIRVariableDcl variableDcl = birOperand.variableDcl;
-            if (variableDcl.kind != VarKind.TEMP) {
+            if (variableDcl.kind != VarKind.TEMP || irreplaceableTempVars.contains(variableDcl)) {
                 return;
             }
             tempVarsList.add(birOperand);
