@@ -459,16 +459,17 @@ public class QueryTypeChecker extends TypeChecker {
         if (!possibleSelectTypes.isEmpty() && !possibleResolvedTypes.isEmpty()) {
             selectTypes.addAll(possibleSelectTypes);
             resolvedTypes.addAll(possibleResolvedTypes);
-        } else if (!errorTypes.isEmpty()) {
+            return;
+        }
+        if (!errorTypes.isEmpty()) {
             if (errorTypes.size() > 1) {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
                 if (actualQueryType != symTable.semanticError) {
-                    types.checkType(queryExpr, actualQueryType,
+                    types.checkType(queryExpr, actualQueryType, 
                             BUnionType.create(null, new LinkedHashSet<>(expTypes)));
                     errorTypes.forEach(expType -> {
                         if (expType.tag == TypeTags.UNION) {
-                            checkExpr(selectExp, env, expType, data);
-                            selectExp.typeChecked = false;
+                            checkExpr(nodeCloner.cloneNode(selectExp), env, expType, data);
                         }
                     });
                     selectExp.typeChecked = true;

@@ -21,16 +21,14 @@ type Book record {|
 
 function testQueryExprForAmbiguousTypes() returns error? {
     string:Char chr = "a";
-    Book[] bookList = [];
     string[] strArr = ["a", "b", "c"];
 
     string:Char[]|string _ = from var i in strArr select chr;
     string|string:Char[] _ = from var j in strArr select chr;
-    string:Char[]|int _ = from string s in strArr select chr;
-    [string:Char, string:Char]|int|string _ = from var x in ["a", "b", 1, "2"]  select chr;
     [string:Char, string:Char]|int|string|(int|string)[] _ = from var x in ["a", "b", 1, "2"]  select chr;
 
-    xml|int xmlValue = from Book book in bookList
+    Book[] bookList = [];
+    xml|xml:Element xmlValue = from Book book in bookList
         select xml `<Book>
                         <Author>${book.author}</Author>
                         <Title>${book.title}</Title>
