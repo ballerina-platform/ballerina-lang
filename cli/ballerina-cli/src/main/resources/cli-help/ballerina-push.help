@@ -18,7 +18,7 @@ DESCRIPTION
 OPTIONS
        --repository
            Push the BALA of the current package to a custom repository.
-           Only 'local' is allowed.
+           Only 'local' and repositories specified in the Settings.toml are allowed.
 
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.

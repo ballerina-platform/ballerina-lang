@@ -15,6 +15,11 @@ DESCRIPTION
        Organizations are unique within a repository and can be mapped to an
        individual user or organization registered with the repository.
 
+OPTIONS
+       --repository
+           Pull a package from a custom repository.
+           Repositories specified in the Settings.toml are only allowed.
+
 
 EXAMPLES
        Pull the latest version of the 'gmail' connector in the 'wso2'
@@ -24,3 +29,7 @@ EXAMPLES
        Pull the '1.1.0' version of the 'gmail' connector in the 'wso2'
        organization from Ballerina Central.
            $ bal pull wso2/gmail:1.1.0
+
+       Pull the '1.1.0' version of the 'gmail' connector in the 'wso2'
+       organization from wso2 custom repository.
+           $ bal pull wso2/gmail:1.1.0 --repository=wso2
