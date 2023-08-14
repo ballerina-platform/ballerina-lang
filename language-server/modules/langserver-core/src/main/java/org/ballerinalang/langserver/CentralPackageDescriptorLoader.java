@@ -70,7 +70,7 @@ public class CentralPackageDescriptorLoader {
             languageClient.createProgress(workDoneProgressCreateParams);
 
             WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-            beginNotification.setTitle("Loading Ballerina Central Packages");
+            beginNotification.setTitle("Ballerina Central Packages");
             beginNotification.setCancellable(false);
             beginNotification.setMessage("Loading...");
             languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
