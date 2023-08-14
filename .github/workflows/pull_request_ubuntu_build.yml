@@ -15,7 +15,6 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
-      - java_17_migration
 
 jobs:
   ubuntu_build:

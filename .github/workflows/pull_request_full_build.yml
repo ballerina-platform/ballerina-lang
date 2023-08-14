@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - java_17_migration
 
 jobs:
   build-lang:
@@ -92,12 +91,11 @@ jobs:
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
 
-      # Todo: Remove this once Java 17 migration PR merged to master
-      - name: Checkout non-default branch
-        run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
-          cd $module_name && git fetch origin && git checkout -t origin/java_17_migration && cd ..; \
-          done
+#      - name: Checkout non-default branch
+#        run: |
+#          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+#          cd $module_name && git fetch origin && git checkout -t origin/java_17_migration && cd ..; \
+#          done
 
       - name: Update Lang Version in Module
         run: |
@@ -138,10 +136,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17.0.7'
-
-      - name: Checkout Java 17 branch
-        run: |
-          git fetch origin && git checkout -t origin/java_17_migration
 
       - name: Download Ballerina Lang Artifacts
         uses: actions/download-artifact@v2
