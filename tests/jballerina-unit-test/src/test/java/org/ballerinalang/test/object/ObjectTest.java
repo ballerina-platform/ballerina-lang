@@ -47,14 +47,13 @@ public class ObjectTest {
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
-    private CompileResult checkObjectWithDefaultableFieldsResult;
+    private CompileResult checkObjectWithDefaultValuesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-        checkObjectWithDefaultableFieldsResult =
-                                            BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
+        checkObjectWithDefaultValuesResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
     }
 
     @Test(description = "Test Basic object as struct")
@@ -130,7 +129,7 @@ public class ObjectTest {
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        BArray returns = (BArray) BRunUtil.invoke(checkObjectWithDefaultableFieldsResult, "testObjectWithSimpleInit");
+        BArray returns = (BArray) BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithSimpleInit");
 
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -945,12 +944,12 @@ public class ObjectTest {
 
     @Test
     public void testClassWithModuleDefaultValue() {
-        BRunUtil.invoke(checkObjectWithDefaultableFieldsResult, "testClassWithModuleDefaultValue");
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testClassWithModuleDefaultValue");
     }
 
     @Test
     public void testObjectWithModuleDefaultValue() {
-        BRunUtil.invoke(checkObjectWithDefaultableFieldsResult, "testObjectWithModuleDefaultValue");
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithModuleDefaultValue");
     }
 
     @AfterClass

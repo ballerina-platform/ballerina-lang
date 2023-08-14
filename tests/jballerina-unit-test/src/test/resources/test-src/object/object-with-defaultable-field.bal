@@ -46,7 +46,7 @@ function testObjectWithModuleDefaultValue() {
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquality(any expected, any actual) {
+function assertEquality(anydata expected, anydata actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }
