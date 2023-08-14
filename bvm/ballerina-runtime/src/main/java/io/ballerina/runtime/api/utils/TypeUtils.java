@@ -144,6 +144,7 @@ public class TypeUtils {
     public static boolean isSameType(Type sourceType, Type targetType) {
         return TypeChecker.isSameType(sourceType, targetType);
     }
+
     /**
      * Retrieve the referred type if a given type is a type reference type.
      *
