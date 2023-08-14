@@ -65,16 +65,6 @@ public class ClassTest {
     }
 
     @Test
-    public void testModuleVariableReferencingClass() {
-        BRunUtil.invoke(compileResult, "testModuleVariableReferencingClass");
-    }
-
-    @Test
-    public void testLocalObjectConstructorReferencingModuleVariable() {
-        BRunUtil.invoke(compileResult, "testLocalObjectConstructorReferencingModuleVariable");
-    }
-
-    @Test
     public void testSimpleDistinctClass() {
         BRunUtil.invoke(distinctCompUnit, "testDistinctAssignability");
     }

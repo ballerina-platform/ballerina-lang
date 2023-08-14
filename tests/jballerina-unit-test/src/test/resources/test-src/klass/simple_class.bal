@@ -70,33 +70,6 @@ class Per {
     int i = 0;
 }
 
-final int classI = 111222;
-
-class ModuleVariableReferencingClass {
-    int i = classI;
-}
-
-function value(int k = classI) returns int {
-    return k;
-}
-
-ModuleVariableReferencingClass c1 = new;
-
-function testModuleVariableReferencingClass() {
-    ModuleVariableReferencingClass c = new;
-    assertEquality(c.i, 111222);
-    assertEquality(c1.i, 111222);
-}
-
-function testLocalObjectConstructorReferencingModuleVariable() {
-    var value = object {
-        int i = classI;
-        function init() {
-        }
-    };
-    assertEquality(value.i, 111222);
-} 
-
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

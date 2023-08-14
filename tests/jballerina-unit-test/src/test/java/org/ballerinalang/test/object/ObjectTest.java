@@ -47,11 +47,14 @@ public class ObjectTest {
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
+    private CompileResult checkModuleVariableReferencesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
+        checkModuleVariableReferencesResult =
+                            BCompileUtil.compile("test-src/object/object-referencing-module-variable.bal");
     }
 
     @Test(description = "Test Basic object as struct")
@@ -939,6 +942,16 @@ public class ObjectTest {
     public void testNonPublicSymbolsWarningInServiceClass() {
         CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testClassReferencingModuleVariable() {
+        BRunUtil.invoke(checkModuleVariableReferencesResult, "testClassReferencingModuleVariable");
+    }
+
+    @Test
+    public void testLocalObjectConstructorReferencingModuleVariable() {
+        BRunUtil.invoke(checkModuleVariableReferencesResult, "testLocalObjectConstructorReferencingModuleVariable");
     }
 
     @AfterClass
