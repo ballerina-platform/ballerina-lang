@@ -314,12 +314,13 @@ public class TypeDefBuilderHelper {
                 fieldType = origField.type;
             }
 
-            Name origFieldName = origField.name;
+            Name origFieldName = origField.symbol.originalName;
+            Name fieldName = origField.name;
             BVarSymbol fieldSymbol;
             BType referredType = Types.getReferredType(fieldType);
             if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
                 fieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
-                        origFieldName, pkgID, fieldType,
+                        fieldName, origFieldName, pkgID, fieldType,
                         structureSymbol, origField.symbol.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) referredType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) fieldSymbol;
@@ -330,17 +331,17 @@ public class TypeDefBuilderHelper {
             } else if (fieldType == symTable.semanticError) {
                 // Can only happen for records.
                 fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
-                        origFieldName, pkgID, symTable.neverType,
+                        fieldName, origFieldName, pkgID, symTable.neverType,
                         structureSymbol, origField.symbol.pos, SOURCE);
             } else {
-                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
+                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag, fieldName, origFieldName, pkgID,
                         fieldType, structureSymbol,
                         origField.symbol.pos, SOURCE);
             }
             fieldSymbol.isDefaultable = origField.symbol.isDefaultable;
-            String nameString = origFieldName.value;
-            fields.put(nameString, new BField(origFieldName, null, fieldSymbol));
-            structureSymbol.scope.define(origFieldName, fieldSymbol);
+            String nameString = fieldName.value;
+            fields.put(nameString, new BField(fieldName, null, fieldSymbol));
+            structureSymbol.scope.define(fieldName, fieldSymbol);
         }
         structureType.fields = fields;
 

@@ -774,8 +774,9 @@ public class Desugar extends BLangNodeVisitor {
         annotationDesugar.initializeAnnotationMap(pkgNode);
 
         pkgNode.constants.stream()
-                .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
+                .filter(constant -> (constant.expr.getKind() == NodeKind.LITERAL ||
                         constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
+                        && constant.expr.getBType().tag != TypeTags.TUPLE)
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
@@ -5704,7 +5705,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.ARRAY) {
+        int tag = Types.getReferredType(literalExpr.getBType()).tag;
+        if (tag == TypeTags.ARRAY || tag == TypeTags.TUPLE) {
             // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
