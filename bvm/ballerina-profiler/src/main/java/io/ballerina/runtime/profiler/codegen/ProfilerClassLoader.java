@@ -23,13 +23,13 @@ import org.objectweb.asm.ClassReader;
 import static io.ballerina.runtime.profiler.util.Constants.ERROR;
 
 /**
- * This class is used as a custom class loader for the ballerina profiler.
+ * This class is used as a class loader for the ballerina profiler.
  *
  * @since 2201.8.0
  */
-public class CustomClassLoader extends ClassLoader {
+public class ProfilerClassLoader extends ClassLoader {
 
-    public CustomClassLoader(ClassLoader parent) {
+    public ProfilerClassLoader(ClassLoader parent) {
         super(parent);
     }
 

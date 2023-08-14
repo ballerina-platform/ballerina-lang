@@ -46,7 +46,7 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  *
  * @since 2201.7.0
  */
-public class MethodWrapper extends ClassLoader {
+public class ProfilerMethodWrapper extends ClassLoader {
 
     public static void invokeMethods() throws IOException, InterruptedException {
         String balJarArgs = getBalJarArgs();
@@ -83,9 +83,9 @@ public class MethodWrapper extends ClassLoader {
         byte[] code;
         try {
             ClassReader reader = new ClassReader(inputStream);
-            ClassWriter classWriter = new CustomClassWriter(reader, ClassWriter.COMPUTE_MAXS |
+            ClassWriter classWriter = new ProfilerClassWriter(reader, ClassWriter.COMPUTE_MAXS |
                     ClassWriter.COMPUTE_FRAMES);
-            ClassVisitor change = new CustomClassVisitor(classWriter);
+            ClassVisitor change = new ProfilerClassVisitor(classWriter);
             reader.accept(change, ClassReader.EXPAND_FRAMES);
             code = classWriter.toByteArray();
             return code;
@@ -101,6 +101,7 @@ public class MethodWrapper extends ClassLoader {
         String output;
         if (lastSlashIndex == -1) {
             output = balJarName;
+            className = balJarName + "/" + className;
         } else {
             output = className.substring(0, lastSlashIndex);
         }

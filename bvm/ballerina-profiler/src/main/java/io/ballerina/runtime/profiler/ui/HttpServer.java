@@ -34,9 +34,9 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  *
  * @since 2201.7.0
  */
-public class HTTPServer {
+public class HttpServer {
 
-    private HTTPServer() {
+    private HttpServer() {
     }
 
     public static void initializeHTMLExport() throws IOException {

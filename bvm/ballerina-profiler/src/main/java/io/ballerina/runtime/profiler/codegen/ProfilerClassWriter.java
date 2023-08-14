@@ -22,15 +22,15 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
 /**
- * This class is used as a custom class writer for the ballerina profiler.
+ * This class is used as a class writer for the ballerina profiler.
  *
  * @since 2201.8.0
  */
-public class CustomClassWriter extends ClassWriter {
+public class ProfilerClassWriter extends ClassWriter {
 
     private static final String OBJECT_CLASS = "java/lang/Object";
 
-    public CustomClassWriter(ClassReader classReader, int flags) {
+    public ProfilerClassWriter(ClassReader classReader, int flags) {
         super(classReader, flags);
     }
 

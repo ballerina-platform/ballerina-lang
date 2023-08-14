@@ -26,13 +26,13 @@ import org.objectweb.asm.Opcodes;
 import static io.ballerina.runtime.profiler.util.Constants.STRAND_ARG;
 
 /**
- * This class is used as a custom class visitor for the ballerina profiler.
+ * This class is used as a class visitor for the ballerina profiler.
  *
  * @since 2201.8.0
  */
-public class CustomClassVisitor extends ClassVisitor {
+public class ProfilerClassVisitor extends ClassVisitor {
 
-    public CustomClassVisitor(ClassVisitor classVisitor) {
+    public ProfilerClassVisitor(ClassVisitor classVisitor) {
         super(Opcodes.ASM9, classVisitor);
     }
 

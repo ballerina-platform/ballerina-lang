@@ -63,7 +63,7 @@ public class RunProfilerTask implements Task {
                 "ballerina-profiler-1.0.jar").toString();
         ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
-        Path targetPath = getExecutablePath(project, "Profiler" );
+        Path targetPath = getExecutablePath(project, "Profiler");
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
         try {
             Files.copy(sourcePath, targetPath, copyOption);

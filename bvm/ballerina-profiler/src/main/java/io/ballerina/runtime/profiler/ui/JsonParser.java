@@ -39,9 +39,9 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT;
  *
  * @since 2201.7.0
  */
-public class JSONParser {
+public class JsonParser {
 
-    private JSONParser() {
+    private JsonParser() {
     }
 
     private static final String VALUE_KEY = "value";

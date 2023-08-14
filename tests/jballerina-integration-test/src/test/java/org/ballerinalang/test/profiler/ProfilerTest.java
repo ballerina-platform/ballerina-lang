@@ -33,10 +33,10 @@ import java.util.Map;
 /**
  * Tests ballerina profiler.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class ProfilerTest extends BaseTest {
-    private static final String testFileLocation = Paths.get("src/test/resources/identifier")
+    private static final String testFileLocation = Paths.get("src/test/resources/profiler")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -48,10 +48,10 @@ public class ProfilerTest extends BaseTest {
     @Test
     public void testProfilerExecutionWithBalPackage() throws BallerinaTestException {
         String sourceRoot = testFileLocation + "/";
-        String packageName = "testProject";
+        String packageName = "projectForProfile/package_a";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(25, 607);
+        LogLeecher[] leechers = getProfilerLogLeechers(26, 602);
         bMainInstance.runMain("run", new String[]{"--profile", packageName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
@@ -75,10 +75,10 @@ public class ProfilerTest extends BaseTest {
     @Test
     public void testProfilerExecutionWithSingleBalFile() throws BallerinaTestException {
         String sourceRoot = testFileLocation + "/";
-        String fileName = "identifier_clash.bal";
+        String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(23, 715);
+        LogLeecher[] leechers = getProfilerLogLeechers(25, 781);
         bMainInstance.runMain("run", new String[]{"--profile", fileName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {

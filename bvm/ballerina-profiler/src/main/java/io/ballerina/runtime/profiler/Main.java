@@ -18,8 +18,8 @@
 
 package io.ballerina.runtime.profiler;
 
-import io.ballerina.runtime.profiler.codegen.CustomClassLoader;
-import io.ballerina.runtime.profiler.codegen.MethodWrapper;
+import io.ballerina.runtime.profiler.codegen.ProfilerClassLoader;
+import io.ballerina.runtime.profiler.codegen.ProfilerMethodWrapper;
 import io.ballerina.runtime.profiler.util.Constants;
 import io.ballerina.runtime.profiler.util.ProfilerException;
 import org.apache.commons.io.FileUtils;
@@ -46,8 +46,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static io.ballerina.runtime.profiler.ui.HTTPServer.initializeHTMLExport;
-import static io.ballerina.runtime.profiler.ui.JSONParser.initializeCPUParser;
+import static io.ballerina.runtime.profiler.ui.HttpServer.initializeHTMLExport;
+import static io.ballerina.runtime.profiler.ui.JsonParser.initializeCPUParser;
 import static io.ballerina.runtime.profiler.util.Constants.OUT;
 
 /**
@@ -87,7 +87,7 @@ public class Main {
         OUT.printf("%s: Profiling...%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
         OUT.printf("%n%s================================================================================%s",
                 Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT.printf("%n%sWARNING : Ballerina Profiler is an experimental feature.%s%n", Constants.ANSI_GRAY,
+        OUT.printf("%n%sNote : Ballerina Profiler is an experimental feature.%s%n", Constants.ANSI_GRAY,
                 Constants.ANSI_RESET);
     }
 
@@ -184,9 +184,9 @@ public class Main {
         }
         OUT.printf("%s[4/6] Instrumenting Functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try (JarFile jarFile = new JarFile(balJarName)) {
-            String mainClassPackage = MethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{new File(balJarName)
-                    .toURI().toURL()}));
-            CustomClassLoader customClassLoader = new CustomClassLoader(new URLClassLoader(
+            String mainClassPackage = ProfilerMethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{
+                    new File(balJarName).toURI().toURL()}));
+            ProfilerClassLoader profilerClassLoader = new ProfilerClassLoader(new URLClassLoader(
                     new URL[]{new File(balJarName).toURI().toURL()}));
             Set<String> usedPaths = new HashSet<>();
             for (String className : classNames) {
@@ -195,10 +195,10 @@ public class Main {
                 }
                 if (className.startsWith(mainClassPackage.split("/")[0]) || UTIL_PATHS.contains(className)) {
                     try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
-                        byte[] code = MethodWrapper.modifyMethods(inputStream);
-                        customClassLoader.loadClass(code);
+                        byte[] code = ProfilerMethodWrapper.modifyMethods(inputStream);
+                        profilerClassLoader.loadClass(code);
                         usedPaths.add(className.replace(Constants.CLASS_SUFFIX, "").replace("/", "."));
-                        MethodWrapper.printCode(className, code, getFileNameWithoutExtension(balJarName));
+                        ProfilerMethodWrapper.printCode(className, code, getFileNameWithoutExtension(balJarName));
                     }
                 }
                 if (className.endsWith("/$_init.class")) {
@@ -228,7 +228,7 @@ public class Main {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
             FileUtils.deleteDirectory(new File("io/ballerina/runtime/profiler/runtime"));
-            MethodWrapper.invokeMethods();
+            ProfilerMethodWrapper.invokeMethods();
         }
     }
 
