@@ -9,8 +9,7 @@ type OtherItem record {
 
 @xmldata:Name {value: "codes"}
 type Codes record {
-    (decimal|int|string)[] item;
-    Item[] item;
+    (Item|decimal|int|string)[] item;
     OtherItem OtherItem;
 };
 
@@ -20,8 +19,8 @@ type Bookstore record {
     int postalCode;
     boolean isOpen;
     Codes codes;
-    @Attribute
+    @xmldata:Attribute
     string status;
-    @Attribute
+    @xmldata:Attribute
     string xmlns\:ns0;
 };

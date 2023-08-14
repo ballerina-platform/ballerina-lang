@@ -13,8 +13,8 @@ type Bookstore record {
     int postalCode;
     boolean isOpen;
     Codes codes;
-    @Attribute
+    @xmldata:Attribute
     string status;
-    @Attribute
+    @xmldata:Attribute
     string xmlns\:ns0;
 };
