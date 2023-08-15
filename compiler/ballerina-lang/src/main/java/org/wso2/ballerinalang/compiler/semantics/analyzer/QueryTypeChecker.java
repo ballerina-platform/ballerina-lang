@@ -396,8 +396,8 @@ public class QueryTypeChecker extends TypeChecker {
                         continue;
                     }
 
-                    if (Types.getReferredType(selectType).getKind() == type.getKind()
-                            && (type.tag == TypeTags.XML || type.tag == TypeTags.STRING)) {
+                    BType refSelectType = Types.getReferredType(selectType);
+                    if (TypeTags.isXMLTypeTag(refSelectType.tag) || TypeTags.isStringTypeTag(refSelectType.tag)) {
                         selectType = type;
                     }
 
