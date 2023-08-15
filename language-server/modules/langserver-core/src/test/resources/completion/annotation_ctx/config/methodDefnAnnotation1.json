@@ -4,6 +4,7 @@
     "character": 9
   },
   "source": "annotation_ctx/source/methodDefnAnnotation1.bal",
+  "description": "",
   "items": [
     {
       "label": "module1",
@@ -26,11 +27,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -50,11 +51,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -74,11 +75,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -98,11 +99,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -122,11 +123,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -240,11 +241,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -264,11 +265,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -288,11 +289,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -312,11 +313,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -336,11 +337,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
