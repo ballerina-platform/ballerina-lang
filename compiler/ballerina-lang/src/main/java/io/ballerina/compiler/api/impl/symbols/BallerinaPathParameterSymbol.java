@@ -62,11 +62,10 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
 
     @Override
     public Optional<String> getName() {
-        String name = super.getName().orElse(null);
         if (this.isTypeOnlyPathParam) {
             return Optional.empty();
         }
-        return Optional.ofNullable(name);
+        return super.getName();
     }
 
     @Override

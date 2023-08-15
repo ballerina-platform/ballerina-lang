@@ -24,8 +24,6 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.Optional;
-
 /**
  * Represents an implementation of a named path segment.
  *
@@ -51,10 +49,5 @@ public class BallerinaNamedPathSegment extends BallerinaSymbol implements NamedP
     @Deprecated
     public String name() {
         return this.getName().orElse("");
-    }
-
-    @Override
-    public Optional<String> getName() {
-        return Optional.of(super.getName().orElse(""));
     }
 }

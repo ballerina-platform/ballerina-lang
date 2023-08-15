@@ -1767,7 +1767,6 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
-        // Iterate through path expressions
         for (int i = 0; i < pathExprs.size(); i++) {
             BResourcePathSegmentSymbol pathSymbol = pathSegSymbols.get(i);
 
