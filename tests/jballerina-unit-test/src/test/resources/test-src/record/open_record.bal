@@ -179,8 +179,9 @@ function testDefaultVal() {
 
     assert(10, gVal3.a);
     assert(25, gVal3.b);
-
     assert("bal", gVal4.x[0]);
+    record {string[] x = ["foo", "bar"];} n = {readonly x: ["bal"]};
+    assert("bal", n.x[0]);
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {
@@ -821,6 +822,26 @@ type Foo4 record {
     int y = 10;
 };
 
+type Mat2 record {
+    int x = fn1();
+    int y;
+};
+
+isolated int  gVal5 = 145;
+
+isolated function fn1() returns int {
+    lock {
+        gVal5 = 150;
+    }
+    return 10;
+}
+
+isolated function getValue1() returns int {
+    lock {
+        return gVal5;
+    }
+}
+
 function testSpreadOperatorWithOpenRecord() {
     record {int x; int y?;} r = {x: 14};
     Foo4 f = { ...r};
@@ -842,4 +863,14 @@ function testSpreadOperatorWithOpenRecord() {
     Foo4 f4 = { ...r4, y: 12};
     assert(10, f4.x);
     assert(12, f4.y);
+    record {|int y; int x?;|} r5 = {y: 12, x: 21};
+    Mat2 m1 = {...r5};
+    assert(21, m1.x);
+    assert(12, m1.y);
+    assert(145, getValue1());
+    record {|int y; int x?;|} r6 = {y: 12};
+    Mat2 m2 = {...r6};
+    assert(10, m2.x);
+    assert(12, m2.y);
+    assert(150, getValue1());
 }
