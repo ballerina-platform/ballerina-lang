@@ -1329,7 +1329,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Project project;
             BuildOptions options = BuildOptions.builder()
                     .setOffline(CommonUtil.COMPILE_OFFLINE)
-                    .setSticky(true)
+                    .setSticky(false)
                     .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);

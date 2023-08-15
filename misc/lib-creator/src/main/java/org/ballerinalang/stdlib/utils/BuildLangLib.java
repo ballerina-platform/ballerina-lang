@@ -34,6 +34,7 @@ import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,6 +46,8 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -73,9 +76,10 @@ public class BuildLangLib {
             if (args.length >= 4 && args[3].equals("true")) {
                 skipBootstrap = true;
             }
+            addDistributionEntry(projectDir);
             System.setProperty(ProjectConstants.BALLERINA_HOME, distCache.toString());
             System.setProperty("LANG_REPO_BUILD", "true");
-            out.println("Building langlib ..." + pkgName + " bootstrap is skipped: " + skipBootstrap);
+            out.println("Building langlib ...");
             out.println("Project Dir: " + projectDir);
 
             if (!skipBootstrap) {
@@ -87,9 +91,7 @@ public class BuildLangLib {
             Path pkgTargetPath = targetPath.resolve(pkgName);
             ProjectEnvironmentBuilder environmentBuilder = createProjectEnvBuilder(pkgTargetPath);
 
-            BuildOptions defaultOptions = BuildOptions.builder().setOffline(true)
-//                    .setSticky(false)
-                    .setDumpBirFile(true).build();
+            BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
             Project project = BuildProject.load(environmentBuilder, projectDir, defaultOptions);
             Package pkg = project.currentPackage();
             PackageCompilation packageCompilation = pkg.getCompilation();
@@ -161,6 +163,28 @@ public class BuildLangLib {
     private static void clearTarget(Path targetPath) throws IOException {
         if (Files.exists(targetPath)) {
             deleteDirectory(targetPath);
+        }
+    }
+
+    private static void addDistributionEntry(Path projectDir) {
+        Pattern findPattern = Pattern.compile("version\\s*=\\s*\"([^\"]+)\"");
+
+        String versionReplacement = "version = \"$1\"\n"
+                + "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"";
+
+        try {
+            String data = Files.readString(projectDir.resolve("Ballerina.toml"));
+            Matcher matcher = findPattern.matcher(data);
+
+            if (matcher.find()) {
+                String versionValue = matcher.group(1);
+                String completeReplacement = versionReplacement.replace("$1", versionValue);
+                data = matcher.replaceFirst(completeReplacement);
+            }
+
+            Files.writeString(projectDir.resolve("Ballerina.toml"), data);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

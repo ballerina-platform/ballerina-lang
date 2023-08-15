@@ -218,15 +218,13 @@ public class Bootstrap {
     private void loadLangLibFromBala(ResolutionRequest resolutionRequest) {
         Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
                 Collections.singletonList(resolutionRequest),
-                ResolutionOptions.builder().setOffline(true)
-//                        .setSticky(false)
-                        .build());
+                ResolutionOptions.builder().setOffline(true).build());
         resolutionResponses.forEach(resolutionResponse -> {
             Package pkg = resolutionResponse.resolvedPackage();
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnosticResult().hasErrors()) {
                 throw new ProjectException("Error while bootstrapping :" + pkg.packageId().toString() +
-                        " diagnostics: " + compilation.diagnosticResult().diagnostics()); //TODO: this only prints the DiagnosticResults object
+                        " diagnostics: " + compilation.diagnosticResult().diagnostics());
             }
         });
     }

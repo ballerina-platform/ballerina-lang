@@ -68,7 +68,7 @@ public class CompilationOptions {
     }
 
     boolean sticky() {
-        return toBooleanTrueIfNull(this.sticky);
+        return toBooleanDefaultIfNull(this.sticky);
     }
 
     boolean observabilityIncluded() {
