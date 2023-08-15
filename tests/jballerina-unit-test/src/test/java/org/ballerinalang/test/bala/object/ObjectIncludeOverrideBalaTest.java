@@ -21,6 +21,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -108,5 +109,10 @@ public class ObjectIncludeOverrideBalaTest {
         validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
                 "execute(string aVar, int bVar)', found 'public function execute(string cVar, int dVar)'", 65, 5);
         assertEquals(negativeRes.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

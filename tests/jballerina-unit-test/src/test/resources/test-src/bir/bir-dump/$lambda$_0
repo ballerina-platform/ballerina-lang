@@ -9,8 +9,8 @@ $lambda$_0 function(map<any|error{map<ballerina/lang.value:0.0.0:Cloneable>}>, i
     %12(TEMP) int;
     %14(TEMP) string;
     %16(TEMP) int;
-    %19(LOCAL) string;
-    %23(TEMP) string;
+    %18(LOCAL) string;
+    %21(TEMP) string;
 
     bb0 {
         %3 = ConstLoad 34;
@@ -30,8 +30,8 @@ $lambda$_0 function(map<any|error{map<ballerina/lang.value:0.0.0:Cloneable>}>, i
     }
     bb2 {
         %14 = ConstLoad l;
-        %23 = %1[%14];
-        %19 = s + %23;
+        %21 = %1[%14];
+        %18 = s + %21;
         %14 = ConstLoad a;
         %12 = %1[%14];
         %0 = %3 + %12;

@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,7 +53,8 @@ public class ConstantTypeTest {
            "testTypesOfConstantMaps",
            "testConstTypesInline",
            "testInvalidRuntimeUpdateOfConstMaps",
-           "testResolvingConstValForConstantsOfUserDefinedTypes"    
+           "testResolvingConstValForConstantsOfUserDefinedTypes",
+           "testConstByteArrLiteral"
         };
     }
 
@@ -182,5 +184,10 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '123'", 24, 18);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '-1'", 24, 28);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

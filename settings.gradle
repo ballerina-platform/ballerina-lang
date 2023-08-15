@@ -1,3 +1,7 @@
+plugins {
+    id "com.gradle.enterprise" version "3.13.2"
+}
+
 rootProject.name = 'ballerina-parent'
 include(':ballerina-tools-api')
 include(':ballerina-parser')
@@ -69,7 +73,6 @@ include(':testerina')
 include(':testerina:report-tools')
 include(':testerina:testerina-compiler-plugin')
 include(':testerina:testerina-runtime')
-include(':testerina:testerina-core')
 include(':ballerina-spec-conformance-tests')
 include(':observability-symbol-collector')
 include(':metrics-extensions:ballerina-metrics-extension')
@@ -94,7 +97,6 @@ include(':testerina:report-tools')
 include(':testerina-integration-test')
 include(':jballerina-debugger-integration-test')
 include(':language-server-integration-tests')
-include(':language-server-simulator')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
 
@@ -241,7 +243,6 @@ project(':test-launch-listener-03').projectDir = file('tests/launch-listener-tes
 project(':test-launch-listener-04').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-04')
 project(':jballerina-integration-test').projectDir = file('tests/jballerina-integration-test')
 project(':language-server-integration-tests').projectDir = file('tests/language-server-integration-tests')
-project(':language-server-simulator').projectDir = file('tests/language-server-simulator')
 // project(':composer-integration-test').projectDir = file('tests/composer-integration-test')
 // project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
 //project(':ballerina-stringutils').projectDir = file('stdlib/stringutils')
@@ -273,5 +274,12 @@ buildCache {
         url = "http://192.168.58.132:5071/cache/"
         enabled = false
         push = true
+    }
+}
+
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 }

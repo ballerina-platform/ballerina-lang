@@ -273,13 +273,9 @@ public class Types {
         return symTable.semanticError;
     }
 
-    public boolean isLax(BType type) {
+    public boolean isLaxFieldAccessAllowed(BType type) {
         Set<BType> visited = new HashSet<>();
-        int result = isLaxType(type, visited);
-        if (result == 1) {
-            return true;
-        }
-        return false;
+        return isLaxType(type, visited) == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT;
     }
 
     // TODO : clean
@@ -289,8 +285,6 @@ public class Types {
         }
         switch (type.tag) {
             case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
                 return 1;
             case TypeTags.MAP:
                 return isLaxType(((BMapType) type).constraint, visited);
@@ -323,8 +317,6 @@ public class Types {
         }
         switch (type.tag) {
             case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
                 visited.put(type, true);
                 return true;
             case TypeTags.MAP:
@@ -1018,8 +1010,9 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
-                isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+        return (sourceTag == TypeTags.ARRAY || sourceTag == TypeTags.BYTE_ARRAY)
+                && targetTag == TypeTags.ARRAY
+                && isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
     }
 
     private boolean isMutable(BType type) {
@@ -1542,6 +1535,7 @@ public class Types {
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
+            case TypeTags.BYTE_ARRAY:
                 return true;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
@@ -3502,6 +3496,11 @@ public class Types {
                 if (!Symbols.isOptional(lhsField.symbol) || isInvalidNeverField(lhsField, rhsType)) {
                     return false;
                 }
+
+                if (!rhsType.sealed && !isAssignable(rhsType.restFieldType, lhsField.type, unresolvedTypes)) {
+                    return false;
+                }
+
                 continue;
             }
             if (hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags)) {

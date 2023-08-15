@@ -20,10 +20,10 @@
   "ballerina_version": "slbeta4",
   "implementation_vendor": "WSO2",
   "language_spec_version": "2021R1",
-  "platform": "java11",
+  "platform": "java17",
   "platformDependencies": [
     {
-      "path": "platform/java11/protobuf-native-1.0.1.jar"
+      "path": "platform/java17/protobuf-native-1.0.1.jar"
     }
   ],
   "template": true

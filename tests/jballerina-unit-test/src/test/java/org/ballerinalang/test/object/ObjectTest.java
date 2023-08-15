@@ -47,17 +47,13 @@ public class ObjectTest {
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
+    private CompileResult checkObjectWithDefaultValuesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        checkInInitializerResult = null;
-        checkFunctionReferencesResult = null;
+        checkObjectWithDefaultValuesResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
     }
 
     @Test(description = "Test Basic object as struct")
@@ -133,8 +129,7 @@ public class ObjectTest {
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-with-defaultable-field.bal");
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithSimpleInit");
+        BArray returns = (BArray) BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithSimpleInit");
 
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -945,5 +940,21 @@ public class ObjectTest {
     public void testNonPublicSymbolsWarningInServiceClass() {
         CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testClassWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testClassWithModuleLevelVarAsDefaultValue");
+    }
+
+    @Test
+    public void testObjectConstructorWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectConstructorWithModuleLevelVarAsDefaultValue");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        checkFunctionReferencesResult = null;
+        checkInInitializerResult = null;
     }
 }
