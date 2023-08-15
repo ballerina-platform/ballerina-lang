@@ -274,6 +274,7 @@ public class Types {
     }
 
     public boolean isLaxFieldAccessAllowed(BType type) {
+        type = Types.getReferredType(type);
         Set<BType> visited = new HashSet<>();
         return isLaxType(type, visited) == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT;
     }
