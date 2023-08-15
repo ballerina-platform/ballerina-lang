@@ -546,6 +546,7 @@ public class MemberAccessTest {
     @Test
     public void testNestedMemberAccessWithSameTypeUnionExprAsIndex() {
         BRunUtil.invoke(result, "testUnionTypeExprMemberAccess");
+    }
 
     @AfterClass
     public void tearDown() {
