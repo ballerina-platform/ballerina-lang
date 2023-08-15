@@ -464,8 +464,7 @@ public class LargeMethodOptimizer {
                                                                      globalAndArgVarKeyOrValueRelatedIns,
                                                              BIRAbstractInstruction currIns, BIROperand lhsOp) {
         if (globalAndArgVarKeyOrValueLhsOperands.containsKey(lhsOp)) {
-            globalAndArgVarKeyOrValueRelatedIns.put(currIns,
-                    globalAndArgVarKeyOrValueLhsOperands.get(lhsOp));
+            globalAndArgVarKeyOrValueRelatedIns.put(currIns, globalAndArgVarKeyOrValueLhsOperands.get(lhsOp));
             globalAndArgVarKeyOrValueLhsOperands.remove(lhsOp);
         }
     }
@@ -683,8 +682,8 @@ public class LargeMethodOptimizer {
         if (bbInsLhsOp != null && errorOperandsAndTargetBBs.containsKey(bbInsLhsOp)) {
             nextBBPendingIns.addAll(newBBInsList);
             splitFuncEnv.splitOkay = false;
-            splitFuncEnv.doNotSplitTillThisBBNum = Math.max(
-                    splitFuncEnv.doNotSplitTillThisBBNum, errorOperandsAndTargetBBs.get(bbInsLhsOp));
+            splitFuncEnv.doNotSplitTillThisBBNum = Math.max(splitFuncEnv.doNotSplitTillThisBBNum,
+                    errorOperandsAndTargetBBs.get(bbInsLhsOp));
         } else {
             splitFuncEnv.splitFuncNewInsList.addAll(newBBInsList);
         }
