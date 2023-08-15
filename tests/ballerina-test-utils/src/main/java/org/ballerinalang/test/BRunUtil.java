@@ -242,17 +242,18 @@ public class BRunUtil {
         if (!balFileName.endsWith(".bal")) {
             return balFileName;
         }
-
         return balFileName.substring(0, balFileName.length() - 4);
     }
 
     private static BIRNode.BIRFunction getInvokedFunction(CompileResult compileResult, String functionName) {
         checkAndNotifyCompilationErrors(compileResult);
         BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();
-        return birPackage.functions.stream()
-                .filter(function -> functionName.equals(function.name.value))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Function '" + functionName + "' is not defined"));
+        for (BIRNode.BIRFunction function : birPackage.functions) {
+            if (functionName.equals(function.name.value)) {
+                return function;
+            }
+        }
+        throw new RuntimeException("Function '" + functionName + "' is not defined");
     }
 
     private static void checkAndNotifyCompilationErrors(CompileResult compileResult) {

@@ -270,8 +270,11 @@ class InstructionEmitter {
     }
 
     private static String emitArrayValues(List<BIRNode.BIRListConstructorEntry> values) {
-        BIROperand[] valueOperands = values.stream().map(x -> x.exprOp).limit(INITIAL_VALUE_COUNT)
-                .toArray(BIROperand[]::new);
+        int operandArraySize = Math.min(INITIAL_VALUE_COUNT, values.size());
+        BIROperand[] valueOperands = new BIROperand[operandArraySize];
+        for (int i = 0; i < operandArraySize; i++) {
+            valueOperands[i] = values.get(i).exprOp;
+        }
         String result = emitVarRefs(valueOperands);
         return values.size() > INITIAL_VALUE_COUNT ? result + ",..." : result;
     }
