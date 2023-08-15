@@ -166,6 +166,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -220,7 +221,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -1997,47 +1997,45 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // Asynchronous Send Statement
     @Override
-    public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
         BSymbol receiver =
-                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerSendNode.workerIdentifier));
+                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value, data.env);
+        verifyPeerCommunication(asyncSendExpr.pos, receiver, asyncSendExpr.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
         if (data.withinLockBlock) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
             was.hasErrors = true;
         }
 
-        BType type = workerSendNode.expr.getBType();
+        BType type = asyncSendExpr.expr.getBType();
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
-        } else if (workerSendNode.expr instanceof ActionNode) {
-            this.dlog.error(workerSendNode.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
-        } else if (!types.isAssignable(type, symTable.cloneableType)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
+        } else if (asyncSendExpr.expr instanceof ActionNode) {
+            this.dlog.error(asyncSendExpr.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
         }
 
-        String workerName = workerSendNode.workerIdentifier.getValue();
+        String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.getBType(), workerName, data.env)
+        if (!this.workerExists(asyncSendExpr.workerType, workerName, data.env)
                 || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
-        workerSendNode.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(workerSendNode.pos, workerSendNode.expr.getBType(), data));
-        was.addWorkerAction(workerSendNode);
-        analyzeExpr(workerSendNode.expr, data);
-        validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
+        asyncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.pos, asyncSendExpr.expr.getBType(), data);
+        was.addWorkerAction(asyncSendExpr);
+        analyzeExpr(asyncSendExpr.expr, data);
+        validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
     private BType createAccumulatedErrorTypeForMatchingReceive(Location pos, BType exprType, AnalyzerData data) {
@@ -2090,8 +2088,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, syncSendExpr.workerSymbol);
             was.hasErrors = true;
         }
-        syncSendExpr.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data));
+
+        syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
+        syncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
@@ -2439,7 +2439,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
             case WORKER_RECEIVE:
-            case WORKER_SEND:
+            case WORKER_ASYNC_SEND:
             case WORKER_SYNC_SEND:
                 return;
             default:
@@ -2803,9 +2803,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         BLangIdentifier flushWrkIdentifier = workerFlushExpr.workerIdentifier;
         Stack<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
         WorkerActionSystem currentWrkerAction = workerActionSystems.peek();
-        List<BLangWorkerSend> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
+        List<BLangWorkerAsyncSendExpr> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
         if (flushWrkIdentifier != null) {
-            List<BLangWorkerSend> sendsToGivenWrkr = sendStmts.stream()
+            List<BLangWorkerAsyncSendExpr> sendsToGivenWrkr = sendStmts.stream()
                                                               .filter(bLangNode -> bLangNode.workerIdentifier.equals
                                                                       (flushWrkIdentifier))
                                                               .collect(Collectors.toList());
@@ -2827,11 +2827,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         validateActionParentNode(workerFlushExpr.pos, workerFlushExpr);
     }
 
-    private List<BLangWorkerSend> getAsyncSendStmtsOfWorker(WorkerActionSystem currentWorkerAction) {
+    private List<BLangWorkerAsyncSendExpr> getAsyncSendStmtsOfWorker(WorkerActionSystem currentWorkerAction) {
         List<BLangNode> actions = currentWorkerAction.workerActionStateMachines.peek().actions;
         return actions.stream()
                       .filter(CodeAnalyzer::isWorkerSend)
-                      .map(bLangNode -> (BLangWorkerSend) bLangNode)
+                      .map(bLangNode -> (BLangWorkerAsyncSendExpr) bLangNode)
                       .collect(Collectors.toList());
     }
     @Override
@@ -3600,7 +3600,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private static boolean isWorkerSend(BLangNode action) {
-        return action.getKind() == NodeKind.WORKER_SEND;
+        return action.getKind() == NodeKind.WORKER_ASYNC_SEND;
     }
 
     private static boolean isWorkerSyncSend(BLangNode action) {
@@ -3613,7 +3613,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private String extractWorkerId(BLangNode action) {
         if (isWorkerSend(action)) {
-            return ((BLangWorkerSend) action).workerIdentifier.value;
+            return ((BLangWorkerAsyncSendExpr) action).workerIdentifier.value;
         } else if (isWorkerSyncSend(action)) {
             return ((BLangWorkerSyncSendExpr) action).workerIdentifier.value;
         } else {
@@ -3664,7 +3664,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (isWorkerSyncSend(currentAction)) {
                     this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
                 } else {
-                    this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
+                    this.validateWorkerActionParameters((BLangWorkerAsyncSendExpr) currentAction, receive);
                 }
                 otherSM.next();
                 data.workerSystemMovementSequence++;
@@ -3717,7 +3717,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         }
                     }
                 } else  if (isWorkerSend(action)) {
-                    BLangWorkerSend send = (BLangWorkerSend) action;
+                    BLangWorkerAsyncSendExpr send = (BLangWorkerAsyncSendExpr) action;
                     if (waitingOnWorkerSet.contains(send.workerIdentifier.value)) {
                         dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
                         isValid = false;
@@ -3836,9 +3836,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 workerActionSystem.toString());
     }
 
-    private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
-        types.checkType(receive, send.getBType(), receive.getBType());
-        addImplicitCast(send.getBType(), receive);
+    private void validateWorkerActionParameters(BLangWorkerAsyncSendExpr send, BLangWorkerReceive receive) {
+        send.receive = receive;
+        types.checkType(send.pos, symTable.nilType, send.expectedType,
+                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+
+        types.checkType(receive, send.sendType, receive.getBType());
+        addImplicitCast(send.sendType, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
                 kind == NodeKind.FAIL) {
@@ -3873,9 +3877,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                             DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
 
-        types.checkType(receive, send.getBType(), receive.getBType());
+        types.checkType(receive, send.sendType, receive.getBType());
 
-        addImplicitCast(send.getBType(), receive);
+        addImplicitCast(send.sendType, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
@@ -4144,7 +4148,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             } else {
                 BLangNode action = this.currentAction();
                 if (isWorkerSend(action)) {
-                    return ((BLangWorkerSend) action).toActionString();
+                    return ((BLangWorkerAsyncSendExpr) action).toActionString();
                 } else if (isWorkerSyncSend(action)) {
                     return ((BLangWorkerSyncSendExpr) action).toActionString();
                 } else if (isWaitAction(action)) {
