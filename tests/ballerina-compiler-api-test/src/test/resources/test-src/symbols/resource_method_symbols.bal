@@ -46,6 +46,18 @@ client class BookService {
 
     resource function get [string]() {
     }
+
+    resource function get books/[int year]/["AD"|"BC" era]/[string... authors]() {
+    }
+
+    resource function put books/[int]/["AD"|"BC" era]/[string... authors]() {
+    }
+
+    resource function post books/[int year]/["AD"|"BC" era]/[string...]() {
+    }
+
+    resource function patch books/[int]/["AD"|"BC"]/[string...]() {
+    }
 }
 
 type Book record {|

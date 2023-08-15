@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.projects.Document;
@@ -99,7 +100,7 @@ public class SymbolsInResourceMethodsTest {
     @DataProvider(name = "PathParamPosProvider")
     public Object[][] getPathParamPos() {
         return new Object[][]{
-                {24, 45, "names", PathSegment.Kind.PATH_REST_PARAMETER, TypeDescKind.ARRAY},
+                {24, 45, "names", PathSegment.Kind.PATH_REST_PARAMETER, TypeDescKind.STRING},
                 {32, 52, "isbn", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.UNION},
                 {36, 48, "author", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.STRING},
                 {36, 61, "bookId", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.INT},
@@ -108,6 +109,7 @@ public class SymbolsInResourceMethodsTest {
 
     @Test
     public void testPathSegmentsInResourceMethod() {
+        // function get registered/[float|decimal isbn]/[int... ex]()
         Object[][] expPathSegments = new Object[][]{
                 {"registered", PathSegment.Kind.NAMED_SEGMENT},
                 {"isbn", PathSegment.Kind.PATH_PARAMETER},
@@ -166,11 +168,12 @@ public class SymbolsInResourceMethodsTest {
         assertEquals(resourcePath.kind(), ResourcePath.Kind.PATH_REST_PARAM);
         BallerinaPathParameterSymbol restPathParam = (BallerinaPathParameterSymbol)
                 ((BallerinaPathRestParam) resourcePath).parameter();
+        assertEquals(restPathParam.pathSegmentKind(), PathSegment.Kind.PATH_REST_PARAMETER);
         assertFalse(restPathParam.isTypeOnlyParam());
         assertTrue(restPathParam.getName().isPresent());
         assertEquals(restPathParam.getName().get(), "fl");
         TypeSymbol typeDesc = restPathParam.typeDescriptor();
-        assertEquals(typeDesc.typeKind(), TypeDescKind.ARRAY);
+        assertEquals(typeDesc.typeKind(), TypeDescKind.FLOAT);
     }
 
     @Test
@@ -189,6 +192,18 @@ public class SymbolsInResourceMethodsTest {
     }
 
     @Test
+    public void testResourceMethodWithPathSegmentList() {
+        // function get registered/[float|decimal isbn]/[int... ex]()
+        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, 32, 22, "get", SymbolKind.RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol) symbol;
+        ResourcePath resourcePath = resourceMethod.resourcePath();
+        assertEquals(resourcePath.kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
+        assertEquals(pathSegmentList.pathParameters().size(), 1);
+        assertEquals(pathSegmentList.list().size(), 3);
+    }
+
+    @Test
     public void testResourceMethodWithDotPath() {
         // function get .()
         Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, 17, 22, "get", SymbolKind.RESOURCE_METHOD);
@@ -199,13 +214,138 @@ public class SymbolsInResourceMethodsTest {
         assertEquals(dotResourcePath.signature(), ".");
     }
 
+    @Test(dataProvider = "PathSegmentListInfo")
+    public void testPathSegmentList(int line, int col, String methodName, List<ExpectedPathSegmentInfo> expPathSegments,
+                                    List<ExpectedPathSegmentInfo> expPathParams,
+                                    ExpectedPathSegmentInfo expRestPathParam) {
+        PathSegmentList segmentList = assertResourceFunctionAndGetPathSegmentList(line, col, methodName);
+
+        List<PathParameterSymbol> pathParams = segmentList.pathParameters();
+        for (int i = 0; i < expPathParams.size(); i++) {
+            assertPathParameter(pathParams.get(i), expPathParams.get(i).name, expPathParams.get(i).pathKind,
+                    expPathParams.get(i).typeDescKind);
+        }
+
+        List<PathSegment> pathSegments = segmentList.list();
+        for (int i = 0; i < expPathSegments.size(); i++) {
+            assertPathSegment(pathSegments.get(i), expPathSegments.get(i).name, expPathSegments.get(i).pathKind);
+        }
+
+        assertTrue(segmentList.pathRestParameter().isPresent());
+        assertPathParameter(segmentList.pathRestParameter().get(), expRestPathParam.name, expRestPathParam.pathKind,
+                expRestPathParam.typeDescKind);
+    }
+
+    @DataProvider(name = "PathSegmentListInfo")
+    public Object[][] pathSegmentList2() {
+        return new Object[][]{
+                // function get books/[int year]/["AD"|"BC" era]/[string... authors]()
+                {49, 22, "get",
+                        List.of(
+                                pathSegInfoFrom("books", PathSegment.Kind.NAMED_SEGMENT),
+                                pathSegInfoFrom("year", PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom("era", PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom("authors", PathSegment.Kind.PATH_REST_PARAMETER)),
+                        List.of(
+                                pathSegInfoFrom("year", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.INT),
+                                pathSegInfoFrom("era", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.UNION)),
+                        pathSegInfoFrom("authors", PathSegment.Kind.PATH_REST_PARAMETER, TypeDescKind.STRING)
+                },
+
+                // function put books/[int]/["AD"|"BC" era]/[string... authors]()
+                {52, 22, "put",
+                        List.of(
+                                pathSegInfoFrom("books", PathSegment.Kind.NAMED_SEGMENT),
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom("era", PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom("authors", PathSegment.Kind.PATH_REST_PARAMETER)),
+                        List.of(
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_PARAMETER, TypeDescKind.INT),
+                                pathSegInfoFrom("era", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.UNION)),
+                        pathSegInfoFrom("authors", PathSegment.Kind.PATH_REST_PARAMETER, TypeDescKind.STRING)
+                },
+
+                // function post books/[int year]/["AD"|"BC" era]/[string...]()
+                {55, 22, "post",
+                        List.of(
+                                pathSegInfoFrom("books", PathSegment.Kind.NAMED_SEGMENT),
+                                pathSegInfoFrom("year", PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom("era", PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_REST_PARAMETER)),
+                        List.of(
+                                pathSegInfoFrom("year", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.INT),
+                                pathSegInfoFrom("era", PathSegment.Kind.PATH_PARAMETER, TypeDescKind.UNION)),
+                        pathSegInfoFrom(null, PathSegment.Kind.PATH_REST_PARAMETER, TypeDescKind.STRING)
+                },
+
+                // function patch books/[int]/["AD"|"BC"]/[string...]()
+                {58, 22, "patch",
+                        List.of(
+                                pathSegInfoFrom("books", PathSegment.Kind.NAMED_SEGMENT),
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_PARAMETER),
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_REST_PARAMETER)),
+                        List.of(
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_PARAMETER, TypeDescKind.INT),
+                                pathSegInfoFrom(null, PathSegment.Kind.PATH_PARAMETER, TypeDescKind.UNION)),
+                        pathSegInfoFrom(null, PathSegment.Kind.PATH_REST_PARAMETER, TypeDescKind.STRING)
+                },
+        };
+    }
+
+    @Test
+//    public void testDF() {
+//        model.symbol(srcFile, LinePosition.from(28, 42));
+//    }
+
+    private static class ExpectedPathSegmentInfo {
+        String name;
+        PathSegment.Kind pathKind;
+        TypeDescKind typeDescKind;
+
+        private ExpectedPathSegmentInfo(String name, PathSegment.Kind pathKind, TypeDescKind typeDescKind) {
+            this.name = name;
+            this.pathKind = pathKind;
+            this.typeDescKind = typeDescKind;
+        }
+    }
+
+    private static ExpectedPathSegmentInfo pathSegInfoFrom(String name, PathSegment.Kind pathKind,
+                                                           TypeDescKind typeDescKind) {
+        return new ExpectedPathSegmentInfo(name, pathKind, typeDescKind);
+    }
+
+    private static ExpectedPathSegmentInfo pathSegInfoFrom(String name, PathSegment.Kind pathKind) {
+        return new ExpectedPathSegmentInfo(name, pathKind, null);
+    }
+
+    private PathSegmentList assertResourceFunctionAndGetPathSegmentList(int line, int col, String funcName) {
+        Symbol symbol = assertBasicsAndGetSymbol(model, srcFile, line, col, funcName, SymbolKind.RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol) symbol;
+        ResourcePath resourcePath = resourceMethod.resourcePath();
+        assertEquals(resourcePath.kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        return (PathSegmentList) resourcePath;
+    }
+
     private void assertPathSegment(PathSegment pathSegment, String expName, PathSegment.Kind expKind) {
+        assertEquals(pathSegment.pathSegmentKind(), expKind);
         if (expName != null) {
             assertTrue(pathSegment.getName().isPresent());
             assertEquals(pathSegment.getName().get(), expName);
         } else {
             assertTrue(pathSegment.getName().isEmpty());
         }
-        assertEquals(pathSegment.pathSegmentKind(), expKind);
+    }
+
+    private void assertPathParameter(PathParameterSymbol pathParameter, String expName, PathSegment.Kind expKind,
+                                     TypeDescKind expTypeKind) {
+        assertEquals(pathParameter.pathSegmentKind(), expKind);
+        assertEquals(pathParameter.typeDescriptor().typeKind(), expTypeKind);
+        if (expName != null) {
+            assertTrue(pathParameter.getName().isPresent());
+            assertEquals(pathParameter.getName().get(), expName);
+        } else {
+            assertTrue(pathParameter.getName().isEmpty());
+        }
     }
 }
