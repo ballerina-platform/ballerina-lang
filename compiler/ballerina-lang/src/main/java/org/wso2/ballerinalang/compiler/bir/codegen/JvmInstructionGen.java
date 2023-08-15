@@ -604,80 +604,84 @@ public class JvmInstructionGen {
 
     void generatePlatformIns(JInstruction ins, int localVarOffset) {
         switch (ins.jKind) {
-            case JCAST:
-                JCast castIns = (JCast) ins;
-                BType targetType = castIns.targetType;
-                this.loadVar(castIns.rhsOp.variableDcl);
-                jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type,
-                        targetType);
-                this.storeToVar(castIns.lhsOp.variableDcl);
-                break;
-            case CALL:
-                JMethodCallInstruction callIns = (JMethodCallInstruction) ins;
-                boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
-                int argIndex = 0;
-                String jMethodVMSig = callIns.jMethodVMSig;
-                boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
-                if (hasBalEnvParam) {
-                    mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
-                    mv.visitInsn(DUP);
-                    // load the strand
-                    this.mv.visitVarInsn(ALOAD, localVarOffset);
-                    // load the current Module
-                    mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-                    mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
-                            INIT_BAL_ENV, false);
-                }
-                while (argIndex < callIns.args.size()) {
-                    BIROperand arg = callIns.args.get(argIndex);
-                    this.loadVar(arg.variableDcl);
-                    argIndex += 1;
-                }
-                this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
-                        isInterface);
-                if (callIns.lhsOp != null) {
-                    this.storeToVar(callIns.lhsOp.variableDcl);
-                }
-                break;
-            case LARGE_ARRAY:
-                JLargeArrayInstruction inst = (JLargeArrayInstruction) ins;
-                BType instType = JvmCodeGenUtil.getReferredType(inst.type);
-                if (instType.tag == TypeTags.ARRAY) {
-                    this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
-                    this.mv.visitInsn(DUP);
-                    jvmTypeGen.loadType(this.mv, inst.type);
-                    loadListInitialValues(inst);
-                    BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
-                    if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
-                            ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
-                        visitNewRecordArray(elementType);
-                    } else {
-                        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
-                                INIT_ARRAY, false);
-                    }
-                    this.storeToVar(inst.lhsOp.variableDcl);
-                } else {
-                    this.loadVar(inst.typedescOp.variableDcl);
-                    this.mv.visitVarInsn(ALOAD, localVarOffset);
-                    loadListInitialValues(inst);
-                    this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
-                    this.storeToVar(inst.lhsOp.variableDcl);
-                }
-                break;
-            default:
-                JLargeMapInstruction mapNewIns = (JLargeMapInstruction) ins;
-                this.loadVar(mapNewIns.rhsOp.variableDcl);
-                this.mv.visitVarInsn(ALOAD, localVarOffset);
-
-                // load the initial values operand
-                this.loadVar(mapNewIns.initialValues.variableDcl);
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
-                mv.visitTypeInsn(CHECKCAST, "[L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";");
-
-                this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
-                this.storeToVar(mapNewIns.lhsOp.variableDcl);
-                break;
+            case JCAST -> generateJCastIns((JCast) ins);
+            case CALL -> generateJMethodCallIns(localVarOffset, (JMethodCallInstruction) ins);
+            case LARGE_ARRAY -> generateJLargeArrayIns(localVarOffset, (JLargeArrayInstruction) ins);
+            default -> generateJLargeMapIns(localVarOffset, (JLargeMapInstruction) ins);
         }
+    }
+
+    private void generateJLargeMapIns(int localVarOffset, JLargeMapInstruction mapNewIns) {
+        this.loadVar(mapNewIns.rhsOp.variableDcl);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+
+        // load the initial values operand
+        this.loadVar(mapNewIns.initialValues.variableDcl);
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
+        mv.visitTypeInsn(CHECKCAST, "[L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";");
+
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+        this.storeToVar(mapNewIns.lhsOp.variableDcl);
+    }
+
+    private void generateJLargeArrayIns(int localVarOffset, JLargeArrayInstruction inst) {
+        BType instType = JvmCodeGenUtil.getReferredType(inst.type);
+        if (instType.tag == TypeTags.ARRAY) {
+            this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
+            this.mv.visitInsn(DUP);
+            jvmTypeGen.loadType(this.mv, inst.type);
+            loadListInitialValues(inst);
+            BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
+            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+                visitNewRecordArray(elementType);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                        INIT_ARRAY, false);
+            }
+            this.storeToVar(inst.lhsOp.variableDcl);
+        } else {
+            this.loadVar(inst.typedescOp.variableDcl);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            loadListInitialValues(inst);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+    }
+
+    private void generateJMethodCallIns(int localVarOffset, JMethodCallInstruction callIns) {
+        boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+        int argIndex = 0;
+        String jMethodVMSig = callIns.jMethodVMSig;
+        boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
+        if (hasBalEnvParam) {
+            mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
+            mv.visitInsn(DUP);
+            // load the strand
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            // load the current Module
+            mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
+                    INIT_BAL_ENV, false);
+        }
+        while (argIndex < callIns.args.size()) {
+            BIROperand arg = callIns.args.get(argIndex);
+            this.loadVar(arg.variableDcl);
+            argIndex += 1;
+        }
+        this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
+                isInterface);
+        if (callIns.lhsOp != null) {
+            this.storeToVar(callIns.lhsOp.variableDcl);
+        }
+    }
+
+    private void generateJCastIns(JCast castIns) {
+        BType targetType = castIns.targetType;
+        this.loadVar(castIns.rhsOp.variableDcl);
+        jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type,
+                targetType);
+        this.storeToVar(castIns.lhsOp.variableDcl);
     }
 
     void generateMoveIns(BIRNonTerminator.Move moveIns) {
