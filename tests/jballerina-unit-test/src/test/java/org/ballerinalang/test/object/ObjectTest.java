@@ -943,13 +943,13 @@ public class ObjectTest {
     }
 
     @Test
-    public void testClassWithModuleDefaultValue() {
-        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testClassWithModuleDefaultValue");
+    public void testClassWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testClassWithModuleLevelVarAsDefaultValue");
     }
 
     @Test
-    public void testObjectWithModuleDefaultValue() {
-        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithModuleDefaultValue");
+    public void testObjectWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithModuleLevelVarAsDefaultValue");
     }
 
     @AfterClass

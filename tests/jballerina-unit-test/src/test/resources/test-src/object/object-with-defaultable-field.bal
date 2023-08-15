@@ -31,13 +31,13 @@ function value(int k = classI) returns int {
 
 ModuleVariableReferencingClass c1 = new;
 
-function testClassWithModuleDefaultValue() {
+function testClassWithModuleLevelVarAsDefaultValue() {
     ModuleVariableReferencingClass c = new;
     assertEquality(111222, c.i);
     assertEquality(111222, c1.i);
 }
 
-function testObjectWithModuleDefaultValue() {
+function testObjectWithModuleLevelVarAsDefaultValue() {
     var value = object {
         int i = classI;
     };
