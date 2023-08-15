@@ -237,11 +237,11 @@ public class MemberAccessTest {
                 392, 9);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|int)'",
                 396, 9);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'STRINT'",
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'StrOrInt1'",
                 399, 9);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(string|int)'",
                 403, 7);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|STR)'",
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|Str)'",
                 406, 7);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -544,8 +544,8 @@ public class MemberAccessTest {
     }
 
     @Test
-    public void testNestedMemberAccessWithSameTypeUnionExprAsIndex() {
-        BRunUtil.invoke(result, "testUnionTypeExprMemberAccess");
+    public void testMemberAccessWithUnionTypedIndexExpr() {
+        BRunUtil.invoke(result, "testMemberAccessWithUnionTypedIndexExpr");
     }
 
     @AfterClass
