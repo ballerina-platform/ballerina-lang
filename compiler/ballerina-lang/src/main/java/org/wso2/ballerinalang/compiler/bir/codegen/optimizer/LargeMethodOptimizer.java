@@ -63,6 +63,7 @@ import static org.wso2.ballerinalang.compiler.bir.BIRGenUtils.rearrangeBasicBloc
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LARGE_STRUCTURE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_OBJECT_LONG_ARGS;
 
 /**
  * Split large BIR functions into smaller methods.
@@ -415,7 +416,7 @@ public class LargeMethodOptimizer {
         // which is related to global or arg vars.
 
         // For a key-value entry given both key values are temp/synthetic,
-        // we do not populate the map value if we do not have a key operand before 
+        // we do not populate the map value if we do not have a key operand before
         // the value operand. We have to check that when processing split points. Hence, we have to find where
         // the map key operands are located. That is done in the same loop below.
 
@@ -424,9 +425,9 @@ public class LargeMethodOptimizer {
 
         // Split points mean the places which are eligible for a split. i.e. we can split the parent function by
         // moving instructions and terminators until this one (including this) to a new function.
-        // The criteria for choosing a split point are as follows. We go from bottom to top searching for map value operands
-        // in both RHS and LHS. If we find one, that is a split point, unless we find that previously in the same BB.
-        // A new flag is added to the split point to depict whether to split the function here (splitHere).
+        // The criteria for choosing a split point are as follows. We go from bottom to top searching for map value
+        // operands in both RHS and LHS. If we find one, that is a split point, unless we find that previously in the
+        // same BB. A new flag is added to the split point to depict whether to split the function here (splitHere).
         // If it is false only map entry populating instructions are added, no split is done.
         Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = new HashMap<>();
         for (int bbIndex = bbs.size() - 2; bbIndex >= 0; bbIndex--) {
@@ -481,7 +482,7 @@ public class LargeMethodOptimizer {
             lastInsNum = bbInstructions.size() - 1;
             BIRTerminator bbTerminator = bb.terminator;
             if (bbTerminator.kind != InstructionKind.BRANCH) {
-                // branch terminators are omitted from terminators because their boolean operands appear 
+                // branch terminators are omitted from terminators because their boolean operands appear
                 // in a preceding instruction before the terminator. There we can do the split
                 populateInsSplitPoints(arrayOrMapValueOperands, insSplitPoints, bbTerminator, operandsInSameBB,
                         remainingArrayValueOperands);
@@ -510,9 +511,9 @@ public class LargeMethodOptimizer {
 
         // Split points mean the places which are eligible for a split. i.e. we can split the parent function by
         // moving instructions and terminators until this one (including this) to a new function.
-        // The criteria for choosing a split point are as follows. We go from bottom to top searching for array value operands
-        // in both RHS and LHS. If we find one, that is a split point, unless we find that previously in the same BB.
-        // A new flag is added to the split point to depict whether to split the function here (splitHere).
+        // The criteria for choosing a split point are as follows. We go from bottom to top searching for array value
+        // operands in both RHS and LHS. If we find one, that is a split point, unless we find that previously in the
+        // same BB. A new flag is added to the split point to depict whether to split the function here (splitHere).
         // If it is false only array populating instructions are added.
         Map<BIRAbstractInstruction, SplitPointDetails> insSplitPoints = new HashMap<>();
         for (int bbIndex = bbs.size() - 2; bbIndex >= 0; bbIndex--) {
@@ -629,7 +630,7 @@ public class LargeMethodOptimizer {
             }
             handleBBInstructions(splitFuncEnv, bb);
             // Next consider LHS op in the BIR terminator, branch terms won't have an array element as LHS op
-            //If we found a LHS op, we need to create a new BB and change the terminator
+            // If we found a LHS op, we need to create a new BB and change the terminator
             populateSplitFuncArgsAndLocalVarList(splitFuncEnv, bb.terminator);
             splitFuncEnv.periodicSplitInsCount++;
             newBBInsList = new ArrayList<>();
@@ -1134,7 +1135,7 @@ public class LargeMethodOptimizer {
                     tempVars.typeCastOperand, tempVars.arrayIndexOperand));
             callSetEntry.name = "setKeyValueEntry";
         } else {
-            callSetEntry.jMethodVMSig = "(" + GET_HANDLE_VALUE + GET_OBJECT + "J)V";
+            callSetEntry.jMethodVMSig = HANDLE_OBJECT_LONG_ARGS;
             callSetEntry.args = new ArrayList<>(Arrays.asList(handleArrayOperand, tempVars.typeCastOperand,
                     tempVars.arrayIndexOperand));
             callSetEntry.name = "setSpreadFieldEntry";
@@ -1149,7 +1150,7 @@ public class LargeMethodOptimizer {
         JMethodCallInstruction callSetEntry = new JMethodCallInstruction(null);
         callSetEntry.invocationType = INVOKESTATIC;
         callSetEntry.jClassName = LARGE_STRUCTURE_UTILS;
-        callSetEntry.jMethodVMSig = "(" + GET_HANDLE_VALUE + GET_OBJECT + "J)V";
+        callSetEntry.jMethodVMSig = HANDLE_OBJECT_LONG_ARGS;
         tempVars.tempVarsUsed = true;
         BIRNonTerminator.ConstantLoad loadArrayIndex = new BIRNonTerminator.ConstantLoad(null,
                 (long) arrayIndex, symbolTable.intType, tempVars.arrayIndexOperand);
@@ -1485,13 +1486,14 @@ public class LargeMethodOptimizer {
         // unused temp and synthetic vars in the original function are removed
         // and onlyUsedInSingleBB flag in BIRVariableDcl is changed in needed places
         removeUnusedVarsAndSetVarUsage(function);
-        // renumbering BBs is not necessary here as it will be done later and fixing the error table does not require an order
-        // set error table changed BBs
+        // renumbering BBs is not necessary here as it will be done later
+        // fixing the error table does not require BBs to be properly ordered
         fixErrorTableEndBBs(function.errorTable, changedErrorTableEndBB);
     }
 
     private void fixErrorTableEndBBs(List<BIRErrorEntry> errorTable,
                                      Map<Integer, BIRBasicBlock> changedErrorTableEndBB) {
+        // set error table changed BBs
         for (BIRErrorEntry birErrorEntry : errorTable) {
             if (changedErrorTableEndBB.containsKey(birErrorEntry.endBB.number)) {
                 birErrorEntry.endBB = changedErrorTableEndBB.get(birErrorEntry.endBB.number);
