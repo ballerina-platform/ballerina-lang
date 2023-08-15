@@ -1,15 +1,9 @@
-@xmldata:Name {
-    value: "address"
-}
 type Address record {
     string street;
     string city;
     string country;
 };
 
-@xmldata:Name {
-    value: "codes"
-}
 type Codes record {
     int[] item;
 };

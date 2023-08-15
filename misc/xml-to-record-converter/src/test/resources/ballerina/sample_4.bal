@@ -1,6 +1,3 @@
-@xmldata:Name {
-    value: "book"
-}
 type Book record {
     string author;
     string title;
