@@ -4,6 +4,7 @@
     "character": 16
   },
   "source": "expression_context/source/projectls/modules/lsmod4/lsmod4.bal",
+  "description": "",
   "items": [
     {
       "label": "StrandData",
@@ -126,11 +127,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -150,11 +151,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -174,11 +175,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -198,11 +199,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -222,11 +223,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -286,11 +287,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -310,11 +311,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -334,11 +335,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -374,11 +375,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -398,11 +399,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -422,11 +423,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -446,11 +447,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -479,11 +480,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },

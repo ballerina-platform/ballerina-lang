@@ -1152,6 +1152,12 @@ public class TypeChecker {
                 if (!SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
                     return false;
                 }
+
+                if (!sourceRecordType.sealed && !checkIsType(sourceRecordType.restFieldType, targetField.getFieldType(),
+                                                             unresolvedTypes)) {
+                    return false;
+                }
+
                 continue;
             }
 
@@ -1313,6 +1319,12 @@ public class TypeChecker {
                 if (!SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.OPTIONAL)) {
                     return false;
                 }
+
+                if (!sourceRecordType.sealed && !checkIsType(sourceRecordType.restFieldType, targetField.getFieldType(),
+                                                             unresolvedTypes)) {
+                    return false;
+                }
+
                 continue;
             }
 
