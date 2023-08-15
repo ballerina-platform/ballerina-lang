@@ -25,12 +25,12 @@ import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.task.RunProfilerTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
@@ -86,10 +86,7 @@ public class ProfileCommand implements BLauncherCmd {
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
 
-    private static final String runCmd =
-            "bal run [--debug <port>] <executable-jar> \n" +
-                    "    bal run [--offline]\n" +
-                    "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
+    private static final String PROFILE_CMD = "bal profile [--debug <port>] [<ballerina-file | package-path>]\n ";
 
     public ProfileCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -105,28 +102,43 @@ public class ProfileCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    ProfileCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
-        this.projectPath = projectPath;
-        this.exitWhenFinish = exitWhenFinish;
-        this.outStream = outStream;
-        this.errStream = outStream;
-        this.targetDir = targetDir;
-        this.offline = true;
-    }
-
     public void execute() {
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PROFILE_COMMAND);
-            this.errStream.println(commandUsageInfo);
+            printCommandUsageInfo();
             return;
         }
+        setupDebugPort();
+        String[] args = getArgumentsFromArgList();
+        BuildOptions buildOptions = constructBuildOptions();
+        Project project = loadProject(buildOptions);
+        if (project == null) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        boolean isPackageModified = isProjectUpdated(project);
+        TaskExecutor taskExecutor = createTaskExecutor(isPackageModified, args, buildOptions,
+                project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
+        taskExecutor.executeTasks(project);
+    }
 
-        // Sets the debug port as a system property, which will be used when setting up debug args before running the
-        // executable jar in a separate JVM process.
+    private void printCommandUsageInfo() {
+        String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PROFILE_COMMAND);
+        this.errStream.println(commandUsageInfo);
+    }
+
+    private void setupDebugPort() {
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
+    }
 
+    private String[] getArgumentsFromArgList() {
         String[] args = new String[0];
         if (!argList.isEmpty()) {
             if (!argList.get(0).equals("--")) { // project path provided
@@ -140,51 +152,45 @@ public class ProfileCommand implements BLauncherCmd {
                 }
             }
         }
+        return args;
+    }
 
-        // load project
-        Project project;
-        BuildOptions buildOptions = constructBuildOptions();
-
-        boolean isSingleFileBuild = false;
+    private Project loadProject(BuildOptions buildOptions) {
         if (FileUtils.hasExtension(this.projectPath)) {
-            try {
-                project = SingleFileProject.load(this.projectPath, buildOptions);
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            isSingleFileBuild = true;
+            return loadSingleFileProject(buildOptions);
         } else {
-            try {
-                project = BuildProject.load(this.projectPath, buildOptions);
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
+            return loadBuildProject(buildOptions);
         }
+    }
 
-        // If project is empty
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+    private Project loadSingleFileProject(BuildOptions buildOptions) {
+        try {
+            return SingleFileProject.load(this.projectPath, buildOptions);
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), PROFILE_CMD, false);
+            return null;
         }
+    }
 
-        // Check package files are modified after last build
-        boolean isPackageModified = isProjectUpdated(project);
-        boolean enableProfiler = true;
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+    private Project loadBuildProject(BuildOptions buildOptions) {
+        try {
+            return BuildProject.load(this.projectPath, buildOptions);
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.errStream, e.getMessage(), PROFILE_CMD, false);
+            return null;
+        }
+    }
+
+    private TaskExecutor createTaskExecutor(boolean isPackageModified, String[] args, BuildOptions buildOptions,
+                                            boolean isSingleFileBuild) {
+        return new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
                         buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, null), !enableProfiler)
+                .addTask(new CreateExecutableTask(outStream, null), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
-                .addTask(new RunProfilerTask(errStream, args), !enableProfiler)
-                .addTask(new RunExecutableTask(args, outStream, errStream), enableProfiler).build();
-        taskExecutor.executeTasks(project);
+                .addTask(new RunProfilerTask(errStream, args), false).build();
     }
 
     @Override
@@ -199,9 +205,7 @@ public class ProfileCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run [--debug <port>] <executable-jar>\n");
-        out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
-                "[--] [args...] \n");
+        out.append("  bal profile [--debug <port>] [<balfile> | <project-path>]\n");
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.net.URI;
@@ -68,7 +69,7 @@ public class ProfileCommandTest extends BaseCommandTest {
     }
 
 
-    @Test(description = "Run a ballerina project with the flag profile")
+    @Test(description = "Profile a ballerina project")
     public void testRunBalProjectWithProfileFlag() throws IOException {
         Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
@@ -90,6 +91,19 @@ public class ProfileCommandTest extends BaseCommandTest {
             Assert.fail("Error reading html file");
         }
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Test profile command with help")
+    public void testProfileCommandAndHelp() throws IOException {
+        String[] args = {"--help"};
+        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
+        System.setProperty("user.dir", projectPath.toString());
+        ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
+        new CommandLine(profileCommand).parse(args);
+        profileCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("ballerina-profile - Run Ballerina profiler on the source and" +
+                " generate flame graph"));
     }
 
     @AfterSuite
