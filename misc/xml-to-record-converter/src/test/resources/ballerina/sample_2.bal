@@ -1,6 +1,3 @@
-@xmldata:Name {
-    value: "guest"
-}
 type Guest record {
     string firstName;
     string lastName;
@@ -8,9 +5,6 @@ type Guest record {
     string phone;
 };
 
-@xmldata:Name {
-    value: "reservationDetails"
-}
 type ReservationDetails record {
     string location;
     string hotelName;
@@ -21,14 +15,10 @@ type ReservationDetails record {
     string specialRequest;
 };
 
-@xmldata:Name {
-    value: "reservation"
-}
 type Reservation record {
     Guest guest;
     ReservationDetails reservationDetails;
 };
-
 
 @xmldata:Name {
     value: "reservations"

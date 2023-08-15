@@ -109,11 +109,15 @@ public class XMLToRecordConverter {
 
         io.ballerina.compiler.syntax.tree.NodeList<ImportDeclarationNode> imports =
                 AbstractNodeFactory.createEmptyNodeList();
-        List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodes.entrySet().stream()
+        List<Map.Entry<String, NonTerminalNode>> recordToTypeDescNodeEntries
+                = new ArrayList<>(recordToTypeDescNodes.entrySet());
+        List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodeEntries.stream()
                 .map(entry -> {
                     String recordName = entry.getKey();
                     String recordTypeName = escapeIdentifier(StringUtils.capitalize(recordName));
-                    MetadataNode metadata = recordName.equals(recordTypeName) ? null : getXMLNameNode(recordName);
+                    MetadataNode metadata =
+                            (recordToTypeDescNodeEntries.indexOf(entry) == recordToTypeDescNodeEntries.size() - 1) ?
+                                    recordName.equals(recordTypeName) ? null : getXMLNameNode(recordName) : null;
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(recordTypeName);
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);

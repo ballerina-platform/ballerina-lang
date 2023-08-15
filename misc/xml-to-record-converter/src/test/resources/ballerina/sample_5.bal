@@ -1,6 +1,3 @@
-@xmldata:Name {
-    value: "codes"
-}
 type Codes record {
     (decimal|int|string)[] item;
 };

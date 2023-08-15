@@ -12,8 +12,8 @@
         <item>
             <ItemCode>23Str</ItemCode>
         </item>
-        <OtherItem>
+        <otherItem>
             <ItemCode>23Str</ItemCode>
-        </OtherItem>
+        </otherItem>
     </codes>
 </bookstore>
