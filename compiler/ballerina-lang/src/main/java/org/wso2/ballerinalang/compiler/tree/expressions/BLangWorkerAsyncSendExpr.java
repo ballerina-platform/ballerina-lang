@@ -15,33 +15,36 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.WorkerSendNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Models the async-send-action.
  *
  * @since 0.94
  */
-public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
+public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerSendExpressionNode {
 
     // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
 
     // Semantic Data
+    public BLangWorkerReceive receive;
     public SymbolEnv env;
     public BSymbol workerSymbol;
+    public BType workerType;
+    public BType sendType;
 
     @Override
     public BLangExpression getExpression() {
@@ -60,7 +63,7 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WORKER_SEND;
+        return NodeKind.WORKER_ASYNC_SEND;
     }
 
     @Override
@@ -84,6 +87,6 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
 
     @Override
     public String toString() {
-        return "BLangWorkerSend: " + this.toActionString();
+        return "BLangWorkerAsyncSend: " + this.toActionString();
     }
 }
