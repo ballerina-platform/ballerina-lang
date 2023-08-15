@@ -898,6 +898,58 @@ function testNestedQueryActionOrExprWithClientResourceAccessAction() {
     assertEquality([["book1", "book4"]], res3);
 }
 
+function testQueryActionWithQueryExpression() {
+    string[] res = [];
+    int[] res2 = [];
+
+    from var item in from string letter in ["a", "b", "c"] select letter
+    do {
+        res.push(item);
+    };
+
+    from var x in from int num in [2, -3, -4, 5] where num > 0 select num * num
+    do {
+        res2.push(x);
+    };
+
+    assertEquality([4, 25], res2);
+}
+
+
+function testQueryActionWithRegexpLangLibs() {
+    string[] res = [];
+
+    from var item in ["a", "aab", "bc", "ac"] 
+    do {
+        if re `a.*`.isFullMatch(item) {
+            res.push(item);
+        }
+    };
+    
+    assertEquality(["a", "aab", "ac"], res);
+}
+
+function testQueryExprWithRegExpLangLibs() {
+    string[] res = from var item in ["a", "aab", "bc", "ac"] 
+    where re `a.*`.isFullMatch(item)
+    select item;
+    
+    assertEquality(["a", "aab", "ac"], res);
+}
+
+function testQueryActionWithInterpolationRegexpLangLibs() {
+    string[] res = [];
+    string pattern = "a.*";
+    from var item in ["aa", "aaab", "bc", "aac"] 
+    do {
+        if re `a${pattern}`.isFullMatch(item) {
+            res.push(item);
+        }
+    };
+
+    assertEquality(["aa", "aaab", "aac"], res);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {

@@ -36,6 +36,7 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     public BType constraint;
 
     private BIntersectionType intersectionType = null;
+    public BXMLType mutableType;
 
     public BXMLType(BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.XML, tsymbol);

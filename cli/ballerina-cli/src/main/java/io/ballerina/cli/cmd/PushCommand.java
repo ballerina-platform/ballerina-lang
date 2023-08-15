@@ -175,7 +175,8 @@ public class PushCommand implements BLauncherCmd {
                     return;
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
+                        initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {
@@ -379,7 +380,7 @@ public class PushCommand implements BLauncherCmd {
             }
 
             try {
-                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_11.code(),
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_17.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();

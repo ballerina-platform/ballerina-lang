@@ -589,7 +589,11 @@ public class TransactionResourceManager {
     }
 
     private String generateCombinedTransactionId(String transactionId, String transactionBlockId) {
-        return transactionId + ":" + transactionBlockId;
+        String compoundId =  transactionId + ":" + transactionBlockId;
+        if (transactionBlockId.contains("_")) {
+            return compoundId;
+        }
+        return compoundId + "_" + Scheduler.getStrand().getId();
     }
 
     public void notifyResourceFailure(String gTransactionId) {

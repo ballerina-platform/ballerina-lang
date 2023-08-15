@@ -4,6 +4,7 @@
     "character": 16
   },
   "source": "module_const_context/source/source4.bal",
+  "description": "",
   "items": [
     {
       "label": "StrandData",
@@ -14,14 +15,6 @@
       },
       "sortText": "BM",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "varName",
-      "kind": "TypeParameter",
-      "detail": "Int",
-      "sortText": "D",
-      "insertText": "varName",
       "insertTextFormat": "Snippet"
     },
     {
@@ -125,11 +118,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -149,11 +142,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -173,11 +166,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -197,11 +190,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -221,11 +214,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -285,11 +278,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -309,11 +302,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -333,11 +326,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -357,11 +350,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -399,11 +392,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -554,6 +547,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "varName",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "varName",
       "insertTextFormat": "Snippet"
     }
   ]

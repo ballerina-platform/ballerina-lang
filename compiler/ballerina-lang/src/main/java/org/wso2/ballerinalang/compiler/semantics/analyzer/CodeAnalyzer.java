@@ -100,8 +100,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -117,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1745,6 +1749,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 BLangExpression expr = varNode.expr;
                 return expr != null && isValidContextForInferredArray(node.parent) &&
                         isValidVariableForInferredArray(expr);
+            case CONSTANT:
+                BLangConstant constant = (BLangConstant) node;
+                return constant.expr != null && isValidContextForInferredArray(node.parent) &&
+                        isValidVariableForInferredArray(constant.expr);
             default:
                 return false;
         }
@@ -1767,7 +1775,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean isValidVariableForInferredArray(BLangNode node) {
         switch (node.getKind()) {
             case LITERAL:
-                if (node.getBType().tag == TypeTags.ARRAY) {
+                if (node.getBType().tag == TypeTags.ARRAY || node.getBType().tag == TypeTags.TUPLE) {
                     return true;
                 }
                 break;
@@ -2224,24 +2232,51 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
-        List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        BType referredType = Types.getReferredType(recordLiteral.getBType());
+        boolean isRecord = referredType.tag == TypeTags.RECORD;
+        List<RecordLiteralNode.RecordField> recordLiteralFields = recordLiteral.fields;
 
-        for (RecordLiteralNode.RecordField field : fields) {
+        LinkedHashMap<String, BField> recordFields = null;
+        if (isRecord) {
+            recordFields = ((BRecordType) referredType).getFields();
+        }
+
+        for (RecordLiteralNode.RecordField field : recordLiteralFields) {
             if (field.isKeyValueField()) {
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr, data);
+                reportIfDeprecatedUsage(((BLangRecordKeyValueField) field).key.fieldSymbol, recordLiteral,
+                        ((BLangRecordKeyValueField) field).pos);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field, data);
+                BLangRecordLiteral.BLangRecordVarNameField recField
+                        = (BLangRecordLiteral.BLangRecordVarNameField) field;
+                analyzeExpr(recField, data);
+
+                if (isRecord) {
+                    BField matchingField = recordFields.get(recField.symbol.getName().getValue());
+                    if (matchingField != null) {
+                        reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, recField.pos);
+                    }
+                }
             } else {
-                analyzeExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, data);
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField
+                        = (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                analyzeExpr(spreadField.expr, data);
+
+                BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
+                if (isRecord && spreadFieldType != null && spreadFieldType.tag == TypeTags.RECORD) {
+                    for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
+                        BField matchingField = recordFields.get(fieldEntry.getName().getValue());
+                        if (matchingField != null) {
+                            reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, spreadField.expr.pos);
+                        }
+                    }
+                }
             }
         }
 
         Set<Object> names = new HashSet<>();
         Set<Object> neverTypedKeys = new HashSet<>();
-        BType literalBType = recordLiteral.getBType();
-        BType type = Types.getReferredType(literalBType);
-        boolean isRecord = type.tag == TypeTags.RECORD;
-        boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
+        boolean isOpenRecord = isRecord && !((BRecordType) referredType).sealed;
 
         // A record type is inferred for a record literal even if the contextually expected type is a map, if the
         // mapping constructor expression has `readonly` fields.
@@ -2249,7 +2284,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
         BLangRecordLiteral.BLangRecordSpreadOperatorField inclusiveTypeSpreadField = null;
-        for (RecordLiteralNode.RecordField field : fields) {
+        for (RecordLiteralNode.RecordField field : recordLiteralFields) {
 
             BLangExpression keyExpr;
 
@@ -2269,7 +2304,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                     inclusiveTypeSpreadField = spreadOpField;
 
-                    if (fields.size() > 1) {
+                    if (recordLiteralFields.size() > 1) {
                         if (names.size() > 0) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
@@ -2312,7 +2347,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         if (bField.type.tag != TypeTags.NEVER) {
                             this.dlog.error(spreadOpExpr.pos,
                                     DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                    type.getKind().typeName(), fieldName, spreadOpField);
+                                    referredType.getKind().typeName(), fieldName, spreadOpField);
                         }
                         continue;
                     }
@@ -2348,7 +2383,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
                     String unescapedName = Utils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
                                         Types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
                                         unescapedName);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(unescapedName)) {
@@ -2357,7 +2392,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                 unescapedName, inclusiveTypeSpreadField);
                     }
 
-                    if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
+                    if (!isInferredRecordForMapCET && isOpenRecord
+                            && !((BRecordType) referredType).fields.containsKey(name)) {
                         dlog.error(keyExpr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY,
                                 unescapedName);
                     }
@@ -2366,7 +2402,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
-                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                        this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
                                 Types.getReferredType(recordLiteral.parent.getBType())
                                         .getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
@@ -2380,7 +2416,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         if (isInferredRecordForMapCET) {
-            recordLiteral.expectedType = type;
+            recordLiteral.expectedType = referredType;
         }
     }
 
@@ -2456,12 +2492,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void analyzeFieldBasedAccessExpr(BLangFieldBasedAccess fieldAccessExpr, AnalyzerData data) {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeExpr(expr, data);
-        BSymbol symbol = fieldAccessExpr.symbol;
-        if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            String deprecatedConstruct = generateDeprecatedConstructString(expr, fieldAccessExpr.field.toString(),
-                    symbol);
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
-        }
+        reportIfDeprecatedUsage(fieldAccessExpr.symbol, expr, fieldAccessExpr.pos);
     }
 
     @Override
@@ -2488,6 +2519,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 logDeprecatedWarningForInvocation(invocationExpr);
             }
         }
+        analyzeInvocationParams(invocationExpr, data);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation node, AnalyzerData data) {
+        analyzeExpr(node.invocation, data);
     }
 
     @Override
@@ -3325,8 +3362,23 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
+    public void visit(BLangGroupByClause node, AnalyzerData data) {
+        node.groupingKeyList.forEach(value -> analyzeNode(value, data));
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, AnalyzerData data) {
+        analyzeNode((BLangNode) node.getGroupingKey(), data);
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause, AnalyzerData data) {
         analyzeExpr(selectClause.expression, data);
+    }
+
+    @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
     }
 
     @Override
@@ -3847,6 +3899,83 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 && data.withinTransactionScope;
     }
 
+    private void analyzeInvocationParams(BLangInvocation iExpr, AnalyzerData data) {
+        if (iExpr.symbol == null) {
+            return;
+        }
+
+        BType invocableType = Types.getReferredType(iExpr.symbol.type);
+        BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
+        List<BVarSymbol> reqParamSymbols = invokableSymbol.params;
+        int parameterCountForPositionalArgs = ((BInvokableType) invocableType).getParameterTypes().size();
+
+        int visitedArgCount = 0;
+        for (BLangExpression expr : iExpr.argExprs) {
+            switch (expr.getKind()) {
+                case NAMED_ARGS_EXPR:
+                    reportIfDeprecatedUsage(((BLangNamedArgsExpression) expr).varSymbol, expr, expr.pos);
+                    visitedArgCount++;
+                    break;
+                case REST_ARGS_EXPR:
+                    if (visitedArgCount >= parameterCountForPositionalArgs) {
+                        reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
+                        continue;
+                    }
+
+                    BLangExpression restExpr = ((BLangRestArgsExpression) expr).expr;
+                    if (restExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                        visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) restExpr,
+                                visitedArgCount, reqParamSymbols, invokableSymbol.restParam);
+                        continue;
+                    }
+
+                    for (int i = visitedArgCount; i < parameterCountForPositionalArgs; i++) {
+                        reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos);
+                    }
+                    break;
+                default:    // positional args
+                    if (visitedArgCount < parameterCountForPositionalArgs) {
+                        BVarSymbol paramSymbol = reqParamSymbols.get(visitedArgCount);
+                        reportIfDeprecatedUsage(paramSymbol, expr, expr.pos);
+                        if (Symbols.isFlagOn(reqParamSymbols.get(visitedArgCount).flags, Flags.INCLUDED)) {
+                            analyzeExpr(expr, data);
+                        }
+                    } else {
+                        reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
+                    }
+                    visitedArgCount++;
+            }
+        }
+    }
+
+    private int analyzeRestArgsAgainstReqParams(BLangListConstructorExpr listConstructorExpr, int visitedArgCount,
+                                                 List<BVarSymbol> reqParamSymbols, BVarSymbol restParamSymbol) {
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (visitedArgCount >= reqParamSymbols.size()) {
+                // Visiting args matching with the rest-param
+                reportIfDeprecatedUsage(restParamSymbol, expr, expr.pos);
+                continue;
+            }
+
+            if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                reportIfDeprecatedUsage(reqParamSymbols.get(visitedArgCount++), expr, expr.pos);
+                continue;
+            }
+
+            BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr,
+                        visitedArgCount, reqParamSymbols, restParamSymbol);
+                continue;
+            }
+
+            for (int i = visitedArgCount; i < reqParamSymbols.size(); i++) {
+                reportIfDeprecatedUsage(reqParamSymbols.get(i), innerExpr, innerExpr.pos);
+            }
+        }
+        return visitedArgCount;
+    }
+
     private void validateModuleInitFunction(BLangFunction funcNode) {
         if (funcNode.attachedFunction || !Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcNode.name.value)) {
             return;
@@ -3895,6 +4024,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         return errorType;
+    }
+
+    private boolean reportIfDeprecatedUsage(BSymbol constructSymbol, BLangExpression expr, Location usagePos) {
+        if (constructSymbol != null && Symbols.isFlagOn(constructSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(usagePos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                    generateDeprecatedConstructString(expr, constructSymbol.name.getValue(), constructSymbol));
+            return true;
+        }
+        return false;
     }
 
     /**

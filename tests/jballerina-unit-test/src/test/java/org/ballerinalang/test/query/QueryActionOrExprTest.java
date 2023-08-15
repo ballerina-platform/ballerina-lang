@@ -72,7 +72,11 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithQueryConstructingStream",
                 "testQueryActionOrExprWithClientResourceAccessAction",
                 "testQueryActionOrExprWithGroupedClientResourceAccessAction",
-                "testNestedQueryActionOrExprWithClientResourceAccessAction"
+                "testNestedQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionWithQueryExpression",
+                "testQueryActionWithRegexpLangLibs",
+                "testQueryExprWithRegExpLangLibs",
+                "testQueryActionWithInterpolationRegexpLangLibs"
         };
     }
 
@@ -195,6 +199,7 @@ public class QueryActionOrExprTest {
 
         BRunUtil.invoke(result, "testConstMatchPattern1");
         BRunUtil.invoke(result, "testConstMatchPattern2");
+        BRunUtil.invoke(result, "testBindingPatternsInMatchStatement");
     }
 
     @AfterClass

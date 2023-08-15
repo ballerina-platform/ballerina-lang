@@ -129,6 +129,7 @@ public class SymbolTable {
 
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
+    public final BArrayType byteArrayType = new BArrayType(byteType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     BVarSymbol varSymbol = new BVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
@@ -148,6 +149,7 @@ public class SymbolTable {
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BType invokableType = new BInvokableType(null, null, null, null);
+    public final BType empty = new BType(TypeTags.EMPTY, null);
 
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
@@ -384,6 +386,8 @@ public class SymbolTable {
                 return charStringType;
             case TypeTags.REGEXP:
                 return regExpType;
+            case TypeTags.BYTE_ARRAY:
+                return byteArrayType;
             default:
                 return semanticError;
         }
