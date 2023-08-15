@@ -215,13 +215,15 @@ public class RunCommand implements BLauncherCmd {
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                // clean target dir for projects
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
-                        buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output), false)
-                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
-                .addTask(new RunExecutableTask(args, outStream, errStream), false).build();
+                // compile the modules
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
+//                .addTask(new CopyResourcesTask(), isSingleFileBuild)
+                .addTask(new RunExecutableTask(args, outStream, errStream))
+                .build();
         taskExecutor.executeTasks(project);
     }
 

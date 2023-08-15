@@ -380,24 +380,6 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
     }
 
-    @Test(description = "Run a ballerina project with the flag profile")
-    public void testRunBalProjectWithProfileFlag() throws IOException {
-        Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
-        System.setProperty("user.dir", projectPath.toString());
-
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
-
-        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        new CommandLine(runCommand).parseArgs("--profile");
-        runCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "").strip();
-        Assert.assertEquals(buildLog, getOutput("run-project-with-profile.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin")
-                .resolve("ProfilerOutput.html").toFile().exists());
-        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
-    }
-
     @AfterSuite
     public void cleanUp() throws IOException {
         Files.deleteIfExists(logFile);
