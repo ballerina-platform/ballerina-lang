@@ -8674,24 +8674,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 actualType = arrayType.eType;
                 break;
             case TypeTags.UNION:
-                // address the case where we have a union of finite types
-                List<BFiniteType> finiteTypes = ((BUnionType) indexExprType).getMemberTypes().stream()
-                        .filter(memType -> Types.getReferredType(memType).tag == TypeTags.FINITE)
-                        .map(matchedType -> (BFiniteType) Types.getReferredType(matchedType))
-                        .collect(Collectors.toList());
-
-                BFiniteType finiteType;
-                if (finiteTypes.size() == 1) {
-                    finiteType = finiteTypes.get(0);
-                } else {
-                    Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
-                    finiteType = new BFiniteType(null, valueSpace);
+                // address the case where we have a union of types
+                List<BFiniteType> finiteTypes = new ArrayList<>();
+                for (BType memType : ((BUnionType) indexExprType).getMemberTypes()) {
+                    memType = Types.getReferredType(memType);
+                    if (memType.tag == TypeTags.FINITE) {
+                        finiteTypes.add((BFiniteType) memType);
+                    } else {
+                        BType possibleType = checkArrayIndexBasedAccess(indexBasedAccess, memType, arrayType);
+                        if (possibleType == symTable.semanticError) {
+                            return symTable.semanticError;
+                        }
+                    }
                 }
-
-                BType elementType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
-                if (elementType == symTable.semanticError) {
-                    return symTable.semanticError;
+                if (!finiteTypes.isEmpty()) {
+                    BFiniteType finiteType = createFiniteTypeFromFiniteTypeList(finiteTypes);
+                    BType possibleType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
+                    if (possibleType == symTable.semanticError) {
+                        return symTable.semanticError;
+                    }
                 }
                 actualType = arrayType.eType;
                 break;
@@ -8782,23 +8783,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         }
                     }
                 });
-
-                BFiniteType finiteType;
-                if (finiteTypes.size() == 1) {
-                    finiteType = finiteTypes.get(0);
-                } else {
-                    Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
-                    finiteType = new BFiniteType(null, valueSpace);
+                if (!finiteTypes.isEmpty()) {
+                    BFiniteType finiteType = createFiniteTypeFromFiniteTypeList(finiteTypes);
+                    BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, finiteType);
+                    if (possibleType.tag == TypeTags.UNION) {
+                        possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
+                    } else {
+                        possibleTypesByMember.add(possibleType);
+                    }
                 }
-
-                BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, finiteType);
-                if (possibleType.tag == TypeTags.UNION) {
-                    possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
-                } else {
-                    possibleTypesByMember.add(possibleType);
-                }
-
                 if (possibleTypesByMember.contains(symTable.semanticError)) {
                     return symTable.semanticError;
                 }
@@ -8969,23 +8962,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         }
                     }
                 });
-
-                BFiniteType finiteType;
-                if (finiteTypes.size() == 1) {
-                    finiteType = finiteTypes.get(0);
-                } else {
-                    Set<BLangExpression> valueSpace = new LinkedHashSet<>();
-                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
-                    finiteType = new BFiniteType(null, valueSpace);
+                if (!finiteTypes.isEmpty()) {
+                    BFiniteType finiteType = createFiniteTypeFromFiniteTypeList(finiteTypes);
+                    BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, finiteType, data);
+                    if (possibleType.tag == TypeTags.UNION) {
+                        possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
+                    } else {
+                        possibleTypesByMember.add(possibleType);
+                    }
                 }
-
-                BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, finiteType, data);
-                if (possibleType.tag == TypeTags.UNION) {
-                    possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
-                } else {
-                    possibleTypesByMember.add(possibleType);
-                }
-
                 if (possibleTypesByMember.contains(symTable.semanticError)) {
                     return symTable.semanticError;
                 }
@@ -9507,6 +9492,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return memberTypes;
+    }
+
+    private BFiniteType createFiniteTypeFromFiniteTypeList(List<BFiniteType> finiteTypes) {
+        if (finiteTypes.size() == 1) {
+            return finiteTypes.get(0);
+        } else {
+            Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+            finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
+            return new BFiniteType(null, valueSpace);
+        }
     }
 
     private static class FieldInfo {
