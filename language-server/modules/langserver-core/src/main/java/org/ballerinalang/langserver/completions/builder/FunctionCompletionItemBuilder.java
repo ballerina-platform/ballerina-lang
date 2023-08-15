@@ -332,19 +332,18 @@ public final class FunctionCompletionItemBuilder {
     }
 
     /**
-     * Given a path parameter symbol generates the corresponding 
+     * Given a path parameter symbol generates the corresponding
      * resource access action's syntax part.
-     * 
+     *
      * @param param path parameter symbol
-     * @param ctx completion context
+     * @param ctx   completion context
      * @return {@link Optional<String>} signature part
      */
     public static Optional<String> getFunctionParameterSyntax(PathParameterSymbol param,
                                                               BallerinaCompletionContext ctx) {
 
         if (param.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
-            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
-            return Optional.of(NameUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+            return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor())
                     + (param.getName().isEmpty() ? "" : "... "
                     + param.getName().get()));
         }
@@ -381,7 +380,7 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Creates and returns the main function completion item.
      *
-     * @param context   Ballerina completion context
+     * @param context Ballerina completion context
      * @return {@link CompletionItem} generated main function completion item.
      */
     public static LSCompletionItem buildMainFunction(BallerinaCompletionContext context) {
