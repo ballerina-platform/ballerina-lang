@@ -69,7 +69,7 @@ public class Option {
 
     public BMap<BString, Object> parseRecord(String[] args) {
         Module packageId = recordType.getPackage();
-        if (packageId == null || packageId.getName().equals(".")) {
+        if (packageId == null) {
             this.recordVal = ValueCreator.createRecordValue(recordType);
         } else {
             this.recordVal = ValueCreator.createRecordValue(packageId, recordType.getName());
