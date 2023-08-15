@@ -273,13 +273,9 @@ public class Types {
         return symTable.semanticError;
     }
 
-    public boolean isLax(BType type) {
+    public boolean isLaxFieldAccessAllowed(BType type) {
         Set<BType> visited = new HashSet<>();
-        int result = isLaxType(type, visited);
-        if (result == 1) {
-            return true;
-        }
-        return false;
+        return isLaxType(type, visited) == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT;
     }
 
     // TODO : clean
@@ -289,8 +285,6 @@ public class Types {
         }
         switch (type.tag) {
             case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
                 return 1;
             case TypeTags.MAP:
                 return isLaxType(((BMapType) type).constraint, visited);
@@ -323,8 +317,6 @@ public class Types {
         }
         switch (type.tag) {
             case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
                 visited.put(type, true);
                 return true;
             case TypeTags.MAP:
