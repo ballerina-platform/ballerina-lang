@@ -131,6 +131,7 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableInQueryAction1.json"},
                 {"createVariableInQueryAction2.json"},
                 {"createVariableInQueryAction3.json"},
+                {"createVariableInQueryAction4.json"},
 
                 // Tuple related
                 {"createVariableWithTuple1.json"},
