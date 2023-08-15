@@ -23,14 +23,15 @@ import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
+import org.ballerinalang.model.types.ArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -44,7 +45,8 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class BallerinaPathParameterSymbol extends BallerinaSymbol implements PathParameterSymbol {
-
+    private static final String TYPE_ONLY_PATH_REST_PARAM = "$^^";
+    private static final String TYPE_ONLY_PATH_PARAM = "$^";
     private final PathSegment.Kind segmentKind;
     private final boolean isTypeOnlyPathParam;
     private TypeSymbol typeDescriptor;
@@ -52,17 +54,16 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
     private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private String signature;
 
-    public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context,
-                                        boolean isTypeOnlyPathParam) {
-        super(symbol.getOriginalName().getValue(), SymbolKind.PATH_PARAMETER, symbol, context);
+    public BallerinaPathParameterSymbol(String name, PathSegment.Kind kind, BSymbol symbol, CompilerContext context) {
+        super(name, SymbolKind.PATH_PARAMETER, symbol, context);
         this.segmentKind = kind;
-        this.isTypeOnlyPathParam = isTypeOnlyPathParam;
+        this.isTypeOnlyPathParam = TYPE_ONLY_PATH_REST_PARAM.equals(name) || TYPE_ONLY_PATH_PARAM.equals(name);
     }
 
     @Override
     public Optional<String> getName() {
         String name = super.getName().orElse(null);
-        if ("$^^".equals(name) || "$^".equals(name)) {
+        if (this.isTypeOnlyPathParam) {
             return Optional.empty();
         }
         return Optional.ofNullable(name);
@@ -115,8 +116,15 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
             return this.typeDescriptor;
         }
 
+        BType bType;
+        if (this.segmentKind == Kind.PATH_REST_PARAMETER && this.getInternalSymbol() instanceof BVarSymbol) {
+            bType = (BType) ((ArrayType) this.getInternalSymbol().type).getElementType();
+        } else {
+            bType = this.getInternalSymbol().type;
+        }
+
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-        this.typeDescriptor = typesFactory.getTypeDescriptor(this.getInternalSymbol().type);
+        this.typeDescriptor = typesFactory.getTypeDescriptor(bType);
         return this.typeDescriptor;
     }
 
@@ -133,12 +141,13 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
 
         String typeSignature;
         if (this.pathSegmentKind() == Kind.PATH_REST_PARAMETER) {
-            typeSignature = ((ArrayTypeSymbol) this.typeDescriptor()).memberTypeDescriptor().signature() + "...";
+            typeSignature = this.typeDescriptor().signature() + "...";
         } else {
             typeSignature = this.typeDescriptor().signature();
         }
 
-        this.signature = "[" + typeSignature + " " + this.getName().get() + "]";
+        String paramName = this.getName().orElse("");
+        this.signature = "[" + typeSignature + " " + paramName + "]";
         return this.signature;
     }
 

@@ -31,13 +31,14 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  * @since 2.0.0
  */
 public class BallerinaPathRestParam implements PathRestParam {
-    private static final String TYPE_ONLY_PATH_REST_PARAM = "$^^";
 
     private final CompilerContext context;
     private final BSymbol internalSymbol;
     private PathParameterSymbol pathParam;
+    private final String name;
 
-    public BallerinaPathRestParam(BSymbol internalSymbol, CompilerContext context) {
+    public BallerinaPathRestParam(String name, BSymbol internalSymbol, CompilerContext context) {
+        this.name = name;
         this.internalSymbol = internalSymbol;
         this.context = context;
     }
@@ -49,9 +50,8 @@ public class BallerinaPathRestParam implements PathRestParam {
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.pathParam = symbolFactory.createPathParamSymbol(this.internalSymbol,
-                PathSegment.Kind.PATH_REST_PARAMETER,
-                TYPE_ONLY_PATH_REST_PARAM.equals(this.internalSymbol.getName().getValue()));
+        this.pathParam = symbolFactory.createPathParamSymbol(this.name, this.internalSymbol,
+                PathSegment.Kind.PATH_REST_PARAMETER);
         return this.pathParam;
     }
 

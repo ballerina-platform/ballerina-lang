@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -72,16 +73,16 @@ public class BallerinaPathSegmentList implements PathSegmentList {
         List<Name> segments = this.internalPathSegmentSymbols.stream().map(s -> s.name).collect(Collectors.toList());
         for (int i = 0; i < segments.size(); i++) {
             Name internalSegment = segments.get(i);
+            BResourcePathSegmentSymbol pathSegSymbol = this.internalPathSegmentSymbols.get(i);
             switch (internalSegment.value) {
                 case "^":
-                    pathParams.add(symbolFactory.createPathParamSymbol(
-                            this.internalPathParams.get(internalPathParamCount++), PathSegment.Kind.PATH_PARAMETER));
+                    BVarSymbol paramVarSymbol = this.internalPathParams.get(internalPathParamCount++);
+                    pathParams.add(symbolFactory.createPathParamSymbol(paramVarSymbol.getOriginalName().getValue(),
+                            pathSegSymbol, PathSegment.Kind.PATH_PARAMETER));
                     break;
                 case "$^":
-                    pathParams.add(
-                            symbolFactory.createPathParamSymbol(this.internalPathSegmentSymbols.get(i),
-                                    PathSegment.Kind.PATH_PARAMETER, true)
-                    );
+                    pathParams.add(symbolFactory.createPathParamSymbol(pathSegSymbol.getOriginalName().getValue(),
+                                    pathSegSymbol, PathSegment.Kind.PATH_PARAMETER));
                     break;
                 default:
                     break;
@@ -99,8 +100,24 @@ public class BallerinaPathSegmentList implements PathSegmentList {
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.pathRestParam = symbolFactory.createPathParamSymbol(this.internalPathRestParam,
-                                                                 PathSegment.Kind.PATH_REST_PARAMETER);
+
+        Predicate<BResourcePathSegmentSymbol> pred = pathSeg -> "$^^".equals(pathSeg.getOriginalName().getValue())
+                || "^^".equals(pathSeg.getOriginalName().getValue());
+        Optional<BResourcePathSegmentSymbol> segment = this.internalPathSegmentSymbols.stream().filter(pred).findAny();
+
+        if (segment.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (this.internalPathRestParam == null) {
+            this.pathRestParam = symbolFactory.createPathParamSymbol(segment.get().getOriginalName().getValue(),
+                    segment.get(), PathSegment.Kind.PATH_REST_PARAMETER);
+            return Optional.of(this.pathRestParam);
+        }
+
+        this.pathRestParam = symbolFactory.createPathParamSymbol(
+                this.internalPathRestParam.getOriginalName().getValue(), segment.get(),
+                PathSegment.Kind.PATH_REST_PARAMETER);
         return Optional.ofNullable(this.pathRestParam);
     }
 
@@ -125,6 +142,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
                     segment = pathParams.get(pathParamCount++);
                     break;
                 case "^^":
+                case "$^^":
                     segment = pathRestParameter().get();
                     break;
                 default:

@@ -189,10 +189,10 @@ public class SymbolFactory {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
             }
             if (symbol.kind == SymbolKind.PATH_PARAMETER) {
-                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
+                return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_PARAMETER);
             }
             if (symbol.kind == SymbolKind.PATH_REST_PARAMETER) {
-                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+                return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_REST_PARAMETER);
             }
 
             // If the symbol is a wildcard('_'), a variable symbol will not be created.
@@ -240,11 +240,11 @@ public class SymbolFactory {
         }
 
         if (symbol.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
-            return createPathParamSymbol(symbol, PathSegment.Kind.PATH_PARAMETER);
+            return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_PARAMETER);
         }
 
         if (symbol.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
-            return createPathParamSymbol(symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+            return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_REST_PARAMETER);
         }
 
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
@@ -471,30 +471,8 @@ public class SymbolFactory {
                                             kind, symbol, this.context);
     }
 
-    /**
-     * Create a path param symbol.
-     *
-     * @param symbol {@link BSymbol} to convert
-     * @param pathKind {@link PathSegment.Kind} path segment kind
-     * @return {@link BallerinaPathParameterSymbol} generated
-     */
-    public PathParameterSymbol createPathParamSymbol(BSymbol symbol, PathSegment.Kind pathKind) {
-        if (symbol == null) {
-            return null;
-        }
-        return this.createPathParamSymbol(symbol, pathKind, false);
-    }
-
-    /**
-     * Create a name-less path param symbol.
-     *
-     * @param symbol {@link BSymbol} to convert
-     * @param pathKind {@link PathSegment.Kind} path segment kind
-     * @return {@link BallerinaPathParameterSymbol} generated
-     */
-    public PathParameterSymbol createPathParamSymbol(BSymbol symbol, PathSegment.Kind pathKind,
-                                                     boolean isTypeOnly) {
-        return new BallerinaPathParameterSymbol(pathKind, symbol, this.context, isTypeOnly);
+    public PathParameterSymbol createPathParamSymbol(String name, BSymbol symbol, PathSegment.Kind pathKind) {
+        return new BallerinaPathParameterSymbol(name, pathKind, symbol, this.context);
     }
 
     /**

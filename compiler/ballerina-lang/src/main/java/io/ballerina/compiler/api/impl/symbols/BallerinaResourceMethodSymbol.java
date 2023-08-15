@@ -78,15 +78,17 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
             throw new IllegalStateException("Resource path is empty in resource function: " + resourceFn.toString());
         }
 
-        switch (pathSegmentSymbols.get(0).getName().getValue()) {
+        BResourcePathSegmentSymbol firstPath = pathSegmentSymbols.get(0);
+        switch (firstPath.getName().getValue()) {
             case DOT_RESOURCE_PATH:
                 this.resourcePath = new BallerinaDotResourcePath();
                 break;
             case PATH_REST_PARAM:
-                this.resourcePath = new BallerinaPathRestParam(resourceFn.restPathParam, this.context);
+                this.resourcePath = new BallerinaPathRestParam(resourceFn.restPathParam.getName().getValue(),
+                        firstPath, this.context);
                 break;
             case TYPE_ONLY_PATH_REST_PARAM:
-                this.resourcePath = new BallerinaPathRestParam(pathSegmentSymbols.get(0), this.context);
+                this.resourcePath = new BallerinaPathRestParam(firstPath.getName().getValue(), firstPath, this.context);
                 break;
             default:
                 this.resourcePath = new BallerinaPathSegmentList(resourceFn.pathSegmentSymbols, resourceFn.pathParams,
