@@ -319,11 +319,10 @@ public class InitMethodGen {
                 addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
         if (testExecuteFunc != null) {
-            lastBB = addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, TEST_EXECUTE_METHOD, retVarRef, boolRef,
+            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, TEST_EXECUTE_METHOD, retVarRef, boolRef,
                     functionArgs, Collections.emptyList());
-        }
-
-        if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
+            lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
+        } else if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
             lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
