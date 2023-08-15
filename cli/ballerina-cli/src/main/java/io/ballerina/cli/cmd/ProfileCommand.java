@@ -73,8 +73,6 @@ public class ProfileCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    private String output;
-
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
@@ -177,13 +175,12 @@ public class ProfileCommand implements BLauncherCmd {
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
         boolean enableProfiler = true;
-        project.buildOptions().dumpBuildTime();
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified,
                         buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output), !enableProfiler)
+                .addTask(new CreateExecutableTask(outStream, null), !enableProfiler)
                 .addTask(new DumpBuildTimeTask(outStream), false)
                 .addTask(new RunProfilerTask(errStream, args), !enableProfiler)
                 .addTask(new RunExecutableTask(args, outStream, errStream), enableProfiler).build();
