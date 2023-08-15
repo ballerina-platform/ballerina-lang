@@ -159,10 +159,10 @@ public class TypeUtils {
     }
 
     /**
-     * Retrieve the represented type if a given type is a type reference type or an intersection.
+     * Retrieve the represented type if a given type is a type reference type or an intersection type.
      *
      * @param type type to retrieve referred
-     * @return the represented type if provided with a type reference type or an intersection,
+     * @return the represented type if provided with a type reference type or an intersection type,
      * else returns the original type
      */
     public static Type getRepresentedType(Type type) {

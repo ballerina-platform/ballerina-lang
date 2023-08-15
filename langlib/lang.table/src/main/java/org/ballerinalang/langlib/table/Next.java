@@ -91,7 +91,8 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) TypeUtils.getRepresentedType(keys.getType()));
+        BArray currentKeyArray = ValueCreator.createArrayValue(
+                (ArrayType) TypeUtils.getRepresentedType(keys.getType()));
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);
