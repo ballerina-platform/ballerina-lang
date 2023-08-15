@@ -37,7 +37,7 @@ function testClassWithModuleLevelVarAsDefaultValue() {
     assertEquality(111222, c1.i);
 }
 
-function testObjectWithModuleLevelVarAsDefaultValue() {
+function testObjectConstructorWithModuleLevelVarAsDefaultValue() {
     var value = object {
         int i = classI;
     };
@@ -47,11 +47,7 @@ function testObjectWithModuleLevelVarAsDefaultValue() {
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-
-    if expected === actual {
+    if expected == actual {
         return;
     }
 

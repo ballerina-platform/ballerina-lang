@@ -948,8 +948,8 @@ public class ObjectTest {
     }
 
     @Test
-    public void testObjectWithModuleLevelVarAsDefaultValue() {
-        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectWithModuleLevelVarAsDefaultValue");
+    public void testObjectConstructorWithModuleLevelVarAsDefaultValue() {
+        BRunUtil.invoke(checkObjectWithDefaultValuesResult, "testObjectConstructorWithModuleLevelVarAsDefaultValue");
     }
 
     @AfterClass
