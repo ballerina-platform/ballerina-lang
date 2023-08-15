@@ -21,49 +21,13 @@ package org.ballerinalang.test.cli;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
  * Test option CLI arguments.
  */
 public class OptionTest {
-    @Test
-    public void testCliArg() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_all.bal");
-        String[] args =
-                {"--name", "Riyafa=Riyafa", "--good", "--score", "100", "--height", "5.5", "--energy", "10e99",
-                        "--ratings", "5", "--ratings", "3", "--friends", "--friends"};
-        BRunUtil.runMain(compileResult, args);
-    }
-
-    @Test
-    public void testCliNamedArg() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_all.bal");
-        String[] args =
-                {"--name=Riyafa=Riyafa", "--good", "--score=100", "--height=5.5", "--energy=10e99",
-                        "--ratings=5", "--ratings=3", "--friends", "--friends"};
-        BRunUtil.runMain(compileResult, args);
-    }
-
-    @Test
-    public void testCliDefaultableOptional() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_defaultable_optional.bal");
-        BRunUtil.runMain(compileResult);
-    }
-
-    @Test
-    public void testCliDefaultableOptionalWithArg() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_defaultable_optional_with_arg.bal");
-        String[] args = {"--name=Riyafa", "--score=100", "--height=5.6"};
-        BRunUtil.runMain(compileResult, args);
-    }
-
-    @Test
-    public void testCliOperandWithOption() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_operand.bal");
-        String[] args = {"--name", "Riyafa", "--", "--Sri Lanka"};
-        BRunUtil.runMain(compileResult, args);
-    }
 
     @Test (expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "error: undefined option: 'na'")
@@ -73,20 +37,40 @@ public class OptionTest {
         BRunUtil.runMain(compileResult, args);
     }
 
-    @Test
-    public void testCliOptionArgsWithTypes() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_types.bal");
-        String[] args = {"--union", "e-fac", "--name", "Riyafa", "--age", "25", "--score", "99.99", "--value", "1e10"};
-        BRunUtil.runMain(compileResult, args);
-
-        args = new String[]{"--union=e-fac", "--name=Riyafa", "--age=25", "--score=99.99", "--value=1e10"};
+    @Test(dataProvider = "cliOptionTestProvider")
+    public void testCliOption(String fileName, String[] args) {
+        CompileResult compileResult = BCompileUtil.compile("test-src/cli/" + fileName + ".bal");
         BRunUtil.runMain(compileResult, args);
     }
-    @Test
-    public void testCliOptionAInvalidType() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_nil_union.bal");
-        String[] args = {"--union=hello"};
-        BRunUtil.runMain(compileResult, args);
+
+    @DataProvider
+    public static Object[][] cliOptionTestProvider() {
+        return new Object[][]{
+                {"option_all", new String[] {"--name", "Riyafa=Riyafa", "--good", "--score", "100", "--height",
+                        "5.5", "--energy", "10e99", "--ratings", "5", "--ratings", "3", "--friends", "--friends"}},
+                {"option_all", new String[] {"--name=Riyafa=Riyafa", "--good", "--score=100", "--height=5.5",
+                        "--energy=10e99", "--ratings=5", "--ratings=3", "--friends", "--friends"}},
+                {"option_defaultable_optional", new String[0]},
+                {"option_defaultable_optional_with_arg", new String[] {"--name=Riyafa", "--score=100",
+                        "--height=5.6"} },
+                {"option_with_operand", new String[] {"--name", "Riyafa", "--", "--Sri Lanka"}},
+                {"option_with_types", new String[] {"--union", "e-fac", "--name", "Riyafa", "--age", "25", "--score",
+                        "99.99", "--value", "1e10"}},
+                {"option_with_types", new String[] {"--union=e-fac", "--name=Riyafa", "--age=25", "--score=99.99",
+                        "--value=1e10"}},
+                {"option_with_nil_union", new String[]{"--union=hello"}},
+                {"option_with_array_type", new String[] {"--array=e-fac"}},
+                {"option_with_array_type", new String[] {"--array", "e-fac"}},
+                {"option_with_array_type", new String[] {"--array=e-fac", "--array=hello"}},
+                {"option_with_array_type", new String[] {"--array", "e-fac", "--array", "hello"}},
+                {"option_with_boolean_array", new String[] {"--array"}},
+                {"option_with_boolean_array", new String[] {"--array", "--array"}},
+                {"option_with_boolean", new String[] {"--bool"}},
+
+
+
+
+        };
     }
 
     @Test (expectedExceptions = RuntimeException.class,
@@ -112,38 +96,12 @@ public class OptionTest {
         BRunUtil.runMain(compileResult, args);
     }
 
-    @Test
-    public void testCliOptionArgsWithArrayType() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_array_type.bal");
-        String[] args = {"--array=e-fac"};
-        BRunUtil.runMain(compileResult, args);
-
-        args = new String[]{"--array", "e-fac"};
-        BRunUtil.runMain(compileResult, args);
-
-        args = new String[]{"--array=e-fac", "--array=hello"};
-        BRunUtil.runMain(compileResult, args);
-
-        args = new String[]{"--array", "e-fac", "--array", "hello"};
-        BRunUtil.runMain(compileResult, args);
-    }
-
     @Test (expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "error: invalid argument 'arr-val' for parameter 'array', expected " +
                     "integer value")
     public void testCliOptionAInvalidArrayType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_invalid_array.bal");
         String[] args = {"--array", "10", "--array", "arr-val"};
-        BRunUtil.runMain(compileResult, args);
-    }
-
-    @Test
-    public void testCliOptionArgsWithBooleanArray() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_boolean_array.bal");
-        String[] args = {"--array"};
-        BRunUtil.runMain(compileResult, args);
-
-        args = new String[]{"--array", "--array"};
         BRunUtil.runMain(compileResult, args);
     }
 
@@ -160,13 +118,6 @@ public class OptionTest {
     public void testCliOptionArgsWithInvalidBooleanArrayFalse() {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_boolean_array.bal");
         String[] args = {"--array=false"};
-        BRunUtil.runMain(compileResult, args);
-    }
-
-    @Test
-    public void testCliOptionArgWithBoolean() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_with_boolean.bal");
-        String[] args = {"--bool"};
         BRunUtil.runMain(compileResult, args);
     }
 
