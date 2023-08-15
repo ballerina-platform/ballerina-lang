@@ -5882,30 +5882,18 @@ public class Desugar extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
-                    fieldNames.add(getLiteralKeyName(key));
+                    fieldNames.add(Utils.unescapeBallerina(((BLangLiteral) key).value.toString()));
                 } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    fieldNames.add(getVariableKeyName(key));
+                    fieldNames.add(Utils.unescapeBallerina(((BLangSimpleVarRef) key).variableName.value));
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                fieldNames.add(getVariableFieldName(field));
+                fieldNames.add(Utils.unescapeBallerina(((BLangSimpleVarRef) field).variableName.value));
             } else {
                 addRequiredFieldsFromSpreadOperator(field, fieldNames);
             }
         }
 
         return fieldNames;
-    }
-
-    private String getLiteralKeyName(BLangExpression key) {
-        return ((BLangLiteral) key).value.toString();
-    }
-
-    private String getVariableKeyName(BLangExpression key) {
-        return ((BLangSimpleVarRef) key).variableName.value;
-    }
-
-    private String getVariableFieldName(RecordLiteralNode.RecordField field) {
-        return ((BLangSimpleVarRef) field).variableName.value;
     }
 
     private void addRequiredFieldsFromSpreadOperator(RecordLiteralNode.RecordField field, List<String> fieldNames) {
@@ -5916,7 +5904,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         for (BField bField : ((BRecordType) type).fields.values()) {
-            fieldNames.add(bField.name.value);
+            fieldNames.add(Utils.unescapeBallerina(bField.name.value));
         }
     }
 
