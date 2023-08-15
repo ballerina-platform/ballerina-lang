@@ -574,7 +574,7 @@ public class QueryTypeChecker extends TypeChecker {
         return initType;
     }
 
-    private BType getNonContextualQueryType(BType constraintType, BType basicType,  Location pos) {
+    private BType getNonContextualQueryType(BType constraintType, BType basicType, Location pos) {
         switch (Types.getReferredType(basicType).tag) {
             case TypeTags.TABLE:
                 if (types.isAssignable(constraintType, symTable.mapAllType)) {
