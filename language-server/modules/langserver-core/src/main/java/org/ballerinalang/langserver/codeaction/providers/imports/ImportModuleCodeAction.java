@@ -89,7 +89,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         String modulePrefix = qNameReferenceNode.get().modulePrefix().text();
 
         List<LSPackageLoader.ModuleInfo> moduleList = LSPackageLoader
-                .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
+                .getInstance(context.languageServercontext()).getAllVisibleModules(context);
 
         // Check if we already have packages imported with the given module prefix but with different aliases
         Map<ImportDeclarationNode, ModuleSymbol> symbolMap = context.currentDocImportsMap().entrySet().stream()
@@ -100,7 +100,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         List<ModuleSymbol> existingModules = symbolMap.values().stream()
                 .filter(moduleSymbol -> moduleSymbol.getModule().isPresent())
-                .map(moduleSymbol -> moduleSymbol.getModule().get()).collect(Collectors.toList());
+                .map(moduleSymbol -> moduleSymbol.getModule().get()).toList();
 
         List<CodeAction> actions = new ArrayList<>();
 
@@ -132,18 +132,16 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         // Here we filter out the already imported packages
         moduleList.stream()
-                .filter(pkgEntry -> existingModules.stream()
-                        .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg().value()) &&
-                                moduleSymbol.id().moduleName().equals(pkgEntry.packageName().value()))
-                )
-                .filter(pkgEntry -> {
-                    String pkgName = pkgEntry.packageName().value();
-                    return pkgName.endsWith("." + modulePrefix) || pkgName.equals(modulePrefix);
+                .filter(moduleDesc -> existingModules.stream()
+                        .noneMatch(moduleSymbol -> moduleSymbol.id().moduleName().equals(moduleDesc.moduleName())))
+                .filter(moduleDesc -> {
+                    //Filter by qualified name reference
+                    String moduleName = moduleDesc.moduleName();
+                    return moduleName.endsWith("." + modulePrefix) || moduleName.equals(modulePrefix);
                 })
-                .forEach(pkgEntry -> {
-                    String orgName = pkgEntry.packageOrg().value();
-                    String pkgName = pkgEntry.packageName().value();
-                    String moduleName = ModuleUtil.escapeModuleName(pkgName);
+                .forEach(moduleDesc -> {
+                    String orgName = moduleDesc.packageOrg().value();
+                    String moduleName = ModuleUtil.escapeModuleName(moduleDesc.moduleName());
                     Position insertPos = CommonUtil.getImportPosition(context);
                     String importText = orgName.isEmpty() ?
                             String.format("%s %s;%n", ItemResolverConstants.IMPORT, moduleName)

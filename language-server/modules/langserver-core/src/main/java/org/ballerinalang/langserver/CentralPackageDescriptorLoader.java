@@ -22,21 +22,13 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.model.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
-import org.eclipse.lsp4j.ProgressParams;
-import org.eclipse.lsp4j.WorkDoneProgressBegin;
-import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
-import org.eclipse.lsp4j.WorkDoneProgressEnd;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Central package descriptor holder.
@@ -62,28 +54,8 @@ public class CentralPackageDescriptorLoader {
     }
 
     public void loadBallerinaxPackagesFromCentral(LanguageServerContext lsContext) {
-        String taskId = UUID.randomUUID().toString();
-        ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
-        CompletableFuture.runAsync(() -> {
-            WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-            workDoneProgressCreateParams.setToken(taskId);
-            languageClient.createProgress(workDoneProgressCreateParams);
-
-            WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-            beginNotification.setTitle("Ballerina Central Packages");
-            beginNotification.setCancellable(false);
-            beginNotification.setMessage("Loading...");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(beginNotification)));
-        }).thenRunAsync(() -> {
-            centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext).getPackagesFromCentral());
-        }).thenRunAsync(() -> {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Loaded Successfully!");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(endNotification)));
-        });
-        isLoaded = true;
+            centralPackages.addAll(CentralPackageDescriptorLoader
+                    .getInstance(lsContext).getPackagesFromCentral());
     }
 
     public List<Package> getCentralPackages(LanguageServerContext context) {

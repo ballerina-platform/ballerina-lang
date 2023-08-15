@@ -370,19 +370,19 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
         List<LSPackageLoader.ModuleInfo> modules =
-                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
-        modules.forEach(pkg -> {
-            String name = pkg.packageName().value();
-            String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg().value());
-            if (ModuleUtil.matchingImportedModule(ctx, pkg).isEmpty()
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisibleModules(ctx);
+        modules.forEach(moduleInfo -> {
+            String name = moduleInfo.moduleName();
+            String orgName = ModuleUtil.escapeModuleName(moduleInfo.packageOrg().value());
+            if (ModuleUtil.matchingImportedModule(ctx, moduleInfo).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
                         .collect(Collectors.toList());
-                String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
-                        : CommonUtil.getPackageLabel(pkg);
+                String label = moduleInfo.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                        : CommonUtil.getModuleLabel(moduleInfo);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
                 String insertText = CommonUtil.escapeReservedKeyword(NameUtil.getValidatedSymbolName(ctx,

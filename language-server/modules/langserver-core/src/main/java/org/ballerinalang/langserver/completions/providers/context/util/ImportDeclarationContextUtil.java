@@ -38,11 +38,12 @@ public class ImportDeclarationContextUtil {
      * Get the insert text for the langlib module name.
      * If the langlib is pre-declared, then append the ' for the langlib name.
      *
-     * @param pkgName to be modified
+     * @param moduleName to be modified
      * @return {@link String} modified package name
      */
-    public static String getLangLibModuleNameInsertText(String pkgName) {
-        return (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName) ? pkgName.replace(".", ".'") : pkgName) + ";";
+    public static String getLangLibModuleNameInsertText(String moduleName) {
+        return (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(moduleName) ? moduleName.replace(".", ".'")
+                : moduleName) + ";";
     }
 
     /**

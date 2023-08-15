@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completion;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 
 import java.util.Collections;
@@ -29,14 +28,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ServiceDeclarationTest extends CompletionTest {
-
-    @BeforeClass
-    @Override
-    public void init() throws Exception {
-        super.init();
-        preLoadAndInit();
-    }
-
+    
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

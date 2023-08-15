@@ -36,7 +36,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Test class to test module addition to Ballerina.toml.
@@ -44,7 +43,7 @@ import java.util.stream.Collectors;
  * @since 2201.8.0
  */
 public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTest {
-    
+
     protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
         builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
     }
@@ -58,12 +57,13 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
-            Map<String, String> localProjects = Map.of("pkg1", "main.bal", "pkg2", "main.bal", "x", "main.bal", 
+            Map<String, String> localProjects = Map.of("pkg1", "main.bal", "pkg2", "main.bal", "x", "main.bal",
                     "x.y", "main.bal");
-            List<LSPackageLoader.ModuleInfo> localPackages = getLocalPackages(localProjects,
-                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
-                    .collect(Collectors.toList());
-            Mockito.when(getLSPackageLoader().getLocalRepoPackages(Mockito.any())).thenReturn(localPackages);
+            List<LSPackageLoader.ModuleInfo> localPackages = new ArrayList<>();
+            getLocalPackages(localProjects,
+                    languageServer.getWorkspaceManager(), context).forEach(pkg -> pkg.modules()
+                    .forEach(module -> localPackages.add(new LSPackageLoader.ModuleInfo(module))));
+            Mockito.when(getLSPackageLoader().getLocalRepoModules()).thenReturn(localPackages);
         } catch (Exception e) {
             //ignore
         } finally {

@@ -218,32 +218,32 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         Set<String> orgNames = new HashSet<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<LSPackageLoader.ModuleInfo> moduleList =
-                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
-        moduleList.forEach(pkg -> {
-            String orgName = pkg.packageOrg().value();
-            String pkgName = pkg.packageName().value();
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisibleModules(ctx);
+        moduleList.forEach(moduleDesc -> {
+            String orgName = moduleDesc.packageOrg().value();
+            String moduleName = moduleDesc.moduleName();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
-                    || ModuleUtil.matchingImportedModule(ctx, pkg).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(ctx, moduleDesc).isPresent()) {
                 // Avoid suggesting the ballerinai org name
                 return;
             }
-            List<String> pkgNameComps = Arrays.stream(pkgName.split("\\."))
+            List<String> moduleNameComps = Arrays.stream(moduleName.split("\\."))
                     .map(ModuleUtil::escapeModuleName)
                     .map(CommonUtil::escapeReservedKeyword)
                     .collect(Collectors.toList());
-            String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
-                    : CommonUtil.getPackageLabel(pkg);
+            String label = moduleDesc.packageOrg().value().isEmpty() ? String.join(".", moduleNameComps)
+                    : CommonUtil.getModuleLabel(moduleDesc);
             String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
 
             if (orgName.equals(Names.BALLERINA_ORG.value)
-                    && pkgName.startsWith(PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + Names.DOT.getValue())) {
-                insertText += getLangLibModuleNameInsertText(pkgName);
+                    && moduleName.startsWith(PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + Names.DOT.getValue())) {
+                insertText += getLangLibModuleNameInsertText(moduleName);
             } else {
-                insertText += orgName.isEmpty() ? label : pkgName;
+                insertText += orgName.isEmpty() ? label : moduleName;
             }
             // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
-            LSCompletionItem fullPkgImport = getImportCompletion(ctx, label, insertText);
-            completionItems.add(fullPkgImport);
+            LSCompletionItem fullModuleImport = getImportCompletion(ctx, label, insertText);
+            completionItems.add(fullModuleImport);
             if (!orgName.isEmpty() && !orgNames.contains(orgName)) {
                 LSCompletionItem orgNameImport =
                         getImportCompletion(ctx, orgName, (orgName + Names.ORG_NAME_SEPARATOR.getValue()));
@@ -264,7 +264,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
          */
         List<String> modNameString = moduleName.stream()
                 .map(token -> token.text().replace("'", ""))
-                .collect(Collectors.toList());
+                .toList();
         Optional<Project> currentProject = context.workspace().project(context.filePath());
         if (currentProject.isEmpty() || currentProject.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
                 || !modNameString.get(0).equals(pkgName)) {
@@ -315,57 +315,67 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             TextEdit removeModNameEdit = new TextEdit(editRange, "");
             additionalEdits.add(removeModNameEdit);
         }
-        
+
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<String> addedPkgNames = new ArrayList<>();
+        List<String> addedModuleNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
         List<LSPackageLoader.ModuleInfo> moduleList;
 
         if (orgName.equals("ballerinax")) {
-            List<String> packageList = new ArrayList<>();
+            List<String> moduleNameList = new ArrayList<>();
             String prefix = node.moduleName().stream().filter(identifierToken -> !identifierToken.isMissing())
                     .map(IdentifierToken::text)
                     .collect(Collectors.joining("."));
 
-            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages(serverContext);
-            moduleList.forEach(ballerinaPackage -> packageList.add(ballerinaPackage.packageName().value()));
-            List<String> filteredPackageNames = getFilteredPackages(packageList, prefix, context);
-            for (String filteredPackage : filteredPackageNames) {
+            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages();
+            moduleList.forEach(moduleDesc -> moduleNameList.add(moduleDesc.moduleName()));
+            List<String> filteredModuleNames = getFilteredModules(moduleNameList, prefix, context);
+            for (String filteredPackage : filteredModuleNames) {
                 LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
                 completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
                 completionItems.add(completionItem);
             }
             return completionItems;
         }
-        moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
-        moduleList.forEach(ballerinaPackage -> {
-            String packageName = ballerinaPackage.packageName().value();
-            String insertText;
-            if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
-                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
-                if (orgName.equals(Names.BALLERINA_ORG.value)
-                        && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
-                    insertText = getLangLibModuleNameInsertText(packageName);
-                } else {
-                    insertText = packageName;
-                }
-                addedPkgNames.add(packageName);
-                // Do not add the semicolon at the end of the insert text since the user might type the as keyword
-                LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
-                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
-                completionItems.add(completionItem);
-            }
-        });
-
+        moduleList = LSPackageLoader.getInstance(serverContext).getAllVisibleModules(context);
+        String existingModuleNamePart = node.moduleName().stream()
+                .filter(name -> !name.isMissing())
+                .map(Token::text)
+                .collect(Collectors.joining("."));
+        moduleList.stream()
+                .filter(moduleDesc -> moduleDesc.packageOrg().value().equals(orgName)
+                        && (!existingModuleNamePart.contains(".") 
+                        || moduleDesc.moduleName().startsWith(existingModuleNamePart))
+                        && ModuleUtil.matchingImportedModule(context, moduleDesc).isEmpty())
+                .forEach(moduleDesc -> {
+                    //If the completion context is import ballerina/lang.<cursor>, 
+                    // we are excluding the module descriptors that do not start with 'lang.'
+                    String moduleName = moduleDesc.moduleName();
+                    String insertText;
+                    if (!addedModuleNames.contains(moduleName)) {
+                        if (orgName.equals(Names.BALLERINA_ORG.value)
+                                && moduleName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
+                            insertText = getLangLibModuleNameInsertText(moduleName);
+                        } else {
+                            insertText = moduleName;
+                        }
+                        addedModuleNames.add(moduleName);
+                        // Do not add the semicolon at the end of the insert text since the user 
+                        // might type the as keyword
+                        LSCompletionItem completionItem = getImportCompletion(context, moduleName, insertText);
+                        completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                        completionItems.add(completionItem);
+                    }
+                });
         return completionItems;
     }
 
 
-    private static List<String> getFilteredPackages(List<String> packageList, String prefix,
+    private static List<String> getFilteredModules(List<String> moduleNameList, String prefix,
                                                    BallerinaCompletionContext context) {
         CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
                 .getInstance(context.languageServercontext());
-        completionSearchProvider.indexNames(packageList);
+        completionSearchProvider.indexNames(moduleNameList);
         return completionSearchProvider.getSuggestions(prefix);
     }
 

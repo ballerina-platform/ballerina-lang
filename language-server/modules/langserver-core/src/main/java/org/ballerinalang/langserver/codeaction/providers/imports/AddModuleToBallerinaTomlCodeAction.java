@@ -18,8 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
@@ -41,7 +39,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +52,7 @@ import java.util.Optional;
 public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Add Module to Ballerina.toml";
-    
+
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
@@ -74,12 +71,12 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         if (toml.isEmpty()) {
             return Collections.emptyList();
         }
-        
+
         Optional<String> msg = positionDetails.diagnosticProperty(0);
         if (msg.isEmpty()) {
             return Collections.emptyList();
         }
-        
+
         // Consider orgname empty case
         String[] orgAndRest = msg.get().split("/");
         if (orgAndRest.length != 2) {
@@ -87,64 +84,32 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         }
         String org = orgAndRest[0];
         String[] moduleAndPrefix = orgAndRest[1].split(" as ");
-        List<PackageVersion> loadedPackageVersions = new ArrayList<>();
-        String pkg = resolvePackageVersionsAndName(LSPackageLoader.getInstance(context.languageServercontext()), 
-                project.get(), org, moduleAndPrefix[0], loadedPackageVersions);
-        if (loadedPackageVersions.isEmpty()) {
+        Optional<ModuleInfo> moduleDesc = LSPackageLoader.getInstance(context.languageServercontext())
+                .getLocalRepoModules()
+                .stream().filter(moduleInfo -> moduleInfo.moduleName().equals(moduleAndPrefix[0])
+                        && org.equals(moduleInfo.packageOrg().value())).findFirst();
+        if (moduleDesc.isEmpty() || !moduleDesc.get().getVersionMap().containsKey(LSPackageLoader.REPO.LOCAL)) {
             return Collections.emptyList();
         }
-        
+
+        List<PackageVersion> loadedPackageVersions = moduleDesc.get().getVersionMap().get(LSPackageLoader.REPO.LOCAL);
         Position dependencyStart = new Position(getDependencyStartLine(toml.get()), 0);
         String dependency = String.format("[[dependency]]%norg = \"%s\"%nname = \"%s\"%nversion = " +
-                "\"%s\"%nrepository = \"local\"%n%n", org, pkg, getLatestVersion(loadedPackageVersions));
+                "\"%s\"%nrepository = \"local\"%n%n", org, moduleDesc.get().packageName().value(),
+                getLatestVersion(loadedPackageVersions));
         TextEdit textEdit = new TextEdit(new Range(dependencyStart, dependencyStart), dependency);
-        CodeAction action = CodeActionUtil.createCodeAction(CommandConstants.ADD_MODULE_TO_BALLERINA_TOML, 
-                List.of(textEdit), project.get().sourceRoot().resolve(ProjectConstants.BALLERINA_TOML).toString(), 
+        CodeAction action = CodeActionUtil.createCodeAction(CommandConstants.ADD_MODULE_TO_BALLERINA_TOML,
+                List.of(textEdit), project.get().sourceRoot().resolve(ProjectConstants.BALLERINA_TOML).toString(),
                 CodeActionKind.QuickFix);
         return Collections.singletonList(action);
     }
-    
-    private String resolvePackageVersionsAndName(LSPackageLoader lsPackageLoader, Project project, String org,
-                                                 String moduleName, List<PackageVersion> versions) {
-        String packageName = moduleName;
-        while (true) {
-            int i = packageName.lastIndexOf(".");
-            if (i == -1) {
-                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, packageName));
-                if (!versions.isEmpty()) {
-                    return packageName;
-                }
-                versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, moduleName));
-                return moduleName;
-            }
-            packageName = packageName.substring(0, i);
-            versions.addAll(getAvailablePackageVersionsFromLocalRepo(lsPackageLoader, project, org, packageName));
-            if (!versions.isEmpty()) {
-                return packageName;
-            }
-        }
-    }
+
 
     @Override
     public String getName() {
         return NAME;
     }
-    
-    private List<PackageVersion> getAvailablePackageVersionsFromLocalRepo(
-            LSPackageLoader lsPackageLoader, Project project, String orgName, String pkgName) {
-        BallerinaUserHome ballerinaUserHome = 
-                BallerinaUserHome.from(project.projectEnvironmentContext().environment());
-        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-        List<ModuleInfo> modules = lsPackageLoader.getLocalRepoPackages(localRepository);
-        List<PackageVersion> versions = new ArrayList<>();
-        for (ModuleInfo mod : modules) {
-            if (mod.packageOrg().value().equals(orgName) && mod.packageName().value().equals(pkgName)) {
-                versions.add(mod.packageVersion());
-            }
-        }
-        return versions;
-    }
-    
+
     private String getLatestVersion(List<PackageVersion> versions) {
         PackageVersion latestVersion = versions.get(0);
         for (int i = 1; i < versions.size(); i++) {
@@ -155,7 +120,7 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
         }
         return latestVersion.toString();
     }
-    
+
     private int getDependencyStartLine(BallerinaToml toml) {
         DocumentNode tomlSyntaxTree = toml.tomlDocument().syntaxTree().rootNode();
         return tomlSyntaxTree.members().stream()

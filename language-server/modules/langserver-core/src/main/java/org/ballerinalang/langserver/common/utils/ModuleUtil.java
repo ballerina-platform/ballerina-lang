@@ -219,13 +219,13 @@ public class ModuleUtil {
      * Whether the package is already imported in the current document.
      *
      * @param context    completion context
-     * @param module     Module to be evaluated against
+     * @param moduleInfo     Module to be evaluated against
      * @return {@link Optional}
      */
     public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
-                                                                         LSPackageLoader.ModuleInfo module) {
-        String name = module.packageName().value();
-        String orgName = module.packageOrg().value();
+                                                                         LSPackageLoader.ModuleInfo moduleInfo) {
+        String name = moduleInfo.moduleName();
+        String orgName = moduleInfo.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         return currentDocImports.keySet().stream()
                 .filter(importPkg -> importPkg.orgName().isPresent()
