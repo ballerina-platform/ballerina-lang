@@ -210,6 +210,9 @@ isolated 'xml:Element catalog = xml `<CATALOG>
 const X = "x";
 const Y = "y";
 
+map<string> globalMap1 = {"name": "MyName", "age": "old"};
+map<string> globalMap2 = {"name": "MyName2", "age": "young"};
+
 string globalStr1 = "globalVarStringVal1";
 string globalStr2 = "globalVarStringVal2";
 string globalStr3 = "globalVarStringVal3";
@@ -3304,12 +3307,12 @@ public function main(int intArgA = 2) returns error? {
                     "key10" : "value10",
                     ...largeRecord,
                     "key11" : "value11",
-                    "key12" : "value12",
-                    "key13" : "value13",
-                    "key14" : "value14",
-                    "key15" : "value15",
-                    "key16" : "value16",
-                    "key17" : "value17",
+                    "key12" : globalStr1,
+                    "key13" : globalStr1,
+                    "key14" : globalStr2,
+                    "key15" : globalMap1,
+                    [globalStr6] : globalMap1,
+                    [globalStr7] : globalMap2,
                     "key18" : "value18",
                     "key19" : "value19",
                     "key20" : "value20",
@@ -4450,12 +4453,12 @@ public function main(int intArgA = 2) returns error? {
                     "key10" : "value10",
                     ...largeRecord,
                     "key11" : "value11",
-                    "key12" : "value12",
-                    "key13" : "value13",
-                    "key14" : "value14",
-                    "key15" : "value15",
-                    "key16" : "value16",
-                    "key17" : "value17",
+                    "key12" : globalStr1,
+                    "key13" : globalStr1,
+                    "key14" : globalStr2,
+                    "key15" : globalMap1,
+                    [globalStr6] : globalMap1,
+                    [globalStr7] : globalMap2,
                     "key18" : "value18",
                     "key19" : "value19",
                     "key20" : "value20",
