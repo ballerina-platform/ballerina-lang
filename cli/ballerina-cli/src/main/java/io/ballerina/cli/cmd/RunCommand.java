@@ -22,8 +22,6 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
@@ -94,8 +92,6 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
-
-    private String output;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
