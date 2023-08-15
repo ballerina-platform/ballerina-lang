@@ -49,8 +49,5 @@ public enum PackageLockingMode {
     /**
      * Locks to exact major.minor.patch versions of dependencies.
      */
-    HARD,
-    /**
-     * No locking mode is specified as there are error diagnostics in the package resolution stage.
-     */
+    HARD
 }

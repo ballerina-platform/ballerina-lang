@@ -115,7 +115,7 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
             }
-//TODO: can we dumpGraphs if there are resolution errors?
+//TODO: we don't dump Graphs if there are resolution errors
             if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                 packageResolution.dumpGraphs(out);
             }
@@ -162,7 +162,7 @@ public class CompileTask implements Task {
 
             // We dump the raw graphs twice only if code generator/modifier plugins are engaged
             // since the package has changed now
-//TODO: if Packageresolution has errors, should the below part execute?
+//TODO: if Packageresolution has errors, the below part should not execute
             Set<String> newPackageImports = ProjectUtils.getPackageImports(project.currentPackage());
             ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
             if (!packageImports.equals(newPackageImports)) {

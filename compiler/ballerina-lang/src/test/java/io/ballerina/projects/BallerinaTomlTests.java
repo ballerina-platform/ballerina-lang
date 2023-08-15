@@ -51,7 +51,7 @@ public class BallerinaTomlTests {
 
     @Test
     public void testValidBallerinaToml() throws IOException {
-
+//TODO: Test this test - changed from BallerinaVersion class
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
@@ -78,7 +78,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.authors(), Arrays.asList("jo", "pramodya"));
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
-        Assert.assertEquals(packageManifest.ballerinaVersion(), "slbeta2");
+        Assert.assertEquals(packageManifest.ballerinaVersion().getVersionString(), "slbeta2");
         Assert.assertEquals(packageManifest.visibility(), "private");
 
 //        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());

@@ -19,7 +19,14 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
-import io.ballerina.projects.environment.*;
+import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.ImportModuleRequest;
@@ -204,16 +211,15 @@ public class PackageResolution {
     }
 
     private boolean isTomlDistVersionsMatched (PackageContext rootPackageContext) {
-        //TODO: check the new version obejcts
         if (rootPackageContext.dependenciesTomlContext().isEmpty()) {
             return false;
         } else if (rootPackageContext.dependenciesTomlContext().isPresent() &&
-                rootPackageContext.dependencyManifest().distributionVersion() == null) {//TODO: check if this is null or empty
+                rootPackageContext.dependencyManifest().distributionVersion().getDistributionVersion().isEmpty()) {
             return false;
         } else if (rootPackageContext.dependenciesTomlContext().isPresent() &&
-                rootPackageContext.dependencyManifest().distributionVersion() != null &&//TODO: check if this is null or empty
-                rootPackageContext.packageManifest().ballerinaVersion() != null && //TODO: check if this is null or empty
-                !rootPackageContext.dependencyManifest().distributionVersion()
+                rootPackageContext.dependencyManifest().distributionVersion().getDistributionVersion().isPresent() &&
+                rootPackageContext.packageManifest().ballerinaVersion() != null &&
+                !rootPackageContext.dependencyManifest().distributionVersion().getDistributionVersion().get()
                         .equals(SemanticVersion.from(rootPackageContext.packageManifest().
                                 ballerinaVersion().getVersionString()))) {
             return false;
@@ -523,10 +529,8 @@ public class PackageResolution {
         boolean sticky = getSticky(rootPackageContext);
         PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
 
-        //TODO: Find a better way to exclude the langlibs
         String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
-        if (bootstrapLangLibName == null &&
-                !rootPackageContext.packageManifest().ballerinaVersion().getVersionString().isEmpty()) {
+        if (bootstrapLangLibName == null) {
             SemanticVersion buildEnvVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
             SemanticVersion ballerinaTomlDistVersion = SemanticVersion.from(rootPackageContext.packageManifest()
                     .ballerinaVersion().getVersionString());
