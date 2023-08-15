@@ -1,0 +1,30 @@
+Compiling source
+	wso2/moduleGracefulStopTest:0.0.0
+
+Running Tests
+
+	moduleGracefulStopTest
+Calling init for moduleA listener
+Calling init for default module listener
+Calling start for moduleA listener
+Calling start for default module listener
+		[pass] main_test1
+		[pass] main_test2
+
+
+		2 passing
+		0 failing
+		0 skipped
+Calling stop for default module listener
+Calling stop for moduleA listener
+
+	moduleGracefulStopTest.moduleA
+Calling init for moduleA listener
+Calling start for moduleA listener
+		[pass] test1
+
+
+		1 passing
+		0 failing
+		0 skipped
+Calling stop for moduleA listener
