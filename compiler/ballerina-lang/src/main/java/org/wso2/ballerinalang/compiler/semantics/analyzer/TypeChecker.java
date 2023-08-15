@@ -149,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -2795,6 +2796,39 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Type checking against the matching receive is done during code analysis.
         // When the expected type is noType, set the result type as nil to avoid variable assignment is required errors.
         data.resultType = data.expType == symTable.noType ? symTable.nilType : data.expType;
+    }
+
+    @Override
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
+        BSymbol symbol =
+                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
+
+        if (symTable.notFoundSymbol.tag == symbol.tag) {
+            asyncSendExpr.workerType = symTable.semanticError;
+        } else {
+            asyncSendExpr.workerType = symbol.type;
+            asyncSendExpr.workerSymbol = symbol;
+        }
+
+        // TODO Need to remove this cached env
+        asyncSendExpr.env = data.env;
+        checkExpr(asyncSendExpr.expr, data);
+
+        // Validate if the send expression type is cloneableType
+        if (!types.isAssignable(asyncSendExpr.expr.getBType(), symTable.cloneableType)) {
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND,
+                    asyncSendExpr.expr.getBType());
+        }
+
+        String workerName = asyncSendExpr.workerIdentifier.getValue();
+        if (!this.workerExists(data.env, workerName)) {
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+        }
+
+        asyncSendExpr.expectedType = data.expType;
+
+        // Async-send-action always returns nil.
+        data.resultType = symTable.nilType;
     }
 
     @Override
@@ -6177,7 +6211,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             rhsType = getCandidateType(checkedExpr, rhsType, data);
         }
         BType candidateLaxType = getCandidateLaxType(checkedExpr.expr, rhsType);
-        if (!types.isLax(candidateLaxType)) {
+        if (!types.isLaxFieldAccessAllowed(candidateLaxType)) {
             return;
         }
         ArrayList<BLangExpression> argExprs = new ArrayList<>();
@@ -8209,7 +8243,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         fieldName,
                         varRefType.getKind() == TypeKind.UNION ? "union" : varRefType.getKind().typeName(), varRefType);
             }
-        } else if (types.isLax(varRefType)) {
+        } else if (types.isLaxFieldAccessAllowed(varRefType)) {
             if (fieldAccessExpr.isLValue) {
                 dlog.error(fieldAccessExpr.pos,
                         DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT,
@@ -8267,7 +8301,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
-        return fieldBasedAccess.originalType != null && types.isLax(fieldBasedAccess.originalType);
+        return fieldBasedAccess.originalType != null && types.isLaxFieldAccessAllowed(fieldBasedAccess.originalType);
     }
 
     private BType getLaxFieldAccessType(BType exprType) {
@@ -8331,7 +8365,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
             fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
                     types.getTypeWithoutNil(actualType);
-        } else if (types.isLax(effectiveType)) {
+        } else if (types.isLaxFieldAccessAllowed(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
