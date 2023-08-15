@@ -48,10 +48,6 @@ public interface PathSegment extends Symbol {
      */
     enum Kind {
         /**
-         * Represents the rooth path segment in the resource path which is just ".".
-         */
-        ROOT_PATH,
-        /**
          * Represents a segment in the resource path which is just a identifier.
          */
         NAMED_SEGMENT,
