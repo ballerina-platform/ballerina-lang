@@ -5926,21 +5926,21 @@ public class Desugar extends BLangNodeVisitor {
                                                               Location pos, boolean isReadonly) {
         for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
             String fieldName = entry.getKey();
-            if (!fieldNames.contains(fieldName)) {
-                fieldNames.add(fieldName);
-                BInvokableSymbol invokableSymbol = entry.getValue();
-                BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
-
-                if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
-                    expression = visitCloneReadonly(expression, invokableSymbol.retType);
-                }
-                if (env.enclInvokable != null) {
-                    updateClosureVariable((BVarSymbol) ((BLangInvocation) expression).symbol, env.enclInvokable, pos);
-                }
-                BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName,
-                                                                                                           expression);
-                fields.add(member);
+            if (fieldNames.contains(fieldName)) {
+                continue;
             }
+            fieldNames.add(fieldName);
+            BInvokableSymbol invokableSymbol = entry.getValue();
+            BLangExpression expression = getFunctionPointerInvocation(invokableSymbol);
+
+            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
+                expression = visitCloneReadonly(expression, invokableSymbol.retType);
+            }
+            if (env.enclInvokable != null) {
+                updateClosureVariable((BVarSymbol) ((BLangInvocation) expression).symbol, env.enclInvokable, pos);
+            }
+            BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName, expression);
+            fields.add(member);
         }
     }
 

@@ -558,14 +558,15 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BSymbol owner = getOwner(env);
         BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = desugar.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
+        returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
         BTypeSymbol symbol = env.node.getBType().tsymbol;
         if (symbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
-            updateFunctionParams(function, ((BInvokableTypeSymbol) symbol).params, paramName);
-            ((BInvokableTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
+            BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) symbol;
+            updateFunctionParams(function, invokableTypeSymbol.params, paramName);
+            invokableTypeSymbol.defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
         } else {
             ((BRecordTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
         }
@@ -685,26 +686,21 @@ public class ClosureGenerator extends BLangNodeVisitor {
         }
         switch (parent.getKind()) {
             case CLASS_DEFN:
-                name = ((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case FUNCTION:
                 name = ((BLangFunction) parent).symbol.name.value.replaceAll("\\.", UNDERSCORE) + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RESOURCE_FUNC:
-                name = ((BLangResourceFunction) parent).name.value + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
             case VARIABLE:
-                name = ((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case TYPE_DEFINITION:
-                name = ((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case SERVICE:
-                name = ((BLangService) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangService) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case RECORD_TYPE:
-                name = ((BLangRecordTypeNode) parent).symbol.name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangRecordTypeNode) parent).symbol.name.getValue() + UNDERSCORE + name,
+                                                                                                         parent.parent);
             default:
                 return generateName(name, parent.parent);
         }
