@@ -85,7 +85,7 @@ public class ToolCommand implements BLauncherCmd {
     private static final String TOOL_USE_USAGE_TEXT = "bal tool use <tool-id>:<version>";
     private static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
     private static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
-    private static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<org>|<package>|<text>]";
+    private static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<text>]";
     private static final String TOOL_UPDATE_USAGE_TEXT = "bal tool update <tool-id>";
 
     private final boolean exitWhenFinish;
@@ -146,6 +146,7 @@ public class ToolCommand implements BLauncherCmd {
 
         if (argList == null || argList.isEmpty()) {
             CommandUtil.printError(this.errStream, "no sub-command given.", TOOL_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
