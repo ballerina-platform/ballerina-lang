@@ -311,7 +311,7 @@ public class JsonParser {
             }
 
             Object parentNode = this.nodesStack.pop();
-            if (TypeUtils.getRepresentedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
+            if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
                 ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
                                                                  currentJsonNode);
                 currentJsonNode = parentNode;

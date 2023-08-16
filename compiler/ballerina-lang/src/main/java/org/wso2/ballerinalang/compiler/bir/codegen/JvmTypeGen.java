@@ -505,7 +505,7 @@ public class JvmTypeGen {
     }
 
     private String loadTypeClass(BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType == null || bType.tag == TypeTags.NIL) {
             return LOAD_NULL_TYPE;
         } else {
@@ -721,7 +721,7 @@ public class JvmTypeGen {
     }
 
     public void loadCyclicFlag(MethodVisitor mv, BType valueType) {
-        valueType = JvmCodeGenUtil.getReferredType(valueType);
+        valueType = JvmCodeGenUtil.getImpliedType(valueType);
         switch (valueType.tag) {
             case TypeTags.UNION:
                 mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
@@ -1042,7 +1042,7 @@ public class JvmTypeGen {
     }
 
     public static String getTypeDesc(BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -1120,7 +1120,7 @@ public class JvmTypeGen {
 
             JvmCodeGenUtil.loadConstantValue(valueType, value, mv, jvmConstantsGen);
 
-            if (TypeTags.isIntegerTypeTag(JvmCodeGenUtil.getReferredType(valueType).tag)) {
+            if (TypeTags.isIntegerTypeTag(JvmCodeGenUtil.getImpliedType(valueType).tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF,
                         false);
             } else {
@@ -1140,7 +1140,7 @@ public class JvmTypeGen {
     }
 
     private void loadValueType(MethodVisitor mv, BType valueType) {
-        valueType = JvmCodeGenUtil.getReferredType(valueType);
+        valueType = JvmCodeGenUtil.getImpliedType(valueType);
         switch (valueType.tag) {
             case TypeTags.BOOLEAN:
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,

@@ -585,7 +585,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             }
         }
 
-        BType returnType = Types.getReferredType(funcNode.returnTypeNode.getBType());
+        BType returnType = Types.getImpliedType(funcNode.returnTypeNode.getBType());
         if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
             if (types.getAllTypes(returnType, true).contains(symTable.nilType) &&
                     !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&

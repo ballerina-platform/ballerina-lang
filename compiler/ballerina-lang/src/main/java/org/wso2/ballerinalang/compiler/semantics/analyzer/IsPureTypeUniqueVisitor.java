@@ -58,7 +58,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     private boolean isAnyData(BType type) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:

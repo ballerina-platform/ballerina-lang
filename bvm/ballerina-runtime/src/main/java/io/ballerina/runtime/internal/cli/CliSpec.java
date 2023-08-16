@@ -78,10 +78,10 @@ public class CliSpec {
         while (argIndex < operandArgs.size() && opIndex < operands.length) {
             Operand curOperand = operands[opIndex++];
             Type typeOp = curOperand.type;
-            if (TypeUtils.getRepresentedType(typeOp).getTag() == TypeTags.ARRAY_TAG) {
+            if (TypeUtils.getImpliedType(typeOp).getTag() == TypeTags.ARRAY_TAG) {
                 ArrayType arrayType = (ArrayType) typeOp;
                 BArray bArray = ValueCreator.createArrayValue(arrayType);
-                Type elementType = TypeUtils.getRepresentedType(arrayType.getElementType());
+                Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
                 int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
@@ -121,15 +121,15 @@ public class CliSpec {
     }
 
     private boolean isSupportedArrayType(Type opType) {
-        if (TypeUtils.getRepresentedType(opType).getTag() == TypeTags.ARRAY_TAG) {
-            Type elementType = TypeUtils.getRepresentedType(((ArrayType) opType).getElementType());
+        if (TypeUtils.getImpliedType(opType).getTag() == TypeTags.ARRAY_TAG) {
+            Type elementType = TypeUtils.getImpliedType(((ArrayType) opType).getElementType());
             return CliUtil.isSupportedType(elementType.getTag());
         }
         return false;
     }
 
     private static Object getDefaultBValue(Type type) {
-        switch (TypeUtils.getRepresentedType(type).getTag()) {
+        switch (TypeUtils.getImpliedType(type).getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
             case TypeTags.SIGNED16_INT_TAG:
@@ -144,7 +144,7 @@ public class CliSpec {
             case TypeTags.BOOLEAN_TAG:
                 return false;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getDefaultBValue(TypeUtils.getRepresentedType(type));
+                return getDefaultBValue(TypeUtils.getImpliedType(type));
             default:
                 return null;
         }
@@ -153,7 +153,7 @@ public class CliSpec {
     private int getElementCount(Operand[] operands, int opIndex) {
         int count = 0;
         while (opIndex < operands.length && 
-                TypeUtils.getRepresentedType(operands[opIndex++].type).getTag() != TypeTags.RECORD_TYPE_TAG) {
+                TypeUtils.getImpliedType(operands[opIndex++].type).getTag() != TypeTags.RECORD_TYPE_TAG) {
             count++;
         }
         return count;

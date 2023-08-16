@@ -171,7 +171,7 @@ public class ASTBuilderUtil {
     }
 
     private static boolean isValueType(BType type) {
-        return Types.getReferredType(type, false).tag < TypeTags.JSON;
+        return Types.getReferredType(type).tag < TypeTags.JSON;
     }
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
@@ -412,8 +412,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        BType varRefType = Types.getReferredType(varRef.getBType());
-        if (varRefType.tag == Types.getReferredType(target).tag || varRefType.tag > TypeTags.BOOLEAN) {
+        BType varRefType = Types.getImpliedType(varRef.getBType());
+        if (varRefType.tag == Types.getImpliedType(target).tag || varRefType.tag > TypeTags.BOOLEAN) {
             return varRef;
         }
         // Box value using cast expression.
@@ -664,7 +664,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
-        BType referredType = Types.getReferredType(type);
+        BType referredType = Types.getImpliedType(type);
 
         if (referredType.tag != TypeTags.ARRAY && referredType.tag != TypeTags.TUPLE) {
             throw new IllegalArgumentException("Expected a 'BArrayType' instance or a 'BTupleType' instance");

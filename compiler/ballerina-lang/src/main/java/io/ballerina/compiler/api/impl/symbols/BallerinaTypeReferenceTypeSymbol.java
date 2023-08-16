@@ -64,7 +64,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, BType bType, BSymbol tSymbol,
                                             boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        referredType = getReferredType(bType);
+        referredType = getImpliedType(bType);
         this.definitionName = tSymbol.getOriginalName().getValue();
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
@@ -100,7 +100,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         BType bType = this.getBType();
-        BType referredType = this.getReferredType(bType, false);
+        BType referredType = this.getReferredType(bType);
         if (referredType.tag == TypeTags.PARAMETERIZED_TYPE || bType.tag == TypeTags.PARAMETERIZED_TYPE) {
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
@@ -197,22 +197,27 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private boolean isAnonOrg(ModuleID moduleID) {
         return ANON_ORG.equals(moduleID.orgName());
     }
-    
-    private BType getReferredType(BType type) {
-        return getReferredType(type, true);
-    }
-    
-    private BType getReferredType(BType type, boolean effectiveType) {
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            return ((BTypeReferenceType) type).referredType;
+
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    private BType getImpliedType(BType type) {
+        type = getReferredType(type);
+        if (type != null && type.tag == TypeTags.INTERSECTION) {
+            return getImpliedType(((BIntersectionType) type).effectiveType);
         }
 
-        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
-            return getReferredType(((BIntersectionType) type).effectiveType);
-        }
-        
-        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
-            return ((BParameterizedType) type).paramValueType;
+        return type;
+    }
+    
+    private BType getReferredType(BType type) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
+            return getReferredType(((BTypeReferenceType) type).referredType);
         }
 
         return type;

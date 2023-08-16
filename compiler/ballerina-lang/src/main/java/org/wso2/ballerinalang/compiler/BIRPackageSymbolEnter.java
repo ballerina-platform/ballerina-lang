@@ -269,11 +269,11 @@ public class BIRPackageSymbolEnter {
 
     private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            BType referredStructureTypeSymbol = Types.getReferredType(structureTypeSymbol.type);
+            BType referredStructureTypeSymbol = Types.getImpliedType(structureTypeSymbol.type);
             if (referredStructureTypeSymbol.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) referredStructureTypeSymbol;
                 for (BType ref : objectType.typeInclusions) {
-                    BType typeRef = Types.getReferredType(ref);
+                    BType typeRef = Types.getImpliedType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -414,7 +414,7 @@ public class BIRPackageSymbolEnter {
         boolean isResourceFunction = dataInStream.readBoolean();
         
         if (this.currentStructure != null) {
-            BType attachedType = Types.getReferredType(this.currentStructure.type);
+            BType attachedType = Types.getImpliedType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -818,7 +818,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.INTERSECTION:
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
-                return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
+                return readConstLiteralValue(Types.getImpliedType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
@@ -877,7 +877,7 @@ public class BIRPackageSymbolEnter {
 
         // Create variable symbol
         BType varType = readBType(dataInStream);
-        BType referredVarType = Types.getReferredType(varType);
+        BType referredVarType = Types.getImpliedType(varType);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
         if (referredVarType.tag == TypeTags.INVOKABLE) {
@@ -996,7 +996,7 @@ public class BIRPackageSymbolEnter {
             return;
         }
 
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
                 BParameterizedType varType = (BParameterizedType) type;

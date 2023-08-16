@@ -187,7 +187,7 @@ public class ImmutableTypeCloner {
                                                                   Names names,
                                                                   Set<Flag> origObjFlagSet,
                                                                   Set<BType> unresolvedTypes) {
-        BType refType = Types.getReferredType(bType, false);
+        BType refType = Types.getReferredType(bType);
         SelectivelyImmutableReferenceType type = (SelectivelyImmutableReferenceType) refType;
         if (refType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(refType.flags, Flags.READONLY)) {
             return (BIntersectionType) refType;
@@ -471,7 +471,7 @@ public class ImmutableTypeCloner {
 
         BType effectiveType = immutableTupleIntersectionType.effectiveType;
         BTypeSymbol tsymbol = immutableTupleIntersectionType.effectiveType.tsymbol;
-        if (Types.getReferredType(effectiveType).tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
+        if (Types.getImpliedType(effectiveType).tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
             return immutableTupleIntersectionType;
         }
@@ -494,7 +494,7 @@ public class ImmutableTypeCloner {
                                                 pkgEnv);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
-        BType immutableType = Types.getReferredType(immutableTypeDefinition.getBType());
+        BType immutableType = Types.getImpliedType(immutableTypeDefinition.getBType());
         if (immutableType.tag == TypeTags.RECORD) {
             defineUndefinedImmutableRecordFields((BRecordType) immutableType, pos, pkgID, immutableTypeDefinition,
                                                  types, env, symTable, anonymousModelHelper, names);

@@ -316,7 +316,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         } else if (queryExpr.getFinalClause().getKind() == NodeKind.COLLECT) {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
         } else {
-            BType refType = Types.getReferredType(queryExpr.getBType());
+            BType refType = Types.getImpliedType(queryExpr.getBType());
             BType safeType = types.getSafeType(refType, true, true);
             if (isXml(safeType)) {
                 if (types.isSubTypeOfReadOnly(refType, env)) {
@@ -330,7 +330,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 BType arrayType = refType;
                 if (refType.tag == TypeTags.UNION) {
                     arrayType = ((BUnionType) refType).getMemberTypes()
-                            .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.ARRAY)
+                            .stream().filter(m -> Types.getImpliedType(m).tag == TypeTags.ARRAY)
                             .findFirst().orElse(symTable.arrayType);
                 }
                 BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
@@ -349,12 +349,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     private BMapType getMapType(BType type) {
-        BMapType resultantType = (BMapType) Types.getReferredType(types.getSafeType(type, false, true));
+        BMapType resultantType = (BMapType) Types.getImpliedType(types.getSafeType(type, false, true));
         return resultantType;
     }
 
     private boolean isXml(BType type) {
-        BType refType = Types.getReferredType(type);
+        BType refType = Types.getImpliedType(type);
 
         if (TypeTags.isXMLTypeTag(refType.tag)) {
             return true;
@@ -589,7 +589,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
         BType completionType = symTable.errorOrNilType;
-        BType refType = Types.getReferredType(resultType);
+        BType refType = Types.getImpliedType(resultType);
         boolean isStream = false;
         if (refType.tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) refType).eType;
@@ -1010,11 +1010,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
         BType tableType = type;
-        BType refType = Types.getReferredType(type);
+        BType refType = Types.getImpliedType(type);
         if (refType.tag == TypeTags.UNION) {
             tableType = symTable.tableType;
             for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
-                int memberTypeTag = Types.getReferredType(memberType).tag;
+                int memberTypeTag = Types.getImpliedType(memberType).tag;
                 if (memberTypeTag == TypeTags.TABLE) {
                     tableType = memberType;
                 }
@@ -1383,7 +1383,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BVarSymbol symbol : symbols) {
             BType type = symbol.type;
             String key = symbol.name.value;
-            BType structureType = Types.getReferredType(type);
+            BType structureType = Types.getImpliedType(type);
             if (structureType.tag == TypeTags.RECORD || structureType.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();
                 for (BField field : ((BStructureType) structureType).fields.values()) {

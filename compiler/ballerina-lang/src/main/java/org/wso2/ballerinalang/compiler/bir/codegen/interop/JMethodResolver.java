@@ -469,7 +469,7 @@ class JMethodResolver {
     }
 
     private boolean isValidParamBType(Class<?> jType, BType bType, boolean isLastParam, boolean restParamExist) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -598,7 +598,7 @@ class JMethodResolver {
 
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest,
                                        LinkedHashSet<Class<?>> visitedSet) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {

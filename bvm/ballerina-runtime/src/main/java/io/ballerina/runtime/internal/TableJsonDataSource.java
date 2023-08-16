@@ -116,7 +116,7 @@ public class TableJsonDataSource implements JsonDataSource {
 
     private static void constructJsonData(BMap<?, ?> record, MapValue<BString, Object> jsonObject,
                                           BString key, Type type) {
-        type = TypeUtils.getRepresentedType(type);
+        type = TypeUtils.getImpliedType(type);
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
                 jsonObject.put(key, record.getStringValue(key));

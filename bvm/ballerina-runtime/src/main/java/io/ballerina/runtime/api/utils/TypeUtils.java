@@ -56,7 +56,7 @@ public class TypeUtils {
     }
 
     public static boolean isValueType(Type type) {
-        Type referredType = TypeUtils.getRepresentedType(type);
+        Type referredType = TypeUtils.getImpliedType(type);
         switch (referredType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
@@ -159,19 +159,18 @@ public class TypeUtils {
     }
 
     /**
-     * Retrieve the represented type if a given type is a type reference type or an intersection type.
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
      *
-     * @param type type to retrieve referred
-     * @return the represented type if provided with a type reference type or an intersection type,
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
      * else returns the original type
      */
-    public static Type getRepresentedType(Type type) {
-        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            return getRepresentedType(((ReferenceType) type).getReferredType());
-        }
-        
+    public static Type getImpliedType(Type type) {
+        type = getReferredType(type);
+
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            return getRepresentedType(((IntersectionType) type).getEffectiveType());
+            return getImpliedType(((IntersectionType) type).getEffectiveType());
         }
 
         return type;

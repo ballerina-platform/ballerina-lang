@@ -418,8 +418,8 @@ public class TypeResolver {
 
     private BType calculateEffectiveType(BLangType typeNode, BLangType bLangTypeOne,
                                          BLangType bLangTypeTwo, BType typeOne, BType typeTwo) {
-        BType typeOneReference = Types.getReferredType(typeOne);
-        BType typeTwoReference = Types.getReferredType(typeTwo);
+        BType typeOneReference = Types.getImpliedType(typeOne);
+        BType typeTwoReference = Types.getImpliedType(typeTwo);
 
         if (typeOneReference.tag != TypeTags.ERROR || typeTwoReference.tag != TypeTags.ERROR) {
             dlog.error(typeNode.pos, DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
@@ -448,7 +448,7 @@ public class TypeResolver {
             int numberOfDistinctConstituentTypes = 0;
             BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
             for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
-                BType type = Types.getReferredType(
+                BType type = Types.getImpliedType(
                         types.getTypeWithEffectiveIntersectionTypes(constituentType.getBType()));
 
                 if (type.getKind() == TypeKind.ERROR) {
@@ -744,7 +744,7 @@ public class TypeResolver {
                 throw new AssertionError("Invalid type");
         }
 
-        BType refType = Types.getReferredType(resultType);
+        BType refType = Types.getImpliedType(resultType);
         if (refType != symTable.noType) {
             // If the typeNode.nullable is true then convert the resultType to a union type
             // if it is not already a union type, JSON type, or any type
@@ -1344,7 +1344,7 @@ public class TypeResolver {
         boolean hasNilableType = false;
 
         for (BType memBType : BUnionType.toFlatTypeSet(memberTypes)) {
-            if (Types.getReferredType(memBType).tag != TypeTags.NEVER) {
+            if (Types.getImpliedType(memBType).tag != TypeTags.NEVER) {
                 flattenMemberTypes.add(memBType);
             }
 
@@ -1432,7 +1432,7 @@ public class TypeResolver {
                 if (constituentType.tag == TypeTags.READONLY) {
                     continue;
                 }
-                if (resolvingTypes.contains(Types.getReferredType(constituentType))) {
+                if (resolvingTypes.contains(Types.getImpliedType(constituentType))) {
                     dlog.error(td.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, td);
                     return symTable.semanticError;
                 }
@@ -1482,7 +1482,7 @@ public class TypeResolver {
                 intersectionTypeList.put(intersectionType, td);
             }
 
-            if (!(Types.getReferredType(effectiveType) instanceof SelectivelyImmutableReferenceType)) {
+            if (!(Types.getImpliedType(effectiveType) instanceof SelectivelyImmutableReferenceType)) {
                 intersectionType.effectiveType = symTable.semanticError;
                 return;
             }
@@ -1524,7 +1524,7 @@ public class TypeResolver {
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = symResolver.lookupMainSpaceSymbolInPackage(td.pos, symEnv, pkgAlias, typeName);
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ?
-                    Types.getReferredType(tempSymbol.type).tsymbol : tempSymbol;
+                    Types.getImpliedType(tempSymbol.type).tsymbol : tempSymbol;
             // Tsymbol of the effective type can be null for invalid intersections and `xml & readonly` intersections
             if (refSymbol == null) {
                 refSymbol = tempSymbol;
@@ -1544,7 +1544,7 @@ public class TypeResolver {
                 }
 
                 if (tempSymbol.type != null &&
-                        Types.getReferredType(tempSymbol.type).tag != TypeTags.TYPEDESC) {
+                        Types.getImpliedType(tempSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(td.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                             tempSymbol.type);
                     errored = true;
@@ -1761,7 +1761,7 @@ public class TypeResolver {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
-        if (Types.getReferredType(constraintType).tag == TypeTags.MAP &&
+        if (Types.getImpliedType(constraintType).tag == TypeTags.MAP &&
                 (!tableType.fieldNameList.isEmpty() || tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
@@ -1878,7 +1878,7 @@ public class TypeResolver {
             typeDefSymbol.pos = typeDefinition.name.pos;
         }
 
-        BType referenceConstraintType = Types.getReferredType(resolvedType, false);
+        BType referenceConstraintType = Types.getReferredType(resolvedType);
         boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :

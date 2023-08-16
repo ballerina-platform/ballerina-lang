@@ -402,7 +402,7 @@ public class MethodGen {
     }
 
     private void genDefaultValue(MethodVisitor mv, BType bType, int index) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
@@ -674,7 +674,7 @@ public class MethodGen {
             if (localVar.onlyUsedInSingleBB) {
                 continue;
             }
-            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -702,7 +702,7 @@ public class MethodGen {
 
     private void generateFrameClassFieldLoadByTypeTag(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
                                                       int index, BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "I");
@@ -783,7 +783,7 @@ public class MethodGen {
 
     private void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                               int index, String frameName) {
-        JType jType = (JType) JvmCodeGenUtil.getReferredType(localVar.type);
+        JType jType = (JType) JvmCodeGenUtil.getImpliedType(localVar.type);
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -827,7 +827,7 @@ public class MethodGen {
             if (localVar.onlyUsedInSingleBB) {
                 continue;
             }
-            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -851,7 +851,7 @@ public class MethodGen {
 
     private void generateFrameClassFieldUpdateByTypeTag(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
                                                         int index, BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitVarInsn(ILOAD, index);
@@ -1036,7 +1036,7 @@ public class MethodGen {
 
     private boolean isValidArg(BIRVariableDcl localVar) {
         boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG;
-        boolean synArg = JvmCodeGenUtil.getReferredType(localVar.type).tag == TypeTags.BOOLEAN &&
+        boolean synArg = JvmCodeGenUtil.getImpliedType(localVar.type).tag == TypeTags.BOOLEAN &&
                 localVar.name.value.startsWith("%syn");
         boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
                 localVar.kind == VarKind.SYNTHETIC;
@@ -1052,7 +1052,7 @@ public class MethodGen {
     }
 
     private String getJVMTypeSign(BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {

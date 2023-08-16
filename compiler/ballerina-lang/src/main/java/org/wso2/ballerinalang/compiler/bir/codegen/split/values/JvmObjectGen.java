@@ -139,7 +139,7 @@ public class JvmObjectGen {
 
             mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
                     methodSig, false);
-            int retTypeTag = JvmCodeGenUtil.getReferredType(retType).tag;
+            int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {

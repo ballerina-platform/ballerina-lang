@@ -212,7 +212,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String getFieldTypeSignature(BType bType) {
-        bType = getReferredType(bType);
+        bType = getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -393,7 +393,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String getArgTypeSignature(BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -450,7 +450,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String generateReturnType(BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType == null) {
             return RETURN_JOBJECT;
         }
@@ -706,7 +706,7 @@ public class JvmCodeGenUtil {
     }
 
     public static boolean isSimpleBasicType(BType bType) {
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
@@ -733,31 +733,35 @@ public class JvmCodeGenUtil {
         }
     }
 
-    public static BType getReferredType(BType type) {
-        return getReferredType(type, true);
-    }
-    
-    public static BType getReferredType(BType type, boolean effectiveType) {
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    public static BType getImpliedType(BType type) {
         BType constraint = type;
         if (type == null) {
             return null;
         }
 
         if (type.tag == TypeTags.TYPEREFDESC) {
-            return getReferredType(((BTypeReferenceType) type).referredType, effectiveType);
+            return getImpliedType(((BTypeReferenceType) type).referredType);
         }
-        
-        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
-            return getReferredType(((BIntersectionType) type).effectiveType);
+
+        if (type.tag == TypeTags.INTERSECTION) {
+            return getImpliedType(((BIntersectionType) type).effectiveType);
         }
-        
+
         return constraint;
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmConstantsGen jvmConstantsGen) {
 
-        int typeTag = getReferredType(bType).tag;
+        int typeTag = getImpliedType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);

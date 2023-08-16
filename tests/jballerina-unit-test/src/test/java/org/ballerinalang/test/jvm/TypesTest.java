@@ -817,7 +817,7 @@ public class TypesTest {
         returnType = (UnionType) ((FunctionType) typedescValue.getDescribingType()).getReturnType();
         originalMemberTypes = returnType.getOriginalMemberTypes();
         Assert.assertEquals(originalMemberTypes.size(), 2);
-        memType1 = TypeUtils.getRepresentedType(originalMemberTypes.get(0));
+        memType1 = TypeUtils.getImpliedType(originalMemberTypes.get(0));
         Assert.assertEquals(memType1.getTag(), TypeTags.UNION_TAG);
         memUnionType = (UnionType) memType1;
         Assert.assertFalse(SymbolFlags.isFlagOn(memUnionType.getFlags(), SymbolFlags.ENUM));

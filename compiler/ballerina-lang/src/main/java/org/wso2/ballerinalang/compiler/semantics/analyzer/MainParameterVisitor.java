@@ -40,7 +40,7 @@ public class MainParameterVisitor {
     }
 
     public boolean visit(BType type) {
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
         if (type.tag == TypeTags.ARRAY) {
             return isOperandType(((BArrayType) type).eType);
         }
@@ -71,7 +71,7 @@ public class MainParameterVisitor {
     private boolean hasNil(LinkedHashSet<BType> memberTypes) {
         boolean result = false;
         for (BType memberType : memberTypes) {
-            if (Types.getReferredType(memberType).tag == TypeTags.NIL) {
+            if (Types.getImpliedType(memberType).tag == TypeTags.NIL) {
                 result = true;
                 break;
             }
@@ -80,7 +80,7 @@ public class MainParameterVisitor {
     }
 
     public boolean isOperandType(BType type) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.BYTE:

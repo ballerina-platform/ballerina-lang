@@ -428,7 +428,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            BType referredMember = Types.getReferredType(member);
+            BType referredMember = Types.getImpliedType(member);
             if (this.function != null && referredMember.tag == TypeTags.PARAMETERIZED_TYPE) {
                 BParameterizedType parameterizedType = (BParameterizedType) referredMember;
                 BType paramConstraint = getParamConstraintTypeIfInferred(this.function, parameterizedType);
@@ -558,7 +558,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
                     BType type = paramValueTypes.get(paramVarName);
                     return type.tag == TypeTags.SEMANTIC_ERROR ? expType :
-                            ((BTypedescType) Types.getReferredType(type)).constraint;
+                            ((BTypedescType) Types.getImpliedType(type)).constraint;
                 }
 
                 if (!types.isAssignable(expType, paramSymbolType)) {
@@ -664,7 +664,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return getConstraintTypeIfNotError(argAtIndex.getBType());
             }
         } else if (!restArgs.isEmpty()) {
-            BType restArgType = Types.getReferredType(restArgs.get(0).getBType());
+            BType restArgType = Types.getImpliedType(restArgs.get(0).getBType());
 
             if (restArgType.tag == TypeTags.RECORD) {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
@@ -685,7 +685,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         if (type.getKind() == TypeKind.TYPEREFDESC) {
-            return ((BTypedescType) (Types.getReferredType(type))).constraint;
+            return ((BTypedescType) (Types.getImpliedType(type))).constraint;
         }
 
         return ((BTypedescType) type).constraint;
@@ -785,7 +785,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
-        BType type = Types.getReferredType(restArg.getBType());
+        BType type = Types.getImpliedType(restArg.getBType());
         int tag = type.tag;
         if (tag == TypeTags.RECORD) {
             populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);
@@ -856,7 +856,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return symbolTable.noType;
             }
 
-            BType paramType = Types.getReferredType(requiredParam.getBType());
+            BType paramType = Types.getImpliedType(requiredParam.getBType());
             if (paramType.tag != TypeTags.TYPEDESC) {
                 return symbolTable.noType;
             }
@@ -867,7 +867,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean isDisjointMemberType(BParameterizedType parameterizedType, BUnionType unionType) {
-        BType paramValueType = Types.getReferredType(parameterizedType.paramValueType);
+        BType paramValueType = Types.getImpliedType(parameterizedType.paramValueType);
 
         if (paramValueType.tag == TypeTags.UNION) {
             return isDisjoint((BUnionType) paramValueType, unionType, parameterizedType);
@@ -907,8 +907,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean hasSameBasicType(BType t1, BType t2) {
-        int tag1 = Types.getReferredType(t1).tag;
-        int tag2 = Types.getReferredType(t2).tag;
+        int tag1 = Types.getImpliedType(t1).tag;
+        int tag2 = Types.getImpliedType(t2).tag;
 
         if (tag1 == tag2) {
             return true;
@@ -954,7 +954,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         List<BType> inferableTypes = new ArrayList<>();
 
-        BType referredOriginalType = Types.getReferredType(originalType);
+        BType referredOriginalType = Types.getImpliedType(originalType);
         if (referredOriginalType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) referredOriginalType).getMemberTypes()) {
                 if (!Symbols.isFlagOn(memberType.flags, Flags.PARAMETERIZED)) {
@@ -975,7 +975,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        expType = Types.getReferredType(expType);
+        expType = Types.getImpliedType(expType);
         Set<BType> expectedTypes = expType.tag == TypeTags.UNION ? ((BUnionType) expType).getMemberTypes() :
                 Set.of(expType);
 
@@ -983,7 +983,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         for (BType inferableType : inferableTypes) {
             for (BType expectedType : expectedTypes) {
-                if (Types.getReferredType(inferableType).tag == Types.getReferredType(expectedType).tag) {
+                if (Types.getImpliedType(inferableType).tag == Types.getImpliedType(expectedType).tag) {
                     matchedTypes.add(expectedType);
                 }
             }
@@ -1010,7 +1010,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return false;
         }
 
-        type = Types.getReferredType(type, false);
+        type = Types.getReferredType(type);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
                 String paramName = ((BParameterizedType) type).paramSymbol.name.value;
@@ -1112,7 +1112,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return refersInferableParamName(paramsWithInferredTypedescDefault, ((BFutureType) type).constraint,
                                                 unresolvedTypes);
             case TypeTags.TYPEREFDESC:
-                return refersInferableParamName(paramsWithInferredTypedescDefault, Types.getReferredType(type),
+                return refersInferableParamName(paramsWithInferredTypedescDefault, Types.getImpliedType(type),
                         unresolvedTypes);
         }
         return false;
@@ -1134,12 +1134,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (Types.getReferredType(expType).tag != TypeTags.UNION) {
+        if (Types.getImpliedType(expType).tag != TypeTags.UNION) {
             return expType;
         }
 
         LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) Types.getReferredType(expType)).getMemberTypes()) {
+        for (BType expMemType : ((BUnionType) Types.getImpliedType(expType)).getMemberTypes()) {
             boolean hasMatchWithOtherType = false;
             for (BType origMemType : originalType.getMemberTypes()) {
                 if (origMemType == member) {

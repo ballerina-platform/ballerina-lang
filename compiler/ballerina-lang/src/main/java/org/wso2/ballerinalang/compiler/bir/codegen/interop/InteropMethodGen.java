@@ -215,7 +215,7 @@ public class InteropMethodGen {
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
         int returnVarRefIndex = indexMap.addIfNotExists(retVarDcl.name.value, retType);
 
-        int retTypeTag = JvmCodeGenUtil.getReferredType(retType).tag;
+        int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
         if (retTypeTag == TypeTags.NIL) {
             mv.visitInsn(ACONST_NULL);
         } else if (retTypeTag == TypeTags.HANDLE) {
@@ -358,7 +358,7 @@ public class InteropMethodGen {
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
-        if (JvmCodeGenUtil.getReferredType(retType).tag != TypeTags.NIL) {
+        if (JvmCodeGenUtil.getImpliedType(retType).tag != TypeTags.NIL) {
             BIROperand retRef = new BIROperand(birFunc.localVars.get(0));
             if (JType.jVoid != jMethodRetType) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
@@ -423,7 +423,7 @@ public class InteropMethodGen {
     }
 
     private static boolean isMatchingBAndJType(BType sourceType, JType targetType) {
-        int sourceTypeTag = JvmCodeGenUtil.getReferredType(sourceType).tag;
+        int sourceTypeTag = JvmCodeGenUtil.getImpliedType(sourceType).tag;
         return (TypeTags.isIntegerTypeTag(sourceTypeTag) && targetType.jTag == JTypeTags.JLONG) ||
                 (sourceTypeTag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
                 (sourceTypeTag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN);
@@ -432,7 +432,7 @@ public class InteropMethodGen {
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions
     // here. We can improve following logic with a type lattice.
     private static void performWideningPrimitiveConversion(MethodVisitor mv, BType bType, JType jType) {
-        int typeTag = JvmCodeGenUtil.getReferredType(bType).tag;
+        int typeTag = JvmCodeGenUtil.getImpliedType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag) && jType.jTag == JTypeTags.JLONG) {
             // NOP
         } else if (typeTag == TypeTags.FLOAT && jType.jTag == JTypeTags.JDOUBLE) {
@@ -534,7 +534,7 @@ public class InteropMethodGen {
 
         JType jElementType;
         BType bElementType;
-        bType = JvmCodeGenUtil.getReferredType(bType);
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (jvmType.jTag == JTypeTags.JARRAY && bType.tag == TypeTags.ARRAY) {
             jElementType = ((JType.JArrayType) jvmType).elementType;
             bElementType = ((BArrayType) bType).eType;
@@ -576,7 +576,7 @@ public class InteropMethodGen {
         mv.visitVarInsn(ILOAD, indexVarIndex);
         mv.visitInsn(I2L);
         
-        int elementTypeTag = JvmCodeGenUtil.getReferredType(bElementType).tag;
+        int elementTypeTag = JvmCodeGenUtil.getImpliedType(bElementType).tag;
         if (TypeTags.isIntegerTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
         } else if (TypeTags.isStringTypeTag(elementTypeTag)) {

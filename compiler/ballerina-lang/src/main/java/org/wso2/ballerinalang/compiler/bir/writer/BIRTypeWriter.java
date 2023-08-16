@@ -581,7 +581,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeValue(Object value, BType typeOfValue) {
         ByteBuf byteBuf = Unpooled.buffer();
-        switch (Types.getReferredType(typeOfValue).tag) {
+        switch (Types.getImpliedType(typeOfValue).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

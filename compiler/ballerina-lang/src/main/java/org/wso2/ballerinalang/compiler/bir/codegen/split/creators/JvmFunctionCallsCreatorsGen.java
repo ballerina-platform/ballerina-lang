@@ -136,7 +136,7 @@ public class JvmFunctionCallsCreatorsGen {
             }
             mv.visitMethodInsn(INVOKESTATIC, functionWrapper.fullQualifiedClassName, func.name.value,
                     functionWrapper.jvmMethodDescription, false);
-            int retTypeTag = JvmCodeGenUtil.getReferredType(retType).tag;
+            int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
             if (retType == null || retTypeTag == TypeTags.NIL || retTypeTag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {

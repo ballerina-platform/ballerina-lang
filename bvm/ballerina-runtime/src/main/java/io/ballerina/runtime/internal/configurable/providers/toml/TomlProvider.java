@@ -387,7 +387,7 @@ public class TomlProvider implements ConfigProvider {
                 if (key.type.getTag() == TypeTags.INTERSECTION_TAG) {
                     type = (BFiniteType) ((IntersectionType) key.type).getEffectiveType();
                 } else {
-                    type = (BFiniteType) TypeUtils.getRepresentedType(key.type);
+                    type = (BFiniteType) TypeUtils.getImpliedType(key.type);
                 }
                 return getTomlConfigValue(validateAndGetFiniteValue(tomlValue, key.variable, type), key);
             }
@@ -463,7 +463,7 @@ public class TomlProvider implements ConfigProvider {
         for (TomlTableNode moduleNode : moduleTomlNodes) {
             if (moduleNode.entries().containsKey(variableName)) {
                 TomlNode tomlValue = moduleNode.entries().get(variableName);
-                return getTomlNode(tomlValue, variableName, TypeUtils.getRepresentedType(key.type));
+                return getTomlNode(tomlValue, variableName, TypeUtils.getImpliedType(key.type));
             }
         }
         return null;
@@ -657,7 +657,7 @@ public class TomlProvider implements ConfigProvider {
         if (convertibleType == null) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
-        Type type = getEffectiveType(TypeUtils.getRepresentedType(convertibleType));
+        Type type = getEffectiveType(TypeUtils.getImpliedType(convertibleType));
 
         if (isSimpleType(type.getTag()) || isXMLType(type)) {
             return;
@@ -675,7 +675,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
-        Type elementType = TypeUtils.getRepresentedType(arrayType.getElementType());
+        Type elementType = TypeUtils.getImpliedType(arrayType.getElementType());
         if (isSimpleType(elementType.getTag())) {
             visitedNodes.add(tomlValue);
             tomlValue = getValueFromKeyValueNode(tomlValue);
@@ -798,7 +798,7 @@ public class TomlProvider implements ConfigProvider {
             throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
-        validateArrayElements(variableName, arrayList, TypeUtils.getRepresentedType(arrayType.getElementType()));
+        validateArrayElements(variableName, arrayList, TypeUtils.getImpliedType(arrayType.getElementType()));
     }
 
     private void validateArrayElements(String variableName, List<TomlValueNode> arrayList, Type elementType) {
@@ -861,7 +861,7 @@ public class TomlProvider implements ConfigProvider {
                 }
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = TypeUtils.getRepresentedType(field.getFieldType());
+            Type fieldType = TypeUtils.getImpliedType(field.getFieldType());
             String variableFieldName = variableName + "." + fieldName;
             visitedNodes.add(value);
             validateValue(value, variableFieldName, fieldType);

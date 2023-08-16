@@ -240,13 +240,13 @@ public class LangLibrary {
         if (type.getKind() == TypeKind.UNION) {
             LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
             for (BType memberType : memberTypes) {
-                if (basicType.compareToIgnoreCase(Types.getReferredType(memberType).getKind().name()) != 0) {
+                if (basicType.compareToIgnoreCase(Types.getImpliedType(memberType).getKind().name()) != 0) {
                     return false;
                 }
             }
             return true;
         } else {
-            return basicType.compareToIgnoreCase(Types.getReferredType(type).getKind().name()) == 0;
+            return basicType.compareToIgnoreCase(Types.getImpliedType(type).getKind().name()) == 0;
         }
     }
 }

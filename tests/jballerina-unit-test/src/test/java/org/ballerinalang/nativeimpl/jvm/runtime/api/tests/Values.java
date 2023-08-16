@@ -373,7 +373,7 @@ public class Values {
                         StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
             }
             AnnotatableType eType = (AnnotatableType) ((ReferenceType) (((BArrayType)
-                    TypeUtils.getRepresentedType(describingType)).getElementType())).getReferredType();
+                    TypeUtils.getImpliedType(describingType)).getElementType())).getReferredType();
             annotations = eType.getAnnotations();
             if (!annotations.containsKey(intAnnotation)) {
                 return constraintError;
@@ -420,7 +420,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getRepresentedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         BArray arrayValue = ValueCreator.createArrayValue(arrayType);
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
@@ -429,7 +429,7 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getRepresentedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -439,7 +439,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getRepresentedType(typedesc.getDescribingType());
+        BTupleType tupleType = (BTupleType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {

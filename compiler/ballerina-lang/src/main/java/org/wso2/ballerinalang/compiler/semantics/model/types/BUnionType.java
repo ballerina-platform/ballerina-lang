@@ -355,7 +355,7 @@ public class BUnionType extends BType implements UnionType {
         for (BType member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
-                if (getReferredType(arrayType.eType) == unionType) {
+                if (getImpliedType(arrayType.eType) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     this.add(newArrayType);
@@ -363,21 +363,21 @@ public class BUnionType extends BType implements UnionType {
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
-                if (getReferredType(mapType.constraint) == unionType) {
+                if (getImpliedType(mapType.constraint) == unionType) {
                     BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                     this.add(newMapType);
                     continue;
                 }
             } else if (member instanceof BTableType) {
                 BTableType tableType = (BTableType) member;
-                if (getReferredType(tableType.constraint) == unionType) {
+                if (getImpliedType(tableType.constraint) == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
                     this.add(newTableType);
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;
-                    if (getReferredType(mapType.constraint) == unionType) {
+                    if (getImpliedType(mapType.constraint) == unionType) {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.flags);
@@ -402,7 +402,7 @@ public class BUnionType extends BType implements UnionType {
     public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
-                    BType refType = getReferredType(type, false);
+                    BType refType = getReferredType(type);
                     if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
                         return ((BUnionType) refType).memberTypes.stream();
                     }
@@ -410,22 +410,29 @@ public class BUnionType extends BType implements UnionType {
                 }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public static BType getReferredType(BType type) {
-        return getReferredType(type, true);
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    public static BType getImpliedType(BType type) {
+        type = getReferredType(type);
+        if (type != null && type.tag == TypeTags.INTERSECTION) {
+            return getImpliedType(((BIntersectionType) type).effectiveType);
+        }
+
+        return type;
     }
 
-    private static BType getReferredType(BType type, boolean effectiveType) {
-        BType constraint = type;
-
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            return getReferredType(((BTypeReferenceType) type).referredType, effectiveType);
+    private static BType getReferredType(BType type) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
+            return getReferredType(((BTypeReferenceType) type).referredType);
         }
 
-        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
-            return getReferredType(((BIntersectionType) type).effectiveType);
-        }
-
-        return constraint;
+        return type;
     }
 
     private static boolean isTypeParamAvailable(BType type) {
@@ -505,7 +512,7 @@ public class BUnionType extends BType implements UnionType {
         if (type.tag == NEVER) {
             return true;
         } else if (type.tag == TypeTags.TYPEREFDESC) {
-            return isNeverType(getReferredType(type));
+            return isNeverType(getImpliedType(type));
         } else if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (!isNeverType(memberType)) {

@@ -60,7 +60,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
     }
 
     private boolean isAnydata(BType type) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:

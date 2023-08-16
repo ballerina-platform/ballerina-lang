@@ -318,7 +318,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

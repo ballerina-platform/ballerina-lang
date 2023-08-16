@@ -83,13 +83,13 @@ public class TypeConverter {
      */
     JsonObject getType(BType type) {
         JsonObject typeNode = new JsonObject();
-        type = Types.getReferredType(type, false);
+        type = Types.getReferredType(type);
         if (TypeTags.isSimpleBasicType(type.tag)) {
             String typeVal = getSimpleType(type);
             typeNode.addProperty(TYPE, typeVal);
         } else {
             if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
-                BType effectiveType = Types.getReferredType(type);
+                BType effectiveType = Types.getImpliedType(type);
                 if (TypeTags.isSimpleBasicType(effectiveType.tag)) {
                     String typeVal = getSimpleType(effectiveType);
                     typeNode.addProperty(TYPE, typeVal);

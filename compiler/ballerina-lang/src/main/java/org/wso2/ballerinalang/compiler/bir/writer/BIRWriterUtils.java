@@ -84,7 +84,7 @@ public class BIRWriterUtils {
     }
 
     public static void writeConstValue(ConstantPool cp, ByteBuf buf, Object value, BType type) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:
@@ -219,7 +219,7 @@ public class BIRWriterUtils {
 
     public static BIRNode.ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         BType type = constValue.type;
-        int tag = Types.getReferredType(type).tag;
+        int tag = Types.getImpliedType(type).tag;
 
         if (tag == TypeTags.RECORD) {
             Map<String, BIRNode.ConstValue> mapConstVal = new HashMap<>();
