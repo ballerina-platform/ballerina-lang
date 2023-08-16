@@ -471,6 +471,14 @@ public class SymbolFactory {
                                             kind, symbol, this.context);
     }
 
+    /**
+     * Create a ballerina path parameter symbol.
+     *
+     * @param name  name of the parameter
+     * @param symbol {@link BSymbol} symbol of the parameter
+     * @param pathKind {@link PathSegment.Kind} path-kind of the path parameter
+     * @return  {@link PathParameterSymbol} generated path parameter
+     */
     public PathParameterSymbol createPathParamSymbol(String name, BSymbol symbol, PathSegment.Kind pathKind) {
         return new BallerinaPathParameterSymbol(name, pathKind, symbol, this.context);
     }
