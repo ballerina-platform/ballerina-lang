@@ -224,7 +224,7 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createMetadataNode(null, AbstractNodeFactory.createNodeList()),
                 publicKeyword,
                 NodeFactory.createEmptyNodeList(),
-                NodeFactory.createTypedBindingPatternNode(typeDescriptor,captureBindingPattern),
+                NodeFactory.createTypedBindingPatternNode(typeDescriptor, captureBindingPattern),
                 equalsToken,
                 NodeFactory.createBasicLiteralNode(
                         SyntaxKind.NUMERIC_LITERAL,
