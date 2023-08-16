@@ -2287,7 +2287,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR) {
             BLangRestArgsExpression varArg = (BLangRestArgsExpression) restArgs.get(restArgs.size() - 1);
-            BType varArgType = Types.getReferredType(varArg.getBType());
+            BType varArgType = Types.getImpliedType(varArg.getBType());
             Location varArgPos = varArg.pos;
 
             if (varArgType == symTable.semanticError) {
@@ -2475,7 +2475,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType varArgType = Types.getReferredType(restArgsExpression.getBType());
+        BType varArgType = Types.getImpliedType(restArgsExpression.getBType());
         if (varArgType.tag == TypeTags.ARRAY) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            ((BArrayType) varArgType).eType, pos);
@@ -3049,7 +3049,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                           List<BLangVariable> moduleLevelVariables,
                                                                           boolean inferring, BType type,
                                                                           Set<BSymbol> unresolvedSymbols) {
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3156,7 +3156,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            if (!invokedOnSelf && Types.getReferredType(invocation.getBType()).tag == TypeTags.NIL) {
+            if (!invokedOnSelf && Types.getImpliedType(invocation.getBType()).tag == TypeTags.NIL) {
                 return true;
             }
 
@@ -3302,7 +3302,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BType ownerType = Types.getReferredType(enclInvokable.symbol.owner.type);
+        BType ownerType = Types.getImpliedType(enclInvokable.symbol.owner.type);
 
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
     }
@@ -3685,7 +3685,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(BSymbol owner, BType type,
                                                                          Set<BSymbol> inferableClasses) {
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -4054,7 +4054,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (symbol.kind == SymbolKind.FUNCTION) {
             BVarSymbol receiverSymbol = ((BInvokableSymbol) symbol).receiverSymbol;
-            if (receiverSymbol != null && Types.getReferredType(receiverSymbol.type).tag == TypeTags.OBJECT &&
+            if (receiverSymbol != null && Types.getImpliedType(receiverSymbol.type).tag == TypeTags.OBJECT &&
                     publiclyExposedObjectTypes.contains(receiverSymbol.type)) {
                 return false;
             }

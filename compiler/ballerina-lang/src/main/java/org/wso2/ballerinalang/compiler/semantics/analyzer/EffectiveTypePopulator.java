@@ -212,7 +212,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
 
     @Override
     public void visit(BTypeReferenceType bTypeReferenceType) {
-        updateType(Types.getReferredType(bTypeReferenceType), loc, pkgID, typeNode, env);
+        updateType(Types.getImpliedType(bTypeReferenceType), loc, pkgID, typeNode, env);
     }
 
     @Override
@@ -342,7 +342,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
 
                     Name origFieldName = origField.name;
                     BVarSymbol fieldSymbol;
-                    BType referredType = Types.getReferredType(fieldType);
+                    BType referredType = Types.getImpliedType(fieldType);
                     if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
                         fieldSymbol = new BInvokableSymbol(origField.symbol.tag,
                                 origField.symbol.flags | Flags.READONLY, origFieldName, pkgID, fieldType,
@@ -402,7 +402,7 @@ public class EffectiveTypePopulator implements TypeVisitor {
 
                     Name origFieldName = origField.name;
                     BVarSymbol fieldSymbol;
-                    BType referredType = Types.getReferredType(fieldType);
+                    BType referredType = Types.getImpliedType(fieldType);
                     if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
                         fieldSymbol = new BInvokableSymbol(origField.symbol.tag,
                                 origField.symbol.flags | Flags.READONLY, origFieldName, pkgID, fieldType,

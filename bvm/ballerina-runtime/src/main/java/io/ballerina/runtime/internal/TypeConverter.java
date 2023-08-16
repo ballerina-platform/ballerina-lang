@@ -557,7 +557,7 @@ public class TypeConverter {
         Type convertibleType;
         boolean returnVal = true;
         Type constrainedType = tableType.getConstrainedType();
-        int sourceTypeReferredTypeTag = TypeUtils.getReferredType(TypeChecker.getType(sourceValue)).getTag();
+        int sourceTypeReferredTypeTag = TypeUtils.getImpliedType(TypeChecker.getType(sourceValue)).getTag();
         switch (sourceTypeReferredTypeTag) {
             case TypeTags.TABLE_TAG:
                 Collection<?> bTableValues = ((BTable<?, ?>) sourceValue).values();
@@ -643,10 +643,10 @@ public class TypeConverter {
             addErrorMessage(0, errors, "element count exceeds the target array size '" + targetSize + "'");
             return false;
         }
-        Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
+        Type targetTypeElementType = TypeUtils.getImpliedType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
+            Type sourceElementType = TypeUtils.getImpliedType(((BArrayType) sourceType).getElementType());
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }

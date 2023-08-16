@@ -43,7 +43,7 @@ import java.util.Collection;
 public class ToArray {
 
     public static BArray toArray(BTable tbl) {
-        Type constrainedType = ((TableType) TypeUtils.getReferredType(tbl.getType())).getConstrainedType();
+        Type constrainedType = ((TableType) TypeUtils.getImpliedType(tbl.getType())).getConstrainedType();
 
         Collection values = tbl.values();
         //Basic constrain types not applicable for table type
