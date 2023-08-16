@@ -99,7 +99,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("projectForProfile").resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
-        new CommandLine(profileCommand).parse(args);
+        new CommandLine(profileCommand).parseArgs(args);
         profileCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-profile - Run Ballerina profiler on the source and" +
