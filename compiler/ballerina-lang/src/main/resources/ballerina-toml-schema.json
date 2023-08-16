@@ -209,7 +209,7 @@
           "required": [
           ],
           "message": {
-            "required": "cannot find '${property}' under 'platform.java17'"
+            "required": "cannot find '${property}' under 'platform.java11'"
           }
         },
         "java17": {

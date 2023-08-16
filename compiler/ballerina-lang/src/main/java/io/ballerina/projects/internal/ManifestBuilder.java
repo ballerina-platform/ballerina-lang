@@ -355,10 +355,12 @@ public class ManifestBuilder {
                             if (graalvmCompatibleNode.kind() == TomlType.NONE) {
                                 return platforms;
                             }
-                            PackageManifest.Platform newPlatform = getGraalvmCompatibilityPlatform(graalvmCompatibleNode);
+                            PackageManifest.Platform newPlatform =
+                                    getGraalvmCompatibilityPlatform(graalvmCompatibleNode);
                             if (newPlatform != null) {
                                 if (platforms.get(platformCode) != null) {
-                                    newPlatform = new PackageManifest.Platform(platforms.get(platformCode).dependencies(),
+                                    newPlatform = new PackageManifest.Platform(platforms.
+                                            get(platformCode).dependencies(),
                                             platforms.get(platformCode).repositories(),
                                             newPlatform.graalvmCompatible());
                                 }
