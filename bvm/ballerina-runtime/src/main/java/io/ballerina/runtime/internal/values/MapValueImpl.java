@@ -292,16 +292,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
                         (MappingInitialValueEntry.KeyValueEntry) initialValue;
-                    defaultValues.remove(keyValueEntry.key.toString());
-                populateInitialValue((K) keyValueEntry.key, (V) keyValueEntry.value);
+                Object mapKey = keyValueEntry.key;
+                defaultValues.remove(mapKey.toString());
+                populateInitialValue((K) mapKey, (V) keyValueEntry.value);
                 continue;
             }
 
             MapValueImpl<K, V> values =
                     (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) initialValue).values;
             for (Map.Entry<K, V> entry : values.entrySet()) {
-                defaultValues.remove(entry.getKey().toString());
-                populateInitialValue(entry.getKey(), entry.getValue());
+                K entryKey = entry.getKey();
+                defaultValues.remove(entryKey.toString());
+                populateInitialValue(entryKey, entry.getValue());
             }
         }
 

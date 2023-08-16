@@ -89,13 +89,18 @@ public class BIRInstructionWriter extends BIRVisitor {
     void writeScopes(BIRNonTerminator instruction) {
         this.instructionOffset++;
         BirScope currentScope = instruction.scope;
-
+        if (currentScope == null) {
+            return;
+        }
         writeScope(currentScope);
     }
 
     void writeScope(BIRTerminator terminator) {
         if (terminator.kind != InstructionKind.RETURN) {
             BirScope currentScope = terminator.scope;
+            if (currentScope == null) {
+                return;
+            }
             writeScope(currentScope);
         }
     }
