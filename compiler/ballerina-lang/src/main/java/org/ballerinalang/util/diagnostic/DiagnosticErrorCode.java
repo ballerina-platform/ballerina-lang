@@ -804,13 +804,14 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCE4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
     SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4048", "seq.arg.followed.by.another.seq.arg"),
-
     QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4049", "query.construct.types.cannot.be.used.with.collect"),
     VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4050", "variable.is.sequenced.more.than.once"),
     INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
     NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param"),
-
-    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4053", "invalid.binding.pattern.in.on.fail")
+    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4053",
+            "cannot.use.alternate.wait.action.within.multiple.wait.action"),
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4054", "future.expression.expected"),
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4055", "invalid.binding.pattern.in.on.fail")
     ;
 
     private String diagnosticId;
