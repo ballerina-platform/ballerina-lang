@@ -716,14 +716,11 @@ public class ToolCommand implements BLauncherCmd {
                 settings.getProxy().password(), getAccessTokenOfCLI(settings));
         List<String> versions = client.getPackageVersions(tool.org(), tool.name(), ANY_PLATFORM,
                 RepoUtils.getBallerinaVersion());
-        return getLatestVersionInSameMinor(versions, tool.version());
+        return getLatestVersion(versions, tool.version());
     }
 
-    private String getLatestVersionInSameMinor(List<String> versions, String currentVersionStr) {
-        SemanticVersion currentVersion = SemanticVersion.from(currentVersionStr);
+    private String getLatestVersion(List<String> versions, String currentVersionStr) {
         Optional<String> latestVersionInSameMinor = versions.stream().map(SemanticVersion::from)
-                .filter(version -> version.major() == currentVersion.major()
-                        && version.minor() == currentVersion.minor())
                 .max((v1, v2) -> {
                     if (v1.greaterThan(v2)) {
                         return 1;
