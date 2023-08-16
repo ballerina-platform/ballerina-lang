@@ -205,7 +205,8 @@ public class TesterinaCompilerPluginUtils {
     public static StatementNode getAssignmentAndFunctionCallStatement(ExpressionNode expression) {
         return NodeFactory.createAssignmentStatementNode(
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("__testExecState__")),
-                NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN),
+                NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
                 expression,
                 NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
@@ -216,9 +217,8 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createIdentifierToken(TypeKind.INT.typeName()));;
         Token varName = AbstractNodeFactory.createIdentifierToken("__testExecState__", singleWSML(), singleWSML());
         CaptureBindingPatternNode captureBindingPattern = NodeFactory.createCaptureBindingPatternNode(varName);
-        Token publicKeyword = AbstractNodeFactory.createIdentifierToken(SyntaxKind.PUBLIC_KEYWORD.stringValue(),
-                singleWSML(), singleWSML());
-        Token equalsToken = AbstractNodeFactory.createIdentifierToken("=", singleWSML(), singleWSML());
+        Token publicKeyword = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD, singleWSML(), singleWSML());
+        Token equalsToken = NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML());
 
         return NodeFactory.createModuleVariableDeclarationNode(
                 NodeFactory.createMetadataNode(null, AbstractNodeFactory.createNodeList()),
@@ -228,11 +228,8 @@ public class TesterinaCompilerPluginUtils {
                 equalsToken,
                 NodeFactory.createBasicLiteralNode(
                         SyntaxKind.NUMERIC_LITERAL,
-                        NodeFactory.createLiteralValueToken(
-                                SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN,
-                                "0",
-                                NodeFactory.createEmptyMinutiaeList(),
-                                NodeFactory.createEmptyMinutiaeList())),
+                        NodeFactory.createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN, "0",
+                                emptyML(), emptyML())),
                 NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
     }
@@ -360,10 +357,10 @@ public class TesterinaCompilerPluginUtils {
     }
 
     private static MinutiaeList singleWSML() {
-        return emptyML().add(AbstractNodeFactory.createWhitespaceMinutiae(" "));
+        return emptyML().add(NodeFactory.createWhitespaceMinutiae(" "));
     }
 
     private static MinutiaeList emptyML() {
-        return AbstractNodeFactory.createEmptyMinutiaeList();
+        return NodeFactory.createEmptyMinutiaeList();
     }
 }
