@@ -39,8 +39,7 @@ public class JInstruction extends BIRNonTerminator {
 
     @Override
     public void accept(BIRVisitor visitor) {
-
-        throw new UnsupportedOperationException();
+        // do nothing
     }
 
     @Override
