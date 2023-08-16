@@ -146,7 +146,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
                     segment = pathRestParameter().get();
                     break;
                 default:
-                    segment = symbolFactory.createNamedPathSegment(pathSegmentSymbol);
+                    segment = symbolFactory.createPathNameSymbol(pathSegmentSymbol);
             }
             segments.add(segment);
         }

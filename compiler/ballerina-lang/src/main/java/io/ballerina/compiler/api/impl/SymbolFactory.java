@@ -236,7 +236,7 @@ public class SymbolFactory {
         }
 
         if (symbol.kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
-            return createNamedPathSegment((BResourcePathSegmentSymbol) symbol);
+            return createPathNameSymbol((BResourcePathSegmentSymbol) symbol);
         }
 
         if (symbol.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
@@ -395,7 +395,7 @@ public class SymbolFactory {
      * @param symbol {@link BResourcePathSegmentSymbol} to convert
      * @return {@link BallerinaNamedPathSegment} generated
      */
-    public BallerinaNamedPathSegment createNamedPathSegment(BResourcePathSegmentSymbol symbol) {
+    public BallerinaNamedPathSegment createPathNameSymbol(BResourcePathSegmentSymbol symbol) {
         return new BallerinaNamedPathSegment(symbol, context);
     }
 

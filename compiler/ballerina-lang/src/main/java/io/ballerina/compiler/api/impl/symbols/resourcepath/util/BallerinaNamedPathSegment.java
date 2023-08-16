@@ -32,7 +32,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaNamedPathSegment extends BallerinaSymbol implements NamedPathSegment {
 
     public BallerinaNamedPathSegment(BResourcePathSegmentSymbol pathSegmentSymbol, CompilerContext context) {
-        super(pathSegmentSymbol.getName().getValue(), SymbolKind.PATH_SEGMENT, pathSegmentSymbol, context);
+        super(pathSegmentSymbol.getName().getValue(), SymbolKind.PATH_NAME_SEGMENT, pathSegmentSymbol, context);
     }
 
     @Override

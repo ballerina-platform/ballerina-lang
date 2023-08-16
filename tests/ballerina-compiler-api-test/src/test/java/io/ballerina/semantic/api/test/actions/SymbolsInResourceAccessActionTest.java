@@ -110,7 +110,7 @@ public class SymbolsInResourceAccessActionTest {
                 {42, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
                 {42, 32, null, null},   // -><c>/foo
                 {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // -><c>/
-                {42, 35, "foo", SymbolKind.PATH_SEGMENT}, // ->/<c>foo
+                {42, 35, "foo", SymbolKind.PATH_NAME_SEGMENT}, // ->/<c>foo
                 {42, 49, "x", SymbolKind.CONSTANT},  // ["3"](<c>x, 2);
                 {78, 10, "get", SymbolKind.RESOURCE_METHOD}  // -><c>/()
         };
@@ -150,7 +150,7 @@ public class SymbolsInResourceAccessActionTest {
     public void testResourceAccessActionPath2(int line, int col, String signature) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.PATH_SEGMENT);
+        assertEquals(symbol.get().kind(), SymbolKind.PATH_NAME_SEGMENT);
         assertEquals(((PathSegment) symbol.get()).signature(), signature);
     }
 

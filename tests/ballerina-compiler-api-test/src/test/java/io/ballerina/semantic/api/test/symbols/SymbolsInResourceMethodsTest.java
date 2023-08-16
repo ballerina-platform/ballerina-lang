@@ -76,7 +76,7 @@ public class SymbolsInResourceMethodsTest {
         return new Object[][]{
                 {17, 22, "get", SymbolKind.RESOURCE_METHOD},
                 {24, 23, "get", SymbolKind.RESOURCE_METHOD},
-                {24, 26, "authors", SymbolKind.PATH_SEGMENT},
+                {24, 26, "authors", SymbolKind.PATH_NAME_SEGMENT},
                 {28, 42, "author", SymbolKind.PARAMETER},
                 {24, 45, "names", SymbolKind.PATH_PARAMETER},
                 {32, 52, "isbn", SymbolKind.PATH_PARAMETER},
