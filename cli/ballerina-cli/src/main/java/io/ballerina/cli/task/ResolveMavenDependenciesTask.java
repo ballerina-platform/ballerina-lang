@@ -45,22 +45,23 @@ public class ResolveMavenDependenciesTask implements Task {
 
     @Override
     public void execute(Project project) {
+        List<Map<String, Object>> platformLibraries = new ArrayList<>();
+        List<Map<String, Object>> platformRepositories = new ArrayList<>();
         PackageManifest.Platform platform = null;
         for (JvmTarget jvmTarget : JvmTarget.values()) {
             platform = project.currentPackage().manifest().platform(jvmTarget.code());
             if (platform != null) {
-                break;
+                platformLibraries.addAll(platform.dependencies());
+                platformRepositories.addAll(platform.repositories());
             }
         }
         if (platform == null) {
             return;
         }
 
-        List<Map<String, Object>> platformLibraries = platform.dependencies();
-        List<Map<String, Object>> platformRepositories = platform.repositories();
         List<Map<String, Object>> mavenCustomRepos = new ArrayList<>();
         List<Map<String, Object>> mavenDependencies = new ArrayList<>();
-        if (platformLibraries == null) {
+        if (platformLibraries.isEmpty()) {
             return;
         }
 
