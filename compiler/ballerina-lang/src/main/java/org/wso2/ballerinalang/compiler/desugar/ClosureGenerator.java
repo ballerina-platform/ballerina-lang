@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -155,7 +156,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -1178,9 +1178,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
-        result = workerSendNode;
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        asyncSendExpr.expr = rewriteExpr(asyncSendExpr.expr);
+        result = asyncSendExpr;
     }
 
     @Override
@@ -1210,7 +1210,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private void updateClosureVariable(BVarSymbol varSymbol, BLangInvokableNode encInvokable, Location pos) {
         Set<Flag> flagSet = encInvokable.flagSet;
         boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
-                            !flagSet.contains(Flag.ATTACHED);
+                            !flagSet.contains(Flag.ATTACHED) && varSymbol.owner.tag != SymTag.PACKAGE;
         if (!varSymbol.closure && isClosure) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol =

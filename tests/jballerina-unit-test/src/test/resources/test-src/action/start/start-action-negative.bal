@@ -100,6 +100,21 @@ function testFunction2(int a) {
     start a + b;
 }
 
+function testInvalidRemoteMtdCallWithStartAction() returns string {
+    worker w1 {
+        int a = 10;
+        start fooFunc() -> w2;
+    }
+
+    worker w2 {
+        int b = <- w1;
+    }
+}
+
+function fooFunc() returns int {
+    return 1;
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
