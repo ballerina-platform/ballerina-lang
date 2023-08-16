@@ -17,6 +17,10 @@
   -->
 <FindBugsFilter>
     <Match>
+        <Class name="io.ballerina.projects.internal.repositories.MavenPackageRepository"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE, RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler" />
     </Match>
     <Match>
