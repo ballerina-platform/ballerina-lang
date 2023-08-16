@@ -189,6 +189,11 @@ public class QueryTypeChecker extends TypeChecker {
             }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
+            List<BType> collectionTypes = getCollectionTypes(clauses);
+            BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.DEFAULT, data);
+            if (completionType != null) {
+                queryType = BUnionType.create(null, queryType, completionType);
+            }
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -497,14 +502,12 @@ public class QueryTypeChecker extends TypeChecker {
             }
             collectionType = Types.getReferredType(collectionType);
             switch (collectionType.tag) {
-                case TypeTags.STREAM:
+                case TypeTags.STREAM -> {
                     completionType = ((BStreamType) collectionType).completionType;
                     returnType = completionType;
-                    break;
-                case TypeTags.OBJECT:
-                    returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-                    break;
-                default:
+                }
+                case TypeTags.OBJECT -> returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                default -> {
                     BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
                             Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), data.env);
                     if (itrSymbol == this.symTable.notFoundSymbol) {
@@ -513,6 +516,7 @@ public class QueryTypeChecker extends TypeChecker {
                     BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
                     returnType = types.getResultTypeOfNextInvocation(
                             (BObjectType) Types.getReferredType(invokableSymbol.retType));
+                }
             }
             if (returnType != null) {
                 if (queryConstructType == Types.QueryConstructType.STREAM ||
