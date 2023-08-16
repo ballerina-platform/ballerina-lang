@@ -30,27 +30,27 @@ TOOL COMMANDS
 
 EXAMPLES
        Pull a tool from Ballerina Central.
-           $ bal tool pull openapi
+           $ bal tool pull health
 
        Pull a specific version of a tool from Ballerina Central.
-           $ bal tool pull openapi:1.5.0
+           $ bal tool pull health:1.0.0
 
        Remove a specific version of previously pulled tool.
-           $ bal tool remove openapi:1.5.0
+           $ bal tool remove health:1.0.0
 
        Remove all the versions of a previously pulled tool.
-           $ bal tool remove openapi
+           $ bal tool remove health
 
        Update a tool to the latest patch version.
-           $ bal tool update openapi
+           $ bal tool update health
 
        Change the active version of a tool.
-           $ bal tool use openapi:1.5.0
+           $ bal tool use health:1.0.0
 
        List all tools available locally.
            $ bal tool list
 
        Search Ballerina Central for tools.
-           $ bal tool search openapi
+           $ bal tool search health
 
 Use 'bal tool <command> --help' for more information on a specific command.

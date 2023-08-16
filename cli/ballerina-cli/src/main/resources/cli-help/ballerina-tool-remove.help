@@ -1,5 +1,5 @@
 NAME
-       bal-tool-remove - Remove a given bal tool from the bal tool chain
+       ballerina-tool-remove - Remove a given bal tool from the bal tool chain
 
 SYNOPSIS
        bal tool remove <tool-id>[:<version>]

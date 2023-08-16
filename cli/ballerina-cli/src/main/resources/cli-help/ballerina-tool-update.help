@@ -1,6 +1,6 @@
 NAME
-       bal-tool-update - Update to the latest patch version within the minor
-       version of the currently active tool version
+       ballerina-tool-update - Update to the latest patch version within the
+       minor version of the currently active tool version
 
 SYNOPSIS
        bal tool update <tool-id>

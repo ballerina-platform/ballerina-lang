@@ -1,5 +1,5 @@
 NAME
-       bal-tool-search - Search Ballerina Central repository for bal-tools
+       ballerina-tool-search - Search Ballerina Central for bal-tools
 
 SYNOPSIS
        bal tool search [<tool-id>|<org>|<package>|<text>]
@@ -16,19 +16,19 @@ DESCRIPTION
 
 EXAMPLES
        Search by tool id.
-           $ bal tool search openapi
+           $ bal tool search health
 
        Search by package id.
-           $ bal tool search openapi
-           $ bal tool search package:openapi
+           $ bal tool search health
+           $ bal tool search package:health
 
        Search tools by package and organization.
-           $ bal tool search ballerina/openapi
-           $ bal tool search org:ballerina package:openapi
+           $ bal tool search ballerinax/health
+           $ bal tool search org:ballerinax package:health
 
        Search all tools in an organization.
-           $ bal tool search org:ballerina
+           $ bal tool search org:ballerinax
            $ bal tool search org:ballerina,ballerinax
 
        Search by a keyword.
-           $ bal tool search keyword:graphql
+           $ bal tool search keyword:health

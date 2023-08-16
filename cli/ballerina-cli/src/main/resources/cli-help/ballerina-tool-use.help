@@ -1,5 +1,5 @@
 NAME
-       bal-tool-use - Mark a version of a tool as the active version
+       ballerina-tool-use - Mark a version of a tool as the active version
 
 SYNOPSIS
        bal tool use <tool-id>:<version>
@@ -13,3 +13,7 @@ DESCRIPTION
        version.
 
        The active version of a tool is used when the tool is invoked.
+
+EXAMPLES
+      Change the active version of a tool.
+          $ bal tool use health:1.0.0

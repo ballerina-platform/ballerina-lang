@@ -1,5 +1,5 @@
 NAME
-       bal-tool-pull - Pull a given tool from Ballerina Central repository
+       ballerina-tool-pull - Pull a given tool from Ballerina Central
 
 SYNOPSIS
        bal tool pull <tool-id>[:<version>]
