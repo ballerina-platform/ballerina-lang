@@ -428,13 +428,13 @@ public class DocModelTest {
         Assert.assertEquals(function.get().parameters.get(0).type.orgName, "test_org");
         Assert.assertEquals(function.get().parameters.get(0).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(0).type.version, "1.0.0");
-        Assert.assertEquals(function.get().parameters.get(0).type.category, "objectTypes");
+        Assert.assertEquals(function.get().parameters.get(0).type.category, "types");
 
         Assert.assertEquals(function.get().parameters.get(1).name, "uuid");
         Assert.assertEquals(function.get().parameters.get(1).type.orgName, "test_org");
         Assert.assertEquals(function.get().parameters.get(1).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(1).type.version, "1.0.0");
-        Assert.assertEquals(function.get().parameters.get(1).type.category, "records");
+        Assert.assertEquals(function.get().parameters.get(1).type.category, "types");
     }
 
     @Test(description = "Test deciaml type")

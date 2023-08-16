@@ -29,7 +29,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -64,7 +63,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, BType bType, BSymbol tSymbol,
                                             boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        referredType = getImpliedType(bType);
+        referredType = getReferredType(bType);
         this.definitionName = tSymbol.getOriginalName().getValue();
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
@@ -198,26 +197,17 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         return ANON_ORG.equals(moduleID.orgName());
     }
 
-    /**
-     * Retrieve the referred type if a given type is a type reference type or
-     * retrieve the effective type if the given type is an intersection type.
-     *
-     * @param type type to retrieve the implied type
-     * @return the implied type if provided with a type reference type or an intersection type,
-     * else returns the original type
-     */
-    private BType getImpliedType(BType type) {
-        type = getReferredType(type);
-        if (type != null && type.tag == TypeTags.INTERSECTION) {
-            return getImpliedType(((BIntersectionType) type).effectiveType);
+    private BType getReferredType(BType type) {
+        if (type == null) {
+            return null;
         }
 
-        return type;
-    }
-    
-    private BType getReferredType(BType type) {
-        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
-            return getReferredType(((BTypeReferenceType) type).referredType);
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return ((BTypeReferenceType) type).referredType;
+        }
+
+        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
+            return ((BParameterizedType) type).paramValueType;
         }
 
         return type;
