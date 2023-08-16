@@ -26,8 +26,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -127,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -136,6 +138,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
@@ -232,6 +236,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
@@ -589,37 +594,85 @@ public class JvmInstructionGen {
     }
 
     void generatePlatformIns(JInstruction ins, int localVarOffset) {
-        if (ins.jKind == JInsKind.JCAST) {
-            JCast castIns = (JCast) ins;
-            BType targetType = castIns.targetType;
-            this.loadVar(castIns.rhsOp.variableDcl);
-            jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
-            this.storeToVar(castIns.lhsOp.variableDcl);
-        } else if (ins.jKind == JInsKind.CALL) {
-            JMethodCallInstruction callIns = (JMethodCallInstruction) ins;
-            boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
-            int argIndex = 0;
-            String jMethodVMSig = callIns.jMethodVMSig;
-            boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
-            if (hasBalEnvParam) {
-                mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
-                mv.visitInsn(DUP);
-                // load the strand
-                this.mv.visitVarInsn(ALOAD, localVarOffset);
-                // load the current Module
-                mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
-                        INIT_BAL_ENV, false);
-            }
-
-            while (argIndex < callIns.args.size()) {
-                BIROperand arg = callIns.args.get(argIndex);
-                this.loadVar(arg.variableDcl);
-                argIndex += 1;
-            }
-            this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
-                    isInterface);
+        switch (ins.jKind) {
+            case JCAST -> generateJCastIns((JCast) ins);
+            case CALL -> generateJMethodCallIns(localVarOffset, (JMethodCallInstruction) ins);
+            case LARGE_ARRAY -> generateJLargeArrayIns(localVarOffset, (JLargeArrayInstruction) ins);
+            default -> generateJLargeMapIns(localVarOffset, (JLargeMapInstruction) ins);
         }
+    }
+
+    private void generateJLargeMapIns(int localVarOffset, JLargeMapInstruction mapNewIns) {
+        this.loadVar(mapNewIns.rhsOp.variableDcl);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+
+        // load the initial values operand
+        this.loadVar(mapNewIns.initialValues.variableDcl);
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
+        mv.visitTypeInsn(CHECKCAST, "[L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";");
+
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+        this.storeToVar(mapNewIns.lhsOp.variableDcl);
+    }
+
+    private void generateJLargeArrayIns(int localVarOffset, JLargeArrayInstruction inst) {
+        BType instType = JvmCodeGenUtil.getReferredType(inst.type);
+        if (instType.tag == TypeTags.ARRAY) {
+            this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
+            this.mv.visitInsn(DUP);
+            jvmTypeGen.loadType(this.mv, inst.type);
+            loadListInitialValues(inst);
+            BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
+            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+                visitNewRecordArray(elementType);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                        INIT_ARRAY, false);
+            }
+            this.storeToVar(inst.lhsOp.variableDcl);
+        } else {
+            this.loadVar(inst.typedescOp.variableDcl);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            loadListInitialValues(inst);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+    }
+
+    private void generateJMethodCallIns(int localVarOffset, JMethodCallInstruction callIns) {
+        boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+        int argIndex = 0;
+        String jMethodVMSig = callIns.jMethodVMSig;
+        boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
+        if (hasBalEnvParam) {
+            mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
+            mv.visitInsn(DUP);
+            // load the strand
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            // load the current Module
+            mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
+                    INIT_BAL_ENV, false);
+        }
+        while (argIndex < callIns.args.size()) {
+            BIROperand arg = callIns.args.get(argIndex);
+            this.loadVar(arg.variableDcl);
+            argIndex += 1;
+        }
+        this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
+                isInterface);
+        if (callIns.lhsOp != null) {
+            this.storeToVar(callIns.lhsOp.variableDcl);
+        }
+    }
+
+    private void generateJCastIns(JCast castIns) {
+        BType targetType = castIns.targetType;
+        this.loadVar(castIns.rhsOp.variableDcl);
+        jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type,
+                targetType);
+        this.storeToVar(castIns.lhsOp.variableDcl);
     }
 
     void generateMoveIns(BIRNonTerminator.Move moveIns) {
@@ -2160,6 +2213,12 @@ public class JvmInstructionGen {
 
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void loadListInitialValues(JLargeArrayInstruction largeArrayIns) {
+        this.loadVar(largeArrayIns.values.variableDcl);
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
+        mv.visitTypeInsn(CHECKCAST, "[L" + B_LIST_INITIAL_VALUE_ENTRY + ";");
     }
 
     private void createExprEntry(BIRNode.BIRListConstructorEntry initialValueOp) {

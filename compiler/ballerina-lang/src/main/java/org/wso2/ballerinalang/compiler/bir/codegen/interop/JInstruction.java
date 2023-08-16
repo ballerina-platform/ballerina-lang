@@ -47,4 +47,9 @@ public class JInstruction extends BIRNonTerminator {
     public BIROperand[] getRhsOperands() {
         return new BIROperand[0];
     }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        // do nothing
+    }
 }
