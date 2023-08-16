@@ -236,10 +236,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
 
         // 2) Check package has defined any platform dependency
         PackageManifest manifest = this.packageContext.project().currentPackage().manifest();
-        PackageManifest.Platform manifestPlatform = manifest.platform(this.backend.targetPlatform().code());
-        if (manifestPlatform != null &&
-                !manifestPlatform.dependencies().isEmpty() &&
-        !isPlatformDependenciesTestOnly(manifestPlatform.dependencies())) {
+        if (hasPlatformDependencies(manifest.platforms())) {
             return this.backend.targetPlatform();
         }
 
@@ -247,8 +244,19 @@ public class JBallerinaBalaWriter extends BalaWriter {
         if (this.balToolToml.isPresent() || this.compilerPluginToml.isPresent()) {
             return this.backend.targetPlatform();
         }
-
         return AnyTarget.ANY;
+    }
+
+    private boolean hasPlatformDependencies(Map<String, PackageManifest.Platform> platforms) {
+        boolean platformsNotEmpty = !platforms.isEmpty();
+        boolean hasDependencies = true;
+        for (PackageManifest.Platform value: platforms.values()){
+            if (!value.dependencies().isEmpty()) {
+                boolean isTestOnly = isPlatformDependenciesTestOnly(value.dependencies());
+                return platformsNotEmpty && hasDependencies && !isTestOnly;
+            }
+        }
+        return false;
     }
 
     private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
