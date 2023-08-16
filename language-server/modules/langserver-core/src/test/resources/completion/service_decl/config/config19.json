@@ -1,27 +1,58 @@
 {
   "position": {
-    "line": 8,
-    "character": 23
+    "line": 6,
+    "character": 11
   },
-  "source": "service_decl/source/source6d.bal",
+  "source": "service_decl/source/source19.bal",
   "description": "",
   "items": [
     {
-      "label": "l1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "A",
-      "insertText": "l1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1",
+      "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BB",
+      "sortText": "BF",
       "filterText": "module1",
       "insertText": "module1",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BF",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.test",
@@ -35,11 +66,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -59,39 +90,15 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BF",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -107,11 +114,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -131,11 +138,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -184,15 +191,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "C",
-      "filterText": "new",
-      "insertText": "new ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "test/project1",
       "kind": "Module",
       "detail": "Module",
@@ -204,11 +202,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -228,11 +226,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -252,11 +250,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -276,11 +274,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -300,11 +298,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -390,6 +388,49 @@
       "detail": "Typedesc",
       "sortText": "D",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "http",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BB",
+      "filterText": "http",
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "websub",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BB",
+      "filterText": "websub",
+      "insertText": "websub",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "websubLi",
+      "kind": "Variable",
+      "detail": "websub:Listener",
+      "sortText": "A",
+      "insertText": "websubLi",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "httpListener",
+      "kind": "Variable",
+      "detail": "http:Listener",
+      "sortText": "A",
+      "insertText": "httpListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "C",
+      "filterText": "new",
+      "insertText": "new ",
       "insertTextFormat": "Snippet"
     }
   ]
