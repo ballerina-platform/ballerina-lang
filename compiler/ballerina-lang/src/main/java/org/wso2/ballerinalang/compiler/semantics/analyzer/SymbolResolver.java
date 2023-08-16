@@ -768,7 +768,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 } else if (TypeTags.isStringTypeTag(member.tag)) {
                     member = symTable.stringType;
                 } else if (member.tag == TypeTags.INTERSECTION) {
-                    member = ((BIntersectionType) member).effectiveType;
+                    member = ((BIntersectionType) member).getEffectiveType();
                 }
 
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
@@ -804,7 +804,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 bSymbol = symTable.notFoundSymbol;
                 break;
             case TypeTags.INTERSECTION:
-                return lookupLangLibMethod(((BIntersectionType) type).effectiveType, name, env);
+                return lookupLangLibMethod(((BIntersectionType) type).getEffectiveType(), name, env);
             case TypeTags.REGEXP:
                 bSymbol = lookupMethodInModule(symTable.langRegexpModuleSymbol, name, env);
                 break;
@@ -2066,7 +2066,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                             return getBinaryBitwiseOpsForTypeSets(opKind,
                                     Types.getReferredType(lhsType), rhsType);
                         case TypeTags.INTERSECTION:
-                            return getBinaryBitwiseOpsForTypeSets(opKind, ((BIntersectionType) lhsType).effectiveType,
+                            return getBinaryBitwiseOpsForTypeSets(opKind, ((BIntersectionType) lhsType).getEffectiveType(),
                                     rhsType);
                     }
                     switch (rhsType.tag) {
@@ -2080,7 +2080,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                     Types.getReferredType(rhsType));
                         case TypeTags.INTERSECTION:
                             return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
-                                    ((BIntersectionType) rhsType).effectiveType);
+                                    ((BIntersectionType) rhsType).getEffectiveType());
                     }
                     if (lhsType.isNullable() || rhsType.isNullable()) {
                         BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);

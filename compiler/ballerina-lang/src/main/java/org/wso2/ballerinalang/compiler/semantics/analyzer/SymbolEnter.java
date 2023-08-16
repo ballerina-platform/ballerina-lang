@@ -688,7 +688,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     continue;
                 }
 
-                type = ((BIntersectionType) type).effectiveType;
+                type = ((BIntersectionType) type).getEffectiveType();
             } else {
                 if (defineReadOnlyInclusionsOnly) {
                     if (!isImmutable((BObjectType) type)) {
@@ -775,7 +775,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 referredType = Types.getReferredType(referredType);
 
                 if (referredType.tag == TypeTags.INTERSECTION) {
-                    effectiveIncludedType = objectType = (BObjectType) ((BIntersectionType) referredType).effectiveType;
+                    effectiveIncludedType = objectType = (BObjectType) ((BIntersectionType) referredType).getEffectiveType();
                 } else {
                     objectType = (BObjectType) referredType;
                 }
@@ -1689,7 +1689,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType referenceConstraintType = Types.getReferredType(definedType);
         boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
 
-        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
+        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).getEffectiveType() :
                 referenceConstraintType;
 
         boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
@@ -1828,7 +1828,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean distinctFlagPresent = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
 
         BIntersectionType intersectionType = (BIntersectionType) definedType;
-        BErrorType errorType = (BErrorType) intersectionType.effectiveType;
+        BErrorType errorType = (BErrorType) intersectionType.getEffectiveType();
         populateErrorTypeIds(errorType, (BLangIntersectionTypeNode) typeDefinition.typeNode,
                 typeDefinition.name.value, distinctFlagPresent);
 
@@ -1836,7 +1836,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         alreadyDefinedErrorType.detailType = errorType.detailType;
         alreadyDefinedErrorType.flags = errorType.flags;
         alreadyDefinedErrorType.name = errorType.name;
-        intersectionType.effectiveType = alreadyDefinedErrorType;
+        intersectionType.setEffectiveType(alreadyDefinedErrorType);
 
         if (!errorType.typeIdSet.isEmpty()) {
             definedType.flags |= Flags.DISTINCT;
@@ -1848,15 +1848,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void populateSymbolNameOfErrorIntersection(BType definedType, String typeDefName) {
-        BErrorType effectiveErrorType = (BErrorType) ((BIntersectionType) definedType).effectiveType;
+        BErrorType effectiveErrorType = (BErrorType) ((BIntersectionType) definedType).getEffectiveType();
         effectiveErrorType.tsymbol.name = names.fromString(typeDefName);
     }
 
     public boolean isErrorIntersection(BType definedType) {
         BType type = Types.getReferredType(definedType);
-        if (type.tag == TypeTags.INTERSECTION && ((BIntersectionType) type).effectiveType != null) {
+        if (type.tag == TypeTags.INTERSECTION && ((BIntersectionType) type).getEffectiveType() != null) {
             BIntersectionType intersectionType = (BIntersectionType) type;
-            return intersectionType.effectiveType.tag == TypeTags.ERROR;
+            return intersectionType.getEffectiveType().tag == TypeTags.ERROR;
         }
 
         return false;
@@ -4223,7 +4223,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 BIntersectionType intersectionType = (BIntersectionType) currentType;
 
-                BType effectiveType = intersectionType.effectiveType;
+                BType effectiveType = intersectionType.getEffectiveType();
                 if (!loggedTypes.add(effectiveType)) {
                     continue;
                 }
@@ -5505,7 +5505,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isReadOnlyAndObjectIntersection(BIntersectionType referredType) {
-        BType effectiveType = referredType.effectiveType;
+        BType effectiveType = referredType.getEffectiveType();
 
         if (effectiveType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(effectiveType.flags, Flags.READONLY)) {
             return false;

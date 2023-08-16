@@ -40,7 +40,7 @@ import java.util.StringJoiner;
  */
 public class BIntersectionType extends BType implements IntersectionType {
 
-    public BType effectiveType;
+    private BType effectiveType;
 
     private LinkedHashSet<BType> constituentTypes;
     private BIntersectionType intersectionType;
@@ -49,7 +49,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                              IntersectableReferenceType effectiveType) {
         super(TypeTags.INTERSECTION, tsymbol);
         this.constituentTypes = toFlatTypeSet(types);
-        this.effectiveType = (BType) effectiveType;
+        this.setEffectiveType((BType) effectiveType);
 
         for (BType constituentType : this.constituentTypes) {
             if (constituentType.tag == TypeTags.READONLY) {
@@ -68,7 +68,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
-        this.effectiveType = (BType) effectiveType;
+        this.setEffectiveType((BType) effectiveType);
         effectiveType.setIntersectionType(this);
     }
 
@@ -89,7 +89,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public boolean isNullable() {
-        return this.effectiveType.isNullable();
+        return this.getEffectiveType().isNullable();
     }
 
     @Override
@@ -149,5 +149,9 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    public void setEffectiveType(BType effectiveType) {
+        this.effectiveType = effectiveType;
     }
 }

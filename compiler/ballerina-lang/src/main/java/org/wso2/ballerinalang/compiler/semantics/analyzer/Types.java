@@ -772,7 +772,7 @@ public class Types {
     public boolean isSubTypeOfMapping(BType bType) {
         BType type = getReferredType(bType);
         if (type.tag == TypeTags.INTERSECTION) {
-            return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
+            return isSubTypeOfMapping(((BIntersectionType) type).getEffectiveType());
         }
         if (type.tag != TypeTags.UNION) {
             return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
@@ -783,7 +783,7 @@ public class Types {
     public boolean isSubTypeOfBaseType(BType bType, int baseTypeTag) {
         BType type = getReferredType(bType);
         if (type.tag == TypeTags.INTERSECTION) {
-            type = ((BIntersectionType) type).effectiveType;
+            type = ((BIntersectionType) type).getEffectiveType();
         }
 
         if (type.tag != TypeTags.UNION) {
@@ -885,13 +885,13 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.INTERSECTION) {
-            return isAssignable(((BIntersectionType) source).effectiveType,
+            return isAssignable(((BIntersectionType) source).getEffectiveType(),
                                 targetTag != TypeTags.INTERSECTION ? target :
-                                        ((BIntersectionType) target).effectiveType, unresolvedTypes);
+                                        ((BIntersectionType) target).getEffectiveType(), unresolvedTypes);
         }
 
         if (targetTag == TypeTags.INTERSECTION) {
-            return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
+            return isAssignable(source, ((BIntersectionType) target).getEffectiveType(), unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
@@ -1181,7 +1181,7 @@ public class Types {
                 }
                 break;
             case TypeTags.INTERSECTION:
-                return getTableConstraintField(((BIntersectionType) constraintType).effectiveType, fieldName);
+                return getTableConstraintField(((BIntersectionType) constraintType).getEffectiveType(), fieldName);
             case TypeTags.TYPEREFDESC:
                 return getTableConstraintField(((BTypeReferenceType) constraintType).referredType, fieldName);
         }
@@ -1514,7 +1514,7 @@ public class Types {
 
     public static BType getEffectiveType(BType type) {
         if (type.tag == TypeTags.INTERSECTION) {
-            return ((BIntersectionType) type).effectiveType;
+            return ((BIntersectionType) type).getEffectiveType();
         }
         return type;
     }
@@ -1648,7 +1648,7 @@ public class Types {
                 }
                 return readonlyIntersectionExists;
             case TypeTags.INTERSECTION:
-                return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, unresolvedTypes,
+                return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes,
                                                   forceCheck, packageID);
             case TypeTags.TYPEREFDESC:
                 return isSelectivelyImmutableType(((BTypeReferenceType) type).referredType, unresolvedTypes,
@@ -2283,7 +2283,7 @@ public class Types {
         BType type = getReferredType(bType);
         BType effectiveType = null;
         if (type.tag == TypeTags.INTERSECTION) {
-            effectiveType = ((BIntersectionType) type).effectiveType;
+            effectiveType = ((BIntersectionType) type).getEffectiveType();
             type = effectiveType;
         }
 
@@ -2452,7 +2452,7 @@ public class Types {
         if ((targetTypeTag == TypeTags.UNION || targetTypeTag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
         } else if (targetTypeTag == TypeTags.INTERSECTION) {
-            newTargetType = ((BIntersectionType) targetType).effectiveType;
+            newTargetType = ((BIntersectionType) targetType).getEffectiveType();
         }
 
         TypeTestResult result = isBuiltInTypeWidenPossible(actualType, newTargetType);
@@ -3874,7 +3874,7 @@ public class Types {
         for (BType memberType : unionType.getMemberTypes()) {
             switch (memberType.tag) {
                 case TypeTags.INTERSECTION:
-                    BType effectiveType = ((BIntersectionType) memberType).effectiveType;
+                    BType effectiveType = ((BIntersectionType) memberType).getEffectiveType();
                     BType refType = getReferredType(effectiveType);
                     if (refType.tag == TypeTags.UNION) {
                         memTypes.addAll(getEffectiveMemberTypes((BUnionType) refType));
@@ -3882,7 +3882,7 @@ public class Types {
                     }
                     if (refType.tag == TypeTags.INTERSECTION) {
                         memTypes.addAll(
-                                getEffectiveMemberTypes((BUnionType) ((BIntersectionType) refType).effectiveType));
+                                getEffectiveMemberTypes((BUnionType) ((BIntersectionType) refType).getEffectiveType()));
                         continue;
                     }
                     memTypes.add(effectiveType);
@@ -4437,7 +4437,7 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 return validationFunction.validate(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return validationFunction.validate(((BIntersectionType) type).effectiveType);
+                return validationFunction.validate(((BIntersectionType) type).getEffectiveType());
             default:
                 return false;
         }
@@ -4489,7 +4489,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.INTERSECTION:
-                return validIntegerTypeExists(((BIntersectionType) type).effectiveType);
+                return validIntegerTypeExists(((BIntersectionType) type).getEffectiveType());
             default:
                 return false;
         }
@@ -4602,7 +4602,7 @@ public class Types {
                 memberTypes.add(bType);
                 break;
             case TypeTags.INTERSECTION:
-                memberTypes.addAll(expandAndGetMemberTypesRecursive(((BIntersectionType) bType).effectiveType));
+                memberTypes.addAll(expandAndGetMemberTypesRecursive(((BIntersectionType) bType).getEffectiveType()));
                 break;
             case TypeTags.TYPEREFDESC:
                 return expandAndGetMemberTypesRecursiveHelper(getReferredType(bType), visited);
@@ -4912,7 +4912,7 @@ public class Types {
         BType remainingType = originalType;
 
         if (originalType.tag == TypeTags.INTERSECTION) {
-            originalType = ((BIntersectionType) originalType).effectiveType;
+            originalType = ((BIntersectionType) originalType).getEffectiveType();
         }
 
         boolean unionOriginalType = false;
@@ -4942,7 +4942,7 @@ public class Types {
                 BType refType = getReferredType(originalType);
 
                 if (refType.tag == TypeTags.INTERSECTION) {
-                    refType = ((BIntersectionType) refType).effectiveType;
+                    refType = ((BIntersectionType) refType).getEffectiveType();
                 }
 
                 if (refType.tag != TypeTags.UNION && refType.tag != TypeTags.FINITE) {
@@ -5345,7 +5345,7 @@ public class Types {
             return bType;
         }
 
-        BType effectiveType = ((BIntersectionType) type).effectiveType;
+        BType effectiveType = ((BIntersectionType) type).getEffectiveType();
 
         // Don't return a cyclic type as the effective type due to
         // https://github.com/ballerina-platform/ballerina-lang/issues/30681.
@@ -6051,7 +6051,7 @@ public class Types {
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.getBType());
             case TypeTags.INTERSECTION:
-                return isAllowedConstantType(((BIntersectionType) type).effectiveType);
+                return isAllowedConstantType(((BIntersectionType) type).getEffectiveType());
             case TypeTags.TYPEREFDESC:
                 return isAllowedConstantType(((BTypeReferenceType) type).referredType);
             default:
@@ -6208,7 +6208,7 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 return hasFillerValue(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return hasFillerValue(((BIntersectionType) type).effectiveType);
+                return hasFillerValue(((BIntersectionType) type).getEffectiveType());
             default:
                 // check whether the type is an integer subtype which has filler value 0
                 return TypeTags.isIntegerTypeTag(type.tag);
@@ -7149,7 +7149,7 @@ public class Types {
                 basicTypes.add(BasicTypes.ANY);
                 return;
             case TypeTags.INTERSECTION:
-                populateBasicTypes(((BIntersectionType) type).effectiveType, basicTypes);
+                populateBasicTypes(((BIntersectionType) type).getEffectiveType(), basicTypes);
                 return;
             case TypeTags.ERROR:
                 basicTypes.add(BasicTypes.ERROR);

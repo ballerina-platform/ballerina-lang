@@ -902,7 +902,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (!fieldNameList.isEmpty()) {
             typeChecker.validateKeySpecifier(fieldNameList,
                     constraint.tag != TypeTags.INTERSECTION ? constraint :
-                            ((BIntersectionType) constraint).effectiveType,
+                            ((BIntersectionType) constraint).getEffectiveType(),
                     tableTypeNode.tableKeySpecifier.pos);
         }
 
@@ -1386,7 +1386,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 }
                 break;
             case INTERSECTION:
-                return isSupportedConfigType(((BIntersectionType) type).effectiveType, errors, varName,
+                return isSupportedConfigType(((BIntersectionType) type).getEffectiveType(), errors, varName,
                         unresolvedTypes, isRequired);
             case UNION:
                 BUnionType unionType = (BUnionType) type;
@@ -2123,7 +2123,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private BType getApplicableRhsType(BType rhsType) {
         BType referredType = Types.getReferredType(rhsType);
         if (referredType.tag == TypeTags.INTERSECTION) {
-            return ((BIntersectionType) referredType).effectiveType;
+            return ((BIntersectionType) referredType).getEffectiveType();
         }
         return rhsType;
     }
@@ -3095,7 +3095,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType patternType = Types.getReferredType(bType);
         NodeKind matchPatternKind = matchPattern.getKind();
         if (patternType.tag == TypeTags.INTERSECTION) {
-            patternType = ((BIntersectionType) patternType).effectiveType;
+            patternType = ((BIntersectionType) patternType).getEffectiveType();
         }
         switch (matchPatternKind) {
             case WILDCARD_MATCH_PATTERN:
@@ -4083,7 +4083,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 flatMapAndGetObjectTypes(result, memberType);
             }
         } else if (type.tag == TypeTags.INTERSECTION) {
-            BType effectiveType = ((BIntersectionType) type).effectiveType;
+            BType effectiveType = ((BIntersectionType) type).getEffectiveType();
             flatMapAndGetObjectTypes(result, effectiveType);
         }
     }

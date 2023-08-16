@@ -373,7 +373,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
                 break;
             case TypeTags.INTERSECTION:
-                type = ((BIntersectionType) type).effectiveType;
+                type = ((BIntersectionType) type).getEffectiveType();
                 solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes,
                         resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY));
                 return;
@@ -451,7 +451,7 @@ public class QueryTypeChecker extends TypeChecker {
     private BType getTypeOfTypeParameter(BType selectType, Location pos) {
         BType referredType = Types.getReferredType(selectType);
         if (referredType.tag == TypeTags.INTERSECTION) {
-            referredType = ((BIntersectionType) referredType).effectiveType;
+            referredType = ((BIntersectionType) referredType).getEffectiveType();
         }
 
         if (referredType.tag == TypeTags.UNION) {

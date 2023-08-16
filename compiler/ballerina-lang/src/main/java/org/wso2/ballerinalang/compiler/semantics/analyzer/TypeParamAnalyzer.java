@@ -519,8 +519,8 @@ public class TypeParamAnalyzer {
                 break;
             case TypeTags.INTERSECTION:
                 if (actualType.tag == TypeTags.INTERSECTION) {
-                    findTypeParam(loc, ((BIntersectionType) expType).effectiveType,
-                            ((BIntersectionType) actualType).effectiveType, env, resolvedTypes, result);
+                    findTypeParam(loc, ((BIntersectionType) expType).getEffectiveType(),
+                            ((BIntersectionType) actualType).getEffectiveType(), env, resolvedTypes, result);
                 }
                 break;
             case TypeTags.TYPEREFDESC:
@@ -529,7 +529,7 @@ public class TypeParamAnalyzer {
                 break;
         }
         if (actualType.tag == TypeTags.INTERSECTION) {
-            visitType(expr, loc, expType, ((BIntersectionType) actualType).effectiveType, env, resolvedTypes,
+            visitType(expr, loc, expType, ((BIntersectionType) actualType).getEffectiveType(), env, resolvedTypes,
                     result, checkContravariance);
         }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
@@ -924,7 +924,7 @@ public class TypeParamAnalyzer {
                 ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
                         matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
 
-        return boundIntersectionType.effectiveType;
+        return boundIntersectionType.getEffectiveType();
     }
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

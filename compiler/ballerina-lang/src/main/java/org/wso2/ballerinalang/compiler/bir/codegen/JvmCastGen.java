@@ -854,7 +854,7 @@ public class JvmCastGen {
                     generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
                     return;
                 case TypeTags.INTERSECTION:
-                    generateCheckCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType, indexMap);
+                    generateCheckCast(mv, sourceType, ((BIntersectionType) targetType).getEffectiveType(), indexMap);
                     return;
                 case TypeTags.ANYDATA:
                     generateCheckCastToAnyData(mv, sourceType);
@@ -1455,7 +1455,7 @@ public class JvmCastGen {
                     generateCastToAny(mv, sourceType);
                     return;
                 case TypeTags.INTERSECTION:
-                    generateCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType);
+                    generateCast(mv, sourceType, ((BIntersectionType) targetType).getEffectiveType());
                     return;
                 case TypeTags.TYPEREFDESC:
                     generateCast(mv, sourceType, JvmCodeGenUtil.getReferredType(targetType));

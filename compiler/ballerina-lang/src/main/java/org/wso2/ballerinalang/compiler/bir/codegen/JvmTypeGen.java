@@ -823,14 +823,14 @@ public class JvmTypeGen {
         }
 
         // Load the effective type of the intersection.
-        loadType(mv, bType.effectiveType);
+        loadType(mv, bType.getEffectiveType());
 
         // Load type flags.
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
         String effectiveTypeClass;
-        if (bType.effectiveType instanceof IntersectableReferenceType) {
+        if (bType.getEffectiveType() instanceof IntersectableReferenceType) {
             effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
         } else {
             effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;

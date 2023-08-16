@@ -134,7 +134,7 @@ public class BIRWriterUtils {
                 }
                 break;
             case TypeTags.INTERSECTION:
-                BType effectiveType = ((BIntersectionType) type).effectiveType;
+                BType effectiveType = ((BIntersectionType) type).getEffectiveType();
                 writeConstValue(cp, buf, new BIRNode.ConstValue(value, effectiveType));
                 break;
             default:
@@ -224,7 +224,7 @@ public class BIRWriterUtils {
         int tag = constValue.type.tag;
         boolean isIntersection = false;
         if (constValType.tag == TypeTags.INTERSECTION) {
-            constValType = ((BIntersectionType) constValType).effectiveType;
+            constValType = ((BIntersectionType) constValType).getEffectiveType();
             tag = constValType.tag;
             isIntersection = true;
         }
