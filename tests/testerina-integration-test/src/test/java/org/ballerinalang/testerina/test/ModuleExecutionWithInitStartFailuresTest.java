@@ -33,7 +33,7 @@ import static org.ballerinalang.testerina.test.BaseTestCase.balServer;
 import static org.ballerinalang.testerina.test.BaseTestCase.projectBasedTestsPath;
 
 /**
- * Test class to test module init and module start failures.
+ * Tests to verify module init and module start failures.
  *
  * @since 2201.8.0
  */
