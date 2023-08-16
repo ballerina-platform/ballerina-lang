@@ -472,7 +472,7 @@ public class QueryTypeChecker extends TypeChecker {
                             checkExpr(nodeCloner.cloneNode(selectExp), env, expType, data);
                         }
                     });
-                    selectExp.typeChecked = true;
+                    checkExpr(selectExp, env, data);
                     return;
                 }
             }

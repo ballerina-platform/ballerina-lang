@@ -161,6 +161,10 @@ public class QueryActionOrExprTest {
                 388, 16);
         validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', " +
                 "found '(T4|T2|T1)[]'", 394, 13);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3OrT4'",
+                398, 17);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
+                400, 16);
         validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 439, 16);
         validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 446, 16);
         validateError(negativeResult, i++, "incompatible types: expected '(boolean[]|float[])', " +
