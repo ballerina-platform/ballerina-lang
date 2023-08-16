@@ -2113,16 +2113,6 @@ public class TypeResolver {
         }
     }
 
-    private void defineErrorIntersection(Location pos, BIntersectionType intersectionType, SymbolEnv env) {
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
-        BTypeSymbol intersectionTSymbol = intersectionType.tsymbol;
-        intersectionTSymbol.scope = new Scope(intersectionTSymbol);
-
-        if (symResolver.checkForUniqueSymbol(pos, pkgEnv, intersectionTSymbol)) {
-            pkgEnv.scope.define(intersectionTSymbol.name, intersectionTSymbol);
-        }
-    }
-
     /**
      * This class holds the data required for the module type resolving.
      *
