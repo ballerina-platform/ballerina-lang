@@ -1,0 +1,56 @@
+{
+  "position": {
+    "line": 0,
+    "character": 24
+  },
+  "source": "import_decl/source/import_decl_with_ballerinax_org3.bal",
+  "description": "Test completions for ballerinax packages",
+  "items": [
+    {
+      "label": "azure.ad",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "azure.ad",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "azure.qnamaker",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "azure.qnamaker",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

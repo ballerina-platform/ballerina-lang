@@ -193,7 +193,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -2838,9 +2837,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             Map<BVarSymbol, BType.NarrowedTypes> existingNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : data.narrowedTypeInfo.entrySet()) {
                 BVarSymbol key = entry.getKey();
-                if (!existingNarrowedTypeInfo.containsKey(key)) {
-                    existingNarrowedTypeInfo.put(key, entry.getValue());
-                } else {
+                if (existingNarrowedTypeInfo.containsKey(key)) {
                     BType.NarrowedTypes existingNarrowTypes = existingNarrowedTypeInfo.get(key);
                     BUnionType unionType =
                             BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
@@ -4214,24 +4211,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangFunction function = ((BLangLambdaFunction) worker.var.expr).function;
             function.symbol.enclForkName = function.anonForkName;
             ((BInvokableSymbol) worker.var.symbol).enclForkName = function.anonForkName;
-        }
-    }
-
-    @Override
-    public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
-        SymbolEnv currentEnv = data.env;
-        // TODO Need to remove this cached env
-        workerSendNode.env = currentEnv;
-        this.typeChecker.checkExpr(workerSendNode.expr, currentEnv, data.prevEnvs, data.commonAnalyzerData);
-
-        BSymbol symbol =
-                symResolver.lookupSymbolInMainSpace(currentEnv, names.fromIdNode(workerSendNode.workerIdentifier));
-
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            workerSendNode.setBType(symTable.semanticError);
-        } else {
-            workerSendNode.setBType(symbol.type);
-            workerSendNode.workerSymbol = symbol;
         }
     }
 
