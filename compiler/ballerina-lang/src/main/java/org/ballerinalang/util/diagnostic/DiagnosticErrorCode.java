@@ -811,7 +811,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param"),
     INVALID_QUERY_CONSTRUCT_INFERRED_MAP("BCE4053", "inferred.query.construct.type.as.map"),
     INVALID_QUERY_CONSTRUCT_INFERRED_STREAM("BCE4054", "inferred.query.construct.type.as.stream"),
-    INVALID_QUERY_CONSTRUCT_TYPE("BCE4055", "invalid.error.query.construct.type")
+    INVALID_QUERY_CONSTRUCT_TYPE("BCE4055", "invalid.error.query.construct.type"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4056",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected")
