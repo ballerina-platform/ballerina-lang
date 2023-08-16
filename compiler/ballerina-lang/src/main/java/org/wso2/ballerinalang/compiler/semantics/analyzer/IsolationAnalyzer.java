@@ -1359,12 +1359,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeNode(expr, env);
 
-        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
+        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr)) {
             BType bType = expr.getBType();
             BTypeSymbol tsymbol = bType.tsymbol;
             BLangIdentifier field = fieldAccessExpr.field;
 
-            if (!isPotentiallyProtectedFieldAccessedInNonInitMethod(expr, tsymbol, field)) {
+            if (!isPotentiallyProtectedFieldAccessedRequiringLock(fieldAccessExpr, tsymbol, field)) {
                 return;
             }
 
@@ -1399,12 +1399,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                    DiagnosticErrorCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
     }
 
-    private boolean isPotentiallyProtectedFieldAccessedInNonInitMethod(BLangExpression expr, BTypeSymbol tsymbol,
-                                                                       BLangIdentifier field) {
+    private boolean isPotentiallyProtectedFieldAccessedRequiringLock(BLangFieldBasedAccess fieldAccessExpr,
+                                                                     BTypeSymbol tsymbol,
+                                                                     BLangIdentifier field) {
+        BLangExpression expr = fieldAccessExpr.expr;
         return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 isSelfOfObject((BLangSimpleVarRef) expr) &&
                 this.isolationInferenceInfoMap.containsKey(tsymbol) &&
-                !inObjectInitMethod() &&
+                !isObjectFieldInitializationInInitMethod(fieldAccessExpr) &&
                 ((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
                         .protectedFields.contains(field);
     }
@@ -2597,8 +2599,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(
-            BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
-        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr, ignoreInit)) {
+            BLangFieldBasedAccess fieldAccessExpr) {
+        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr,
+                                                        isObjectFieldInitialization(fieldAccessExpr))) {
             return false;
         }
 
@@ -2610,6 +2613,38 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isExpectedToBeAPrivateField(field.symbol, field.type);
+    }
+
+    private boolean isObjectFieldInitialization(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangNode parent = fieldAccessExpr.parent;
+
+        if (fieldAccessExpr.isLValue) {
+            return parent.getKind() == NodeKind.ASSIGNMENT;
+        }
+
+        while (parent != null && parent.getKind() != NodeKind.ASSIGNMENT) {
+            parent = parent.parent;
+        }
+
+        if (parent == null) {
+            return false;
+        }
+
+        BLangAssignment assignment = (BLangAssignment) parent;
+
+        BLangExpression lhsExpr = assignment.varRef;
+
+        if (lhsExpr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+
+        BLangExpression expr = ((BLangFieldBasedAccess) lhsExpr).expr;
+
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+
+        return isSelfOfObject((BLangSimpleVarRef) expr);
     }
 
     private void validateIsolatedExpression(BType type, BLangExpression expression) {
@@ -3555,6 +3590,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isWorkerLambda(BLangFunction function) {
         return function.flagSet.contains(Flag.WORKER) && function.flagSet.contains(Flag.LAMBDA);
+    }
+
+    private boolean isObjectFieldInitializationInInitMethod(BLangFieldBasedAccess fieldBasedAccess) {
+        return inObjectInitMethod() && isObjectFieldInitialization(fieldBasedAccess);
     }
 
     private boolean inObjectInitMethod() {
