@@ -805,7 +805,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCE4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
     SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4048", "seq.arg.followed.by.another.seq.arg"),
-
     QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4049", "query.construct.types.cannot.be.used.with.collect"),
     VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4050", "variable.is.sequenced.more.than.once"),
     INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
@@ -813,6 +812,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_QUERY_CONSTRUCT_INFERRED_MAP("BCE4053", "inferred.query.construct.type.as.map"),
     INVALID_QUERY_CONSTRUCT_INFERRED_STREAM("BCE4054", "inferred.query.construct.type.as.stream"),
     INVALID_QUERY_CONSTRUCT_TYPE("BCE4055", "invalid.error.query.construct.type")
+    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4056",
+            "cannot.use.alternate.wait.action.within.multiple.wait.action"),
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected")
     ;
 
     private String diagnosticId;
