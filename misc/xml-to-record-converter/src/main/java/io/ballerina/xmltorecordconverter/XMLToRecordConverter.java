@@ -96,6 +96,7 @@ public class XMLToRecordConverter {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlValue.getBytes(StandardCharsets.UTF_8));
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             dbFactory.setNamespaceAware(true);
             DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
             Document doc = docBuilder.parse(inputStream);
@@ -117,8 +118,7 @@ public class XMLToRecordConverter {
             return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
         }
 
-        io.ballerina.compiler.syntax.tree.NodeList<ImportDeclarationNode> imports =
-                AbstractNodeFactory.createEmptyNodeList();
+        NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         List<Map.Entry<String, NonTerminalNode>> recordToTypeDescNodeEntries
                 = new ArrayList<>(recordToTypeDescNodes.entrySet());
         List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodeEntries.stream()

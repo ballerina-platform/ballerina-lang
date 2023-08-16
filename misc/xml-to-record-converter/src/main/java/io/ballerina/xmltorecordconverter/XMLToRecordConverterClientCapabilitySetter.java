@@ -18,7 +18,6 @@
 
 package io.ballerina.xmltorecordconverter;
 
-
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter;
 
