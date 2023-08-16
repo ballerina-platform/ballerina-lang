@@ -450,16 +450,8 @@ public class MainMethodGen {
         Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
         if (isTestFunction) {
-            mv.visitInsn(ICONST_1);
-            mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "I");
-            mv.visitFieldInsn(GETSTATIC, initClass, MODULE_STARTED, "Z");
-            mv.visitJumpInsn(IFNE, labelIf);
-            Label labelNE = new Label();
-            mv.visitLabel(labelNE);
             mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD, GET_THROWABLE);
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_THROWABLE, false);
-            stopListeners(mv, isServiceEPAvailable);
-            generateModuleStopCall(initClass, mv);
         } else {
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, HANDLE_THROWABLE, false);
