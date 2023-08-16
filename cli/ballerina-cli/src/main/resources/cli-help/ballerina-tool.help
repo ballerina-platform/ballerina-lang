@@ -23,7 +23,7 @@ TOOL COMMANDS
 
         pull        Pull a tool from Ballerina Central.
         remove      Remove a tool from the local environment.
-        update      Update a tool to the latest patch version.
+        update      Update a tool to the latest compatible version.
         use         Set a tool version as the active version.
         list        List all tools in the local environment.
         search      Search Ballerina Central for tools.
