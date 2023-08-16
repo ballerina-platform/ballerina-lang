@@ -166,6 +166,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -220,7 +221,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -1997,47 +1997,45 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // Asynchronous Send Statement
     @Override
-    public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
         BSymbol receiver =
-                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerSendNode.workerIdentifier));
+                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value, data.env);
+        verifyPeerCommunication(asyncSendExpr.pos, receiver, asyncSendExpr.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
         if (data.withinLockBlock) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
             was.hasErrors = true;
         }
 
-        BType type = workerSendNode.expr.getBType();
+        BType type = asyncSendExpr.expr.getBType();
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
-        } else if (workerSendNode.expr instanceof ActionNode) {
-            this.dlog.error(workerSendNode.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
-        } else if (!types.isAssignable(type, symTable.cloneableType)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
+        } else if (asyncSendExpr.expr instanceof ActionNode) {
+            this.dlog.error(asyncSendExpr.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
         }
 
-        String workerName = workerSendNode.workerIdentifier.getValue();
+        String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.getBType(), workerName, data.env)
+        if (!this.workerExists(asyncSendExpr.workerType, workerName, data.env)
                 || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
-        workerSendNode.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(workerSendNode.pos, workerSendNode.expr.getBType(), data));
-        was.addWorkerAction(workerSendNode);
-        analyzeExpr(workerSendNode.expr, data);
-        validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
+        asyncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.pos, asyncSendExpr.expr.getBType(), data);
+        was.addWorkerAction(asyncSendExpr);
+        analyzeExpr(asyncSendExpr.expr, data);
+        validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
     private BType createAccumulatedErrorTypeForMatchingReceive(Location pos, BType exprType, AnalyzerData data) {
@@ -2090,8 +2088,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, syncSendExpr.workerSymbol);
             was.hasErrors = true;
         }
-        syncSendExpr.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data));
+
+        syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
+        syncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
@@ -2232,24 +2232,51 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
-        List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        BType referredType = Types.getReferredType(recordLiteral.getBType());
+        boolean isRecord = referredType.tag == TypeTags.RECORD;
+        List<RecordLiteralNode.RecordField> recordLiteralFields = recordLiteral.fields;
 
-        for (RecordLiteralNode.RecordField field : fields) {
+        LinkedHashMap<String, BField> recordFields = null;
+        if (isRecord) {
+            recordFields = ((BRecordType) referredType).getFields();
+        }
+
+        for (RecordLiteralNode.RecordField field : recordLiteralFields) {
             if (field.isKeyValueField()) {
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr, data);
+                reportIfDeprecatedUsage(((BLangRecordKeyValueField) field).key.fieldSymbol, recordLiteral,
+                        ((BLangRecordKeyValueField) field).pos);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field, data);
+                BLangRecordLiteral.BLangRecordVarNameField recField
+                        = (BLangRecordLiteral.BLangRecordVarNameField) field;
+                analyzeExpr(recField, data);
+
+                if (isRecord) {
+                    BField matchingField = recordFields.get(recField.symbol.getName().getValue());
+                    if (matchingField != null) {
+                        reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, recField.pos);
+                    }
+                }
             } else {
-                analyzeExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, data);
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField
+                        = (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                analyzeExpr(spreadField.expr, data);
+
+                BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
+                if (isRecord && spreadFieldType != null && spreadFieldType.tag == TypeTags.RECORD) {
+                    for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
+                        BField matchingField = recordFields.get(fieldEntry.getName().getValue());
+                        if (matchingField != null) {
+                            reportIfDeprecatedUsage(matchingField.symbol, recordLiteral, spreadField.expr.pos);
+                        }
+                    }
+                }
             }
         }
 
         Set<Object> names = new HashSet<>();
         Set<Object> neverTypedKeys = new HashSet<>();
-        BType literalBType = recordLiteral.getBType();
-        BType type = Types.getReferredType(literalBType);
-        boolean isRecord = type.tag == TypeTags.RECORD;
-        boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
+        boolean isOpenRecord = isRecord && !((BRecordType) referredType).sealed;
 
         // A record type is inferred for a record literal even if the contextually expected type is a map, if the
         // mapping constructor expression has `readonly` fields.
@@ -2257,7 +2284,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
         BLangRecordLiteral.BLangRecordSpreadOperatorField inclusiveTypeSpreadField = null;
-        for (RecordLiteralNode.RecordField field : fields) {
+        for (RecordLiteralNode.RecordField field : recordLiteralFields) {
 
             BLangExpression keyExpr;
 
@@ -2277,7 +2304,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                     inclusiveTypeSpreadField = spreadOpField;
 
-                    if (fields.size() > 1) {
+                    if (recordLiteralFields.size() > 1) {
                         if (names.size() > 0) {
                             this.dlog.error(spreadOpExpr.pos,
                                             DiagnosticErrorCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
@@ -2320,7 +2347,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         if (bField.type.tag != TypeTags.NEVER) {
                             this.dlog.error(spreadOpExpr.pos,
                                     DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                    type.getKind().typeName(), fieldName, spreadOpField);
+                                    referredType.getKind().typeName(), fieldName, spreadOpField);
                         }
                         continue;
                     }
@@ -2365,7 +2392,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                 unescapedName, inclusiveTypeSpreadField);
                     }
 
-                    if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
+                    if (!isInferredRecordForMapCET && isOpenRecord
+                            && !((BRecordType) referredType).fields.containsKey(name)) {
                         dlog.error(keyExpr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY,
                                 unescapedName);
                     }
@@ -2388,7 +2416,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         if (isInferredRecordForMapCET) {
-            recordLiteral.expectedType = type;
+            recordLiteral.expectedType = referredType;
         }
     }
 
@@ -2411,7 +2439,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
             case WORKER_RECEIVE:
-            case WORKER_SEND:
+            case WORKER_ASYNC_SEND:
             case WORKER_SYNC_SEND:
                 return;
             default:
@@ -2464,12 +2492,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void analyzeFieldBasedAccessExpr(BLangFieldBasedAccess fieldAccessExpr, AnalyzerData data) {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeExpr(expr, data);
-        BSymbol symbol = fieldAccessExpr.symbol;
-        if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            String deprecatedConstruct = generateDeprecatedConstructString(expr, fieldAccessExpr.field.toString(),
-                    symbol);
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
-        }
+        reportIfDeprecatedUsage(fieldAccessExpr.symbol, expr, fieldAccessExpr.pos);
     }
 
     @Override
@@ -2496,6 +2519,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 logDeprecatedWarningForInvocation(invocationExpr);
             }
         }
+        analyzeInvocationParams(invocationExpr, data);
     }
 
     @Override
@@ -2779,9 +2803,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         BLangIdentifier flushWrkIdentifier = workerFlushExpr.workerIdentifier;
         Stack<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
         WorkerActionSystem currentWrkerAction = workerActionSystems.peek();
-        List<BLangWorkerSend> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
+        List<BLangWorkerAsyncSendExpr> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
         if (flushWrkIdentifier != null) {
-            List<BLangWorkerSend> sendsToGivenWrkr = sendStmts.stream()
+            List<BLangWorkerAsyncSendExpr> sendsToGivenWrkr = sendStmts.stream()
                                                               .filter(bLangNode -> bLangNode.workerIdentifier.equals
                                                                       (flushWrkIdentifier))
                                                               .collect(Collectors.toList());
@@ -2803,11 +2827,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         validateActionParentNode(workerFlushExpr.pos, workerFlushExpr);
     }
 
-    private List<BLangWorkerSend> getAsyncSendStmtsOfWorker(WorkerActionSystem currentWorkerAction) {
+    private List<BLangWorkerAsyncSendExpr> getAsyncSendStmtsOfWorker(WorkerActionSystem currentWorkerAction) {
         List<BLangNode> actions = currentWorkerAction.workerActionStateMachines.peek().actions;
         return actions.stream()
                       .filter(CodeAnalyzer::isWorkerSend)
-                      .map(bLangNode -> (BLangWorkerSend) bLangNode)
+                      .map(bLangNode -> (BLangWorkerAsyncSendExpr) bLangNode)
                       .collect(Collectors.toList());
     }
     @Override
@@ -3576,7 +3600,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private static boolean isWorkerSend(BLangNode action) {
-        return action.getKind() == NodeKind.WORKER_SEND;
+        return action.getKind() == NodeKind.WORKER_ASYNC_SEND;
     }
 
     private static boolean isWorkerSyncSend(BLangNode action) {
@@ -3589,7 +3613,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private String extractWorkerId(BLangNode action) {
         if (isWorkerSend(action)) {
-            return ((BLangWorkerSend) action).workerIdentifier.value;
+            return ((BLangWorkerAsyncSendExpr) action).workerIdentifier.value;
         } else if (isWorkerSyncSend(action)) {
             return ((BLangWorkerSyncSendExpr) action).workerIdentifier.value;
         } else {
@@ -3640,7 +3664,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 if (isWorkerSyncSend(currentAction)) {
                     this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
                 } else {
-                    this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
+                    this.validateWorkerActionParameters((BLangWorkerAsyncSendExpr) currentAction, receive);
                 }
                 otherSM.next();
                 data.workerSystemMovementSequence++;
@@ -3693,7 +3717,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         }
                     }
                 } else  if (isWorkerSend(action)) {
-                    BLangWorkerSend send = (BLangWorkerSend) action;
+                    BLangWorkerAsyncSendExpr send = (BLangWorkerAsyncSendExpr) action;
                     if (waitingOnWorkerSet.contains(send.workerIdentifier.value)) {
                         dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
                         isValid = false;
@@ -3812,9 +3836,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 workerActionSystem.toString());
     }
 
-    private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
-        types.checkType(receive, send.getBType(), receive.getBType());
-        addImplicitCast(send.getBType(), receive);
+    private void validateWorkerActionParameters(BLangWorkerAsyncSendExpr send, BLangWorkerReceive receive) {
+        send.receive = receive;
+        types.checkType(send.pos, symTable.nilType, send.expectedType,
+                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+
+        types.checkType(receive, send.sendType, receive.getBType());
+        addImplicitCast(send.sendType, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
                 kind == NodeKind.FAIL) {
@@ -3849,9 +3877,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                             DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
 
-        types.checkType(receive, send.getBType(), receive.getBType());
+        types.checkType(receive, send.sendType, receive.getBType());
 
-        addImplicitCast(send.getBType(), receive);
+        addImplicitCast(send.sendType, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
@@ -3873,6 +3901,83 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean checkReturnValidityInTransaction(AnalyzerData data) {
         return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0
                 && data.withinTransactionScope;
+    }
+
+    private void analyzeInvocationParams(BLangInvocation iExpr, AnalyzerData data) {
+        if (iExpr.symbol == null) {
+            return;
+        }
+
+        BType invocableType = Types.getReferredType(iExpr.symbol.type);
+        BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
+        List<BVarSymbol> reqParamSymbols = invokableSymbol.params;
+        int parameterCountForPositionalArgs = ((BInvokableType) invocableType).getParameterTypes().size();
+
+        int visitedArgCount = 0;
+        for (BLangExpression expr : iExpr.argExprs) {
+            switch (expr.getKind()) {
+                case NAMED_ARGS_EXPR:
+                    reportIfDeprecatedUsage(((BLangNamedArgsExpression) expr).varSymbol, expr, expr.pos);
+                    visitedArgCount++;
+                    break;
+                case REST_ARGS_EXPR:
+                    if (visitedArgCount >= parameterCountForPositionalArgs) {
+                        reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
+                        continue;
+                    }
+
+                    BLangExpression restExpr = ((BLangRestArgsExpression) expr).expr;
+                    if (restExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                        visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) restExpr,
+                                visitedArgCount, reqParamSymbols, invokableSymbol.restParam);
+                        continue;
+                    }
+
+                    for (int i = visitedArgCount; i < parameterCountForPositionalArgs; i++) {
+                        reportIfDeprecatedUsage(reqParamSymbols.get(i), expr, expr.pos);
+                    }
+                    break;
+                default:    // positional args
+                    if (visitedArgCount < parameterCountForPositionalArgs) {
+                        BVarSymbol paramSymbol = reqParamSymbols.get(visitedArgCount);
+                        reportIfDeprecatedUsage(paramSymbol, expr, expr.pos);
+                        if (Symbols.isFlagOn(reqParamSymbols.get(visitedArgCount).flags, Flags.INCLUDED)) {
+                            analyzeExpr(expr, data);
+                        }
+                    } else {
+                        reportIfDeprecatedUsage(invokableSymbol.restParam, expr, expr.pos);
+                    }
+                    visitedArgCount++;
+            }
+        }
+    }
+
+    private int analyzeRestArgsAgainstReqParams(BLangListConstructorExpr listConstructorExpr, int visitedArgCount,
+                                                 List<BVarSymbol> reqParamSymbols, BVarSymbol restParamSymbol) {
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (visitedArgCount >= reqParamSymbols.size()) {
+                // Visiting args matching with the rest-param
+                reportIfDeprecatedUsage(restParamSymbol, expr, expr.pos);
+                continue;
+            }
+
+            if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                reportIfDeprecatedUsage(reqParamSymbols.get(visitedArgCount++), expr, expr.pos);
+                continue;
+            }
+
+            BLangExpression innerExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            if (innerExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                visitedArgCount = analyzeRestArgsAgainstReqParams((BLangListConstructorExpr) innerExpr,
+                        visitedArgCount, reqParamSymbols, restParamSymbol);
+                continue;
+            }
+
+            for (int i = visitedArgCount; i < reqParamSymbols.size(); i++) {
+                reportIfDeprecatedUsage(reqParamSymbols.get(i), innerExpr, innerExpr.pos);
+            }
+        }
+        return visitedArgCount;
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -3923,6 +4028,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         return errorType;
+    }
+
+    private boolean reportIfDeprecatedUsage(BSymbol constructSymbol, BLangExpression expr, Location usagePos) {
+        if (constructSymbol != null && Symbols.isFlagOn(constructSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(usagePos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
+                    generateDeprecatedConstructString(expr, constructSymbol.name.getValue(), constructSymbol));
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -4034,7 +4148,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             } else {
                 BLangNode action = this.currentAction();
                 if (isWorkerSend(action)) {
-                    return ((BLangWorkerSend) action).toActionString();
+                    return ((BLangWorkerAsyncSendExpr) action).toActionString();
                 } else if (isWorkerSyncSend(action)) {
                     return ((BLangWorkerSyncSendExpr) action).toActionString();
                 } else if (isWaitAction(action)) {

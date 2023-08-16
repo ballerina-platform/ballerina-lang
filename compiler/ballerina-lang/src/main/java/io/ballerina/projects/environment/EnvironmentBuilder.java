@@ -22,12 +22,15 @@ import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
+import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
@@ -80,9 +83,14 @@ public class EnvironmentBuilder {
         BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
         PackageRepository ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
         environment.addService(LocalPackageRepository.class, ballerinaUserHome.localPackageRepository());
+        environment.addService(CustomPkgRepositoryContainer.class, ballerinaUserHome.customPkgRepositoryContainer());
+
+        Map<String, PackageRepository> customRepositories = ballerinaUserHome.customRepositories().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         PackageResolver packageResolver = new DefaultPackageResolver(distributionRepository,
-                ballerinaCentralRepo, ballerinaUserHome.localPackageRepository(), packageCache);
+                ballerinaCentralRepo, ballerinaUserHome.localPackageRepository(),
+                customRepositories, packageCache);
         environment.addService(PackageResolver.class, packageResolver);
 
         CompilerContext compilerContext = populateCompilerContext();

@@ -44,4 +44,9 @@ public class JMethodCallInstruction extends JInstruction {
     public BIROperand[] getRhsOperands() {
         return args.toArray(new BIROperand[0]);
     }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        this.args = List.of(operands);
+    }
 }
