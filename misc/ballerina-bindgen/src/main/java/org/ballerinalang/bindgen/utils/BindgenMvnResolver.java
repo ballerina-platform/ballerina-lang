@@ -126,7 +126,13 @@ public class BindgenMvnResolver {
             PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot)
                     .packageManifest();
             if (packageManifest != null) {
-                PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_17.code());
+                PackageManifest.Platform platform = null;
+                for (JvmTarget jvmTarget : JvmTarget.values()) {
+                    platform = packageManifest.platform(jvmTarget.code());
+                    if (platform != null) {
+                        break;
+                    }
+                }
                 if (platform != null && platform.dependencies() != null) {
                     for (Map<String, Object> library : platform.dependencies()) {
                         if (library.get("path") == null &&
