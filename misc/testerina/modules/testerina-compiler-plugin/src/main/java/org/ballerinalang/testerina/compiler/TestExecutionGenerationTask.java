@@ -81,6 +81,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         List<ModuleMemberDeclarationNode> functionsList = new ArrayList<>();
         List<StatementNode> statements = new ArrayList<>();
 
+        TesterinaCompilerPluginUtils.addExitCodeGlobalVariable(functionsList);
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
 
         // Initialize variables for test registrars
