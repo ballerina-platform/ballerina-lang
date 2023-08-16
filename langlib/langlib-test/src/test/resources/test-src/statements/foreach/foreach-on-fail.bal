@@ -482,9 +482,9 @@ function testNestedOnFailWithErrorBPWithErrorArgsHavingBP() {
 }
 
 function testMultiLevelOnFailWithErrorBP() {
-    string testMessage;
-    int testErrorCode;
-    string testErrorReason;
+    string? testMessage = ();
+    int? testErrorCode = ();
+    string? testErrorReason = ();
     string str = "";
     int[] level1dData = [2];
     int[] nestedData = [1];
@@ -514,9 +514,9 @@ function testMultiLevelOnFailWithoutErrorInOneLevel() {
     string str = "";
     int[] nestedData = [1];
     int[] level1dData = [2];
-    string testMessage;
-    int testErrorCode;
-    string testErrorReason;
+    string? testMessage = ();
+    int? testErrorCode = ();
+    string? testErrorReason = ();
 
     foreach var i in level1dData {
         foreach var j in nestedData {
