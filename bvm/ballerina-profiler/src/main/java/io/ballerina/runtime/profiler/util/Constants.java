@@ -20,6 +20,8 @@ public class Constants {
     public static final PrintStream ERROR_STREAM = System.err;
 
     public static final String CLASS_SUFFIX = ".class";
+    public   static final String PROFILER_OWNER = "io/ballerina/runtime/profiler/runtime/ProfileAnalyzer";
+    public   static final String PROFILER_DESCRIPTOR = "()L" + PROFILER_OWNER + ";";
 
     private Constants() {
     }

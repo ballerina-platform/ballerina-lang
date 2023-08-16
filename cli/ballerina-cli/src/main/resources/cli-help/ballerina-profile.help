@@ -6,8 +6,8 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compile the current package and run Ballerina profiler on it. This command generates an html file with name
-       `ProfilerOutput.html` in the target directory.
+       Compile the current package and run the program with ballerina profiler. This command generates an html file
+       with name `ProfilerOutput.html` in the target directory.
 
        The generated `ProfilerOutput.html` file contains the flame graph that visualizes the distributed Ballerina
        functions with execution details.

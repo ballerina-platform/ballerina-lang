@@ -55,7 +55,6 @@ public class Data {
         this.totalTime += elapsed;
     }
 
-
     private String getFormattedStats() {
 
         int time = (int) this.totalTime;
@@ -73,6 +72,7 @@ public class Data {
         return sb.toString();
     }
 
+    @Override
     public String toString() {
         return this.getFormattedStats();
     }

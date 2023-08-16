@@ -25,10 +25,7 @@ package io.ballerina.runtime.profiler.ui;
  */
 public class FrontEnd {
 
-    private FrontEnd() {
-    }
-
-    static String getSiteData(String contents) {
+    String getSiteData(String contents) {
         return "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "\n" +

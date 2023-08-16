@@ -22,6 +22,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
+import static io.ballerina.runtime.profiler.util.Constants.PROFILER_DESCRIPTOR;
+import static io.ballerina.runtime.profiler.util.Constants.PROFILER_OWNER;
+
 /**
  * This class is used as the advice adapter for the Ballerina profiler.
  * This class only manages the functions that doesn't contain the strand parameter.
@@ -30,8 +33,6 @@ import org.objectweb.asm.commons.AdviceAdapter;
  */
 public class NonStrandCheckAdapter extends AdviceAdapter {
 
-    private  static final String PROFILER_OWNER = "io/ballerina/runtime/profiler/runtime/Profiler";
-    private  static final String PROFILER_DESCRIPTOR = "()L" + PROFILER_OWNER + ";";
 
     /**
      * Constructor for MethodWrapperAdapter.

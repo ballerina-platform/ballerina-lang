@@ -18,6 +18,8 @@
 
 package io.ballerina.runtime.profiler.runtime;
 
+import io.ballerina.identifier.Utils;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -38,16 +40,16 @@ import java.util.stream.Collectors;
  *
  * @since 2201.8.0
  */
-public class Profiler {
+public class ProfileAnalyzer {
+
     private final HashMap<String, Data> profiles = new HashMap<>();
     private final ArrayList<Data> profilesStack = new ArrayList<>();
     private final ArrayList<String> blockedMethods = new ArrayList<>();
     private static final List<String> skippedList = new ArrayList<>();
     private static final Set<String> skippedClasses = new HashSet<>(skippedList);
+    private static final ProfileAnalyzer PROFILER_INSTANCE = new ProfileAnalyzer();
 
-    private static final String GENERATED_METHOD_PREFIX = "$gen$";
-
-    protected Profiler() {
+    protected ProfileAnalyzer() {
         shutDownHookProfiler();
         try {
             String content = Files.readString(Paths.get("usedPathsList.txt"));
@@ -59,20 +61,16 @@ public class Profiler {
         }
     }
 
-    private static class ProfilerHolder {
-        private static final Profiler INSTANCE = new Profiler();
+    public static ProfileAnalyzer getInstance() {
+        return PROFILER_INSTANCE;
     }
 
-    public static Profiler getInstance() {
-        return ProfilerHolder.INSTANCE;
-    }
-
-    public String getMethodName() {
+    private String getMethodName() {
         final List<StackWalker.StackFrame> stack = StackWalker.getInstance().walk(s -> s.collect(Collectors.toList()));
         return stack.get(2).getMethodName() + "()";
     }
 
-    public void removeDuplicates(List<String> list) {
+    private void removeDuplicates(List<String> list) {
         List<String> newList = new ArrayList<>();
         for (String element : list) {
             if (!newList.contains(element)) {
@@ -130,6 +128,7 @@ public class Profiler {
         }
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < this.profilesStack.size(); i++) {
@@ -139,7 +138,7 @@ public class Profiler {
         return sb.toString();
     }
 
-    public void printProfilerOutput(String dataStream) {
+    private void printProfilerOutput(String dataStream) {
         try (Writer myWriter = new FileWriter("CpuPre.json", StandardCharsets.UTF_8)) {
             myWriter.write(dataStream);
         } catch (IOException e) {
@@ -147,16 +146,16 @@ public class Profiler {
         }
     }
 
-    public static void shutDownHookProfiler() {
+    private void shutDownHookProfiler() {
         // add a shutdown hook to stop the profiler and parse the output when the program is closed
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Profiler profiler = Profiler.getInstance();
+            ProfileAnalyzer profiler = ProfileAnalyzer.getInstance();
             profiler.printProfilerOutput(profiler.toString());
         }));
     }
 
     // This method returns a string representation of the current call stack in the form of a list of strings
-    public String getStackTrace() {
+    private String getStackTrace() {
         ArrayList<String> result = new ArrayList<>();
 
         final List<StackWalker.StackFrame> stack = StackWalker.getInstance().walk(s -> s.collect(Collectors.toList()));
@@ -173,59 +172,12 @@ public class Profiler {
                 } else {
                     frameString = "\"" + frameString.replaceAll("\\(.*\\)", "") + "()" + "\"";
                     int lastDotIndex = frameString.lastIndexOf('.');
-                    frameString = frameString.substring(0, lastDotIndex)
-                            .replace('.', '/') + frameString.substring(lastDotIndex);
+                    frameString = frameString.substring(0, lastDotIndex).replace('.', '/') + frameString.substring(lastDotIndex);
                 }
-                result.add(decodeIdentifier(frameString));
+                result.add(Utils.decodeIdentifier(frameString));
             }
         }
 
         return result.toString();
-    }
-
-    // This method takes an encoded identifier string as input and returns the decoded version of it
-    public static String decodeIdentifier(String encodedIdentifier) {
-        if (encodedIdentifier == null) {
-            return null;
-        }
-        StringBuilder stringBuilder = new StringBuilder();
-        int index = 0;
-        while (index < encodedIdentifier.length()) {
-            if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
-                if (isUnicodePoint(encodedIdentifier, index)) {
-                    stringBuilder.append((char) Integer.parseInt(encodedIdentifier.substring(index + 1, index + 5)));
-                    index += 5;
-                } else {
-                    stringBuilder.append(encodedIdentifier.charAt(index));
-                    index++;
-                }
-            } else {
-                stringBuilder.append(encodedIdentifier.charAt(index));
-                index++;
-            }
-        }
-        return decodeGeneratedMethodName(stringBuilder.toString());
-    }
-
-    // This method checks if the substring of the encoded identifier starting
-    // from the given index represents a Unicode code point
-    private static boolean isUnicodePoint(String encodedName, int index) {
-        return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
-    }
-
-    // This method takes a decoded method name as input and removes any generated method prefixes from it
-    private static String decodeGeneratedMethodName(String decodedName) {
-        return decodedName.startsWith(GENERATED_METHOD_PREFIX) ?
-                decodedName.substring(GENERATED_METHOD_PREFIX.length()) : decodedName;
-    }
-
-    // This method checks if the given string contains only digits
-    private static boolean containsOnlyDigits(String digitString) {
-        for (int i = 0; i < digitString.length(); i++) {
-            if (!Character.isDigit(digitString.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
     }
 }

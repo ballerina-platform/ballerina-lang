@@ -26,7 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static io.ballerina.runtime.profiler.ui.FrontEnd.getSiteData;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
 /**
@@ -36,14 +35,12 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
  */
 public class HttpServer {
 
-    private HttpServer() {
-    }
-
-    public static void initializeHTMLExport() throws IOException {
+    public void initializeHTMLExport() throws IOException {
         OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW
                 + "target/bin/ProfilerOutput.html" + Constants.ANSI_RESET + "%n");
         String content = readData();
-        String htmlData = getSiteData(content);
+        FrontEnd frontEnd = new FrontEnd();
+        String htmlData = frontEnd.getSiteData(content);
         String fileName = "ProfilerOutput.html";
         try (FileWriter writer = new FileWriter(fileName, StandardCharsets.UTF_8)) {
             writer.write(htmlData);
@@ -52,7 +49,7 @@ public class HttpServer {
         }
     }
 
-    private static String readData() throws IOException {
+    private String readData() throws IOException {
         try (BufferedReader reader = new BufferedReader(
                 new FileReader("performance_report.json", StandardCharsets.UTF_8))) {
             StringBuilder contents = new StringBuilder();

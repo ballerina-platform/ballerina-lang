@@ -23,12 +23,13 @@ dependencies {
     implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "commons-io:commons-io:${project.commonsIoVersion}"
+    implementation project(':identifier-util')
 }
 
 version = 1.0
 
 jar {
-
+    dependsOn(':identifier-util:jar')
     from(sourceSets.main.output)
     from(sourceSets.main.java) {
         include "**/*.java"
