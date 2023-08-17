@@ -838,10 +838,8 @@ public class Types {
         HybridType htSource = SemTypeResolver.getHybridType(source);
         HybridType htTarget = SemTypeResolver.getHybridType(target);
 
-        boolean x = SemTypes.isSubtype(semTypeCtx, htSource.getSemTypeComponent(), htTarget.getSemTypeComponent()) &&
+        return SemTypes.isSubtype(semTypeCtx, htSource.getSemTypeComponent(), htTarget.getSemTypeComponent()) &&
                 isAssignable(htSource.getBTypeComponent(), htTarget.getBTypeComponent(), new HashSet<>());
-        boolean y = isAssignable(source, target, new HashSet<>());
-        return x;
     }
 
     public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {
@@ -3708,7 +3706,8 @@ public class Types {
                     }
                 }
                 // readonly can match to a union similar to any|error
-                if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, targetUnion)) {
+                if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, targetUnion,
+                        unresolvedTypes)) {
                     sourceIterator.remove();
                     continue;
                 }

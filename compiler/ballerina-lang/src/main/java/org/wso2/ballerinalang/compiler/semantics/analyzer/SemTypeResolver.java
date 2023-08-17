@@ -873,17 +873,25 @@ public class SemTypeResolver {
 
     private static boolean semTypeSupported(TypeKind kind) {
         return switch (kind) {
-            case NIL -> true;
+            case NIL, BOOLEAN, INT, BYTE, FLOAT, DECIMAL, STRING -> true;
             default -> false;
         };
     }
 
     private static boolean semTypeSupported(int tag) {
         return switch (tag) {
-            case TypeTags.NIL -> true;
+            case TypeTags.NIL, TypeTags.BOOLEAN, TypeTags.INT, TypeTags.BYTE,
+                    TypeTags.SIGNED32_INT, TypeTags.SIGNED16_INT, TypeTags.SIGNED8_INT,
+                    TypeTags.UNSIGNED32_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED8_INT ,
+                    TypeTags.FLOAT, TypeTags.DECIMAL,
+                    TypeTags.STRING, TypeTags.CHAR_STRING-> true;
             default -> false;
         };
     }
 
-    public static final SemType READONLY_SEM_COMPONENT = PredefinedType.NIL;
+    public static final SemType READONLY_SEM_COMPONENT = SemTypes.union(PredefinedType.NIL,
+                                            SemTypes.union(PredefinedType.BOOLEAN,
+                                            SemTypes.union(PredefinedType.INT,
+                                            SemTypes.union(PredefinedType.FLOAT,
+                                            SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
 }
