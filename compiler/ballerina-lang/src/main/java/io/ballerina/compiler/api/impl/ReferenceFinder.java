@@ -1438,29 +1438,33 @@ public class ReferenceFinder extends BaseVisitor {
     // Private methods
 
     private void findRefsInResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation invocation) {
-        if (this.targetSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
-            BResourceFunction targetResourceMethod =
-                    ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
-            BResourceFunction associatedResourceMethod = invocation.targetResourceFunc;
+        if (this.targetSymbol.getKind() != SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+            return;
+        }
 
-            if (!targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
-                    || !targetResourceMethod.symbol.pos.equals(associatedResourceMethod.symbol.pos)
-                    || !targetResourceMethod.symbol.pkgID.equals(associatedResourceMethod.symbol.pkgID)) {
-                return;
+        BResourceFunction targetResourceMethod = ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
+        BResourceFunction associatedResourceMethod = invocation.targetResourceFunc;
+
+        if (!targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
+                || !targetResourceMethod.symbol.pos.equals(associatedResourceMethod.symbol.pos)
+                || !targetResourceMethod.symbol.pkgID.equals(associatedResourceMethod.symbol.pkgID)) {
+            return;
+        }
+
+        List<BLangExpression> pathSegmentExprs = invocation.resourceAccessPathSegments.getExpressions();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceMethod.pathSegmentSymbols;
+
+        for (int i = 0; i < pathSegmentExprs.size(); i++) {
+            BResourcePathSegmentSymbol pathSymbol = pathSegmentSymbols.get(i);
+            BLangExpression expr = pathSegmentExprs.get(i);
+
+            if (!pathSymbol.equals(this.targetSymbol) || expr.getKind() != NodeKind.LITERAL) {
+                continue;
             }
-
-            List<BLangExpression> pathSegmentExprs = invocation.resourceAccessPathSegments.getExpressions();
-            List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceMethod.pathSegmentSymbols;
-
-            for (int i = 0; i < pathSegmentExprs.size(); i++) {
-                BResourcePathSegmentSymbol pathSymbol = pathSegmentSymbols.get(i);
-                BLangExpression expr = pathSegmentExprs.get(i);
-                if (pathSymbol.equals(this.targetSymbol) && expr.getKind() == NodeKind.LITERAL) {
-                    BLangLiteral literal = (BLangLiteral) expr;
-                    if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
-                        return;
-                    }
-                }
+            
+            BLangLiteral literal = (BLangLiteral) expr;
+            if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
+                return;
             }
         }
     }
