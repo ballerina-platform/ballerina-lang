@@ -88,7 +88,6 @@ import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CAC
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 
 /**
  * This class contains utility functions needed for Bal Tool tasks in the Main class.
@@ -172,26 +171,27 @@ public class BalToolsUtil {
             return balToolsManifest.tools().values().stream()
                     .flatMap(map -> map.values().stream())
                     .filter(BalToolsManifest.Tool::active)
-                    .map(tool1 -> findJarFiles(centralBalaDirPath.resolve(
-                            Path.of(tool1.org(), tool1.name(), tool1.version(), ANY_PLATFORM, TOOL, LIBS))
+                    .map(tool1 -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
+                            tool1.org(), tool1.name(), tool1.version(), centralBalaDirPath).resolve(TOOL).resolve(LIBS)
                             .toFile()))
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
         }
 
-        Optional<BalToolsManifest.Tool> tool = balToolsManifest.getActiveTool(commandName);
-        if (tool.isPresent()) {
-            if (!isToolDistCompatibilityWithCurrentDist(tool.get())) {
-                String errMsg = "tool '" + tool.get().id() + ":" + tool.get().version() +
+        Optional<BalToolsManifest.Tool> toolOpt = balToolsManifest.getActiveTool(commandName);
+        if (toolOpt.isPresent()) {
+            BalToolsManifest.Tool tool = toolOpt.get();
+            if (!isToolDistCompatibilityWithCurrentDist(tool)) {
+                String errMsg = "tool '" + tool.id() + ":" + tool.version() +
                         "' is not compatible with the current Ballerina distribution '" +
                         RepoUtils.getBallerinaShortVersion() +
                         "'. Use 'bal tool search' to select a version compatible with the " +
                         "current Ballerina distribution.";
                 throw LauncherUtils.createLauncherException(errMsg);
             }
-            File libsDir = centralBalaDirPath.resolve(
-                            Path.of(tool.get().org(), tool.get().name(), tool.get().version(),
-                                    ANY_PLATFORM, TOOL, LIBS)).toFile();
+            Path platformPath = CommandUtil.getPlatformSpecificBalaPath(
+                    tool.org(), tool.name(), tool.version(), centralBalaDirPath);
+            File libsDir = platformPath.resolve(Path.of(TOOL, LIBS)).toFile();
             return findJarFiles(libsDir);
         }
         throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + commandName + "'");
@@ -204,11 +204,10 @@ public class BalToolsUtil {
     }
 
     private static SemanticVersion getToolDistVersionFromCentralCache(BalToolsManifest.Tool tool) {
-        Path balaPath = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME)
-                .resolve(tool.org()).resolve(tool.name()).resolve(tool.version())
-                .resolve(ANY_PLATFORM);
+        Path centralBalaDirPath = ProjectUtils.createAndGetHomeReposPath().resolve(
+                Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, ProjectConstants.BALA_DIR_NAME));
+        Path balaPath =  CommandUtil.getPlatformSpecificBalaPath(
+                tool.org(), tool.name(), tool.version(), centralBalaDirPath);
         PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
         return SemanticVersion.from(packageJson.getBallerinaVersion());
     }

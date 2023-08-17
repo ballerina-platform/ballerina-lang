@@ -599,16 +599,16 @@ public class CommandUtil {
         Files.writeString(depsTomlPath, pkgDesc.toString(), StandardOpenOption.APPEND);
     }
 
-    private static Path getPlatformSpecificBalaPath(String orgName, String templatePkgName, String version,
+    public static Path getPlatformSpecificBalaPath(String orgName, String pkgName, String version,
                                                     Path balaCache) {
         Path balaPath = balaCache.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
+                ProjectUtils.getRelativeBalaPath(orgName, pkgName, version, null));
         //First we will check for a bala that match any platform
         platform = ANY_PLATFORM;
         if (!Files.exists(balaPath)) {
             for (JvmTarget supportedPlatform : JvmTarget.values()) {
                 balaPath = balaCache.resolve(
-                        ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, supportedPlatform.code()));
+                        ProjectUtils.getRelativeBalaPath(orgName, pkgName, version, supportedPlatform.code()));
                 if (Files.exists(balaPath)) {
                     platform = supportedPlatform.code();
                     break;
