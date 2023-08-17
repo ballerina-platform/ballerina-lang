@@ -248,7 +248,7 @@ public class StringUtils {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final Type type = TypeUtils.getReferredType(TypeChecker.getType(argsValues));
+        final Type type = TypeUtils.getImpliedType(TypeChecker.getType(argsValues));
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

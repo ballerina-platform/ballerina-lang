@@ -126,7 +126,7 @@ public class MethodGenUtils {
     }
 
     private static boolean isValidType(BType attachedType) {
-        BType referredAttachedType = JvmCodeGenUtil.getReferredType(attachedType);
+        BType referredAttachedType = JvmCodeGenUtil.getImpliedType(attachedType);
         return attachedType != null && (referredAttachedType.tag == TypeTags.OBJECT
                 || referredAttachedType.tag == TypeTags.RECORD);
     }

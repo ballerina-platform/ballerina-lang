@@ -189,6 +189,11 @@ public class QueryTypeChecker extends TypeChecker {
             }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
+            List<BType> collectionTypes = getCollectionTypes(clauses);
+            BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.DEFAULT, data);
+            if (completionType != null) {
+                queryType = BUnionType.create(null, queryType, completionType);
+            }
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -198,7 +203,7 @@ public class QueryTypeChecker extends TypeChecker {
             data.prevEnvs.pop();
         }
 
-        BType referredActualType = Types.getReferredType(actualType);
+        BType referredActualType = Types.getImpliedType(actualType);
         if (referredActualType.tag == TypeTags.TABLE) {
             BTableType tableType = (BTableType) referredActualType;
             tableType.constraintPos = queryExpr.pos;
@@ -326,7 +331,7 @@ public class QueryTypeChecker extends TypeChecker {
                                        BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
                                        SymbolEnv env, TypeChecker.AnalyzerData data, boolean isReadonly) {
         BType selectType, resolvedType;
-        BType type = Types.getReferredType(expType);
+        BType type = Types.getImpliedType(expType);
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
@@ -449,7 +454,7 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private BType getTypeOfTypeParameter(BType selectType, Location pos) {
-        BType referredType = Types.getReferredType(selectType);
+        BType referredType = Types.getImpliedType(selectType);
         if (referredType.tag == TypeTags.INTERSECTION) {
             referredType = ((BIntersectionType) referredType).effectiveType;
         }
@@ -495,16 +500,14 @@ public class QueryTypeChecker extends TypeChecker {
             if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
                 return null;
             }
-            collectionType = Types.getReferredType(collectionType);
+            collectionType = Types.getImpliedType(collectionType);
             switch (collectionType.tag) {
-                case TypeTags.STREAM:
+                case TypeTags.STREAM -> {
                     completionType = ((BStreamType) collectionType).completionType;
                     returnType = completionType;
-                    break;
-                case TypeTags.OBJECT:
-                    returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-                    break;
-                default:
+                }
+                case TypeTags.OBJECT -> returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                default -> {
                     BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
                             Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), data.env);
                     if (itrSymbol == this.symTable.notFoundSymbol) {
@@ -512,7 +515,8 @@ public class QueryTypeChecker extends TypeChecker {
                     }
                     BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
                     returnType = types.getResultTypeOfNextInvocation(
-                            (BObjectType) Types.getReferredType(invokableSymbol.retType));
+                            (BObjectType) Types.getImpliedType(invokableSymbol.retType));
+                }
             }
             if (returnType != null) {
                 if (queryConstructType == Types.QueryConstructType.STREAM ||
@@ -572,7 +576,7 @@ public class QueryTypeChecker extends TypeChecker {
 
     private BType getNonContextualQueryType(BType staticType, BType basicType) {
         BType resultType;
-        switch (Types.getReferredType(basicType).tag) {
+        switch (Types.getImpliedType(basicType).tag) {
             case TypeTags.TABLE:
                 resultType = symTable.tableType;
                 break;
@@ -593,7 +597,7 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private boolean validateTableType(BTableType tableType, TypeChecker.AnalyzerData data) {
-        BType constraint = Types.getReferredType(tableType.constraint);
+        BType constraint = Types.getImpliedType(tableType.constraint);
         if (tableType.isTypeInlineDefined && !types.isAssignable(constraint, symTable.mapAllType)) {
             dlog.error(tableType.constraintPos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
             data.resultType = symTable.semanticError;
@@ -945,7 +949,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             }
         }
-        BInvokableType bInvokableType = (BInvokableType) Types.getReferredType(functionSymbol.type);
+        BInvokableType bInvokableType = (BInvokableType) Types.getImpliedType(functionSymbol.type);
         BType retType = typeParamAnalyzer.getReturnTypeParams(data.env, bInvokableType.getReturnType());
         data.resultType = types.checkType(iExpr, retType, data.expType);
     }
@@ -1054,7 +1058,7 @@ public class QueryTypeChecker extends TypeChecker {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
                 varRefExpr.symbol = constSymbol;
                 BType symbolType = symbol.type;
-                BType expectedType = Types.getReferredType(data.expType);
+                BType expectedType = Types.getImpliedType(data.expType);
                 if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
                         (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType, true).stream()
                                 .anyMatch(memType -> memType.tag == TypeTags.FINITE &&

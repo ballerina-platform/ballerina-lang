@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -80,7 +81,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
         // -- Bala Root
         //   - libs
         //     - platform
-        //       - java11
+        //       - java17
         //         - java-library1.jar
         //         - java-library2.jar
         JsonArray newPlatformLibs = new JsonArray();
@@ -211,7 +212,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
     }
 
     /**
-     * Mark target platform as `java11` if one of the following condition fulfils.
+     * Mark target platform as `java17` if one of the following condition fulfils.
      * 1) Direct dependencies of imports in the package have any `ballerina/java` dependency.
      * 2) Package has defined any platform dependency.
      *
@@ -227,15 +228,18 @@ public class JBallerinaBalaWriter extends BalaWriter {
         // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
             if (dependency.packageInstance().packageOrg().value().equals(Names.BALLERINA_ORG.value) &&
-                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value)) {
+                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value) &&
+                    !dependency.scope().equals(PackageDependencyScope.TEST_ONLY)) {
                 return this.backend.targetPlatform();
             }
         }
 
         // 2) Check package has defined any platform dependency
         PackageManifest manifest = this.packageContext.project().currentPackage().manifest();
-        if (manifest.platform(this.backend.targetPlatform().code()) != null &&
-                !manifest.platform(this.backend.targetPlatform().code()).dependencies().isEmpty()) {
+        PackageManifest.Platform manifestPlatform = manifest.platform(this.backend.targetPlatform().code());
+        if (manifestPlatform != null &&
+                !manifestPlatform.dependencies().isEmpty() &&
+        !isPlatformDependenciesTestOnly(manifestPlatform.dependencies())) {
             return this.backend.targetPlatform();
         }
 
@@ -262,5 +266,14 @@ public class JBallerinaBalaWriter extends BalaWriter {
             return Optional.of(BalToolDescriptor.from(tomlDocument, sourceRoot));
         }
         return Optional.empty();
+    }
+
+    private boolean isPlatformDependenciesTestOnly(List<Map<String, Object>> dependencies) {
+        for (Map<String, Object> dependency : dependencies) {
+            if (null == dependency.get("scope") || dependency.get("scope").equals("default")) {
+                return false;
+            }
+        }
+        return true;
     }
 }

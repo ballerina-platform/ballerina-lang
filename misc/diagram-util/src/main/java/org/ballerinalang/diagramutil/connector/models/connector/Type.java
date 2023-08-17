@@ -383,9 +383,15 @@ public class Type {
         if (visitedType.isCompleted()) {
             Type existingType = visitedType.getTypeNode();
             if (getClone) {
+                if (existingType instanceof UnionType) {
+                    return new UnionType((UnionType) existingType);
+                }
                 return new Type(existingType.getName(), existingType.getTypeName(), existingType.isOptional(),
                         existingType.getTypeInfo(), existingType.isDefaultable(), existingType.getDefaultValue(),
                         existingType.getDisplayAnnotation(), existingType.getDocumentation());
+            }
+            if (existingType instanceof RecordType) {
+                return new RecordType((RecordType) existingType);
             }
             return existingType;
         } else {
