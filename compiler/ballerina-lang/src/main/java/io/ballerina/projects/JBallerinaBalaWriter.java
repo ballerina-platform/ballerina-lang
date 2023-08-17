@@ -248,12 +248,9 @@ public class JBallerinaBalaWriter extends BalaWriter {
     }
 
     private boolean hasPlatformDependencies(Map<String, PackageManifest.Platform> platforms) {
-        boolean platformsNotEmpty = !platforms.isEmpty();
-        boolean hasDependencies = true;
         for (PackageManifest.Platform value: platforms.values()) {
-            if (!value.dependencies().isEmpty()) {
-                boolean isTestOnly = isPlatformDependenciesTestOnly(value.dependencies());
-                return platformsNotEmpty && hasDependencies && !isTestOnly;
+            if (!value.dependencies().isEmpty() && !isPlatformDependenciesTestOnly(value.dependencies())) {
+                return true;
             }
         }
         return false;
