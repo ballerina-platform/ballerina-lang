@@ -121,12 +121,12 @@ public class ObjectInitializerTest {
     public void testCustomErrorReturn() {
         BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 
-        Assert.assertEquals(TypeUtils.getReferredType(getType(returns.get(0))).getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(TypeUtils.getImpliedType(getType(returns.get(0))).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(getType(returns.get(0)).getName(), "Err");
         Assert.assertEquals(((BError) returns.get(0)).getMessage(), "Failed to create object");
         Assert.assertEquals(((BError) returns.get(0)).getDetails().toString(), "{\"id\":100}");
 
-        Assert.assertEquals(TypeUtils.getReferredType(getType(returns.get(1))).getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(TypeUtils.getImpliedType(getType(returns.get(1))).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(getType(returns.get(1)).getName(), "Err");
         Assert.assertEquals(((BError) returns.get(1)).getMessage(), "Failed to create object");
         Assert.assertEquals(((BError) returns.get(1)).getDetails().toString(), "{\"id\":100}");
@@ -142,11 +142,11 @@ public class ObjectInitializerTest {
     public void testMultipleErrorReturn() {
         BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMultipleErrorReturn");
 
-        Assert.assertEquals(TypeUtils.getReferredType(getType(returns.get(0))).getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(TypeUtils.getImpliedType(getType(returns.get(0))).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(((BError) returns.get(0)).getMessage(), "Foo Error");
         Assert.assertEquals(((BError) returns.get(0)).getDetails().toString(), "{\"f\":\"foo\"}");
 
-        Assert.assertEquals(TypeUtils.getReferredType(getType(returns.get(1))).getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(TypeUtils.getImpliedType(getType(returns.get(1))).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(((BError) returns.get(1)).getMessage(), "Bar Error");
         Assert.assertEquals(((BError) returns.get(1)).getDetails().toString(), "{\"b\":\"bar\"}");
     }
@@ -164,11 +164,11 @@ public class ObjectInitializerTest {
     @Test(description = "Test checkpanic expression in object init expr's argument")
     public void testCheckPanicObjectInit() {
         Object returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new Object[]{(true)});
-        Assert.assertEquals(TypeUtils.getReferredType(getType(returns)).getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(TypeUtils.getImpliedType(getType(returns)).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(returns.toString(), "error FooErr (\"Foo Error\",f=\"foo\")");
 
         returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new Object[]{(false)});
-        Assert.assertEquals(TypeUtils.getReferredType(getType(returns)).getTag(), TypeTags.ERROR_TAG);
+        Assert.assertEquals(TypeUtils.getImpliedType(getType(returns)).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(returns.toString(), "error BarErr (\"Bar Error\",b=\"bar\")");
     }
 

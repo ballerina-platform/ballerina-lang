@@ -18,11 +18,21 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.SettingsBuilder;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Pull command tests.
@@ -135,4 +145,64 @@ public class PullCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(readOutput().contains("ballerina-pull - Fetch packages from Ballerina Central"));
     }
+
+    @Test(description = "Pull a package from custom remote repository")
+    public void testPullCustom() throws  SettingsTomlException {
+
+        Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "repositories", "repo-push-pull");
+        Path settingsTomlPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "Settings.toml");
+        Path mockBallerinaHome = Paths.get("build").resolve("ballerina-home");
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parse("luheerathan/pact1:0.1.0", "--repository=repo-push-pull");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    customrRepoPath.toAbsolutePath().toString()));
+            pullCommand.execute();
+        }
+         Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("repo-push-pull")
+                .resolve("bala").resolve("luheerathan").resolve("pact1").resolve("0.1.0");
+        Assert.assertTrue(Files.exists(pulledCacheDir.resolve("any")));
+    }
+
+    @Test(description = "Pull a package from custom remote repository(not exist in Settings.toml)")
+    public void testPullNonExistingCustom() throws SettingsTomlException, IOException {
+
+        Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "repositories", "repo-push-pull");
+        Path settingsTomlPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "Settings.toml");
+        Path mockBallerinaHome = Paths.get("build").resolve("ballerina-home");
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parse("luheerathan/pact1:0.1.0", "--repository=repo-push-pul");
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
+                    customrRepoPath.toAbsolutePath().toString()));
+            pullCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains("ballerina: unsupported repository 'repo-push-pul' found. " +
+                "Only repositories mentioned in the Settings.toml are supported.\n"));
+    }
+
+    private static Settings readMockSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+        try {
+            String settingString = Files.readString(settingsFilePath);
+            settingString = settingString.replaceAll("REPO_PATH", repoPath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), settingString);
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
+        } catch (IOException e) {
+            return Settings.from();
+        }
+    }
+
+
 }

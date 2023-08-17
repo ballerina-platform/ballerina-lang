@@ -19,6 +19,7 @@ import values.objects;
 import values.maps;
 import values.arrays;
 import values.enums;
+import values.errors;
 import ballerina/lang.test as test;
 
 public function main() {
@@ -67,4 +68,5 @@ public function main() {
     records:validateAPI();
     enums:validateAPI();
     arrays:validateAPI();
+    errors:validateAPI();
 }
