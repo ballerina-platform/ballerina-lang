@@ -90,6 +90,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getImpliedType;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -503,12 +504,14 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isInlineSingletonType(BSymbol symbol) {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
-        return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
-                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+        BType type = org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getImpliedType(symbol.type);
+        return !(symbol.kind == SymbolKind.TYPE_DEF) && type.tag == TypeTags.FINITE &&
+                ((BFiniteType) type).getValueSpace().size() == 1;
     }
 
     private boolean isInlineErrorType(BSymbol symbol) {
-        return symbol.type.tag == TypeTags.ERROR && Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
+        return getImpliedType(symbol.type).tag == TypeTags.ERROR &&
+                Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {

@@ -29,7 +29,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -270,11 +269,11 @@ public class BIRPackageSymbolEnter {
 
     private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            BType referredStructureTypeSymbol = Types.getReferredType(structureTypeSymbol.type);
+            BType referredStructureTypeSymbol = Types.getImpliedType(structureTypeSymbol.type);
             if (referredStructureTypeSymbol.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) referredStructureTypeSymbol;
                 for (BType ref : objectType.typeInclusions) {
-                    BType typeRef = Types.getReferredType(ref);
+                    BType typeRef = Types.getImpliedType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -415,7 +414,7 @@ public class BIRPackageSymbolEnter {
         boolean isResourceFunction = dataInStream.readBoolean();
 
         if (this.currentStructure != null) {
-            BType attachedType = Types.getReferredType(this.currentStructure.type);
+            BType attachedType = Types.getImpliedType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -821,7 +820,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.INTERSECTION:
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
-                return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
+                return readConstLiteralValue(Types.getImpliedType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
@@ -880,13 +879,13 @@ public class BIRPackageSymbolEnter {
 
         // Create variable symbol
         BType varType = readBType(dataInStream);
+        BType referredVarType = Types.getImpliedType(varType);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
-        if (varType.tag == TypeTags.INVOKABLE) {
-            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) varType.tsymbol;
+        if (referredVarType.tag == TypeTags.INVOKABLE) {
+            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) referredVarType.tsymbol;
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
-                                             this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
-                                             toOrigin(origin));
+                    this.env.pkgSymbol.pkgID, referredVarType, enclScope.owner, symTable.builtinPos, toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
             if (bInvokableTypeSymbol != null) {
@@ -999,6 +998,7 @@ public class BIRPackageSymbolEnter {
             return;
         }
 
+        type = Types.getImpliedType(type);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
                 BParameterizedType varType = (BParameterizedType) type;
@@ -1511,7 +1511,7 @@ public class BIRPackageSymbolEnter {
                         constituentTypes.add(readTypeFromCp());
                     }
 
-                    IntersectableReferenceType effectiveType = (IntersectableReferenceType) readTypeFromCp();
+                    BType effectiveType = readTypeFromCp();
                     return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType, flags);
                 case TypeTags.PACKAGE:
                     // TODO fix

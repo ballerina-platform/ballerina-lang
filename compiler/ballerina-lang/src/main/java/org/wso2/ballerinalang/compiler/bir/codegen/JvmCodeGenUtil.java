@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -214,6 +215,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String getFieldTypeSignature(BType bType) {
+        bType = getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -235,7 +237,6 @@ public class JvmCodeGenUtil {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                 case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
                 case TypeTags.JSON:
                 case TypeTags.FINITE:
                 case TypeTags.READONLY:
@@ -264,8 +265,6 @@ public class JvmCodeGenUtil {
                     return GET_HANDLE_VALUE;
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
-                case TypeTags.TYPEREFDESC:
-                    return getFieldTypeSignature(getReferredType(bType));
                 case TypeTags.REGEXP:
                     return GET_REGEXP;
                 default:
@@ -397,6 +396,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String getArgTypeSignature(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -418,7 +418,6 @@ public class JvmCodeGenUtil {
             case TypeTags.NEVER:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.ANY:
@@ -446,17 +445,15 @@ public class JvmCodeGenUtil {
                 return GET_BOBJECT;
             case TypeTags.HANDLE:
                 return GET_HANDLE_VALUE;
-            case TypeTags.TYPEREFDESC:
-                return getArgTypeSignature(getReferredType(bType));
             case TypeTags.REGEXP:
                 return GET_REGEXP;
             default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         bType);
+                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
     }
 
     public static String generateReturnType(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType == null) {
             return RETURN_JOBJECT;
         }
@@ -511,8 +508,6 @@ public class JvmCodeGenUtil {
                 return RETURN_FUNCTION_POINTER;
             case TypeTags.HANDLE:
                 return RETURN_HANDLE_VALUE;
-            case TypeTags.TYPEREFDESC:
-                return generateReturnType(getReferredType(bType));
             case TypeTags.REGEXP:
                 return RETURN_REGEX_VALUE;
             default:
@@ -521,12 +516,17 @@ public class JvmCodeGenUtil {
     }
 
     static String cleanupObjectTypeName(String typeName) {
-        int index = typeName.indexOf(".");
-        if (index > 0 && index != typeName.length() - 1) { // Resource method name can contain . at the end
+        int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
+        int typeNameLength = typeName.length();
+        if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
             return typeName.substring(index + 1);
-        } else {
-            return typeName;
+        } else if (index > 0) {
+            // We will reach here for resource methods eg: (MyClient8.$get$.)
+            index = typeName.substring(0, typeNameLength - 1).lastIndexOf("."); // Index of the . before the last .
+            return typeName.substring(index + 1);
         }
+        
+        return typeName;
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
@@ -714,6 +714,7 @@ public class JvmCodeGenUtil {
     }
 
     public static boolean isSimpleBasicType(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
@@ -722,8 +723,6 @@ public class JvmCodeGenUtil {
             case TypeTags.NIL:
             case TypeTags.NEVER:
                 return true;
-            case TypeTags.TYPEREFDESC:
-                return isSimpleBasicType(getReferredType(bType));
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
         }
@@ -742,18 +741,35 @@ public class JvmCodeGenUtil {
         }
     }
 
-    public static BType getReferredType(BType type) {
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    public static BType getImpliedType(BType type) {
         BType constraint = type;
-        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+        if (type == null) {
+            return null;
         }
+
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return getImpliedType(((BTypeReferenceType) type).referredType);
+        }
+
+        if (type.tag == TypeTags.INTERSECTION) {
+            return getImpliedType(((BIntersectionType) type).effectiveType);
+        }
+
         return constraint;
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmConstantsGen jvmConstantsGen) {
 
-        int typeTag = getReferredType(bType).tag;
+        int typeTag = getImpliedType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);

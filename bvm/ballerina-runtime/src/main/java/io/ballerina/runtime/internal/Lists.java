@@ -36,7 +36,7 @@ public class Lists {
             return array.getRefValue(index);
         }
 
-        switch (TypeUtils.getReferredType(((BArrayType) array.getType()).getElementType()).getTag()) {
+        switch (TypeUtils.getImpliedType(((BArrayType) array.getType()).getElementType()).getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 return Boolean.valueOf(array.getBoolean(index));
             case TypeTags.BYTE_TAG:

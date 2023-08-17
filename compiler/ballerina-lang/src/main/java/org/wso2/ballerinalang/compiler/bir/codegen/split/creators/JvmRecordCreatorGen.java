@@ -152,7 +152,7 @@ public class JvmRecordCreatorGen {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
 
-            BTypeSymbol referredTypeSymbol = JvmCodeGenUtil.getReferredType(optionalTypeDef.type).tsymbol;
+            BTypeSymbol referredTypeSymbol = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type).tsymbol;
             String className = getTypeValueClassName(referredTypeSymbol.pkgID, referredTypeSymbol.name.getValue());
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);

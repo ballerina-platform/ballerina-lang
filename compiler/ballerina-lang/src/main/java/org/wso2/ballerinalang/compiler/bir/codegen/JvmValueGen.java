@@ -153,7 +153,7 @@ public class JvmValueGen {
                                                        JvmPackageGen jvmPackageGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
@@ -288,7 +288,6 @@ public class JvmValueGen {
         // Invoke the init-function of this type.
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(SWAP);
-
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, TYPEDESC_VALUE_IMPL, TYPEDESC_VALUE_IMPL_CLOSURES,
                           GET_MAP_ARRAY);
@@ -437,7 +436,6 @@ public class JvmValueGen {
                 mv.visitLineNumber(typedef.pos.lineRange().endLine().line() + 1, label);
             }
         }
-
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, RECORD_INIT_WRAPPER_NAME, className);
         mv.visitEnd();

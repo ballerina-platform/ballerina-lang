@@ -114,23 +114,23 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
                 "'(ballerina/lang.object:0:RawTemplate & readonly)'", 176, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
-                "'((any|error) & readonly)[] & readonly'", 177, 5);
+                "'((any|error)[] & readonly)'", 177, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type '(Template1 & readonly)'", 179, 5);
-        validateError(errors, indx++, "cannot update 'readonly' value of type 'int[] & readonly'", 180, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type '(int[] & readonly)'", 180, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
                 "'(ballerina/lang.object:0:RawTemplate & readonly)'", 182, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
-                "'((any|error) & readonly)[] & readonly'", 183, 5);
+                "'((any|error)[] & readonly)'", 183, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
                 "'(ballerina/lang.object:0:RawTemplate & readonly)'", 186, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
-                "'((any|error) & readonly)[] & readonly'", 187, 5);
+                "'((any|error)[] & readonly)'", 187, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type '(Template1 & readonly)'", 190, 5);
-        validateError(errors, indx++, "cannot update 'readonly' value of type 'int[] & readonly'", 191, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type '(int[] & readonly)'", 191, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
                 "'(ballerina/lang.object:0:RawTemplate & readonly)'", 194, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
-                "'((any|error) & readonly)[] & readonly'", 195, 5);
+                "'((any|error)[] & readonly)'", 195, 5);
 
         assertEquals(errors.getErrorCount(), indx);
     }

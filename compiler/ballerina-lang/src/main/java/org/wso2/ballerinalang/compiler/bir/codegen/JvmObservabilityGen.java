@@ -177,7 +177,7 @@ class JvmObservabilityGen {
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(typeDef.type);
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && bType.tag == TypeTags.OBJECT) {
                 continue;
             }

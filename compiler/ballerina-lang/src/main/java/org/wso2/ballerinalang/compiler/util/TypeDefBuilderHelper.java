@@ -254,7 +254,7 @@ public class TypeDefBuilderHelper {
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        BType detailType = Types.getReferredType(type.detailType);
+        BType detailType = Types.getImpliedType(type.detailType);
 
         if (detailType.tag == TypeTags.MAP) {
             BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
@@ -317,7 +317,7 @@ public class TypeDefBuilderHelper {
             Name origFieldName = origField.symbol.originalName;
             Name fieldName = origField.name;
             BVarSymbol fieldSymbol;
-            BType referredType = Types.getReferredType(fieldType);
+            BType referredType = Types.getImpliedType(fieldType);
             if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
                 fieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
                         fieldName, origFieldName, pkgID, fieldType,

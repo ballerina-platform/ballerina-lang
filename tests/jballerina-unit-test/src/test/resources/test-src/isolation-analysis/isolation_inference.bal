@@ -650,6 +650,129 @@ isolated function isMethodIsolated(object {}|typedesc val, string methodName) re
                                             paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString"]
                                         } external;
 
+class IsolatedClassWithValidAccessInInitMethodAfterInitialization {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = [];
+
+        lock {
+            self.arr[0] = node.cloneReadOnly();
+            self.arr.push(node.clone());
+        }
+    }
+}
+
+class IsolatedClassWithOnlyInitializationInInitMethod {
+    private int[][] arr;
+
+    function init(int[][] node) {
+        self.arr = node.clone();
+    }
+}
+
+class NonIsolatedClassWithValidAccessInInitMethodAfterInitialization1 {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = [];
+
+        lock {
+            self.arr[0] = node;
+        }
+    }
+}
+
+class NonIsolatedClassWithValidAccessInInitMethodAfterInitialization2 {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = [];
+
+        lock {
+            self.arr.push(node);
+        }
+    }
+}
+
+function getIntArray() returns int[] => [1, 2];
+
+var isolatedObjectConstructorWithValidAccessInInitMethodAfterInitialization = object {
+    private int[][] arr;
+
+    function init() {
+        self.arr = [];
+
+        lock {
+            int[] node = getIntArray();
+
+            self.arr.push(node);
+            self.arr[1] = node;
+        }
+    }
+};
+
+var nonIsolatedObjectConstructorWithInvalidAccessInInitMethodAfterInitialization = object {
+    private int[][] arr;
+
+    function init() {
+        self.arr = [];
+
+        int[] node = getIntArray();
+        lock {
+            self.arr.push(node);
+        }
+    }
+};
+
+int[] mutableIntArr = [1, 2];
+
+function getMutableIntArray() returns int[] => mutableIntArr;
+
+function testIsolatedObjectsWithNonInitializationSelfAccessInInitMethod() {
+    assertTrue(<any> new IsolatedClassWithValidAccessInInitMethodAfterInitialization([]) is isolated object {});
+    assertTrue(<any> new IsolatedClassWithOnlyInitializationInInitMethod([]) is isolated object {});
+    assertTrue(<any> isolatedObjectConstructorWithValidAccessInInitMethodAfterInitialization is isolated object {});
+    var x = object {
+        private int[][] arr;
+
+        function init() {
+            self.arr = [];
+
+            int[] node = getIntArray();
+
+            lock {
+                self.arr.push(node.clone());
+                self.arr[1] = node.cloneReadOnly();
+            }
+        }
+    };
+    assertTrue(<any> x is isolated object {});
+
+    assertFalse(<any> new NonIsolatedClassWithValidAccessInInitMethodAfterInitialization1([]) is isolated object {});
+    assertFalse(<any> new NonIsolatedClassWithValidAccessInInitMethodAfterInitialization2([]) is isolated object {});
+    assertFalse(<any> nonIsolatedObjectConstructorWithInvalidAccessInInitMethodAfterInitialization is isolated object {});
+    var y = object {
+        private int[][] arr = [];
+
+        function init() {
+            lock {
+                self.arr[1] = getMutableIntArray();
+            }
+        }
+    };
+    assertFalse(<any> y is isolated object {});
+
+    var z = object {
+        private int[][] arr;
+
+        function init() {
+            self.arr = [];
+        }
+    };
+    assertTrue(<any> z is isolated object {});
+}
+
 isolated function assertTrue(anydata actual) => assertEquality(true, actual);
 
 isolated function assertFalse(anydata actual) => assertEquality(false, actual);
