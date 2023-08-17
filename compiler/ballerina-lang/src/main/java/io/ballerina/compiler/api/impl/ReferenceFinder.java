@@ -1439,7 +1439,8 @@ public class ReferenceFinder extends BaseVisitor {
 
     private void findRefsInResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation invocation) {
         if (this.targetSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
-            BResourceFunction targetResourceMethod = ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
+            BResourceFunction targetResourceMethod =
+                    ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
             BResourceFunction associatedResourceMethod = invocation.targetResourceFunc;
 
             if (!targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
