@@ -22,7 +22,7 @@ type Person record {|
 client class Foo {
    resource function get foo/bar/[string id](int q1, int q2) returns Person|error {
       if q1 > q2 {
-         return error("Q1 > Q2");
+         return error("Q1 > Q2 for " + id);
       }
       return {val1: q1, val2: q2};
    }

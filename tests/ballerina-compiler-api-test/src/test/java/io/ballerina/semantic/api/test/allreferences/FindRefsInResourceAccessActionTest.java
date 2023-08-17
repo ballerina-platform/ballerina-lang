@@ -55,7 +55,36 @@ public class FindRefsInResourceAccessActionTest extends FindAllReferencesTest {
                 {42, 28, location(33, 21, 25),
                         List.of(location(33, 21, 25),
                                 location(42, 28, 38))
-                }
+                },
+                // Resource path name segments
+                {40, 35, location(22, 25, 28),
+                        List.of(location(22, 25, 28),
+                                location(40, 35, 38),
+                                location(46, 28, 31))
+                },
+                {22, 25, location(22, 25, 28),
+                        List.of(location(22, 25, 28),
+                                location(40, 35, 38),
+                                location(46, 28, 31))
+                },
+                {22, 29, location(22, 29, 32),
+                        List.of(location(22, 29, 32),
+                                location(40, 39, 42),
+                                location(46, 32, 35))
+                },
+                {22, 41, location(22, 41, 43),
+                        List.of(location(22, 41, 43),
+                                location(24, 39, 41))
+                },
+                {24, 39, location(22, 41, 43),
+                        List.of(location(22, 41, 43),
+                                location(24, 39, 41))
+                },
+                {46, 32, location(22, 29, 32),
+                        List.of(location(22, 29, 32),
+                                location(40, 39, 42),
+                                location(46, 32, 35))
+                },
         };
     }
 

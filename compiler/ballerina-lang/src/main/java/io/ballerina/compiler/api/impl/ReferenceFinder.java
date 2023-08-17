@@ -23,10 +23,13 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -1348,6 +1351,8 @@ public class ReferenceFinder extends BaseVisitor {
         find(resourceAccessInvocation.restArgs);
         find(resourceAccessInvocation.resourceAccessPathSegments);
 
+        findRefsInResourceAccessPathSegments(resourceAccessInvocation);
+
         if (!resourceAccessInvocation.pkgAlias.value.isEmpty()) {
             addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
         }
@@ -1431,6 +1436,33 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     // Private methods
+
+    private void findRefsInResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation invocation) {
+        if (this.targetSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+            BResourceFunction targetResourceMethod = ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
+            BResourceFunction associatedResourceMethod = invocation.targetResourceFunc;
+
+            if (!targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
+                    || !targetResourceMethod.symbol.pos.equals(associatedResourceMethod.symbol.pos)
+                    || !targetResourceMethod.symbol.pkgID.equals(associatedResourceMethod.symbol.pkgID)) {
+                return;
+            }
+
+            List<BLangExpression> pathSegmentExprs = invocation.resourceAccessPathSegments.getExpressions();
+            List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceMethod.pathSegmentSymbols;
+
+            for (int i = 0; i < pathSegmentExprs.size(); i++) {
+                BResourcePathSegmentSymbol pathSymbol = pathSegmentSymbols.get(i);
+                BLangExpression expr = pathSegmentExprs.get(i);
+                if (pathSymbol.equals(this.targetSymbol) && expr.getKind() == NodeKind.LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) expr;
+                    if (literal.value.equals(pathSymbol.name.value) && addIfSameSymbol(pathSymbol, expr.pos)) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
     private void visitNamedArgWithoutAddingSymbol(List<BLangNamedArgsExpression> args) {
         for (BLangNamedArgsExpression arg : args) {
