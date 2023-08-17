@@ -37,11 +37,6 @@ public class BNeverType extends BType {
     }
 
     @Override
-    public boolean isNullable() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return Names.NEVER.value;
     }

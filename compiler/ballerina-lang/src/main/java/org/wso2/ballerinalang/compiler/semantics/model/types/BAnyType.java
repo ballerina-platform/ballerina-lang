@@ -66,10 +66,6 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
         return visitor.visit(this, t);
     }
 
-    public boolean isNullable() {
-        return nullable;
-    }
-
     @Override
     public TypeKind getKind() {
         return TypeKind.ANY;

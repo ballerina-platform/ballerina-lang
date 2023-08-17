@@ -137,11 +137,6 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }

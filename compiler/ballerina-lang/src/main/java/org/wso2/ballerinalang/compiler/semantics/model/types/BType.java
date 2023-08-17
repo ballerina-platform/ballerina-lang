@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.Core;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -118,7 +120,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return isNullable;
+        return Core.containsNil(SemTypeResolver.getHybridType(this).getSemTypeComponent());
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {

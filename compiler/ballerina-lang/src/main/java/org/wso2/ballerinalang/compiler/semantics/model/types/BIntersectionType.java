@@ -110,11 +110,6 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
-    public boolean isNullable() {
-        return this.getEffectiveType().isNullable();
-    }
-
-    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }

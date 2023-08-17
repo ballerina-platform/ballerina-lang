@@ -118,11 +118,6 @@ public class BFiniteType extends BType implements FiniteType {
         return joiner.toString();
     }
 
-    @Override
-    public boolean isNullable() {
-        return nullable;
-    }
-
     public void addValue(BLangExpression value) {
         addValue(value, false);
     }

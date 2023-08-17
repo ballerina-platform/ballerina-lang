@@ -37,11 +37,6 @@ public class BNilType extends BType implements NullType {
     }
 
     @Override
-    public boolean isNullable() {
-        return true;
-    }
-
-    @Override
     public String toString() {
         return Names.NIL_VALUE.value;
     }
