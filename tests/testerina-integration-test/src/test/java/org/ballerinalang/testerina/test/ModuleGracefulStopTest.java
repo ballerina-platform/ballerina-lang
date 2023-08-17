@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
- * Test class to test graceful stop during module test execution.
+ * Tests to verify graceful stop during module test execution.
  *
  * @since 2201.8.0
  */
@@ -46,10 +46,10 @@ public class ModuleGracefulStopTest extends BaseTestCase {
     }
 
     @Test()
-    public void testModuleExecutionFlow() throws BallerinaTestException, IOException {
+    public void testModuleGraceFulStop() throws BallerinaTestException, IOException {
         String[] args = new String[]{};
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath,
+                false);
         AssertionUtils.assertOutput("ModuleGracefulStopTest-test-listener-shutdown.txt", output);
     }
 
