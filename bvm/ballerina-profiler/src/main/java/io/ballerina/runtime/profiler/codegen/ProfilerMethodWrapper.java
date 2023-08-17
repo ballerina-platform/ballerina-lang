@@ -59,7 +59,8 @@ public class ProfilerMethodWrapper extends ClassLoader {
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         OUT_STREAM.printf(Constants.ANSI_CYAN + "[5/6] Running executable..." + Constants.ANSI_RESET + "%n");
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
+                StandardCharsets.UTF_8))) {
             reader.lines().forEach(OUT_STREAM::println);
         }
         process.waitFor();
@@ -81,7 +82,8 @@ public class ProfilerMethodWrapper extends ClassLoader {
         byte[] code;
         try {
             ClassReader reader = new ClassReader(inputStream);
-            ClassWriter classWriter = new ProfilerClassWriter(reader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+            ClassWriter classWriter = new ProfilerClassWriter(reader, ClassWriter.COMPUTE_MAXS |
+                    ClassWriter.COMPUTE_FRAMES);
             ClassVisitor change = new ProfilerClassVisitor(classWriter);
             reader.accept(change, ClassReader.EXPAND_FRAMES);
             code = classWriter.toByteArray();

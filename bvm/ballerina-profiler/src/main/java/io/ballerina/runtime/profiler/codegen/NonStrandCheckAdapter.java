@@ -22,8 +22,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
-import static io.ballerina.runtime.profiler.util.Constants.PROFILER_DESCRIPTOR;
-import static io.ballerina.runtime.profiler.util.Constants.PROFILER_OWNER;
+import static io.ballerina.runtime.profiler.util.Constants.GET_INSTANCE_DESCRIPTOR;
+import static io.ballerina.runtime.profiler.util.Constants.PROFILE_ANALYZER;
 
 /**
  * This class is used as the advice adapter for the Ballerina profiler.
@@ -32,7 +32,6 @@ import static io.ballerina.runtime.profiler.util.Constants.PROFILER_OWNER;
  * @since 2201.8.0
  */
 public class NonStrandCheckAdapter extends AdviceAdapter {
-
 
     /**
      * Constructor for MethodWrapperAdapter.
@@ -48,13 +47,13 @@ public class NonStrandCheckAdapter extends AdviceAdapter {
 
     @Override
     protected void onMethodEnter() {
-        mv.visitMethodInsn(INVOKESTATIC, PROFILER_OWNER, "getInstance", PROFILER_DESCRIPTOR, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILER_OWNER, "start", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "start", "()V", false);
     }
 
     @Override
     protected void onMethodExit(int opcode) {
-        mv.visitMethodInsn(INVOKESTATIC, PROFILER_OWNER, "getInstance", PROFILER_DESCRIPTOR, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILER_OWNER, "stop", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "stop", "()V", false);
     }
 }

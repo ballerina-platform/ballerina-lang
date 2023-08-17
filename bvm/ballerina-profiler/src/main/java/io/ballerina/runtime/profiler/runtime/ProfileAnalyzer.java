@@ -47,10 +47,17 @@ public class ProfileAnalyzer {
     private final ArrayList<String> blockedMethods = new ArrayList<>();
     private static final List<String> skippedList = new ArrayList<>();
     private static final Set<String> skippedClasses = new HashSet<>(skippedList);
-    private static final ProfileAnalyzer PROFILER_INSTANCE = new ProfileAnalyzer();
 
-    protected ProfileAnalyzer() {
-        shutDownHookProfiler();
+    private static class ProfilerHolder {
+        private static final ProfileAnalyzer PROFILER_INSTANCE = new ProfileAnalyzer();
+    }
+
+    public static ProfileAnalyzer getInstance() {
+        return ProfilerHolder.PROFILER_INSTANCE;
+    }
+
+    private ProfileAnalyzer() {
+        addProfilerShutDownHook();
         try {
             String content = Files.readString(Paths.get("usedPathsList.txt"));
             List<String> skippedListRead = new ArrayList<>(Arrays.asList(content.split(", ")));
@@ -59,10 +66,6 @@ public class ProfileAnalyzer {
         } catch (IOException ignored) {
             throw new ProfilerRuntimeException("Error occurred while reading the usedPathsList.txt file");
         }
-    }
-
-    public static ProfileAnalyzer getInstance() {
-        return PROFILER_INSTANCE;
     }
 
     private String getMethodName() {
@@ -128,8 +131,7 @@ public class ProfileAnalyzer {
         }
     }
 
-    @Override
-    public String toString() {
+    public final String getProfileStackString() {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < this.profilesStack.size(); i++) {
             sb.append(this.profilesStack.get(i)).append("\n");
@@ -146,11 +148,11 @@ public class ProfileAnalyzer {
         }
     }
 
-    private void shutDownHookProfiler() {
+    private void addProfilerShutDownHook() {
         // add a shutdown hook to stop the profiler and parse the output when the program is closed
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             ProfileAnalyzer profiler = ProfileAnalyzer.getInstance();
-            profiler.printProfilerOutput(profiler.toString());
+            profiler.printProfilerOutput(profiler.getProfileStackString());
         }));
     }
 
@@ -172,7 +174,8 @@ public class ProfileAnalyzer {
                 } else {
                     frameString = "\"" + frameString.replaceAll("\\(.*\\)", "") + "()" + "\"";
                     int lastDotIndex = frameString.lastIndexOf('.');
-                    frameString = frameString.substring(0, lastDotIndex).replace('.', '/') + frameString.substring(lastDotIndex);
+                    frameString = frameString.substring(0, lastDotIndex).replace('.', '/') +
+                            frameString.substring(lastDotIndex);
                 }
                 result.add(Utils.decodeIdentifier(frameString));
             }

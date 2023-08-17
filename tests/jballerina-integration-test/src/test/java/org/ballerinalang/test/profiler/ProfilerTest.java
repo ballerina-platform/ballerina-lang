@@ -62,7 +62,7 @@ public class ProfilerTest extends BaseTest {
     private LogLeecher[] getProfilerLogLeechers(int moduleCount, int functionCount) {
         return new LogLeecher[]{
                 new LogLeecher("[1/6] Initializing..."),
-                new LogLeecher("[2/6] Copying the executable..."),
+                new LogLeecher("[2/6] Copying executable..."),
                 new LogLeecher("[3/6] Performing analysis..."),
                 new LogLeecher("[4/6] Instrumenting functions..."),
                 new LogLeecher("○ Instrumented module count: " + moduleCount),

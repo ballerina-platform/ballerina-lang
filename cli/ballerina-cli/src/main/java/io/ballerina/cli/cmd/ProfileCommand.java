@@ -50,7 +50,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
 /**
  * This class represents the "profile" command, and it holds arguments and flags specified by the user.
  *
- * @since 2.8.0
+ * @since 2201.8.0
  */
 @CommandLine.Command(name = PROFILE_COMMAND, description = "Compile and profile the current package")
 public class ProfileCommand implements BLauncherCmd {

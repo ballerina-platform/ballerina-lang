@@ -23,8 +23,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
-import static io.ballerina.runtime.profiler.util.Constants.PROFILER_DESCRIPTOR;
-import static io.ballerina.runtime.profiler.util.Constants.PROFILER_OWNER;
+import static io.ballerina.runtime.profiler.util.Constants.GET_INSTANCE_DESCRIPTOR;
+import static io.ballerina.runtime.profiler.util.Constants.PROFILE_ANALYZER;
 import static io.ballerina.runtime.profiler.util.Constants.STRAND_CLASS;
 
 /**
@@ -71,10 +71,10 @@ public class StrandCheckAdapter extends AdviceAdapter {
      */
     @Override
     protected void onMethodEnter() {
-        mv.visitMethodInsn(INVOKESTATIC, PROFILER_OWNER, "getInstance", PROFILER_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
         mv.visitVarInsn(ALOAD, load);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "getId", "()I", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILER_OWNER, "start", "(I)V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "start", "(I)V", false);
     }
 
     /**
@@ -110,7 +110,7 @@ public class StrandCheckAdapter extends AdviceAdapter {
      * It retrieves the profiler instance, gets the strand state and id, and stops the profiling.
      */
     private void onFinally() {
-        mv.visitMethodInsn(INVOKESTATIC, PROFILER_OWNER, "getInstance", PROFILER_DESCRIPTOR, false);
+        mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
         mv.visitVarInsn(ALOAD, load);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS,
                 "getState", "()Lio/ballerina/runtime/internal/scheduling/State;", false);
@@ -118,6 +118,6 @@ public class StrandCheckAdapter extends AdviceAdapter {
                 "toString", "()Ljava/lang/String;", false);
         mv.visitVarInsn(ALOAD, load);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "getId", "()I", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILER_OWNER, "stop", "(Ljava/lang/String;I)V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "stop", "(Ljava/lang/String;I)V", false);
     }
 }

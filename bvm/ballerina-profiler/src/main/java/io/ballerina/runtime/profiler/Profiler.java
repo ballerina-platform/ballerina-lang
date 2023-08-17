@@ -79,10 +79,10 @@ public class Profiler {
         // Add a shutdown hook to stop the profiler and parse the output when the program is closed.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
+                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) -
+                        profilerStartTime;
                 deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
                 OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
-                Thread.sleep(100);
                 JsonParser jsonParser = new JsonParser();
                 HttpServer httpServer = new HttpServer();
                 jsonParser.initializeCPUParser(skipFunctionString);
@@ -93,7 +93,7 @@ public class Profiler {
                 httpServer.initializeHTMLExport();
                 deleteFileIfExists("performance_report.json");
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);
             } finally {
                 deleteFileIfExists(targetDir);
@@ -126,11 +126,14 @@ public class Profiler {
     }
 
     private void printHeader() {
-        OUT_STREAM.printf("%n%s================================================================================%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%n%s================================================================================%s",
+                Constants.ANSI_GRAY, Constants.ANSI_RESET);
         OUT_STREAM.printf("%n%sBallerina Profiler%s", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         OUT_STREAM.printf("%s: Profiling...%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT_STREAM.printf("%n%s================================================================================%s", Constants.ANSI_GRAY, Constants.ANSI_RESET);
-        OUT_STREAM.printf("%n%sNote: This is an experimental feature, which supports only a limited set of " + "functionality.%s%n", Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%n%s================================================================================%s",
+                Constants.ANSI_GRAY, Constants.ANSI_RESET);
+        OUT_STREAM.printf("%n%sNote: This is an experimental feature, which supports only a limited set of " +
+                "functionality.%s%n", Constants.ANSI_GRAY, Constants.ANSI_RESET);
     }
 
     private void handleProfilerArguments(String[] args) {
@@ -204,7 +207,7 @@ public class Profiler {
 
     private void createTempJar() {
         try {
-            OUT_STREAM.printf("%s[2/6] Copying the executable...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
+            OUT_STREAM.printf("%s[2/6] Copying executable...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
             Path sourcePath = Paths.get(balJarName);
             Path destinationPath = Paths.get(Constants.TEMP_JAR_FILE_NAME);
             Files.copy(sourcePath, destinationPath);
@@ -224,8 +227,10 @@ public class Profiler {
         }
         OUT_STREAM.printf("%s[4/6] Instrumenting functions...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try (JarFile jarFile = new JarFile(balJarName)) {
-            String mainClassPackage = profilerMethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
-            ProfilerClassLoader profilerClassLoader = new ProfilerClassLoader(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
+            String mainClassPackage = profilerMethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{
+                    new File(balJarName).toURI().toURL()}));
+            ProfilerClassLoader profilerClassLoader = new ProfilerClassLoader(new URLClassLoader(new URL[]{
+                    new File(balJarName).toURI().toURL()}));
             Set<String> usedPaths = new HashSet<>();
             for (String className : classNames) {
                 if (mainClassPackage == null) {

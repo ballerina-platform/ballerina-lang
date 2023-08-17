@@ -50,4 +50,4 @@ COMMANDS
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL [Experimental]
         version         Print the Ballerina version
-        profile         Start Ballerina Runtime Profiler [Experimental]
+        profile         Start Ballerina Profiler [Experimental]
