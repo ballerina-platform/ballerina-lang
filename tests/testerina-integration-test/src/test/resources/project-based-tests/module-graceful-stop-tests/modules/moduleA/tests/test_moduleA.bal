@@ -20,3 +20,8 @@ import ballerina/test;
 public function test1() {
     test:assertEquals(intAdd(1, 2), 3);
 }
+
+@test:Config {}
+public function negative_test1() {
+    test:assertEquals(intAdd(1, 2), 13);
+}

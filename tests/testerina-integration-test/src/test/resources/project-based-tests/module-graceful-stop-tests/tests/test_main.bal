@@ -26,3 +26,13 @@ function main_test1() {
 function main_test2() {
     test:assertEquals(moduleA:intAdd(5, 2), 7);
 }
+
+@test:Config {}
+function main_negative_test1() {
+    test:assertEquals(intSub(5, 2), 4);
+}
+
+@test:Config {}
+function main_negative_test2() {
+    test:assertEquals(moduleA:intAdd(5, 2), 10);
+}

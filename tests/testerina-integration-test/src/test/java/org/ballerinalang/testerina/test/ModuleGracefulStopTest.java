@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -46,10 +47,13 @@ public class ModuleGracefulStopTest extends BaseTestCase {
     }
 
     @Test()
-    public void testModuleGraceFulStop() throws BallerinaTestException, IOException {
+    public void testModuleGracefulStop() throws BallerinaTestException, IOException {
         String[] args = new String[]{};
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath,
                 false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("ModuleGracefulStopTest-test-listener-shutdown.txt", output);
     }
 
