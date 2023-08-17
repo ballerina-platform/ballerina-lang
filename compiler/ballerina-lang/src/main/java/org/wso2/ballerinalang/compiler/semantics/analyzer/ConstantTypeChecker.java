@@ -112,7 +112,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiFunction;
@@ -228,8 +227,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         // If the expected type is a map, but a record type is inferred due to the presence of `readonly` fields in
         // the mapping constructor expression, we don't override the expected type.
         if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR && expr.expectedType != null &&
-                Types.getReferredType(expr.expectedType).tag == TypeTags.MAP
-                && Types.getReferredType(expr.getBType()).tag == TypeTags.RECORD) {
+                Types.getImpliedType(expr.expectedType).tag == TypeTags.MAP
+                && Types.getImpliedType(expr.getBType()).tag == TypeTags.RECORD) {
             return;
         }
 
@@ -282,7 +281,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     symTable.intType));
         }
 
-        BType expType = Types.getReferredType(data.expType);
+        BType expType = Types.getImpliedType(data.expType);
         if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.INFERRED) {
             ((BArrayType) expType).size = memberTypes.size();
             ((BArrayType) expType).state = BArrayState.CLOSED;
@@ -402,7 +401,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         BType expType = data.expType;
-        int expTypeTag = Types.getReferredType(expType).tag;
+        int expTypeTag = Types.getImpliedType(expType).tag;
 
         if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.READONLY) {
             data.resultType = validateMapTypeAndInferredType(recordLiteral, expType, expType, data);
@@ -533,7 +532,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         if (tag == TypeTags.TYPEREFDESC) {
-            BType refType = Types.getReferredType(expType);
+            BType refType = Types.getImpliedType(expType);
             return checkMappingConstructorCompatibility(refType, mappingConstructor, data);
         }
 
@@ -657,7 +656,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                BType refType = Types.getReferredType(type);
+                BType refType = Types.getImpliedType(type);
                 BType compatibleType = getMappingConstructorCompatibleNonUnionType(refType, data);
                 return compatibleType == refType ? type : compatibleType;
             default:
@@ -733,14 +732,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     continue;
                 }
 
-                if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                        varNameField.pos, recordSymbol)) {
+                if (!addFields(inferredFields, varRefType, getKeyName(varNameField), varNameField.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else { // Spread Field
                 BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
                 BType spreadOpType = checkConstExpr(fieldExpr, data);
-                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
+                BType type = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
                 if (type.tag != TypeTags.RECORD) {
                     containErrors = true;
                     continue;
@@ -752,7 +750,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 }
                 BRecordType recordType = (BRecordType) type;
                 for (BField recField : recordType.fields.values()) {
-                    if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
+                    if (!addFields(inferredFields, Types.getImpliedType(recField.type), recField.name.value,
                             fieldExpr.pos, recordSymbol)) {
                         containErrors = true;
                     }
@@ -772,7 +770,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
                     }
                     BType keyValueType = checkConstExpr(exprToCheck, expType, data);
-                    if (!addFields(inferredFields, Types.getReferredType(keyValueType),
+                    if (!addFields(inferredFields, Types.getImpliedType(keyValueType),
                             fieldNameLiteral.getValue().toString(), key.pos, recordSymbol)) {
                         containErrors = true;
                     }
@@ -871,14 +869,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     containErrors = true;
                     continue;
                 }
-                if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
+                if (!addFields(inferredFields, Types.getImpliedType(varRefType), getKeyName(varNameField),
                         varNameField.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else { // Spread Field
                 BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
                 BType spreadOpType = checkConstExpr(fieldExpr, data);
-                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
+                BType type = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
                 if (type.tag != TypeTags.RECORD) {
                     containErrors = true;
                     continue;
@@ -891,7 +889,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         containErrors = true;
                         continue;
                     }
-                    if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
+                    if (!addFields(inferredFields, Types.getImpliedType(recField.type), recField.name.value,
                             fieldExpr.pos, recordSymbol)) {
                         containErrors = true;
                     }
@@ -925,7 +923,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
                     }
                     BType keyValueType = checkConstExpr(exprToCheck, expType, data);
-                    if (!addFields(inferredFields, Types.getReferredType(keyValueType),
+                    if (!addFields(inferredFields, Types.getImpliedType(keyValueType),
                             keyName, key.pos, recordSymbol)) {
                         containErrors = true;
                     }
@@ -1003,7 +1001,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private List<String> getSpreadOpFieldRequiredFieldNames(BLangRecordLiteral.BLangRecordSpreadOperatorField field,
                                                             AnalyzerData data) {
-        BType spreadType = Types.getReferredType(checkConstExpr(field.expr, data));
+        BType spreadType = Types.getImpliedType(checkConstExpr(field.expr, data));
 
         if (spreadType.tag != TypeTags.RECORD) {
             return Collections.emptyList();
@@ -1026,7 +1024,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 // Spread operator expr.
                 BLangExpression spreadOpExpr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpExprType = checkConstExpr(spreadOpExpr, data);
-                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpExprType));
+                BType type = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(spreadOpExprType));
                 if (type.tag != TypeTags.TUPLE) {
                     // Finalized constant type should be a tuple type (cannot be an array type or any other).
                     containErrors = true;
@@ -1102,7 +1100,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         if (tag == TypeTags.TYPEREFDESC) {
-            return checkListConstructorCompatibility(Types.getReferredType(expType), listConstructor, data);
+            return checkListConstructorCompatibility(Types.getImpliedType(expType), listConstructor, data);
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -1137,7 +1135,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpType = checkConstExpr(spreadOpExpr, data);
-                spreadOpType = Types.getEffectiveType(Types.getReferredType(spreadOpType));
+                spreadOpType = Types.getImpliedType(spreadOpType);
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
@@ -1190,7 +1188,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BLangExpression spreadOpExpr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpExprType = checkConstExpr(spreadOpExpr, data);
-                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpExprType));
+                BType type = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(spreadOpExprType));
                 if (type.tag != TypeTags.TUPLE) {
                     // Finalized constant type should be a tuple type (cannot be an array type or any other).
                     containErrors = true;
@@ -1248,7 +1246,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpType = checkConstExpr(spreadOpExpr, data);
-                spreadOpType = Types.getReferredType(spreadOpType);
+                spreadOpType = Types.getImpliedType(spreadOpType);
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
@@ -1312,7 +1310,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
             BLangExpression spreadOpExpr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
             BType spreadOpType = checkConstExpr(spreadOpExpr, data);
-            BType spreadOpReferredType = Types.getReferredType(
+            BType spreadOpReferredType = Types.getImpliedType(
                     types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
             if (spreadOpReferredType.tag != TypeTags.TUPLE) {
                 // Finalized constant type should be a tuple type (cannot be an array type or any other).
@@ -1538,7 +1536,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private Object calculateBitWiseOp(Object lhs, Object rhs, BiFunction<Long, Long, Long> func, BType type,
                                       AnalyzerData data) {
-        if (Types.getReferredType(type).tag == TypeTags.INT) {
+        if (Types.getImpliedType(type).tag == TypeTags.INT) {
             return func.apply((Long) lhs, (Long) rhs);
         } else {
             dlog.error(data.pos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
@@ -1547,7 +1545,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateAddition(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -1573,7 +1571,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateSubtract(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -1597,7 +1595,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateMultiplication(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -1621,7 +1619,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateDivision(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 if ((Long) lhs == Long.MIN_VALUE && (Long) rhs == -1) {
@@ -1644,7 +1642,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateMod(Object lhs, Object rhs, BType type) {
-        switch (Types.getReferredType(type).tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 return ((Long) lhs % (Long) rhs);
@@ -1696,7 +1694,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private Object calculateBitWiseComplement(Object value, BType type) {
         Object result = null;
-        if (Types.getReferredType(type).tag == TypeTags.INT) {
+        if (Types.getImpliedType(type).tag == TypeTags.INT) {
             result = ~((Long) (value));
         }
         return result;
@@ -1704,7 +1702,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private Object calculateBooleanComplement(Object value, BType type) {
         Object result = null;
-        if (Types.getReferredType(type).tag == TypeTags.BOOLEAN) {
+        if (Types.getImpliedType(type).tag == TypeTags.BOOLEAN) {
             result = !((Boolean) (value));
         }
         return result;
@@ -1712,7 +1710,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) {
         Object literalValue = literalExpr.value;
-        BType expectedType = Types.getReferredType(expType);
+        BType expectedType = Types.getImpliedType(expType);
 
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
             NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
@@ -1758,7 +1756,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private BType getIntegerLiteralTypeUsingExpType(BLangLiteral literalExpr, Object literalValue, BType expType) {
-        BType expectedType = Types.getReferredType(expType);
+        BType expectedType = Types.getImpliedType(expType);
         int expectedTypeTag = expectedType.tag;
         switch (expectedTypeTag) {
             case TypeTags.BYTE:
@@ -1809,10 +1807,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expBroadType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
-                List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
                 List<BType> validTypes = new ArrayList<>();
                 dlog.mute();
-                for (BType memType : memberTypes) {
+                for (BType memType : expectedUnionType.getMemberTypes()) {
                     BType validType = getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, memType);
                     if (validType.tag != TypeTags.SEMANTIC_ERROR) {
                         validTypes.add(validType);
@@ -1879,7 +1876,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private BType getTypeOfDecimalFloatingPointLiteralUsingExpType(BLangLiteral literalExpr, Object literalValue,
                                                                    BType expType) {
-        BType expectedType = Types.getReferredType(expType);
+        BType expectedType = Types.getImpliedType(expType);
         String numericLiteral = String.valueOf(literalValue);
         switch (expectedType.tag) {
             case TypeTags.FLOAT:
@@ -1900,10 +1897,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue, expBroadType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
-                List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
                 List<BType> validTypes = new ArrayList<>();
                 dlog.mute();
-                for (BType memType : memberTypes) {
+                for (BType memType : expectedUnionType.getMemberTypes()) {
                     BType validType = getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue,
                             memType);
                     if (validType.tag != TypeTags.SEMANTIC_ERROR) {
@@ -2243,7 +2239,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         public boolean addFillMembers(BTupleType type, BType expType, AnalyzerData data) {
-            BType refType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(expType));
+            BType refType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(expType));
             List<BType> tupleTypes = type.getTupleTypes();
             int tupleMemberCount = tupleTypes.size();
             if (refType.tag == TypeTags.ARRAY) {
@@ -2509,7 +2505,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         @Override
         public void visit(BType type) {
-            BType refType = Types.getReferredType(type);
+            BType refType = Types.getImpliedType(type);
             switch (refType.tag) {
                 case TypeTags.BOOLEAN:
                     data.resultType = symTable.falseType;
@@ -2556,37 +2552,32 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     public BLangConstantValue getConstantValue(BType type) {
         // Obtain the constant value using its type.
-        switch (type.tag) {
+        BType refType = Types.getImpliedType(type);
+        switch (refType.tag) {
             case TypeTags.FINITE:
-                BLangExpression expr = ((BFiniteType) type).getValueSpace().iterator().next();
+                BLangExpression expr = ((BFiniteType) refType).getValueSpace().iterator().next();
                 if (expr.getBType().tag == TypeTags.DECIMAL) {
                     return new BLangConstantValue ((((BLangNumericLiteral) expr).value).toString(), expr.getBType());
                 }
                 return new BLangConstantValue (((BLangLiteral) expr).value, expr.getBType());
-            case TypeTags.INTERSECTION:
-                return getConstantValue(((BIntersectionType) type).getEffectiveType());
             case TypeTags.RECORD:
                 Map<String, BLangConstantValue> fields = new HashMap<>();
-                LinkedHashMap<String, BField> recordFields = ((BRecordType) type).fields;
+                LinkedHashMap<String, BField> recordFields = ((BRecordType) refType).fields;
                 for (String key : recordFields.keySet()) {
                     BLangConstantValue constantValue = getConstantValue(recordFields.get(key).type);
                     fields.put(key, constantValue);
                 }
-                Optional<BIntersectionType> intersectionType = ((BRecordType) type).getIntersectionType();
-                if (intersectionType.isPresent()) {
-                    return new BLangConstantValue(fields, intersectionType.get());
-                }
-                break;
+                return new BLangConstantValue(fields, type);
             case TypeTags.TUPLE:
                 List<BLangConstantValue> members = new ArrayList<>();
-                List<BType> tupleTypes = ((BTupleType) type).getTupleTypes();
+                List<BType> tupleTypes = ((BTupleType) refType).getTupleTypes();
                 for (BType memberType : tupleTypes) {
                     BLangConstantValue constantValue = getConstantValue(memberType);
                     members.add(constantValue);
                 }
                 return new BLangConstantValue(members, type);
             case TypeTags.NIL:
-                return new BLangConstantValue (type.tsymbol.getType().toString(), type.tsymbol.getType());
+                return new BLangConstantValue(refType.tsymbol.getType().toString(), type.tsymbol.getType());
             default:
                 break;
         }
@@ -2631,11 +2622,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             DiagnosticCode preDiagCode = data.diagCode;
             data.env = env;
             data.diagCode = diagCode;
-            if (expType.tag == TypeTags.INTERSECTION) {
-                data.expType = ((BIntersectionType) expType).effectiveType;
-            } else {
-                data.expType = expType;
-            }
+            data.expType = expType;
 
             expr.expectedType = expType;
 
@@ -2711,7 +2698,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 if (memberExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                     BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOp =
                             (BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) memberExpr;
-                    BTupleType type = (BTupleType) Types.getReferredType(
+                    BTupleType type = (BTupleType) Types.getImpliedType(
                             types.getTypeWithEffectiveIntersectionTypes(spreadOp.expr.getBType()));
                     spreadOp.setBType(spreadOp.expr.getBType());
                     currentListIndex += type.getTupleTypes().size();

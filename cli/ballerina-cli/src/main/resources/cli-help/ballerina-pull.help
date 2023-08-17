@@ -1,5 +1,6 @@
 NAME
-       ballerina-pull - Fetch packages from Ballerina Central
+       ballerina-pull - Fetch packages from Ballerina Central or a custom
+       package repository
 
 SYNOPSIS
        bal pull <org-name>/<package-name>[:<version>]
@@ -15,6 +16,14 @@ DESCRIPTION
        Organizations are unique within a repository and can be mapped to an
        individual user or organization registered with the repository.
 
+       To download a package from a custom repository, configure it in the Settings.toml
+       file and pass the given id with the --repository flag.
+
+OPTIONS
+       --repository
+           Pull a package from a custom repository.
+           The repository must be configured in the <USER_HOME>/.ballerina/Settings.toml file.
+
 
 EXAMPLES
        Pull the latest version of the 'gmail' connector in the 'wso2'
@@ -24,3 +33,7 @@ EXAMPLES
        Pull the '1.1.0' version of the 'gmail' connector in the 'wso2'
        organization from Ballerina Central.
            $ bal pull wso2/gmail:1.1.0
+
+       Pull the '1.1.0' version of the 'gmail' connector in the 'wso2'
+       organization from the github package repository defined in the Settings.toml file.
+           $ bal pull wso2/gmail:1.1.0 --repository=wso2

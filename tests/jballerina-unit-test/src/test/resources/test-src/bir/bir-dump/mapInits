@@ -38,7 +38,7 @@ mapInits function() -> (string|(), int|()) {
 
     bb0 {
         %2 = newType map<Employee>;
-        %1 = NewMap %2;
+        %1 = NewMap %2{};
         %2 = newType Person;
         %7 = ConstLoad name;
         %8 = ConstLoad Jack;
@@ -46,7 +46,7 @@ mapInits function() -> (string|(), int|()) {
         %10 = ConstLoad 25;
         %11 = ConstLoad address;
         %12 = ConstLoad Usa;
-        %4 = NewMap %2;
+        %4 = NewMap %2{%7:%8,%9:%10,%11:%12};
         %13 = <Employee> %4;
         %7 = ConstLoad jack;
         %1[%7] = %13;
@@ -250,7 +250,7 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb48;
     }
     bb48 {
-        %0 = newArray %2[%10];
+        %0 = newArray %2[%10]{%20,%73};
         GOTO bb49;
     }
     bb49 {

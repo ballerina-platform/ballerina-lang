@@ -161,7 +161,7 @@ public class JvmValueGen {
                                                        JvmPackageGen jvmPackageGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
@@ -288,7 +288,7 @@ public class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = JvmCodeGenUtil.getReferredType(bType);
+            BType typeRef = JvmCodeGenUtil.getImpliedType(bType);
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
@@ -491,7 +491,7 @@ public class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = JvmCodeGenUtil.getReferredType(bType);
+            BType typeRef = JvmCodeGenUtil.getImpliedType(bType);
             if (typeRef.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -513,7 +513,7 @@ public class JvmValueGen {
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
-            BRecordType recordType = (BRecordType) JvmCodeGenUtil.getReferredType(typeDef.type);
+            BRecordType recordType = (BRecordType) JvmCodeGenUtil.getImpliedType(typeDef.type);
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
             initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
