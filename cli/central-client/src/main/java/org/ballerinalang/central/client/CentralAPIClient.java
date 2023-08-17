@@ -74,6 +74,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.ANY_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
@@ -87,6 +88,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECA
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
+import static org.ballerinalang.central.client.CentralClientConstants.PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -649,6 +651,7 @@ public class CentralAPIClient {
                 Optional<String> pkgName = Optional.empty();
                 Optional<String> latestVersion = Optional.empty();
                 Optional<String> balaUrl = Optional.empty();
+                Optional<String> platform = Optional.empty();
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -657,13 +660,14 @@ public class CentralAPIClient {
                         pkgName = Optional.ofNullable(jsonContent.get(PKG_NAME).getAsString());
                         latestVersion = Optional.ofNullable(jsonContent.get(VERSION).getAsString());
                         balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
+                        platform = Optional.of(jsonContent.get(PLATFORM).getAsString())
+                                .or(() -> Optional.of(ANY_PLATFORM));
                     }
                 }
 
-                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
-                        && pkgName.isPresent()) {
-                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
-                            + latestVersion.get() + ".bala";
+                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent() && pkgName.isPresent()) {
+                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get()
+                            + "-" + platform.get() + "-" + latestVersion.get() + ".bala";
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                             .get()
                             .url(balaUrl.get())
