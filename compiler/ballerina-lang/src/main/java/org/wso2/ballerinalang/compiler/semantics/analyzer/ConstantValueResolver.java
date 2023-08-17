@@ -140,6 +140,14 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.createdTypeDefinitions.clear();
     }
 
+    private void reset() {
+        unresolvedConstants.clear();
+        constantMap.clear();
+        resolvingConstants.clear();
+        unresolvableConstants.clear();
+        createdTypeDefinitions.clear();
+    }
+
     @Override
     public void visit(BLangConstant constant) {
         if (!unresolvedConstants.containsKey(constant.symbol)) {
@@ -585,6 +593,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         updateConstantType(constantSymbol, expression, env);
         Optional.ofNullable(isSourceOnlyAnon ? createdTypeDefinitions.get(constantSymbol.type.tsymbol) : null)
                 .ifPresent(typeDefinition -> typeDefinition.symbol.flags |= Flags.SOURCE_ANNOTATION);
+        reset();
         return value;
     }
 
