@@ -87,12 +87,11 @@ public class ProfileAnalyzer {
     public void start(int id) {
         String name = getStackTrace();
         if (!blockedMethods.contains(getMethodName() + id)) {
-            Data p = this.profiles.get(name);
-            if (p == null) {
-                p = new Data(name);
-                this.profiles.put(name, p);
-                this.profilesStack.add(p);
-            }
+            Data p = this.profiles.computeIfAbsent(name, key -> {
+                Data newData = new Data(key);
+                profilesStack.add(newData);
+                return newData;
+            });
             p.start();
             removeDuplicates(blockedMethods);
         }
