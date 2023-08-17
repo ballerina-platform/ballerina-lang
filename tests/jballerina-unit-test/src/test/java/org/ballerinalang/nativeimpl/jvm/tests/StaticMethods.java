@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -601,7 +602,7 @@ public class StaticMethods {
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:

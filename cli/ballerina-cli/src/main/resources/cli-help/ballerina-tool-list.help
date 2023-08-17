@@ -1,5 +1,5 @@
 NAME
-       bal-tool-list - List all the tools available in the bal tool chain
+       ballerina-tool-list - List all the tools available in the bal tool chain
 
 SYNOPSIS
        bal tool list

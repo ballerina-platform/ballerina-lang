@@ -40,7 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 public class Remove {
 
     public static Object remove(BMap<?, ?> m, BString k) {
-        Type type = TypeUtils.getReferredType(m.getType());
+        Type type = TypeUtils.getImpliedType(m.getType());
 
         checkIsMapOnlyOperation(type, REMOVE);
         validateRequiredFieldForRecord(m, k.getValue());

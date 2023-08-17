@@ -54,7 +54,7 @@ public class SetChildren {
             throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
-        Type childrenType = TypeUtils.getReferredType(TypeChecker.getType(children));
+        Type childrenType = TypeUtils.getImpliedType(TypeChecker.getType(children));
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
             BXml xmlText = XmlFactory.createXMLText((BString) children);
             children = xmlText;
