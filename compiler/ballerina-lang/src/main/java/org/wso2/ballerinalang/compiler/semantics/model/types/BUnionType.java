@@ -100,7 +100,7 @@ public class BUnionType extends BType implements UnionType {
         this.hybridType = SemTypeResolver.resolveBUnionHybridType(memberTypes);
     }
 
-    private BUnionType(LinkedHashSet<BType> memberTypes) {
+    BUnionType(LinkedHashSet<BType> memberTypes) {
         super(TypeTags.UNION, null);
         this.memberTypes = memberTypes;
     }

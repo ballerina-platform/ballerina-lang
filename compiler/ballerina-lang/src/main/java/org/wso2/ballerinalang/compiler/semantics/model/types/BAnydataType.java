@@ -36,22 +36,13 @@ public class BAnydataType extends BUnionType {
 
     private static final int INITIAL_CAPACITY = 10;
 
-    public BAnydataType(BTypeSymbol tsymbol, Name name, long flags) {
-        this(tsymbol, name, flags, true);
-    }
-
-    public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
-        super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
-        this.tag = TypeTags.ANYDATA;
-        this.isCyclic = true;
-    }
-
     public BAnydataType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
         super(tsymbol, new LinkedHashSet<>(INITIAL_CAPACITY), nullable, false);
         this.tag = TypeTags.ANYDATA;
         this.flags = flags;
         this.name = name;
         this.isCyclic = true;
+        updateHybridType();
     }
 
     public BAnydataType(BUnionType type) {
@@ -62,6 +53,7 @@ public class BAnydataType extends BUnionType {
         this.name = type.name;
         this.flags = type.flags;
         mergeUnionType(type);
+        updateHybridType();
     }
 
     public BAnydataType(BAnydataType type, boolean nullable) {
@@ -71,6 +63,29 @@ public class BAnydataType extends BUnionType {
         this.tag = TypeTags.ANYDATA;
         this.isCyclic = true;
         mergeUnionType(type);
+        updateHybridType();
+    }
+
+    private BAnydataType(LinkedHashSet<BType> memberTypes) {
+        super(memberTypes);
+        this.tag = TypeTags.ANYDATA;
+        this.isCyclic = true;
+    }
+
+    /**
+     * Due to the super call to BUnion there's an already resolved Hybrid type with bTypeComponent being BUnion.
+     * We need to replace it with a BAnydata.
+     */
+    private void updateHybridType() {
+        HybridType ht = this.getHybridType();
+        BType bComponent = ht.getBTypeComponent();
+        BAnydataType anydataType;
+        if (bComponent.tag == TypeTags.UNION) {
+            anydataType = new BAnydataType(((BUnionType) bComponent).memberTypes);
+        } else {
+            anydataType = new BAnydataType(new LinkedHashSet<>());
+        }
+        this.setHybridType(new HybridType(ht.getSemTypeComponent(), anydataType));
     }
 
     @Override
