@@ -143,3 +143,7 @@ public client class FooTwo {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
 }
+
+public isolated function testFunc(string ediText) returns json|error {
+    return {};
+}
