@@ -84,6 +84,11 @@ public class XMLToRecordConverterTests {
     private final Path sample8Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_8.bal");
 
+    private final Path sample9XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_9.xml");
+    private final Path sample9Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_9.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -165,6 +170,15 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample8Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testComplexXMLWithNamespace")
+    public void testComplexXMLWithNamespace() throws IOException {
+        String xmlFileContent = Files.readString(sample9XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample9Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
