@@ -74,6 +74,7 @@ public class XmlTreeBuilder {
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
     private Deque<BXmlSequence> seqDeque;
     private Deque<List<BXml>> siblingDeque;
+    private boolean readText = false;
 
     public XmlTreeBuilder(String str) {
         this(new StringReader(str));
@@ -103,7 +104,7 @@ public class XmlTreeBuilder {
     public BXml parse() {
         try {
             while (xmlStreamReader.hasNext()) {
-                int next = xmlStreamReader.next();
+                int next = getNextElementType();
                 switch (next) {
                     case START_ELEMENT:
                         readElement(xmlStreamReader);
@@ -137,6 +138,15 @@ public class XmlTreeBuilder {
         return null;
     }
 
+    private int getNextElementType() throws XMLStreamException {
+        if (readText) {
+            readText = false;
+            return xmlStreamReader.getEventType();
+        } else {
+            return xmlStreamReader.next();
+        }
+    }
+
     private void handleDTD(XMLStreamReader xmlStreamReader) {
         // ignore
     }
@@ -147,8 +157,14 @@ public class XmlTreeBuilder {
         siblingDeque.peek().add(xmlItem);
     }
 
-    private void readText(XMLStreamReader xmlStreamReader) {
-        siblingDeque.peek().add(new XmlText(xmlStreamReader.getText()));
+    private void readText(XMLStreamReader xmlStreamReader) throws XMLStreamException {
+        StringBuilder textBuilder = new StringBuilder();
+        while (xmlStreamReader.getEventType() == CHARACTERS) {
+            textBuilder.append(xmlStreamReader.getText());
+            xmlStreamReader.next();
+            readText = true;
+        }
+        siblingDeque.peek().add(new XmlText(textBuilder.toString()));
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
