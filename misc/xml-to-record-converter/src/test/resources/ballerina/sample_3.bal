@@ -11,6 +11,10 @@ type Codes record {
 @xmldata:Name {
     value: "bookstore"
 }
+@xmldata:Namespace {
+    prefix: "ns0",
+    uri: "http://sample.com/test"
+}
 type Bookstore record {
     string storeName;
     int postalCode;
@@ -19,6 +23,4 @@ type Bookstore record {
     Codes codes;
     @xmldata:Attribute
     string status;
-    @xmldata:Attribute
-    string xmlns\:ns0;
 };
