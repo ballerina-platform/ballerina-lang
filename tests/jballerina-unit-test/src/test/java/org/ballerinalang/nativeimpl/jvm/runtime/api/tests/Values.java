@@ -54,6 +54,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -64,6 +65,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,7 +82,6 @@ public class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
-    private static final Module errorModule = new Module("testorg", "values.errors", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
@@ -372,8 +373,8 @@ public class Values {
                 return ErrorCreator.createError(
                         StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
             }
-            AnnotatableType eType = (AnnotatableType) ((ReferenceType) (((BArrayType)
-                    TypeUtils.getImpliedType(describingType)).getElementType())).getReferredType();
+            AnnotatableType eType = (AnnotatableType) ((ReferenceType) ((BArrayType) ((ReferenceType) describingType)
+                    .getReferredType()).getElementType()).getReferredType();
             annotations = eType.getAnnotations();
             if (!annotations.containsKey(intAnnotation)) {
                 return constraintError;
@@ -420,7 +421,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         BArray arrayValue = ValueCreator.createArrayValue(arrayType);
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
@@ -429,7 +430,7 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -439,7 +440,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -505,5 +506,28 @@ public class Values {
                 "RequestDispatchingError" : errorTypeName.getValue();
         assert bError.getType().getName().equals(typeName);
         return bError;
+    }
+
+
+    public static BXml getXMLValueFromString1() {
+        return ValueCreator.createXmlValue("<book>The Lost World</book>");
+    }
+
+    public static BXml getXMLValueFromString2() {
+        return ValueCreator.createXmlValue("<reservationID>12345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789012345678901234567890aaaaaa</reservationID>");
+    }
+
+    public static BXml getXMLValueFromInputStream1() {
+        return ValueCreator.createXmlValue(new ByteArrayInputStream("<book>The Lost World</book>".getBytes()));
+    }
+
+    public static BXml getXMLValueFromInputStream2() {
+        String xmlString = "<Reservation>\n" +
+                "<reservationID>1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789exceeding100chars</reservationID>\n" +
+                "    <confirmationID>RPFABE</confirmationID>\n" +
+                "</Reservation>";
+        return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
     }
 }
