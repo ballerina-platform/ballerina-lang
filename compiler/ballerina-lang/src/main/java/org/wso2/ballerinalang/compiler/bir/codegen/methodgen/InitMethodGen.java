@@ -319,11 +319,10 @@ public class InitMethodGen {
                 addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
         if (testExecuteFunc != null) {
-            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, TEST_EXECUTE_METHOD, retVarRef, boolRef,
-                    functionArgs, Collections.emptyList());
-            lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
+            lastBB = addTestExecuteInvocationWithGracefulExitCall(modExecFunc, pkg.packageID, retVarRef,
+                    functionArgs, Collections.emptyList(), typeOwnerClass);
         } else if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
-            lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
+            lastBB = addInvocationForGracefulExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
         return modExecFunc;
@@ -445,21 +444,12 @@ public class InitMethodGen {
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private BIRNode.BIRBasicBlock addCheckedInvocationForExitCall(BIRNode.BIRFunction func, BIROperand retVar,
-                                                                  BIROperand boolRef, String typeOwnerClass) {
+    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func, BIROperand retVar,
+                                                                   BIROperand boolRef, String typeOwnerClass) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
-        BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
-                retVar);
-        nextBB.instructions.add(typeTest);
-        BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
-        BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
-        retBB.terminator = new BIRTerminator.Return(null);
-        trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
-        BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
-        nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
-        return falseBB;
+        return nextBB;
     }
 
     private static JIMethodCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB, String typeOwnerClass) {
@@ -473,6 +463,26 @@ public class InitMethodGen {
         jiMethodCall.thenBB = nextBB;
         jiMethodCall.isInternal = true;
         return jiMethodCall;
+    }
+
+    private BIRNode.BIRBasicBlock addTestExecuteInvocationWithGracefulExitCall(BIRNode.BIRFunction func,
+                                                                               PackageID modId, BIROperand retVar,
+                                                                               List<BIROperand> args,
+                                                                               List<BIRNode.BIRAnnotationAttachment>
+                                                                                       calleeAnnotAttachments,
+                                                                               String typeOwnerClass) {
+        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+        BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
+        if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
+            lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
+                    new Name(TEST_EXECUTE_METHOD), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
+            return nextBB;
+        }
+        lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
+                new Name(TEST_EXECUTE_METHOD), args, retVar, nextBB, calleeAnnotAttachments, Collections.emptySet());
+        BIRNode.BIRBasicBlock finalBB = addAndGetNextBasicBlock(func);
+        nextBB.terminator = getExitMethodCall(finalBB, typeOwnerClass);
+        return finalBB;
     }
 
     private BIRNode.BIRBasicBlock addCheckedInvocationWithArgs(BIRNode.BIRFunction func, PackageID modId,
