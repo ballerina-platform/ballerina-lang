@@ -647,8 +647,28 @@ class InstructionEmitter {
             case WAIT_ALL:
                 return emitWaitAll((BIRTerminator.WaitAll) term, tabs);
             default:
-                throw new IllegalStateException("Not a terminator instruction");
+                return emitBIRTerminator(term.getClass().getSimpleName(), term.lhsOp, term.getRhsOperands(), tabs,
+                        term.thenBB);
         }
+    }
+
+    private static String emitBIRTerminator(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs,
+                                            BIRNode.BIRBasicBlock thenBB) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += emitSpaces(1);
+        str += "->";
+        str += emitSpaces(1);
+        str += emitBasicBlockRef(thenBB);
+        str += ";";
+        return str;
     }
 
     private static String emitWait(BIRTerminator.Wait term, int tabs) {
