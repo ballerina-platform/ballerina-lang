@@ -22,14 +22,14 @@ error: Error from start of moduleC
 		[fail] test2:
 
 		    error {ballerina/test:0}TestError ("Assertion Failed!
-
+			 
 			expected: '3'
 			actual	: '-1'")
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: test2 moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_moduleB fileName: tests/test_moduleB.bal lineNumber: 26
 				callableName: test2$lambda1$ moduleName: wso2.moduleExecutionInitStartFailure.moduleB$test.0.tests.test_execute-generated_*****lineNumber: 5
-
+			
 
 
 		2 passing
