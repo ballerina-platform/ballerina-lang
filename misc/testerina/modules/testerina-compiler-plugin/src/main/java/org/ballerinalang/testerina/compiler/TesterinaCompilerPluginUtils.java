@@ -205,8 +205,7 @@ public class TesterinaCompilerPluginUtils {
     public static StatementNode getAssignmentAndFunctionCallStatement(ExpressionNode expression) {
         return NodeFactory.createAssignmentStatementNode(
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("__testExecState__")),
-                NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, NodeFactory.createEmptyMinutiaeList(),
-                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
+                NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML()),
                 expression,
                 NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
@@ -214,11 +213,11 @@ public class TesterinaCompilerPluginUtils {
 
     public static ModuleMemberDeclarationNode getExitCodeGlobalVarDclStatement() {
         TypeDescriptorNode typeDescriptor = NodeFactory.createSimpleNameReferenceNode(
-                NodeFactory.createIdentifierToken(TypeKind.INT.typeName()));;
+                NodeFactory.createIdentifierToken(TypeKind.INT.typeName()));
         Token varName = AbstractNodeFactory.createIdentifierToken("__testExecState__", singleWSML(), singleWSML());
         CaptureBindingPatternNode captureBindingPattern = NodeFactory.createCaptureBindingPatternNode(varName);
-        Token publicKeyword = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD, singleWSML(), singleWSML());
-        Token equalsToken = NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML());
+        Token publicKeyword = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD, emptyML(), singleWSML());
+        Token equalsToken = NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, emptyML(), singleWSML());
 
         return NodeFactory.createModuleVariableDeclarationNode(
                 NodeFactory.createMetadataNode(null, AbstractNodeFactory.createNodeList()),
