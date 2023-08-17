@@ -444,7 +444,7 @@ public class QueryTypeChecker extends TypeChecker {
                     } else if (queryExpr.isStream) {
                         resolvedType = symTable.streamType;
                     } else {
-                        resolvedType = getNonContextualQueryType(selectType, collectionType);
+                        resolvedType = getNonContextualQueryType(selectType, collectionType, selectExp.pos);
                     }
                     break;
             }
