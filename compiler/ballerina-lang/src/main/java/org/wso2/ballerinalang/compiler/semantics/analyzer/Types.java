@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.HybridType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -834,7 +835,13 @@ public class Types {
      * @return true if source type is assignable to the target type.
      */
     public boolean isAssignable(BType source, BType target) {
-        return isAssignable(source, target, new HashSet<>());
+        HybridType htSource = SemTypeResolver.getHybridType(source);
+        HybridType htTarget = SemTypeResolver.getHybridType(target);
+
+        boolean x = SemTypes.isSubtype(semTypeCtx, htSource.getSemTypeComponent(), htTarget.getSemTypeComponent()) &&
+                isAssignable(htSource.getBTypeComponent(), htTarget.getBTypeComponent(), new HashSet<>());
+        boolean y = isAssignable(source, target, new HashSet<>());
+        return x;
     }
 
     public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {

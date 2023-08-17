@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,32 +18,32 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.PredefinedType;
+import org.ballerinalang.model.types.NullType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
- * {@code BNeverType} represents the singleton type when functions don't have a return value.
- * The value of the {@code BNeverType} is written as 'never'
+ * {@code BNilType} represents the singleton type returns by functions with no declared value.
+ * The value of the {@code BNilType} is written as '()'
  *
- * @since 2.0.0-preview1
+ * @since 0.970.0
  */
+public class BNilType extends BType implements NullType {
 
-public class BNeverType extends BType {
-
-    protected BNeverType() {
-        super(TypeTags.NEVER, null, Flags.READONLY, PredefinedType.NEVER);
+    protected BNilType() {
+        super(TypeTags.NIL, null, Flags.READONLY, PredefinedType.NIL);
     }
 
     @Override
     public boolean isNullable() {
-        return false;
+        return true;
     }
 
     @Override
     public String toString() {
-        return Names.NEVER.value;
+        return Names.NIL_VALUE.value;
     }
 
     @Override

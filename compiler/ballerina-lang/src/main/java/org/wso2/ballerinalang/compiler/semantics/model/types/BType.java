@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
@@ -25,8 +24,6 @@ import org.ballerinalang.model.types.ValueType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.util.Flags;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
@@ -101,7 +98,11 @@ public class BType implements ValueType {
     }
 
     public static BType createNilType() {
-        return new BType(TypeTags.NIL, null, Flags.READONLY, PredefinedType.NIL, true, Names.NIL_VALUE.value);
+        return new BNilType();
+    }
+
+    public static BType createNeverType() {
+        return new BNeverType();
     }
 
     public SemType getSemtype() {

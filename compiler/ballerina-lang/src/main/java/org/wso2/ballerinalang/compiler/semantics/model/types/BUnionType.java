@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -45,6 +46,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
  */
 public class BUnionType extends BType implements UnionType {
 
+    private HybridType hybridType;
     public boolean resolvingToString = false;
 
     private BIntersectionType intersectionType = null;
@@ -66,11 +68,21 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
-        this(tsymbol, memberTypes, memberTypes, nullable, readonly);
+        this(tsymbol, memberTypes, memberTypes, nullable, readonly, false);
     }
 
     private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes, LinkedHashSet<BType> memberTypes,
                        boolean nullable, boolean readonly) {
+        this(tsymbol, originalMemberTypes, memberTypes, nullable, readonly, false);
+    }
+
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
+                       boolean isCyclic) {
+        this(tsymbol, null, memberTypes, nullable, readonly, isCyclic);
+    }
+
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> originalMemberTypes, LinkedHashSet<BType> memberTypes,
+                       boolean nullable, boolean readonly, boolean isCyclic) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
@@ -84,24 +96,13 @@ public class BUnionType extends BType implements UnionType {
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
         this.nullable = nullable;
+        this.isCyclic = isCyclic;
+        this.hybridType = SemTypeResolver.resolveBUnionHybridType(memberTypes);
     }
 
-    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly,
-                       boolean isCyclic) {
-        super(TypeTags.UNION, tsymbol);
-
-        if (readonly) {
-            this.flags |= Flags.READONLY;
-
-            if (tsymbol != null) {
-                this.tsymbol.flags |= Flags.READONLY;
-            }
-        }
-
-        this.originalMemberTypes = memberTypes;
+    private BUnionType(LinkedHashSet<BType> memberTypes) {
+        super(TypeTags.UNION, null);
         this.memberTypes = memberTypes;
-        this.nullable = nullable;
-        this.isCyclic = isCyclic;
     }
 
     @Override
@@ -118,6 +119,7 @@ public class BUnionType extends BType implements UnionType {
         assert memberTypes.size() == 0;
         this.memberTypes = memberTypes;
         this.originalMemberTypes = new LinkedHashSet<>(memberTypes);
+        this.hybridType = null;
     }
 
     public void setOriginalMemberTypes(LinkedHashSet<BType> memberTypes) {
@@ -175,6 +177,16 @@ public class BUnionType extends BType implements UnionType {
     }
 
     /**
+     * Creates union for {@link HybridType#getBTypeComponent}.
+     *
+     * @param types The types to be used to define the union
+     * @return The created union type
+     */
+    public static BUnionType createBTypeComponent(LinkedHashSet<BType> types) {
+        return new BUnionType(types);
+    }
+
+    /**
      * Creates a union type using the types specified in the `types` set. The created union will not have union types in
      * its member types set. If the set contains the nil type, calling isNullable() will return true.
      *
@@ -200,7 +212,7 @@ public class BUnionType extends BType implements UnionType {
             }
         }
         if (memberTypes.isEmpty()) {
-            memberTypes.add(new BNeverType());
+            memberTypes.add(BType.createNeverType());
             return new BUnionType(tsymbol, memberTypes, false, isImmutable);
         }
 
@@ -274,6 +286,7 @@ public class BUnionType extends BType implements UnionType {
         setCyclicFlag(type);
 
         this.nullable = this.nullable || type.isNullable();
+        this.hybridType = SemTypeResolver.resolveBUnionHybridType(this.memberTypes); // TODO: Optimize
     }
 
     private void setCyclicFlag(BType type) {
@@ -347,6 +360,7 @@ public class BUnionType extends BType implements UnionType {
         if (isImmutable) {
             this.flags |= Flags.READONLY;
         }
+        this.hybridType = SemTypeResolver.resolveBUnionHybridType(this.memberTypes); // TODO: Optimize
     }
 
     public void mergeUnionType(BUnionType unionType) {
@@ -520,5 +534,13 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
+    }
+
+    public HybridType getHybridType() {
+        return hybridType;
+    }
+
+    public void setHybridType(HybridType hybridType) {
+        this.hybridType = hybridType;
     }
 }

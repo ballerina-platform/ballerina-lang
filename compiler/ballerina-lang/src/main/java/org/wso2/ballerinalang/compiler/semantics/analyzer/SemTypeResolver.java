@@ -34,8 +34,14 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.HybridType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -65,12 +71,16 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getReferredType;
 
 /**
  * Responsible for resolving sem-types.
@@ -350,7 +360,7 @@ public class SemTypeResolver {
         return resolveSingletonType(td.valueSpace);
     }
 
-    SemType resolveSingletonType(List<BLangExpression> valueSpace) {
+    private SemType resolveSingletonType(List<BLangExpression> valueSpace) {
         // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
         replaceUnaryExprWithNumericLiteral(valueSpace);
 
@@ -360,7 +370,7 @@ public class SemTypeResolver {
         return resolveSingletonType((BLangLiteral) valueSpace.get(0));
     }
 
-    private SemType resolveSingletonType(BLangLiteral literal) {
+    private static SemType resolveSingletonType(BLangLiteral literal) {
         Object litVal = literal.value;
         switch (literal.getBType().getKind()) {
             case FLOAT:
@@ -389,7 +399,7 @@ public class SemTypeResolver {
         }
     }
 
-    private void replaceUnaryExprWithNumericLiteral(List<BLangExpression> valueSpace) {
+    private static void replaceUnaryExprWithNumericLiteral(List<BLangExpression> valueSpace) {
         for (int i = 0; i < valueSpace.size(); i++) {
             BLangExpression value = valueSpace.get(i);
             if (value.getKind() == NodeKind.UNARY_EXPR) {
@@ -751,9 +761,129 @@ public class SemTypeResolver {
             case TypeTags.FINITE:
                 return true;
             case TypeTags.TYPEREFDESC:
-                return isSemTypeEnabled(Types.getReferredType(bType));
+                return isSemTypeEnabled(getReferredType(bType));
             default:
                 return false;
         }
     }
+
+    // --------------------------------------- Utility methods ----------------------------------------------
+
+    public static HybridType resolveBUnionHybridType(LinkedHashSet<BType> memberTypes) {
+        SemType semType = PredefinedType.NEVER;
+        LinkedHashSet<BType> bTypes = new LinkedHashSet<>(memberTypes.size());
+        for (BType memberType : memberTypes) {
+            HybridType ht = getHybridType(memberType);
+            semType = SemTypes.union(semType, ht.getSemTypeComponent());
+            BType bComponent = ht.getBTypeComponent();
+            if (!(bComponent.getKind() == TypeKind.NEVER)) {
+                bTypes.add(bComponent);
+            }
+        }
+
+        BType bType;
+        if (bTypes.size() == 0) {
+            bType = BType.createNeverType();
+        } else if (bTypes.size() == 1) {
+            bType = bTypes.iterator().next();
+        } else {
+            bType = BUnionType.createBTypeComponent(bTypes);
+        }
+
+        return new HybridType(semType, bType);
+    }
+
+    public static HybridType resolveBIntersectionHybridType(LinkedHashSet<BType> constituentTypes) {
+        SemType semType = PredefinedType.TOP;
+        LinkedHashSet<BType> bTypes = new LinkedHashSet<>(constituentTypes.size());
+        for (BType constituentType : constituentTypes) {
+            HybridType hybridType = getHybridType(constituentType);
+            semType = SemTypes.intersection(semType, hybridType.getSemTypeComponent());
+            BType bComponent = hybridType.getBTypeComponent();
+            if (!(bComponent.getKind() == TypeKind.NEVER)) {
+                bTypes.add(bComponent);
+            }
+        }
+        return new HybridType(semType, BIntersectionType.createBTypeComponent(bTypes));
+    }
+
+    public static HybridType resolveBFiniteTypeHybridType(List<BLangExpression> valueSpace) {
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
+        replaceUnaryExprWithNumericLiteral(valueSpace);
+
+        SemType semType = PredefinedType.NEVER;
+        Set<BLangExpression> bTypeValSpace = new HashSet<>(valueSpace.size());
+        for (BLangExpression bLangExpression : valueSpace) {
+            BLangLiteral literal = (BLangLiteral) bLangExpression;
+            if (semTypeSupported(literal.getBType().getKind())) {
+                semType = SemTypes.union(semType, resolveSingletonType((BLangLiteral) bLangExpression));
+            } else {
+                bTypeValSpace.add(bLangExpression);
+            }
+        }
+
+        return new HybridType(semType, BFiniteType.createBTypeComponent(bTypeValSpace));
+    }
+
+    public static void addBFiniteValue(BFiniteType bFiniteType, BLangExpression value) {
+        HybridType hybridType = bFiniteType.getHybridType();
+        SemType sComponent = hybridType.getSemTypeComponent();
+        BFiniteType bComponent = (BFiniteType) hybridType.getBTypeComponent();
+
+        if (semTypeSupported(value.getBType().getKind())) {
+            sComponent = SemTypes.union(sComponent, resolveSingletonType((BLangLiteral) value));
+        } else {
+            bComponent.addValue(value, true);
+        }
+
+        bFiniteType.setHybridType(new HybridType(sComponent, bComponent));
+    }
+
+    public static HybridType getHybridType(BType t) {
+        if (t.tag == TypeTags.TYPEREFDESC) {
+            return getHybridType(((BTypeReferenceType) t).referredType);
+        }
+
+        if (t.tag == TypeTags.UNION || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON) {
+            return ((BUnionType) t).getHybridType();
+        }
+
+        if (t.tag == TypeTags.INTERSECTION) {
+            return ((BIntersectionType) t).getHybridType();
+        }
+
+        if (t.tag == TypeTags.FINITE) {
+            return ((BFiniteType) t).getHybridType();
+        }
+
+        if (t.tag == TypeTags.ANY) {
+            return ((BAnyType) t).getHybridType(); // TODO: bTypeComponent is still any
+        }
+
+        if (t.tag == TypeTags.READONLY) {
+            return ((BReadonlyType) t).getHybridType(); // TODO: bTypeComponent is still readonly
+        }
+
+        if (semTypeSupported(t.tag)) {
+            return new HybridType(t.getSemtype(), BType.createNeverType());
+        }
+
+        return new HybridType(PredefinedType.NEVER, t);
+    }
+
+    private static boolean semTypeSupported(TypeKind kind) {
+        return switch (kind) {
+            case NIL -> true;
+            default -> false;
+        };
+    }
+
+    private static boolean semTypeSupported(int tag) {
+        return switch (tag) {
+            case TypeTags.NIL -> true;
+            default -> false;
+        };
+    }
+
+    public static final SemType READONLY_SEM_COMPONENT = PredefinedType.NIL;
 }

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
+    private HybridType hybridType = new HybridType(SemTypeResolver.READONLY_SEM_COMPONENT, this);
 
     public BReadonlyType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -61,5 +63,13 @@ public class BReadonlyType extends BBuiltInRefType {
     @Override
     public TypeKind getKind() {
         return TypeKind.READONLY;
+    }
+
+    public HybridType getHybridType() {
+        return hybridType;
+    }
+
+    public void setHybridType(HybridType hybridType) {
+        this.hybridType = hybridType;
     }
 }
