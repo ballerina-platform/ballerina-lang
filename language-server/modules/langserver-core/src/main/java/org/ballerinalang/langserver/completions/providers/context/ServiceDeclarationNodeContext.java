@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -243,7 +242,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                 sortText = genSortText(2) + genSortTextForModule(context, lsItem);
             } else if (Snippet.KW_NEW.equals(lsItem)) {
                 sortText = genSortText(3);
-            } else if (SortingUtil.isLangLibModuleCompletionItem(lsItem) || lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+            } else if (SortingUtil.isLangLibModuleCompletionItem(lsItem) ||
+                    lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 // Prioritize the new keyword
                 sortText = genSortText(4);
             } else {
@@ -259,8 +259,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
         if (completionItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
             return false;
         }
-        Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
-        return symbol.filter(SymbolUtil::isListener).isPresent();
+        return ((SymbolCompletionItem) completionItem).getSymbol().map(SymbolUtil::isListener).orElse(false);
     }
 
     private void sortMemberContextItems(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {
