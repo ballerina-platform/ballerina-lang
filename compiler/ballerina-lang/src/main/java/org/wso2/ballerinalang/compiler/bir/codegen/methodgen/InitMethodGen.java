@@ -71,7 +71,7 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
@@ -549,11 +549,11 @@ public class InitMethodGen {
     }
 
     public void generateGetTestExecutionState(ClassWriter cw, String className) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TEST_EXECUTION_STATE, "()I",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TEST_EXECUTION_STATE, "()J",
                 null, null);
         mv.visitCode();
-        mv.visitFieldInsn(GETSTATIC, className, TEST_EXECUTION_STATE, "I");
-        mv.visitInsn(IRETURN);
+        mv.visitFieldInsn(GETSTATIC, className, TEST_EXECUTION_STATE, "J");
+        mv.visitInsn(LRETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_TEST_EXECUTION_STATE, className);
         mv.visitEnd();
     }
