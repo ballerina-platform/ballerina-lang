@@ -1525,7 +1525,6 @@ public class LargeMethodOptimizer {
         BIROperand isErrorResultOp = generateTempLocalVariable(symbolTable.booleanType, function.localVars);
         BIRNonTerminator errorTestIns = new BIRNonTerminator.TypeTest(null, symbolTable.errorType,
                 isErrorResultOp, splitFuncCallResultOp);
-        errorTestIns.scope = lastInsScope;
         currentBB.instructions.add(errorTestIns);
         BIRBasicBlock trueBB = new BIRBasicBlock(++newBBNum);
         BIRBasicBlock falseBB = new BIRBasicBlock(++newBBNum);
@@ -1534,18 +1533,15 @@ public class LargeMethodOptimizer {
         BIROperand castedErrorOp = generateTempLocalVariable(symbolTable.errorType, function.localVars);
         BIRNonTerminator typeCastErrIns = new BIRNonTerminator.TypeCast(null, castedErrorOp,
                 splitFuncCallResultOp, symbolTable.errorType, false);
-        typeCastErrIns.scope = lastInsScope;
         trueBB.instructions.add(typeCastErrIns);
         BIRNonTerminator moveIns = new BIRNonTerminator.Move(null, castedErrorOp,
                 new BIROperand(function.returnVariable));
         trueBB.instructions.add(moveIns);
-        moveIns.scope = lastInsScope;
         BIRBasicBlock returnBB = function.basicBlocks.get(function.basicBlocks.size() - 1);
         trueBB.terminator = new BIRTerminator.GOTO(null, returnBB, lastInsScope);
         newBBList.add(trueBB);
         BIRNonTerminator typeCastLhsOpIns = new BIRNonTerminator.TypeCast(null, splitLastInsLhsOp,
                 splitFuncCallResultOp, splitLastInsLhsOp.variableDcl.type, false);
-        typeCastLhsOpIns.scope = lastInsScope;
         falseBB.instructions.add(typeCastLhsOpIns);
         return falseBB;
     }

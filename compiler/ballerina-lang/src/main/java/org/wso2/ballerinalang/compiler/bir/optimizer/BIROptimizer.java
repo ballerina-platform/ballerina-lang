@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -748,6 +749,13 @@ public class BIROptimizer {
         public void visit(BIRNonTerminator.NewReFlagOnOff reFlagOnOff) {
             this.optimizeNode(reFlagOnOff.lhsOp, this.env);
             this.optimizeNode(reFlagOnOff.flags, this.env);
+        }
+
+        @Override
+        public void visit(JMethodCallInstruction jMethodCallInstruction) {
+            for (BIROperand arg : jMethodCallInstruction.args) {
+                this.optimizeNode(arg, this.env);
+            }
         }
 
         // Operands
