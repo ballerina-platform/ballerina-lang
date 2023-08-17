@@ -22,6 +22,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
@@ -46,10 +47,12 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
@@ -63,7 +66,6 @@ import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateToolName;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 
 /**
  * This class represents the "bal tool" command.
@@ -410,8 +412,9 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        // TODO: make supportedPlatform = "java11,java17" once central is fixed
-        String supportedPlatform = "java11";
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
         try {
             if (isToolAvailableLocally(toolId, version)) {
                 outStream.println("tool " + toolId + ":" + version + " is already available locally.");
@@ -566,8 +569,9 @@ public class ToolCommand implements BLauncherCmd {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(), getAccessTokenOfCLI(settings));
             boolean foundTools = false;
-            // TODO: make supportedPlatform = "java11,java17" once central is fixed
-            String supportedPlatform = "java11";
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(JvmTarget::code)
+                    .collect(Collectors.joining(","));
             ToolSearchResult toolSearchResult = client.searchTool(keyword, supportedPlatform,
                     RepoUtils.getBallerinaVersion());
             List<Tool> tools = toolSearchResult.getTools();
@@ -635,11 +639,10 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private SemanticVersion getToolDistVersionFromCentralCache() {
-        // TODO: ANY_PLATFORM should be updated to java* after we fix #41015
-        Path balaPath = ProjectUtils.createAndGetHomeReposPath()
+        Path centralBalaDirPath = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(org).resolve(name).resolve(version)
-                .resolve(ANY_PLATFORM);
+                .resolve(ProjectConstants.BALA_DIR_NAME);
+        Path balaPath = CommandUtil.getPlatformSpecificBalaPath(org, name, version, centralBalaDirPath);
         PackageJson packageJson = BalaFiles.readPackageJson(balaPath);
         return SemanticVersion.from(packageJson.getBallerinaVersion());
     }
@@ -677,10 +680,11 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        // TODO: make supportedPlatform = "java11,java17" once central is fixed
-        String supportedPlatform = "java11";
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(JvmTarget::code)
+                .collect(Collectors.joining(","));
         try {
-            version = getLatestVersionForUpdateCommand(tool.get());
+            version = getLatestVersionForUpdateCommand(supportedPlatform, tool.get());
             if (tool.get().version().equals(version)) {
                 outStream.println("tool '" + toolId + "' is already up-to-date.");
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -702,7 +706,8 @@ public class ToolCommand implements BLauncherCmd {
         }
     }
 
-    private String getLatestVersionForUpdateCommand(BalToolsManifest.Tool tool) throws CentralClientException {
+    private String getLatestVersionForUpdateCommand(String supportedPlatforms, BalToolsManifest.Tool tool)
+            throws CentralClientException {
         Settings settings;
         try {
             settings = RepoUtils.readSettings();
@@ -715,7 +720,7 @@ public class ToolCommand implements BLauncherCmd {
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings));
-        List<String> versions = client.getPackageVersions(tool.org(), tool.name(), ANY_PLATFORM,
+        List<String> versions = client.getPackageVersions(tool.org(), tool.name(), supportedPlatforms,
                 RepoUtils.getBallerinaVersion());
         return getLatestVersion(versions, tool.version());
     }
