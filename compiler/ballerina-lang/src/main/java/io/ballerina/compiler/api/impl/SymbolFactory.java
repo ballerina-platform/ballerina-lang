@@ -376,8 +376,10 @@ public class SymbolFactory {
     }
 
     private boolean isReadonlyIntersectionArrayType(BType type) {
+        type = Types.getReferredType(type);
         if (type.tag == TypeTags.INTERSECTION 
-                && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+                && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL &&
+                (type.flags & Flags.READONLY) ==  Flags.READONLY) {
             return true;
         }
         if (type.tag == TypeTags.ARRAY) {
