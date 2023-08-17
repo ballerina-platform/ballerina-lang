@@ -18,6 +18,7 @@ import values.records;
 import values.objects;
 import values.maps;
 import values.arrays;
+import values.xml_values;
 import values.enums;
 import values.errors;
 import ballerina/lang.test as test;
@@ -69,4 +70,5 @@ public function main() {
     enums:validateAPI();
     arrays:validateAPI();
     errors:validateAPI();
+    xml_values:validateAPI();
 }
