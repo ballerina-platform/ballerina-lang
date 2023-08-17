@@ -2651,11 +2651,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean validateRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
                                            Location pos, AnalyzerData data) {
-        boolean hasReadOnlyIntersection = type.getIntersectionType().isPresent();
+        boolean hasReadOnlyIntersection = type.mutableType != null;
         Map<String, BType> typesOfDefaultValues = new HashMap<>();
 
         if (hasReadOnlyIntersection) {
-            BRecordType mutableType = getRecordTypeInIntersection(type.getIntersectionType().get());
+            BRecordType mutableType = type.mutableType;
             if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
                 findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType,
                                                       typesOfDefaultValues);
