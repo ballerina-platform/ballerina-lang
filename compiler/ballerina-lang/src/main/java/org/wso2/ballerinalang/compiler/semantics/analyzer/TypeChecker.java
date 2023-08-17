@@ -2490,8 +2490,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return checkMappingConstructorCompatibility(compatibleTypes.get(0), mappingConstructor, data);
         }
 
-        if (tag == TypeTags.TYPEREFDESC || tag == TypeTags.INTERSECTION) {
+        if (tag == TypeTags.TYPEREFDESC) {
             BType refType = Types.getImpliedType(bType);
+            BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor, data);
+            return compatibleType == refType ? bType : compatibleType;
+        }
+
+        if (tag == TypeTags.INTERSECTION) {
+            BType refType = Types.getImpliedType(bType);
+            if (refType.tag == TypeTags.RECORD) {
+                boolean isSpecifiedFieldsValid = validateSpecifiedFields(mappingConstructor, refType, data);
+                boolean hasAllRequiredFields =
+                        validateRequiredFields(getRecordTypeInIntersection((BIntersectionType) bType),
+                                mappingConstructor.fields, mappingConstructor.pos, data, true);
+                return isSpecifiedFieldsValid && hasAllRequiredFields ? refType : symTable.semanticError;
+            }
             BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor, data);
             return compatibleType == refType ? bType : compatibleType;
         }
@@ -2507,7 +2520,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 boolean hasAllRequiredFields = validateRequiredFields((BRecordType) possibleType,
                                                                       mappingConstructor.fields,
-                                                                      mappingConstructor.pos, data);
+                                                                      mappingConstructor.pos, data, false);
 
                 return isSpecifiedFieldsValid && hasAllRequiredFields ? possibleType : symTable.semanticError;
             case TypeTags.READONLY:
@@ -2605,7 +2618,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (recType != null) {
                 validateSpecifiedFields(mappingConstructorExpr, recType, data);
-                validateRequiredFields(recType, mappingConstructorExpr.fields, mappingConstructorExpr.pos, data);
+                validateRequiredFields(recType, mappingConstructorExpr.fields, mappingConstructorExpr.pos, data, false);
                 return;
             }
         }
@@ -2646,21 +2659,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return (BRecordType) referredType;
             }
         }
-        return null;
+        return (BRecordType) Types.getImpliedType(intersectionType);
     }
 
     private boolean validateRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
-                                           Location pos, AnalyzerData data) {
-        boolean hasReadOnlyIntersection = type.mutableType != null;
+                                           Location pos, AnalyzerData data, boolean hasReadOnlyIntersection) {
         Map<String, BType> typesOfDefaultValues = new HashMap<>();
 
         if (hasReadOnlyIntersection) {
-            BRecordType mutableType = type.mutableType;
-            if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
-                findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType,
-                                                      typesOfDefaultValues);
+            if (type.tsymbol == null || type.tsymbol.pkgID == PackageID.DEFAULT) {
+                findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, type, typesOfDefaultValues);
             } else {
-                findDefaultValuesFromTypeSymbol(mutableType, typesOfDefaultValues);
+                findDefaultValuesFromTypeSymbol(type, typesOfDefaultValues);
             }
         }
 
