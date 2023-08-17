@@ -133,7 +133,7 @@ public class CompilerPhaseRunner {
         }
 
         deadCodeAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_CODE_ANALYZE)) {
             return;
         }
 
