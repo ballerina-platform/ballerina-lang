@@ -50,7 +50,6 @@ import java.util.Map;
 public class SettingsBuilder {
 
     public static final String NAME = "name";
-    public static final String USER_ID = "userId";
     public static final String ACCESSTOKEN = "accesstoken";
     public static final String NEXUS = "nexus";
     public static final String ARTIFACTORY = "artifactory";
@@ -151,7 +150,7 @@ public class SettingsBuilder {
                     for (TomlTableNode repositoryNode : repositoryNodes) {
                         url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
-                        repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USER_ID, "");
+                        repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
                         repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESSTOKEN, "");
                         repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
                     }
