@@ -403,8 +403,7 @@ public class RunNativeImageTestTask implements Task {
             if (hasTests) {
                 int testResult = 1;
                 try {
-                    String warnings = GraalVMCompatibilityUtils.getAllWarnings(
-                            project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
+                    String warnings = GraalVMCompatibilityUtils.getAllWarnings(project.currentPackage(), true);
                     if (!warnings.isEmpty()) {
                         out.println(warnings);
                     }

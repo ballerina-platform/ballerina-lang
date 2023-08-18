@@ -19,6 +19,7 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.AnyTarget;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -37,27 +38,22 @@ import java.util.Optional;
  */
 public class GraalVMCompatibilityUtils {
 
-    private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg, String targetPlatform) {
-        // Check if external platform dependencies are defined
-        PackageManifest manifest = pkg.manifest();
-        return manifest.platform(targetPlatform) != null &&
-                !manifest.platform(targetPlatform).dependencies().isEmpty();
-    }
-
     /**
      * Get the GraalVM compatibility warning message for the given package.
      *
      * @param pkg            Package to be verified
-     * @param targetPlatform Target platform
      * @return Warning message
      */
-    public static String getWarningForPackage(io.ballerina.projects.Package pkg, String targetPlatform) {
+    public static String getWarningForPackage(io.ballerina.projects.Package pkg) {
         // Verify that Java dependencies (if exist) of this package are GraalVM compatible
-        if (hasExternalPlatformDependencies(pkg, targetPlatform)) {
-            PackageManifest.Platform platform = pkg.manifest().platform(targetPlatform);
+        PackageManifest manifest = pkg.manifest();
+        for (JvmTarget jvmTarget : JvmTarget.values()) {
+            PackageManifest.Platform platform = manifest.platform(jvmTarget.code());
+            if (platform == null || platform.dependencies().isEmpty()) {
+                continue;
+            }
             String packageName = pkg.manifest().name().value();
-
-            if (platform == null || platform.graalvmCompatible() == null) {
+            if (platform.graalvmCompatible() == null) {
                 return String.format(
                         "************************************************************%n" +
                                 "* WARNING: Package is not verified with GraalVM.           *%n" +
@@ -68,7 +64,7 @@ public class GraalVMCompatibilityUtils {
                                 "are compatible with GraalVM. Subsequently, update the Ballerina.toml file under " +
                                 "the section '[platform.%s]' with the attribute 'graalvmCompatible = true'.%n%n" +
                                 "************************************************************%n",
-                        packageName, targetPlatform);
+                        packageName, jvmTarget.code());
             } else if (!platform.graalvmCompatible()) {
                 return String.format(
                         "************************************************************%n" +
@@ -116,14 +112,13 @@ public class GraalVMCompatibilityUtils {
      * Get all the applicable warning messages for GraalVM compatibility of the package.
      *
      * @param pkg            Package to be verified
-     * @param targetPlatform Target platform
      * @param isTestExec     Whether it is a test execution
      * @return Warning message
      */
-    public static String getAllWarnings(io.ballerina.projects.Package pkg, String targetPlatform, boolean isTestExec) {
+    public static String getAllWarnings(io.ballerina.projects.Package pkg, boolean isTestExec) {
         StringBuilder warnings = new StringBuilder();
         // Verify that Java dependencies (if exist) of this package are GraalVM compatible
-        String packageWarning = getWarningForPackage(pkg, targetPlatform);
+        String packageWarning = getWarningForPackage(pkg);
         if (packageWarning != null) {
             warnings.append(packageWarning);
         }
