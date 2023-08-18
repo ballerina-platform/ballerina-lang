@@ -145,8 +145,10 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
             typeSignature = this.typeDescriptor().signature();
         }
 
-        String paramName = this.getName().isPresent() ? " " + this.getName().get() : "";
-        this.signature = "[" + typeSignature + paramName + "]";
+        this.signature = this.getName().isPresent() ?
+                "[" + typeSignature + " " + this.getName().get() + "]" :
+                "[" + typeSignature + "]";
+
         return this.signature;
     }
 
