@@ -97,7 +97,7 @@ public class BUnionType extends BType implements UnionType {
         this.memberTypes = memberTypes;
         this.nullable = nullable;
         this.isCyclic = isCyclic;
-        this.hybridType = SemTypeResolver.resolveBUnionHybridType(memberTypes);
+        SemTypeResolver.resolveBUnionHybridType(this);
     }
 
     BUnionType(LinkedHashSet<BType> memberTypes) {
@@ -281,7 +281,7 @@ public class BUnionType extends BType implements UnionType {
         setCyclicFlag(type);
 
         this.nullable = this.nullable || type.isNullable();
-        this.hybridType = SemTypeResolver.resolveBUnionHybridType(this.memberTypes); // TODO: Optimize
+        SemTypeResolver.resolveBUnionHybridType(this); // TODO: Optimize
     }
 
     private void setCyclicFlag(BType type) {
@@ -355,7 +355,7 @@ public class BUnionType extends BType implements UnionType {
         if (isImmutable) {
             this.flags |= Flags.READONLY;
         }
-        this.hybridType = SemTypeResolver.resolveBUnionHybridType(this.memberTypes); // TODO: Optimize
+        SemTypeResolver.resolveBUnionHybridType(this); // TODO: Optimize
     }
 
     public void mergeUnionType(BUnionType unionType) {

@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
@@ -769,7 +770,8 @@ public class SemTypeResolver {
 
     // --------------------------------------- Utility methods ----------------------------------------------
 
-    public static HybridType resolveBUnionHybridType(LinkedHashSet<BType> memberTypes) {
+    public static void resolveBUnionHybridType(BUnionType type) {
+        LinkedHashSet<BType> memberTypes = type.getMemberTypes();
         SemType semType = PredefinedType.NEVER;
         LinkedHashSet<BType> bTypes = new LinkedHashSet<>(memberTypes.size());
         for (BType memberType : memberTypes) {
@@ -787,10 +789,18 @@ public class SemTypeResolver {
         } else if (bTypes.size() == 1) {
             bType = bTypes.iterator().next();
         } else {
-            bType = BUnionType.createBTypeComponent(bTypes);
+            BUnionType bUnionType;
+            if (type instanceof BAnydataType) {
+                bUnionType = BAnydataType.createBTypeComponent(bTypes);
+            } else {
+                bUnionType = BUnionType.createBTypeComponent(bTypes);
+            }
+            bUnionType.flags = type.flags;
+            bUnionType.isCyclic = type.isCyclic;
+            bType = bUnionType;
         }
 
-        return new HybridType(semType, bType);
+        type.setHybridType(new HybridType(semType, bType));
     }
 
     public static HybridType resolveBIntersectionHybridType(LinkedHashSet<BType> constituentTypes) {
