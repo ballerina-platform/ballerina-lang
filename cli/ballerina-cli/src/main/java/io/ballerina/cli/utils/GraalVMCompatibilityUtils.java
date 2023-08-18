@@ -79,9 +79,10 @@ public class GraalVMCompatibilityUtils {
                                     "************************************************************%n%n" +
                                     "The GraalVM compatibility property has not been defined for the package '%s'. " +
                                     "This could potentially lead to compatibility issues with GraalVM.%n%n" +
-                                    "To resolve this warning, please ensure that all Java dependencies of this package " +
-                                    "are compatible with GraalVM. Subsequently, update the Ballerina.toml file under " +
-                                    "the section '[platform.%s]' with the attribute 'graalvmCompatible = true'.%n%n" +
+                                    "To resolve this warning, please ensure that all Java dependencies of " +
+                                    "this package are compatible with GraalVM. Subsequently, update the " +
+                                    "Ballerina.toml file under the section '[platform.%s]' with the " +
+                                    "attribute 'graalvmCompatible = true'.%n%n" +
                                     "************************************************************%n",
                             packageName, targetPlatform);
                 } else {
