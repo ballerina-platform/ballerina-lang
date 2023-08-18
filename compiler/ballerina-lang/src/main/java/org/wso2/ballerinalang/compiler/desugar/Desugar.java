@@ -5861,7 +5861,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void updateClosureVariable(BVarSymbol varSymbol, BLangInvokableNode encInvokable, Location pos) {
         Set<Flag> flagSet = encInvokable.flagSet;
-        boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
+        boolean isClosure = flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
                 !flagSet.contains(Flag.ATTACHED);
         if (!varSymbol.closure && isClosure) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
