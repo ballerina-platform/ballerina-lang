@@ -55,15 +55,12 @@ public class ResolveMavenDependenciesTask implements Task {
                 platformRepositories.addAll(platform.repositories());
             }
         }
-        if (platform == null) {
+        if (platform == null || platformLibraries.isEmpty()) {
             return;
         }
 
         List<Map<String, Object>> mavenCustomRepos = new ArrayList<>();
         List<Map<String, Object>> mavenDependencies = new ArrayList<>();
-        if (platformLibraries.isEmpty()) {
-            return;
-        }
 
         String targetRepo = project.sourceRoot().resolve("target").resolve("platform-libs").toAbsolutePath().toString();
         MavenResolver resolver = new MavenResolver(targetRepo);
