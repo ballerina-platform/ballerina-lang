@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -101,23 +100,27 @@ public class BallerinaPathSegmentList implements PathSegmentList {
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
 
-        Predicate<BResourcePathSegmentSymbol> pred = pathSeg -> "$^^".equals(pathSeg.getOriginalName().getValue())
-                || "^^".equals(pathSeg.getOriginalName().getValue());
-        Optional<BResourcePathSegmentSymbol> segment = this.internalPathSegmentSymbols.stream().filter(pred).findAny();
+        BResourcePathSegmentSymbol segment = null;
+        for (BResourcePathSegmentSymbol internalPathSegmentSymbol : this.internalPathSegmentSymbols) {
+            if ("$^^".equals(internalPathSegmentSymbol.getOriginalName().getValue())
+                    || "^^".equals(internalPathSegmentSymbol.getOriginalName().getValue())) {
+                segment = internalPathSegmentSymbol;
+                break;
+            }
+        }
 
-        if (segment.isEmpty()) {
+        if (segment == null) {
             return Optional.empty();
         }
 
         if (this.internalPathRestParam == null) {
-            this.pathRestParam = symbolFactory.createPathParamSymbol(segment.get().getOriginalName().getValue(),
-                    segment.get(), PathSegment.Kind.PATH_REST_PARAMETER);
+            this.pathRestParam = symbolFactory.createPathParamSymbol(segment.getOriginalName().getValue(), segment,
+                    PathSegment.Kind.PATH_REST_PARAMETER);
             return Optional.of(this.pathRestParam);
         }
 
         this.pathRestParam = symbolFactory.createPathParamSymbol(
-                this.internalPathRestParam.getOriginalName().getValue(), segment.get(),
-                PathSegment.Kind.PATH_REST_PARAMETER);
+                this.internalPathRestParam.getOriginalName().getValue(), segment, PathSegment.Kind.PATH_REST_PARAMETER);
         return Optional.ofNullable(this.pathRestParam);
     }
 
