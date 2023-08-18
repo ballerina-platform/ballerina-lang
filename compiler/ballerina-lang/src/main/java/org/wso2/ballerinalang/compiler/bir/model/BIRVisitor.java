@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 
 /**
@@ -297,6 +299,14 @@ public abstract class BIRVisitor {
     }
 
     public void visit(JMethodCallInstruction methodCallInstruction) {
+        throw new AssertionError();
+    }
+
+    public void visit(JLargeMapInstruction largeMapInstruction) {
+        throw new AssertionError();
+    }
+
+    public void visit(JLargeArrayInstruction jLargeArrayInstruction) {
         throw new AssertionError();
     }
 }

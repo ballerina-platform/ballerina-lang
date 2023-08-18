@@ -21,6 +21,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -651,6 +653,23 @@ public class BIRInstructionWriter extends BIRVisitor {
         for (BIROperand arg : jMethodCallInstruction.args) {
             arg.accept(this);
         }
+    }
+
+    @Override
+    public void visit(JLargeArrayInstruction jLargeArrayInstruction) {
+        jLargeArrayInstruction.lhsOp.accept(this);
+        jLargeArrayInstruction.sizeOp.accept(this);
+        jLargeArrayInstruction.values.accept(this);
+        if (jLargeArrayInstruction.typedescOp != null) {
+            jLargeArrayInstruction.typedescOp.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(JLargeMapInstruction jLargeMapInstruction) {
+        jLargeMapInstruction.lhsOp.accept(this);
+        jLargeMapInstruction.rhsOp.accept(this);
+        jLargeMapInstruction.initialValues.accept(this);
     }
 
     // Positions

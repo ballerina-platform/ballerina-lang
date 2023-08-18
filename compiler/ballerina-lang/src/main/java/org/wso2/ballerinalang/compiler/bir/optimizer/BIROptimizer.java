@@ -18,6 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
@@ -756,6 +758,21 @@ public class BIROptimizer {
             for (BIROperand arg : jMethodCallInstruction.args) {
                 this.optimizeNode(arg, this.env);
             }
+        }
+
+        @Override
+        public void visit(JLargeArrayInstruction jLargeArrayInstruction) {
+            this.optimizeNode(jLargeArrayInstruction.lhsOp, this.env);
+            this.optimizeNode(jLargeArrayInstruction.sizeOp, this.env);
+            this.optimizeNode(jLargeArrayInstruction.values, this.env);
+            this.optimizeNode(jLargeArrayInstruction.typedescOp, this.env);
+        }
+
+        @Override
+        public void visit(JLargeMapInstruction jLargeMapInstruction) {
+            this.optimizeNode(jLargeMapInstruction.lhsOp, this.env);
+            this.optimizeNode(jLargeMapInstruction.rhsOp, this.env);
+            this.optimizeNode(jLargeMapInstruction.initialValues, this.env);
         }
 
         // Operands

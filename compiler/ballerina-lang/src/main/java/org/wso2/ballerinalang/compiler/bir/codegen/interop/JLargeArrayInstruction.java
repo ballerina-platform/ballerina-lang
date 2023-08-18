@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -70,4 +71,10 @@ public class JLargeArrayInstruction extends JInstruction {
             this.values = operands[1];
         }
     }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }
