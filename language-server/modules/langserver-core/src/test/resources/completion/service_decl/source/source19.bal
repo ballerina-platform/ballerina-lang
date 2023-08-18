@@ -1,8 +1,6 @@
-import ballerina/http;
-import ballerina/websub;
+import ballerina/module1;
 
-websub:Listener websubLi = check new websub:Listener(9090);
-listener http:Listener httpListener = check new http:Listener(9091);
+module1:Listener l1 = new(9090);
 
 service on  {
     

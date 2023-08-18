@@ -1,34 +1,19 @@
 {
   "position": {
-    "line": 6,
+    "line": 4,
     "character": 11
   },
   "source": "service_decl/source/source20.bal",
   "description": "",
   "items": [
     {
-      "label": "ballerina/module1",
+      "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "BF",
+      "sortText": "BB",
       "filterText": "module1",
       "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/jballerina.java",
@@ -42,11 +27,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -66,11 +51,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -90,11 +75,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -114,11 +99,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -138,11 +123,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -202,11 +187,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -226,11 +211,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -250,11 +235,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -274,11 +259,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -298,11 +283,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -391,46 +376,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "http",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BB",
-      "filterText": "http",
-      "insertText": "http",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "websub",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BB",
-      "filterText": "websub",
-      "insertText": "websub",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "httpListener",
-      "kind": "Variable",
-      "detail": "http:Listener",
-      "sortText": "A",
-      "insertText": "httpListener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "websubLi",
-      "kind": "Variable",
-      "detail": "websub:Listener",
-      "sortText": "A",
-      "insertText": "websubLi",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "C",
       "filterText": "new",
       "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "A",
+      "insertText": "l1",
       "insertTextFormat": "Snippet"
     }
   ]
