@@ -1,5 +1,5 @@
 NAME
-       ballerina-tool-list - List all the tools available in the bal tool chain
+       ballerina-tool-list - List all tools available in the local environment.
 
 SYNOPSIS
        bal tool list
