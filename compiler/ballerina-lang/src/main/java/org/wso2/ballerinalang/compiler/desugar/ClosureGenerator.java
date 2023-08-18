@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1572,11 +1573,13 @@ public class ClosureGenerator extends BLangNodeVisitor {
         for (BLangNode clause : queryExpr.getQueryClauses()) {
             rewrite(clause, env);
         }
+        result = queryExpr;
     }
 
     public void visit(BLangFromClause fromClause) {
         BLangExpression collection = fromClause.collection;
         rewrite(collection, env);
+        result = fromClause;
     }
 
     @Override
@@ -1585,6 +1588,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         if (joinClause.onClause != null) {
             rewrite((BLangNode) joinClause.onClause, env);
         }
+        result = joinClause;
     }
 
     @Override
@@ -1592,61 +1596,73 @@ public class ClosureGenerator extends BLangNodeVisitor {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             rewrite((BLangNode) letVariable.definitionNode, env);
         }
+        result = letClause;
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
         rewrite(whereClause.expression, env);
+        result = whereClause;
     }
 
     @Override
     public void visit(BLangOnClause onClause) {
         rewrite(onClause.lhsExpr, env);
         rewrite(onClause.rhsExpr, env);
+        result = onClause;
     }
 
     @Override
     public void visit(BLangOrderKey orderKeyClause) {
         rewrite(orderKeyClause.expression, env);
+        result = orderKeyClause;
     }
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value, env));
+        result = orderByClause;
     }
 
     @Override
     public void visit(BLangGroupByClause groupByClause) {
         groupByClause.groupingKeyList.forEach(value -> rewrite(value, env));
+        result = groupByClause;
     }
 
     public void visit(BLangGroupingKey groupingKey) {
         rewrite((BLangNode) groupingKey.getGroupingKey(), env);
+        result = groupingKey;
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
         rewrite(selectClause.expression, env);
+        result = selectClause;
     }
 
     @Override
     public void visit(BLangCollectClause bLangCollectClause) {
         rewrite(bLangCollectClause.expression, env);
+        result = bLangCollectClause;
     }
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
         rewrite(onConflictClause.expression, env);
+        result = onConflictClause;
     }
 
     @Override
     public void visit(BLangLimitClause limitClause) {
         rewrite(limitClause.expression, env);
+        result = limitClause;
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
         rewrite(doClause.body, env);
+        result = doClause;
     }
 
     @Override
@@ -1656,6 +1672,13 @@ public class ClosureGenerator extends BLangNodeVisitor {
             rewrite((BLangVariable) onFailVarDefNode.getVariable(), env);
         }
         rewrite(onFailClause.body, env);
+        result = onFailClause;
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        rewrite(collectContextInvocation.invocation, env);
+        result = collectContextInvocation;
     }
 
     @Override
