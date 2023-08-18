@@ -467,7 +467,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
         BLangBlockStmt ifErrorBody = ASTBuilderUtil.createBlockStmt(pos);
         BLangAssignment unwrapDistinctError = ASTBuilderUtil.createAssignmentStmt(pos, resultRef,
-                desugar.addConversionExprIfRequired(getRootCauseErrorInvo, symTable.errorType));
+                types.addConversionExprIfRequired(getRootCauseErrorInvo, symTable.errorType));
         ifErrorBody.stmts.add(unwrapDistinctError);
         if (ifStatement.expr == null) {
             ifStatement.expr = queryErrorUnionTypeTestExpr;
@@ -640,12 +640,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         // int x = <int> frame["value"];, note: stmts will get added in reverse order.
         BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(inputClause.pos,
                 symTable.anyOrErrorType, frameSymbol);
-        valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
+        valueAccessExpr.expr = types.addConversionExprIfRequired(valueAccessExpr.expr,
                 types.getSafeType(valueAccessExpr.expr.getBType(), true, false));
         VariableDefinitionNode variableDefinitionNode = inputClause.variableDefinitionNode;
         BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
         setSymbolOwner(variable, env.scope.owner);
-        variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, inputClause.varType));
+        variable.setInitialExpression(types.addConversionExprIfRequired(valueAccessExpr, inputClause.varType));
         // add at 0, otherwise, this goes under existing stmts.
         body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
@@ -772,7 +772,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
         body.stmts.addAll(0, stmtsToBePropagated);
-        returnNode.expr = desugar.addConversionExprIfRequired(whereClause.expression,
+        returnNode.expr = types.addConversionExprIfRequired(whereClause.expression,
                 lambda.function.returnTypeNode.getBType());
         body.addStatement(returnNode);
         lambda.accept(this);
@@ -960,7 +960,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         Location pos = limitClause.pos;
         BLangUnionTypeNode returnTypeNode = getIntErrorTypeNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, returnTypeNode.getBType());
+        returnNode.expr = types.addConversionExprIfRequired(limitClause.expression, returnTypeNode.getBType());
         returnNode.pos = pos;
         BLangLambdaFunction limitFunction = createLambdaFunction(pos, returnTypeNode, returnNode, false);
         limitFunction.accept(this);
@@ -1191,7 +1191,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner, pos,
                                               VIRTUAL);
         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, name, type,
-                desugar.addConversionExprIfRequired(queryLibInvocation, type), varSymbol);
+                types.addConversionExprIfRequired(queryLibInvocation, type), varSymbol);
         BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
         blockStmt.addStatement(variableDef);
         return ASTBuilderUtil.createVariableRef(pos, variable.symbol);
@@ -1361,7 +1361,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangLambdaFunction createKeyFunction(BLangExpression expr, List<BLangStatement> stmtsToBePropagated) {
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyOrErrorType);
+        returnNode.expr = types.addConversionExprIfRequired(expr, symTable.anyOrErrorType);
         returnNode.pos = expr.pos;
         BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyAndErrorTypeNode(), returnNode, false);
         ((BLangBlockFunctionBody) keyFunction.function.body).stmts.addAll(0, stmtsToBePropagated);
@@ -1921,7 +1921,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
-                frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
+                frameAccessExpr.expr = types.addConversionExprIfRequired(frameAccessExpr.expr,
                         types.getSafeType(frameAccessExpr.expr.getBType(), true, false));
 
                 if (symbol instanceof BVarSymbol) {
@@ -1938,7 +1938,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                             bLangSimpleVarRef.symbol = symbol;
                             bLangSimpleVarRef.varSymbol = symbol;
                             BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
-                                                           desugar.addConversionExprIfRequired(frameAccessExpr,
+                                                           types.addConversionExprIfRequired(frameAccessExpr,
                                                                    symbol.type), (BVarSymbol) symbol);
                             BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
                             currentQueryLambdaBody.stmts.add(0, variableDef);
@@ -1947,7 +1947,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                         }
                     } else {
                         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
-                                desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
+                                types.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                         BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
                         currentQueryLambdaBody.stmts.add(0, variableDef);
                         SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);

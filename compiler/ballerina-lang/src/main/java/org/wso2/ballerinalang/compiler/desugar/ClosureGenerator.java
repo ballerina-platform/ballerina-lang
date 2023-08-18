@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -61,7 +62,23 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -559,14 +576,15 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BSymbol owner = getOwner(env);
         BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = desugar.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
+        returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
         BTypeSymbol symbol = env.node.getBType().tsymbol;
         if (symbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
-            updateFunctionParams(function, ((BInvokableTypeSymbol) symbol).params, paramName);
-            ((BInvokableTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
+            BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) symbol;
+            updateFunctionParams(function, invokableTypeSymbol.params, paramName);
+            invokableTypeSymbol.defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
         } else {
             ((BRecordTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
             lambdaFunction.function.flagSet.add(Flag.RECORD);
@@ -688,23 +706,18 @@ public class ClosureGenerator extends BLangNodeVisitor {
         }
         switch (parent.getKind()) {
             case CLASS_DEFN:
-                name = ((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case FUNCTION:
                 name = ((BLangFunction) parent).symbol.name.value.replaceAll("\\.", UNDERSCORE) + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RESOURCE_FUNC:
-                name = ((BLangResourceFunction) parent).name.value + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangResourceFunction) parent).name.value + UNDERSCORE + name, parent.parent);
             case VARIABLE:
-                name = ((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case TYPE_DEFINITION:
-                name = ((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case SERVICE:
-                name = ((BLangService) parent).name.getValue() + UNDERSCORE + name;
-                return generateName(name, parent.parent);
+                return generateName(((BLangService) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case RECORD_TYPE:
                 name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER
                         + name;
@@ -1560,7 +1573,93 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        result = queryExpr;
+        for (BLangNode clause : queryExpr.getQueryClauses()) {
+            rewrite(clause, env);
+        }
+    }
+
+    public void visit(BLangFromClause fromClause) {
+        BLangExpression collection = fromClause.collection;
+        rewrite(collection, env);
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        rewrite(joinClause.collection, env);
+        if (joinClause.onClause != null) {
+            rewrite((BLangNode) joinClause.onClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            rewrite((BLangNode) letVariable.definitionNode, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        rewrite(whereClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        rewrite(onClause.lhsExpr, env);
+        rewrite(onClause.rhsExpr, env);
+    }
+
+    @Override
+    public void visit(BLangOrderKey orderKeyClause) {
+        rewrite(orderKeyClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value, env));
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> rewrite(value, env));
+    }
+
+    public void visit(BLangGroupingKey groupingKey) {
+        rewrite((BLangNode) groupingKey.getGroupingKey(), env);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+        rewrite(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+        rewrite(bLangCollectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        rewrite(onConflictClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        rewrite(limitClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        rewrite(doClause.body, env);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
+        if (onFailVarDefNode != null) {
+            rewrite((BLangVariable) onFailVarDefNode.getVariable(), env);
+        }
+        rewrite(onFailClause.body, env);
     }
 
     @Override
