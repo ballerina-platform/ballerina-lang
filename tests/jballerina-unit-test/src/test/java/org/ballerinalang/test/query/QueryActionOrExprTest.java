@@ -76,7 +76,11 @@ public class QueryActionOrExprTest {
                 "testQueryActionWithQueryExpression",
                 "testQueryActionWithRegexpLangLibs",
                 "testQueryExprWithRegExpLangLibs",
-                "testQueryActionWithInterpolationRegexpLangLibs"
+                "testQueryActionWithInterpolationRegexpLangLibs",
+                "testQueryActionOrExpressionWithUnionRecordResultType",
+                "testQueryActionOrExprWithAnyOrErrResultType",
+                "testNestedQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionWithQueryExpression"
         };
     }
 
@@ -131,6 +135,40 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 315, 23);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 316, 21);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 320, 50);
+        validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', found '(T3|T4)[]'",
+                339, 13);
+        validateError(negativeResult, i++, "incompatible types: expected '(int[]|string[])', found '(int|string)[]'",
+                359, 24);
+        validateError(negativeResult, i++, "incompatible types: expected '(int[]|string[])', found '(int|boolean)[]'",
+                363, 24);
+        validateError(negativeResult, i++, 
+                "incompatible types: expected '(string[]|decimal[])', found '(int|float)[]'",
+                367, 28);
+        validateError(negativeResult, i++, "incompatible types: expected '(table<FooType>|table<BarType>)', " +
+                        "found 'table<(FooType|BarType)> key(id)'", 371, 39);
+        validateError(negativeResult, i++, "ambiguous type '[string:Char, string]'", 376, 78);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', " +
+                "found 'T3'", 382, 11);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T4'", 384, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T2'", 386, 13);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3OrT4'", 
+                386, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T1'", 388, 12);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
+                388, 16);
+        validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', " +
+                "found '(T4|T2|T1)[]'", 394, 13);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3OrT4'",
+                398, 17);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
+                400, 16);
+        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 439, 16);
+        validateError(negativeResult, i++, "ambiguous type '(Baz|Qux)'", 446, 16);
+        validateError(negativeResult, i++, "incompatible types: expected '(boolean[]|float[])', " +
+                "found 'record {| string c; |}[]'", 452, 8);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

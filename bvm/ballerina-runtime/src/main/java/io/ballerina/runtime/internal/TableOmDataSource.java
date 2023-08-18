@@ -79,7 +79,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
             }
             for (int i = 0; i < structFields.length; i++) {
                 BField internalStructField = structFields[i];
-                int type = TypeUtils.getReferredType(internalStructField.getFieldType()).getTag();
+                int type = TypeUtils.getImpliedType(internalStructField.getFieldType()).getTag();
                 String fieldName = internalStructField.getFieldName();
 
                 writeElement(record, xmlStreamWriter, fieldName, type, i, structFields);
@@ -157,7 +157,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     private void processStruct(XMLStreamWriter xmlStreamWriter, BMap structData,
                                BField[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
-        Type internalType = TypeUtils.getReferredType(structFields[index].getFieldType());
+        Type internalType = TypeUtils.getImpliedType(structFields[index].getFieldType());
         if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BField[] internalStructFields = ((BStructureType) internalType).getFields()

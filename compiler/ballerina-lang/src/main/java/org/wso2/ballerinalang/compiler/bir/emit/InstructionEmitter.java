@@ -253,7 +253,7 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += "newArray";
         str += emitSpaces(1);
-        BType type = Types.getReferredType(ins.type);
+        BType type = Types.getImpliedType(ins.type);
         if (type.tag == TypeTags.TUPLE) {
             str += emitVarRef(ins.typedescOp);
         } else {

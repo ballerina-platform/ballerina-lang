@@ -2059,7 +2059,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 // In let expression's object constructor expression, the function block already has an OCE mapSymbol,
                 // which should be propagated to block statement's mapSymbol.
                 if (bLangBlockStmt.mapSymbol == null
-                        && Types.getReferredType(bLangStatementExpression.getBType()).tag == TypeTags.OBJECT
+                        && Types.getImpliedType(bLangStatementExpression.getBType()).tag == TypeTags.OBJECT
                         && env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     bLangBlockStmt.mapSymbol = ((BLangBlockFunctionBody) env.node).mapSymbol;
                 }

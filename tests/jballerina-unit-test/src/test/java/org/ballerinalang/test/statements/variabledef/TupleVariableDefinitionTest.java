@@ -453,9 +453,9 @@ public class TupleVariableDefinitionTest {
                 "but found 'IntsOrStrings'", 129, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '[(string[] & readonly)," +
                 "string]', found 'ReadOnlyTuple'", 136, 44);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '(int[] & readonly)', found " +
                 "'int[]'", 140, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '(int[] & readonly)', found " +
                 "'int[]'", 143, 9);
     }
 

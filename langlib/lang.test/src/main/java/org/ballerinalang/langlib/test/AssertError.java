@@ -31,7 +31,7 @@ import io.ballerina.runtime.internal.TypeChecker;
  */
 public class AssertError {
     public static void assertError(Object value) {
-        if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() != TypeTags.ERROR_TAG) {
+        if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() != TypeTags.ERROR_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),
                                            StringUtils.fromString("expected an error type"));
         }

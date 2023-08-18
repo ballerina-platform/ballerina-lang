@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -307,7 +306,7 @@ public class JsonUtils {
             return null;
         }
         Type sourceType = TypeChecker.getType(value);
-        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
+        if (TypeUtils.getImpliedType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
                 jsonType)) {
             return value;
         }
@@ -324,6 +323,7 @@ public class JsonUtils {
     private static Object getJsonObject(Object value, List<TypeValuePair> unresolvedValues, Type jsonType,
                                     Type sourceType) {
         Object newValue;
+        sourceType = TypeUtils.getImpliedType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -339,7 +339,7 @@ public class JsonUtils {
                 break;
             case TypeTags.TABLE_TAG:
                 BTable bTable = (BTable) value;
-                Type constrainedType = ((TableType) sourceType).getConstrainedType();
+                Type constrainedType = TypeUtils.getImpliedType(((TableType) sourceType).getConstrainedType());
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
@@ -353,10 +353,6 @@ public class JsonUtils {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
-                break;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                newValue = getJsonObject(value, unresolvedValues, jsonType,
-                        ((ReferenceType) sourceType).getReferredType());
                 break;
             case TypeTags.ERROR_TAG:
             default:

@@ -252,8 +252,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.sortImportDeclarations;
 
 /**
  * A formatter implementation that updates the minutiae of a given tree according to the ballerina formatting
@@ -284,7 +286,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ModulePartNode transform(ModulePartNode modulePartNode) {
-        NodeList<ImportDeclarationNode> imports = formatNodeList(modulePartNode.imports(), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> imports = sortAndGroupImportDeclarationNodes(modulePartNode.imports());
         NodeList<ModuleMemberDeclarationNode> members = formatModuleMembers(modulePartNode.members());
         Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
         return modulePartNode.modify(imports, members, eofToken);
@@ -643,7 +645,10 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
+        boolean prevPreservedNewLine = env.hasPreservedNewline;
+        setPreserveNewline(false);
         Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
+        setPreserveNewline(prevPreservedNewLine);
         boolean hasPrefix = importDeclarationNode.prefix().isPresent();
         ImportOrgNameNode orgName = formatNode(importDeclarationNode.orgName().orElse(null), 0, 0);
         SeparatedNodeList<IdentifierToken> moduleNames = formatSeparatedNodeList(importDeclarationNode.moduleName(),
@@ -4283,6 +4288,11 @@ public class FormattingTreeModifier extends TreeModifier {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
+        if (leadingMinutiae.size() > 0 &&
+                leadingMinutiae.get(leadingMinutiae.size() - 1).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
+            leadingMinutiae.add(getNewline());
+        }
+
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
         preserveIndentation(false);
         return newLeadingMinutiaeList;
@@ -4662,5 +4672,45 @@ public class FormattingTreeModifier extends TreeModifier {
             }
         }
         return false;
+    }
+
+    private NodeList<ImportDeclarationNode> sortAndGroupImportDeclarationNodes(
+            NodeList<ImportDeclarationNode> importDeclarationNodes) {
+        // moduleImports would collect only module level imports if grouping is enabled,
+        // and would collect all imports otherwise
+        List<ImportDeclarationNode> moduleImports = new ArrayList<>();
+        List<ImportDeclarationNode> stdLibImports = new ArrayList<>();
+        List<ImportDeclarationNode> thirdPartyImports = new ArrayList<>();
+
+        for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
+            if (importDeclarationNode.orgName().isEmpty() || !options.getImportFormattingOptions().getGroupImports()) {
+                moduleImports.add(importDeclarationNode);
+            } else {
+                if (List.of("ballerina", "ballerinax")
+                        .contains(importDeclarationNode.orgName().get().orgName().text())) {
+                    stdLibImports.add(importDeclarationNode);
+                } else {
+                    thirdPartyImports.add(importDeclarationNode);
+                }
+            }
+        }
+        if (options.getImportFormattingOptions().getSortImports()) {
+            sortImportDeclarations(moduleImports);
+            sortImportDeclarations(stdLibImports);
+            sortImportDeclarations(thirdPartyImports);
+        }
+
+        NodeList<ImportDeclarationNode> moduleImportNodes =
+                formatNodeList(NodeFactory.createNodeList(moduleImports), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> stdLibImportNodes =
+                formatNodeList(NodeFactory.createNodeList(stdLibImports), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> thirdPartyImportNodes =
+                formatNodeList(NodeFactory.createNodeList(thirdPartyImports), 0, 1, 0, 2);
+
+        List<ImportDeclarationNode> imports = new ArrayList<>();
+        imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+        return NodeFactory.createNodeList(imports);
     }
 }

@@ -29,7 +29,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
@@ -144,13 +146,14 @@ public class SearchCommand implements BLauncherCmd {
                                                             settings.getProxy().password(),
                                                                 getAccessTokenOfCLI(settings));
             boolean foundSearch = false;
-            for (JvmTarget jvmTarget : JvmTarget.values()) {
-                PackageSearchResult packageSearchResult = client.searchPackage(query,
-                        jvmTarget.code(), RepoUtils.getBallerinaVersion());
-                if (packageSearchResult.getCount() > 0) {
-                    printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
-                    foundSearch = true;
-                }
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            PackageSearchResult packageSearchResult = client.searchPackage(query,
+                    supportedPlatform, RepoUtils.getBallerinaVersion());
+            if (packageSearchResult.getCount() > 0) {
+                printPackages(packageSearchResult.getPackages(), RepoUtils.getTerminalWidth());
+                foundSearch = true;
             }
             if (!foundSearch) {
                 outStream.println("no modules found");
