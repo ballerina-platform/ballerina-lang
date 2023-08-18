@@ -32,14 +32,7 @@ import java.io.PrintStream;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -105,25 +98,21 @@ public class RemotePackageRepository implements PackageRepository {
 
         // If environment is online pull from central
         if (!options.offline()) {
-            for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
-                String supportedPlatform = SUPPORTED_PLATFORMS[i];
-                try {
-                    this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                            RepoUtils.getBallerinaVersion(), true);
-                } catch (CentralClientException e) {
-                    if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
-                        continue;
-                    }
-                    boolean enableOutputStream =
-                            Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-                    if (enableOutputStream) {
-                        final PrintStream out = System.out;
-                        out.println("Error while pulling package [" + orgName + "/" + packageName + ":" + version +
-                                "]: " + e.getMessage());
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            try {
+                this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                        RepoUtils.getBallerinaVersion(), true);
+            } catch (CentralClientException e) {
+                boolean enableOutputStream =
+                        Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+                if (enableOutputStream) {
+                    final PrintStream out = System.out;
+                    out.println("Error while pulling package [" + orgName + "/" + packageName + ":" + version +
+                            "]: " + e.getMessage());
 
-                    }
                 }
-
             }
         }
 
