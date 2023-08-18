@@ -88,7 +88,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
                         firstPath, this.context);
                 break;
             case TYPE_ONLY_PATH_REST_PARAM:
-                this.resourcePath = new BallerinaPathRestParam(firstPath.getName().getValue(), firstPath, this.context);
+                this.resourcePath = new BallerinaPathRestParam(TYPE_ONLY_PATH_REST_PARAM, firstPath, this.context);
                 break;
             default:
                 this.resourcePath = new BallerinaPathSegmentList(resourceFn.pathSegmentSymbols, resourceFn.pathParams,

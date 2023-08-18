@@ -1445,7 +1445,7 @@ public class ReferenceFinder extends BaseVisitor {
         BResourceFunction targetResourceMethod = ((BResourcePathSegmentSymbol) this.targetSymbol).getResourceMethod();
         BResourceFunction associatedResourceMethod = invocation.targetResourceFunc;
 
-        if (!targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
+        if (associatedResourceMethod == null || !targetResourceMethod.funcName.equals(associatedResourceMethod.funcName)
                 || !targetResourceMethod.symbol.pos.equals(associatedResourceMethod.symbol.pos)
                 || !targetResourceMethod.symbol.pkgID.equals(associatedResourceMethod.symbol.pkgID)) {
             return;
