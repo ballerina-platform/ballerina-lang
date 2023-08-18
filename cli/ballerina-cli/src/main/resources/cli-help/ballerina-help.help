@@ -23,7 +23,6 @@ COMMANDS
         test            Run package tests
         doc             Generate current package's documentation
         pack            Create distribution format of the current package
-        tool            Manage Ballerina tools
 
    Package Commands:
         new             Create a new Ballerina package
@@ -50,4 +49,5 @@ COMMANDS
         persist         Manage data persistence
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL [Experimental]
+        tool            Manage Ballerina CLI tools
         version         Print the Ballerina version

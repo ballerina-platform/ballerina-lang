@@ -1,5 +1,5 @@
 NAME
-       ballerina-tool-search - Search Ballerina Central for bal-tools
+       ballerina-tool-search - Search the Ballerina Central for tools
 
 SYNOPSIS
        bal tool search [<tool-id>|<text>]
@@ -9,7 +9,7 @@ OPTIONS
            Print the usage details of tool search command.
 
 DESCRIPTION
-       Search Ballerina Central repository for bal-tools using a tool-id.
+       Search the Ballerina Central for tools using a tool-id.
 
 EXAMPLES
        Search by tool id.

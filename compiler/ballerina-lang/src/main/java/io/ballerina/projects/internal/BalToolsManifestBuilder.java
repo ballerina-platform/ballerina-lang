@@ -49,10 +49,11 @@ import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTabl
  */
 public class BalToolsManifestBuilder {
     private final Optional<TomlDocument> balToolsToml;
-
     private final BalToolsManifest balToolsManifest;
+    private final Map<String, OldTool> oldTools;
 
     private BalToolsManifestBuilder(TomlDocument balToolsToml) {
+        oldTools = new HashMap();
         this.balToolsToml = Optional.ofNullable(balToolsToml);
         this.balToolsManifest = parseAsBalToolsManifest();
     }
@@ -67,6 +68,10 @@ public class BalToolsManifestBuilder {
 
     public BalToolsManifest getBalToolsManifest() {
         return balToolsManifest;
+    }
+
+    public Map<String, OldTool> getOldTools() {
+        return oldTools;
     }
 
     public BalToolsManifestBuilder removeTool(String id) {
@@ -122,10 +127,15 @@ public class BalToolsManifestBuilder {
                 String org = getStringValueFromToolNode(toolNode, "org");
                 String name = getStringValueFromToolNode(toolNode, "name");
                 String version = getStringValueFromToolNode(toolNode, "version");
-                boolean active = getBooleanFromTemplateNode(toolNode, "active");
+                Optional<Boolean> active = getBooleanFromToolNode(toolNode, "active");
 
                 // If id, org or name, one of the value is null, ignore tool record
-                if (id == null || org == null || name == null || version == null) {
+                if (id == null || org == null || name == null) {
+                    continue;
+                }
+
+                if (version == null || active.isEmpty()) {
+                    oldTools.put(id, new OldTool(id, org, name));
                     continue;
                 }
 
@@ -138,7 +148,7 @@ public class BalToolsManifestBuilder {
                 if (!tools.containsKey(id)) {
                     tools.put(id, new HashMap<>());
                 }
-                tools.get(id).put(version, new BalToolsManifest.Tool(id, org, name, version, active));
+                tools.get(id).put(version, new BalToolsManifest.Tool(id, org, name, version, active.get()));
             }
         }
         return tools;
@@ -152,10 +162,10 @@ public class BalToolsManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    boolean getBooleanFromTemplateNode(TomlTableNode tableNode, String key) {
+    Optional<Boolean> getBooleanFromToolNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            return false;
+            return Optional.empty();
         }
 
         if (topLevelNode.kind() == TomlType.KEY_VALUE) {
@@ -163,13 +173,25 @@ public class BalToolsManifestBuilder {
             TomlValueNode value = keyValueNode.value();
             if (value.kind() == TomlType.BOOLEAN) {
                 TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
-                return tomlBooleanValueNode.getValue();
+                return Optional.ofNullable(tomlBooleanValueNode.getValue());
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     public BalToolsManifest build() {
         return this.balToolsManifest;
+    }
+
+    /**
+     * Represents a tool saved in an older update 6 and 7 bal-tools.toml.
+     * The tool record in the older bal-tools.toml file does not contain the version and active fields.
+     * @param id   tool id
+     * @param org  tool org
+     * @param name tool name
+     *
+     * @since 2201.8.0
+     */
+    public record OldTool(String id, String org, String name) {
     }
 }
