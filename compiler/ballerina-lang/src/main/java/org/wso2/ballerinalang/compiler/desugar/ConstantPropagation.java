@@ -1109,8 +1109,8 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
-            BType literalType = Types.getReferredType(constSymbol.literalType);
-            BType varRefType = Types.getReferredType(varRefExpr.getBType());
+            BType literalType = Types.getImpliedType(constSymbol.literalType);
+            BType varRefType = Types.getImpliedType(varRefExpr.getBType());
 
             // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
             if (literalType.tag == TypeTags.INT && types.isContainSubtypeOfInt(varRefType)) {

@@ -22,27 +22,35 @@ TOOL COMMANDS
         The following is a list of available subcommands:
 
         pull        Pull a tool from Ballerina Central.
-        list        List all the tools available locally.
+        remove      Remove a tool from the local environment.
+        update      Update a tool to the latest compatible version.
+        use         Set a tool version as the active version.
+        list        List all tools in the local environment.
         search      Search Ballerina Central for tools.
-        remove      Remove a tool.
 
 EXAMPLES
        Pull a tool from Ballerina Central.
-           $ bal tool pull openapi
+           $ bal tool pull health
 
        Pull a specific version of a tool from Ballerina Central.
-           $ bal tool pull openapi:1.5.0
+           $ bal tool pull health:1.0.0
 
-       List all the tools available locally.
+       Remove a specific version of previously pulled tool.
+           $ bal tool remove health:1.0.0
+
+       Remove all the versions of a previously pulled tool.
+           $ bal tool remove health
+
+       Update a tool to the latest patch version.
+           $ bal tool update health
+
+       Change the active version of a tool.
+           $ bal tool use health:1.0.0
+
+       List all tools available locally.
            $ bal tool list
 
        Search Ballerina Central for tools.
-           $ bal tool search openapi
-
-       Remove a specific version of previously pulled tool.
-           $ bal tool remove openapi:1.5.0
-
-       Remove all the versions of a previously pulled tool.
-           $ bal tool remove openapi
+           $ bal tool search health
 
 Use 'bal tool <command> --help' for more information on a specific command.

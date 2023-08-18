@@ -1042,11 +1042,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return true;
         }
 
-        if (firstConstType != null && Types.getReferredType(firstConstType).tag == TypeTags.FINITE) {
+        if (firstConstType != null && Types.getImpliedType(firstConstType).tag == TypeTags.FINITE) {
             firstConstValue = getConstValueFromFiniteType(((BFiniteType) firstConstType));
         }
 
-        if (secondConstType != null && Types.getReferredType(secondConstType).tag == TypeTags.FINITE) {
+        if (secondConstType != null && Types.getImpliedType(secondConstType).tag == TypeTags.FINITE) {
             secondConstValue = getConstValueFromFiniteType(((BFiniteType) secondConstType));
         }
 
@@ -1607,24 +1607,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!visitedSymbols.add(symbol)) {
             return;
         }
-        BType symbolType = symbol.type;
-        switch (symbolType.tag) {
+
+        BType type = Types.getImpliedType(symbol.type);
+        switch (type.tag) {
             case TypeTags.ARRAY:
-                checkForExportableType(((BArrayType) symbolType).eType.tsymbol, pos, visitedSymbols);
+                checkForExportableType(((BArrayType) type).eType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) symbolType;
+                BTupleType tupleType = (BTupleType) type;
                 tupleType.getTupleTypes().forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
                 if (tupleType.restType != null) {
                     checkForExportableType(tupleType.restType.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.MAP:
-                checkForExportableType(((BMapType) symbolType).constraint.tsymbol, pos, visitedSymbols);
+                checkForExportableType(((BMapType) type).constraint.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.RECORD:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-                    BRecordType recordType = (BRecordType) symbolType;
+                    BRecordType recordType = (BRecordType) type;
                     recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
                             visitedSymbols));
                     if (recordType.restFieldType != null) {
@@ -1634,19 +1635,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 }
                 break;
             case TypeTags.TABLE:
-                BTableType tableType = (BTableType) symbolType;
+                BTableType tableType = (BTableType) type;
                 if (tableType.constraint != null) {
                     checkForExportableType(tableType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.STREAM:
-                BStreamType streamType = (BStreamType) symbolType;
+                BStreamType streamType = (BStreamType) type;
                 if (streamType.constraint != null) {
                     checkForExportableType(streamType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.INVOKABLE:
-                BInvokableType invokableType = (BInvokableType) symbolType;
+                BInvokableType invokableType = (BInvokableType) type;
                 if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
                     return;
                 }
@@ -1661,19 +1662,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 checkForExportableType(invokableType.retType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.PARAMETERIZED_TYPE:
-                BTypeSymbol parameterizedType = ((BParameterizedType) symbolType).paramValueType.tsymbol;
+                BTypeSymbol parameterizedType = ((BParameterizedType) type).paramValueType.tsymbol;
                 checkForExportableType(parameterizedType, pos, visitedSymbols);
                 return;
             case TypeTags.ERROR:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-                    checkForExportableType((((BErrorType) symbolType).detailType.tsymbol), pos, visitedSymbols);
+                    checkForExportableType((((BErrorType) type).detailType.tsymbol), pos, visitedSymbols);
                     return;
                 }
-                break;
-            case TypeTags.TYPEREFDESC:
-                symbolType = Types.getReferredType(symbolType);
-                checkForExportableType(symbolType.tsymbol, pos, visitedSymbols);
-                return;
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
@@ -1974,7 +1970,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (type == symTable.semanticError) {
             return false;
         }
-        BType refType = Types.getReferredType(type);
+        BType refType = Types.getImpliedType(type);
         return refType.tag == TypeTags.FUTURE && ((BFutureType) refType).workerDerivative;
     }
 
@@ -2173,14 +2169,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         returnType = types.getTypeWithEffectiveIntersectionTypes(returnType);
-        returnType = Types.getReferredType(returnType);
+        returnType = Types.getImpliedType(returnType);
         if (returnType.tag == TypeTags.ERROR) {
             return true;
         }
 
         if (returnType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
-                BType t = types.getTypeWithEffectiveIntersectionTypes(memberType);
+                BType t = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(memberType));
                 if (t.tag != TypeTags.ERROR) {
                     return false;
                 }
@@ -2216,7 +2212,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
-        BType referredType = Types.getReferredType(recordLiteral.getBType());
+        BType referredType = Types.getImpliedType(recordLiteral.getBType());
         boolean isRecord = referredType.tag == TypeTags.RECORD;
         List<RecordLiteralNode.RecordField> recordLiteralFields = recordLiteral.fields;
 
@@ -2246,7 +2242,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         = (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
                 analyzeExpr(spreadField.expr, data);
 
-                BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
+                BType spreadFieldType = Types.getImpliedType(spreadField.expr.getBType());
                 if (isRecord && spreadFieldType != null && spreadFieldType.tag == TypeTags.RECORD) {
                     for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
                         BField matchingField = recordFields.get(fieldEntry.getName().getValue());
@@ -2265,7 +2261,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // A record type is inferred for a record literal even if the contextually expected type is a map, if the
         // mapping constructor expression has `readonly` fields.
         boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
-                recordLiteral.expectedType.tag == TypeTags.MAP;
+                Types.getImpliedType(recordLiteral.expectedType).tag == TypeTags.MAP;
 
         BLangRecordLiteral.BLangRecordSpreadOperatorField inclusiveTypeSpreadField = null;
         for (RecordLiteralNode.RecordField field : recordLiteralFields) {
@@ -2279,7 +2275,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
                 analyzeExpr(spreadOpExpr, data);
 
-                BType spreadOpExprType = Types.getReferredType(spreadOpExpr.getBType());
+                BType spreadOpExprType = Types.getImpliedType(spreadOpExpr.getBType());
                 int spreadFieldTypeTag = spreadOpExprType.tag;
                 if (spreadFieldTypeTag == TypeTags.MAP) {
                     if (inclusiveTypeSpreadField != null) {
@@ -2327,8 +2323,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
                 for (String fieldName : fieldsInRecordType.keySet()) {
                     BField bField = fieldsInRecordType.get(fieldName);
+                    BType bFieldType = Types.getImpliedType(bField.type);
                     if (names.contains(fieldName)) {
-                        if (bField.type.tag != TypeTags.NEVER) {
+                        if (bFieldType.tag != TypeTags.NEVER) {
                             this.dlog.error(spreadOpExpr.pos,
                                     DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
                                     referredType.getKind().typeName(), fieldName, spreadOpField);
@@ -2336,7 +2333,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         continue;
                     }
 
-                    if (bField.type.tag == TypeTags.NEVER) {
+                    if (bFieldType.tag == TypeTags.NEVER) {
                         neverTypedKeys.add(fieldName);
                         continue;
                     }
@@ -2345,7 +2342,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                             inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
                                 DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
-                                Types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
+                                Types.getImpliedType(recordLiteral.expectedType).getKind().typeName(),
                                 bField.symbol, spreadOpField);
                     }
                     names.add(fieldName);
@@ -2368,7 +2365,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     String unescapedName = Utils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
-                                        Types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
+                                        Types.getImpliedType(recordLiteral.expectedType).getKind().typeName(),
                                         unescapedName);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos,
@@ -2387,7 +2384,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
-                                Types.getReferredType(recordLiteral.parent.getBType())
+                                Types.getImpliedType(recordLiteral.parent.getBType())
                                         .getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
                         this.dlog.error(keyExpr.pos,
@@ -2427,7 +2424,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case WORKER_SYNC_SEND:
                 return;
             default:
-                if (varRefExpr.getBType() != null && varRefExpr.getBType().tag == TypeTags.FUTURE) {
+                if (varRefExpr.getBType() != null &&
+                        Types.getImpliedType(varRefExpr.getBType()).tag == TypeTags.FUTURE) {
                     trackNamedWorkerReferences(varRefExpr, data);
                 }
         }
@@ -2834,22 +2832,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean validateBinaryExpr(BLangBinaryExpr binaryExpr) {
         // 1) For usual binary expressions the lhs or rhs can never be future types, so return true if both of
         // them are not future types
-        if (binaryExpr.lhsExpr.getBType().tag != TypeTags.FUTURE
-                && binaryExpr.rhsExpr.getBType().tag != TypeTags.FUTURE) {
+        int lhsTypeTag = Types.getImpliedType(binaryExpr.lhsExpr.getBType()).tag;
+        int rhsTypeTag = Types.getImpliedType(binaryExpr.rhsExpr.getBType()).tag;
+        if (lhsTypeTag != TypeTags.FUTURE && rhsTypeTag != TypeTags.FUTURE) {
             return true;
         }
 
         // 2) For binary expressions followed with wait lhs and rhs are always future types and this is allowed so
         // return true : wait f1 | f2[orgName + moduleName
         BLangNode parentNode = binaryExpr.parent;
-        if (binaryExpr.lhsExpr.getBType().tag == TypeTags.FUTURE
-                || binaryExpr.rhsExpr.getBType().tag == TypeTags.FUTURE) {
-            if (parentNode == null) {
-                return false;
-            }
-            if (parentNode.getKind() == NodeKind.WAIT_EXPR) {
-                return true;
-            }
+        if (parentNode == null) {
+            return false;
+        }
+        if (parentNode.getKind() == NodeKind.WAIT_EXPR) {
+            return true;
         }
 
         // 3) For binary expressions of future type which are not followed by the wait expression are not allowed.
@@ -3224,7 +3220,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        BType exprType = enclInvokable.getReturnTypeNode().getBType();
+        BType exprType = Types.getImpliedType(enclInvokable.getReturnTypeNode().getBType());
         BType checkedExprType = checkedExpr.expr.getBType();
         BType errorType = types.getErrorTypes(checkedExprType);
 
@@ -3272,7 +3268,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 BLangFromClause fromClause = (BLangFromClause) clause;
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
-                    if (TypeTags.STREAM == Types.getReferredType(collection.getBType()).tag) {
+                    if (TypeTags.STREAM == Types.getImpliedType(collection.getBType()).tag) {
                         this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
@@ -3295,7 +3291,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 BLangFromClause fromClause = (BLangFromClause) clause;
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
-                    if (TypeTags.STREAM == Types.getReferredType(collection.getBType()).tag) {
+                    if (TypeTags.STREAM == Types.getImpliedType(collection.getBType()).tag) {
                         this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
@@ -3471,7 +3467,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         // any and readonly has an intersection
         return (intersectionType != symTable.semanticError) ||
-                (expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY);
+                (Types.getImpliedType(expressionType).tag == TypeTags.ANY &&
+                        Types.getImpliedType(testType).tag == TypeTags.READONLY);
     }
 
     @Override
@@ -3515,7 +3512,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         return  currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
                 (currentParent.getKind() == NodeKind.VARIABLE &&
-                        ((BLangSimpleVariable) data.parent).typeNode.getBType().tag == TypeTags.FUTURE)
+                        Types.getImpliedType(((BLangSimpleVariable) data.parent).typeNode.getBType()).tag ==
+                                TypeTags.FUTURE)
                 || currentParent.getKind() == NodeKind.TRAP_EXPR;
     }
 
@@ -3537,7 +3535,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
      */
     private <E extends BLangExpression> void checkAccess(E node, AnalyzerData data) {
         if (node.getBType() != null) {
-            checkAccessSymbol(node.getBType().tsymbol, data.env.enclPkg.symbol.pkgID, node.pos);
+            checkAccessSymbol(Types.getImpliedType(node.getBType()).tsymbol, data.env.enclPkg.symbol.pkgID, node.pos);
         }
 
         //check for object new invocation
@@ -3883,7 +3881,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        BType invocableType = Types.getReferredType(iExpr.symbol.type);
+        BType invocableType = Types.getImpliedType(iExpr.symbol.type);
         BInvokableSymbol invokableSymbol = ((BInvokableSymbol) iExpr.symbol);
         List<BVarSymbol> reqParamSymbols = invokableSymbol.params;
         int parameterCountForPositionalArgs = ((BInvokableType) invocableType).getParameterTypes().size();
@@ -4139,7 +4137,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
 
             BLangTypeInit newExpr = (BLangTypeInit) parent;
-            if (newExpr.getBType().tag != TypeTags.STREAM) {
+            if (Types.getImpliedType(newExpr.getBType()).tag != TypeTags.STREAM) {
                 return;
             }
 

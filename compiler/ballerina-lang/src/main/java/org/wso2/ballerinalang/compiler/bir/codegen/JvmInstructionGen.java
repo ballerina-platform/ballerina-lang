@@ -26,8 +26,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -128,6 +129,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -137,6 +139,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
@@ -233,6 +237,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
@@ -401,7 +406,7 @@ public class JvmInstructionGen {
     }
 
     private void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
-
+        targetType = JvmCodeGenUtil.getImpliedType(targetType);
         switch (targetType.tag) {
             case TypeTags.BYTE: // Wouldn't reach here for int atm.
             case TypeTags.UNSIGNED8_INT:
@@ -418,14 +423,12 @@ public class JvmInstructionGen {
                 mv.visitInsn(L2I);
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 return;
-            case TypeTags.TYPEREFDESC:
-                generateIntToUnsignedIntConversion(mv, JvmCodeGenUtil.getReferredType(targetType));
         }
     }
 
     public void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
 
         switch (varDcl.kind) {
             case SELF:
@@ -448,6 +451,7 @@ public class JvmInstructionGen {
     }
 
     private void generateVarLoadForType (MethodVisitor mv, BType bType, int valueIndex) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LLOAD, valueIndex);
             return;
@@ -478,7 +482,6 @@ public class JvmInstructionGen {
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.TUPLE:
             case TypeTags.RECORD:
             case TypeTags.ERROR:
@@ -496,9 +499,6 @@ public class JvmInstructionGen {
             case JTypeTags.JTYPE:
                 generateJVarLoad(mv, (JType) bType, valueIndex);
                 break;
-            case TypeTags.TYPEREFDESC:
-                generateVarLoadForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
-                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -506,7 +506,7 @@ public class JvmInstructionGen {
 
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(varDcl.type);
         if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
@@ -521,6 +521,7 @@ public class JvmInstructionGen {
     }
 
     private void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);
             return;
@@ -549,7 +550,6 @@ public class JvmInstructionGen {
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.TUPLE:
             case TypeTags.DECIMAL:
             case TypeTags.RECORD:
@@ -566,9 +566,6 @@ public class JvmInstructionGen {
                 break;
             case JTypeTags.JTYPE:
                 generateJVarStore(mv, (JType) bType, valueIndex);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateVarStoreForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -598,37 +595,85 @@ public class JvmInstructionGen {
     }
 
     void generatePlatformIns(JInstruction ins, int localVarOffset) {
-        if (ins.jKind == JInsKind.JCAST) {
-            JCast castIns = (JCast) ins;
-            BType targetType = castIns.targetType;
-            this.loadVar(castIns.rhsOp.variableDcl);
-            jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
-            this.storeToVar(castIns.lhsOp.variableDcl);
-        } else if (ins.jKind == JInsKind.CALL) {
-            JMethodCallInstruction callIns = (JMethodCallInstruction) ins;
-            boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
-            int argIndex = 0;
-            String jMethodVMSig = callIns.jMethodVMSig;
-            boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
-            if (hasBalEnvParam) {
-                mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
-                mv.visitInsn(DUP);
-                // load the strand
-                this.mv.visitVarInsn(ALOAD, localVarOffset);
-                // load the current Module
-                mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
-                        INIT_BAL_ENV, false);
-            }
-
-            while (argIndex < callIns.args.size()) {
-                BIROperand arg = callIns.args.get(argIndex);
-                this.loadVar(arg.variableDcl);
-                argIndex += 1;
-            }
-            this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
-                    isInterface);
+        switch (ins.jKind) {
+            case JCAST -> generateJCastIns((JCast) ins);
+            case CALL -> generateJMethodCallIns(localVarOffset, (JMethodCallInstruction) ins);
+            case LARGE_ARRAY -> generateJLargeArrayIns(localVarOffset, (JLargeArrayInstruction) ins);
+            default -> generateJLargeMapIns(localVarOffset, (JLargeMapInstruction) ins);
         }
+    }
+
+    private void generateJLargeMapIns(int localVarOffset, JLargeMapInstruction mapNewIns) {
+        this.loadVar(mapNewIns.rhsOp.variableDcl);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+
+        // load the initial values operand
+        this.loadVar(mapNewIns.initialValues.variableDcl);
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
+        mv.visitTypeInsn(CHECKCAST, "[L" + B_MAPPING_INITIAL_VALUE_ENTRY + ";");
+
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+        this.storeToVar(mapNewIns.lhsOp.variableDcl);
+    }
+
+    private void generateJLargeArrayIns(int localVarOffset, JLargeArrayInstruction inst) {
+        BType instType = JvmCodeGenUtil.getImpliedType(inst.type);
+        if (instType.tag == TypeTags.ARRAY) {
+            this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
+            this.mv.visitInsn(DUP);
+            jvmTypeGen.loadType(this.mv, inst.type);
+            loadListInitialValues(inst);
+            BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
+            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+                visitNewRecordArray(elementType);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
+                        INIT_ARRAY, false);
+            }
+            this.storeToVar(inst.lhsOp.variableDcl);
+        } else {
+            this.loadVar(inst.typedescOp.variableDcl);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            loadListInitialValues(inst);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+    }
+
+    private void generateJMethodCallIns(int localVarOffset, JMethodCallInstruction callIns) {
+        boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+        int argIndex = 0;
+        String jMethodVMSig = callIns.jMethodVMSig;
+        boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
+        if (hasBalEnvParam) {
+            mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
+            mv.visitInsn(DUP);
+            // load the strand
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            // load the current Module
+            mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
+                    INIT_BAL_ENV, false);
+        }
+        while (argIndex < callIns.args.size()) {
+            BIROperand arg = callIns.args.get(argIndex);
+            this.loadVar(arg.variableDcl);
+            argIndex += 1;
+        }
+        this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
+                isInterface);
+        if (callIns.lhsOp != null) {
+            this.storeToVar(callIns.lhsOp.variableDcl);
+        }
+    }
+
+    private void generateJCastIns(JCast castIns) {
+        BType targetType = castIns.targetType;
+        this.loadVar(castIns.rhsOp.variableDcl);
+        jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type,
+                targetType);
+        this.storeToVar(castIns.lhsOp.variableDcl);
     }
 
     void generateMoveIns(BIRNonTerminator.Move moveIns) {
@@ -748,8 +793,8 @@ public class JvmInstructionGen {
         Label label1 = new Label();
         Label label2 = new Label();
 
-        BType lhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType rhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType lhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.mv.visitInsn(LCMP);
@@ -818,8 +863,8 @@ public class JvmInstructionGen {
         Label label2 = new Label();
         Label label3 = new Label();
 
-        BType lhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType rhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType lhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -875,8 +920,8 @@ public class JvmInstructionGen {
         Label label3 = new Label();
 
         // It is assumed that both operands are of same type
-        BType lhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType rhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType lhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -928,8 +973,8 @@ public class JvmInstructionGen {
         Label label1 = new Label();
         Label label2 = new Label();
 
-        BType lhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType rhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType lhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -982,8 +1027,8 @@ public class JvmInstructionGen {
         Label label2 = new Label();
 
         // It is assumed that both operands are of same type
-        BType lhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType rhsOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType lhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
@@ -1044,14 +1089,14 @@ public class JvmInstructionGen {
         this.loadVar(binaryIns.rhsOp2.variableDcl);
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue", GET_ANNOTATION_VALUE, false);
 
-        BType targetType = JvmCodeGenUtil.getReferredType(binaryIns.lhsOp.variableDcl.type);
+        BType targetType = JvmCodeGenUtil.getImpliedType(binaryIns.lhsOp.variableDcl.type);
         jvmCastGen.addUnboxInsn(this.mv, targetType);
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
     private void generateAddIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(binaryIns.lhsOp.variableDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(binaryIns.lhsOp.variableDcl.type);
 
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1079,7 +1124,7 @@ public class JvmInstructionGen {
 
     private void generateSubIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(binaryIns.lhsOp.variableDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(binaryIns.lhsOp.variableDcl.type);
 
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1098,7 +1143,7 @@ public class JvmInstructionGen {
 
     private void generateDivIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(binaryIns.lhsOp.variableDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(binaryIns.lhsOp.variableDcl.type);
 
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1117,7 +1162,7 @@ public class JvmInstructionGen {
 
     private void generateMulIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(binaryIns.lhsOp.variableDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(binaryIns.lhsOp.variableDcl.type);
 
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1136,7 +1181,7 @@ public class JvmInstructionGen {
 
     private void generateRemIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = JvmCodeGenUtil.getReferredType(binaryIns.lhsOp.variableDcl.type);
+        BType bType = JvmCodeGenUtil.getImpliedType(binaryIns.lhsOp.variableDcl.type);
 
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -1155,8 +1200,8 @@ public class JvmInstructionGen {
 
     private void generateBitwiseAndIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType opType1 = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType opType2 = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType opType1 = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType opType2 = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         int opType1Tag = opType1.tag;
         int opType2Tag = opType2.tag;
@@ -1199,8 +1244,8 @@ public class JvmInstructionGen {
 
     private void generateBitwiseOrIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType opType1 = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType opType2 = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType opType1 = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType opType2 = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
@@ -1229,8 +1274,8 @@ public class JvmInstructionGen {
 
     private void generateBitwiseXorIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType opType1 = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
-        BType opType2 = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType opType1 = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
+        BType opType2 = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
@@ -1260,13 +1305,13 @@ public class JvmInstructionGen {
     private void generateBitwiseLeftShiftIns(BIRNonTerminator.BinaryOp binaryIns) {
 
         this.loadVar(binaryIns.rhsOp1.variableDcl);
-        BType firstOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
+        BType firstOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
         if (firstOpType.tag == TypeTags.BYTE) {
             this.mv.visitInsn(I2L);
         }
 
         this.loadVar(binaryIns.rhsOp2.variableDcl);
-        BType secondOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType secondOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
@@ -1280,13 +1325,13 @@ public class JvmInstructionGen {
         this.loadVar(binaryIns.rhsOp1.variableDcl);
         this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-        BType secondOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType secondOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
+        BType firstOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
             this.mv.visitInsn(LSHR);
@@ -1302,13 +1347,13 @@ public class JvmInstructionGen {
         this.loadVar(binaryIns.rhsOp1.variableDcl);
         this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-        BType secondOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp2.variableDcl.type);
+        BType secondOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = JvmCodeGenUtil.getReferredType(binaryIns.rhsOp1.variableDcl.type);
+        BType firstOpType = JvmCodeGenUtil.getImpliedType(binaryIns.rhsOp1.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
             this.mv.visitInsn(LUSHR);
@@ -1387,7 +1432,7 @@ public class JvmInstructionGen {
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
         // visit map_ref
         this.loadVar(mapStoreIns.lhsOp.variableDcl);
-        BType varRefType = mapStoreIns.lhsOp.variableDcl.type;
+        BType varRefType = JvmCodeGenUtil.getImpliedType(mapStoreIns.lhsOp.variableDcl.type);
 
         // visit key_expr
         this.loadVar(mapStoreIns.keyOp.variableDcl);
@@ -1412,7 +1457,7 @@ public class JvmInstructionGen {
     void generateMapLoadIns(BIRNonTerminator.FieldAccess mapLoadIns) {
         // visit map_ref
         this.loadVar(mapLoadIns.rhsOp.variableDcl);
-        BType varRefType = mapLoadIns.rhsOp.variableDcl.type;
+        BType varRefType = JvmCodeGenUtil.getImpliedType(mapLoadIns.rhsOp.variableDcl.type);
         jvmCastGen.addUnboxInsn(this.mv, varRefType);
 
         // visit key_expr
@@ -1507,16 +1552,15 @@ public class JvmInstructionGen {
     }
 
     void generateArrayNewIns(BIRNonTerminator.NewArray inst, int localVarOffset) {
-        BType instType = JvmCodeGenUtil.getReferredType(inst.type);
+        BType instType = JvmCodeGenUtil.getImpliedType(inst.type);
         if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             this.mv.visitInsn(DUP);
             jvmTypeGen.loadType(this.mv, inst.type);
             loadListInitialValues(inst);
-            BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
+            BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
 
-            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+            if (elementType.tag == TypeTags.RECORD) {
                 visitNewRecordArray(elementType);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
@@ -1533,9 +1577,7 @@ public class JvmInstructionGen {
     }
 
     private void visitNewRecordArray(BType type) {
-        BType elementType = JvmCodeGenUtil.getReferredType(type);
-        elementType = elementType.tag == TypeTags.INTERSECTION ?
-                ((BIntersectionType) elementType).effectiveType : elementType;
+        BType elementType = JvmCodeGenUtil.getImpliedType(type);
         String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
                 jvmTypeGen.getTypedescFieldName(toNameString(elementType));
@@ -1550,7 +1592,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         this.loadVar(inst.rhsOp.variableDcl);
 
-        BType valueType = JvmCodeGenUtil.getReferredType(inst.rhsOp.variableDcl.type);
+        BType valueType = JvmCodeGenUtil.getImpliedType(inst.rhsOp.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(valueType.tag)) {
             this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JJ)V", true);
@@ -1574,7 +1616,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         BType bType = inst.lhsOp.variableDcl.type;
 
-        BType varRefType = JvmCodeGenUtil.getReferredType(inst.rhsOp.variableDcl.type);
+        BType varRefType = JvmCodeGenUtil.getImpliedType(inst.rhsOp.variableDcl.type);
         if (varRefType.tag == TypeTags.TUPLE) {
             if (inst.fillingRead) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "fillAndGetRefValue",
@@ -1750,7 +1792,7 @@ public class JvmInstructionGen {
 
         asyncDataCollector.incrementLambdaIndex();
 
-        BType type = JvmCodeGenUtil.getReferredType(inst.type);
+        BType type = JvmCodeGenUtil.getImpliedType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + type);
         }
@@ -1933,7 +1975,7 @@ public class JvmInstructionGen {
         // visit element name/index expr
         this.loadVar(xmlLoadIns.keyOp.variableDcl);
 
-        if (TypeTags.isStringTypeTag(xmlLoadIns.keyOp.variableDcl.type.tag)) {
+        if (TypeTags.isStringTypeTag(JvmCodeGenUtil.getImpliedType(xmlLoadIns.keyOp.variableDcl.type).tag)) {
             // invoke `children(name)` method
             this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "children",
                     XML_CHILDREN_FROM_STRING, false);
@@ -2070,7 +2112,7 @@ public class JvmInstructionGen {
 
         this.loadVar(unaryOp.rhsOp.variableDcl);
 
-        BType btype = JvmCodeGenUtil.getReferredType(unaryOp.rhsOp.variableDcl.type);
+        BType btype = JvmCodeGenUtil.getImpliedType(unaryOp.rhsOp.variableDcl.type);
         if (TypeTags.isIntegerTypeTag(btype.tag)) {
             this.mv.visitInsn(LNEG);
         } else if (btype.tag == TypeTags.BYTE) {
@@ -2089,7 +2131,7 @@ public class JvmInstructionGen {
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
         if (isNonReferredRecord(newTypeDesc.type)) {
-            BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
+            BType type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
@@ -2110,7 +2152,7 @@ public class JvmInstructionGen {
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
-        BType type = JvmCodeGenUtil.getReferredType(btype);
+        BType type = JvmCodeGenUtil.getImpliedType(btype);
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
             className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
@@ -2172,6 +2214,12 @@ public class JvmInstructionGen {
 
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void loadListInitialValues(JLargeArrayInstruction largeArrayIns) {
+        this.loadVar(largeArrayIns.values.variableDcl);
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
+        mv.visitTypeInsn(CHECKCAST, "[L" + B_LIST_INITIAL_VALUE_ENTRY + ";");
     }
 
     private void createExprEntry(BIRNode.BIRListConstructorEntry initialValueOp) {

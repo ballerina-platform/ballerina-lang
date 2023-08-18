@@ -318,8 +318,8 @@ public class LangLibStringTest {
                 40, 21);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
                 41, 21);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                41, 45);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', " +
+                        "found '(string & readonly)'", 41, 45);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
                 43, 31);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",
@@ -346,8 +346,8 @@ public class LangLibStringTest {
                 59, 21);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
                 60, 21);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                60, 43);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', " +
+                        "found '(string & readonly)'", 60, 43);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
                 62, 29);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",
@@ -374,8 +374,8 @@ public class LangLibStringTest {
                 78, 21);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
                 79, 21);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                79, 44);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', " +
+                        "found '(string & readonly)'", 79, 44);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
                 81, 30);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",
