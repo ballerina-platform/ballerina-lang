@@ -24,6 +24,8 @@ import io.ballerina.cli.launcher.CustomToolClassLoader;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.internal.BalaFiles;
@@ -40,6 +42,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -115,6 +118,9 @@ public class BalToolsUtil {
 
     private static final Path balToolsTomlPath = Path.of(
             System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
+    private static Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
+            .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
+            .resolve(ProjectConstants.BALA_DIR_NAME);
 
     public static boolean isNonBuiltInToolCommand(String commandName) {
         return isToolCommand(commandName) && !builtInToolCommands.contains(commandName);
@@ -230,5 +236,60 @@ public class BalToolsUtil {
             }
         }
         return jarFiles;
+    }
+
+    /**
+     * Update the bal-tools.toml file with the version and the active flags.
+     * bal-tools.tomls of updates 6, 7  only has id, name and org fields. Therefore, we need to update the
+     * bal-tools.toml file when the user moves from updates 6, 7 to update 8 and above.
+     */
+    public static void updateOldBalToolsToml() {
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifestBuilder balToolsManifestBuilder = BalToolsManifestBuilder.from(balToolsToml);
+        BalToolsManifest balToolsManifest = balToolsManifestBuilder.build();
+        Map<String, BalToolsManifestBuilder.OldTool> oldTools = balToolsManifestBuilder.getOldTools();
+        if (oldTools.isEmpty()) {
+            return;
+        }
+        oldTools.values().stream().forEach(tool -> {
+            Path toolCachePath = balaCacheDirPath.resolve(Path.of(tool.org(), tool.name()));
+            if (toolCachePath.toFile().isDirectory()) {
+                List<String> versions = Arrays.stream(toolCachePath.toFile().listFiles((dir, name) -> {
+                    try {
+                        PackageVersion.from(name);
+                        return true;
+                    } catch (ProjectException ignore) {
+                        return false;
+                    }
+                })).map(File::getName).collect(Collectors.toList());
+
+                Optional<String> latestVersion = getLatestVersion(versions);
+                versions.stream().forEach(version -> {
+                    // If there is no current active version in balToolsManifest, we set the latest version in the
+                    // central cache as active. This is because in U6, U7, the latest is automatically picked as active.
+                    boolean isActive = balToolsManifest.getActiveTool(tool.id()).isEmpty()
+                            && latestVersion.isPresent()
+                            && latestVersion.get().equals(version);
+                    if (balToolsManifest.getTool(tool.id(), version).isEmpty()) {
+                        balToolsManifest.addTool(tool.id(), tool.org(), tool.name(), version, isActive);
+                    }
+                });
+            }
+        });
+        balToolsToml.modify(balToolsManifest);
+    }
+
+    private static Optional<String> getLatestVersion(List<String> versions) {
+        return versions.stream().map(SemanticVersion::from)
+                .max((v1, v2) -> {
+                    if (v1.greaterThan(v2)) {
+                        return 1;
+                    } else if (v2.greaterThan(v1)) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                })
+                .map(SemanticVersion::toString);
     }
 }

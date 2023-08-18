@@ -1,19 +1,11 @@
 {
   "position": {
-    "line": 8,
-    "character": 23
+    "line": 4,
+    "character": 11
   },
-  "source": "service_decl/source/source6d.bal",
+  "source": "service_decl/source/source20.bal",
   "description": "",
   "items": [
-    {
-      "label": "l1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "A",
-      "insertText": "l1",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "module1",
       "kind": "Module",
@@ -22,6 +14,30 @@
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BF",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.test",
@@ -68,30 +84,6 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BF",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
         }
       ]
     },
@@ -181,15 +173,6 @@
       "detail": "type",
       "sortText": "BC",
       "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "new",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "C",
-      "filterText": "new",
-      "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -390,6 +373,23 @@
       "detail": "Typedesc",
       "sortText": "D",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "C",
+      "filterText": "new",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "A",
+      "insertText": "l1",
       "insertTextFormat": "Snippet"
     }
   ]
