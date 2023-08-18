@@ -50,7 +50,7 @@ import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTabl
 public class BalToolsManifestBuilder {
     private final Optional<TomlDocument> balToolsToml;
     private final BalToolsManifest balToolsManifest;
-    private Map<String, OldTool> oldTools;
+    private final Map<String, OldTool> oldTools;
 
     private BalToolsManifestBuilder(TomlDocument balToolsToml) {
         oldTools = new HashMap();
@@ -127,14 +127,14 @@ public class BalToolsManifestBuilder {
                 String org = getStringValueFromToolNode(toolNode, "org");
                 String name = getStringValueFromToolNode(toolNode, "name");
                 String version = getStringValueFromToolNode(toolNode, "version");
-                boolean active = getBooleanFromToolNode(toolNode, "active");
+                Optional<Boolean> active = getBooleanFromToolNode(toolNode, "active");
 
                 // If id, org or name, one of the value is null, ignore tool record
                 if (id == null || org == null || name == null) {
                     continue;
                 }
 
-                if (version == null) {
+                if (version == null || active.isEmpty()) {
                     oldTools.put(id, new OldTool(id, org, name));
                     continue;
                 }
@@ -148,7 +148,7 @@ public class BalToolsManifestBuilder {
                 if (!tools.containsKey(id)) {
                     tools.put(id, new HashMap<>());
                 }
-                tools.get(id).put(version, new BalToolsManifest.Tool(id, org, name, version, active));
+                tools.get(id).put(version, new BalToolsManifest.Tool(id, org, name, version, active.get()));
             }
         }
         return tools;
@@ -162,10 +162,10 @@ public class BalToolsManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    boolean getBooleanFromToolNode(TomlTableNode tableNode, String key) {
+    Optional<Boolean> getBooleanFromToolNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            return false;
+            return Optional.empty();
         }
 
         if (topLevelNode.kind() == TomlType.KEY_VALUE) {
@@ -173,10 +173,10 @@ public class BalToolsManifestBuilder {
             TomlValueNode value = keyValueNode.value();
             if (value.kind() == TomlType.BOOLEAN) {
                 TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
-                return tomlBooleanValueNode.getValue();
+                return Optional.ofNullable(tomlBooleanValueNode.getValue());
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     public BalToolsManifest build() {
