@@ -55,7 +55,7 @@ public class ResolveMavenDependenciesTask implements Task {
                 platformRepositories.addAll(platform.repositories());
             }
         }
-        if (platform == null || platformLibraries.isEmpty()) {
+        if (platformLibraries.isEmpty()) {
             return;
         }
 
