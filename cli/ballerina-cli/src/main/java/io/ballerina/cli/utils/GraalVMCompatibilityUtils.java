@@ -48,11 +48,11 @@ public class GraalVMCompatibilityUtils {
         return false;
     }
 
-    private static String otherPlatformGraalvmCompatibleVerified(PackageManifest.Platform target,
+    private static String otherPlatformGraalvmCompatibleVerified(String target,
                                                                  Map<String, PackageManifest.Platform> platforms) {
-        for (String platformKey : platforms.keySet()) {
-            if (!platformKey.equals(target) && platforms.get(platformKey).graalvmCompatible() != null) {
-                return platformKey;
+        for (Map.Entry<String, PackageManifest.Platform> platform : platforms.entrySet()) {
+            if (!platform.getKey().equals(target) && platform.getValue().graalvmCompatible() != null) {
+                return platform.getKey();
             }
         }
         return "";
@@ -70,9 +70,9 @@ public class GraalVMCompatibilityUtils {
             PackageManifest.Platform platform = pkg.manifest().platform(targetPlatform);
             String packageName = pkg.manifest().name().value();
             if (platform == null || platform.graalvmCompatible() == null) {
-                String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(platform,
+                String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(targetPlatform,
                         pkg.manifest().platforms());
-                if (graalvmCompatiblePlatform == "") {
+                if (graalvmCompatiblePlatform.equals("")) {
                     return String.format(
                             "************************************************************%n" +
                                     "* WARNING: Package is not verified with GraalVM.           *%n" +

@@ -195,7 +195,7 @@ public abstract class BalaWriter {
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
         Map<String, PackageManifest.Platform> platforms = packageManifest.platforms();
         PackageManifest.Platform targetPlatform = packageManifest.platform(target);
-        if (!platforms.equals(null)) {
+        if (platforms != null) {
             if (targetPlatform != null) {
                 Boolean graalvmCompatible = targetPlatform.graalvmCompatible();
                 if (graalvmCompatible != null) {
