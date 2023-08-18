@@ -116,8 +116,9 @@ public class BindgenMvnResolver {
         }
     }
 
-    private void populateBallerinaToml(String groupId, String artifactId, String version, File tomlFile,
-                                       Path projectRoot, String parent, JvmTarget parentJvmTarget) throws BindgenException {
+    private void populateBallerinaToml(String groupId, String artifactId, String version,
+                                       File tomlFile, Path projectRoot, String parent,
+                                       JvmTarget parentJvmTarget) throws BindgenException {
         try (FileWriterWithEncoding fileWriter = new FileWriterWithEncoding(tomlFile, StandardCharsets.UTF_8, true)) {
             TomlDocument tomlDocument = env.getTomlDocument();
             if (tomlDocument == null) {
@@ -142,13 +143,16 @@ public class BindgenMvnResolver {
                     }
                 }
             }
-            writeDependencyToBallerinaToml(groupId, artifactId, version, projectRoot, parent, parentJvmTarget, fileWriter);
+            writeDependencyToBallerinaToml(groupId, artifactId, version, projectRoot, parent, parentJvmTarget,
+                    fileWriter);
         } catch (IOException e) {
             throw new BindgenException("error: unable to update the Ballerina.toml file: " + e.getMessage(), e);
         }
     }
 
-    private void writeDependencyToBallerinaToml(String groupId, String artifactId, String version, Path projectRoot, String parent, JvmTarget parentJvmTarget, FileWriterWithEncoding fileWriter) throws IOException {
+    private void writeDependencyToBallerinaToml(String groupId, String artifactId, String version, Path projectRoot,
+                                                String parent, JvmTarget parentJvmTarget,
+                                                FileWriterWithEncoding fileWriter) throws IOException {
         fileWriter.write("\n");
         if (parent != null) {
             fileWriter.write("# transitive dependency of " + parent + "\n");
