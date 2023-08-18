@@ -1,0 +1,4 @@
+ballerina: too many arguments.
+
+USAGE:
+    bal tool use <tool-id>:<version>

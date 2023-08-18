@@ -84,8 +84,8 @@ public class XMLTextToStringConversionNegativeTest {
                 "'xml<xml:Text>' cannot be cast to 'string'", 66, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
                 "'xml:Text' cannot be cast to 'string'", 67, 16);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
-                "'xml:Text' cannot be cast to '\"foo\"|\"bar\"'", 68, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'xml:Text' cannot be cast to" +
+                " 'FooBar'", 68, 16);
     }
 
     @AfterClass

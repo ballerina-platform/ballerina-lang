@@ -330,12 +330,12 @@ public class MainMethodGen {
                                          List<String> defaultableNames) {
         int size = params.size();
         if (!params.isEmpty() &&
-                JvmCodeGenUtil.getReferredType(params.get(size - 1).type) instanceof RecordType) {
+                JvmCodeGenUtil.getImpliedType(params.get(size - 1).type) instanceof RecordType) {
             BIRNode.BIRFunctionParameter param = params.get(size - 1);
             createOption(mv, param, size - 1);
             size--;
         } else if (params.size() >= 2
-                && JvmCodeGenUtil.getReferredType(params.get(size - 2).type) instanceof RecordType) {
+                && JvmCodeGenUtil.getImpliedType(params.get(size - 2).type) instanceof RecordType) {
             BIRNode.BIRFunctionParameter param = params.get(size - 2);
             createOption(mv, param, size - 2);
             size--;
@@ -348,7 +348,7 @@ public class MainMethodGen {
         int arrIndex = 0;
         for (BIRNode.BIRFunctionParameter birFunctionParameter : params) {
             if (birFunctionParameter != null
-                    && JvmCodeGenUtil.getReferredType(birFunctionParameter.type) instanceof RecordType) {
+                    && JvmCodeGenUtil.getImpliedType(birFunctionParameter.type) instanceof RecordType) {
                 defaultableIndex++;
                 continue;
             }

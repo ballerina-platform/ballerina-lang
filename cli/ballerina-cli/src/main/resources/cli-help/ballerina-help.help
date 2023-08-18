@@ -23,6 +23,7 @@ COMMANDS
         test            Run package tests
         doc             Generate current package's documentation
         pack            Create distribution format of the current package
+        tool            Manage Ballerina tools
 
    Package Commands:
         new             Create a new Ballerina package
