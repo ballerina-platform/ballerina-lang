@@ -61,9 +61,9 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
         this.backend = backend;
         this.packageContext = backend.packageContext();
-        this.target = getTargetPlatform(packageContext.getResolution()).code();
         this.compilerPluginToml = readCompilerPluginToml();
         this.balToolToml = readBalToolToml();
+        this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
 
@@ -240,6 +240,11 @@ public class JBallerinaBalaWriter extends BalaWriter {
         if (manifestPlatform != null &&
                 !manifestPlatform.dependencies().isEmpty() &&
         !isPlatformDependenciesTestOnly(manifestPlatform.dependencies())) {
+            return this.backend.targetPlatform();
+        }
+
+        // 3) Check if the package has a BalTool.toml or a CompilerPlugin.toml
+        if (this.balToolToml.isPresent() || this.compilerPluginToml.isPresent()) {
             return this.backend.targetPlatform();
         }
 
