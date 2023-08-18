@@ -351,10 +351,7 @@ public class ManifestBuilder {
                         TomlTableNode platformCodeTable = (TomlTableNode) platformCodeNode;
                         // Get graalvmCompatible value
                         TopLevelNode graalvmCompatibleNode = platformCodeTable.entries().get(GRAALVM_COMPATIBLE);
-                        if (graalvmCompatibleNode != null) {
-                            if (graalvmCompatibleNode.kind() == TomlType.NONE) {
-                                return platforms;
-                            }
+                        if (graalvmCompatibleNode != null && graalvmCompatibleNode.kind() != TomlType.NONE) {
                             PackageManifest.Platform newPlatform =
                                     getGraalvmCompatibilityPlatform(graalvmCompatibleNode);
                             if (newPlatform != null) {
@@ -369,10 +366,7 @@ public class ManifestBuilder {
                         }
 
                         TopLevelNode topLevelNode = platformCodeTable.entries().get(DEPENDENCY);
-                        if (topLevelNode != null) {
-                            if (topLevelNode.kind() == TomlType.NONE) {
-                                return platforms;
-                            }
+                        if (topLevelNode != null && topLevelNode.kind() != TomlType.NONE) {
                             PackageManifest.Platform newPlatform = getDependencyPlatform(topLevelNode);
                             if (newPlatform != null) {
                                 if (platforms.get(platformCode) != null) {
@@ -384,10 +378,7 @@ public class ManifestBuilder {
                             }
                         }
                         topLevelNode = platformCodeTable.entries().get(REPOSITORY);
-                        if (topLevelNode != null) {
-                            if (topLevelNode.kind() == TomlType.NONE) {
-                                return platforms;
-                            }
+                        if (topLevelNode != null && topLevelNode.kind() != TomlType.NONE) {
                             PackageManifest.Platform platform = getRepositoryPlatform(topLevelNode);
                             if (platform != null) {
                                 if (platforms.get(platformCode) != null) {
