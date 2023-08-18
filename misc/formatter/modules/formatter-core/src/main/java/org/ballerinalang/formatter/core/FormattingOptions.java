@@ -32,13 +32,17 @@ public class FormattingOptions {
 
     private ForceFormattingOptions forceFormattingOptions;
 
-    FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
-                      ForceFormattingOptions forceFormattingOptions) {
+    private ImportFormattingOptions importFormattingOptions;
+
+    private FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
+                              ForceFormattingOptions forceFormattingOptions,
+                              ImportFormattingOptions importFormattingOptions) {
         this.tabSize = tabSize;
         this.wsCharacter = wsCharacter;
         this.columnLimit = columnLimit;
         this.lineWrapping = lineWrapping;
         this.forceFormattingOptions = forceFormattingOptions;
+        this.importFormattingOptions = importFormattingOptions;
     }
 
     /**
@@ -140,6 +144,10 @@ public class FormattingOptions {
         return forceFormattingOptions;
     }
 
+    public ImportFormattingOptions getImportFormattingOptions() {
+        return importFormattingOptions;
+    }
+
     public static FormattingOptionsBuilder builder() {
         return new FormattingOptionsBuilder();
     }
@@ -155,6 +163,7 @@ public class FormattingOptions {
         private int columnLimit = 120;
         private boolean lineWrapping = false;
         private ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder().build();
+        private ImportFormattingOptions importFormattingOptions = ImportFormattingOptions.builder().build();
 
         public FormattingOptions.FormattingOptionsBuilder setTabSize(int tabSize) {
             this.tabSize = tabSize;
@@ -182,8 +191,15 @@ public class FormattingOptions {
             return this;
         }
 
+        public FormattingOptions.FormattingOptionsBuilder setImportFormattingOptions(
+                ImportFormattingOptions importFormattingOptions) {
+            this.importFormattingOptions = importFormattingOptions;
+            return this;
+        }
+
         public FormattingOptions build() {
-            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions);
+            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions,
+                    importFormattingOptions);
         }
     }
 }
