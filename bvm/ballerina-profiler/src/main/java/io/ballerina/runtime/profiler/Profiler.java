@@ -367,7 +367,7 @@ public class Profiler {
         }
     }
 
-    void executeProfiling(String[] args) {
+    void start(String[] args) {
         addShutdownHookAndCleanup(); // Register a shutdown hook to handle graceful shutdown of the application
         printHeader(); // Print the program header
         handleProfilerArguments(args); // Handle command line arguments

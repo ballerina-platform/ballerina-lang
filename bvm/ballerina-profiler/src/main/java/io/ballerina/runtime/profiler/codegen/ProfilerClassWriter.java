@@ -38,15 +38,11 @@ public class ProfilerClassWriter extends ClassWriter {
     protected String getCommonSuperClass(String type1, String type2) {
         ClassLoader classLoader = getClassLoader();
         Class<?> class1;
-        try {
-            class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
-        } catch (Exception e) {
-            return OBJECT_CLASS;
-        }
         Class<?> class2;
         try {
+            class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
             class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             return OBJECT_CLASS;
         }
         if (class1.isAssignableFrom(class2)) {

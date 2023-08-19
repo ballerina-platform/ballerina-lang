@@ -38,14 +38,6 @@ public class StrandCheckAdapter extends AdviceAdapter {
     Label tryStart = new Label();
     int load;
 
-    /**
-     *
-     * @param access        access flag of the method that is wrapped
-     * @param mv            MethodVisitor instance to generate the bytecode
-     * @param methodName    name of the method that is wrapped
-     * @param description   description of the method that is wrapped
-     * @param load          the index of the local variable that holds the strand instance
-     */
     public StrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description, int load) {
         super(Opcodes.ASM9, mv, access, methodName, description);
         if (load == 0) {
@@ -55,20 +47,14 @@ public class StrandCheckAdapter extends AdviceAdapter {
         }
     }
 
-    /**
-     * This method is called when the visitCode() method is called on the MethodVisitor.
-     * It adds a label to the try block of the wrapped method.
-     */
+    // It adds a label to the try block of the wrapped method.
     @Override
     public void visitCode() {
         super.visitCode();
         mv.visitLabel(tryStart);
     }
 
-    /**
-     * This method is called when the wrapped method is entered.
-     * It retrieves the profiler instance, gets the strand id and starts the profiling.
-     */
+    // It retrieves the profiler instance, gets the strand id and starts the profiling.
     @Override
     protected void onMethodEnter() {
         mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
@@ -77,11 +63,7 @@ public class StrandCheckAdapter extends AdviceAdapter {
         mv.visitMethodInsn(INVOKEVIRTUAL, PROFILE_ANALYZER, "start", "(I)V", false);
     }
 
-    /**
-     * This method is called when the wrapped method is exited.
-     * If the exit is not due to an exception, it calls the onFinally method.
-     * @param opcode the opcode of the instruction that caused the method exit
-     */
+    // If the exit is not due to an exception, it calls the onFinally method.
     @Override
     protected void onMethodExit(int opcode) {
         if (opcode != ATHROW) {
@@ -89,12 +71,8 @@ public class StrandCheckAdapter extends AdviceAdapter {
         }
     }
 
-    /**
-     * This method is called to generate the max stack and max locals for the wrapped method.
-     * It adds a try-catch block to the wrapped method and calls the onFinally method in the catch block.
-     * @param maxStack maximum stack size of the method.
-     * @param maxLocals maximum number of local variables for the method.
-     */
+    // This method is called to generate the max stack and max locals for the wrapped method.
+    // It adds a try-catch block to the wrapped method and calls the onFinally method in the catch block.
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
         Label tryEnd = new Label();
@@ -105,10 +83,8 @@ public class StrandCheckAdapter extends AdviceAdapter {
         mv.visitMaxs(-1, -1);
     }
 
-    /**
-     * This method stops the profiling for the wrapped method.
-     * It retrieves the profiler instance, gets the strand state and id, and stops the profiling.
-     */
+    // This method stops the profiling for the wrapped method.
+    // It retrieves the profiler instance, gets the strand state and id, and stops the profiling.
     private void onFinally() {
         mv.visitMethodInsn(INVOKESTATIC, PROFILE_ANALYZER, "getInstance", GET_INSTANCE_DESCRIPTOR, false);
         mv.visitVarInsn(ALOAD, load);

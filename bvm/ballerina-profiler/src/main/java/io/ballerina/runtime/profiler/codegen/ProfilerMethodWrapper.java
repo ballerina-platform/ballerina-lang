@@ -105,14 +105,12 @@ public class ProfilerMethodWrapper extends ClassLoader {
             output = className.substring(0, lastSlashIndex);
         }
         File directory = new File(output);
-
         if (!directory.exists()) {
             boolean directoryCreated = directory.mkdirs();
             if (!directoryCreated) {
                 return;
             }
         }
-
         try (FileOutputStream fos = new FileOutputStream(className)) {
             fos.write(code); // Write the code to the output stream
         } catch (IOException e) {

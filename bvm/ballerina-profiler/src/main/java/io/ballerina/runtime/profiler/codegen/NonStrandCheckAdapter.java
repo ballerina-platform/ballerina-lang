@@ -33,14 +33,6 @@ import static io.ballerina.runtime.profiler.util.Constants.PROFILE_ANALYZER;
  */
 public class NonStrandCheckAdapter extends AdviceAdapter {
 
-    /**
-     * Constructor for MethodWrapperAdapter.
-     *
-     * @param access      access flag of the method that is wrapped
-     * @param mv          MethodVisitor instance to generate the bytecode
-     * @param methodName  name of the method that is wrapped
-     * @param description description of the method that is wrapped
-     */
     public NonStrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description) {
         super(Opcodes.ASM9, mv, access, methodName, description);
     }
