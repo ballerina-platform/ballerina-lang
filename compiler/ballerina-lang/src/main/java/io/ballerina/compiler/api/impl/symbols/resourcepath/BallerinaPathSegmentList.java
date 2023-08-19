@@ -77,7 +77,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
                 case "^":
                     BVarSymbol paramVarSymbol = this.internalPathParams.get(internalPathParamCount++);
                     pathParams.add(symbolFactory.createPathParamSymbol(paramVarSymbol.getOriginalName().getValue(),
-                            pathSegSymbol, PathSegment.Kind.PATH_PARAMETER));
+                            paramVarSymbol, PathSegment.Kind.PATH_PARAMETER));
                     break;
                 case "$^":
                     pathParams.add(symbolFactory.createPathParamSymbol(pathSegSymbol.getOriginalName().getValue(),
@@ -120,7 +120,8 @@ public class BallerinaPathSegmentList implements PathSegmentList {
         }
 
         this.pathRestParam = symbolFactory.createPathParamSymbol(
-                this.internalPathRestParam.getOriginalName().getValue(), segment, PathSegment.Kind.PATH_REST_PARAMETER);
+                this.internalPathRestParam.getOriginalName().getValue(), this.internalPathRestParam,
+                PathSegment.Kind.PATH_REST_PARAMETER);
         return Optional.ofNullable(this.pathRestParam);
     }
 

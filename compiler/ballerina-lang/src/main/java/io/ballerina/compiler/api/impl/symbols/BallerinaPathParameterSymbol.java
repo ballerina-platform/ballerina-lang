@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.ballerinalang.model.types.ArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -74,6 +75,12 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
             return this.annots;
         }
 
+        // TODO: Remove this once #41246 is fixed
+        if (this.getInternalSymbol() instanceof BResourcePathSegmentSymbol) {
+            this.annots =  Collections.emptyList();
+            return this.annots;
+        }
+
         BVarSymbol symbol = (BVarSymbol) this.getInternalSymbol();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
@@ -89,6 +96,12 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
     @Override
     public List<AnnotationAttachmentSymbol> annotAttachments() {
         if (this.annotAttachments != null) {
+            return this.annotAttachments;
+        }
+
+        // TODO: Remove this once #41246 is fixed
+        if (this.getInternalSymbol() instanceof BResourcePathSegmentSymbol) {
+            this.annotAttachments =  Collections.emptyList();
             return this.annotAttachments;
         }
 
@@ -117,6 +130,7 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
 
         BType bType;
         if (this.segmentKind == Kind.PATH_REST_PARAMETER && this.getInternalSymbol() instanceof BVarSymbol) {
+            // TODO: Remove `this.getInternalSymbol() instanceof BVarSymbol` check once #41246 is fixed
             bType = (BType) ((ArrayType) this.getInternalSymbol().type).getElementType();
         } else {
             bType = this.getInternalSymbol().type;
