@@ -2525,21 +2525,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return checkMappingConstructorCompatibility(compatibleTypes.get(0), mappingConstructor, data);
         }
 
-        if (tag == TypeTags.TYPEREFDESC) {
+        if (tag == TypeTags.TYPEREFDESC || tag == TypeTags.INTERSECTION) {
             BType refType = Types.getImpliedType(bType);
-            BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor, data);
-            return compatibleType == refType ? bType : compatibleType;
-        }
-
-        if (tag == TypeTags.INTERSECTION) {
-            BType refType = Types.getImpliedType(bType);
-            if (refType.tag == TypeTags.RECORD) {
-                boolean isSpecifiedFieldsValid = validateSpecifiedFields(mappingConstructor, refType, data);
-                boolean hasAllRequiredFields =
-                        validateRequiredFields(getRecordTypeInIntersection((BIntersectionType) bType),
-                                mappingConstructor.fields, mappingConstructor.pos, data, true);
-                return isSpecifiedFieldsValid && hasAllRequiredFields ? refType : symTable.semanticError;
-            }
             BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor, data);
             return compatibleType == refType ? bType : compatibleType;
         }
@@ -2555,7 +2542,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 boolean hasAllRequiredFields = validateRequiredFields((BRecordType) possibleType,
                                                                       mappingConstructor.fields,
-                                                                      mappingConstructor.pos, data, false);
+                                                                      mappingConstructor.pos, data);
 
                 return isSpecifiedFieldsValid && hasAllRequiredFields ? possibleType : symTable.semanticError;
             case TypeTags.READONLY:
@@ -2653,7 +2640,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (recType != null) {
                 validateSpecifiedFields(mappingConstructorExpr, recType, data);
-                validateRequiredFields(recType, mappingConstructorExpr.fields, mappingConstructorExpr.pos, data, false);
+                validateRequiredFields(recType, mappingConstructorExpr.fields, mappingConstructorExpr.pos, data);
                 return;
             }
         }
@@ -2687,25 +2674,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return isFieldsValid;
     }
 
-    private BRecordType getRecordTypeInIntersection(BIntersectionType intersectionType) {
-        for (BType constituentType : intersectionType.getConstituentTypes()) {
-            BType referredType = Types.getReferredType(constituentType);
-            if (referredType.tag == TypeTags.RECORD) {
-                return (BRecordType) referredType;
-            }
-        }
-        return (BRecordType) Types.getImpliedType(intersectionType);
-    }
-
     private boolean validateRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
-                                           Location pos, AnalyzerData data, boolean hasReadOnlyIntersection) {
+                                           Location pos, AnalyzerData data) {
         Map<String, BType> typesOfDefaultValues = new HashMap<>();
-
+        BRecordType mutableType = type.mutableType;
+        boolean hasReadOnlyIntersection = mutableType != null;
         if (hasReadOnlyIntersection) {
-            if (type.tsymbol == null || type.tsymbol.pkgID == PackageID.DEFAULT) {
-                findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, type, typesOfDefaultValues);
+            if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
+                findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType,
+                                                      typesOfDefaultValues);
             } else {
-                findDefaultValuesFromTypeSymbol(type, typesOfDefaultValues);
+                findDefaultValuesFromTypeSymbol(mutableType, typesOfDefaultValues);
             }
         }
 
@@ -2738,11 +2717,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                        BRecordType mutableType,
                                                        Map<String, BType> typesOfDefaultValues) {
         for (BLangTypeDefinition typeDefinition : typeDefinitions) {
-            if (typeDefinition.typeNode.getKind() != NodeKind.RECORD_TYPE) {
+            BType type = typeDefinition.getBType();
+            if (type != null && type.tag != TypeTags.RECORD) {
                 continue;
             }
-            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
-            if (recordTypeNode.getBType() == mutableType) {
+            if (type == mutableType) {
+                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
                 for (BLangSimpleVariable simpleVariable : recordTypeNode.fields) {
                     if (simpleVariable.symbol.isDefaultable) {
                         typesOfDefaultValues.put(simpleVariable.name.value, simpleVariable.expr.getBType());

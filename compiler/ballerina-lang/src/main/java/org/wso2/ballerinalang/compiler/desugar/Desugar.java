@@ -5943,7 +5943,7 @@ public class Desugar extends BLangNodeVisitor {
 
     public void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
                                                               List<RecordLiteralNode.RecordField> userSpecifiedFields) {
-        BType type = Types.getReferredType(recordLiteral.getBType());
+        BType type = Types.getImpliedType(recordLiteral.getBType());
         if (type.getKind() != TypeKind.RECORD) {
             return;
         }
