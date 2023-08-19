@@ -23,6 +23,8 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaPathParameterSymbol;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaDotResourcePath;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathRestParam;
 import io.ballerina.compiler.api.impl.symbols.resourcepath.BallerinaPathSegmentList;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -237,7 +239,7 @@ public class SymbolsInResourceMethodsTest {
     }
 
     @DataProvider(name = "PathSegmentListInfo")
-    public Object[][] pathSegmentList2() {
+    public Object[][] getPathSegmentListInfo() {
         return new Object[][]{
                 // function get books/[int year]/["AD"|"BC" era]/[string... authors]()
                 {49, 22, "get",
@@ -294,9 +296,49 @@ public class SymbolsInResourceMethodsTest {
     }
 
     @Test
-//    public void testDF() {
-//        model.symbol(srcFile, LinePosition.from(28, 42));
-//    }
+    public void testAnnotAttachmentsInResourceMethod() {
+        ResourceMethodSymbol symbol = (ResourceMethodSymbol)
+                assertBasicsAndGetSymbol(model, srcFile, 66, 22, "get", SymbolKind.RESOURCE_METHOD);
+        List<AnnotationAttachmentSymbol> annotAttachments = symbol.annotAttachments();
+        assertEquals(annotAttachments.size(), 1);
+        AnnotationAttachmentSymbol annotAttachment = annotAttachments.get(0);
+        assertEquals(annotAttachment.kind(), SymbolKind.ANNOTATION_ATTACHMENT);
+        AnnotationSymbol annotation = annotAttachment.typeDescriptor();
+        assertTrue(annotation.getName().isPresent());
+        assertEquals(annotation.getName().get(), "Pipe");
+    }
+
+    @Test
+    public void testAnnotAttachmentInResourcePathParam() {
+        ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol)
+                assertBasicsAndGetSymbol(model, srcFile, 69, 22, "get", SymbolKind.RESOURCE_METHOD);
+        PathSegmentList resourcePath = (PathSegmentList) resourceMethod.resourcePath();
+        List<PathParameterSymbol> pathParams = resourcePath.pathParameters();
+        assertEquals(pathParams.size(), 1);
+        PathParameterSymbol param = pathParams.get(0);
+        assertEquals(param.annotAttachments().size(), 1);
+        AnnotationAttachmentSymbol annotAttachment = param.annotAttachments().get(0);
+        assertEquals(annotAttachment.kind(), SymbolKind.ANNOTATION_ATTACHMENT);
+        AnnotationSymbol annotation = annotAttachment.typeDescriptor();
+        assertTrue(annotation.getName().isPresent());
+        assertEquals(annotation.getName().get(), "Pipe");
+    }
+
+    @Test
+    public void testAnnotAttachmentInResourcePathRestParam() {
+        ResourceMethodSymbol resourceMethod = (ResourceMethodSymbol)
+                assertBasicsAndGetSymbol(model, srcFile, 72, 22, "get", SymbolKind.RESOURCE_METHOD);
+        PathSegmentList resourcePath = (PathSegmentList) resourceMethod.resourcePath();
+        Optional<PathParameterSymbol> pathParams = resourcePath.pathRestParameter();
+        assertTrue(pathParams.isPresent());
+        PathParameterSymbol param = pathParams.get();
+        assertEquals(param.annotAttachments().size(), 1);
+        AnnotationAttachmentSymbol annotAttachment = param.annotAttachments().get(0);
+        assertEquals(annotAttachment.kind(), SymbolKind.ANNOTATION_ATTACHMENT);
+        AnnotationSymbol annotation = annotAttachment.typeDescriptor();
+        assertTrue(annotation.getName().isPresent());
+        assertEquals(annotation.getName().get(), "Pipe");
+    }
 
     private static class ExpectedPathSegmentInfo {
         String name;

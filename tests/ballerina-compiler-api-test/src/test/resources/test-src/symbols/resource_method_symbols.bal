@@ -60,8 +60,28 @@ client class BookService {
     }
 }
 
+client class MemberService {
+    @Pipe {
+        meta: "ZO"
+    }
+    resource function get members() {
+    }
+
+    resource function get members/[@Pipe {meta: "XO"} string id](boolean isRegistered) {
+    }
+
+    resource function get members/filter/[@Pipe {meta: "XO"} string... ids]() {
+    }
+}
+
 type Book record {|
     readonly int id;
     string title;
     string author;
 |};
+
+type PipeType record {|
+    string meta;
+|};
+
+annotation PipeType Pipe;
