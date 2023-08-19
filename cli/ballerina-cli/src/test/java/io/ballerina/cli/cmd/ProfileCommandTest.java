@@ -101,9 +101,8 @@ public class ProfileCommandTest extends BaseCommandTest {
         ProfileCommand profileCommand = new ProfileCommand(projectPath, printStream, false);
         new CommandLine(profileCommand).parseArgs(args);
         profileCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("ballerina-profile - Run Ballerina profiler on the source and" +
-                " generate flame graph"));
+        Assert.assertTrue(readOutput().contains("ballerina-profile - Run Ballerina Profiler on the source and " +
+                "generate flame graph"));
     }
 
     @AfterSuite
