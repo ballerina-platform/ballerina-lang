@@ -92,8 +92,6 @@ test {
     // make sure ballerina zip is built before test run
     dependsOn ':jballerina-tools:build'
     systemProperty 'enableJBallerinaTests', 'true'
-
-    maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
@@ -102,6 +100,8 @@ test {
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
     systemProperty 'observability.test.utils.bala', configurations.observeTestUtilsBala.asPath
     systemProperty 'observability.test.utils.jar', configurations.observeTestUtilsJar.asPath
+    jvmArgs = ['-Xms1g', '-Xmx4g']
+    maxParallelForks = 1
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
