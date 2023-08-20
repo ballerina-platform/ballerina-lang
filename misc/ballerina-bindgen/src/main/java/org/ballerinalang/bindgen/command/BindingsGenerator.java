@@ -79,7 +79,6 @@ public class BindingsGenerator {
         JvmTarget parentJvmTarget = getParentDependencyJvmTarget();
         resolvePlatformLibraries(parentJvmTarget);
 
-
         // Resolve the maven dependency received through the tool and update the Ballerina.toml file
         // with the direct and transitive platform.libraries
         if ((mvnGroupId != null) && (mvnArtifactId != null) && (mvnVersion != null)) {
