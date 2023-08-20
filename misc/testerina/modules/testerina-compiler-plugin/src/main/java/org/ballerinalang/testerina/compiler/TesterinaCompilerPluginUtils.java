@@ -204,7 +204,8 @@ public class TesterinaCompilerPluginUtils {
 
     public static StatementNode getAssignmentAndFunctionCallStatement(ExpressionNode expression) {
         return NodeFactory.createAssignmentStatementNode(
-                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken("__testExecState__")),
+                NodeFactory.createSimpleNameReferenceNode(
+                        NodeFactory.createIdentifierToken(TesterinaCompilerPluginConstants.TEST_EXECUTION_STATE)),
                 NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML()),
                 expression,
                 NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
@@ -214,7 +215,8 @@ public class TesterinaCompilerPluginUtils {
     public static ModuleMemberDeclarationNode getExitCodeGlobalVarDclStatement() {
         TypeDescriptorNode typeDescriptor = NodeFactory.createSimpleNameReferenceNode(
                 NodeFactory.createIdentifierToken(TypeKind.INT.typeName()));
-        Token varName = AbstractNodeFactory.createIdentifierToken("__testExecState__", singleWSML(), singleWSML());
+        Token varName = AbstractNodeFactory.createIdentifierToken(
+                TesterinaCompilerPluginConstants.TEST_EXECUTION_STATE, singleWSML(), singleWSML());
         CaptureBindingPatternNode captureBindingPattern = NodeFactory.createCaptureBindingPatternNode(varName);
         Token publicKeyword = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD, emptyML(), singleWSML());
         Token equalsToken = NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, emptyML(), singleWSML());
