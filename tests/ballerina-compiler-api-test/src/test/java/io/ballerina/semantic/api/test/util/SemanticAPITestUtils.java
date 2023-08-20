@@ -133,8 +133,12 @@ public class SemanticAPITestUtils {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), symbolKind);
-        assertTrue(symbol.get().getName().isPresent());
-        assertEquals(symbol.get().getName().get(), name);
+        if (name != null) {
+            assertTrue(symbol.get().getName().isPresent());
+            assertEquals(symbol.get().getName().get(), name);
+        } else {
+            assertTrue(symbol.get().getName().isEmpty());
+        }
         return symbol.get();
     }
 
