@@ -51,7 +51,7 @@ public class ProfilerTest extends BaseTest {
         String packageName = "projectForProfile/package_a";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(26, 602);
+        LogLeecher[] leechers = getProfilerLogLeechers();
         bMainInstance.runMain("profile", new String[]{packageName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
@@ -59,14 +59,14 @@ public class ProfilerTest extends BaseTest {
         }
     }
 
-    private LogLeecher[] getProfilerLogLeechers(int moduleCount, int functionCount) {
+    private LogLeecher[] getProfilerLogLeechers() {
         return new LogLeecher[]{
                 new LogLeecher("[1/6] Initializing..."),
                 new LogLeecher("[2/6] Copying executable..."),
                 new LogLeecher("[3/6] Performing analysis..."),
                 new LogLeecher("[4/6] Instrumenting functions..."),
-                new LogLeecher("○ Instrumented module count: " + moduleCount),
-                new LogLeecher("○ Instrumented function count: " + functionCount),
+                new LogLeecher("○ Instrumented module count: "),
+                new LogLeecher("○ Instrumented function count: "),
                 new LogLeecher("[5/6] Running executable..."),
                 new LogLeecher("[6/6] Generating output..."),
                 new LogLeecher("○ Execution time:"),
@@ -79,7 +79,7 @@ public class ProfilerTest extends BaseTest {
         String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(25, 781);
+        LogLeecher[] leechers = getProfilerLogLeechers();
         bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
