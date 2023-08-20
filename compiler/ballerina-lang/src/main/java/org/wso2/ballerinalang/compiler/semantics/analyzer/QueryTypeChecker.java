@@ -99,6 +99,8 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_INFERRED_MAP;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_QUERY_CONSTRUCT_TYPE;
 
 /**
  * @since 2201.5.0
@@ -439,8 +441,10 @@ public class QueryTypeChecker extends TypeChecker {
 
                     if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                         resolvedType = symTable.mapType;
+                    } else if (queryExpr.isStream) {
+                        resolvedType = symTable.streamType;
                     } else {
-                        resolvedType = getNonContextualQueryType(selectType, collectionType);
+                        resolvedType = getNonContextualQueryType(selectType, collectionType, selectExp.pos);
                     }
                     break;
             }
@@ -465,7 +469,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (errorTypes.size() > 1) {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
                 if (actualQueryType != symTable.semanticError) {
-                    types.checkType(queryExpr, actualQueryType, 
+                    types.checkType(queryExpr, actualQueryType,
                             BUnionType.create(null, new LinkedHashSet<>(expTypes)));
                     errorTypes.forEach(expType -> {
                         if (expType.tag == TypeTags.UNION) {
@@ -483,7 +487,7 @@ public class QueryTypeChecker extends TypeChecker {
             selectExp.typeChecked = true;
         }
     }
-    
+
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
@@ -648,26 +652,40 @@ public class QueryTypeChecker extends TypeChecker {
         return initType;
     }
 
-    private BType getNonContextualQueryType(BType staticType, BType basicType) {
-        BType resultType;
+    private BType getNonContextualQueryType(BType constraintType, BType basicType, Location pos) {
         switch (Types.getImpliedType(basicType).tag) {
             case TypeTags.TABLE:
-                resultType = symTable.tableType;
+                if (types.isAssignable(constraintType, symTable.mapAllType)) {
+                    return symTable.tableType;
+                }
                 break;
             case TypeTags.STREAM:
-                resultType = symTable.streamType;
-                break;
+// todo: Depends on https://github.com/ballerina-platform/ballerina-spec/issues/1252 decision
+//                dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_STREAM);
+//                return symTable.semanticError;
+                return symTable.streamType;
+            case TypeTags.MAP:
+                dlog.error(pos, INVALID_QUERY_CONSTRUCT_INFERRED_MAP);
+                return symTable.semanticError;
             case TypeTags.XML:
-                resultType = new BXMLType(staticType, null);
+                if (types.isSubTypeOfBaseType(constraintType, symTable.xmlType.tag)) {
+                    return new BXMLType(constraintType, null);
+                }
                 break;
             case TypeTags.STRING:
-                resultType = symTable.stringType;
+                if (types.isSubTypeOfBaseType(constraintType, TypeTags.STRING)) {
+                    return symTable.stringType;
+                }
                 break;
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+            case TypeTags.OBJECT:
+                return new BArrayType(constraintType);
             default:
-                resultType = new BArrayType(staticType);
-                break;
+                return symTable.semanticError;
         }
-        return resultType;
+        dlog.error(pos, INVALID_QUERY_CONSTRUCT_TYPE, basicType, constraintType);
+        return symTable.semanticError;
     }
 
     private boolean validateTableType(BTableType tableType, TypeChecker.AnalyzerData data) {

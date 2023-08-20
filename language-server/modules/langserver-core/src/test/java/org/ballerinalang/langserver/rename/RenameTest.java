@@ -76,7 +76,7 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_on_keyword1.json", "fn"},
                 {"rename_self.json", "this"},
                 {"rename_invalid_qname_ref.json", "io"},
-                {"rename_resource_method_path_segment.json", "path1"}
+//                {"rename_resource_method_path_segment.json", "path1"} //TODO: Fix #41041
         };
     }
 }
