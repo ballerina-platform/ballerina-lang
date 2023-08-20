@@ -63,7 +63,7 @@ public class RunCommand implements BLauncherCmd {
             FileSystems.getDefault().getPathMatcher("glob:**.jar");
 
     @CommandLine.Parameters(description = "Program arguments")
-    private List<String> argList = new ArrayList<>();
+    private final List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
@@ -108,8 +108,8 @@ public class RunCommand implements BLauncherCmd {
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
-            "    bal run [--offline]\n" +
-            "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
+                    "    bal run [--offline]\n" +
+                    "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -210,7 +210,6 @@ public class RunCommand implements BLauncherCmd {
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
-
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean target dir for projects
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
@@ -221,7 +220,6 @@ public class RunCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();
-
         taskExecutor.executeTasks(project);
     }
 

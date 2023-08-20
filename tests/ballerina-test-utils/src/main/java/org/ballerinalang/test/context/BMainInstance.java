@@ -87,16 +87,15 @@ public class BMainInstance implements BMain {
     /**
      * Initialize the server instance with properties.
      *
-     * @throws BallerinaTestException when an exception is thrown while initializing the server
      */
-    private void initialize() throws BallerinaTestException {
+    private void initialize() {
         configureAgentArgs();
     }
 
-    private void configureAgentArgs() throws BallerinaTestException {
+    private void configureAgentArgs() {
         // add jacoco agent
         String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar") + "=destfile=" +
                 Paths.get(System.getProperty("user.dir"))
                         .resolve("build").resolve("jacoco").resolve("test.exec");
         agentArgs = jacocoArgLine + " ";
