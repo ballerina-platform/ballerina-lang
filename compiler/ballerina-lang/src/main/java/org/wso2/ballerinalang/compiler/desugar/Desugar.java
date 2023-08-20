@@ -5960,7 +5960,7 @@ public class Desugar extends BLangNodeVisitor {
                                                      Symbols.isFlagOn(recordType.flags, Flags.READONLY));
         List<BType> typeInclusions = recordType.typeInclusions;
         for (BType typeInclusion : typeInclusions) {
-            generateFieldsForUserUnspecifiedRecordFields((BRecordType) Types.getReferredType(typeInclusion), fields,
+            generateFieldsForUserUnspecifiedRecordFields((BRecordType) Types.getImpliedType(typeInclusion), fields,
                                                          fieldNames, pos);
         }
     }
