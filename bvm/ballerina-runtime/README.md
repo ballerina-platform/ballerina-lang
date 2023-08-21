@@ -143,6 +143,9 @@ Invoke the Object method asynchronously and sequentially. This method will ensur
 
 Invoke the Object method asynchronously and concurrently. The caller needs to ensure that no data race is possible for the mutable state with a given object method and with arguments. So, the method can be concurrently run with different OS threads.
 
+**Note:** If the caller can ensure that the given object and object method are isolated and no data race is possible for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
+otherwise, use @invokeMethodAsyncSequentially. We can decide the object method isolation if and only if both object.getType().isIsolated() and object.getType().isIsolated(methodName) returns true.
+
 The following code shows an example of calling an isolated method using Java API.
 
 #### Ballerina
@@ -198,9 +201,6 @@ class Test {
 }
 ```
 
-
-**Note:** If the caller can ensure that the given object and object method are isolated and no data race is possible for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
-otherwise, use @invokeMethodAsyncSequentially. We can decide the object method isolation if and only if both object.getType().isIsolated() and object.getType().isIsolated(methodName) returns true.
 
 ### Calling a Function Pointer
 
