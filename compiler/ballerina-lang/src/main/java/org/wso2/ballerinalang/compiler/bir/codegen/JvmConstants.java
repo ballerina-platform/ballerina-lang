@@ -382,7 +382,7 @@ public class JvmConstants {
     public static final String LAMBDA_PREFIX = "$lambda$";
     public static final String POPULATE_METHOD_PREFIX = "$populate";
     public static final String ADD_METHOD = "add";
-    public static final String TEST_EXECUTION_STATE = "$testExecutionState";
+    public static final String TEST_EXECUTION_STATE = "__gH7W16nQmp0TestExecState__";
     public static final String GET_TEST_EXECUTION_STATE = "$getTestExecutionState";
 
     // scheduler related constants
