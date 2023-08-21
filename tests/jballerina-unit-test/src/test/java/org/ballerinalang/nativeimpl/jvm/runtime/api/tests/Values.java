@@ -80,6 +80,7 @@ public class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
+    private static final Module errorModule = new Module("testorg", "values.errors", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
@@ -371,8 +372,8 @@ public class Values {
                 return ErrorCreator.createError(
                         StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
             }
-            AnnotatableType eType = (AnnotatableType) ((ReferenceType) ((BArrayType) ((ReferenceType) describingType)
-                    .getReferredType()).getElementType()).getReferredType();
+            AnnotatableType eType = (AnnotatableType) ((ReferenceType) (((BArrayType)
+                    TypeUtils.getImpliedType(describingType)).getElementType())).getReferredType();
             annotations = eType.getAnnotations();
             if (!annotations.containsKey(intAnnotation)) {
                 return constraintError;
@@ -419,7 +420,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         BArray arrayValue = ValueCreator.createArrayValue(arrayType);
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
@@ -428,7 +429,7 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -438,7 +439,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BTupleType tupleType = (BTupleType) TypeUtils.getImpliedType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -477,6 +478,13 @@ public class Values {
         return StringUtils.fromString(parameter.name);
     }
 
+    public static BString getParameterDefaultFunctionNameFromResource(BTypedesc type) {
+        BServiceType serviceType = (BServiceType) type.getDescribingType();
+        ResourceMethodType resourceMethod = serviceType.getResourceMethods()[1];
+        Parameter parameter = resourceMethod.getParameters()[0];
+        return StringUtils.fromString(parameter.defaultFunctionName);
+    }
+
     public static BArray getParamNamesFromObjectInit(BObject object) {
         ObjectType objectType = object.getType();
         MethodType initMethodtype = objectType.getInitMethod();
@@ -486,5 +494,16 @@ public class Values {
             paramNames.add(i, StringUtils.fromString(parameters[i].name));
         }
         return paramNames;
+    }
+
+    public static BError getErrorValue(BString errorTypeName) {
+        BString errorMsg = StringUtils.fromString("error message!");
+        BError bError = ErrorCreator.createError(errorModule, errorTypeName.getValue(), errorTypeName,
+                ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
+        // TODO: fix https://github.com/ballerina-platform/ballerina-lang/issues/41025
+        String typeName = errorTypeName.getValue().equals("ResourceDispatchingError") ?
+                "RequestDispatchingError" : errorTypeName.getValue();
+        assert bError.getType().getName().equals(typeName);
+        return bError;
     }
 }

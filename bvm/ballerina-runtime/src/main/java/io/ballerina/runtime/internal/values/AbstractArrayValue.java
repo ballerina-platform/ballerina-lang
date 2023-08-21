@@ -163,7 +163,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     protected void initializeIteratorNextReturnType() {
-        Type type = TypeUtils.getReferredType(getType());
+        Type type = TypeUtils.getImpliedType(getType());
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             type = getElementType();
         } else {

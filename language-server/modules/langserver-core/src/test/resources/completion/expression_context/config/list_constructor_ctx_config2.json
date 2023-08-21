@@ -739,6 +739,15 @@
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...numberList",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "AAC",
+      "filterText": "numberList",
+      "insertText": "...numberList",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

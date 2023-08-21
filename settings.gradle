@@ -97,7 +97,6 @@ include(':testerina:report-tools')
 include(':testerina-integration-test')
 include(':jballerina-debugger-integration-test')
 include(':language-server-integration-tests')
-include(':language-server-simulator')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
 
@@ -139,6 +138,7 @@ include(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 include(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
 include(':identifier-util')
+include(':ballerina-profiler')
 
 //include(':ballerina-libs')
 include(':bir-spec')
@@ -244,7 +244,6 @@ project(':test-launch-listener-03').projectDir = file('tests/launch-listener-tes
 project(':test-launch-listener-04').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-04')
 project(':jballerina-integration-test').projectDir = file('tests/jballerina-integration-test')
 project(':language-server-integration-tests').projectDir = file('tests/language-server-integration-tests')
-project(':language-server-simulator').projectDir = file('tests/language-server-simulator')
 // project(':composer-integration-test').projectDir = file('tests/composer-integration-test')
 // project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
 //project(':ballerina-stringutils').projectDir = file('stdlib/stringutils')
@@ -270,6 +269,7 @@ project(':ls-extensions:performance-analyzer-services').projectDir = file('misc/
 project(':ls-extensions:partial-parser').projectDir = file('misc/ls-extensions/modules/partial-parser')
 project(':ls-extensions:trigger-service').projectDir = file('misc/ls-extensions/modules/trigger-service')
 project(':ls-extensions:bal-shell-service').projectDir = file('misc/ls-extensions/modules/bal-shell-service')
+project(':ballerina-profiler').projectDir = file('bvm/ballerina-profiler')
 
 buildCache {
     remote(HttpBuildCache) {

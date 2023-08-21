@@ -155,7 +155,7 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack a package with platform libs")
     public void testPackageWithPlatformLibs() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        Path projectPath = this.testResources.resolve("validGraalvmCompatibleProjectWithPlatformLibs");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
@@ -165,6 +165,80 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java17-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with java11 platform libs")
+    public void testPackageWithJava11PlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithJava11PlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-project-with-platform-libs.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+                .toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with java11 and java17 platform libs")
+    public void testPackageWithJava11andJava17PlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithJava11and17PlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-project-with-platform-libs.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+                .toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+                .toFile().exists());
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("two-2.0.0.jar")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with testOnly platform libs")
+    public void testPackageWithTestOnlyPlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithTestOnlyPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-test-only-platform-libs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with ballerina/java imports only in tests")
+    public void testPackageWithTestOnlyJavaImports() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithTestOnlyJavaImports");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-test-only-platform-libs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
                 .toFile().exists());
     }
 

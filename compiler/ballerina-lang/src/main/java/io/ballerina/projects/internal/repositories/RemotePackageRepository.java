@@ -33,6 +33,7 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,7 +49,6 @@ import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBu
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.getLatest;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the remote package repository.
@@ -105,25 +105,21 @@ public class RemotePackageRepository implements PackageRepository {
 
         // If environment is online pull from central
         if (!options.offline()) {
-            for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
-                String supportedPlatform = SUPPORTED_PLATFORMS[i];
-                try {
-                    this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                            RepoUtils.getBallerinaVersion(), true);
-                } catch (CentralClientException e) {
-                    if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
-                        continue;
-                    }
-                    boolean enableOutputStream =
-                            Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
-                    if (enableOutputStream) {
-                        final PrintStream out = System.out;
-                        out.println("Error while pulling package [" + orgName + "/" + packageName + ":" + version +
-                                "]: " + e.getMessage());
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            try {
+                this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                        RepoUtils.getBallerinaVersion(), true);
+            } catch (CentralClientException e) {
+                boolean enableOutputStream =
+                        Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+                if (enableOutputStream) {
+                    final PrintStream out = System.out;
+                    out.println("Error while pulling package [" + orgName + "/" + packageName + ":" + version +
+                            "]: " + e.getMessage());
 
-                    }
                 }
-
             }
         }
 

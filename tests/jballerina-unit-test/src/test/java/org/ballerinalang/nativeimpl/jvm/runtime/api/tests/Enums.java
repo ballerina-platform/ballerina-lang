@@ -73,7 +73,7 @@ public class Enums {
         BError matchError = ErrorCreator.createError(
                 StringUtils.fromString("type name does not match given names"));
 
-        Type describingType = TypeUtils.getReferredType(t.getDescribingType());
+        Type describingType = TypeUtils.getImpliedType(t.getDescribingType());
         if (describingType.getTag() == TypeTags.UNION_TAG) {
             UnionType unionType = (UnionType) describingType;
             for (Type memberType : unionType.getMemberTypes()) {

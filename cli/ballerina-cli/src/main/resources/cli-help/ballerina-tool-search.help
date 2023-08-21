@@ -1,34 +1,16 @@
 NAME
-       bal-tool-search - Search Ballerina Central repository for bal-tools
+       ballerina-tool-search - Search the Ballerina Central for tools
 
 SYNOPSIS
-       bal tool search [<tool-id>|<org>|<package>|<text>]
+       bal tool search [<tool-id>|<text>]
 
 OPTIONS
        -h, --help
            Print the usage details of tool search command.
 
 DESCRIPTION
-       Search Ballerina Central repository for bal-tools using a given keyword.
-
-       Search keyword can be a tool-id, package name, package in a
-       organization, all packages in an organization or a keyword.
+       Search the Ballerina Central for tools using a tool-id.
 
 EXAMPLES
        Search by tool id.
-           $ bal tool search openapi
-
-       Search by package id.
-           $ bal tool search openapi
-           $ bal tool search package:openapi
-
-       Search tools by package and organization.
-           $ bal tool search ballerina/openapi
-           $ bal tool search org:ballerina package:openapi
-
-       Search all tools in an organization.
-           $ bal tool search org:ballerina
-           $ bal tool search org:ballerina,ballerinax
-
-       Search by a keyword.
-           $ bal tool search keyword:graphql
+           $ bal tool search health
