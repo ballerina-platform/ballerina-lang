@@ -852,7 +852,7 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
+        errStream.println(readOutput());
         Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
     }
 
