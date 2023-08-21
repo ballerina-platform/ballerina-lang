@@ -106,7 +106,6 @@ public class Generator {
      * @param module  module constructs model to fill.
      * @param syntaxTree syntax tree of the document.
      * @param semanticModel semantic model
-     * @return whether the module has any public constructs.
      */
     public static void setModuleFromSyntaxTree(Module module, SyntaxTree syntaxTree,
                                                   SemanticModel semanticModel) {
