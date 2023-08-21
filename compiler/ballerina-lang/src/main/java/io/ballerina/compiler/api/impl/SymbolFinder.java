@@ -1203,10 +1203,6 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangStreamType streamType) {
         lookupNode(streamType.constraint);
         lookupNode(streamType.error);
-
-        if (symbolAtCursor == null) {
-            this.symbolAtCursor = streamType.getBType().tsymbol;
-        }
     }
 
     @Override
@@ -1214,10 +1210,6 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.constraint);
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
-
-        if (this.symbolAtCursor == null && tableType.tableType != null) {
-            this.symbolAtCursor = tableType.tableType.tsymbol;
-        }
     }
 
     @Override
