@@ -305,6 +305,7 @@ public class TypeDefBuilderHelper {
                                                long flag, boolean isImmutable) {
         BTypeSymbol structureSymbol = structureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        structureType.typeInclusions = origStructureType.typeInclusions;
         for (BField origField : origStructureType.fields.values()) {
             BType fieldType;
             if (isImmutable) {

@@ -5949,19 +5949,21 @@ public class Desugar extends BLangNodeVisitor {
         }
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
         Location pos = recordLiteral.pos;
-        generateFieldsForUserUnspecifiedRecordFields((BRecordType) type, userSpecifiedFields, fieldNames, pos);
+        BRecordType recordType = (BRecordType) type;
+        boolean isReadonly = Symbols.isFlagOn(recordType.flags, Flags.READONLY);
+        generateFieldsForUserUnspecifiedRecordFields(recordType, userSpecifiedFields, fieldNames, pos, isReadonly);
     }
 
     private void generateFieldsForUserUnspecifiedRecordFields(BRecordType recordType,
                                                               List<RecordLiteralNode.RecordField> fields,
-                                                              List<String> fieldNames, Location pos) {
+                                                              List<String> fieldNames, Location pos,
+                                                              boolean isReadonly) {
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
-        generateFieldsForUserUnspecifiedRecordFields(fields, fieldNames, defaultValues, pos,
-                                                     Symbols.isFlagOn(recordType.flags, Flags.READONLY));
+        generateFieldsForUserUnspecifiedRecordFields(fields, fieldNames, defaultValues, pos, isReadonly);
         List<BType> typeInclusions = recordType.typeInclusions;
         for (BType typeInclusion : typeInclusions) {
             generateFieldsForUserUnspecifiedRecordFields((BRecordType) Types.getImpliedType(typeInclusion), fields,
-                                                         fieldNames, pos);
+                                                         fieldNames, pos, isReadonly);
         }
     }
 
