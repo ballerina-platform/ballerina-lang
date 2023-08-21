@@ -146,7 +146,7 @@ public class SettingsBuilder {
                         url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
                         repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
-                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, PASSWORD, "");
+                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
                         repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
                     }
                 }

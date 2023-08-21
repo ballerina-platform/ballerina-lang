@@ -51,7 +51,7 @@
               "username": {
                 "type": "string"
               },
-              "password": {
+              "accesstoken": {
                 "type": "string"
               }
             }
