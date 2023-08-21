@@ -74,7 +74,6 @@ public class XmlTreeBuilder {
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
     private Deque<BXmlSequence> seqDeque;
     private Deque<List<BXml>> siblingDeque;
-    private boolean readText = false;
 
     public XmlTreeBuilder(String str) {
         this(new StringReader(str));
@@ -102,9 +101,16 @@ public class XmlTreeBuilder {
     }
 
     public BXml parse() {
+        boolean readNext = false;
+        int next;
         try {
             while (xmlStreamReader.hasNext()) {
-                int next = getNextElementType();
+                if (readNext) {
+                    readNext = false;
+                    next = xmlStreamReader.getEventType();
+                } else {
+                    next = xmlStreamReader.next();
+                }
                 switch (next) {
                     case START_ELEMENT:
                         readElement(xmlStreamReader);
@@ -121,6 +127,7 @@ public class XmlTreeBuilder {
                     case CDATA:
                     case CHARACTERS:
                         readText(xmlStreamReader);
+                        readNext = true;
                         break;
                     case END_DOCUMENT:
                         return buildDocument();
@@ -138,15 +145,6 @@ public class XmlTreeBuilder {
         return null;
     }
 
-    private int getNextElementType() throws XMLStreamException {
-        if (readText) {
-            readText = false;
-            return xmlStreamReader.getEventType();
-        } else {
-            return xmlStreamReader.next();
-        }
-    }
-
     private void handleDTD(XMLStreamReader xmlStreamReader) {
         // ignore
     }
@@ -162,7 +160,6 @@ public class XmlTreeBuilder {
         while (xmlStreamReader.getEventType() == CHARACTERS) {
             textBuilder.append(xmlStreamReader.getText());
             xmlStreamReader.next();
-            readText = true;
         }
         siblingDeque.peek().add(new XmlText(textBuilder.toString()));
     }
