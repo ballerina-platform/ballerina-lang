@@ -29,19 +29,19 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':formatter:formatter-core')
     compileOnly project(':language-server:language-server-commons')
+    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
     implementation "org.javatuples:javatuples:${project.javaTuples}"
-    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
-    testCompile 'org.testng:testng'
-    testCompile project(':ballerina-lang')
-    testCompile project(':formatter:formatter-core')
-    testCompile project(':language-server:language-server-core')
-    testCompile "org.javatuples:javatuples:${project.javaTuples}"
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    testImplementation 'org.testng:testng'
+    testImplementation project(':ballerina-lang')
+    testImplementation project(':formatter:formatter-core')
+    testImplementation project(':language-server:language-server-core')
+    testImplementation "org.javatuples:javatuples:${project.javaTuples}"
+    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 }
 
 test {
