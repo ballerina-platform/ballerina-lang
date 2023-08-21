@@ -1,0 +1,76 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.ballerinalang.langserver;
+
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.services.LanguageClient;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Monitors the memory usage and notifies the user if the memory usage is high.
+ *
+ * @since 2201.9.0
+ */
+public class MemoryUsageMonitor {
+
+    private MemoryMXBean memoryMXBean;
+    public MemoryUsageMonitor(MemoryMXBean memoryMXBean) {
+        this.memoryMXBean = memoryMXBean;
+    }
+
+    public MemoryUsageMonitor() {
+
+    }
+
+    public static final LanguageServerContext.Key<MemoryUsageMonitor> MEMORY_USAGE_MONITOR_KEY =
+            new LanguageServerContext.Key<>();
+    public static MemoryUsageMonitor getInstance(LanguageServerContext context) {
+        MemoryUsageMonitor memoryUsageMonitor = context.get(MEMORY_USAGE_MONITOR_KEY);
+        if (memoryUsageMonitor == null) {
+            memoryUsageMonitor = new MemoryUsageMonitor();
+            context.put(MEMORY_USAGE_MONITOR_KEY, memoryUsageMonitor);
+        }
+        return memoryUsageMonitor;
+    }
+
+    public void start(LanguageClient client) {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+        Runnable memoryCheckTask = () -> {
+            if (this.memoryMXBean == null) {
+                this.memoryMXBean = ManagementFactory.getMemoryMXBean();
+            }
+            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+            long usedMemory = heapMemoryUsage.getUsed();
+            long maxMemory = heapMemoryUsage.getMax();
+
+            if (usedMemory >= maxMemory * 0.9) {
+                client.showMessage(new MessageParams(MessageType.Error,
+                        "Memory usage is high. Please reload the window."));
+            }
+        };
+
+        scheduler.scheduleAtFixedRate(memoryCheckTask, 0, 1, TimeUnit.MINUTES);
+    }
+}

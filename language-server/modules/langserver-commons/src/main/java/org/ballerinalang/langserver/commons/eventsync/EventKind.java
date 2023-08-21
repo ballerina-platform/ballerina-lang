@@ -24,5 +24,6 @@ package org.ballerinalang.langserver.commons.eventsync;
  */
 public enum EventKind {
     PROJECT_UPDATE,
-    PULL_MODULE
+    PULL_MODULE,
+    MEMORY_MONITOR
 }
