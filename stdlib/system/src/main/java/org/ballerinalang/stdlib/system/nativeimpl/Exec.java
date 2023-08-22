@@ -42,9 +42,11 @@ public class Exec {
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
 
     public static Object exec(String command, MapValue<String, String> env, Object dir, ArrayValue args) {
-        List<String> commandList = new ArrayList<String>();
-        commandList.add(command);
-        commandList.addAll(Arrays.asList(args.getStringArray()));
+        String space = " ";
+        List<String> commandList = new ArrayList<String>(Arrays.asList(command.split(space)));
+        for (String arg : args.getStringArray()) {
+            commandList.addAll(Arrays.asList(arg.split(space)));
+        }
         ProcessBuilder pb = new ProcessBuilder(commandList);
         if (dir != null) {
             pb.directory(new File((String) dir));
