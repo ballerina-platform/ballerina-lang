@@ -497,7 +497,6 @@ public class Values {
         return paramNames;
     }
 
-
     public static BXml getXMLValueFromString1() {
         return ValueCreator.createXmlValue("<book>The Lost World</book>");
     }
