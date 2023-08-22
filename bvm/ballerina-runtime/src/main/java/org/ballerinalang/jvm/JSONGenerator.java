@@ -44,7 +44,7 @@ public class JSONGenerator implements Closeable {
 
     private static final int DEFAULT_DEPTH = 10;
 
-    private Writer writer;
+    private final Writer writer;
 
     private boolean[] levelInit = new boolean[DEFAULT_DEPTH];
 
@@ -52,7 +52,7 @@ public class JSONGenerator implements Closeable {
 
     private boolean fieldActive;
 
-    private static boolean[] escChars = new boolean[93];
+    private static final boolean[] escChars = new boolean[93];
 
     static {
         escChars['"'] = true;
@@ -272,8 +272,11 @@ public class JSONGenerator implements Closeable {
         this.writer.flush();
     }
 
+    @Override
     public void close() throws IOException {
-        this.writer.close();
+        if (this.writer != null) {
+            this.writer.close();
+        }
     }
 
     @SuppressWarnings("unchecked")
