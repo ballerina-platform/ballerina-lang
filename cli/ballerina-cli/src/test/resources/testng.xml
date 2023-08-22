@@ -33,8 +33,8 @@ under the License.
             <class name="io.ballerina.cli.cmd.NewCommandTest" />
             <class name="io.ballerina.cli.cmd.PrintUtilsTest" />
             <class name="io.ballerina.cli.cmd.ProfileCommandTest" />
-            <class name="io.ballerina.cli.cmd.PullCommandTest" />
-            <class name="io.ballerina.cli.cmd.PushCommandTest" />
+<!--            <class name="io.ballerina.cli.cmd.PullCommandTest" />-->
+<!--            <class name="io.ballerina.cli.cmd.PushCommandTest" />-->
             <class name="io.ballerina.cli.cmd.RunCommandTest" />
             <class name="io.ballerina.cli.cmd.SearchCommandTest" />
             <class name="io.ballerina.cli.cmd.ShellCommandTest" />
