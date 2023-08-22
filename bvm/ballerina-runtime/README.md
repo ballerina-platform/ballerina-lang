@@ -7,7 +7,6 @@ Since the internal package is restricted only to be used within the Ballerina ru
 #### io.ballerina.runtime.transactions.\*
 This will only be exposed to the Ballerina transaction package and should not be used by external developers.
 
-
 #### io.ballerina.runtime.observability.\*
 This will only be exposed to the Ballerina observability package and should not be used by external developers.
 
@@ -15,7 +14,7 @@ This will only be exposed to the Ballerina observability package and should not 
 Ballerina runtime exposes the `api` package to external developers to connect with the Ballerina runtime ecosystem. So external developers **should only** use these APIs. Any changes or improvements to the APIs will be notified with the release note.
 
 ## Ballerina Java Runtime API
-Ballerina Java Interoperability enables Ballerina developers to call java code from Ballerina as it runs on top of JVM.
+Ballerina Java Interoperability enables Ballerina developers to call Java code from Ballerina as it runs on top of JVM.
 Ballerina offers a set of Java APIs to developers to interactively work with Ballerina runtime constructs such as creating Ballerina Java values, calling Ballerina methods asynchronously, getting into Ballerina type systems, etc.
 
 ### Adding Ballerina Java Runtime Dependency
@@ -23,7 +22,7 @@ You can add Ballerina runtime dependency as below.
 
 #### Maven
 
-``` xml
+```xml
 <dependency>
     <groupId>org.ballerinalang\</groupId>
     <artifactId>ballerina-runtime\</artifactId>
@@ -31,19 +30,17 @@ You can add Ballerina runtime dependency as below.
 </dependency>
 ```
 
-
 #### Gradle
 
 ```Gradle 
 implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
 ```
 
-**Important:** Always add Ballerina runtime as a compile time dependency. At runtime,it should use the Ballerina
-runtime jar which is bundled with the running distribution. We should not create any fat jars including Ballerina runtime.
+**Important:** Always add Ballerina runtime as a compile time dependency. At runtime, it should use the Ballerina
+runtime jar which is bundled with the running distribution. We should not create any fat jars which include the Ballerina runtime.
 Those will cause unexpected issues due to mismatching runtime artifacts with the given distribution version.
 
-Dependency versions can be found here.
-<https://github.com/ballerina-platform/ballerina-lang/packages/412940>
+Dependency versions can be found [here](https://github.com/ballerina-platform/ballerina-lang/packages/412940).
 
 ## Ballerina Java Runtime API
 Ballerina runtime API will contain the following sub packages.
@@ -53,7 +50,7 @@ Ballerina runtime API will contain the following sub packages.
 | io.ballerina.runtime.api              | Basic runtime constructs                         |
 | io.ballerina.runtime.api.async        | Handle Ballerina asynchronous related constructs |
 | io.ballerina.runtime.api.constants    | Runtime constants                                |
-| io.ballerina.runtime.api.creators     | APIs to create types, values etc                 |
+| io.ballerina.runtime.api.creators     | APIs to create types, values, etc.               |
 | io.ballerina.runtime.api.flags        | Runtime flags                                    |
 | io.ballerina.runtime.api.launch       | Constructs for startup runtime                   |
 | io.ballerina.runtime.api.types        | Represent Ballerina Java types                   |
@@ -113,6 +110,7 @@ The following table summarizes how Ballerina types are mapped to corresponding J
 ## Create a Ballerina value
 
 The **io.ballerina.runtime.api.creators.ValueCreator**  provides APIs to create Ballerina value instances. A Ballerina value can be created using one of the methods provided in the ValueCreator class as per the requirements.
+
 For example, an array value can be created as follows,
 
 ```
@@ -129,30 +127,29 @@ For example, a string array type can be created as follows,
 ArrayType strArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE\_STRING)
 ```
 
-## Calling Ballerina object method
+## Calling a Ballerina object method
 
 Ballerina runtime exposes APIs to call the Ballerina object method and Ballerina function pointer using Java.
 
 `io.ballerina.runtime.api.Runtime` class exposes two Java APIs to call object methods.
 
-1. invokeMethodAsyncSequentially
+1. `invokeMethodAsyncSequentially`
 
 Invoke the Object method asynchronously and sequentially. This method will ensure that the object methods are invoked in the same thread where other object methods are executed. So, the methods will be executed sequentially per object level.
 
-2. invokeMethodAsyncConcurrently
+2. `invokeMethodAsyncConcurrently`
 
 Invoke the Object method asynchronously and concurrently. The caller needs to ensure that no data race is possible for the mutable state with a given object method and with arguments. So, the method can be concurrently run with different OS threads.
 
-**Note:** If the caller can ensure that the given object and object method are isolated and no data race is possible for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
-otherwise, use @invokeMethodAsyncSequentially. We can decide the object method isolation if and only if both object.getType().isIsolated() and object.getType().isIsolated(methodName) returns true.
+>**Note:** If the caller can ensure that the given object and object method are isolated and no data race is possible for the mutable state with given arguments, use `invokeMethodAsyncConcurrently`, otherwise use `invokeMethodAsyncSequentially`. We can decide the object method isolation if and only if both `object.getType().isIsolated()` and `object.getType().isIsolated(methodName)` return `true`.
 
 The following code shows an example of calling an isolated method using Java API.
 
 #### Ballerina
 
 ```ballerina
-
 import ballerina/jballerina.java;
+
 public class Person {
 
     public string name;
@@ -182,35 +179,34 @@ public function main() {
 ```Java
 
 class Test {
-    public static BString callPlay(Environment env,BObject object,BString bString) {
+    public static BString callPlay(Environment env, BObject object, BString bString) {
         Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsyncConcurrently(object,"play","play",null,
-            new Callback(){
+        env.getRuntime().invokeMethodAsyncConcurrently(object, "play", "play", null,
+            new Callback() {
                 @Override
-                public void notifySuccess(Object result){
+                public void notifySuccess(Object result) {
                     future.complete(result);
                 }
     
                 @Override
-                public void notifyFailure(BError error){
+                public void notifyFailure(BError error) {
                     future.complete(error);
                 }
-            },null,PredefinedTypes.TYPE_STRING,bString,true);
+            }, null, PredefinedTypes.TYPE_STRING, bString, true);
             return null;
         }
 }
 ```
 
-
 ### Calling a Function Pointer
 
 Developers can call a function through a function pointer which passes through an interop function. Runtime exposes the ‘asyncCall’ method in `io.ballerina.runtime.api.values.BFunctionPointer` class.
 
-Ex.
+E.g.
+
 #### Ballerina
 
 ```ballerina
-
 public function main() returns error? {
     function (int n) returns boolean f = isEven;
     any result = checkpanic invokeFunctionPointer(f, 2);
@@ -225,24 +221,20 @@ public isolated function invokeFunctionPointer(function func, any|error... args)
     'class: "org.ballerinalang.examples.Test",
     name: "invokeFunctionPointer"
 } external;
-
-
 ```
 
 #### Java
 ```java
-
 class Test {
     public static Object invokeFunctionPointer(Object func, Object[] args) {
         BFunctionPointer function = (BFunctionPointer) func;
         List<Object> argList = new ArrayList<>();
         for (Object arg : args) {
             argList.add(arg);
-            argList.add(true);  // Due to a limitation in the current api we need to pass true as every other 
+            argList.add(true);  // Due to a limitation in the current API we need to pass `true` as every other 
                                 // parameter value to handle default values.
         }
         return function.asyncCall(argList.toArray(), o -> o, METADATA);
     }
 }
-
 ```
