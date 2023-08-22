@@ -704,10 +704,32 @@ type BirthDay record {
     int year = 2000;
 };
 
+type Foo6 record {|
+    int[] z = [1, 2];
+|};
+
+type Foo5 record {|
+    *Foo6;
+    int[] x = [1];
+    int[] y = [];
+|};
+
+type Bar5 record {|
+    *Foo5;
+    int[] & readonly x = [2];
+|};
+
 function  testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
     Student & readonly student = {id: 0};
     assert(student.details.name, "chirans");
     assert(student.details.birthDay.year, 2000);
+    Bar5 & readonly b1 = {};
+    assert(b1.x, [2]);
+    assert(true, b1.x is int[]);
+    assert(b1.y, []);
+    assert(true, b1.y is int[]);
+    assert(b1.z, [1, 2]);
+    assert(true, b1.z is int[]);
 }
 
 type DefaultableFieldsWithQuotedIdentifiersForTypeKeywords record {

@@ -36,3 +36,8 @@ public type Foo readonly & object {
 public type Foo1 record {|
     any[] x = [1, 2];
 |};
+
+public type Foo2 record {|
+    *Foo1;
+    any[] y = ["abc", "xyz"];
+|};
