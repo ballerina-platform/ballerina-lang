@@ -18,8 +18,6 @@ package org.ballerinalang.docgen.generator.model;
 import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -39,8 +37,6 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
-import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
@@ -423,16 +419,6 @@ public class Type {
                 if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
                     functionType.name = "";
                     functionType.accessor = methodName;
-                    if (((BallerinaResourceMethodSymbol) methodSymbol).resourcePath().kind().
-                            equals(ResourcePath.Kind.PATH_REST_PARAM)) {
-                        Optional<String> paramName = ((PathRestParam) ((BallerinaResourceMethodSymbol) methodSymbol).
-                                resourcePath()).parameter().getName();
-                        Optional<String> paramType = ((BallerinaArrayTypeSymbol) ((PathRestParam)
-                                ((BallerinaResourceMethodSymbol) methodSymbol).resourcePath()).parameter().
-                                typeDescriptor()).memberTypeDescriptor().getName();
-                        functionType.resourcePath = "[" + paramType.orElse("") + " ..." +
-                                paramName.orElse("") + "]";
-                    }
                 } else {
                     functionType.name = methodName;
                     functionType.accessor = "";
