@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -45,6 +46,8 @@ import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
@@ -118,6 +121,7 @@ public class CommandUtil {
     private static Path homeCache;
     private static boolean exitWhenFinish;
     private static String platform;
+    private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
     static void setPrintStream(PrintStream errStream) {
         CommandUtil.errStream = errStream;
@@ -389,9 +393,13 @@ public class CommandUtil {
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
         String version = findPkgVersion(template);
+        errStream.println("packageName: " + packageName);
+        errStream.println("orgName: " + orgName);
+        errStream.println("version: " + version);
         if (version != null) {
             Path balaPath = getPlatformSpecificBalaPath(orgName, packageName, version, balaCache);
             if (Files.exists(balaPath)) {
+                errStream.println("found bala: " + balaPath);
                 return balaPath;
             } else {
                 return null;
@@ -425,6 +433,7 @@ public class CommandUtil {
         } catch (CentralClientException e) {
             errStream.println("Warning: Unable to pull the package from Ballerina Central: " + e.getMessage());
             if (findBalaTemplate(template, balaCache) == null) {
+                errStream.println("pkgCacheParent: " + pkgCacheParent);
                 List<PackageVersion> packageVersions = getPackageVersions(pkgCacheParent);
                 PackageVersion latest = findLatest(packageVersions);
                 if (latest == null) {
@@ -612,6 +621,7 @@ public class CommandUtil {
                 }
             }
         }
+        errStream.println(balaPath);
         return balaPath;
     }
 
@@ -1010,6 +1020,7 @@ public class CommandUtil {
     public static List<PackageVersion> getPackageVersions(Path balaPackagePath) {
         List<Path> versions = new ArrayList<>();
         if (Files.exists(balaPackagePath)) {
+            errStream.println("balaPackagePath exists to " + balaPackagePath);
             Stream<Path> collectVersions;
             try {
                 collectVersions = Files.list(balaPackagePath);
@@ -1017,6 +1028,7 @@ public class CommandUtil {
                 throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
             }
             versions.addAll(collectVersions.collect(Collectors.toList()));
+            versions.forEach(version -> errStream.println(version));
         }
         return pathToVersions(versions);
     }
