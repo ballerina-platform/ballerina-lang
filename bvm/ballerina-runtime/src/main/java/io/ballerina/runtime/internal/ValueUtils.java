@@ -87,7 +87,7 @@ public class ValueUtils {
 
     private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName) {
         MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
-        BRecordType type = (BRecordType) TypeUtils.getReferredType(recordValue.getType());
+        BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
         return populateDefaultValues(recordValue, type);
     }
 
