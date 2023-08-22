@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
@@ -35,30 +36,47 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
 
     private BIntersectionType intersectionType = null;
     private boolean nullable = true;
-    private final HybridType hybridType = new HybridType(SemTypeResolver.READONLY_SEM_COMPONENT, this);
+    private HybridType hybridType;
 
-    public BAnyType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    public BAnyType(BTypeSymbol tsymbol) {
+        super(TypeTags.ANY, tsymbol);
+        SemTypeResolver.resolveBAnyHybridType(this);
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
-
-        super(tag, tsymbol);
+    public BAnyType(BTypeSymbol tsymbol, Name name, long flag) {
+        super(TypeTags.ANY, tsymbol);
         this.name = name;
         this.flags = flag;
+        SemTypeResolver.resolveBAnyHybridType(this);
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tag, tsymbol);
+    public BAnyType(BTypeSymbol tsymbol, boolean nullable) {
+        super(TypeTags.ANY, tsymbol);
         this.nullable = nullable;
+        SemTypeResolver.resolveBAnyHybridType(this);
     }
 
-    public BAnyType(int tag, BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
-
-        super(tag, tsymbol);
+    public BAnyType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
+        super(TypeTags.ANY, tsymbol);
         this.name = name;
         this.flags = flags;
         this.nullable = nullable;
+        SemTypeResolver.resolveBAnyHybridType(this);
+    }
+
+    private BAnyType(Name name, long flags) {
+        super(TypeTags.ANY, null);
+        this.name = name;
+        this.flags = flags;
+    }
+
+    /**
+     * Creates BReadonly for {@link HybridType#getBTypeComponent}.
+     *
+     * @return The created readonly type
+     */
+    public static BAnyType createBTypeComponent(Name name, long flags) {
+        return new BAnyType(name, flags);
     }
 
     @Override
@@ -94,5 +112,9 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
 
     public HybridType getHybridType() {
         return hybridType;
+    }
+
+    public void setHybridType(HybridType hybridType) {
+        this.hybridType = hybridType;
     }
 }

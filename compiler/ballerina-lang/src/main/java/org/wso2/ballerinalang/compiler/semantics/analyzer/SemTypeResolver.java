@@ -386,7 +386,7 @@ public class SemTypeResolver {
                 return SemTypes.floatConst(value);
             case INT:
             case BYTE:
-                return SemTypes.intConst((long) litVal);
+                return SemTypes.intConst((Long) litVal);
             case STRING:
                 return SemTypes.stringConst((String) litVal);
             case BOOLEAN:
@@ -841,12 +841,23 @@ public class SemTypeResolver {
         BFiniteType bComponent = (BFiniteType) hybridType.getBTypeComponent();
 
         if (semTypeSupported(value.getBType().getKind())) {
+            if (value.getKind() == NodeKind.UNARY_EXPR) {
+                value = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+            }
             sComponent = SemTypes.union(sComponent, resolveSingletonType((BLangLiteral) value));
         } else {
             bComponent.addValue(value, true);
         }
 
         bFiniteType.setHybridType(new HybridType(sComponent, bComponent));
+    }
+
+    public static void resolveBReadonlyHybridType(BReadonlyType type) {
+        type.setHybridType(new HybridType(READONLY_SEM_COMPONENT, BReadonlyType.createBTypeComponent()));
+    }
+
+    public static void resolveBAnyHybridType(BAnyType type) {
+        type.setHybridType(new HybridType(READONLY_SEM_COMPONENT, BAnyType.createBTypeComponent(type.name, type.flags)));
     }
 
     public static HybridType getHybridType(BType t) {

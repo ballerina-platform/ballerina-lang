@@ -123,7 +123,7 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY, PredefinedType.STRING);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY, PredefinedType.BOOLEAN);
 
-    public final BType anyType = new BAnyType(TypeTags.ANY, null);
+    public final BType anyType = new BAnyType(null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
 
@@ -137,7 +137,7 @@ public class SymbolTable {
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
-    public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
+    public final BType readonlyType = new BReadonlyType(null);
     public final BType pathParamAllowedType = BUnionType.create(null,
             intType, stringType, floatType, booleanType, decimalType);
     public final BIntersectionType anyAndReadonly;

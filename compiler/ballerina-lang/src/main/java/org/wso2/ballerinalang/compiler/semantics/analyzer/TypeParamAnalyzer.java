@@ -277,11 +277,11 @@ public class TypeParamAnalyzer {
             case TypeTags.BOOLEAN:
                 return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(type.tag, null, name, flags);
+                return new BAnyType(null, name, flags);
             case TypeTags.ANYDATA:
                 return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
-                return new BReadonlyType(type.tag, null, name, flags);
+                return new BReadonlyType(null, name, flags);
         }
         // For others, we will use TSymbol.
         return type;
@@ -299,11 +299,11 @@ public class TypeParamAnalyzer {
             case TypeTags.BOOLEAN:
                 return new BType(type.tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(type.tag, null, name, flags);
+                return new BAnyType(null, name, flags);
             case TypeTags.ANYDATA:
                 return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
-                return new BReadonlyType(type.tag, null, name, flags);
+                return new BReadonlyType(null, name, flags);
             case TypeTags.UNION:
                 if (types.isCloneableType((BUnionType) refType)) {
                     BUnionType cloneableType = BUnionType.create(null, symTable.readonlyType, symTable.xmlType);

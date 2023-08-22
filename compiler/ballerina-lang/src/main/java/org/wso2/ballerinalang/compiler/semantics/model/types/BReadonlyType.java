@@ -21,6 +21,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -31,24 +32,41 @@ import org.wso2.ballerinalang.util.Flags;
 public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
-    private HybridType hybridType = new HybridType(SemTypeResolver.READONLY_SEM_COMPONENT, this);
+    private HybridType hybridType;
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    public BReadonlyType(BTypeSymbol tsymbol) {
+        super(TypeTags.READONLY, tsymbol);
         this.flags |= Flags.READONLY;
+        SemTypeResolver.resolveBReadonlyHybridType(this);
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, Name name, long flag) {
-        super(tag, tsymbol);
+    public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
+        super(TypeTags.READONLY, tsymbol);
         this.name = name;
         this.flags = flag;
         this.flags |= Flags.READONLY;
+        SemTypeResolver.resolveBReadonlyHybridType(this);
     }
 
-    public BReadonlyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tag, tsymbol);
+    public BReadonlyType(BTypeSymbol tsymbol, boolean nullable) {
+        super(TypeTags.READONLY, tsymbol);
         this.nullable = nullable;
         this.flags |= Flags.READONLY;
+        SemTypeResolver.resolveBReadonlyHybridType(this);
+    }
+
+    private BReadonlyType(long flag) {
+        super(TypeTags.READONLY, null);
+        this.flags = flag;
+    }
+
+    /**
+     * Creates BReadonly for {@link HybridType#getBTypeComponent}.
+     *
+     * @return The created readonly type
+     */
+    public static BReadonlyType createBTypeComponent() {
+        return new BReadonlyType(Flags.READONLY);
     }
 
     @Override
