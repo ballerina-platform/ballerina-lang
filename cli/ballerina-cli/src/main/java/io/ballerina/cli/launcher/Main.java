@@ -160,6 +160,7 @@ public class Main {
     }
 
     private static ServiceLoader<BLauncherCmd> loadAdditionalCommands(String ...args) {
+        BalToolsUtil.updateOldBalToolsToml();
         if (null != args && args.length > 0 && BalToolsUtil.isToolCommand(args[0])) {
             String commandName = args[0];
             BalToolsUtil.addToolIfCommandIsABuiltInTool(commandName);

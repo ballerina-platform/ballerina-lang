@@ -39,6 +39,7 @@ import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
  * @since 0.8.0
  */
 public class LauncherUtils {
+
     public static Path getSourceRootPath(String sourceRoot) {
         // Get source root path.
         Path sourceRootPath;

@@ -2098,7 +2098,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-            BType spreadOpType = checkExpr(spreadOpExpr, data);
+            BType spreadOpType;
+            if (restType != null && restType != symTable.noType && remainNonRestCount == 0) {
+                BType targetType = new BArrayType(restType);
+                BType possibleType = silentTypeCheckExpr(spreadOpExpr, targetType, data);
+                if (possibleType == symTable.semanticError) {
+                    spreadOpType = checkExpr(spreadOpExpr, data);
+                } else {
+                    spreadOpType = checkExpr(spreadOpExpr, targetType, data);
+                }
+            } else {
+                spreadOpType = checkExpr(spreadOpExpr, data);
+            }
             BType spreadOpReferredType = Types.getImpliedType(spreadOpType);
 
             switch (spreadOpReferredType.tag) {
