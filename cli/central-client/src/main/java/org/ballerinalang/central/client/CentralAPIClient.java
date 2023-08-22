@@ -488,7 +488,6 @@ public class CentralAPIClient {
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
                     .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
                     .build();
-            outStream.println(url);
             logRequestInitVerbose(packagePullReq);
             Call packagePullReqCall = client.newCall(packagePullReq);
             Response packagePullResponse = packagePullReqCall.execute();

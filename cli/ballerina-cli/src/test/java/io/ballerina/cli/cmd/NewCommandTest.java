@@ -22,9 +22,6 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.test.BCompileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -61,7 +58,7 @@ public class NewCommandTest extends BaseCommandTest {
     Path testResources;
     Path centralCache;
     private PrintStream errStream = System.err;
-    private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
+
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
         return new Object[][] {
@@ -855,9 +852,7 @@ public class NewCommandTest extends BaseCommandTest {
         NewCommand newCommand = new NewCommand(printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-        String out = readOutput();
-        logger.error(out);
-        Assert.assertTrue(out.contains("unable to create the package: specified package is not a template"));
+        Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
     }
 
     @Test(description = "Test new command by pulling a central template with platform libs")
