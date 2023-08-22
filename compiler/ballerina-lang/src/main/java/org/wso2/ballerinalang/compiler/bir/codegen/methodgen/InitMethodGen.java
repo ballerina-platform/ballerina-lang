@@ -339,8 +339,8 @@ public class InitMethodGen {
                 retVarRef, boolRef);
 
         if (testExecuteFunc != null) {
-            lastBB = addTestExecuteInvocationWithGracefulExitCall(modExecFunc, pkg.packageID, retVarRef,
-                    boolRef, functionArgs, Collections.emptyList(), typeOwnerClass);
+            lastBB = addTestExecuteInvocationWithGracefulExitCall(modExecFunc, pkg.packageID, retVarRef, functionArgs,
+                                                                  Collections.emptyList(), typeOwnerClass);
         } else if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
             lastBB = addInvocationForGracefulExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
         }
