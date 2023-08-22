@@ -62,6 +62,7 @@ public class Profiler {
     private String balJarArgs = null;
     private String balJarName = null;
     private String targetDir = null;
+    private String sourceRoot = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
     private final List<String> utilInitPaths = new ArrayList<>();
@@ -90,7 +91,7 @@ public class Profiler {
                 deleteFileIfExists("CpuPre.json");
                 OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
-                httpServer.initializeHTMLExport();
+                httpServer.initializeHTMLExport(this.sourceRoot);
                 deleteFileIfExists("performance_report.json");
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
@@ -157,6 +158,10 @@ public class Profiler {
                 }
                 case "--target" -> {
                     this.targetDir = args[i + 1];
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--sourceroot" -> {
+                    this.sourceRoot = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
                 default -> handleUnrecognizedArgument(args[i], usedArgs);

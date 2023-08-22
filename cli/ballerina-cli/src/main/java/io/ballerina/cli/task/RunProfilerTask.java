@@ -63,7 +63,7 @@ public class RunProfilerTask implements Task {
                 "ballerina-profiler-1.0.jar").toString();
         ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
-        Path targetPath = getExecutablePath(project, "Profiler");
+        Path targetPath = getTargetProfilerPath(project);
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
         try {
             Files.copy(sourcePath, targetPath, copyOption);
@@ -79,6 +79,8 @@ public class RunProfilerTask implements Task {
             commands.add(getPackageJarName(project, projectKind));
             commands.add("--target");
             commands.add(targetPath.toString());
+            commands.add("--sourceroot");
+            commands.add(getProjectPath(project).toString());
             if (args.length != 0) {
                 commands.add("--args");
                 commands.add("[" + profilerArguments + "]");
@@ -109,7 +111,7 @@ public class RunProfilerTask implements Task {
         if (kind == ProjectKind.SINGLE_FILE_PROJECT) {
             return getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT;
         }
-        return project.currentPackage().packageName() + ".jar";
+        return project.currentPackage().packageName() + BLANG_COMPILED_JAR_EXT;
     }
 
     @Override
@@ -125,12 +127,15 @@ public class RunProfilerTask implements Task {
         return jacocoArgLine + " ";
     }
 
-    private Path getExecutablePath(Project project, String fileName) {
-        Path currentDir = Paths.get(System.getProperty(USER_DIR));
+    private Path getTargetProfilerPath(Project project) {
+        return getProjectPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
+    }
+
+    private Path getProjectPath(Project project) {
         // If the --output flag is not set, create the executable in the current directory
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return currentDir.resolve(fileName + BLANG_COMPILED_JAR_EXT);
+            return Paths.get(System.getProperty(USER_DIR));
         }
-        return project.targetDir().resolve("bin").resolve(fileName + BLANG_COMPILED_JAR_EXT);
+        return project.targetDir().resolve("bin");
     }
 }

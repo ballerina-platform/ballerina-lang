@@ -35,9 +35,9 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
  */
 public class HttpServer {
 
-    public void initializeHTMLExport() throws IOException {
-        OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW
-                + "target/bin/ProfilerOutput.html" + Constants.ANSI_RESET + "%n");
+    public void initializeHTMLExport(String sourceRoot) throws IOException {
+        OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
+                "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", sourceRoot);
         String content = readData();
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);
