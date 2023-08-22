@@ -2685,18 +2685,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return isFieldsValid;
     }
 
+    private void determineDefaultValues(Map<String, BType> typesOfDefaultValues, BRecordType mutableType,
+                                        AnalyzerData data) {
+        if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
+            findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType, data,
+                                                  typesOfDefaultValues);
+        } else {
+            findDefaultValuesFromTypeSymbol(mutableType, typesOfDefaultValues, data);
+        }
+    }
+
     private boolean validateRequiredFields(BRecordType type, List<RecordLiteralNode.RecordField> specifiedFields,
                                            Location pos, AnalyzerData data) {
         Map<String, BType> typesOfDefaultValues = new HashMap<>();
         BRecordType mutableType = type.mutableType;
         boolean hasReadOnlyIntersection = mutableType != null;
         if (hasReadOnlyIntersection) {
-            if (mutableType.tsymbol == null || mutableType.tsymbol.pkgID == PackageID.DEFAULT) {
-                findDefaultValuesFromEnclosingPackage(data.env.enclPkg.typeDefinitions, mutableType,
-                                                      typesOfDefaultValues);
-            } else {
-                findDefaultValuesFromTypeSymbol(mutableType, typesOfDefaultValues);
-            }
+            determineDefaultValues(typesOfDefaultValues, mutableType, data);
         }
 
         HashSet<String> specifiedFieldNames = getFieldNames(specifiedFields, data);
@@ -2725,7 +2730,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void findDefaultValuesFromEnclosingPackage(List<BLangTypeDefinition> typeDefinitions,
-                                                       BRecordType mutableType,
+                                                       BRecordType mutableType, AnalyzerData data,
                                                        Map<String, BType> typesOfDefaultValues) {
         for (BLangTypeDefinition typeDefinition : typeDefinitions) {
             BType type = typeDefinition.getBType();
@@ -2739,15 +2744,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         typesOfDefaultValues.put(simpleVariable.name.value, simpleVariable.expr.getBType());
                     }
                 }
+
+                List<BType> typeInclusions = mutableType.typeInclusions;
+                for (BType typeInclusion : typeInclusions) {
+                    determineDefaultValues(typesOfDefaultValues, (BRecordType) types.getImpliedType(typeInclusion),
+                                            data);
+                }
                 break;
             }
         }
     }
 
-    private void findDefaultValuesFromTypeSymbol(BRecordType mutableType, Map<String, BType> typesOfDefaultValues) {
+    private void findDefaultValuesFromTypeSymbol(BRecordType mutableType, Map<String, BType> typesOfDefaultValues,
+                                                 AnalyzerData data) {
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) mutableType.tsymbol).defaultValues;
         for (String name : defaultValues.keySet()) {
             typesOfDefaultValues.put(name, defaultValues.get(name).retType);
+        }
+        List<BType> typeInclusions = mutableType.typeInclusions;
+        for (BType typeInclusion : typeInclusions) {
+            determineDefaultValues(typesOfDefaultValues, (BRecordType) types.getImpliedType(typeInclusion), data);
         }
     }
 

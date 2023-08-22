@@ -26,6 +26,10 @@ function v() {
     records:Config k = {interceptors: [new PersonInterceptor()], foo: [new Bar()]};
 }
 
-function testRecordReadonlyIntersection() {
+function testRecordReadonlyIntersection1() {
     records:Foo1 & readonly _ = {};
+}
+
+function testRecordReadonlyIntersection2() {
+    records:Foo2 & readonly _ = {};
 }
