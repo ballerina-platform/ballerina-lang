@@ -67,8 +67,7 @@ public class MemoryUsageMonitor {
                                 "Memory usage is high. Please reload the window."));
                     }
                     Thread.sleep(60000);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     // ignore
                 }
             }
