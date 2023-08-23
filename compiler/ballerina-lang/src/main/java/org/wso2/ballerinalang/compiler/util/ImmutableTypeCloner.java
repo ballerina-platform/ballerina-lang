@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -164,6 +163,10 @@ public class ImmutableTypeCloner {
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
+        if (type == null) {
+            return symTable.semanticError;
+        }
+
         if (types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return type;
         }
@@ -226,110 +229,29 @@ public class ImmutableTypeCloner {
                 Types.addImmutableType(symTable, pkgId, origXmlSubType, immutableXmlSubTypeIntersectionType);
                 return immutableXmlSubTypeIntersectionType;
             case TypeTags.XML:
-                BXMLType origXmlType = (BXMLType) type;
-
-                BTypeSymbol immutableXmlTSymbol = getReadonlyTSymbol(names, origXmlType.tsymbol, env, pkgId, owner);
-                BXMLType immutableXmlType = new BXMLType(getImmutableType(pos, types, origXmlType.constraint, env,
-                                                                          pkgId, owner, symTable, anonymousModelHelper,
-                                                                          names, unresolvedTypes),
-                                                immutableXmlTSymbol, origXmlType.flags | Flags.READONLY);
-                if (immutableXmlTSymbol != null) {
-                    immutableXmlTSymbol.type = immutableXmlType;
-                }
-
-                BIntersectionType immutableXmlIntersectionType = createImmutableIntersectionType(pkgId, owner,
-                                                                                                 originalType,
-                                                                                                 immutableXmlType,
-                                                                                                 symTable);
-                Types.addImmutableType(symTable, pkgId, origXmlType, immutableXmlIntersectionType);
-                return immutableXmlIntersectionType;
+                return defineImmutableXMLType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
+                        unresolvedTypes, (BXMLType) type, originalType);
             case TypeTags.ARRAY:
-                BArrayType origArrayType = (BArrayType) type;
-
-                BTypeSymbol immutableArrayTSymbol = getReadonlyTSymbol(names, origArrayType.tsymbol, env, pkgId, owner);
-                BArrayType immutableArrayType = new BArrayType(getImmutableType(pos, types,
-                                                                                origArrayType.getElementType(), env,
-                                                                                pkgId, owner, symTable,
-                                                                                anonymousModelHelper,
-                                                                                names, unresolvedTypes),
-                                                    immutableArrayTSymbol, origArrayType.size, origArrayType.state,
-                                                    origArrayType.flags | Flags.READONLY);
-
-                if (immutableArrayTSymbol != null) {
-                    immutableArrayTSymbol.type = immutableArrayType;
-                }
-
-                BIntersectionType immutableArrayIntersectionType = createImmutableIntersectionType(pkgId, owner,
-                                                                                                   originalType,
-                                                                                                   immutableArrayType,
-                                                                                                   symTable);
-                Types.addImmutableType(symTable, pkgId, origArrayType, immutableArrayIntersectionType);
-                return immutableArrayIntersectionType;
+            case TypeTags.BYTE_ARRAY:
+                return defineImmutableArrayType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
+                        unresolvedTypes, (BArrayType) type, originalType);
             case TypeTags.TUPLE:
-                BTupleType origTupleType = (BTupleType) type;
                 return defineImmutableTupleType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
-                        unresolvedTypes, origTupleType);
+                        unresolvedTypes, (BTupleType) type, originalType);
             case TypeTags.MAP:
-                BMapType origMapType = (BMapType) type;
-
-                BTypeSymbol immutableMapTSymbol = getReadonlyTSymbol(names, origMapType.tsymbol, env, pkgId, owner);
-                BMapType immutableMapType = new BMapType(origMapType.tag,
-                                                         getImmutableType(pos, types, origMapType.constraint, env,
-                                                                          pkgId, owner, symTable, anonymousModelHelper,
-                                                                          names, unresolvedTypes),
-                                                immutableMapTSymbol, origMapType.flags | Flags.READONLY);
-                if (immutableMapTSymbol != null) {
-                    immutableMapTSymbol.type = immutableMapType;
-                }
-
-                BIntersectionType immutableMapIntersectionType = createImmutableIntersectionType(pkgId, owner,
-                        originalType, immutableMapType, symTable);
-                Types.addImmutableType(symTable, pkgId, origMapType, immutableMapIntersectionType);
-                return immutableMapIntersectionType;
+                return defineImmutableMapType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
+                        unresolvedTypes, (BMapType) type, originalType);
             case TypeTags.RECORD:
                 BRecordType origRecordType = (BRecordType) type;
-
                 return defineImmutableRecordType(pos, origRecordType, originalType, env, symTable,
                         anonymousModelHelper, names, types, unresolvedTypes);
             case TypeTags.OBJECT:
                 BObjectType origObjectType = (BObjectType) type;
-
                 return defineImmutableObjectType(pos, origObjectType, originalType, env, symTable,
                         anonymousModelHelper, names, types, origObjFlagSet, unresolvedTypes);
             case TypeTags.TABLE:
-                BTableType origTableType = (BTableType) type;
-
-                BTypeSymbol immutableTableTSymbol = getReadonlyTSymbol(names, origTableType.tsymbol, env, pkgId, owner);
-                BTableType immutableTableType = new BTableType(origTableType.tag,
-                                                               getImmutableType(pos, types, origTableType.constraint,
-                                                                                env, pkgId, owner, symTable,
-                                                                                anonymousModelHelper, names,
-                                                                                unresolvedTypes),
-                                                immutableTableTSymbol, origTableType.flags | Flags.READONLY);
-
-                BType origKeyTypeConstraint = origTableType.keyTypeConstraint;
-                if (origKeyTypeConstraint != null) {
-                    immutableTableType.keyTypeConstraint = getImmutableType(pos, types, origKeyTypeConstraint, env,
-                                                                            pkgId, owner, symTable,
-                                                                            anonymousModelHelper, names,
-                                                                            unresolvedTypes);
-                }
-
-                immutableTableType.keyPos = origTableType.keyPos;
-                immutableTableType.constraintPos = origTableType.constraintPos;
-                immutableTableType.isTypeInlineDefined = origTableType.isTypeInlineDefined;
-                immutableTableType.fieldNameList = origTableType.fieldNameList;
-
-                if (immutableTableTSymbol != null) {
-                    immutableTableTSymbol.type = immutableTableType;
-                }
-
-                BIntersectionType immutableTableIntersectionType = createImmutableIntersectionType(pkgId, owner,
-                                                                                                   originalType,
-                                                                                                   immutableTableType,
-                                                                                                   symTable);
-                Types.addImmutableType(symTable, pkgId, origTableType, immutableTableIntersectionType);
-                return immutableTableIntersectionType;
+                return defineImmutableTableType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
+                        unresolvedTypes, (BTableType) type, originalType);
             case TypeTags.ANY:
                 BAnyType origAnyType = (BAnyType) type;
 
@@ -360,15 +282,132 @@ public class ImmutableTypeCloner {
                 return (BIntersectionType) type;
             default:
                 return defineImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
-                                                unresolvedTypes, (BUnionType) type);
+                                                unresolvedTypes, (BUnionType) type, originalType);
         }
+    }
+
+    private static BIntersectionType defineImmutableTableType(Location pos, Types types, SymbolEnv env,
+                                                              PackageID pkgId, BSymbol owner, SymbolTable symTable,
+                                                              BLangAnonymousModelHelper anonymousModelHelper,
+                                                              Names names, Set<BType> unresolvedTypes,
+                                                              BTableType type,
+                                                              BType originalType) {
+        BTypeSymbol immutableTableTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
+        if (immutableType.isPresent()) {
+            return immutableType.get();
+        } else {
+            Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
+                    originalType, new BTableType(TypeTags.TABLE, null, immutableTableTSymbol,
+                            type.flags | Flags.READONLY), symTable));
+        }
+
+        BIntersectionType immutableTableType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
+        BTableType tableEffectiveImmutableType = (BTableType) immutableTableType.effectiveType;
+        tableEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
+                symTable, anonymousModelHelper, names, unresolvedTypes);
+
+        BType origKeyTypeConstraint = type.keyTypeConstraint;
+        if (origKeyTypeConstraint != null) {
+            tableEffectiveImmutableType.keyTypeConstraint = getImmutableType(pos, types, origKeyTypeConstraint, env,
+                    pkgId, owner, symTable,
+                    anonymousModelHelper, names,
+                    unresolvedTypes);
+        }
+
+        tableEffectiveImmutableType.keyPos = type.keyPos;
+        tableEffectiveImmutableType.constraintPos = type.constraintPos;
+        tableEffectiveImmutableType.isTypeInlineDefined = type.isTypeInlineDefined;
+        tableEffectiveImmutableType.fieldNameList = type.fieldNameList;
+        tableEffectiveImmutableType.mutableType = type;
+
+        if (immutableTableTSymbol != null) {
+            immutableTableTSymbol.type = tableEffectiveImmutableType;
+        }
+
+        return immutableTableType;
+    }
+
+    private static BIntersectionType defineImmutableXMLType(Location pos, Types types, SymbolEnv env,
+                                                            PackageID pkgId, BSymbol owner, SymbolTable symTable,
+                                                            BLangAnonymousModelHelper anonymousModelHelper,
+                                                            Names names, Set<BType> unresolvedTypes,
+                                                            BXMLType type,
+                                                            BType originalType) {
+        BTypeSymbol immutableXmlTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
+        if (immutableType.isPresent()) {
+            return immutableType.get();
+        } else {
+            Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
+                    originalType, new BXMLType(null, immutableXmlTSymbol, type.flags | Flags.READONLY),
+                    symTable));
+        }
+
+        BIntersectionType immutableXMLType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
+        BXMLType xmlEffectiveImmutableType = (BXMLType) immutableXMLType.effectiveType;
+        xmlEffectiveImmutableType.mutableType = type;
+        xmlEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
+                symTable, anonymousModelHelper, names, unresolvedTypes);
+        return immutableXMLType;
+    }
+
+    private static BIntersectionType defineImmutableArrayType(Location pos, Types types, SymbolEnv env,
+                                                              PackageID pkgId, BSymbol owner, SymbolTable symTable,
+                                                              BLangAnonymousModelHelper anonymousModelHelper,
+                                                              Names names, Set<BType> unresolvedTypes,
+                                                              BArrayType type,
+                                                              BType originalType) {
+        BTypeSymbol immutableArrayTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
+        if (immutableType.isPresent()) {
+            return immutableType.get();
+        } else {
+            Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
+                    originalType, new BArrayType(null, immutableArrayTSymbol, type.size, type.state,
+                            type.flags | Flags.READONLY), symTable));
+        }
+
+        BIntersectionType immutableArrayType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
+        BArrayType arrayEffectiveImmutableType = (BArrayType) immutableArrayType.effectiveType;
+        arrayEffectiveImmutableType.mutableType = type;
+        arrayEffectiveImmutableType.eType = getImmutableType(pos, types, type.eType, env, pkgId, owner,
+                symTable, anonymousModelHelper, names, unresolvedTypes);
+        return immutableArrayType;
+    }
+
+    private static BIntersectionType defineImmutableMapType(Location pos, Types types, SymbolEnv env,
+                                                            PackageID pkgId, BSymbol owner, SymbolTable symTable,
+                                                            BLangAnonymousModelHelper anonymousModelHelper,
+                                                            Names names, Set<BType> unresolvedTypes,
+                                                            BMapType type,
+                                                            BType originalType) {
+        BTypeSymbol immutableMapTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
+        if (immutableType.isPresent()) {
+            return immutableType.get();
+        } else {
+            Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
+                    originalType, new BMapType(TypeTags.MAP, null, immutableMapTSymbol,
+                            type.flags | Flags.READONLY), symTable));
+        }
+
+        BIntersectionType immutableMapType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
+
+        BMapType mapEffectiveImmutableType = (BMapType) immutableMapType.effectiveType;
+        mapEffectiveImmutableType.mutableType = type;
+        mapEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
+                                                                 symTable, anonymousModelHelper, names,
+                                                                 unresolvedTypes);
+        return immutableMapType;
     }
 
     private static BIntersectionType defineImmutableTupleType(Location pos, Types types, SymbolEnv env,
                                                               PackageID pkgId, BSymbol owner, SymbolTable symTable,
                                                               BLangAnonymousModelHelper anonymousModelHelper,
                                                               Names names, Set<BType> unresolvedTypes,
-                                                              BTupleType type) {
+                                                              BTupleType type,
+                                                              BType originalType) {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
         List<BTupleMember> origTupleMembers = type.getMembers();
 
@@ -377,12 +416,13 @@ public class ImmutableTypeCloner {
             return immutableType.get();
         } else {
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                    type, new BTupleType(origTupleTypeSymbol), symTable));
+                    originalType, new BTupleType(origTupleTypeSymbol), symTable));
         }
 
         List<BTupleMember> immutableMemTypes = new ArrayList<>(origTupleMembers.size());
         BTupleType tupleEffectiveImmutableType =
                 (BTupleType) Types.getImmutableType(symTable, pkgId, type).get().effectiveType;
+        tupleEffectiveImmutableType.mutableType = type;
         tupleEffectiveImmutableType.isCyclic = type.isCyclic;
         tupleEffectiveImmutableType.setMembers(immutableMemTypes);
 
@@ -432,7 +472,7 @@ public class ImmutableTypeCloner {
 
         BType effectiveType = immutableTupleIntersectionType.effectiveType;
         BTypeSymbol tsymbol = immutableTupleIntersectionType.effectiveType.tsymbol;
-        if (effectiveType.tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
+        if (Types.getImpliedType(effectiveType).tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
             return immutableTupleIntersectionType;
         }
@@ -442,6 +482,7 @@ public class ImmutableTypeCloner {
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
                 effectiveType.tsymbol, tupleTypeNode, env);
         typeDefinition.pos = pos;
+        effectiveType.flags |= Flags.EFFECTIVE_TYPE_DEF;
         return immutableTupleIntersectionType;
     }
 
@@ -454,7 +495,7 @@ public class ImmutableTypeCloner {
                                                 pkgEnv);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
-        BType immutableType = immutableTypeDefinition.getBType();
+        BType immutableType = Types.getImpliedType(immutableTypeDefinition.getBType());
         if (immutableType.tag == TypeTags.RECORD) {
             defineUndefinedImmutableRecordFields((BRecordType) immutableType, pos, pkgID, immutableTypeDefinition,
                                                  types, env, symTable, anonymousModelHelper, names);
@@ -600,15 +641,15 @@ public class ImmutableTypeCloner {
         BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(flags,
                                                                     getImmutableTypeName(names,
                                                                             getSymbolFQN(origObjectTSymbol)),
-                                                                    pkgID, null, env.scope.owner, pos, SOURCE);
+                                                                    pkgID, null, env.scope.owner, pos, VIRTUAL);
 
         objectSymbol.scope = new Scope(objectSymbol);
 
         defineObjectFunctions(objectSymbol, origObjectTSymbol, names, symTable);
 
         BObjectType immutableObjectType = new BObjectType(objectSymbol, origObjectType.flags | Flags.READONLY);
-        immutableObjectType.typeIdSet = origObjectType.typeIdSet;
 
+        immutableObjectType.typeIdSet = origObjectType.typeIdSet;
         BIntersectionType immutableObjectIntersectionType = createImmutableIntersectionType(env, originalType,
                                                                                             immutableObjectType,
                                                                                             symTable);
@@ -662,7 +703,8 @@ public class ImmutableTypeCloner {
                                                               PackageID pkgId, BSymbol owner, SymbolTable symTable,
                                                               BLangAnonymousModelHelper anonymousModelHelper,
                                                               Names names, Set<BType> unresolvedTypes,
-                                                              BUnionType type) {
+                                                              BUnionType type,
+                                                              BType originalType) {
         BTypeSymbol origUnionTypeSymbol = type.tsymbol;
 
         LinkedHashSet<BType> originalMemberList = type.getMemberTypes();
@@ -670,8 +712,9 @@ public class ImmutableTypeCloner {
         if (immutableTypeOptional.isPresent()) {
             return immutableTypeOptional.get();
         } else {
+            BUnionType immutableUnionType = BUnionType.create(origUnionTypeSymbol);
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
-                                      type, BUnionType.create(origUnionTypeSymbol), symTable));
+                                      originalType, immutableUnionType, symTable));
         }
 
         BIntersectionType immutableType = handleImmutableUnionType(pos, types, env, pkgId, owner, symTable,
@@ -874,8 +917,7 @@ public class ImmutableTypeCloner {
         }};
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentTypes,
-                                                                   (IntersectableReferenceType) effectiveType,
-                                                                   Flags.READONLY);
+                                                                   effectiveType, Flags.READONLY | effectiveType.flags);
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }

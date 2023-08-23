@@ -20,6 +20,7 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,6 +53,16 @@ public class QueryWithClosuresTest {
                 "testClosuresInNestedQueryInSelect",
                 "testClosuresInNestedQueryInSelect2",
 //                "testClosureInQueryActionInDo2" #39760
+                "testClosureInQueryActionInDo3",
+                "testClosureInQueryActionInDo4",
+                "testClosureInQueryActionInDo5",
+                "testClosureInQueryActionInDo6",
+                "testClosureInQueryActionInDo7"
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

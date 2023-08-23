@@ -16,12 +16,13 @@
  */
 package org.ballerinalang.test.expressions.async;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -74,14 +75,14 @@ public class BasicAsyncOperationsTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic7() {
         Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new Object[0]);
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic8() {
         Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new Object[0]);
@@ -94,14 +95,14 @@ public class BasicAsyncOperationsTest {
         Assert.assertEquals(returns, 7L);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic10() {
         Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new Object[0]);
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.future}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic11() {
         Object returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new Object[0]);
@@ -145,5 +146,10 @@ public class BasicAsyncOperationsTest {
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'future<int>', found 'int'", 3, 23);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'future<int>', found 'int'", 9, 23);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'future<int>', found 'any'", 15, 23);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

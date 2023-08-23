@@ -276,7 +276,7 @@ public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    var oddNumberList = from var num in numberStream
+    var oddNumberList = stream from var num in numberStream
                         where (num % 2 == 1)
                         select num;
     int[] result = [];

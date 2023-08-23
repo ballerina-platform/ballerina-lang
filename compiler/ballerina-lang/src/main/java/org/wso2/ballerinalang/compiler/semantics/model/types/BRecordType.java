@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Optional;
 import java.util.TreeMap;
 
 
@@ -36,7 +35,6 @@ import java.util.TreeMap;
  * @since 0.971.0
  */
 public class BRecordType extends BStructureType implements RecordType {
-
     private static final String SPACE = " ";
     private static final String RECORD = "record";
     private static final String CLOSE_LEFT = "{|";
@@ -52,9 +50,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     public BRecordType mutableType;
 
-    private BIntersectionType intersectionType = null;
     public TreeMap<Integer, BVarSymbol> enclMapSymbols;
-
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
@@ -112,15 +108,5 @@ public class BRecordType extends BStructureType implements RecordType {
             return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() : sb.toString().concat(" & readonly");
         }
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
     }
 }

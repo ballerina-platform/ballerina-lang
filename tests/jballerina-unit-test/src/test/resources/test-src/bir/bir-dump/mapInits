@@ -248,7 +248,7 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb48;
     }
     bb48 {
-        %0 = newArray typedesc0[%9];
+        %0 = newArray typedesc0[%9]{%20,%73};
         GOTO bb49;
     }
     bb49 {

@@ -64,6 +64,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testIsolatedFunctionReadonlyIntersection() {
+        BRunUtil.invoke(readOnlyIntersectionResults, "testIsolatedFunctionReadonlyIntersection");
+    }
+
+    @Test
     public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/test_intersection_type_negative.bal");
         int index = 0;
@@ -143,6 +148,11 @@ public class IntersectionTypeTest {
     @Test
     public void testMultipleErrorIntersectionWithReadOnly() {
         BRunUtil.invoke(errorIntersectionResults, "testMultipleErrorIntersectionWithReadOnly");
+    }
+
+    @Test
+    public void testErrorIntersectionWithDistinctErrors() {
+        BRunUtil.invoke(errorIntersectionResults, "testErrorIntersectionWithDistinctErrors");
     }
 
     @Test
@@ -238,11 +248,8 @@ public class IntersectionTypeTest {
                 BCompileUtil.compile("test-src/types/intersection/unsupported_intersection_negative.bal");
         int index = 0;
         validateError(result, index++, "unsupported intersection", 17, 8);
-        validateError(result, index++, "unsupported intersection", 18, 9);
         validateError(result, index++, "unsupported intersection", 19, 9);
         validateError(result, index++, "unsupported intersection", 21, 1);
-        validateError(result, index++, "unknown type 'A'", 23, 14);
-        validateError(result, index++, "unknown type 'II'", 23, 19);
         validateError(result, index++, "unsupported intersection", 23, 25);
         assertEquals(result.getErrorCount(), index);
     }

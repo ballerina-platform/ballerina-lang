@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Optional;
 
@@ -47,6 +48,9 @@ public class ReturnTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     public Optional<TypeSymbol> getTypeSymbol(Node node) {
+        if (node.kind() == SyntaxKind.LIST) {
+            return Optional.empty();
+        }
         return node.apply(this);
     }
 

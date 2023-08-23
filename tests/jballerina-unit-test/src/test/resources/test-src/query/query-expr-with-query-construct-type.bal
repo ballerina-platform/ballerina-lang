@@ -179,7 +179,7 @@ function testSimpleQueryReturnStream3() {
     TestGenerator generator = new ();
     TestStream testStream = new (generator);
 
-    var outputIntPersonStream = from var _ in testStream select 1;
+    var outputIntPersonStream = stream from var _ in testStream select 1;
     assertTrue(outputIntPersonStream is stream<int, error?>);
     stream<int, error?> _ = outputIntPersonStream;
     (record {| int value; |}|error)? x1 = outputIntPersonStream.next();
@@ -189,7 +189,7 @@ function testSimpleQueryReturnStream3() {
         assertTrue(false);
     }
 
-    var outputStringPersonStream = from var _ in testStream select "ABCD";
+    var outputStringPersonStream = stream from var _ in testStream select "ABCD";
     assertTrue(outputStringPersonStream is stream<string, error?>);
     stream<string, error?> _ = outputStringPersonStream;
     (record {| string value; |}|error)? x2 = outputStringPersonStream.next();
@@ -1613,24 +1613,24 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
     EvenNumberGenerator evenGen = new();
     stream<int, error> evenNumberStream = new(evenGen);
 
-    map<int>|error map1 = map from var item in (from var integer in evenNumberStream select integer)
+    map<int>|error map1 = map from var item in (stream from var integer in evenNumberStream select integer)
                             select [item.toBalString(), item];
     assertEqual(map1, error("Greater than 20!"));
 
-    table<ResultValue>|error table1 = table key() from var item in (from var integer in evenNumberStream select integer)
+    table<ResultValue>|error table1 = table key() from var item in (stream from var integer in evenNumberStream select integer)
                                         select {value: item};
     assertEqual(table1, error("Greater than 20!"));
 
-    table<NumberRecord> key(id)|error table2 = table key(id) from var item in (from var integer in evenNumberStream select integer)
+    table<NumberRecord> key(id)|error table2 = table key(id) from var item in (stream from var integer in evenNumberStream select integer)
                                                 select {id: item, value: item.toBalString()};
     assertEqual(table2, error("Greater than 20!"));
 
-    map<int>|error map3 = map from var item in (from var integer in (from var integer in evenNumberStream select integer) select integer)
+    map<int>|error map3 = map from var item in (stream from var integer in (stream from var integer in evenNumberStream select integer) select integer)
                             select [item.toBalString(), item];
     assertEqual(map3, error("Greater than 20!"));
 
     table<ResultValue>|error table4 = table key() from var item in
-                                        (from var integer in (from var integer in evenNumberStream select integer) select integer)
+                                        (stream from var integer in (stream from var integer in evenNumberStream select integer) select integer)
                                             select {value: item};
     assertEqual(table4, error("Greater than 20!"));
 }
@@ -1799,6 +1799,34 @@ function testJoinedQueryExprConstructingMapWithRegExp() {
         B1: "BAB*(A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
     }, arr3);
 }
+
+type ModuleDecls [string, FuncDecl...];
+
+type FuncDecl [string, Signature];
+
+public type Signature [string, string[], string];
+
+type ModuleDeclsMemo record {|
+    readonly string id;
+    map<Signature> funcs = {};
+|};
+
+function testInnerQueryConstructedWithCEP() {
+    map<ModuleDeclsMemo> funcMap = {
+        "1": {id: "01", funcs: {"func1": ["foo", ["int", "string"], "boolean"]}},
+        "2": {id: "02", funcs: {"func2": ["bar", ["int", "int"], "boolean"]}}
+    };
+    ModuleDecls[] decl = from var {id, funcs} in funcMap
+        select [
+            id,
+            ...from var [name, sig] in funcs.entries()
+                where name.equalsIgnoreCaseAscii("func1")
+                select <FuncDecl>[name, sig]
+        ];
+
+    assertEqual([["01",["func1",["foo",["int","string"],"boolean"]]],["02"]], decl);
+}
+
 
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;

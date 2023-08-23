@@ -105,6 +105,8 @@ public class CommandConstants {
     public static final String CREATE_INITIALIZER_TITLE = "Create initializer";
 
     public static final String PULL_MOD_TITLE = "Pull unresolved modules";
+    
+    public static final String ADD_MODULE_TO_BALLERINA_TOML = "Add module to Ballerina.toml";
 
     public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 
@@ -186,8 +188,6 @@ public class CommandConstants {
     public static final String FILL_REQUIRED_FIELDS = "Fill '%s' required fields";
 
     public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Convert to '%s' template";
-
-    public static final String RENAME_COMMAND = "ballerina.action.rename";
 
     public static final String POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
 

@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -45,6 +44,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.internal.collections.Pair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,8 +59,9 @@ import static io.ballerina.compiler.api.symbols.Qualifier.PUBLIC;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH;
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -164,7 +165,8 @@ public class ServiceSemanticAPITest {
 
     @DataProvider(name = "LookupPosProvider")
     public Object[][] getLookupPos() {
-        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass");
+        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass",
+                "A", "B", "ClientClassA", "ClientClassB");
         return new Object[][]{
                 {68, 26, moduleSymbols},
                 {70, 59, concatSymbols(moduleSymbols, "self", "magic", "createError")}
@@ -233,8 +235,7 @@ public class ServiceSemanticAPITest {
         assertEquals(pathParams.get(0).getName().get(), "s");
 
         assertEquals(resourcePath.pathRestParameter().get().getName().get(), "r");
-        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
-                     TypeDescKind.ARRAY);
+        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(), STRING);
 
         List<PathSegment> segments = resourcePath.list();
         assertEquals(segments.size(), 3);
@@ -254,7 +255,7 @@ public class ServiceSemanticAPITest {
 
         PathRestParam resourcePath = (PathRestParam) method.resourcePath();
         assertEquals(resourcePath.parameter().getName().get(), "rest");
-        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
+        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), INT);
     }
 
     @Test
@@ -284,6 +285,31 @@ public class ServiceSemanticAPITest {
     public void testServiceDeclNegative() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(66, 34));
         assertTrue(symbol.isEmpty());
+    }
+
+    @Test(dataProvider = "PathParamProvider")
+    public void testPathParams(int line, int col, List<Pair<String, Boolean>> pathParamInfo) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), RESOURCE_METHOD);
+        ResourceMethodSymbol resourceMethodSymbol = (ResourceMethodSymbol) symbol.get();
+        assertEquals(resourceMethodSymbol.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
+        List<PathParameterSymbol> pathParams = ((PathSegmentList) resourceMethodSymbol.resourcePath()).pathParameters();
+        assertEquals(pathParams.size(), pathParamInfo.size());
+        for (int i = 0; i < pathParams.size(); i++) {
+            PathParameterSymbol pathParam = pathParams.get(i);
+            assertEquals(pathParam.typeDescriptor().signature(), pathParamInfo.get(i).first());
+            assertEquals(pathParam.isTypeOnlyParam(), pathParamInfo.get(i).second().booleanValue());
+        }
+    }
+
+    @DataProvider(name = "PathParamProvider")
+    private Object[][] getPathParams() {
+        return new Object[][] {
+                {99, 22, List.of(Pair.of("\"SomeLongMsg\"", true))},
+                {104, 22, List.of(Pair.of("\"SomeLongMsg\"", false), Pair.of("float", false), Pair.of(
+                        "\"AnotherLongMsg\"", true))}
+        };
     }
 
     private Object[][] getExpValues() {

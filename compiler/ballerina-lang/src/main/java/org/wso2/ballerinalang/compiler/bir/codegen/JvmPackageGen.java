@@ -119,7 +119,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
@@ -256,9 +255,6 @@ public class JvmPackageGen {
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
             setCurrentModuleField(cw, mv, jvmConstantsGen, birPackage.packageID, className);
-            if (isTestablePackage) {
-                setInitialTestExecutionState(mv, className);
-            }
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
@@ -404,10 +400,6 @@ public class JvmPackageGen {
                     }
                 }
 
-                if (isTestable) {
-                    generateTestExecutionStateField(cw);
-                }
-
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
@@ -510,7 +502,7 @@ public class JvmPackageGen {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
 
             if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
@@ -785,6 +777,7 @@ public class JvmPackageGen {
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
 
+        removeSourceAnnotationTypeDefs(module.typeDefs);
         // desugar the record init function
         rewriteRecordInits(module.typeDefs);
 
@@ -809,6 +802,10 @@ public class JvmPackageGen {
         clearPackageGenInfo();
 
         return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
+    }
+
+    private void removeSourceAnnotationTypeDefs(List<BIRTypeDefinition> typeDefs) {
+        typeDefs.removeIf(def -> Symbols.isFlagOn(def.flags, Flags.SOURCE_ANNOTATION));
     }
 
     private BIRFunction getMainFunction(BIRPackage module) {
@@ -850,16 +847,5 @@ public class JvmPackageGen {
             }
         }
         return false;
-    }
-
-    private static void generateTestExecutionStateField(ClassWriter cw) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC | ACC_STATIC, TEST_EXECUTION_STATE, "I",
-                null, null);
-        fv.visitEnd();
-    }
-
-    private static void setInitialTestExecutionState(MethodVisitor mv, String initClass) {
-        mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "I");
     }
 }

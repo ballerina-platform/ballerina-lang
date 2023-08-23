@@ -29,7 +29,7 @@
                     "character": 46
                   }
                 },
-                "newText": "# Encrypts the provided plain text\n    #\n    # + plainText - plain text to be encrypted  \n    # + padding - Parameter Description\n    # + return - Return Value Description"
+                "newText": "# Encrypts the provided plain text\n    #\n    # + plainText - plain text to be encrypted  \n    # + padding - parameter description\n    # + return - return value description"
               }
             ]
           }

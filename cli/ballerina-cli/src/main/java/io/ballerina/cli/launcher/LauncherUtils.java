@@ -17,7 +17,10 @@
  */
 package io.ballerina.cli.launcher;
 
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.util.BalToolsUtil;
 import io.ballerina.runtime.api.values.BError;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -26,6 +29,9 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+
+import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -53,7 +59,6 @@ public class LauncherUtils {
         }
         return sourceRootPath;
     }
-
 
     public static BLauncherException createUsageExceptionWithHelp(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
@@ -94,6 +99,48 @@ public class LauncherUtils {
         return new String(c);
     }
 
+    static String generateGeneralHelp(Map<String, CommandLine> subCommands) {
+        StringBuilder helpBuilder = new StringBuilder();
+        helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
+
+        // if there are any tools, add Tool Commands section
+        List<String> toolNames = subCommands.keySet().stream()
+                .filter(BalToolsUtil::isNonBuiltInToolCommand)
+                .sorted().toList();
+        if (!toolNames.isEmpty()) {
+            helpBuilder.append("\n\n   Tool Commands:");
+            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder));
+        }
+        return helpBuilder.toString();
+    }
+
+    static String generateCommandHelp(String commandName, Map<String, CommandLine> subCommands) {
+        if (!BalToolsUtil.isNonBuiltInToolCommand(commandName)) {
+            return BLauncherCmd.getCommandUsageInfo(commandName);
+        }
+        StringBuilder commandUsageInfo = new StringBuilder();
+        BLauncherCmd cmd = subCommands.get(commandName).getCommand();
+        cmd.printLongDesc(commandUsageInfo);
+        return commandUsageInfo.toString();
+    }
+
+    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder) {
+        String commandName = command.getCommandName();
+        BLauncherCmd bLauncherCmd = (BLauncherCmd) command.getCommandSpec().userObject();
+        CommandLine.Command annotation = bLauncherCmd.getClass().getAnnotation(CommandLine.Command.class);
+        String commandDescription = "";
+        if (annotation != null) {
+            String[] descValues = annotation.description();
+            if (descValues != null && descValues.length > 0) {
+                // wrapLength, indent selected to match `ballerina-help.help` formatting
+                commandDescription = wrapString(descValues[0], 64, 24);
+            }
+        }
+        stringBuilder.append("\n")
+                .append("        ")
+                .append(String.format("%-15s %s", commandName, commandDescription));
+    }
+
     static String wrapString(String str, int wrapLength, int indent) {
         StringBuilder wrappedStr = new StringBuilder();
         int i = 0;
@@ -123,5 +170,4 @@ public class LauncherUtils {
         }
         return wrappedStr.toString();
     }
-
 }

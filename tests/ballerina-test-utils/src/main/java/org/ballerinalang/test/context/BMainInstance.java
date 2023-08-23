@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -88,16 +87,15 @@ public class BMainInstance implements BMain {
     /**
      * Initialize the server instance with properties.
      *
-     * @throws BallerinaTestException when an exception is thrown while initializing the server
      */
-    private void initialize() throws BallerinaTestException {
+    private void initialize() {
         configureAgentArgs();
     }
 
-    private void configureAgentArgs() throws BallerinaTestException {
+    private void configureAgentArgs() {
         // add jacoco agent
         String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar") + "=destfile=" +
                 Paths.get(System.getProperty("user.dir"))
                         .resolve("build").resolve("jacoco").resolve("test.exec");
         agentArgs = jacocoArgLine + " ";
@@ -241,7 +239,7 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         try {
 
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -321,7 +319,7 @@ public class BMainInstance implements BMain {
         }
 
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
@@ -606,7 +604,7 @@ public class BMainInstance implements BMain {
         String[] cmdArray;
         try {
 
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {

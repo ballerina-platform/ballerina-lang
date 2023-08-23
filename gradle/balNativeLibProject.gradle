@@ -150,6 +150,9 @@ task assembleArtifact(type: Zip) {
 
 test {
     dependsOn copySelfToTestBalHome
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 publishing {
@@ -161,9 +164,9 @@ publishing {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 jar {

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -82,7 +83,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -217,6 +217,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -275,7 +276,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -520,8 +520,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                 tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDefinition.generatedInitFunction = tempGeneratedInitFunction;
 
         // Add generated init function to the attached function list
@@ -779,8 +778,9 @@ public class Desugar extends BLangNodeVisitor {
         closureGenerator.visit(pkgNode);
 
         pkgNode.constants.stream()
-                .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
+                .filter(constant -> (constant.expr.getKind() == NodeKind.LITERAL ||
                         constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
+                        && constant.expr.getBType().tag != TypeTags.TUPLE)
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
@@ -883,13 +883,20 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
             for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
-                if (memberType.tag != TypeTags.RECORD) {
-                    continue;
+                BLangType typeNode;
+                switch (Types.getImpliedType(memberType).tag) {
+                    case TypeTags.RECORD:
+                        typeNode = constant.associatedTypeDefinition.typeNode;
+                        break;
+                    case TypeTags.TUPLE:
+                        typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+                        break;
+                    default:
+                        continue;
                 }
                 BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
                 constant.expr = rewrite(constant.expr,
-                        SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
-                                pkgNode.initFunction.symbol.scope, env));
+                        SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env));
                 BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
                         constant.expr);
                 initFnBody.stmts.add(constInit);
@@ -1498,7 +1505,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.expr == null && annAttachmentNode.annotationSymbol.attachedType != null) {
             BType attachedType =
-                    Types.getReferredType(annAttachmentNode.annotationSymbol.attachedType);
+                    Types.getImpliedType(annAttachmentNode.annotationSymbol.attachedType);
             if (attachedType.tag != TypeTags.FINITE) {
                 annAttachmentNode.expr = ASTBuilderUtil.createEmptyRecordLiteral(annAttachmentNode.pos,
                         attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType);
@@ -1692,7 +1699,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             // Do the following first.
             // rest[0] = v[1];
             // rest[1] = v[2];
-            BType restType = parentTupleVariable.restVariable.getBType();
+            BType restType = Types.getImpliedType(parentTupleVariable.restVariable.getBType());
             BLangExpression countExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                     (long) parentTupleVariable.memberVariables.size());
             boolean isIndexBasedAccessExpr = tupleExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
@@ -1823,7 +1830,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             if (variable.getKind() == NodeKind.ERROR_VARIABLE) {
 
                 BType accessedElemType = symTable.errorType;
-                BType tupleVarType = Types.getReferredType(tupleVarSymbol.type);
+                BType tupleVarType = Types.getImpliedType(tupleVarSymbol.type);
                 if (tupleVarType.tag == TypeTags.ARRAY) {
                     BArrayType arrayType = (BArrayType) tupleVarType;
                     accessedElemType = arrayType.eType;
@@ -2079,10 +2086,11 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
     private BType getRestFilterConstraintType(BType targetType) {
         BType constraintType;
+        targetType = Types.getImpliedType(targetType);
         if (targetType.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) targetType;
             Map<String, BField> remainingFields = recordType.fields.entrySet()
-                    .stream().filter(entry -> entry.getValue().type.tag != TypeTags.NEVER)
+                    .stream().filter(entry -> Types.getImpliedType(entry.getValue().type).tag != TypeTags.NEVER)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             constraintType = symbolEnter.getRestMatchPatternConstraintType(recordType, remainingFields,
                     recordType.restFieldType);
@@ -2136,7 +2144,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                 filteredVarName);
 
         BLangSimpleVariable converted = filtered;
-        if (targetType.tag == TypeTags.RECORD) {
+        if (Types.getImpliedType(targetType).tag == TypeTags.RECORD) {
             String filteredRecVarName = "$filteredRecord";
             BLangInvocation recordConversion = generateCreateRecordValueInvocation(pos, targetType, filtered.symbol);
             converted = defVariable(pos, targetType, parentBlockStmt, recordConversion, filteredRecVarName);
@@ -2299,7 +2307,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         BLangExpression currentExpr;
         for (BLangExpression expr : exprs) {
             currentExpr = expr;
-            if (expr.getBType().tag != TypeTags.STRING && expr.getBType().tag != TypeTags.XML) {
+            int exprTypeTag = Types.getImpliedType(expr.getBType()).tag;
+            if (exprTypeTag != TypeTags.STRING && exprTypeTag != TypeTags.XML) {
                 currentExpr = getToStringInvocationOnExpr(expr);
             }
 
@@ -2309,8 +2318,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             }
 
             BType binaryExprType =
-                    TypeTags.isXMLTypeTag(concatExpr.getBType().tag)
-                            || TypeTags.isXMLTypeTag(currentExpr.getBType().tag) ?
+                    TypeTags.isXMLTypeTag(Types.getImpliedType(concatExpr.getBType()).tag)
+                            || TypeTags.isXMLTypeTag(Types.getImpliedType(currentExpr.getBType()).tag) ?
                             symTable.xmlType : symTable.stringType;
             concatExpr =
                     ASTBuilderUtil.createBinaryExpr(concatExpr.pos, concatExpr, currentExpr,
@@ -2640,6 +2649,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         // T[] t = [];
         BLangSimpleVarRef restParam = (BLangSimpleVarRef) tupleVarRef.restParam;
         BType restParamType = restParam.getBType();
+        BType referredRestParamType = Types.getImpliedType(restParamType);
         BLangArrayLiteral arrayExpr = createArrayLiteralExprNode();
         arrayExpr.setBType(restParamType);
 
@@ -2651,8 +2661,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         BLangExpression countExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                 (long) tupleVarRef.expressions.size());
         boolean isIndexBasedAccessExpr = tupleExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
-        if (restParamType.tag == TypeTags.TUPLE) {
-            BTupleType restTupleType = (BTupleType) restParamType;
+        if (referredRestParamType.tag == TypeTags.TUPLE) {
+            BTupleType restTupleType = (BTupleType) referredRestParamType;
             BLangIndexBasedAccess modifiedTupleExpr = ASTBuilderUtil.createIndexAccessExpr(tupleExpr, countExpr);
             modifiedTupleExpr.setBType(tupleExpr.getBType());
             tupleExpr = modifiedTupleExpr;
@@ -2699,10 +2709,10 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         // t[t.length()] = <T> tupleLiteral[$foreach$i];
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(restParam,
                 createLengthInvocation(pos, restParam));
-        if (restParamType.tag == TypeTags.TUPLE) {
-            indexAccessExpr.setBType(((BTupleType) restParamType).restType);
+        if (referredRestParamType.tag == TypeTags.TUPLE) {
+            indexAccessExpr.setBType(((BTupleType) referredRestParamType).restType);
         } else {
-            indexAccessExpr.setBType(((BArrayType) restParamType).eType);
+            indexAccessExpr.setBType(((BArrayType) referredRestParamType).eType);
         }
         if (isIndexBasedAccessExpr) {
             createAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol,
@@ -3067,10 +3077,10 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                     filteredDetail.symbol);
         }
 
-        BErrorType errorType = (BErrorType) Types.getReferredType(parentErrorVarRef.getBType());
-        if (Types.getReferredType(errorType.detailType).getKind() == TypeKind.RECORD) {
+        BErrorType errorType = (BErrorType) Types.getImpliedType(parentErrorVarRef.getBType());
+        if (Types.getImpliedType(errorType.detailType).getKind() == TypeKind.RECORD) {
             // Create empty record init attached func
-            BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) Types.getReferredType(errorType.detailType).tsymbol;
+            BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) Types.getImpliedType(errorType.detailType).tsymbol;
             tsymbol.initializerFunc = createRecordInitFunc();
             tsymbol.scope.define(tsymbol.initializerFunc.funcName, tsymbol.initializerFunc.symbol);
         }
@@ -4681,6 +4691,10 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private void addAsRecordTypeDefinition(BType type, Location pos) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            type = ((BIntersectionType) type).effectiveType;
+        }
+
         if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 addAsRecordTypeDefinition(memberType, pos);
@@ -5140,7 +5154,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     BLangBlockStmt desugarForeachStmt(BVarSymbol collectionSymbol, BType collectionType, BLangForeach foreach,
                                       BLangSimpleVariableDef dataVarDef) {
         // Get the symbol of the variable (collection).
-        switch (collectionType.tag) {
+        switch (Types.getImpliedType(collectionType).tag) {
             case TypeTags.STRING:
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
@@ -5157,9 +5171,6 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                 iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
                 return desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
                         iteratorSymbol, false);
-            case TypeTags.TYPEREFDESC:
-                return desugarForeachStmt(collectionSymbol, Types.getReferredType(foreach.collection.getBType()),
-                        foreach, dataVarDef);
             default:
                 BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
                 blockNode.stmts.add(0, dataVarDef);
@@ -5307,7 +5318,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     public BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
-        BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) Types.getReferredType(collectionSymbol.type).tsymbol;
+        BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) Types.getImpliedType(collectionSymbol.type).tsymbol;
         // We know for sure at this point, the object symbol should have the `iterator` method
         BAttachedFunction iteratorFunc = null;
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
@@ -5840,7 +5851,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.ARRAY) {
+        int tag = Types.getImpliedType(literalExpr.getBType()).tag;
+        if (tag == TypeTags.ARRAY || tag == TypeTags.TUPLE) {
             // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
@@ -5870,7 +5882,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     public void visit(BLangListConstructorExpr listConstructor) {
         listConstructor.exprs = rewriteExprs(listConstructor.exprs);
         BLangExpression expr;
-        BType listConstructorType = Types.getReferredType(listConstructor.getBType());
+        BType listConstructorType = Types.getImpliedType(listConstructor.getBType());
         if (listConstructorType.tag == TypeTags.TUPLE) {
             expr = new BLangTupleLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.getBType());
             result = rewriteExpr(expr);
@@ -5900,7 +5912,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
         arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
-        BType arrayLiteralType = Types.getReferredType(arrayLiteral.getBType());
+        BType arrayLiteralType = Types.getImpliedType(arrayLiteral.getBType());
         if (arrayLiteralType.tag == TypeTags.JSON) {
             result = new BLangJSONArrayLiteral(arrayLiteral.exprs, new BArrayType(arrayLiteral.getBType()));
             return;
@@ -5921,7 +5933,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             return;
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
-        BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
+        BTupleType tupleType = (BTupleType) Types.getImpliedType(tupleLiteral.getBType());
         List<BType> tupleMemberTypes = tupleType.getTupleTypes();
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
@@ -5931,7 +5943,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         for (BLangExpression expr: exprs) {
             if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
-                spreadOpType = Types.getReferredType(spreadOpType);
+                spreadOpType = Types.getImpliedType(spreadOpType);
                 if (spreadOpType.tag == TypeTags.ARRAY) {
                     BArrayType spreadOpBArray = (BArrayType) spreadOpType;
                     if (spreadOpBArray.size >= 0) {
@@ -5939,7 +5951,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                         continue;
                     }
                 } else {
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = spreadOpType.tag == TypeTags.INTERSECTION ?
+                            (BTupleType) ((BIntersectionType) spreadOpType).effectiveType : (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         i += spreadOpTuple.getMembers().size();
                         continue;
@@ -6004,6 +6017,9 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
+                if (varSymbol.closure) {
+                    varRefExpr.symbol.closure = true;
+                }
             }
         }
 
@@ -6011,7 +6027,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
-                Types.getReferredType(varRefExpr.symbol.type).tag == TypeTags.INVOKABLE) {
+                Types.getImpliedType(varRefExpr.symbol.type).tag == TypeTags.INVOKABLE) {
             genVarRefExpr = new BLangFunctionVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((varRefExpr.symbol.tag & SymTag.TYPE) == SymTag.TYPE &&
                 !((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
@@ -6030,7 +6046,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             // TODO: is resolved #issue-21127
             if ((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) varRefExpr.symbol;
-                BType referredType = Types.getReferredType(constSymbol.literalType);
+                BType referredType = Types.getImpliedType(constSymbol.literalType);
                 if (referredType.tag <= TypeTags.BOOLEAN || referredType.tag == TypeTags.NIL) {
                     BLangLiteral literal = ASTBuilderUtil.createLiteral(varRefExpr.pos, constSymbol.literalType,
                             constSymbol.value.value);
@@ -6094,13 +6110,14 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos,
                 StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
-        BType refType = Types.getReferredType(varRefType);
+        BType refType = Types.getImpliedType(varRefType);
         int varRefTypeTag = refType.tag;
         if (varRefTypeTag == TypeTags.OBJECT ||
                 (varRefTypeTag == TypeTags.UNION &&
-                        Types.getReferredType(
+                        Types.getImpliedType(
                                 ((BUnionType) refType).getMemberTypes().iterator().next()).tag == TypeTags.OBJECT)) {
-            if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE &&
+            if (fieldAccessExpr.symbol != null &&
+                    Types.getImpliedType(fieldAccessExpr.symbol.type).tag == TypeTags.INVOKABLE &&
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 result = rewriteObjectMemberAccessAsField(fieldAccessExpr);
                 return;
@@ -6126,17 +6143,20 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             }
         } else if (varRefTypeTag == TypeTags.RECORD ||
                 (varRefTypeTag == TypeTags.UNION &&
-                        ((BUnionType) refType).getMemberTypes().iterator().next().tag == TypeTags.RECORD)) {
-            if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
+                        Types.getImpliedType(
+                        ((BUnionType) refType).getMemberTypes().iterator().next()).tag == TypeTags.RECORD)) {
+            if (fieldAccessExpr.symbol != null &&
+                    Types.getImpliedType(fieldAccessExpr.symbol.type).tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false, fieldAccessExpr.isStoreOnCreation);
             }
-        } else if (types.isLax(refType)) {
-            if (!(refType.tag == TypeTags.XML || refType.tag == TypeTags.XML_ELEMENT)) {
-                if (refType.tag == TypeTags.MAP && TypeTags.isXMLTypeTag(((BMapType) refType).constraint.tag)) {
+        } else if (types.isLaxFieldAccessAllowed(refType)) {
+            if (!(varRefTypeTag == TypeTags.XML || varRefTypeTag == TypeTags.XML_ELEMENT)) {
+                if (varRefTypeTag == TypeTags.MAP &&
+                        TypeTags.isXMLTypeTag(Types.getImpliedType(((BMapType) refType).constraint).tag)) {
                     result = rewriteExpr(rewriteLaxMapAccess(fieldAccessExpr));
                     return;
                 }
@@ -6403,7 +6423,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
         BType effectiveType = types.getTypeWithEffectiveIntersectionTypes(indexAccessExpr.expr.getBType());
-        BType varRefType = Types.getReferredType(effectiveType);
+        BType varRefType = Types.getImpliedType(effectiveType);
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         if (!types.isSameType(indexAccessExpr.expr.getBType(), varRefType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, varRefType);
@@ -6448,15 +6468,31 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         }
     }
 
+    // The visitor method is called for the function pointer nodes created in QueryDesugar.
+    @Override
+    public void visit(BFunctionPointerInvocation invocation) {
+        visitArgs(invocation);
+
+        invocation.expr = rewriteExpr(invocation.expr);
+        result = invocation;
+    }
+
+    private void visitArgs(BLangInvocation invocation) {
+        // Reorder the arguments to match the original function signature.
+        reorderArguments(invocation);
+
+        rewriteExprs(invocation.requiredArgs);
+        fixStreamTypeCastsInInvocationParams(invocation);
+        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
+
+        rewriteExprs(invocation.restArgs);
+    }
+
     private BLangStatementExpression createStmtExpr(BLangInvocation invocation) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
-        BInvokableTypeSymbol invokableTypeSymbol;
-        BType type = invocation.symbol.type;
-        if (type.getKind() == TypeKind.TYPEREFDESC) {
-            invokableTypeSymbol = (BInvokableTypeSymbol) ((BTypeReferenceType) type).referredType.tsymbol;
-        } else {
-            invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
-        }
+        BType type = Types.getImpliedType(invocation.symbol.type);
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+
         if (invokableTypeSymbol == null) {
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, invocation);
             stmtExpr.setBType(invocation.getBType());
@@ -6498,7 +6534,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                 continue;
             }
 
-            BInvokableSymbol invokableSymbol = defaultValues.get(paramName);
+            BInvokableSymbol invokableSymbol = defaultValues.get(Utils.unescapeBallerina(paramName));
             BLangInvocation closureInvocation = getInvocation(invokableSymbol);
             for (int m = 0; m < invokableSymbol.params.size(); m++) {
                 String langLibFuncParam = invokableSymbol.params.get(m).name.value;
@@ -6541,7 +6577,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         BLangExpression errorDetail;
         BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(errorConstructorExpr.pos,
-                ((BErrorType) Types.getReferredType(errorConstructorExpr.getBType())).detailType);
+                ((BErrorType) Types.getImpliedType(errorConstructorExpr.getBType())).detailType);
         if (errorConstructorExpr.namedArgs.isEmpty()) {
             errorDetail = visitCloneReadonly(rewriteExpr(recordLiteral), recordLiteral.getBType());
         } else {
@@ -6550,7 +6586,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                 member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
                         symTable.stringType, StringEscapeUtils.unescapeJava(namedArg.name.value)));
 
-                if (Types.getReferredType(recordLiteral.getBType()).tag == TypeTags.RECORD) {
+                if (Types.getImpliedType(recordLiteral.getBType()).tag == TypeTags.RECORD) {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
                 } else {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, namedArg.expr.getBType());
@@ -6558,7 +6594,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                 recordLiteral.fields.add(member);
             }
             errorDetail = visitCloneReadonly(rewriteExpr(recordLiteral),
-                    ((BErrorType) Types.getReferredType(errorConstructorExpr.getBType())).detailType);
+                    ((BErrorType) Types.getImpliedType(errorConstructorExpr.getBType())).detailType);
         }
         errorConstructorExpr.errorDetail = errorDetail;
         result = errorConstructorExpr;
@@ -6798,14 +6834,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             lock.lockVariables.addAll(((BInvokableSymbol) invocation.symbol).dependentGlobalVars);
         }
 
-        // Reorder the arguments to match the original function signature.
-        reorderArguments(invocation);
-
-        rewriteExprs(invocation.requiredArgs);
-        fixStreamTypeCastsInInvocationParams(invocation);
-        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
-
-        rewriteExprs(invocation.restArgs);
+        visitArgs(invocation);
 
         annotationDesugar.defineStatementAnnotations(invocation.annAttachments, invocation.pos,
                                                      invocation.symbol.pkgID, invocation.symbol.owner, env);
@@ -6829,7 +6858,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             invocation.expr = ASTBuilderUtil.createVariableRef(invocation.pos, invocation.exprSymbol);
             invocation.expr = rewriteExpr(invocation.expr);
         }
-        switch (Types.getReferredType(invocation.expr.getBType()).tag) {
+        switch (Types.getImpliedType(invocation.expr.getBType()).tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
             case TypeTags.UNION:
@@ -6910,7 +6939,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         if (!params.isEmpty()) {
             for (int i = 0; i < requiredArgs.size(); i++) {
                 BVarSymbol param = params.get(i);
-                if (Types.getReferredType(param.type).tag == TypeTags.STREAM) {
+                if (Types.getImpliedType(param.type).tag == TypeTags.STREAM) {
                     requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), param.type));
                 }
             }
@@ -6925,7 +6954,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        if (Types.getReferredType(typeInitExpr.getBType()).tag == TypeTags.STREAM) {
+        if (Types.getImpliedType(typeInitExpr.getBType()).tag == TypeTags.STREAM) {
             result = rewriteExpr(desugarStreamTypeInit(typeInitExpr));
         } else {
             result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
@@ -6952,7 +6981,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         blockStmt.addStatement(initInvRetValVarDef);
         initInvocation.exprSymbol = objVarDef.var.symbol;
         initInvocation.symbol =
-                ((BObjectTypeSymbol) Types.getReferredType(objType).tsymbol).generatedInitializerFunc.symbol;
+                ((BObjectTypeSymbol) Types.getImpliedType(objType).tsymbol).generatedInitializerFunc.symbol;
 
         // init() returning nil is the common case and the type test is not needed for it.
         if (initInvocation.getBType().tag == TypeTags.NIL) {
@@ -7018,14 +7047,14 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CONSTRUCT_STREAM).symbol;
 
-        BStreamType referredStreamType = (BStreamType) Types.getReferredType(typeInitExpr.getBType());
+        BStreamType referredStreamType = (BStreamType) Types.getImpliedType(typeInitExpr.getBType());
         BType constraintType = referredStreamType.constraint;
         BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
 
-        BType completionType = ((BStreamType) Types.getReferredType(typeInitExpr.getBType())).completionType;
+        BType completionType = referredStreamType.completionType;
         BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
@@ -7066,12 +7095,12 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private BType getObjectType(BType bType) {
-        BType type = Types.getReferredType(bType);
+        BType type = Types.getImpliedType(bType);
         if (type.tag == TypeTags.OBJECT) {
             return bType;
         } else if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
-                    .filter(t -> Types.getReferredType(t).tag == TypeTags.OBJECT)
+                    .filter(t -> Types.getImpliedType(t).tag == TypeTags.OBJECT)
                     .findFirst()
                     .orElse(symTable.noType);
         }
@@ -7176,7 +7205,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     @Override
     public void visit(BLangTrapExpr trapExpr) {
         trapExpr.expr = rewriteExpr(trapExpr.expr);
-        if (Types.getReferredType(trapExpr.expr.getBType()).tag != TypeTags.NIL) {
+        if (Types.getImpliedType(trapExpr.expr.getBType()).tag != TypeTags.NIL) {
             trapExpr.expr = addConversionExprIfRequired(trapExpr.expr, trapExpr.getBType());
         }
         result = trapExpr;
@@ -7224,8 +7253,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
-        int rhsExprTypeTag = Types.getReferredType(binaryExpr.rhsExpr.getBType()).tag;
-        int lhsExprTypeTag = Types.getReferredType(binaryExpr.lhsExpr.getBType()).tag;
+        int rhsExprTypeTag = Types.getImpliedType(binaryExpr.rhsExpr.getBType()).tag;
+        int lhsExprTypeTag = Types.getImpliedType(binaryExpr.lhsExpr.getBType()).tag;
 
         // Check for int and byte ==, != or === comparison and add type conversion to int for byte
         if (rhsExprTypeTag != lhsExprTypeTag && (binaryExpr.opKind == OperatorKind.EQUAL ||
@@ -7544,7 +7573,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private void addTypeCastForBinaryExprA(BLangBinaryExpr binaryExpr, BType rhsExprType, BType lhsExprType) {
-        if (lhsExprType.tag == TypeTags.UNION && lhsExprType.isNullable()) {
+        if (Types.getImpliedType(lhsExprType).tag == TypeTags.UNION && lhsExprType.isNullable()) {
             binaryExpr.rhsExpr = addNilType(rhsExprType, binaryExpr.rhsExpr);
         } else {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, rhsExprType);
@@ -7552,7 +7581,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private void addTypeCastForBinaryExprB(BLangBinaryExpr binaryExpr, BType lhsExprType, BType rhsExprType) {
-        if (rhsExprType.tag == TypeTags.UNION && rhsExprType.isNullable()) {
+        if (Types.getImpliedType(rhsExprType).tag == TypeTags.UNION && rhsExprType.isNullable()) {
             binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
         } else {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, lhsExprType);
@@ -7582,13 +7611,13 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             return;
         }
 
-        int rhsExprTypeTag = Types.getReferredType(binaryExpr.rhsExpr.getBType()).tag;
-        int lhsExprTypeTag = Types.getReferredType(binaryExpr.lhsExpr.getBType()).tag;
+        int rhsExprTypeTag = Types.getImpliedType(binaryExpr.rhsExpr.getBType()).tag;
+        int lhsExprTypeTag = Types.getImpliedType(binaryExpr.lhsExpr.getBType()).tag;
         if (rhsExprTypeTag != TypeTags.BYTE && lhsExprTypeTag != TypeTags.BYTE) {
             return;
         }
 
-        int resultTypeTag = binaryExpr.expectedType.tag;
+        int resultTypeTag = Types.getImpliedType(binaryExpr.expectedType).tag;
         if (resultTypeTag == TypeTags.INT) {
             if (rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = addConversionExprIfRequired(binaryExpr.rhsExpr, symTable.intType);
@@ -7684,7 +7713,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         // Since the support for singleton type changes are not complete, continuing with the finite type will require
         // significant changes, therefore we are constructing a numeric literal.
-        if (types.isExpressionInUnaryValid(unaryExpr.expr) && unaryExpr.expectedType.tag == TypeTags.FINITE) {
+        if (types.isExpressionInUnaryValid(unaryExpr.expr) &&
+                Types.getImpliedType(unaryExpr.expectedType).tag == TypeTags.FINITE) {
             result = rewriteExpr(Types.constructNumericLiteralFromUnaryExpr(unaryExpr));
             return;
         }
@@ -7699,7 +7729,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
     private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {
         BLangExpression expr = unaryExpr.expr;
-        if (TypeTags.isIntegerTypeTag(expr.getBType().tag)) {
+        if (TypeTags.isIntegerTypeTag(Types.getImpliedType(expr.getBType()).tag)) {
             return;
         }
         unaryExpr.expr = createTypeCastExpr(expr, unaryExpr.getBType());
@@ -7719,7 +7749,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         binaryExpr.pos = pos;
         binaryExpr.opKind = OperatorKind.BITWISE_XOR;
         binaryExpr.lhsExpr = unaryExpr.expr;
-        if (TypeTags.BYTE == Types.getReferredType(unaryExpr.getBType()).tag) {
+        if (TypeTags.BYTE == Types.getImpliedType(unaryExpr.getBType()).tag) {
             binaryExpr.setBType(symTable.byteType);
             binaryExpr.rhsExpr = ASTBuilderUtil.createLiteral(pos, symTable.byteType, 0xffL);
             binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.BITWISE_XOR,
@@ -8019,7 +8049,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         Location pos = rawTemplateLiteral.pos;
-        BObjectType objType = (BObjectType) Types.getReferredType(rawTemplateLiteral.getBType());
+        BObjectType objType = (BObjectType) Types.getImpliedType(rawTemplateLiteral.getBType());
         BLangClassDefinition objClassDef =
                 desugarTemplateLiteralObjectTypedef(rawTemplateLiteral.strings, objType, pos);
         BObjectType classObjType = (BObjectType) objClassDef.getBType();
@@ -8099,8 +8129,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDef, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                                                                           tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDef.generatedInitFunction = tempGeneratedInitFunction;
         env.enclPkg.functions.add(classDef.generatedInitFunction);
         env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
@@ -8155,9 +8184,9 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = visitCloneInvocation(rewriteExpr(workerSendNode.expr), workerSendNode.expr.getBType());
-        result = workerSendNode;
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        asyncSendExpr.expr = visitCloneInvocation(rewriteExpr(asyncSendExpr.expr), asyncSendExpr.expr.getBType());
+        result = asyncSendExpr;
     }
 
     @Override
@@ -8590,7 +8619,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     public void visit(BLangConstant constant) {
 
         BConstantSymbol constSymbol = constant.symbol;
-        BType refType = Types.getReferredType(constSymbol.literalType);
+        BType refType = Types.getImpliedType(constSymbol.literalType);
         if (refType.tag <= TypeTags.BOOLEAN || refType.tag == TypeTags.NIL) {
             if (refType.tag != TypeTags.NIL && (constSymbol.value == null ||
                             constSymbol.value.value == null)) {
@@ -8789,7 +8818,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(pos, "next");
         BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(pos, iteratorSymbol);
         BInvokableSymbol nextFuncSymbol =
-                getNextFunc((BObjectType) Types.getReferredType(iteratorSymbol.type)).symbol;
+                getNextFunc((BObjectType) Types.getImpliedType(iteratorSymbol.type)).symbol;
         BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         nextInvocation.pos = pos;
         nextInvocation.name = nextIdentifier;
@@ -8854,7 +8883,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         return invocationNode;
     }
 
-    private BLangInvocation createLangLibInvocationNode(String functionName,
+    protected BLangInvocation createLangLibInvocationNode(String functionName,
                                                         BLangExpression onExpr,
                                                         List<BLangExpression> args,
                                                         BType retType,
@@ -8914,9 +8943,16 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private BFunctionPointerInvocation visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BLangExpression rewritten = rewriteExpr(getFunctionPointerExpr(iExpr));
+        return new BFunctionPointerInvocation(iExpr, rewritten);
+    }
+
+    protected BLangValueExpression getFunctionPointerExpr(BLangInvocation iExpr) {
         BLangValueExpression expr;
         if (iExpr.expr == null) {
-            expr = new BLangSimpleVarRef();
+            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+            varRef.variableName = iExpr.name;
+            expr = varRef;
         } else {
             BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
             fieldBasedAccess.expr = iExpr.expr;
@@ -8925,16 +8961,14 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         }
         expr.symbol = iExpr.symbol;
         expr.setBType(iExpr.symbol.type);
-
-        BLangExpression rewritten = rewriteExpr(expr);
-        return new BFunctionPointerInvocation(iExpr, rewritten);
+        return expr;
     }
 
     private BLangExpression visitCloneInvocation(BLangExpression expr, BType lhsType) {
         if (types.isValueType(expr.getBType())) {
             return expr;
         }
-        if (expr.getBType().tag == TypeTags.ERROR) {
+        if (Types.getImpliedType(expr.getBType()).tag == TypeTags.ERROR) {
             return expr;
         }
         BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList<>(), null, expr.pos);
@@ -8945,7 +8979,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         if (types.isValueType(expr.getBType())) {
             return expr;
         }
-        if (expr.getBType().tag == TypeTags.ERROR) {
+        if (Types.getImpliedType(expr.getBType()).tag == TypeTags.ERROR) {
             return expr;
         }
         BLangInvocation cloneInvok = createLangLibInvocationNode("cloneReadOnly", expr, new ArrayList<>(),
@@ -9064,7 +9098,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private BType getElementType(BType bType) {
-        BType type = Types.getReferredType(bType);
+        BType type = Types.getImpliedType(bType);
         if (type.tag != TypeTags.ARRAY) {
             return bType;
         }
@@ -9107,7 +9141,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     private void reorderArguments(BLangInvocation iExpr) {
         BSymbol symbol = iExpr.symbol;
 
-        if (symbol == null || Types.getReferredType(symbol.type).tag != TypeTags.INVOKABLE) {
+        if (symbol == null || Types.getImpliedType(symbol.type).tag != TypeTags.INVOKABLE) {
             return;
         }
 
@@ -9212,7 +9246,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             // required/defaultable parameter are added to the new array.
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
-            if (Types.getReferredType(restArgsExpression.getBType()).tag == TypeTags.RECORD) {
+            if (Types.getImpliedType(restArgsExpression.getBType()).tag == TypeTags.RECORD) {
                 BLangExpression expr = ASTBuilderUtil.createEmptyArrayLiteral(invokableSymbol.pos, restParamType);
                 restArgs.add(expr);
                 return;
@@ -9254,7 +9288,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
             BLangIndexBasedAccess valueExpr = ASTBuilderUtil.createIndexAccessExpr(varargRef, foreachVarRef);
 
-            BType refType = Types.getReferredType(varargVarType);
+            BType refType = Types.getImpliedType(varargVarType);
             if (refType.tag == TypeTags.ARRAY) {
                 BArrayType arrayType = (BArrayType) refType;
                 if (arrayType.state == BArrayState.CLOSED &&
@@ -9353,7 +9387,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         boolean tupleTypedVararg = false;
 
         if (varargRef != null) {
-            varargType = Types.getReferredType(varargRef.getBType());
+            varargType = Types.getImpliedType(varargRef.getBType());
             tupleTypedVararg = varargType.tag == TypeTags.TUPLE;
         }
 
@@ -9372,7 +9406,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                 recordLiteral.setBType(paramType);
                 args.add(recordLiteral);
                 incRecordLiterals.add(recordLiteral);
-                if (((BRecordType) Types.getReferredType(paramType)).restFieldType != symTable.noType) {
+                if (((BRecordType) Types.getImpliedType(paramType)).restFieldType != symTable.noType) {
                     incRecordParamAllowAdditionalFields = recordLiteral;
                 }
             } else if (varargRef == null) {
@@ -9383,7 +9417,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             } else {
                 // If a vararg is provided, no parameter defaults are added and no named args are specified.
                 // Thus, any missing args should come from the vararg.
-                if (Types.getReferredType(varargRef.getBType()).tag == TypeTags.RECORD) {
+                if (Types.getImpliedType(varargRef.getBType()).tag == TypeTags.RECORD) {
                     if (param.isDefaultable) {
                         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varargRef.pos);
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
@@ -9436,9 +9470,9 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
             for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
                 LinkedHashMap<String, BField> fields =
-                        ((BRecordType) Types.getReferredType(recordLiteral.getBType())).fields;
+                        ((BRecordType) Types.getImpliedType(recordLiteral.getBType())).fields;
                 if (fields.containsKey(name) &&
-                        Types.getReferredType(fields.get(name).type).tag != TypeTags.NEVER) {
+                        Types.getImpliedType(fields.get(name).type).tag != TypeTags.NEVER) {
                     isAdditionalField = false;
                     createAndAddRecordFieldForIncRecordLiteral(recordLiteral, expr);
                     break;
@@ -9465,7 +9499,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
                                                   boolean isCheckPanicExpr) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol
-        BType enclosingFuncReturnType = Types.getReferredType(((BInvokableType) invokableSymbol.type).retType);
+        BType enclosingFuncReturnType = Types.getImpliedType(((BInvokableType) invokableSymbol.type).retType);
         Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
                 ((BUnionType) enclosingFuncReturnType).getMemberTypes() :
                 new LinkedHashSet<>() {{
@@ -9519,7 +9553,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         BType rhsType = expr.getBType();
 
         if (lhsType.tag == TypeTags.TYPEREFDESC && rhsType.tag != TypeTags.TYPEREFDESC) {
-            return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
+            return addConversionExprIfRequired(expr, Types.getImpliedType(lhsType));
         }
 
         if (types.isSameType(rhsType, lhsType)) {
@@ -9533,15 +9567,16 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
             return impConversionExpr;
         }
 
-        if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
+        int lhsTypeTag = Types.getImpliedType(lhsType).tag;
+        if (lhsTypeTag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
             return expr;
         }
 
-        if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
+        if (lhsTypeTag == TypeTags.NIL && rhsType.isNullable()) {
             return expr;
         }
 
-        if (lhsType.tag == TypeTags.ARRAY && rhsType.tag == TypeTags.TUPLE) {
+        if (lhsTypeTag == TypeTags.ARRAY && rhsType.tag == TypeTags.TUPLE) {
             return expr;
         }
 
@@ -9873,7 +9908,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         }
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
-            BType originalType = Types.getReferredType(accessExpr.originalType);
+            BType originalType = Types.getImpliedType(accessExpr.originalType);
             if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
@@ -9911,7 +9946,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         boolean isAllTypesRecords = false;
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
-        BType referredType = Types.getReferredType(matchExpr.getBType());
+        BType referredType = Types.getImpliedType(matchExpr.getBType());
         if (referredType.tag == TypeTags.UNION) {
             memTypes = new LinkedHashSet<>(((BUnionType) referredType).getMemberTypes());
             isAllTypesRecords = isAllTypesAreRecordsInUnion(memTypes);
@@ -9944,7 +9979,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         if (isAllTypesRecords) {
             for (BType memberType : memTypes) {
-                BRecordType recordType = (BRecordType) Types.getReferredType(memberType);
+                BRecordType recordType = (BRecordType) Types.getImpliedType(memberType);
                 if (recordType.fields.containsKey(field.value) || !recordType.sealed) {
                     successClause = getSuccessPatternClause(memberType, matchExpr, accessExpr, tempResultVar,
                             accessExpr.errorSafeNavigation);
@@ -9964,6 +9999,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
     }
 
     private boolean isMapJson(BType originalType, boolean fromMap) {
+        originalType = Types.getImpliedType(originalType);
         return ((originalType.tag == TypeTags.MAP) && isMapJson(((BMapType) originalType).getConstraint(), true))
                 || ((originalType.tag == TypeTags.JSON) && fromMap);
     }
@@ -9992,7 +10028,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
     private boolean isAllTypesAreRecordsInUnion(LinkedHashSet<BType> memTypes) {
         for (BType memType : memTypes) {
-            int typeTag = Types.getReferredType(memType).tag;
+            int typeTag = Types.getImpliedType(memType).tag;
             if (typeTag != TypeTags.RECORD && typeTag != TypeTags.ERROR && typeTag != TypeTags.NIL) {
                 return false;
             }
@@ -10064,7 +10100,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
 
         Location pos = accessExpr.pos;
         BVarSymbol  successPatternSymbol;
-        if (Types.getReferredType(type).tag == TypeTags.INVOKABLE) {
+        if (Types.getImpliedType(type).tag == TypeTags.INVOKABLE) {
             successPatternSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, Names.fromString(successPatternVarName),
                     this.env.scope.owner.pkgID, symTable.anyOrErrorType, this.env.scope.owner, pos, VIRTUAL);
         } else {
@@ -10099,7 +10135,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
         // and may not reflect the actual type of the child/field expr.
-        if (TypeTags.isXMLTypeTag(Types.getReferredType(tempAccessExpr.expr.getBType()).tag)) {
+        if (TypeTags.isXMLTypeTag(Types.getImpliedType(tempAccessExpr.expr.getBType()).tag)) {
             // todo: add discription why this is special here
             tempAccessExpr.setBType(BUnionType.create(null, accessExpr.originalType, symTable.errorType,
                     symTable.nilType));
@@ -10212,19 +10248,6 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         literal.setBType(symTable.booleanType);
         literal.pos = symTable.builtinPos;
         return literal;
-    }
-
-    private boolean isDefaultableMappingType(BType type) {
-        switch (types.getSafeType(type, true, false).tag) {
-            case TypeTags.JSON:
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return true;
-            case TypeTags.TYPEREFDESC:
-                return isDefaultableMappingType(Types.getReferredType(type));
-            default:
-                return false;
-        }
     }
 
     private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {
@@ -10400,7 +10423,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         }
 
         fields.clear();
-        BType refType = Types.getReferredType(type);
+        BType refType = Types.getImpliedType(type);
         return refType.tag == TypeTags.RECORD ?
                 new BLangStructLiteral(pos, type, refType.tsymbol, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);

@@ -46,8 +46,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -64,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -119,6 +123,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -165,7 +170,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -335,6 +339,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
         rewrite(bLangInvocationNode.requiredArgs);
         rewrite(bLangInvocationNode.restArgs);
         result = bLangInvocationNode;
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        collectContextInvocation.invocation = rewrite(collectContextInvocation.invocation);
+        result = collectContextInvocation;
     }
 
     @Override
@@ -600,9 +610,9 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewrite(workerSendNode.expr);
-        result = workerSendNode;
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        asyncSendExpr.expr = rewrite(asyncSendExpr.expr);
+        result = asyncSendExpr;
     }
 
     @Override
@@ -974,6 +984,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectClause collectClause) {
+        collectClause.expression = rewrite(collectClause.expression);
+        result = collectClause;
+    }
+
+    @Override
     public void visit(BLangWhereClause whereClause) {
         whereClause.expression = rewrite(whereClause.expression);
         result = whereClause;
@@ -1008,6 +1024,18 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(value -> rewrite((BLangNode) value));
         result = orderByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> rewrite((BLangNode) value));
+        result = groupByClause;
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        groupingKey.setGroupingKey(rewrite((BLangNode) groupingKey.getGroupingKey()));
+        result = groupingKey;
     }
 
     @Override
@@ -1081,7 +1109,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
-            BType literalType = Types.getReferredType(constSymbol.literalType);
+            BType literalType = Types.getImpliedType(constSymbol.literalType);
+            BType varRefType = Types.getImpliedType(varRefExpr.getBType());
+
+            // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
+            if (literalType.tag == TypeTags.INT && types.isContainSubtypeOfInt(varRefType)) {
+                literalType = varRefType;
+            }
+
             if (literalType.tag <= TypeTags.BOOLEAN || literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, literalType,
                                                                             constSymbol.value.value);
@@ -1097,7 +1132,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefExpr.getBType());
+                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefType);
                 }
                 result = constRef;
                 return;

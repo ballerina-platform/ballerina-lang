@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -56,7 +57,7 @@ public class SimpleConstantBalaNegativeTests {
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'FloatTypeWithoutType'," +
                         " found 'float'", offset += 7, 30);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'DecimalTypeWithType'," +
-                        " found 'float'", offset += 9, 29);
+                        " found 'decimal'", offset += 9, 29);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'StringTypeWithType'," +
                 " found 'string'", offset += 9, 28);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'StringTypeWithoutType'," +
@@ -87,5 +88,10 @@ public class SimpleConstantBalaNegativeTests {
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected '-1', found 'int'", offset, 107);
 
         Assert.assertEquals(compileResult.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

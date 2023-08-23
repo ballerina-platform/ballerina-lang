@@ -65,8 +65,8 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
     public void testBindgenMvnCmd() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         Path mavenRepoPath = Paths.get(projectDir, "target", "platform-libs");
-        String jarName = "snakeyaml-1.32.jar";
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.32", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
+        String jarName = "snakeyaml-2.0.jar";
+        String[] args = {"-mvn=org.yaml:snakeyaml:2.0", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -75,7 +75,7 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
         Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
         Assert.assertTrue(output.contains("The following JARs were added to the classpath"));
-        Assert.assertTrue(output.contains("snakeyaml-1.32.jar"));
+        Assert.assertTrue(output.contains("snakeyaml-2.0.jar"));
         Assert.assertTrue(isJarAvailable(mavenRepoPath, jarName));
     }
 
@@ -92,10 +92,24 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
                 Paths.get(testResources.toString(), "assert-files", "Ballerina.toml").toString()));
     }
 
+    @Test(description = "Test the maven support with multiple java platforms in the Bindgen tool to see if the " +
+            "Ballerina.toml is updated")
+    public void testBindgenMvnTomlMultipleJavaPlatforms() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "multipleJavaPlatformsBalProject").toString();
+        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=" + projectDir,
+                "org.apache.commons.logging.LogFactory"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        Assert.assertTrue(isTomlUpdated(Paths.get(projectDir, "Ballerina.toml").toString(),
+                Paths.get(testResources.toString(), "assert-files", "MultipleJavaPlatformsBallerina.toml").toString()));
+    }
+
     @Test(description = "Test the error given for a maven library that is unavailable")
     public void testUnavailableMvnLibrary() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=org.yamls:snakeyaml:1.32", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=org.yamls:snakeyaml:2.0", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -104,7 +118,7 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
         String tomlContent = Files.readString(Paths.get(projectDir, "Ballerina.toml"));
         Assert.assertFalse(tomlContent.contains("yamls"));
         Assert.assertTrue(output.contains("error: unable to resolve the maven dependency: Could not " +
-                "find artifact org.yamls:snakeyaml:jar:1.32 in central"));
+                "find artifact org.yamls:snakeyaml:jar:2.0 in central"));
     }
 
     private boolean isTomlUpdated(String updated, String expected) throws IOException {

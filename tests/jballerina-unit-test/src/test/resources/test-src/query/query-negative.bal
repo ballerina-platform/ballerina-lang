@@ -418,7 +418,7 @@ public function testInvalidInputType() {
 }
 
 function testIncompatibleSelectType(stream<string, error?> clientStream) returns error? {
-    return from string num in clientStream select {a: 1};
+    return stream from string num in clientStream select {a: 1};
 }
 
 function testMapBindingPatternsAnydataType() {

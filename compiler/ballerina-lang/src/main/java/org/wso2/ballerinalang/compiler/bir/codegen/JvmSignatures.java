@@ -43,6 +43,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_CODES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -97,7 +98,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_Q
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_SEQUENCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
@@ -110,7 +110,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
@@ -243,9 +242,9 @@ public class JvmSignatures {
     public static final String GET_OBJECT = "L" + OBJECT + ";";
     public static final String GET_OBJECT_FOR_STRING = "(L" + STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String GET_RUNTIME = "()L" + JvmConstants.JAVA_RUNTIME + ";";
-    public static final String GET_RUNTIME_ERROR = "L" + RUNTIME_ERRORS + ";";
+    public static final String GET_RUNTIME_ERROR = "L" + ERROR_CODES + ";";
     public static final String GET_RUNTIME_EXCEPTION =
-            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";";
+            "(L" + STRING_VALUE + ";L" + ERROR_CODES + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";";
     public static final String GET_SCHEDULER = "L" + SCHEDULER + ";";
     public static final String GET_STRAND = "L" + STRAND_CLASS + ";";
     public static final String GET_STRAND_METADATA = "L" + STRAND_METADATA + ";";
@@ -253,7 +252,7 @@ public class JvmSignatures {
     public static final String GET_STRING = "L" + STRING_VALUE + ";";
     public static final String GET_STRING_AT = "(L" + B_STRING_VALUE + ";J)L" + B_STRING_VALUE + ";";
     public static final String GET_STRING_FROM_ARRAY = "(J)L" + OBJECT + ";";
-    public static final String GET_TABLE_VALUE_IMPL = "L" + TABLE_VALUE_IMPL + ";";
+    public static final String GET_TABLE_VALUE = "L" + TABLE_VALUE + ";";
     public static final String GET_THROWABLE = "L" + THROWABLE + ";";
     public static final String GET_TUPLE_TYPE_IMPL = "L" + TUPLE_TYPE_IMPL + ";";
     public static final String GET_TYPE = "L" + TYPE + ";";
@@ -276,6 +275,7 @@ public class JvmSignatures {
     public static final String HANDLE_WAIT_MULTIPLE = "(L" + MAP + ";L" + MAP_VALUE + ";)V";
     public static final String HANDLE_WORKER_ERROR =
             "(L" + REF_VALUE + ";L" + STRAND_CLASS + ";[L" + CHANNEL_DETAILS + ";)V";
+    public static final String HANDLE_OBJECT_LONG_ARGS = "(" + GET_HANDLE_VALUE + GET_OBJECT + "J)V";
     public static final String INIT_ARRAY = "(L" + TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
     public static final String INIT_ARRAY_TYPE_IMPL = "(L" + TYPE + ";IZI)V";
     public static final String INIT_ARRAY_WITH_INITIAL_VALUES =
@@ -299,8 +299,9 @@ public class JvmSignatures {
     public static final String INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS = "(L" + MODULE + ";[L" + FUNCTION_PARAMETER + ";" +
             "L" + TYPE + ";L" + TYPE + ";" + "JL" + STRING_VALUE + ";)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE =
-            "(L" + MODULE + ";[L" + TYPE + ";L" + INTERSECTABLE_REFERENCE_TYPE + ";IZ)V";
-    public static final String INIT_INTERSECTION_TYPE_WITH_TYPE = "(L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
+            "(L" + STRING_VALUE + ";L" + MODULE + ";[L" + TYPE + ";L" + INTERSECTABLE_REFERENCE_TYPE + ";IZ)V";
+    public static final String INIT_INTERSECTION_TYPE_WITH_TYPE =
+            "(L" + STRING_VALUE + ";L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
     public static final String INIT_LIST_INITIAL_EXPRESSION_ENTRY = "(L" + OBJECT + ";)V";
     public static final String INIT_LIST_INITIAL_SPREAD_ENTRY = "(L" + B_ARRAY + ";)V";
     public static final String INIT_RUNTIME_REGISTRY = "(L" + RUNTIME_REGISTRY_CLASS + ";)V";
@@ -418,7 +419,7 @@ public class JvmSignatures {
     public static final String RETURN_MAP_VALUE = ")L" + MAP_VALUE + ";";
     public static final String RETURN_OBJECT = "()L" + OBJECT + ";";
     public static final String RETURN_STREAM_VALUE = ")L" + STREAM_VALUE + ";";
-    public static final String RETURN_TABLE_VALUE_IMPL = ")L" + TABLE_VALUE_IMPL + ";";
+    public static final String RETURN_TABLE_VALUE = ")L" + TABLE_VALUE + ";";
     public static final String RETURN_TYPEDESC_VALUE = ")L" + TYPEDESC_VALUE + ";";
     public static final String RETURN_XML_VALUE = ")L" + XML_VALUE + ";";
     public static final String SCHEDULE_LOCAL = "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" +

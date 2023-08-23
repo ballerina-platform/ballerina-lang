@@ -68,8 +68,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -87,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -156,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr.BLangWaitKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -210,7 +215,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -1016,12 +1020,12 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend source) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
 
-        BLangWorkerSend clone = new BLangWorkerSend();
-        source.cloneRef = clone;
-        clone.expr = clone(source.expr);
-        clone.workerIdentifier = source.workerIdentifier;
+        BLangWorkerAsyncSendExpr clone = new BLangWorkerAsyncSendExpr();
+        asyncSendExpr.cloneRef = clone;
+        clone.expr = clone(asyncSendExpr.expr);
+        clone.workerIdentifier = asyncSendExpr.workerIdentifier;
     }
 
     @Override
@@ -1163,6 +1167,13 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.annAttachments = cloneList(source.annAttachments);
         clone.requiredArgs = cloneList(source.requiredArgs);
         clone.expr = clone(source.expr);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation source) {
+        BLangCollectContextInvocation clone = new BLangCollectContextInvocation();
+        source.cloneRef = clone;
+        clone.invocation = clone(source.invocation);
     }
 
     @Override
@@ -1632,9 +1643,31 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause source) {
+        BLangGroupByClause clone = new BLangGroupByClause();
+        source.cloneRef = clone;
+        clone.groupingKeyList = cloneList(source.groupingKeyList);
+    }
+
+    @Override
+    public void visit(BLangGroupingKey source) {
+        BLangGroupingKey clone = new BLangGroupingKey();
+        source.cloneRef = clone;
+        clone.variableDef = clone(source.variableDef);
+        clone.variableRef = source.variableRef;
+    }
+
+    @Override
     public void visit(BLangSelectClause source) {
 
         BLangSelectClause clone = new BLangSelectClause();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectClause source) {
+        BLangCollectClause clone = new BLangCollectClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
     }

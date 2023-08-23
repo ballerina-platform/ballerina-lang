@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -285,11 +286,11 @@ public class WhileStmtTest {
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected '[string]', found '([int]|[string])'", 271, 22);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '[int]', found '([string] & readonly)'", 282, 19);
+                "incompatible types: expected '[int]', found '[string] & readonly'", 282, 19);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string[]', found '(int[]|string[])'", 288, 22);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'int[]', found '(string[] & readonly)'", 298, 19);
+                "incompatible types: expected 'int[]', found 'string[] & readonly'", 298, 19);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string', found '(boolean|string)'", 314, 20); // issue #34307
         BAssertUtil.validateError(compileResult, index++,
@@ -303,5 +304,13 @@ public class WhileStmtTest {
                 BCompileUtil.compile("test-src/statements/whilestatement/while_stmt_type_narrowing_positive.bal");
         Object returns = BRunUtil.invoke(compileResult, "testWhileStmtTypeNarrow");
         Assert.assertTrue((Boolean) returns);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        positiveCompileResult = null;
+        negativeCompileResult = null;
+        onfailCompileResult = null;
+        onfailNegativeCompileResult = null;
     }
 }

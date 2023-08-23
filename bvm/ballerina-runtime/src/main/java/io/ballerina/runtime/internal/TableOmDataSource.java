@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -26,7 +27,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BStructureType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -79,7 +79,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
             }
             for (int i = 0; i < structFields.length; i++) {
                 BField internalStructField = structFields[i];
-                int type = TypeUtils.getReferredType(internalStructField.getFieldType()).getTag();
+                int type = TypeUtils.getImpliedType(internalStructField.getFieldType()).getTag();
                 String fieldName = internalStructField.getFieldName();
 
                 writeElement(record, xmlStreamWriter, fieldName, type, i, structFields);
@@ -157,7 +157,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     private void processStruct(XMLStreamWriter xmlStreamWriter, BMap structData,
                                BField[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
-        Type internalType = TypeUtils.getReferredType(structFields[index].getFieldType());
+        Type internalType = TypeUtils.getImpliedType(structFields[index].getFieldType());
         if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BField[] internalStructFields = ((BStructureType) internalType).getFields()
@@ -178,7 +178,8 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
             }
         }
         if (structError) {
-            throw new BallerinaException("error in constructing the xml element from struct type data");
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "error in constructing the xml element from struct type data"));
         }
     }
 

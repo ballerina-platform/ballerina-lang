@@ -98,14 +98,14 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_CODES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -178,12 +178,12 @@ public class InteropMethodGen {
             mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
             Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
             mv.visitLabel(thenBlockLabel);
-            mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
-            mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+            mv.visitFieldInsn(GETSTATIC, ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+            mv.visitFieldInsn(GETSTATIC, ERROR_CODES, "JAVA_NULL_REFERENCE", "L" + ERROR_CODES + ";");
             mv.visitInsn(ICONST_0);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                    "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
+            mv.visitMethodInsn(INVOKESTATIC, ERROR_HELPER, "getRuntimeException",
+                    "(L" + STRING_VALUE + ";L" + ERROR_CODES + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
             mv.visitInsn(ATHROW);
             mv.visitLabel(elseBlockLabel);
         }
@@ -215,9 +215,10 @@ public class InteropMethodGen {
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
         int returnVarRefIndex = indexMap.addIfNotExists(retVarDcl.name.value, retType);
 
-        if (retType.tag == TypeTags.NIL) {
+        int retTypeTag = JvmCodeGenUtil.getImpliedType(retType).tag;
+        if (retTypeTag == TypeTags.NIL) {
             mv.visitInsn(ACONST_NULL);
-        } else if (retType.tag == TypeTags.HANDLE) {
+        } else if (retTypeTag == TypeTags.HANDLE) {
             // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
             int returnJObjectVarRefIndex = indexMap.addIfNotExists("$_ret_jobject_var_$",
                                                                    jvmPackageGen.symbolTable.anyType);
@@ -267,12 +268,20 @@ public class InteropMethodGen {
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
 
         int birFuncParamIndex = 0;
+        int bReceiverParamIndex = 0;
+        boolean isJavaInstanceMethod = jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic();
         // Load receiver which is the 0th parameter in the birFunc
-        if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
-            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
+        if (isJavaInstanceMethod) {
+            int pathParamCount = 0;
+            for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+                if (birFuncParam.isPathParameter) {
+                    pathParamCount++;
+                }
+            }
+            bReceiverParamIndex = pathParamCount;
+            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(bReceiverParamIndex);
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
-            birFuncParamIndex = 1;
         }
 
         JType varArgType = null;
@@ -288,6 +297,10 @@ public class InteropMethodGen {
 
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
+            if (birFuncParamIndex == bReceiverParamIndex && isJavaInstanceMethod) {
+                birFuncParamIndex++;
+                continue;
+            }
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);
@@ -345,7 +358,7 @@ public class InteropMethodGen {
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
-        if (retType.tag != TypeTags.NIL) {
+        if (JvmCodeGenUtil.getImpliedType(retType).tag != TypeTags.NIL) {
             BIROperand retRef = new BIROperand(birFunc.localVars.get(0));
             if (JType.jVoid != jMethodRetType) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
@@ -409,24 +422,24 @@ public class InteropMethodGen {
         retBB.terminator = new BIRTerminator.Return(birFunc.pos);
     }
 
-    private static boolean isMatchingBAndJType(BType sourceTypes, JType targetType) {
-
-        return (TypeTags.isIntegerTypeTag(sourceTypes.tag) && targetType.jTag == JTypeTags.JLONG) ||
-                (sourceTypes.tag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
-                (sourceTypes.tag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN);
+    private static boolean isMatchingBAndJType(BType sourceType, JType targetType) {
+        int sourceTypeTag = JvmCodeGenUtil.getImpliedType(sourceType).tag;
+        return (TypeTags.isIntegerTypeTag(sourceTypeTag) && targetType.jTag == JTypeTags.JLONG) ||
+                (sourceTypeTag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
+                (sourceTypeTag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN);
     }
 
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions
     // here. We can improve following logic with a type lattice.
     private static void performWideningPrimitiveConversion(MethodVisitor mv, BType bType, JType jType) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag) && jType.jTag == JTypeTags.JLONG) {
+        int typeTag = JvmCodeGenUtil.getImpliedType(bType).tag;
+        if (TypeTags.isIntegerTypeTag(typeTag) && jType.jTag == JTypeTags.JLONG) {
             // NOP
-        } else if (bType.tag == TypeTags.FLOAT && jType.jTag == JTypeTags.JDOUBLE) {
+        } else if (typeTag == TypeTags.FLOAT && jType.jTag == JTypeTags.JDOUBLE) {
             // NOP
-        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
+        } else if (TypeTags.isIntegerTypeTag(typeTag)) {
             mv.visitInsn(I2L);
-        } else if (bType.tag == TypeTags.FLOAT) {
+        } else if (typeTag == TypeTags.FLOAT) {
             if (jType.jTag == JTypeTags.JLONG) {
                 mv.visitInsn(L2D);
             } else if (jType.jTag == JTypeTags.JFLOAT) {
@@ -521,6 +534,7 @@ public class InteropMethodGen {
 
         JType jElementType;
         BType bElementType;
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (jvmType.jTag == JTypeTags.JARRAY && bType.tag == TypeTags.ARRAY) {
             jElementType = ((JType.JArrayType) jvmType).elementType;
             bElementType = ((BArrayType) bType).eType;
@@ -561,14 +575,15 @@ public class InteropMethodGen {
         mv.visitVarInsn(ALOAD, varArgIndex);
         mv.visitVarInsn(ILOAD, indexVarIndex);
         mv.visitInsn(I2L);
-
-        if (TypeTags.isIntegerTypeTag(bElementType.tag)) {
+        
+        int elementTypeTag = JvmCodeGenUtil.getImpliedType(bElementType).tag;
+        if (TypeTags.isIntegerTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
-        } else if (TypeTags.isStringTypeTag(bElementType.tag)) {
+        } else if (TypeTags.isStringTypeTag(elementTypeTag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
                                GET_BSTRING_FOR_ARRAY_INDEX, true);
         } else {
-            switch (bElementType.tag) {
+            switch (elementTypeTag) {
                 case TypeTags.BOOLEAN:
                     mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
                     break;

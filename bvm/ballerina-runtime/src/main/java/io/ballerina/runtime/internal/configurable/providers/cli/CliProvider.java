@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -48,13 +49,13 @@ import java.util.function.Function;
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_ARGS_AMBIGUITY;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_UNUSED_CLI_ARGS;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_VARIABLE_AMBIGUITY;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_ARGS_AMBIGUITY;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_UNUSED_CLI_ARGS;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_CLI_VARIABLE_AMBIGUITY;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INCOMPATIBLE_TYPE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
@@ -253,7 +254,7 @@ public class CliProvider implements ConfigProvider {
     private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
         List<Object> matchingValues = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            switch (type.getTag()) {
+            switch (TypeUtils.getImpliedType(type).getTag()) {
                 case TypeTags.BYTE_TAG:
                     convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
                     break;
@@ -304,7 +305,7 @@ public class CliProvider implements ConfigProvider {
 
     private boolean containsSupportedMembers(BUnionType unionType) {
         for (Type memberType : unionType.getMemberTypes()) {
-            if (!isCliSupported(memberType.getTag())) {
+            if (!isCliSupported(TypeUtils.getImpliedType(memberType).getTag())) {
                 return false;
             }
         }

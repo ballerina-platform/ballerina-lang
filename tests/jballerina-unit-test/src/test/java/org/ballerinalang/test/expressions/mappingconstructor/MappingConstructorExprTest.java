@@ -107,10 +107,10 @@ public class MappingConstructorExprTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/var_name_field_code_analysis_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
-        validateError(result, 0, "invalid usage of record literal: duplicate key 's'", 26, 17);
-        validateError(result, 1, "invalid usage of record literal: duplicate key 'i'", 26, 23);
-        validateError(result, 2, "invalid usage of map literal: duplicate key 'i'", 27, 34);
-        validateError(result, 3, "invalid usage of map literal: duplicate key 'i'", 27, 42);
+        validateError(result, 0, "invalid record constructor: duplicate key 's'", 26, 17);
+        validateError(result, 1, "invalid record constructor: duplicate key 'i'", 26, 23);
+        validateError(result, 2, "invalid map constructor: duplicate key 'i'", 27, 34);
+        validateError(result, 3, "invalid map constructor: duplicate key 'i'", 27, 42);
     }
 
     @Test(enabled = false)
@@ -174,14 +174,14 @@ public class MappingConstructorExprTest {
         int i = 0;
         validateError(result, i++, "invalid usage of record literal: duplicate key 'i' via spread operator '...f'", 30,
                       31);
-        validateError(result, i++, "invalid usage of record literal: duplicate key 's'", 30, 34);
+        validateError(result, i++, "invalid record constructor: duplicate key 's'", 30, 34);
         validateError(result, i++, "invalid usage of map literal: duplicate key 's' via spread operator " +
                 "'...b'", 31, 47);
-        validateError(result, i++, "invalid usage of map literal: duplicate key 'f'", 31, 50);
-        validateError(result, i++, "invalid usage of map literal: duplicate key 'i'", 31, 58);
+        validateError(result, i++, "invalid map constructor: duplicate key 'f'", 31, 50);
+        validateError(result, i++, "invalid map constructor: duplicate key 'i'", 31, 58);
         validateError(result, i++, "invalid usage of map literal: duplicate key 's' via spread operator " +
                 "'... {s: hi,i: 1}'", 32, 38);
-        validateError(result, i++, "invalid usage of map literal: duplicate key 'i'", 32, 63);
+        validateError(result, i++, "invalid map constructor: duplicate key 'i'", 32, 63);
         validateError(result, i++, "invalid usage of map literal: duplicate key 'i' via spread " +
                 "operator '...alpha'", 41, 27);
         validateError(result, i++, "invalid usage of mapping constructor expression: spread field " +
@@ -212,8 +212,9 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldConstantAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_constant_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "expression is not a constant expression", 19, 47);
+        int i = 0;
+        validateError(result, i++, "expression is not a constant expression", 19, 47);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test(enabled = false)
@@ -341,29 +342,28 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
                       42, 22);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((Details & readonly)|string)', found 'Details'", 54, 49);
+                      "incompatible types: expected '((Details|string) & readonly)', found 'Details'", 54, 49);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
                       55, 42);
         validateError(compileResult, index++,
-                      "incompatible types: expected 'map<((Details|string) & readonly)> & readonly', " +
+                      "incompatible types: expected '(map<(Details|string)> & readonly)', " +
                               "found 'map<(Details|string)>'", 61, 18);
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
                       63, 13);
         validateError(compileResult, index++,
                       "invalid 'readonly' mapping field 'x': 'future<int>' can never be 'readonly'", 77, 40);
         validateError(compileResult, index++,
-                      "incompatible types: expected 'any & readonly', found 'stream<boolean>'", 77, 57);
+                      "incompatible types: expected '(any & readonly)', found 'stream<boolean>'", 77, 57);
         validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
                 "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any & readonly)|error)', found 'future<int>'", 81, 39);
+                      "incompatible types: expected '((any|error) & readonly)', found 'future<int>'", 81, 39);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any & readonly)|error)', found 'stream<boolean>'", 81, 51);
+                      "incompatible types: expected '((any|error) & readonly)', found 'stream<boolean>'", 81, 51);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
                       82, 43);
-
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; anydata...; |}', found " +
                 "'record {| readonly (Details & readonly) d1; readonly (Details & readonly) d2; " +
                 "record {| string str; |} d3; readonly record {| string str; readonly int count; |} & readonly d4; " +
@@ -399,16 +399,16 @@ public class MappingConstructorExprTest {
                 "test-src/expressions/mappingconstructor/mapping_constructor_duplicate_fields.bal");
         int index = 0;
 
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 23, 29);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 24, 31);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 26, 33);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 27, 33);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 29, 29);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a{'", 30, 29);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field['", 33, 31);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'a\\'", 23, 29);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'a\\'", 24, 31);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'a\\'", 26, 33);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'a\\'", 27, 33);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'a\\'", 29, 29);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'a{'", 30, 29);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'field['", 33, 31);
         validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field[' via " +
                 "spread operator '...recVar1'", 34, 37);
-        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field('", 37, 28);
+        validateError(compileResult, index++, "invalid map constructor: duplicate key 'field('", 37, 28);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }

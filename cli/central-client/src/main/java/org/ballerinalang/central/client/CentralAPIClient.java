@@ -22,8 +22,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import okhttp3.Authenticator;
 import okhttp3.Cache;
 import okhttp3.Call;
+import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -35,6 +37,7 @@ import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.central.client.model.ConnectorInfo;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
@@ -71,6 +74,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.ANY_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
@@ -84,6 +88,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECA
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
+import static org.ballerinalang.central.client.CentralClientConstants.PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -103,7 +108,7 @@ public class CentralAPIClient {
     private static final String TOOLS = "tools";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
-    private static final String SEARCH = "search";
+    private static final String SEARCH_QUERY = "?q=";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
@@ -130,6 +135,8 @@ public class CentralAPIClient {
     private String accessToken;
     protected PrintStream outStream;
     private final boolean verboseEnabled;
+    private final String proxyUsername;
+    private final String proxyPassword;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -137,6 +144,19 @@ public class CentralAPIClient {
         this.proxy = proxy;
         this.accessToken = accessToken;
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
+        this.proxyUsername = "";
+        this.proxyPassword = "";
+    }
+
+    public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
+                            String accessToken) {
+        this.outStream = System.out;
+        this.baseUrl = baseUrl;
+        this.proxy = proxy;
+        this.accessToken = accessToken;
+        this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
+        this.proxyUsername = proxyUsername;
+        this.proxyPassword = proxyPassword;
     }
 
     /**
@@ -491,7 +511,7 @@ public class CentralAPIClient {
                 boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
                 String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
                 if (!isBuild && isDeprecated) {
-                    outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated due to : "
+                    outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated: "
                             + deprecationMessage);
                 }
 
@@ -583,7 +603,7 @@ public class CentralAPIClient {
      * @param supportedPlatform         The supported platform.
      * @param ballerinaVersion          The ballerina version.
      * @param isBuild                   If build option is enabled or not.
-     * @return An array containing the organization, package name and version.
+     * @return An array containing isPulled, organization, package name and version.
      * @throws CentralClientException   Central Client exception.
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
@@ -631,6 +651,7 @@ public class CentralAPIClient {
                 Optional<String> pkgName = Optional.empty();
                 Optional<String> latestVersion = Optional.empty();
                 Optional<String> balaUrl = Optional.empty();
+                Optional<String> platform = Optional.empty();
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -639,14 +660,14 @@ public class CentralAPIClient {
                         pkgName = Optional.ofNullable(jsonContent.get(PKG_NAME).getAsString());
                         latestVersion = Optional.ofNullable(jsonContent.get(VERSION).getAsString());
                         balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
+                        platform = Optional.of(jsonContent.get(PLATFORM).getAsString())
+                                .or(() -> Optional.of(ANY_PLATFORM));
                     }
                 }
 
-                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
-                        && pkgName.isPresent()) {
-                    // gayaldassanayake-tool_openapi-any-0.1.1.bala
-                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
-                            + latestVersion.get() + ".bala";
+                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent() && pkgName.isPresent()) {
+                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get()
+                            + "-" + platform.get() + "-" + latestVersion.get() + ".bala";
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                             .get()
                             .url(balaUrl.get())
@@ -663,10 +684,15 @@ public class CentralAPIClient {
 
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
-                                isNightlyBuild, null, balaUrl.get(), balaFileName,
-                                enableOutputStream ? outStream : null, logFormatter);
-                        return new String[]{org.get(), pkgName.get(), latestVersion.get()};
+                        try {
+                            createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
+                                    isNightlyBuild, null, balaUrl.get(), balaFileName,
+                                    enableOutputStream ? outStream : null, logFormatter);
+                            return new String[]{String.valueOf(true), org.get(), pkgName.get(), latestVersion.get()};
+                        } catch (PackageAlreadyExistsException ignore) {
+                            // package already exists. setting org, name and version fields is enough
+                            return new String[]{String.valueOf(false), org.get(), pkgName.get(), latestVersion.get()};
+                        }
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
                                 "'. BALA content download from '" + balaUrl.get() + "' failed.");
@@ -681,7 +707,7 @@ public class CentralAPIClient {
 
             // Unauthorized access token
             if (packagePullResponse.code() == HTTP_UNAUTHORIZED) {
-                handleUnauthorizedResponse(body);
+                handleUnauthorizedResponse(body, pkgPullResBodyContent);
             }
 
             if (body.isPresent()) {
@@ -944,7 +970,7 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .url(this.baseUrl + "/" + TOOLS + SEARCH_QUERY + keyword)
                     .build();
 
             Call httpRequestCall = client.newCall(searchReq);
@@ -1107,6 +1133,63 @@ public class CentralAPIClient {
     }
 
     /**
+     * Get packages from central.
+     *
+     * @param params            Search query param map.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  The ballerina version.
+     * @return Package list
+     * @throws CentralClientException Central client exception.
+     */
+    public JsonElement getPackages(Map<String, String> params, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
+
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(PACKAGES);
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
+
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(httpBuilder.build())
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            ResponseBody responseBody = searchResponse.body();
+            body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
+            if (body.isPresent()) {
+                MediaType contentType = body.get().contentType();
+                if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().toJsonTree(body.get().string());
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_SEARCH);
+            return new JsonArray();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+
+    /**
      * Get connectors with search filters.
      *
      * @param params            Search query param map.
@@ -1261,11 +1344,29 @@ public class CentralAPIClient {
      * @return the client
      */
     protected OkHttpClient getClient() {
-        return new OkHttpClient.Builder()
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
                 .build();
+
+        if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
+            Authenticator proxyAuthenticator = (route, response) -> {
+                if (response.request().header("Proxy-Authorization") != null) {
+                    return null; // Give up, we've already attempted to authenticate.
+                }
+                String credential = Credentials.basic(this.proxyUsername, this.proxyPassword);
+                return response.request().newBuilder()
+                        .header("Proxy-Authorization", credential)
+                        .build();
+            };
+            okHttpClient = okHttpClient.newBuilder()
+                    .proxyAuthenticator(proxyAuthenticator)
+                    .build();
+        }
+        return okHttpClient;
     }
 
     /**
@@ -1453,6 +1554,7 @@ public class CentralAPIClient {
      *
      * @param org  org name
      * @param body response body
+     * @param responseBody error message
      * @throws IOException            when accessing response body
      * @throws CentralClientException with unauthorized error message
      */
@@ -1467,6 +1569,29 @@ public class CentralAPIClient {
             } else {
                 throw new CentralClientException("unauthorized access token for organization: '" + org +
                         "'. check access token set in 'Settings.toml' file.");
+            }
+        }
+    }
+
+    /**
+     * Handle unauthorized response.
+     *
+     * @param body response body
+     * @param responseBody error message
+     * @throws IOException            when accessing response body
+     * @throws CentralClientException with unauthorized error message
+     */
+    private void handleUnauthorizedResponse(Optional<ResponseBody> body, String responseBody)
+            throws IOException, CentralClientException {
+        if (body.isPresent()) {
+            Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+            if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                Error error = new Gson().fromJson(responseBody, Error.class);
+                throw new CentralClientException("unauthorized access token. " +
+                        "check access token set in 'Settings.toml' file. reason: " + error.getMessage());
+            } else {
+                throw new CentralClientException("unauthorized access token. " +
+                        "check access token set in 'Settings.toml' file.");
             }
         }
     }

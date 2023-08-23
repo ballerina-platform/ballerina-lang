@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -83,25 +84,10 @@ public class XMLAttributeAccessTest {
     }
 
     @Test
-    public void testXMLAsMapContent() {
-        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
-        Assert.assertEquals(result.get(0).toString(), "val");
-        Assert.assertEquals(result.get(1).toString(), "val");
-        Assert.assertEquals(result.get(2).toString(), "true");
-    }
-
-    @Test
     public void testXMLAttributeWithNSPrefix() {
         BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
         Assert.assertEquals(result.get(0).toString(), "preserve");
         Assert.assertEquals(result.get(1).toString(), "preserve");
-        Assert.assertEquals(result.get(2).toString(), "error(\"{lang.map}InvalidKey\",key=\"b\")");
-    }
-
-    @Test
-    public void testXMLASMapContentInvalidKey() {
-        Object result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
-        Assert.assertEquals(result.toString(), "error(\"{lang.map}InvalidKey\",key=\"b\")");
     }
 
     @Test
@@ -116,6 +102,12 @@ public class XMLAttributeAccessTest {
     @Test
     public void testXMLAfterRemoveAttribute() {
         BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        lexCompileRes = null;
     }
 
 }

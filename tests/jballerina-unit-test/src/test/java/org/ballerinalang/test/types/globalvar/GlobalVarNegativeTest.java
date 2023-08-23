@@ -36,7 +36,6 @@ public class GlobalVarNegativeTest {
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "missing non-defaultable required record field 'x'", 22, 12);
         BAssertUtil.validateError(resultNegative, i++, "invalid character ':' in field access expression", 23, 15);
@@ -44,8 +43,9 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 27, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 29, 59);
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 29, 59);
-        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'", 31,
-                1);
+        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'",
+                31, 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test
@@ -112,7 +112,8 @@ public class GlobalVarNegativeTest {
                 " of 'anydata'", 22, 14);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
         BAssertUtil.validateError(result, i++, "invalid token '}'", 29, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '()'", 31, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
+                "'(() & readonly)'", 31, 1);
         BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
         BAssertUtil.validateError(result, i++, "'final' qualifier not allowed: configurable variables are " +
                 "implicitly final", 37, 1);
@@ -192,7 +193,7 @@ public class GlobalVarNegativeTest {
         CompileResult result = BCompileUtil.compile
                 ("test-src/statements/variabledef/configurable_global_var_decl_negative_03.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[] & readonly', found 'int[]'",
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(int[] & readonly)', found 'int[]'",
                 20, 27);
         BAssertUtil.validateError(result, i++, "incompatible types: expected '(Foo & readonly)', found 'Foo'",
                 28, 22);

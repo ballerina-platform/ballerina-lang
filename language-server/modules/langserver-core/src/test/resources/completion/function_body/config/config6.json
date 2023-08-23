@@ -4,6 +4,7 @@
     "character": 4
   },
   "source": "function_body/source/source6.bal",
+  "description": "",
   "items": [
     {
       "label": "xmlns",
@@ -360,11 +361,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -384,11 +385,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -408,11 +409,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -432,11 +433,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -540,11 +541,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -645,11 +646,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -669,11 +670,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -693,11 +694,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -717,11 +718,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -750,11 +751,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -876,14 +877,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "float",
-      "kind": "TypeParameter",
-      "detail": "Float",
-      "sortText": "N",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
@@ -905,6 +898,14 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module13",
+      "kind": "TypeParameter",
+      "detail": "Float",
+      "sortText": "N",
+      "insertText": "module13",
       "insertTextFormat": "Snippet"
     }
   ]

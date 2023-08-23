@@ -116,8 +116,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -134,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -178,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -233,7 +238,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -902,8 +906,24 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        SymbolEnv orderByEnv = groupByClause.env;
+        for (BLangGroupingKey groupingKeyNode : groupByClause.groupingKeyList) {
+            analyzeNode(groupingKeyNode, orderByEnv);
+        }
+    }
+
+    public void visit(BLangGroupingKey groupingKey) {
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, selectClause.env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+        analyzeNode(bLangCollectClause.expression, env);
     }
 
     @Override
@@ -1080,7 +1100,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
     }
 
     @Override
@@ -1339,12 +1359,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeNode(expr, env);
 
-        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
+        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr)) {
             BType bType = expr.getBType();
             BTypeSymbol tsymbol = bType.tsymbol;
             BLangIdentifier field = fieldAccessExpr.field;
 
-            if (!isPotentiallyProtectedFieldAccessedInNonInitMethod(expr, tsymbol, field)) {
+            if (!isPotentiallyProtectedFieldAccessedRequiringLock(fieldAccessExpr, tsymbol, field)) {
                 return;
             }
 
@@ -1379,12 +1399,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                    DiagnosticErrorCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
     }
 
-    private boolean isPotentiallyProtectedFieldAccessedInNonInitMethod(BLangExpression expr, BTypeSymbol tsymbol,
-                                                                       BLangIdentifier field) {
+    private boolean isPotentiallyProtectedFieldAccessedRequiringLock(BLangFieldBasedAccess fieldAccessExpr,
+                                                                     BTypeSymbol tsymbol,
+                                                                     BLangIdentifier field) {
+        BLangExpression expr = fieldAccessExpr.expr;
         return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 isSelfOfObject((BLangSimpleVarRef) expr) &&
                 this.isolationInferenceInfoMap.containsKey(tsymbol) &&
-                !inObjectInitMethod() &&
+                !isObjectFieldInitializationInInitMethod(fieldAccessExpr) &&
                 ((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
                         .protectedFields.contains(field);
     }
@@ -1398,6 +1420,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeInvocation(invocationExpr);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        analyzeNode(collectContextInvocation.invocation, env);
     }
 
     @Override
@@ -1417,7 +1444,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        boolean isWorker = actionInvocationExpr.functionPointerInvocation;
+        boolean isWorker = actionInvocationExpr.functionPointerInvocation &&
+                Symbols.isFlagOn(actionInvocationExpr.symbol.flags, Flags.WORKER);
         if (isInIsolatedFunction(env)) {
             if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true, isWorker)) {
                 return;
@@ -2072,7 +2100,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (inIsolatedFunction && !invocationExpr.functionPointerInvocation) {
+        if (inIsolatedFunction && !Symbols.isFlagOn(flags, Flags.WORKER)) {
             dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
             return;
         }
@@ -2259,7 +2287,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR) {
             BLangRestArgsExpression varArg = (BLangRestArgsExpression) restArgs.get(restArgs.size() - 1);
-            BType varArgType = Types.getReferredType(varArg.getBType());
+            BType varArgType = Types.getImpliedType(varArg.getBType());
             Location varArgPos = varArg.pos;
 
             if (varArgType == symTable.semanticError) {
@@ -2447,7 +2475,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType varArgType = Types.getReferredType(restArgsExpression.getBType());
+        BType varArgType = Types.getImpliedType(restArgsExpression.getBType());
         if (varArgType.tag == TypeTags.ARRAY) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            ((BArrayType) varArgType).eType, pos);
@@ -2571,8 +2599,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(
-            BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
-        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr, ignoreInit)) {
+            BLangFieldBasedAccess fieldAccessExpr) {
+        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr,
+                                                        isObjectFieldInitialization(fieldAccessExpr))) {
             return false;
         }
 
@@ -2584,6 +2613,38 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isExpectedToBeAPrivateField(field.symbol, field.type);
+    }
+
+    private boolean isObjectFieldInitialization(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangNode parent = fieldAccessExpr.parent;
+
+        if (fieldAccessExpr.isLValue) {
+            return parent.getKind() == NodeKind.ASSIGNMENT;
+        }
+
+        while (parent != null && parent.getKind() != NodeKind.ASSIGNMENT) {
+            parent = parent.parent;
+        }
+
+        if (parent == null) {
+            return false;
+        }
+
+        BLangAssignment assignment = (BLangAssignment) parent;
+
+        BLangExpression lhsExpr = assignment.varRef;
+
+        if (lhsExpr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+
+        BLangExpression expr = ((BLangFieldBasedAccess) lhsExpr).expr;
+
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+
+        return isSelfOfObject((BLangSimpleVarRef) expr);
     }
 
     private void validateIsolatedExpression(BType type, BLangExpression expression) {
@@ -2988,7 +3049,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                           List<BLangVariable> moduleLevelVariables,
                                                                           boolean inferring, BType type,
                                                                           Set<BSymbol> unresolvedSymbols) {
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3095,7 +3156,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            if (!invokedOnSelf && Types.getReferredType(invocation.getBType()).tag == TypeTags.NIL) {
+            if (!invokedOnSelf && Types.getImpliedType(invocation.getBType()).tag == TypeTags.NIL) {
                 return true;
             }
 
@@ -3241,7 +3302,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BType ownerType = Types.getReferredType(enclInvokable.symbol.owner.type);
+        BType ownerType = Types.getImpliedType(enclInvokable.symbol.owner.type);
 
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
     }
@@ -3531,6 +3592,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return function.flagSet.contains(Flag.WORKER) && function.flagSet.contains(Flag.LAMBDA);
     }
 
+    private boolean isObjectFieldInitializationInInitMethod(BLangFieldBasedAccess fieldBasedAccess) {
+        return inObjectInitMethod() && isObjectFieldInitialization(fieldBasedAccess);
+    }
+
     private boolean inObjectInitMethod() {
         BLangInvokableNode enclInvokable = env.enclInvokable;
 
@@ -3620,7 +3685,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(BSymbol owner, BType type,
                                                                          Set<BSymbol> inferableClasses) {
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3989,7 +4054,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (symbol.kind == SymbolKind.FUNCTION) {
             BVarSymbol receiverSymbol = ((BInvokableSymbol) symbol).receiverSymbol;
-            if (receiverSymbol != null && Types.getReferredType(receiverSymbol.type).tag == TypeTags.OBJECT &&
+            if (receiverSymbol != null && Types.getImpliedType(receiverSymbol.type).tag == TypeTags.OBJECT &&
                     publiclyExposedObjectTypes.contains(receiverSymbol.type)) {
                 return false;
             }

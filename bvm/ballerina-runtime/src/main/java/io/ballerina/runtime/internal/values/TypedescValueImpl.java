@@ -18,7 +18,9 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -28,11 +30,10 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Map;
 
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.getEffectiveType;
 
 /**
@@ -87,7 +88,8 @@ public class TypedescValueImpl implements TypedescValue {
 
     @Override
     public Object instantiate(Strand s) {
-        if (describingType.getTag() == TypeTags.MAP_TAG || describingType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+        Type referredType = getImpliedType(this.describingType);
+        if (referredType.getTag() == TypeTags.MAP_TAG || referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             return instantiate(s, new MappingInitialValueEntry[0]);
         }
 
@@ -96,7 +98,7 @@ public class TypedescValueImpl implements TypedescValue {
 
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
-        Type referredType = getReferredType(this.describingType);
+        Type referredType = getImpliedType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG) {
             return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {
@@ -107,8 +109,9 @@ public class TypedescValueImpl implements TypedescValue {
             return new TupleValueImpl(new BTypeReferenceType(effectiveType, true),
                                       (BListInitialValueEntry[]) initialValues);
         }
-        // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
-        throw new BallerinaException("Given type can't be instantiated at runtime : " + this.describingType);
+        // This method will be overridden for user-defined types, therefore this line shouldn't be reached.
+        throw ErrorCreator.createError(StringUtils.fromString(
+                "Given type can't be instantiated at runtime : " + this.describingType));
     }
 
     @Override

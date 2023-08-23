@@ -83,12 +83,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getImpliedType;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -322,7 +324,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private BType getDeterminedType(BLangNode node, LineRange range) {
-        if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
+        if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType() != null
+                && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
             BLangInvocation invocationNode = (BLangInvocation) node;
             if (invocationNode.isAsync()
                     && PositionUtil.withinBlock(range.startLine(), invocationNode.getName().getPosition())) {
@@ -501,12 +504,14 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isInlineSingletonType(BSymbol symbol) {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
-        return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
-                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+        BType type = org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getImpliedType(symbol.type);
+        return !(symbol.kind == SymbolKind.TYPE_DEF) && type.tag == TypeTags.FINITE &&
+                ((BFiniteType) type).getValueSpace().size() == 1;
     }
 
     private boolean isInlineErrorType(BSymbol symbol) {
-        return symbol.type.tag == TypeTags.ERROR && Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
+        return getImpliedType(symbol.type).tag == TypeTags.ERROR &&
+                Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {
@@ -569,7 +574,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
 
-            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
+            if (compiledSymbol == null || checkAndUpdateModuleSymbols(compiledSymbols, compiledSymbol, symbol)) {
                 return;
             }
 
@@ -587,6 +592,27 @@ public class BallerinaSemanticModel implements SemanticModel {
             compiledSymbols.add(compiledSymbol);
         }
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states, compUnitName);
+    }
+
+    private boolean checkAndUpdateModuleSymbols(Set<Symbol> compiledSymbols, Symbol evaluatingSymbol, BSymbol symbol) {
+        boolean symbolExists = compiledSymbols.contains(evaluatingSymbol);
+
+        if (!symbolExists) {
+            return false;
+        }
+
+        if (evaluatingSymbol.kind() != MODULE) {
+            return true;
+        }
+
+        // If the same module symbol, but without a module alias is already added, then it shall be removed to add
+        // the new symbol with the import alias.
+        if (((BPackageSymbol) symbol).importPrefix != null) {
+            compiledSymbols.remove(evaluatingSymbol);
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {

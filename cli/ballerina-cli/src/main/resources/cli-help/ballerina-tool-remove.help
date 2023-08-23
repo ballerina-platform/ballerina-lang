@@ -1,5 +1,5 @@
 NAME
-       bal-tool-remove - Remove a given bal tool from the bal tool chain
+       ballerina-tool-remove - Remove a tool from the local environment.
 
 SYNOPSIS
        bal tool remove <tool-id>[:<version>]
@@ -9,11 +9,10 @@ OPTIONS
            Print the usage details of tool remove command.
 
 DESCRIPTION
-       Remove an already installed tool from the bal tool chain.
+       Remove a tool that was installed into to the local environment.
 
        If the tool version is specified, that specific version will be removed.
-       If the version is not specified, all versions of the tool will be
-       removed.
+       The active version of a tool cannot be removed.
 
-       If the most recent version of the tool is removed, the next most recent
-       version available will be used as the active version.
+       If the version is not specified, all versions of the tool will be
+       removed including the active version.

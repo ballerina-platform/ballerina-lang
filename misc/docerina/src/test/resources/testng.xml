@@ -17,12 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-docgen-test-suite">
 
     <!-- Ballerina Docgen Test Cases. -->
-    <test name="ballerina-docgen-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-docgen-test-suite" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken"/>

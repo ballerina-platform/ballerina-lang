@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -155,7 +156,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -1234,7 +1234,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
-        rewriteExpr(listConstructorSpreadOpExpr.expr);
+        listConstructorSpreadOpExpr.expr = rewriteExpr(listConstructorSpreadOpExpr.expr);
         result = listConstructorSpreadOpExpr;
     }
 
@@ -1506,9 +1506,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
-        result = workerSendNode;
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        asyncSendExpr.expr = rewriteExpr(asyncSendExpr.expr);
+        result = asyncSendExpr;
     }
 
     @Override
@@ -2058,7 +2058,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 // In let expression's object constructor expression, the function block already has an OCE mapSymbol,
                 // which should be propagated to block statement's mapSymbol.
                 if (bLangBlockStmt.mapSymbol == null
-                        && Types.getReferredType(bLangStatementExpression.getBType()).tag == TypeTags.OBJECT
+                        && Types.getImpliedType(bLangStatementExpression.getBType()).tag == TypeTags.OBJECT
                         && env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     bLangBlockStmt.mapSymbol = ((BLangBlockFunctionBody) env.node).mapSymbol;
                 }

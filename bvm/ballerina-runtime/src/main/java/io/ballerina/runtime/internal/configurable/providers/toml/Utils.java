@@ -70,8 +70,8 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * Util methods required for configurable variables.
@@ -316,7 +316,7 @@ public class Utils {
 
     private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
-            if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() == tag) {
+            if (TypeUtils.getImpliedType(TypeChecker.getType(value)).getTag() == tag) {
                 if (tag == TypeTags.DECIMAL_TAG) {
                     return doubleValue == ((DecimalValue) value).floatValue();
                 } else {
@@ -355,7 +355,7 @@ public class Utils {
             int typeTag = effectiveType.getTag();
             if (typeTag == TypeTags.FINITE_TYPE_TAG) {
                 for (Object obj : ((FiniteType) effectiveType).getValueSpace()) {
-                    if (TypeUtils.getReferredType(TypeChecker.getType(obj)).getTag() == tag) {
+                    if (TypeUtils.getImpliedType(TypeChecker.getType(obj)).getTag() == tag) {
                         return true;
                     }
                 }

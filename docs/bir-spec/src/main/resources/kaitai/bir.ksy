@@ -294,16 +294,12 @@ types:
         type: s4
   type_object_or_service:
     seq:
-      - id: is_object_type
-        type: s1
       - id: pkd_id_cp_index
         type: s4
       - id: name_cp_index
         type: s4
-      - id: is_abstract
-        type: u1
-      - id: is_client
-        type: u1
+      - id: object_symbol_flags
+        type: s8
       - id: object_fields_count
         type: s4
       - id: object_fields
@@ -723,6 +719,7 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
+            'type_tag_enum::type_tag_record': map_constant_info
             'type_tag_enum::type_tag_intersection': intersection_constant_info
     instances:
       type:

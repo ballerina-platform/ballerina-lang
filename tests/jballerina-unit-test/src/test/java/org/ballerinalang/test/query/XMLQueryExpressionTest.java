@@ -71,6 +71,12 @@ public class XMLQueryExpressionTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<(xml:ProcessingInstruction & readonly)> & readonly', " +
                 "found 'xml:ProcessingInstruction'", 51, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(xml:Element|error)', found '(xml<xml:Element>|error)'", 81, 27);
+         validateError(negativeResult, index++, 
+                 "ambiguous type '[xml:Element, xml]'", 88, 16);
+         validateError(negativeResult, index++, 
+                 "ambiguous type '[xml:Element, xml]'", 99, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -99,6 +105,11 @@ public class XMLQueryExpressionTest {
 
         Assert.assertEquals(returnValues.toString(),
                 "<price>30.00</price><price>29.99</price><price>49.99</price><price>39.95</price>");
+    }
+
+    @Test(description = "Test simple query expression for XMLs - #4")
+    public void testSimpleQueryExprForXML4() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXML4");
     }
 
     @Test(description = "Test simple query expression with limit clause for XMLs")

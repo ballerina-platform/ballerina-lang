@@ -1,0 +1,4 @@
+[package]
+org = "luhee"
+name = "log_creator_combined_plugin"
+version = "0.1.0"

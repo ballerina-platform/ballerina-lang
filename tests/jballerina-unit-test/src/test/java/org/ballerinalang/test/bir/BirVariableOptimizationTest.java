@@ -20,11 +20,12 @@ package org.ballerinalang.test.bir;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.optimizer.LivenessAnalyzer;
+import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 /**
- * Test to confirm the functionality of the {@link LivenessAnalyzer}.
+ * Test to confirm the functionality of the {@link BIROptimizer}.
  */
 public class BirVariableOptimizationTest {
     private BIREmitter birEmitter;
@@ -85,6 +86,11 @@ public class BirVariableOptimizationTest {
             return contentBuilder.toString().trim();
         }
         return "";
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
 

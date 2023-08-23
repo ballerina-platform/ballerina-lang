@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -88,9 +89,13 @@ class BallerinaPackageResolver {
     SemanticVersion resolveClosestCompatibleCentralVersion(String orgName, String pkgName, SemanticVersion localVersion)
             throws SemverToolException {
         try {
-            List<String> publishedVersions = centralClient.getPackageVersions(orgName, pkgName,
-                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion());
-            if (publishedVersions == null || publishedVersions.isEmpty()) {
+            List<String> publishedVersions = new ArrayList<>();
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                publishedVersions.addAll(centralClient.getPackageVersions(orgName, pkgName,
+                        jvmTarget.code(), RepoUtils.getBallerinaVersion()));
+            }
+
+            if (publishedVersions.isEmpty()) {
                 throw new SemverToolException(String.format("couldn't find any published packages in " +
                         "Ballerina central under the org '%s' with name '%s'", orgName, pkgName));
             }
@@ -177,7 +182,8 @@ class BallerinaPackageResolver {
             settings = Settings.from();
         }
         this.centralClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings));
     }
 
     private Path resolveBalaPath(String org, String pkgName, String version) throws SemverToolException {

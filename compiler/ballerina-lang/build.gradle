@@ -34,9 +34,10 @@ dependencies {
     testImplementation ("guru.nidi:graphviz-java") {
         because("We use this library to execute package resolution tests")
     }
-    testCompile 'org.testng:testng'
-    testCompile "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.testng:testng:${project.testngVersion}"
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
+    testImplementation 'org.apache.commons:commons-lang3'
 }
 
 description = 'Ballerina - Lang'
@@ -76,6 +77,7 @@ processResources {
     filter { String line -> line.replace('${project.version}', "${project.version}")}
     filter { String line -> line.replace('${short.version}', "${project.version}")}
     filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
+    filter { String line -> line.replace('${apiDocs.version}', "${project.apiDocsVersion}")}
 }
 
 ext.moduleName = 'ballerina.lang'

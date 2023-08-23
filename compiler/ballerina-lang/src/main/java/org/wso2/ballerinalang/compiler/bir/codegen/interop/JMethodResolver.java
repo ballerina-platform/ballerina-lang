@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -394,8 +393,12 @@ class JMethodResolver {
                 }
             }
 
-            BType receiverType = bParamTypes[0];
-            boolean isLastParam = bParamTypes.length == 1;
+            int receiverIndex = 0;
+            if (!jMethodRequest.pathParamSymbols.isEmpty()) {
+                receiverIndex = jMethodRequest.pathParamCount;
+            }
+            BType receiverType = bParamTypes[receiverIndex];
+            boolean isLastParam = (bParamTypes.length - jMethodRequest.pathParamCount) == 1;
             if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
                     jMethodRequest.restParamExist)) {
                 if (jParamTypes.length == 0 || bParamTypes[0].tag != TypeTags.HANDLE) {
@@ -405,7 +408,12 @@ class JMethodResolver {
                             jMethodRequest.declaringClass);
                 }
             }
-            i++;
+            for (int k = receiverIndex; k < bParamTypes.length - 1; k++) {
+                bParamTypes[k] = bParamTypes[k + 1];
+            }
+            BType[] bParamTypesWithoutReceiver = new BType[bParamTypes.length - 1];
+            System.arraycopy(bParamTypes, 0, bParamTypesWithoutReceiver, 0, bParamTypesWithoutReceiver.length);
+            bParamTypes = bParamTypesWithoutReceiver;
         } else if (bParamCount != jParamTypes.length) {
             if (jMethod.isBalEnvAcceptingMethod()) {
                 j++;
@@ -439,6 +447,7 @@ class JMethodResolver {
         BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
         paramTypes.add(initialPathParamIndex, pathParamArrayType);
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.pathParamCount = 1;
         jMethod.hasBundledPathParams = true;
     }
 
@@ -460,7 +469,7 @@ class JMethodResolver {
     }
 
     private boolean isValidParamBType(Class<?> jType, BType bType, boolean isLastParam, boolean restParamExist) {
-
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -546,9 +555,6 @@ class JMethodResolver {
                     return true;
                 case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
-                case TypeTags.INTERSECTION:
-                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, isLastParam,
-                            restParamExist);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -576,9 +582,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.REGEXP:
                     return this.classLoader.loadClass(BRegexpValue.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEREFDESC:
-                    return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
-                            restParamExist);
                 default:
                     return false;
             }
@@ -595,7 +598,7 @@ class JMethodResolver {
 
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest,
                                        LinkedHashSet<Class<?>> visitedSet) {
-
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -709,9 +712,6 @@ class JMethodResolver {
                     return false;
                 case TypeTags.READONLY:
                     return isReadOnlyCompatibleReturnType(jType, jMethodRequest);
-                case TypeTags.INTERSECTION:
-                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest,
-                            visitedSet);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -736,9 +736,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEREFDESC:
-                    return isValidReturnBType(jType, JvmCodeGenUtil.getReferredType(bType),
-                            jMethodRequest, visitedSet);
                 default:
                     return false;
             }

@@ -102,15 +102,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BIG_DECIMAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_CODES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
@@ -131,7 +132,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
@@ -251,7 +251,7 @@ public class JvmTerminatorGen {
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType type) {
-        BType bType = JvmCodeGenUtil.getReferredType(type);
+        BType bType = JvmCodeGenUtil.getImpliedType(type);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             return;
@@ -277,7 +277,6 @@ public class JvmTerminatorGen {
             case TypeTags.ANYDATA:
             case TypeTags.OBJECT:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.RECORD:
             case TypeTags.TUPLE:
             case TypeTags.FUTURE:
@@ -457,7 +456,7 @@ public class JvmTerminatorGen {
 
         boolean errorIncluded = false;
         for (BType member : bType.getMemberTypes()) {
-            member = JvmCodeGenUtil.getReferredType(member);
+            member = JvmCodeGenUtil.getImpliedType(member);
             if (member.tag == TypeTags.ERROR) {
                 errorIncluded = true;
                 break;
@@ -603,13 +602,13 @@ public class JvmTerminatorGen {
             this.mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
             Label thenBlockLabel = this.labelGen.getLabel("receiver_null_check_then");
             this.mv.visitLabel(thenBlockLabel);
-            this.mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR",
+            this.mv.visitFieldInsn(GETSTATIC, ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR",
                     GET_STRING);
-            this.mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE",
+            this.mv.visitFieldInsn(GETSTATIC, ERROR_CODES, "JAVA_NULL_REFERENCE",
                     GET_RUNTIME_ERROR);
             this.mv.visitInsn(ICONST_0);
             this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            this.mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            this.mv.visitMethodInsn(INVOKESTATIC, ERROR_HELPER, "getRuntimeException",
                     GET_RUNTIME_EXCEPTION, false);
             this.mv.visitInsn(ATHROW);
             this.mv.visitLabel(elseBlockLabel);
@@ -771,7 +770,7 @@ public class JvmTerminatorGen {
         }
 
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
-        BType selfArgRefType = JvmCodeGenUtil.getReferredType(selfArg.type);
+        BType selfArgRefType = JvmCodeGenUtil.getImpliedType(selfArg.type);
         if (selfArgRefType.tag == TypeTags.OBJECT  || selfArgRefType.tag == TypeTags.UNION) {
             this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
                     packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
@@ -1276,7 +1275,7 @@ public class JvmTerminatorGen {
 
     private void loadFpReturnType(BIROperand lhsOp) {
 
-        BType futureType = lhsOp.variableDcl.type;
+        BType futureType = JvmCodeGenUtil.getImpliedType(lhsOp.variableDcl.type);
         BType returnType = symbolTable.anyType;
         if (futureType.tag == TypeTags.FUTURE) {
             returnType = ((BFutureType) futureType).constraint;
@@ -1335,6 +1334,7 @@ public class JvmTerminatorGen {
 
     private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func,
                                             int invocationVarIndex) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
@@ -1352,7 +1352,6 @@ public class JvmTerminatorGen {
             case TypeTags.MAP:
             case TypeTags.ARRAY:
             case TypeTags.ANY:
-            case TypeTags.INTERSECTION:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
             case TypeTags.ANYDATA:
@@ -1389,10 +1388,6 @@ public class JvmTerminatorGen {
                 this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex, invocationVarIndex);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateReturnTermFromType(returnVarRefIndex, JvmCodeGenUtil.getReferredType(bType), func,
-                        invocationVarIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
