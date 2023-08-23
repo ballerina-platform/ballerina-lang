@@ -82,6 +82,7 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_table_row_type_parameter2.json", "Student"},
                 {"rename_table_row_type_parameter3.json", "Student"},
                 {"rename_stream_type_parameter.json", "Student"},
+                {"rename_map_type_parameter.json", "Student"},
         };
     }
 }
