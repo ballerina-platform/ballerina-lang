@@ -23,9 +23,6 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Monitors the memory usage and notifies the user if the memory usage is high.
@@ -55,22 +52,28 @@ public class MemoryUsageMonitor {
     }
 
     public void start(LanguageClient client) {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        Thread usageMonitor = new Thread(() -> {
+            while (true) {
+                try {
+                    if (this.memoryMXBean == null) {
+                        this.memoryMXBean = ManagementFactory.getMemoryMXBean();
+                    }
+                    MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+                    long usedMemory = heapMemoryUsage.getUsed();
+                    long maxMemory = heapMemoryUsage.getMax();
 
-        Runnable memoryCheckTask = () -> {
-            if (this.memoryMXBean == null) {
-                this.memoryMXBean = ManagementFactory.getMemoryMXBean();
+                    if (usedMemory >= maxMemory * 0.9) {
+                        client.showMessage(new MessageParams(MessageType.Error,
+                                "Memory usage is high. Please reload the window."));
+                    }
+                    Thread.sleep(60000);
+                }
+                catch (InterruptedException e) {
+                    // ignore
+                }
             }
-            MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-            long usedMemory = heapMemoryUsage.getUsed();
-            long maxMemory = heapMemoryUsage.getMax();
-
-            if (usedMemory >= maxMemory * 0.9) {
-                client.showMessage(new MessageParams(MessageType.Error,
-                        "Memory usage is high. Please reload the window."));
-            }
-        };
-
-        scheduler.scheduleAtFixedRate(memoryCheckTask, 0, 1, TimeUnit.MINUTES);
+        });
+        usageMonitor.setDaemon(true);
+        usageMonitor.start();
     }
 }
