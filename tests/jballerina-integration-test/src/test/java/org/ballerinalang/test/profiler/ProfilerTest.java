@@ -38,6 +38,7 @@ import java.util.Map;
 public class ProfilerTest extends BaseTest {
     private static final String testFileLocation = Paths.get("src/test/resources/profiler")
             .toAbsolutePath().toString();
+    private final String outputFile = "ProfilerOutput.html";
     private BMainInstance bMainInstance;
 
     @BeforeClass
@@ -51,7 +52,7 @@ public class ProfilerTest extends BaseTest {
         String packageName = "projectForProfile/package_a";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers();
+        LogLeecher[] leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
         bMainInstance.runMain("profile", new String[]{packageName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
@@ -59,7 +60,7 @@ public class ProfilerTest extends BaseTest {
         }
     }
 
-    private LogLeecher[] getProfilerLogLeechers() {
+    private LogLeecher[] getProfilerLogLeechers(String htmlFilePath) {
         return new LogLeecher[]{
                 new LogLeecher("[1/6] Initializing..."),
                 new LogLeecher("[2/6] Copying executable..."),
@@ -70,7 +71,8 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("[5/6] Running executable..."),
                 new LogLeecher("[6/6] Generating output..."),
                 new LogLeecher("○ Execution time:"),
-                new LogLeecher("○ Output: ")};
+                new LogLeecher("○ Output: "),
+                new LogLeecher(htmlFilePath)};
     }
 
     @Test
@@ -79,7 +81,7 @@ public class ProfilerTest extends BaseTest {
         String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers();
+        LogLeecher[] leechers = getProfilerLogLeechers(sourceRoot + outputFile);
         bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
