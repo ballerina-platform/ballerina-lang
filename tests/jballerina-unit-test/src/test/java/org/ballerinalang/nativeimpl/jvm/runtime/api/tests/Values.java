@@ -54,6 +54,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -62,6 +63,7 @@ import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -461,6 +463,28 @@ public class Values {
         }
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
         return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+    }
+
+    public static BXml getXMLValueFromString1() {
+        return ValueCreator.createXmlValue("<book>The Lost World</book>");
+    }
+
+    public static BXml getXMLValueFromString2() {
+        return ValueCreator.createXmlValue("<reservationID>12345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789012345678901234567890aaaaaa</reservationID>");
+    }
+
+    public static BXml getXMLValueFromInputStream1() {
+        return ValueCreator.createXmlValue(new ByteArrayInputStream("<book>The Lost World</book>".getBytes()));
+    }
+
+    public static BXml getXMLValueFromInputStream2() {
+        String xmlString = "<Reservation>\n" +
+                "<reservationID>1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789exceeding100chars</reservationID>\n" +
+                "    <confirmationID>RPFABE</confirmationID>\n" +
+                "</Reservation>";
+        return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
     }
 
     public static BString getParameterName(BFunctionPointer fpValue) {
