@@ -849,10 +849,9 @@ public class NewCommandTest extends BaseCommandTest {
         String templateArg = "ballerinax/twitter";
         Path packageDir = tmpDir.resolve("sample_pull_twitter");
         String[] args = {packageDir.toString(), "-t", templateArg};
-        NewCommand newCommand = new NewCommand(printStream, false);
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
         Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
     }
 
