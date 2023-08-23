@@ -23,7 +23,10 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.mockito.Mockito;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -36,15 +39,26 @@ import java.lang.management.MemoryUsage;
  * @since 2201.9.0
  */
 public class MemoryUsageMonitorTest extends AbstractLSTest {
+    private ExtendedLanguageClient mockClient;
+    private MemoryMXBean mockMemoryMXBean;
+    private BallerinaLanguageServer languageServer;
+    private Endpoint serviceEndpoint;
+
+    @BeforeClass
+    @Override
+    public void init() throws Exception {
+        MemoryUsageMonitor memoryMonitor = new MemoryUsageMonitor(createMockMemoryMXBean());
+        this.languageServer = new BallerinaLanguageServer();
+        languageServer.getServerContext().put(MemoryUsageMonitor.MEMORY_USAGE_MONITOR_KEY, memoryMonitor);
+        mockClient = Mockito.mock(ExtendedLanguageClient.class);
+
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
+                .withLanguageServer(languageServer);
+        this.serviceEndpoint = builder.build();
+    }
 
     @Test
     public void test() throws WorkspaceDocumentException, IOException, InterruptedException {
-
-        MemoryUsageMonitor memoryMonitor = new MemoryUsageMonitor(createMockMemoryMXBean());
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
-        languageServer.getServerContext().put(MemoryUsageMonitor.MEMORY_USAGE_MONITOR_KEY, memoryMonitor);
-
-        ExtendedLanguageClient mockClient = Mockito.mock(ExtendedLanguageClient.class);
         TestUtil.newLanguageServer().withLanguageServer(languageServer).withClient(mockClient).build();
         Thread.sleep(2000);
 
@@ -54,9 +68,31 @@ public class MemoryUsageMonitorTest extends AbstractLSTest {
     }
 
     private MemoryMXBean createMockMemoryMXBean() {
-        MemoryMXBean mockMemoryMXBean = Mockito.mock(MemoryMXBean.class);
+        mockMemoryMXBean = Mockito.mock(MemoryMXBean.class, Mockito.withSettings().stubOnly());
         MemoryUsage mockHeapMemoryUsage = new MemoryUsage(1_000_000_000, 900_000_000, 900_000_000, 1_000_000_000);
         Mockito.when(mockMemoryMXBean.getHeapMemoryUsage()).thenReturn(mockHeapMemoryUsage);
         return mockMemoryMXBean;
+    }
+
+    @AfterClass
+    @Override
+    public void cleanMocks() {
+        super.cleanMocks();
+        if (this.mockClient != null) {
+            Mockito.reset(this.mockClient);
+            this.mockClient = null;
+        }
+        if (this.mockMemoryMXBean != null) {
+            Mockito.reset(this.mockMemoryMXBean);
+            this.mockMemoryMXBean = null;
+        }
+    }
+
+    @AfterClass
+    @Override
+    public void shutDownLanguageServer() {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
+        this.languageServer = null;
+        this.serviceEndpoint = null;
     }
 }
