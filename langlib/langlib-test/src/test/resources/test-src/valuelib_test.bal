@@ -3262,7 +3262,7 @@ function testCloneWithTypeXmlToUnion() {
     test:assertValueEqual(z7 is error, true);
     if (z7 is error) {
         test:assertValueEqual("{ballerina/lang.value}ConversionError", z7.message());
-        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to '(BigXml|json)'",
+        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to 'JsonUnion2'",
         <string>checkpanic z7.detail()["message"]);
     }
 
@@ -3662,6 +3662,7 @@ function testCloneWithTypeToTableNegative() {
 
     UnionTable|error t2 = tab.cloneWithType();
     assertTrue(t2 is error);
+    errMsg = "'table<map<anydata>>' value cannot be converted to 'UnionTable': " + errMsgSuffix;
     if (t2 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t2.message());
         assertEquality(errMsg, <string> checkpanic t2.detail()["message"]);
@@ -3670,10 +3671,8 @@ function testCloneWithTypeToTableNegative() {
     map<json>[] tab2 = [{a: true, b: 10, c:(), d: "10", e: false}];
     UnionTable2|error t3 = tab2.cloneWithType();
     if (t3 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", t3.message());
-        // TODO: fix #41288
-        assertEquality("'map<json>[]' value cannot be converted to '((Table1 & readonly)|(Table2 & readonly))': " +
-        errMsgSuffix, <string> checkpanic t3.detail()["message"]);
+        assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
+        <string> checkpanic t3.detail()["message"]);
     }
 
     table<map<anydata>> tab3 = table [{a: true}, {b: 10}, {c:()}, {d: "10", e: false}];
@@ -3698,6 +3697,7 @@ function testCloneWithTypeToTableNegative() {
 
     UnionTable|error t5 = tab3.cloneWithType();
     assertTrue(t5 is error);
+    errMsg = "'table<map<anydata>>' value cannot be converted to 'UnionTable': " + errMsgSuffix;
     if (t5 is error) {
         assertEquality("{ballerina/lang.value}ConversionError", t5.message());
         assertEquality(errMsg, <string> checkpanic t5.detail()["message"]);
@@ -3717,10 +3717,8 @@ function testCloneWithTypeToTableNegative() {
     "\n\t\t  map field '[2].e' should be of type 'string', found 'false'" +
     "\n\t\t}";
     if (t6 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", t6.message());
-        // TODO: fix #41288
-        assertEquality("'map<json>[]' value cannot be converted to '((Table1 & readonly)|(Table2 & readonly))': " +
-        errMsgSuffix, <string> checkpanic t6.detail()["message"]);
+        assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
+        <string> checkpanic t6.detail()["message"]);
     }
 
     [record {string name; int salary;}, OldEmployee, NewEmployee, map<anydata>...] listResult = [
