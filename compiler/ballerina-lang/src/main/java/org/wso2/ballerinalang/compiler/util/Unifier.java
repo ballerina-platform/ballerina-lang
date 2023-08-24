@@ -70,6 +70,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType.toFlatTypeSet;
+
 /**
  * Util class for building concrete BType types from parameterized types.
  *
@@ -464,6 +466,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BUnionType type = BUnionType.create(null, newMemberTypes);
+        type.setOriginalMemberTypes(newMemberTypes);
         setFlags(type, originalType.flags);
         return type;
     }
@@ -1129,6 +1132,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return paramsWithInferredTypedescDefault;
     }
 
+    // If the `expType` is `int|string|boolean` and the original type is`t|string` then the expected type for `t`
+    // is `int|boolean`.
     private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
         if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
             return null;
@@ -1165,7 +1170,18 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return types.iterator().next();
         }
 
-        return BUnionType.create(null, types);
+        // Add the original union type if all the members of the original type are present in the `types` list.
+        for (BType originalMemberType : ((BUnionType) Types.getImpliedType(expType)).getOriginalMemberTypes()) {
+            LinkedHashSet flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
+            if (flatTypeSet.stream().filter(type -> types.contains(type)).count() == flatTypeSet.size()) {
+                flatTypeSet.forEach(type -> types.remove(type));
+                types.add(originalMemberType);
+            }
+        }
+
+        BUnionType newUnionType =  BUnionType.create(null, types);
+        newUnionType.setOriginalMemberTypes(types);
+        return newUnionType;
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {
