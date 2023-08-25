@@ -46,6 +46,7 @@ import java.util.List;
 import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_PROFILE_DEBUG;
 
 /**
  * This class represents the "profile" command, and it holds arguments and flags specified by the user.
@@ -72,6 +73,9 @@ public class ProfileCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
+
+    @CommandLine.Option(names = "--pDebug", hidden = true)
+    private String profileDebugPort;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
@@ -108,6 +112,7 @@ public class ProfileCommand implements BLauncherCmd {
             return;
         }
         setupDebugPort();
+        setupProfileDebugPort();
         String[] args = getArgumentsFromArgList();
         BuildOptions buildOptions = constructBuildOptions();
         Project project = loadProject(buildOptions);
@@ -125,6 +130,12 @@ public class ProfileCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = createTaskExecutor(isPackageModified, args, buildOptions,
                 project.kind() == ProjectKind.SINGLE_FILE_PROJECT);
         taskExecutor.executeTasks(project);
+    }
+
+    private void setupProfileDebugPort() {
+        if (this.profileDebugPort != null) {
+            System.setProperty(SYSTEM_PROP_PROFILE_DEBUG, this.profileDebugPort);
+        }
     }
 
     private void printCommandUsageInfo() {

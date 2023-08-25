@@ -34,7 +34,9 @@ import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
+import static io.ballerina.cli.utils.DebugUtils.getProfileDebugArg;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.cli.utils.DebugUtils.isInProfileDebugMode;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
@@ -81,9 +83,9 @@ public class RunProfilerTask implements Task {
             commands.add(targetPath.toString());
             commands.add("--sourceroot");
             commands.add(getProjectPath(project).toString());
-            if (args.length != 0) {
-                commands.add("--args");
-                commands.add("[" + profilerArguments + "]");
+            if (isInProfileDebugMode()) {
+                commands.add("--pDebug");
+                commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             pb.environment().put(JAVA_OPTS, getAgentArgs());
