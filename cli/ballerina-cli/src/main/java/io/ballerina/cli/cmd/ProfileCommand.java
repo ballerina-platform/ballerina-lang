@@ -201,7 +201,7 @@ public class ProfileCommand implements BLauncherCmd {
                         buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, null), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
-                .addTask(new RunProfilerTask(errStream, args), false).build();
+                .addTask(new RunProfilerTask(errStream), false).build();
     }
 
     @Override
