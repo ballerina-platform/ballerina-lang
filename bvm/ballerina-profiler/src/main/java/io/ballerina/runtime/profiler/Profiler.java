@@ -63,6 +63,7 @@ public class Profiler {
     private String balJarName = null;
     private String targetDir = null;
     private String sourceRoot = null;
+    private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
     private final List<String> utilInitPaths = new ArrayList<>();
@@ -162,6 +163,10 @@ public class Profiler {
                 }
                 case "--sourceroot" -> {
                     this.sourceRoot = args[i + 1];
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--pDebug" -> {
+                    this.profilerDebugArg = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
                 default -> handleUnrecognizedArgument(args[i], usedArgs);
@@ -276,7 +281,7 @@ public class Profiler {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
             FileUtils.deleteDirectory(new File("io/ballerina/runtime/profiler/runtime"));
-            profilerMethodWrapper.invokeMethods();
+            profilerMethodWrapper.invokeMethods(profilerDebugArg);
         }
     }
 
