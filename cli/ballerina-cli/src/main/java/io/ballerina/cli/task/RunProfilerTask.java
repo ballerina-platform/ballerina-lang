@@ -48,19 +48,14 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME
  * @since 2201.8.0
  */
 public class RunProfilerTask implements Task {
-
-    private final String[] args;
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
 
-    public RunProfilerTask(PrintStream errStream, String[] args) {
+    public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
-        this.args = args;
     }
 
-
-    private void initiateProfiler(Project project, String[] args) {
-        String profilerArguments = String.join(" ", args);
+    private void initiateProfiler(Project project) {
         String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
         ProjectKind projectKind = project.kind();
@@ -118,7 +113,7 @@ public class RunProfilerTask implements Task {
 
     @Override
     public void execute(Project project) {
-        initiateProfiler(project, this.args);
+        initiateProfiler(project);
     }
 
     private String getAgentArgs() {
