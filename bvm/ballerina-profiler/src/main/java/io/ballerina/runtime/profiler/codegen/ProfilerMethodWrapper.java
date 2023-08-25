@@ -57,7 +57,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
         if (debugArg != null) {
             commands.add(debugArg);
         }
-        commands.add( Constants.TEMP_JAR_FILE_NAME);
+        commands.add(Constants.TEMP_JAR_FILE_NAME);
         if (balJarArgs != null) {
             commands.add(balJarArgs);
         }
