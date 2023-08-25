@@ -52,7 +52,8 @@ public class DebugUtils {
     }
 
     public static boolean isInProfileDebugMode() {
-        return System.getProperty(SYSTEM_PROP_PROFILE_DEBUG) != null && !System.getProperty(SYSTEM_PROP_PROFILE_DEBUG).isEmpty();
+        return System.getProperty(SYSTEM_PROP_PROFILE_DEBUG) != null &&
+                !System.getProperty(SYSTEM_PROP_PROFILE_DEBUG).isEmpty();
     }
 
 }
