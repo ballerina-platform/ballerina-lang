@@ -220,7 +220,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         ServiceTemplateGenerator.getInstance(this.serverContext);
         CentralPackageDescriptorLoader.getInstance(this.serverContext)
                 .loadBallerinaxPackagesFromCentral(this.serverContext);
-        MemoryUsageMonitor.getInstance(this.serverContext).start(client);
+
+        if (lsClientCapabilities.getInitializationOptions().isEnableMemoryUsageMonitor()) {
+            MemoryUsageMonitor.getInstance(this.serverContext).start(client);
+        }
     }
 
     /**

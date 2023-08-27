@@ -31,13 +31,13 @@ import java.lang.management.MemoryUsage;
  */
 public class MemoryUsageMonitor {
 
-    private MemoryMXBean memoryMXBean;
+    private final MemoryMXBean memoryMXBean;
     public MemoryUsageMonitor(MemoryMXBean memoryMXBean) {
         this.memoryMXBean = memoryMXBean;
     }
 
     public MemoryUsageMonitor() {
-
+        this.memoryMXBean = ManagementFactory.getMemoryMXBean();
     }
 
     public static final LanguageServerContext.Key<MemoryUsageMonitor> MEMORY_USAGE_MONITOR_KEY =
@@ -55,10 +55,10 @@ public class MemoryUsageMonitor {
         Thread usageMonitor = new Thread(() -> {
             while (true) {
                 try {
-                    if (this.memoryMXBean == null) {
-                        this.memoryMXBean = ManagementFactory.getMemoryMXBean();
-                    }
                     MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+                    if (heapMemoryUsage == null) {
+                        return;
+                    }
                     long usedMemory = heapMemoryUsage.getUsed();
                     long maxMemory = heapMemoryUsage.getMax();
 

@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.memoryusagemonitor;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.MemoryUsageMonitor;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -47,19 +48,20 @@ public class MemoryUsageMonitorTest extends AbstractLSTest {
     @BeforeClass
     @Override
     public void init() throws Exception {
-        MemoryUsageMonitor memoryMonitor = new MemoryUsageMonitor(createMockMemoryMXBean());
+        MemoryUsageMonitor memoryUsageMonitor = new MemoryUsageMonitor(createMockMemoryMXBean());
         this.languageServer = new BallerinaLanguageServer();
-        languageServer.getServerContext().put(MemoryUsageMonitor.MEMORY_USAGE_MONITOR_KEY, memoryMonitor);
+        languageServer.getServerContext().put(MemoryUsageMonitor.MEMORY_USAGE_MONITOR_KEY, memoryUsageMonitor);
         mockClient = Mockito.mock(ExtendedLanguageClient.class);
-
-        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
-                .withLanguageServer(languageServer);
-        this.serviceEndpoint = builder.build();
     }
 
     @Test
     public void test() throws WorkspaceDocumentException, IOException, InterruptedException {
-        TestUtil.newLanguageServer().withLanguageServer(languageServer).withClient(mockClient).build();
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
+                .withLanguageServer(languageServer)
+                .withClient(mockClient)
+                .withInitOption(InitializationOptions.KEY_ENABLE_MEMORY_USAGE_MONITOR, true);
+        this.serviceEndpoint = builder.build();
+
         Thread.sleep(2000);
 
         Mockito.verify(mockClient).showMessage(new MessageParams(MessageType.Error,
