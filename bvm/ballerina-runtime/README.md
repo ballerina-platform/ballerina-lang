@@ -98,14 +98,14 @@ The following table summarizes how Ballerina types are mapped to corresponding J
 
 ## Main API constructs
 
-| **Construct**                            | **Description**                                                                                                                                                                                                                                                                                                                                                             |
-|------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| io.ballerina.runtime.api.Environment     | Developers can use this as the first argument of an interop method, Ballerina will inject an instance of Environment when calling. That instance can be used to communicate with the currently executing Ballerina runtime. With Environment, you can get interop Ballerina function name, path parameters, strand id, strand metadata, current module, current runtime, etc. |
-| io.ballerina.runtime.api.Future          | This will contain the future value once we call the Ballerina method from API asynchronously.                                                                                                                                                                                                                                                                              |
-| io.ballerina.runtime.api.Module          | Represent Java runtime module.                                                                                                                                                                                                                                                                                                                                              |
-| io.ballerina.runtime.api.PredefinedTypes | Contains Predefined types.                                                                                                                                                                                                                                                                                                                                                  |
-| io.ballerina.runtime.api.Runtime         | An instance of the current runtime can be obtained through an Environment instance. This will contain APIs to call Ballerina object methods asynchronously.                                                                                                                                                                                                                         |
-| io.ballerina.runtime.api.TypeTags        | Contains runtime type tags.                                                                                                                                                                                                                                                                                                                                                 |
+| **Construct**                            | **Description**                                                                                                                                                                                                                                                                                                                                                                                  |
+|------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| io.ballerina.runtime.api.Environment     | Developers can use this as the first argument of an interop method, Ballerina will inject an instance of `Environment` class when calling. That instance can be used to communicate with the currently executing Ballerina runtime. With `Environment` instance, you can get interop Ballerina function name, path parameters, strand id, strand metadata, current module, current runtime, etc. |
+| io.ballerina.runtime.api.Future          | This will contain the future value once we call the Ballerina method from API asynchronously.                                                                                                                                                                                                                                                                                                    |
+| io.ballerina.runtime.api.Module          | Represent Java runtime module.                                                                                                                                                                                                                                                                                                                                                                   |
+| io.ballerina.runtime.api.PredefinedTypes | Contains predefined types.                                                                                                                                                                                                                                                                                                                                                                       |
+| io.ballerina.runtime.api.Runtime         | An instance of the current runtime can be obtained through an `Environment` instance. This will contain APIs to call Ballerina object methods asynchronously.                                                                                                                                                                                                                                    |
+| io.ballerina.runtime.api.TypeTags        | Contains runtime type tags.                                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Create a Ballerina value
 
@@ -121,25 +121,25 @@ BArray array = ValueCreator.createArrayValue(arrayType);
 
 `io.ballerina.runtime.api.creators.TypeCreator` class provides APIs to create Ballerina type instances. There are multiple methods available to create Ballerina type instances based on the requirements.
 
-For example, a string array type can be created as follows,
+For example, a string type array can be created as follows.
 
 ```
-ArrayType strArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE\_STRING)
+ArrayType strArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING)
 ```
 
 ## Calling a Ballerina object method
 
-Ballerina runtime exposes APIs to call the Ballerina object method and Ballerina function pointer using Java.
+Ballerina runtime exposes APIs to call a Ballerina object method and Ballerina function pointer using Java.
 
 `io.ballerina.runtime.api.Runtime` class exposes two Java APIs to call object methods.
 
 1. `invokeMethodAsyncSequentially`
 
-Invoke the Object method asynchronously and sequentially. This method will ensure that the object methods are invoked in the same thread where other object methods are executed. So, the methods will be executed sequentially per object level.
+Invoke the object method asynchronously and sequentially. This method will ensure that the object methods are invoked in the same thread where other object methods are executed. So, the methods will be executed sequentially per object level.
 
 2. `invokeMethodAsyncConcurrently`
 
-Invoke the Object method asynchronously and concurrently. The caller needs to ensure that no data race is possible for the mutable state with a given object method and with arguments. So, the method can be concurrently run with different OS threads.
+Invoke the object method asynchronously and concurrently. The caller needs to ensure that no data race is possible for the mutable state with a given object method and arguments so that the method can be concurrently run with different OS threads.
 
 >**Note:** If the caller can ensure that the given object and object method are isolated and no data race is possible for the mutable state with given arguments, use `invokeMethodAsyncConcurrently`, otherwise use `invokeMethodAsyncSequentially`. We can decide the object method isolation if and only if both `object.getType().isIsolated()` and `object.getType().isIsolated(methodName)` return `true`.
 
@@ -200,7 +200,7 @@ class Test {
 
 ### Calling a Function Pointer
 
-Developers can call a function through a function pointer which passes through an interop function. Runtime exposes the ‘asyncCall’ method in `io.ballerina.runtime.api.values.BFunctionPointer` class.
+Developers can call a function through a function pointer which passes through an interop function. Runtime exposes the `asyncCall` method in `io.ballerina.runtime.api.values.BFunctionPointer` class.
 
 E.g.
 
