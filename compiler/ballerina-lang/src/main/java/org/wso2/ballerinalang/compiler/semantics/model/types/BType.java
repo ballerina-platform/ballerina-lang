@@ -56,7 +56,10 @@ public class BType implements ValueType {
     public Name name;
     public long flags;
 
+    // SemType related properties
     private SemType semtype;
+    public boolean isBTypeComponent = false; // TODO: This is temporary workaround until we migrate all types
+
     private final boolean isNullable;
     private final String toString;
 
@@ -120,7 +123,7 @@ public class BType implements ValueType {
     }
 
     public boolean isNullable() {
-        return Core.containsNil(SemTypeResolver.getHybridType(this).getSemTypeComponent());
+        return Core.containsNil(SemTypeResolver.getSemTypeComponent(this));
     }
 
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {

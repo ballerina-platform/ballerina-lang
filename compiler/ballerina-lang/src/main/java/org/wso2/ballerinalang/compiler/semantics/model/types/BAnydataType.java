@@ -63,22 +63,6 @@ public class BAnydataType extends BUnionType {
         mergeUnionType(type);
     }
 
-    private BAnydataType(LinkedHashSet<BType> memberTypes) {
-        super(memberTypes);
-        this.tag = TypeTags.ANYDATA;
-        this.isCyclic = true;
-    }
-
-    /**
-     * Creates union for {@link HybridType#getBTypeComponent}.
-     *
-     * @param memberTypes The member types of anydata
-     * @return The created anydata type
-     */
-    public static BAnydataType createBTypeComponent(LinkedHashSet<BType> memberTypes) {
-        return new BAnydataType(memberTypes);
-    }
-
     @Override
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :

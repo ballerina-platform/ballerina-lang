@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
@@ -33,11 +34,11 @@ public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
     private HybridType hybridType;
+    private SemType semTypeComponent = SemTypeResolver.READONLY_SEM_COMPONENT;
 
     public BReadonlyType(BTypeSymbol tsymbol) {
         super(TypeTags.READONLY, tsymbol);
         this.flags |= Flags.READONLY;
-        SemTypeResolver.resolveBReadonlyHybridType(this);
     }
 
     public BReadonlyType(BTypeSymbol tsymbol, Name name, long flag) {
@@ -45,28 +46,12 @@ public class BReadonlyType extends BBuiltInRefType {
         this.name = name;
         this.flags = flag;
         this.flags |= Flags.READONLY;
-        SemTypeResolver.resolveBReadonlyHybridType(this);
     }
 
     public BReadonlyType(BTypeSymbol tsymbol, boolean nullable) {
         super(TypeTags.READONLY, tsymbol);
         this.nullable = nullable;
         this.flags |= Flags.READONLY;
-        SemTypeResolver.resolveBReadonlyHybridType(this);
-    }
-
-    private BReadonlyType(long flag) {
-        super(TypeTags.READONLY, null);
-        this.flags = flag;
-    }
-
-    /**
-     * Creates BReadonly for {@link HybridType#getBTypeComponent}.
-     *
-     * @return The created readonly type
-     */
-    public static BReadonlyType createBTypeComponent() {
-        return new BReadonlyType(Flags.READONLY);
     }
 
     @Override
@@ -83,11 +68,11 @@ public class BReadonlyType extends BBuiltInRefType {
         return TypeKind.READONLY;
     }
 
-    public HybridType getHybridType() {
-        return hybridType;
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
     }
 
-    public void setHybridType(HybridType hybridType) {
-        this.hybridType = hybridType;
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }

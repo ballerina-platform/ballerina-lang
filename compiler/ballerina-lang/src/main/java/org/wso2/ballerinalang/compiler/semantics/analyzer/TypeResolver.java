@@ -1388,7 +1388,7 @@ public class TypeResolver {
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
-        SemTypeResolver.resolveBUnionHybridType(type);
+        SemTypeResolver.resolveBUnionSemTypeComponent(type);
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data) {

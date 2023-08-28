@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
@@ -36,24 +37,21 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
 
     private BIntersectionType intersectionType = null;
     private boolean nullable = true;
-    private HybridType hybridType;
+    private SemType semTypeComponent = SemTypeResolver.READONLY_SEM_COMPONENT;
 
     public BAnyType(BTypeSymbol tsymbol) {
         super(TypeTags.ANY, tsymbol);
-        SemTypeResolver.resolveBAnyHybridType(this);
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flag) {
         super(TypeTags.ANY, tsymbol);
         this.name = name;
         this.flags = flag;
-        SemTypeResolver.resolveBAnyHybridType(this);
     }
 
     public BAnyType(BTypeSymbol tsymbol, boolean nullable) {
         super(TypeTags.ANY, tsymbol);
         this.nullable = nullable;
-        SemTypeResolver.resolveBAnyHybridType(this);
     }
 
     public BAnyType(BTypeSymbol tsymbol, Name name, long flags, boolean nullable) {
@@ -61,22 +59,6 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
         this.name = name;
         this.flags = flags;
         this.nullable = nullable;
-        SemTypeResolver.resolveBAnyHybridType(this);
-    }
-
-    private BAnyType(Name name, long flags) {
-        super(TypeTags.ANY, null);
-        this.name = name;
-        this.flags = flags;
-    }
-
-    /**
-     * Creates BReadonly for {@link HybridType#getBTypeComponent}.
-     *
-     * @return The created readonly type
-     */
-    public static BAnyType createBTypeComponent(Name name, long flags) {
-        return new BAnyType(name, flags);
     }
 
     @Override
@@ -110,11 +92,11 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
         this.intersectionType = intersectionType;
     }
 
-    public HybridType getHybridType() {
-        return hybridType;
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
     }
 
-    public void setHybridType(HybridType hybridType) {
-        this.hybridType = hybridType;
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }

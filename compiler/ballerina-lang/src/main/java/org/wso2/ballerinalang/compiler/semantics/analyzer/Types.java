@@ -81,7 +81,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.HybridType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -425,7 +424,7 @@ public class Types {
         return false;
     }
 
-    public boolean isValueType(BType type) {
+    public boolean isValueType(BType type) { // TODO: remove
         switch (type.tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.BYTE:
@@ -835,11 +834,7 @@ public class Types {
      * @return true if source type is assignable to the target type.
      */
     public boolean isAssignable(BType source, BType target) {
-        HybridType htSource = SemTypeResolver.getHybridType(source);
-        HybridType htTarget = SemTypeResolver.getHybridType(target);
-
-        return SemTypes.isSubtype(semTypeCtx, htSource.getSemTypeComponent(), htTarget.getSemTypeComponent()) &&
-                isAssignable(htSource.getBTypeComponent(), htTarget.getBTypeComponent(), new HashSet<>());
+        return isAssignable(source, target, new HashSet<>());
     }
 
     public boolean isAssignableIgnoreObjectTypeIds(BType source, BType target) {
@@ -848,8 +843,20 @@ public class Types {
         this.ignoreObjectTypeIds = false;
         return result;
     }
-
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        if (source.isBTypeComponent || target.isBTypeComponent) {
+            return isAssignableInternal(SemTypeResolver.getBTypeComponent(source),
+                    SemTypeResolver.getBTypeComponent(target), unresolvedTypes);
+        }
+
+        SemType semSource = SemTypeResolver.getSemTypeComponent(source);
+        SemType semTarget = SemTypeResolver.getSemTypeComponent(target);
+        return SemTypes.isSubtype(semTypeCtx, semSource, semTarget) &&
+                isAssignableInternal(SemTypeResolver.getBTypeComponent(source),
+                        SemTypeResolver.getBTypeComponent(target), unresolvedTypes);
+    }
+
+    private boolean isAssignableInternal(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (SemTypeResolver.SEMTYPE_ENABLED) {
             SemType sourceSemType = source.getSemtype();
             SemType targetSemType = target.getSemtype();
@@ -866,11 +873,6 @@ public class Types {
 
         int sourceTag = source.tag;
         int targetTag = target.tag;
-
-        if (sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(getReferredType(source), getReferredType(target),
-                    unresolvedTypes);
-        }
 
         if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
             return true;
@@ -903,16 +905,8 @@ public class Types {
             return isParameterizedTypeAssignable(source, target, unresolvedTypes);
         }
 
-        if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
-            return true;
-        }
-
         if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
             return isXMLTypeAssignable(source, target, unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
-            return true;
         }
 
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
@@ -921,12 +915,14 @@ public class Types {
             return false;
         }
 
-        if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON)) {
-            return true;
+        if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON) ||
+                sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING ||
+                sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT ||
+                sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
+            throw new IllegalStateException(); // TODO: remove
         }
 
-        // TODO: Remove the isValueType() check
-        if (targetTag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
+        if (targetTag == TypeTags.ANY && !containsErrorType(source)) {
             return true;
         }
 
@@ -967,10 +963,6 @@ public class Types {
 
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
             return isAssignableStreamType((BStreamType) source, (BStreamType) target, unresolvedTypes);
-        }
-
-        if (isBuiltInTypeWidenPossible(source, target) == TypeTestResult.TRUE) {
-            return true;
         }
 
         if (sourceTag == TypeTags.FINITE) {
@@ -2325,7 +2317,7 @@ public class Types {
         FALSE
     }
 
-    TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) {
+    TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) { // TODO: can we remove?
 
         int targetTag = getReferredType(targetType).tag;
         int actualTag = getReferredType(actualType).tag;
@@ -3639,6 +3631,14 @@ public class Types {
         return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
+    private void updateSet(Set<BType> set, BType ...types) {
+        for (BType type : types) {
+            if (!SemTypeResolver.semTypeSupported(type.tag)) {
+                set.add(type);
+            }
+        }
+    }
+
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         TypePair pair = new TypePair(source, target);
         if (unresolvedTypes.contains(pair)) {
@@ -3654,17 +3654,17 @@ public class Types {
         Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (isJsonAnydataOrUserDefinedUnion(source)) {
-            sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
+            updateSet(sourceTypes, getEffectiveMemberTypes((BUnionType) source).toArray(new BType[0]));
         } else {
-            sourceTypes.add(source);
+            updateSet(sourceTypes, source);
         }
 
         boolean targetIsAUnion = false;
         if (target.tag == TypeTags.UNION) {
             targetIsAUnion = true;
-            targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
+            updateSet(targetTypes, getEffectiveMemberTypes((BUnionType) target).toArray(new BType[0]));
         } else {
-            targetTypes.add(target);
+            updateSet(targetTypes, target);
         }
 
         // check if all the value types are assignable between two unions
@@ -3706,8 +3706,7 @@ public class Types {
                     }
                 }
                 // readonly can match to a union similar to any|error
-                if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, targetUnion,
-                        unresolvedTypes)) {
+                if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, targetUnion)) {
                     sourceIterator.remove();
                     continue;
                 }
@@ -3912,12 +3911,11 @@ public class Types {
         return memTypes;
     }
 
-    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
-        BType expType = getReferredType(targetType);
-        if (expType.tag == TypeTags.FINITE) {
-            for (BLangExpression expression : finiteType.getValueSpace()) {
+    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {  // TODO
+        if (targetType.tag == TypeTags.FINITE) {
+            for (BLangExpression expression : finiteType.nonSemValueSpace) {
                 ((BLangLiteral) expression).isFiniteContext = true;
-                if (!isAssignableToFiniteType(expType, (BLangLiteral) expression)) {
+                if (!isAssignableToFiniteType2(targetType, (BLangLiteral) expression)) { // source and target are finite
                     return false;
                 }
             }
@@ -3926,29 +3924,57 @@ public class Types {
 
         if (targetType.tag == TypeTags.UNION) {
             List<BType> unionMemberTypes = getAllTypes(targetType, true);
-            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+            List<BType> unionMemberTypes2 = new ArrayList<>();
+
+            for (BType t: unionMemberTypes) {
+                if (!SemTypeResolver.semTypeSupported(t.tag)) {
+                    unionMemberTypes2.add(t);
+                }
+            }
+            for (BLangExpression valueExpr : finiteType.nonSemValueSpace) {
                 ((BLangLiteral) valueExpr).isFiniteContext = true;
-                if (unionMemberTypes.stream()
+                if (unionMemberTypes2.stream()
                         .noneMatch(targetMemType ->
                                 getReferredType(targetMemType).tag == TypeTags.FINITE ?
-                                        isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                        isAssignable(valueExpr.getBType(), targetMemType, unresolvedTypes) ||
-                                                isLiteralCompatibleWithBuiltinTypeWithSubTypes(
-                                                        (BLangLiteral) valueExpr, targetMemType))) {
+                                        isAssignableToFiniteType2(targetMemType, (BLangLiteral) valueExpr) :
+                                        isAssignable(valueExpr.getBType(), targetMemType, unresolvedTypes))) {
                     return false;
                 }
             }
             return true;
         }
 
-        for (BLangExpression expression : finiteType.getValueSpace()) {
-            if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
-                    !isAssignable(expression.getBType(), expType, unresolvedTypes)) {
+        for (BLangExpression expression : finiteType.nonSemValueSpace) {
+            if (!isAssignable(expression.getBType(), targetType, unresolvedTypes)) {
                 return false;
             }
         }
         return true;
     }
+
+    boolean isAssignableToFiniteType2(BType type, BLangLiteral literalExpr) { // TODO: Revisit and rectify
+        type = getReferredType(type);
+        if (type.tag != TypeTags.FINITE) {
+            return false;
+        }
+
+        BFiniteType expType = (BFiniteType) type;
+        return expType.getValueSpace().stream().anyMatch(memberLiteral -> {
+            if (((BLangLiteral) memberLiteral).value == null) {
+                return literalExpr.value == null;
+            }
+
+            // If the literal which needs to be tested is from finite type and the type of the any member literal
+            // is not the same type, the literal cannot be assignable to finite type.
+            if (literalExpr.isFiniteContext && memberLiteral.getBType().tag != literalExpr.getBType().tag) {
+                return false;
+            }
+            // Check whether the literal that needs to be tested is assignable to any of the member literal in the
+            // value space.
+            return checkLiteralAssignabilityBasedOnType2((BLangLiteral) memberLiteral, literalExpr);
+        });
+    }
+
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
         type = getReferredType(type);
@@ -3971,6 +3997,17 @@ public class Types {
             // value space.
             return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
         });
+    }
+
+    boolean checkLiteralAssignabilityBasedOnType2(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+        if (baseLiteral.getKind() != candidateLiteral.getKind()) {
+            return false;
+        }
+
+        if (SemTypeResolver.semTypeSupported(baseLiteral.getBType().tag)) {
+            return true;
+        }
+        return baseLiteral.value.equals(candidateLiteral.value);
     }
 
     /**
@@ -5943,14 +5980,14 @@ public class Types {
                 case TypeTags.JSON:
                     return new BJSONType((BJSONType) type, false);
                 case TypeTags.ANY:
-                    return new BAnyType(type.tag, type.tsymbol, false);
+                    return new BAnyType(type.tsymbol, false);
                 case TypeTags.ANYDATA:
                     return new BAnydataType((BAnydataType) type, false);
                 case TypeTags.READONLY:
                     if (liftError) {
                         return symTable.anyAndReadonly;
                     }
-                    return new BReadonlyType(type.tag, type.tsymbol, false);
+                    return new BReadonlyType(type.tsymbol, false);
             }
         }
 

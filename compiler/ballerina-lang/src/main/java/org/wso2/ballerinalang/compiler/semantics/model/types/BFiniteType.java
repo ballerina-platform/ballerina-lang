@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -43,7 +42,9 @@ public class BFiniteType extends BType implements FiniteType {
     private Set<BLangExpression> valueSpace;
     private boolean nullable = false;
     public Boolean isAnyData = null;
-    private HybridType hybridType;
+
+    private SemType semTypeComponent;
+    public Set<BLangExpression> nonSemValueSpace;
 
     public BFiniteType(BTypeSymbol tsymbol) {
         this(tsymbol, new LinkedHashSet<>(), null);
@@ -57,23 +58,7 @@ public class BFiniteType extends BType implements FiniteType {
         super(TypeTags.FINITE, tsymbol, semType);
         this.valueSpace = valueSpace;
         this.flags |= Flags.READONLY;
-        this.hybridType = SemTypeResolver.resolveBFiniteTypeHybridType(new ArrayList<>(valueSpace));
-    }
-
-    private BFiniteType(Set<BLangExpression> valueSpace) {
-        super(TypeTags.FINITE, null, null);
-        this.valueSpace = valueSpace;
-        this.flags |= Flags.READONLY;
-    }
-
-    /**
-     * Creates finite type for {@link HybridType#getBTypeComponent}.
-     *
-     * @param types Constituent types of the intersection
-     * @return The created intersection type
-     */
-    public static BFiniteType createBTypeComponent(Set<BLangExpression> types) {
-        return new BFiniteType(types);
+        SemTypeResolver.resolveBFiniteTypeSemTypeComponent(this);
     }
 
     @Override
@@ -119,25 +104,19 @@ public class BFiniteType extends BType implements FiniteType {
     }
 
     public void addValue(BLangExpression value) {
-        addValue(value, false);
-    }
-
-    public void addValue(BLangExpression value, boolean hybridTypeComponent) {
         this.valueSpace.add(value);
         if (!this.nullable && value.getBType() != null &&  value.getBType().isNullable()) {
             this.nullable = true;
         }
 
-        if (!hybridTypeComponent) {
-            SemTypeResolver.addBFiniteValue(this, value);
-        }
+        SemTypeResolver.addBFiniteValue(this, value);
     }
 
-    public HybridType getHybridType() {
-        return hybridType;
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
     }
 
-    public void setHybridType(HybridType hybridType) {
-        this.hybridType = hybridType;
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }

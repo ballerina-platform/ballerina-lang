@@ -17,9 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
@@ -48,7 +46,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     private LinkedHashSet<BType> constituentTypes;
     private BIntersectionType intersectionType;
-    private HybridType hybridType;
+    private SemType semTypeComponent;
 
     public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types,
                              IntersectableReferenceType effectiveType) {
@@ -61,7 +59,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                 break;
             }
         }
-        this.hybridType = SemTypeResolver.resolveBIntersectionHybridType(constituentTypes);
+        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
         this.setEffectiveType((BType) effectiveType);
         effectiveType.setIntersectionType(this);
     }
@@ -74,24 +72,9 @@ public class BIntersectionType extends BType implements IntersectionType {
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
-        this.hybridType = SemTypeResolver.resolveBIntersectionHybridType(constituentTypes);
+        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
         this.setEffectiveType((BType) effectiveType);
         effectiveType.setIntersectionType(this);
-    }
-
-    private BIntersectionType(LinkedHashSet<BType> constituentTypes) {
-        super(TypeTags.INTERSECTION, null);
-        this.constituentTypes = constituentTypes; // already flattened
-    }
-
-    /**
-     * Creates intersection for {@link HybridType#getBTypeComponent}.
-     *
-     * @param types Constituent types of the intersection
-     * @return The created intersection type
-     */
-    public static BIntersectionType createBTypeComponent(LinkedHashSet<BType> types) {
-        return new BIntersectionType(types);
     }
 
     @Override
@@ -116,7 +99,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
         this.constituentTypes =  toFlatTypeSet(constituentTypes);
-        this.hybridType = SemTypeResolver.resolveBIntersectionHybridType(constituentTypes);
+        SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
     }
 
     @Override
@@ -173,15 +156,11 @@ public class BIntersectionType extends BType implements IntersectionType {
         this.effectiveType = effectiveType;
     }
 
-    public HybridType getHybridType() {
-        // TODO: can't set this at setEffectiveType() as the setting effectiveType could be still resolving
-        BIntersectionType bTypeComponent = (BIntersectionType) hybridType.getBTypeComponent();
-        bTypeComponent.effectiveType = SemTypeResolver.getHybridType(this.effectiveType).getBTypeComponent();
-        bTypeComponent.flags = this.flags;
-        return hybridType;
+    public SemType getSemTypeComponent() {
+        return semTypeComponent;
     }
 
-    public void setHybridType(HybridType hybridType) {
-        this.hybridType = hybridType;
+    public void setSemTypeComponent(SemType semTypeComponent) {
+        this.semTypeComponent = semTypeComponent;
     }
 }
