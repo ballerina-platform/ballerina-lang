@@ -1,0 +1,17 @@
+<bookstore status="online" xmlns:ns0="http://sample.com/test">
+    <storeName>foo</storeName>
+    <postalCode>94</postalCode>
+    <isOpen>true</isOpen>
+    <address>
+        <street>Galle Road</street>
+        <city>Colombo</city>
+        <country>Sri Lanka</country>
+    </address>
+    <codes>
+        <item>4</item>
+        <item>8</item>
+        <item>9</item>
+    </codes>
+</bookstore>
+        <!-- some comment -->
+        <?doc document="book.doc"?>
