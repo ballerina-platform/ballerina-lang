@@ -26,7 +26,7 @@ group = 'io.ballerina'
 dependencies {
     implementation project(":ballerina-shell:shell-core")
     implementation project(':ballerina-parser')
-    implementation('org.jline:jline:3.11.0')
+    implementation("org.jline:jline:${project.jlineVersion}")
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
 

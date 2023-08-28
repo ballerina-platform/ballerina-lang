@@ -15,34 +15,42 @@
 // under the License.
 
 type Person record {|
-   int val1;
-   int val2;
+    int val1;
+    int val2;
 |};
 
 client class Foo {
-   resource function get foo/bar/[string id](int q1, int q2) returns Person|error {
-      if q1 > q2 {
-         return error("Q1 > Q2");
-      }
-      return {val1: q1, val2: q2};
-   }
+    resource function get .() {
+    }
 
-   resource function get foo/[string id](int q1, int q2) returns int {
-     return q1 + q2;
-   }
+    resource function get foo/bar/[string id](int q1, int q2) returns Person|error {
+        if q1 > q2 {
+            return error("Q1 > Q2 for " + id);
+        }
+        return {val1: q1, val2: q2};
+    }
 
-   resource function post bar/[string... ids](string fullname) returns string {
-     return ids[0] + fullname;
-   }
+    resource function get foo/[float seconds]/bar() {
+    }
+
+    resource function get foo/[string id](int q1, int q2) returns int {
+        return q1 + q2;
+    }
+
+    resource function post bar/[string... ids](string fullname) returns string {
+        return ids[0] + fullname;
+    }
 }
 
 public function main() {
-   Foo fooClient = new();
-   Person|error wVal = fooClient->/foo/bar/["3"](1, 2);
-   int xVal = fooClient->/foo/["3"](1, 2);
-   string yVal = fooClient->/bar/["3"].post("myname");
+    Foo fooClient = new ();
+    fooClient->/();
+    Person|error wVal = fooClient->/foo/bar/["3"](1, 2);
 }
 
-function testFunction(Foo fooClient) returns Person|error {
-   return check fooClient->/foo/bar/["12"](10, 20);
+function testResourceMethod(Foo fooClient) {
+    _ = check fooClient->/foo/bar/["12"](10, 20);
+    int xVal = fooClient->/foo/["3"](1, 2);
+    fooClient->/foo/[0.1]/bar;
+    string yVal = fooClient->/bar/["3"].post("myname");
 }

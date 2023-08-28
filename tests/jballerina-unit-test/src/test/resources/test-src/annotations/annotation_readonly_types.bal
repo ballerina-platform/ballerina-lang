@@ -17,7 +17,7 @@
 import ballerina/jballerina.java;
 
 type Annot record {|
-   object {} myObject;
+   readonly & object {} myObject;
    handle myHandle;
    typedesc myTypedesc;
    function () myFunction;
@@ -29,7 +29,7 @@ string strValue = "v1 value";
 
 type Dummy object {};
 
-class DummyImpl {
+readonly class DummyImpl {
     *Dummy;
 }
 
