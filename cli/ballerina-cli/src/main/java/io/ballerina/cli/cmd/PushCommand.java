@@ -487,20 +487,16 @@ public class PushCommand implements BLauncherCmd {
      */
     private static boolean isPackageAvailableInRemote(DependencyManifest.Package pkg, CentralAPIClient client)
             throws CentralClientException {
-        List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
-        supportedPlatforms.add("any");
-
-        for (String supportedPlatform : supportedPlatforms) {
-            try {
-                client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
-                                  supportedPlatform, RepoUtils.getBallerinaVersion());
-                return true;
-            } catch (NoPackageException e) {
-                return false;
-            }
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(target -> target.code())
+                .collect(Collectors.joining(","));
+        try {
+            client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
+                              supportedPlatform, RepoUtils.getBallerinaVersion());
+            return true;
+        } catch (NoPackageException e) {
+            return false;
         }
-
-        return false;
     }
 
     /**
