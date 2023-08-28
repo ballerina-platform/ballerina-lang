@@ -3671,6 +3671,7 @@ function testCloneWithTypeToTableNegative() {
     map<json>[] tab2 = [{a: true, b: 10, c:(), d: "10", e: false}];
     UnionTable2|error t3 = tab2.cloneWithType();
     if (t3 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t3.message());
         assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
         <string> checkpanic t3.detail()["message"]);
     }
@@ -3717,6 +3718,7 @@ function testCloneWithTypeToTableNegative() {
     "\n\t\t  map field '[2].e' should be of type 'string', found 'false'" +
     "\n\t\t}";
     if (t6 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t6.message());
         assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
         <string> checkpanic t6.detail()["message"]);
     }

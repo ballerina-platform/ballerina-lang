@@ -466,7 +466,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BUnionType type = BUnionType.create(null, newMemberTypes);
-        type.setOriginalMemberTypes(newMemberTypes);
         setFlags(type, originalType.flags);
         return type;
     }
@@ -1139,12 +1138,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (Types.getImpliedType(expType).tag != TypeTags.UNION) {
+        BType impliedExpType = Types.getImpliedType(expType);
+        if (impliedExpType.tag != TypeTags.UNION) {
             return expType;
         }
 
+        BUnionType expUnionType = (BUnionType) impliedExpType;
         LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) Types.getImpliedType(expType)).getMemberTypes()) {
+        for (BType expMemType : expUnionType.getMemberTypes()) {
             boolean hasMatchWithOtherType = false;
             for (BType origMemType : originalType.getMemberTypes()) {
                 if (origMemType == member) {
@@ -1166,12 +1167,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (types.size() == 1) {
-            return types.iterator().next();
-        }
-
         // Add the original union type if all the members of the original type are present in the `types` list.
-        for (BType originalMemberType : ((BUnionType) Types.getImpliedType(expType)).getOriginalMemberTypes()) {
+        for (BType originalMemberType : expUnionType.getOriginalMemberTypes()) {
             LinkedHashSet flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
             if (flatTypeSet.stream().filter(type -> types.contains(type)).count() == flatTypeSet.size()) {
                 flatTypeSet.forEach(type -> types.remove(type));
@@ -1179,9 +1176,11 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        BUnionType newUnionType =  BUnionType.create(null, types);
-        newUnionType.setOriginalMemberTypes(types);
-        return newUnionType;
+        if (types.size() == 1) {
+            return types.iterator().next();
+        }
+
+        return BUnionType.create(null, types);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {
