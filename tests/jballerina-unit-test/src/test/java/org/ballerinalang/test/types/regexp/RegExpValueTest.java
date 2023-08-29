@@ -107,13 +107,15 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, "invalid token in regular expression", 37, 16);
         validateError(negativeResult, index++, "invalid token in regular expression", 38, 16);
         validateError(negativeResult, index++, "invalid token in regular expression", 39, 16);
+        validateError(negativeResult, index++, "invalid quantifier in regular expression", 40, 19);
+        validateError(negativeResult, index++, "invalid flag in regular expression", 41, 15);
         validateError(negativeResult, index++, "incompatible types: expected 'boolean', found " +
-                "'regexp:RegExp'", 40, 9);
-        validateError(negativeResult, index++, "missing backtick token", 42, 1);
-        validateError(negativeResult, index++, "missing close brace token", 42, 1);
-        validateError(negativeResult, index++, "missing colon token", 42, 1);
-        validateError(negativeResult, index++, "missing expression", 42, 1);
-        validateError(negativeResult, index++, "missing semicolon token", 42, 1);
+                "'regexp:RegExp'", 42, 9);
+        validateError(negativeResult, index++, "missing backtick token", 44, 1);
+        validateError(negativeResult, index++, "missing close brace token", 44, 1);
+        validateError(negativeResult, index++, "missing colon token", 44, 1);
+        validateError(negativeResult, index++, "missing expression", 44, 1);
+        validateError(negativeResult, index++, "missing semicolon token", 44, 1);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 

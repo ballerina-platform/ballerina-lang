@@ -789,8 +789,17 @@ public class RegExpParser extends AbstractParser {
     private STNode invalidateNonDigitNodesAndAddToTrailingMinutiae(STNode node, boolean isLeastDigits) {
         node = addInvalidNodeStackToTrailingMinutiae(node);
 
-        while (isInvalidDigit(peek(), isLeastDigits)) {
-            node = addTrailingInvalidNode(node, DiagnosticErrorCode.ERROR_INVALID_QUANTIFIER_IN_REG_EXP);
+        STToken nodeBuffer = peek();
+        while (isInvalidDigit(nodeBuffer, isLeastDigits)) {
+            if (nodeBuffer.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+                consume();
+                consume();
+                node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, this.interpolationExprs.remove(),
+                        DiagnosticErrorCode.ERROR_INVALID_QUANTIFIER_IN_REG_EXP);
+            } else {
+                node = addTrailingInvalidNode(node, DiagnosticErrorCode.ERROR_INVALID_QUANTIFIER_IN_REG_EXP);
+            }
+            nodeBuffer = peek();
         }
 
         return node;
@@ -811,8 +820,17 @@ public class RegExpParser extends AbstractParser {
     private STNode invalidateNonFlagNodesAndAddToTrailingMinutiae(STNode node, boolean isLhsFlag) {
         node = addInvalidNodeStackToTrailingMinutiae(node);
 
-        while (isInvalidFlag(peek(), isLhsFlag)) {
-            node = addTrailingInvalidNode(node, DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
+        STToken nodeBuffer = peek();
+        while (isInvalidFlag(nodeBuffer, isLhsFlag)) {
+            if (nodeBuffer.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+                consume();
+                consume();
+                node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, this.interpolationExprs.remove(),
+                        DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
+            } else {
+                node = addTrailingInvalidNode(node, DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
+            }
+            nodeBuffer = peek();
         }
 
         return node;

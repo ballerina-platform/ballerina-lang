@@ -37,5 +37,7 @@ function testRegExpNegative() {
     _ = re `\p{Lz}`;
     _ = re `\p{NNz}`;
     _ = re `\p{NN}`;
+    _ = re `(a{12,${ab}})`;
+    _ = re `(?${""}:)`;
     _ = re `[AB\p{gc=Lu}]+` ? `;
 }
