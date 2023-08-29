@@ -69,6 +69,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType.toFlatTypeSet;
 
@@ -1168,19 +1169,22 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         // Add the original union type if all the members of the original type are present in the `types` list.
+        LinkedHashSet<BType> originalTypesSet = new LinkedHashSet<>(); // This is to maintain the order of members
         for (BType originalMemberType : expUnionType.getOriginalMemberTypes()) {
             LinkedHashSet<BType> flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
-            if (types.containsAll(flatTypeSet)) {
-                types.removeAll(flatTypeSet);
-                types.add(originalMemberType);
+            Set<BType> typesToAdd = flatTypeSet.stream().filter(types::contains).collect(Collectors.toSet());
+            if (typesToAdd.containsAll(flatTypeSet)) {
+                originalTypesSet.add(originalMemberType);
+            } else {
+                originalTypesSet.addAll(typesToAdd);
             }
         }
 
-        if (types.size() == 1) {
-            return types.iterator().next();
+        if (originalTypesSet.size() == 1) {
+            return originalTypesSet.iterator().next();
         }
 
-        return BUnionType.create(null, types);
+        return BUnionType.create(null, originalTypesSet);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {
