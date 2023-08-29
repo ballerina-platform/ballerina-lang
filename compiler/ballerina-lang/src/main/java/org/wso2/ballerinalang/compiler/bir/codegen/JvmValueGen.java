@@ -88,7 +88,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OVERFLOW_LINE_NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
@@ -413,14 +412,6 @@ public class JvmValueGen {
                                          BIRNode.BIRTypeDefinition typedef, BRecordType recordType) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, argumentClass, null, null);
         mv.visitCode();
-        if (!JvmCodeGenUtil.isAnonType(typedef)) {
-            for (BField field : recordType.fields.values()) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                        !Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
-                    JvmCodeGenUtil.generateDiagnosticPos(field.pos, mv);
-                }
-            }
-        }
 
         // load super
         mv.visitVarInsn(ALOAD, 0);
@@ -428,14 +419,6 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 1);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, JVM_INIT_METHOD, argumentClass, false);
-
-        if (!JvmCodeGenUtil.isAnonType(typedef)) {
-            Label label = new Label();
-            if (typedef.pos != null && typedef.pos.lineRange().endLine().line() != OVERFLOW_LINE_NUMBER) {
-                mv.visitLabel(label);
-                mv.visitLineNumber(typedef.pos.lineRange().endLine().line() + 1, label);
-            }
-        }
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, RECORD_INIT_WRAPPER_NAME, className);
         mv.visitEnd();

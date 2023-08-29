@@ -575,9 +575,10 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
-        BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
+        BLangFunction function = createFunction(closureName, null, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
+        returnStmt.expr.pos = null;
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
