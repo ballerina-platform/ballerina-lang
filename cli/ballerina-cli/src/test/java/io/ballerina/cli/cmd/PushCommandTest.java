@@ -250,7 +250,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test(description = "Test push command with argument and a help", enabled = false)
+    @Test(description = "Test push command with argument and a help")
     public void testPushCommandArgAndHelp() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         // Test if no arguments was passed in
@@ -262,7 +262,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
-    @Test(description = "Test push command with help flag", enabled = false)
+    @Test(description = "Test push command with help flag")
     public void testPushCommandWithHelp() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         // Test if no arguments was passed in
@@ -274,7 +274,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testPushToCustomRepo() throws IOException {
         Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
         FileUtils.copyDirectory(
@@ -302,7 +302,7 @@ public class PushCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testPushWithoutPackageMd() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
