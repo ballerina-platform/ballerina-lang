@@ -1169,9 +1169,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         // Add the original union type if all the members of the original type are present in the `types` list.
         for (BType originalMemberType : expUnionType.getOriginalMemberTypes()) {
-            LinkedHashSet flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
-            if (flatTypeSet.stream().filter(type -> types.contains(type)).count() == flatTypeSet.size()) {
-                flatTypeSet.forEach(type -> types.remove(type));
+            LinkedHashSet<BType> flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
+            if (types.containsAll(flatTypeSet)) {
+                types.removeAll(flatTypeSet);
                 types.add(originalMemberType);
             }
         }
