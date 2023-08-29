@@ -3755,6 +3755,29 @@ function testCloneWithTypeToTableNegative() {
     }
 }
 
+type A1 record {
+    int a;
+};
+
+type AB A1|int;
+
+type AC A1|string;
+
+function testCloneWithTypeToRecordWithIntersectingUnionMembers() {
+    // `AB & AC` is `A1`
+    map<anydata> x = {a: "Ballerina", b: true};
+    AB|AC|boolean|error z = x.cloneWithType();
+    assertTrue(z is error);
+    string errMsg = "'map<anydata>' value cannot be converted to '(AB|AC|boolean)': " +
+                    "\n\t\t{" +
+                    "\n\t\t  field 'a' in record 'A1' should be of type 'int', found '\"Ballerina\"'" +
+                    "\n\t\t}";
+    if (z is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", z.message());
+        assertEquality(errMsg, <string> checkpanic z.detail()["message"]);
+    }
+}
+
 type GraphQLQuery record {|
     string operationName?;
     string query?;
