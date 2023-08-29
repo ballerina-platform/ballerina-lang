@@ -326,7 +326,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testPushWithEmptyPackageMd() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
@@ -353,7 +353,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testPushToAnUnsupportedRepo() throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         // Build project
