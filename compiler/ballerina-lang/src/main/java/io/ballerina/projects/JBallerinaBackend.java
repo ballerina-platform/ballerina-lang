@@ -82,7 +82,7 @@ import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
  * @since 2.0.0
  */
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
-//    todo that, we would have to move PackageContext class into an internal package.
+//    todo that, we would have to move PackageContext class into an internal package
 public class JBallerinaBackend extends CompilerBackend {
 
     private static final String JAR_FILE_EXTENSION = ".jar";
