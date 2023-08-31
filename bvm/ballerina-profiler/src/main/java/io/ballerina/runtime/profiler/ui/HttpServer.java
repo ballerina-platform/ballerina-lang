@@ -25,8 +25,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 

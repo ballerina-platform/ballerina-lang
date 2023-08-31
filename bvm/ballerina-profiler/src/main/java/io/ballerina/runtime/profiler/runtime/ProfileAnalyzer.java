@@ -85,10 +85,11 @@ public class ProfileAnalyzer {
     }
 
     public void start(int id) {
-        String name = getStackTrace();
         if (!blockedMethods.contains(getMethodName() + id)) {
-            Data p = this.profiles.computeIfAbsent(name, key -> {
-                Data newData = new Data(key);
+            ArrayList<String> stackTrace = getStackTrace();
+            String stackKey = StackTraceMap.getStackKey(stackTrace);
+            Data p = this.profiles.computeIfAbsent(stackKey, key -> {
+                Data newData = new Data(stackTrace.toString());
                 profilesStack.add(newData);
                 return newData;
             });
@@ -99,11 +100,12 @@ public class ProfileAnalyzer {
     }
 
     public void start() {
-        String name = getStackTrace();
-        Data p = this.profiles.get(name);
+        ArrayList<String> stackTrace = getStackTrace();
+        String stackKey = StackTraceMap.getStackKey(stackTrace);
+        Data p = this.profiles.get(stackKey);
         if (p == null) {
-            p = new Data(name);
-            this.profiles.put(name, p);
+            p = new Data(stackTrace.toString());
+            this.profiles.put(stackKey, p);
             this.profilesStack.add(p);
         }
         p.start();
@@ -111,8 +113,8 @@ public class ProfileAnalyzer {
     }
 
     public void stop(String strandState, int id) {
-        String name = getStackTrace();
-        Data p = this.profiles.get(name);
+        String stackKey = StackTraceMap.getStackKey(getStackTrace());
+        Data p = this.profiles.get(stackKey);
         if (strandState.equals("RUNNABLE")) {
             if (p != null) {
                 p.stop();
@@ -123,8 +125,8 @@ public class ProfileAnalyzer {
     }
 
     public void stop() {
-        String name = getStackTrace();
-        Data p = this.profiles.get(name);
+        String stackKey = StackTraceMap.getStackKey(getStackTrace());
+        Data p = this.profiles.get(stackKey);
         if (p != null) {
             p.stop();
         }
@@ -132,8 +134,9 @@ public class ProfileAnalyzer {
 
     public final String getProfileStackString() {
         StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < this.profilesStack.size(); i++) {
-            sb.append(this.profilesStack.get(i)).append("\n");
+        ArrayList<Data> stackList = new ArrayList<>(this.profilesStack);
+        for (Data data : stackList) {
+            sb.append(data).append("\n");
         }
         sb.append("]");
         return sb.toString();
@@ -156,7 +159,7 @@ public class ProfileAnalyzer {
     }
 
     // This method returns a string representation of the current call stack in the form of a list of strings
-    private String getStackTrace() {
+    private ArrayList<String> getStackTrace() {
         ArrayList<String> result = new ArrayList<>();
 
         final List<StackWalker.StackFrame> stack = StackWalker.getInstance().walk(s -> s.collect(Collectors.toList()));
@@ -180,6 +183,6 @@ public class ProfileAnalyzer {
             }
         }
 
-        return result.toString();
+        return result;
     }
 }
