@@ -27,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,10 +73,18 @@ public class JsonParser {
     }
 
     private String readFileAsString(String file) throws IOException {
-        return Files.readString(Paths.get(file)); // Read Files as a String
+        Path path = Paths.get(file);
+        while (!Files.exists(path)) {
+            try {
+                Thread.sleep(100); // Adjust sleep interval as needed
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        return Files.readString(path); // Read Files as a String
     }
 
-    private void writer(String parsedJson) {
+    private void writePerformanceJson(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
         try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
             myWriter.write(parsedJson); // Write the parsed json string to the file
@@ -101,7 +110,9 @@ public class JsonParser {
 
             // Removes the trailing comma
             StringBuilder jsonInputStringBuffer = new StringBuilder(jsonInput);
-            jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
+            if (jsonInputStringBuffer.length() > 3) {
+                jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
+            }
             jsonInput = jsonInputStringBuffer.toString();
             // Populate the input list
             List<StackTraceItem> input = populateStackTraceItems(jsonInput);
@@ -144,7 +155,7 @@ public class JsonParser {
         int totalTime = getTotalTime(jsonObject); // Calculate the total time
         jsonObject.remove(VALUE_KEY); // Remove the "value" key
         jsonObject.addProperty(VALUE_KEY, totalTime); // Add the total time as the value
-        writer(jsonObject.toString()); // write the json object to a file
+        writePerformanceJson(jsonObject.toString()); // write the json object to a file
     }
 
     private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String name) {

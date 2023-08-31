@@ -55,7 +55,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_PR
  */
 @CommandLine.Command(name = PROFILE_COMMAND, description = "Compile and profile the current package")
 public class ProfileCommand implements BLauncherCmd {
-
+    private static final String ENV_OPTION_BAL_PROFILE_DEBUG = "BAL_PROFILE_JAVA_DEBUG";
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
@@ -73,9 +73,6 @@ public class ProfileCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
-
-    @CommandLine.Option(names = "--pDebug", hidden = true)
-    private String profileDebugPort;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
@@ -133,8 +130,8 @@ public class ProfileCommand implements BLauncherCmd {
     }
 
     private void setupProfileDebugPort() {
-        if (this.profileDebugPort != null) {
-            System.setProperty(SYSTEM_PROP_PROFILE_DEBUG, this.profileDebugPort);
+        if (this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_PROFILE_DEBUG, this.debugPort);
         }
     }
 
@@ -144,8 +141,9 @@ public class ProfileCommand implements BLauncherCmd {
     }
 
     private void setupDebugPort() {
-        if (this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
+        String port = System.getenv(ENV_OPTION_BAL_PROFILE_DEBUG);
+        if (port != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, port);
         }
     }
 
