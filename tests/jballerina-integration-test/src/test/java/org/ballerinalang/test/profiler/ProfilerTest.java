@@ -22,16 +22,19 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.ServerLogReader;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 /**
- * Tests Ballerina profiler.
+ * Tests for Ballerina profiler.
  *
  * @since 2201.8.0
  */
@@ -86,6 +89,53 @@ public class ProfilerTest extends BaseTest {
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
+        }
+    }
+
+    @Test
+    public void testProfilerExecutionWithKillSignal() throws BallerinaTestException {
+        String sourceRoot = testFileLocation + "/";
+        String packageName = "serviceProjectForProfile/package_a";
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        LogLeecher[] beforeExecleechers = new LogLeecher[]{new LogLeecher("[1/6] Initializing..."),
+                new LogLeecher("[2/6] Copying executable..."),
+                new LogLeecher("[3/6] Performing analysis..."),
+                new LogLeecher("[4/6] Instrumenting functions..."),
+                new LogLeecher("○ Instrumented module count: "),
+                new LogLeecher("○ Instrumented function count: "),
+                new LogLeecher("[5/6] Running executable...")};
+        Process process = bMainInstance.runCommandAndGetProcess("profile", new String[]{packageName},
+                envProperties, sourceRoot);
+        LogLeecher[] afterExecleechers = new LogLeecher[]{new LogLeecher("Stopped module A"),
+                new LogLeecher("[6/6] Generating output..."),
+                new LogLeecher("○ Execution time:"),
+                new LogLeecher("○ Output: ")};
+        ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
+        addLogLeechers(beforeExecleechers, serverInfoLogReader);
+        addLogLeechers(afterExecleechers, serverInfoLogReader);
+        try {
+            serverInfoLogReader.start();
+            bMainInstance.waitForLeechers(List.of(beforeExecleechers), 20000);
+            Thread.sleep(1000);
+            ProcessHandle profilerHandle = process.children().findFirst().get().children().findFirst().get();
+            long profileId = profilerHandle.pid();
+            long balProcessID = profilerHandle.children().findFirst().get().pid();
+            Runtime.getRuntime().exec("kill -SIGINT " + balProcessID);
+            Runtime.getRuntime().exec("kill -SIGINT " + profileId);
+            bMainInstance.waitForLeechers(List.of(afterExecleechers), 20000);
+            process.waitFor();
+            process.waitFor();
+        } catch (InterruptedException | IOException e) {
+            throw new BallerinaTestException("Error testing Ballerina profiler", e);
+        }
+        serverInfoLogReader.stop();
+        serverInfoLogReader.removeAllLeechers();
+    }
+
+    private static void addLogLeechers(LogLeecher[] leechers, ServerLogReader serverInfoLogReader) {
+        for (LogLeecher leecher : leechers) {
+            serverInfoLogReader.addLeecher(leecher);
         }
     }
 }
