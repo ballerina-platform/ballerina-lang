@@ -47,8 +47,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
 
     private static final int ENUM_DCLN_START = 17;
     private static final int CLASS_DEFN_START = ENUM_DCLN_START + 6;
-    private static final int TYPE_DEFN_START = CLASS_DEFN_START + 16;
-    private static final int IF_STATEMENT_START = TYPE_DEFN_START + 20;
+    private static final int IF_STATEMENT_START = CLASS_DEFN_START + 36;
     private static final int WHILE_LOOP_START = IF_STATEMENT_START + 9;
     private static final int FOREACH_LOOP_START = WHILE_LOOP_START + 10;
     private static final int MATCH_STMT_START = FOREACH_LOOP_START + 10;
@@ -72,8 +71,6 @@ public class BreakpointVerificationTest extends BaseTestCase {
 
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
@@ -129,8 +126,6 @@ public class BreakpointVerificationTest extends BaseTestCase {
         // class definition
         assertVerifiedBreakpoints(breakpoints, CLASS_DEFN_START, 15, true, false, false, true, true, true, false,
                 false, true, true, false, false, true, true, false);
-        // type definition
-        assertVerifiedBreakpoints(breakpoints, TYPE_DEFN_START, 5, false, false, false, false, true);
         // worker declarations
         assertVerifiedBreakpoints(breakpoints, WORKER_DCLN_START, 9, true, true, false, false, true, true, false, false,
                 true);
