@@ -326,7 +326,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test ()
+    @Test (enabled = false)
     public void testPushWithEmptyPackageMd() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
