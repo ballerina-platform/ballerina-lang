@@ -624,8 +624,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
-                data.loopWithinTransactionCheckStack.peek()) {
+        if (!data.commitRollbackAllowed || data.loopWithinTransactionCheckStack.peek()) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
@@ -636,7 +635,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRollback rollbackNode, AnalyzerData data) {
         data.rollbackCount++;
         data.rollbackCountWithinBlock++;
-        if (data.transactionCount == 0 && !data.withinTransactionScope) {
+        if (data.transactionCount == 0) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
@@ -644,7 +643,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
+        if (!data.commitRollbackAllowed ||
                 (!data.loopWithinTransactionCheckStack.empty() && data.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
@@ -1514,6 +1513,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangDo doNode, AnalyzerData data) {
         boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
+        boolean prevWithinTransactionScope = data.withinTransactionScope;
         if (onFailExists) {
             data.errorTypes.push(new LinkedHashSet<>());
             data.failureHandled = true;

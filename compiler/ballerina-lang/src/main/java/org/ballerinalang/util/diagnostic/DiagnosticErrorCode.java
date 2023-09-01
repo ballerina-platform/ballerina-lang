@@ -814,7 +814,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_QUERY_CONSTRUCT_TYPE("BCE4055", "invalid.error.query.construct.type"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4056",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
-    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected")
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
+    TRANSACTION_EXIT_PRIOR_COMMIT_ROLLBACK_IDENNTIFIED("BCE4058",
+            "transaction.exit.prior.commit.rollback.identified"),
     ;
 
     private String diagnosticId;
