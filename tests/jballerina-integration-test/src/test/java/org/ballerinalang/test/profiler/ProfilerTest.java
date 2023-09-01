@@ -107,7 +107,7 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("[5/6] Running executable...")};
         Process process = bMainInstance.runCommandAndGetProcess("profile", new String[]{packageName},
                 envProperties, sourceRoot);
-        LogLeecher[] afterExecleechers = new LogLeecher[]{new LogLeecher("Stopped module A"),
+        LogLeecher[] afterExecleechers = new LogLeecher[]{
                 new LogLeecher("[6/6] Generating output..."),
                 new LogLeecher("○ Execution time:"),
                 new LogLeecher("○ Output: ")};

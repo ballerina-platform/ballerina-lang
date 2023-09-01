@@ -20,8 +20,6 @@ package io.ballerina.runtime.profiler.ui;
 
 import io.ballerina.runtime.profiler.util.Constants;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +36,7 @@ public class HttpServer {
     public void initializeHTMLExport(String sourceRoot) throws IOException {
         OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
                 "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", sourceRoot);
-        String content = readData();
+        String content = FileUtils.readFileAsString("performance_report.json");
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);
         String fileName = "ProfilerOutput.html";
@@ -46,18 +44,6 @@ public class HttpServer {
             writer.write(htmlData);
         } catch (IOException e) {
             OUT_STREAM.printf("%s%n", e);
-        }
-    }
-
-    private String readData() throws IOException {
-        try (BufferedReader reader = new BufferedReader(
-                new FileReader("performance_report.json", StandardCharsets.UTF_8))) {
-            StringBuilder contents = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                contents.append(line);
-            }
-            return contents.toString();
         }
     }
 }
