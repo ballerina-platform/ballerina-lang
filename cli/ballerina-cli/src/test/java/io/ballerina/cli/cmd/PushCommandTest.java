@@ -353,7 +353,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testPushToAnUnsupportedRepo() throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         // Build project
