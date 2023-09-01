@@ -322,7 +322,7 @@ public class InitMethodGen {
             lastBB = addTestExecuteInvocationWithGracefulExitCall(modExecFunc, pkg.packageID, retVarRef,
                     functionArgs, Collections.emptyList(), typeOwnerClass);
         } else if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
-            lastBB = addInvocationForGracefulExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
+            lastBB = addInvocationForGracefulExitCall(modExecFunc, typeOwnerClass);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
         return modExecFunc;
@@ -444,8 +444,7 @@ public class InitMethodGen {
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func, BIROperand retVar,
-                                                                   BIROperand boolRef, String typeOwnerClass) {
+    private BIRNode.BIRBasicBlock addInvocationForGracefulExitCall(BIRNode.BIRFunction func, String typeOwnerClass) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
