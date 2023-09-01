@@ -143,10 +143,10 @@ public class ProfileAnalyzer {
     }
 
     private void printProfilerOutput(String dataStream) {
-        try (Writer myWriter = new FileWriter("CpuPre.json", StandardCharsets.UTF_8)) {
+        try (Writer myWriter = new FileWriter("cpu_pre.json", StandardCharsets.UTF_8)) {
             myWriter.write(dataStream);
         } catch (IOException e) {
-            throw new ProfilerRuntimeException("Error occurred while writing to the CpuPre.json file");
+            throw new ProfilerRuntimeException("Error occurred while writing to the cpu_pre.json file");
         }
     }
 

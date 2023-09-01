@@ -89,7 +89,7 @@ public class Profiler {
                 HttpServer httpServer = new HttpServer();
                 jsonParser.initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
-                deleteFileIfExists("CpuPre.json");
+                deleteFileIfExists("cpu_pre.json");
                 OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
                 httpServer.initializeHTMLExport(this.sourceRoot);

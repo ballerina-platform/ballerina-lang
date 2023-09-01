@@ -26,9 +26,6 @@ import com.google.gson.JsonObject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,18 +69,6 @@ public class JsonParser {
         return totalTime;
     }
 
-    private String readFileAsString(String file) throws IOException {
-        Path path = Paths.get(file);
-        while (!Files.exists(path)) {
-            try {
-                Thread.sleep(100); // Adjust sleep interval as needed
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        return Files.readString(path); // Read Files as a String
-    }
-
     private void writePerformanceJson(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
         try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
@@ -105,8 +90,7 @@ public class JsonParser {
 
     private void cpuParser(ArrayList<String> skipList) {
         try {
-            String file = "CpuPre.json"; // File path of the Profiler Output json file
-            String jsonInput = readFileAsString(file); // Read the json file as a string
+            String jsonInput = FileUtils.readFileAsString("cpu_pre.json"); // Read the json file as a string
 
             // Removes the trailing comma
             StringBuilder jsonInputStringBuffer = new StringBuilder(jsonInput);

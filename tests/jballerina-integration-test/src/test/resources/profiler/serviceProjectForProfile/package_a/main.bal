@@ -41,7 +41,6 @@ public class ABC {
     public function gracefulStop() returns error? {
         incrementCount();
         assertCount(3);
-        panic error("Stopped module A");
     }
 
     public function immediateStop() returns error? {
