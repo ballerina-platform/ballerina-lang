@@ -19,7 +19,6 @@ package org.ballerinalang.test.statements.transactionstatement;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -27,49 +26,38 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for flow validation in Do Statements.
+ * Test cases for flow validation in Transaction Statements.
  */
 public class TransactionStmtNegativeTest {
 
-    private CompileResult negativeFile1, negativeFile2;
+    private CompileResult negativeFile;
 
     @BeforeClass
     public void setup() {
-        negativeFile1 = BCompileUtil.compile("test-src/statements/transactionstatement/trx-stmt-negative-1.bal");
-//        negativeFile2 = BCompileUtil.compile("test-src/statements/dostatement/do-stmt-negative-2.bal");
+        negativeFile = BCompileUtil.compile(
+            "test-src/statements/transactionstatement/trx-stmt-negative.bal");
     }
 
-    @Test(description = "Check not incompatible types and reachable statements.")
+    @Test(description = "Check pre commit/rollback statements.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 15, 6);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 17, 4);
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 30, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 43, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 57, 4);
-        BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 60, 7);
-        BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 72, 3);
-        BAssertUtil.validateError(negativeFile1, index++, "this function must return a result", 73, 1);
-        BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 90, 4);
-        Assert.assertEquals(negativeFile1.getDiagnostics().length, index);
+        BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 11, 15);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 27, 5);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 48, 5);
+        BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 48, 5);
+        BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 68, 5);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 79, 8);
+        BAssertUtil.validateError(negativeFile, index++, "rollback not allowed here", 122, 13);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 139, 5);
+        BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 139, 5);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 180, 9);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 207, 9);
+        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 220, 5);
+        Assert.assertEquals(negativeFile.getErrorCount(), index);
     }
-
-//    @Test(description = "Check on fail scope.")
-//    public void testNegative2() {
-//        Assert.assertEquals(negativeFile2.getErrorCount(), 3);
-//        BAssertUtil.validateError(negativeFile2, 0, "type 'string' not allowed here; " +
-//                "expected an 'error' or a subtype of 'error'.", 6, 11);
-//        BAssertUtil.validateError(negativeFile2, 1, "incompatible types: expected 'string', " +
-//                "found 'error'", 8, 12);
-//        BAssertUtil.validateError(negativeFile2, 2, "undefined symbol 'd'", 26, 12);
-//    }
 
     @AfterClass
     public void tearDown() {
-        negativeFile1 = null;
-        negativeFile2 = null;
+        negativeFile = null;
     }
 }

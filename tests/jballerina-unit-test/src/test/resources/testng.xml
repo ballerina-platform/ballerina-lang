@@ -112,6 +112,7 @@
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <package name="org.ballerinalang.test.statements.checkingstatement.*"/>
+            <package name="org.ballerinalang.test.statements.transactionstatement.*"/>
 
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
