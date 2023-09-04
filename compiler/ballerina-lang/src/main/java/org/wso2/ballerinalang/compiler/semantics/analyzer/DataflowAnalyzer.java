@@ -994,10 +994,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // of the entire 'stmt-with-on-fail' statement.
         if (onFailResult.flowTerminated || onFailResult.possibleFailureReached) {
             this.uninitializedVars = doResult.uninitializedVars;
-//            this.commitRollbackReached = doResult.commitRollbackReached;
         } else if (doResult.definiteFailureReached) {
             this.uninitializedVars = onFailResult.uninitializedVars;
-//            this.commitRollbackReached = onFailResult.commitRollbackReached;
         } else {
             this.uninitializedVars = mergedUninitializedVars;
         }
