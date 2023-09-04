@@ -1066,7 +1066,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         REACH_STATUS prevCommit = this.commitRollbackReached;
         this.commitRollbackReached = REACH_STATUS.UNREACHED;
         analyzeStmtWithOnFail(transactionNode.transactionBody, transactionNode.onFailClause);
-        if (this.commitRollbackReached != REACH_STATUS.REACHED) {
+        if (this.commitRollbackReached != REACH_STATUS.REACHED && this.enclosingOnFailClause.isEmpty()) {
             dlog.error(transactionNode.pos, DiagnosticErrorCode.TRANSACTION_EXIT_PRIOR_COMMIT_ROLLBACK_IDENNTIFIED);
         }
         // marks the injected import as used
