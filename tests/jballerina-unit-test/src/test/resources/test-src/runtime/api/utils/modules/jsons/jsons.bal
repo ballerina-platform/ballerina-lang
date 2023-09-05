@@ -201,6 +201,10 @@ public function validateJsonAPI() {
     j = convertStringToJson(s);
     test:assertEquals(j, 9.99E+6144d);
 
+    s = "999E6142";
+    j = convertStringToJson(s);
+    test:assertEquals(j, 9.99E+6144d);
+
     s = "0x0.0p1";
     j = convertStringToJson(s);
     test:assertEquals(j, 0.0f);
