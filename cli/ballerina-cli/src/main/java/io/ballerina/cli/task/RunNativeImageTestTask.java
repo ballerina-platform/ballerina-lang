@@ -478,8 +478,8 @@ public class RunNativeImageTestTask implements Task {
 
             File commandExecutable = Paths.get(nativeImageCommand).toFile();
             if (!commandExecutable.exists()) {
-                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin " +
-                        "directory. Install it using: gu install native-image");
+                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin "
+                        + "directory. Install it using: gu install native-image");
             }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
