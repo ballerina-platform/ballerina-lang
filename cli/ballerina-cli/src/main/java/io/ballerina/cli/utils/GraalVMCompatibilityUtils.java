@@ -37,13 +37,26 @@ import java.util.Optional;
  */
 public class GraalVMCompatibilityUtils {
 
-    private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg, String targetPlatform) {
+    private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg) {
         // Check if external platform dependencies are defined
-        PackageManifest manifest = pkg.manifest();
-        return manifest.platform(targetPlatform) != null &&
-                !manifest.platform(targetPlatform).dependencies().isEmpty();
+        Map<String, PackageManifest.Platform> platforms = pkg.manifest().platforms();
+        for (PackageManifest.Platform platformVal: platforms.values()) {
+            if (!platformVal.dependencies().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    private static String otherPlatformGraalvmCompatibleVerified(String target,
+                                                                 Map<String, PackageManifest.Platform> platforms) {
+        for (Map.Entry<String, PackageManifest.Platform> platform : platforms.entrySet()) {
+            if (!platform.getKey().equals(target) && platform.getValue().graalvmCompatible() != null) {
+                return platform.getKey();
+            }
+        }
+        return "";
+    }
     /**
      * Get the GraalVM compatibility warning message for the given package.
      *
@@ -53,22 +66,41 @@ public class GraalVMCompatibilityUtils {
      */
     public static String getWarningForPackage(io.ballerina.projects.Package pkg, String targetPlatform) {
         // Verify that Java dependencies (if exist) of this package are GraalVM compatible
-        if (hasExternalPlatformDependencies(pkg, targetPlatform)) {
+        if (hasExternalPlatformDependencies(pkg)) {
             PackageManifest.Platform platform = pkg.manifest().platform(targetPlatform);
             String packageName = pkg.manifest().name().value();
-
             if (platform == null || platform.graalvmCompatible() == null) {
-                return String.format(
-                        "************************************************************%n" +
-                                "* WARNING: Package is not verified with GraalVM.           *%n" +
-                                "************************************************************%n%n" +
-                                "The GraalVM compatibility property has not been defined for the package '%s'. " +
-                                "This could potentially lead to compatibility issues with GraalVM.%n%n" +
-                                "To resolve this warning, please ensure that all Java dependencies of this package " +
-                                "are compatible with GraalVM. Subsequently, update the Ballerina.toml file under " +
-                                "the section '[platform.%s]' with the attribute 'graalvmCompatible = true'.%n%n" +
-                                "************************************************************%n",
-                        packageName, targetPlatform);
+                String graalvmCompatiblePlatform = otherPlatformGraalvmCompatibleVerified(targetPlatform,
+                        pkg.manifest().platforms());
+                if (graalvmCompatiblePlatform.equals("")) {
+                    return String.format(
+                            "************************************************************%n" +
+                                    "* WARNING: Package is not verified with GraalVM.           *%n" +
+                                    "************************************************************%n%n" +
+                                    "The GraalVM compatibility property has not been defined for the package '%s'. " +
+                                    "This could potentially lead to compatibility issues with GraalVM.%n%n" +
+                                    "To resolve this warning, please ensure that all Java dependencies of " +
+                                    "this package are compatible with GraalVM. Subsequently, update the " +
+                                    "Ballerina.toml file under the section '[platform.%s]' with the " +
+                                    "attribute 'graalvmCompatible = true'.%n%n" +
+                                    "************************************************************%n",
+                            packageName, targetPlatform);
+                } else {
+                    if (!pkg.manifest().platform(graalvmCompatiblePlatform).graalvmCompatible()) {
+                        return String.format(
+                                "************************************************************%n" +
+                                        "* WARNING: Package is not compatible with GraalVM.         *%n" +
+                                        "************************************************************%n%n" +
+                                        "The package '%s' has been marked with its GraalVM compatibility property " +
+                                        "set to false. This setting suggests potential compatibility issues with " +
+                                        "GraalVM.%n%n" +
+                                        "To ensure this package can function seamlessly with GraalVM, " +
+                                        "it's recommended to either modify the package dependencies or consider " +
+                                        "GraalVM-compatible alternatives" +
+                                        ".%n%n************************************************************%n",
+                                packageName);
+                    }
+                }
             } else if (!platform.graalvmCompatible()) {
                 return String.format(
                         "************************************************************%n" +

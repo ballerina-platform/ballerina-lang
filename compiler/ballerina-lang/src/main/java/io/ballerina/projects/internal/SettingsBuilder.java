@@ -50,12 +50,7 @@ import java.util.Map;
 public class SettingsBuilder {
 
     public static final String NAME = "name";
-    public static final String USER_ID = "userId";
-    public static final String ACCESSTOKEN = "accesstoken";
-    public static final String NEXUS = "nexus";
-    public static final String ARTIFACTORY = "artifactory";
-    public static final String FILE_SYSTEM = "file-system";
-    public static final String GITHUB = "github";
+    public static final String MAVEN = "maven";
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -143,16 +138,15 @@ public class SettingsBuilder {
                 for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
                     String repoKey = entry.getKey();
                     TopLevelNode repoValue = entry.getValue();
-                    if (!NEXUS.equals(repoKey) && !ARTIFACTORY.equals(repoKey) && !FILE_SYSTEM.equals(repoKey) &&
-                            !GITHUB.equals(repoKey)) {
+                    if (!MAVEN.equals(repoKey)) {
                         continue;
                     }
                     List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
                     for (TomlTableNode repositoryNode : repositoryNodes) {
                         url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
-                        repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USER_ID, "");
-                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESSTOKEN, "");
+                        repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
+                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
                         repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
                     }
                 }

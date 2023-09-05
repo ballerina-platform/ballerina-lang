@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -192,13 +193,22 @@ public abstract class BalaWriter {
     }
 
     private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
-        PackageManifest.Platform platform = packageManifest.platform(target);
-        if (platform != null) {
-            Boolean graalvmCompatible = platform.graalvmCompatible();
-            if (graalvmCompatible != null) {
-                // If the package explicitly specifies the graalvmCompatibility property, then use it
-                packageJson.setGraalvmCompatible(graalvmCompatible);
-            } else if (platform.dependencies().isEmpty()) {
+        Map<String, PackageManifest.Platform> platforms = packageManifest.platforms();
+        PackageManifest.Platform targetPlatform = packageManifest.platform(target);
+        if (platforms != null) {
+            if (targetPlatform != null) {
+                Boolean graalvmCompatible = targetPlatform.graalvmCompatible();
+                if (graalvmCompatible != null) {
+                    // If the package explicitly specifies the graalvmCompatibility property, then use it
+                    packageJson.setGraalvmCompatible(graalvmCompatible);
+                    return;
+                }
+            }
+            if (!otherPlatformGraalvmCompatibleVerified(target, packageManifest.platforms()).equals("")) {
+                Boolean otherGraalvmCompatible = packageManifest.platform(otherPlatformGraalvmCompatibleVerified(target,
+                        packageManifest.platforms())).graalvmCompatible();
+                packageJson.setGraalvmCompatible(otherGraalvmCompatible);
+            } else if (!hasExternalPlatformDependencies(packageManifest.platforms())) {
                 // If the package uses only distribution provided platform libraries, then package is graalvm compatible
                 packageJson.setGraalvmCompatible(true);
             }
@@ -207,6 +217,26 @@ public abstract class BalaWriter {
             // or has only ballerina dependencies, then the package is graalvm compatible
             packageJson.setGraalvmCompatible(true);
         }
+    }
+
+    private String otherPlatformGraalvmCompatibleVerified(String target,
+                                                                 Map<String, PackageManifest.Platform> platforms) {
+        for (Map.Entry<String, PackageManifest.Platform> platform : platforms.entrySet()) {
+            if (!platform.getKey().equals(target) && platform.getValue().graalvmCompatible() != null) {
+                return platform.getKey();
+            }
+        }
+        return "";
+    }
+
+    private boolean hasExternalPlatformDependencies(Map<String, PackageManifest.Platform> platforms) {
+        // Check if external platform dependencies are defined
+        for (PackageManifest.Platform platformVal: platforms.values()) {
+            if (!platformVal.dependencies().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // TODO when iterating and adding source files should create source files from Package sources
