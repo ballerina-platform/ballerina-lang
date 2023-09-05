@@ -351,6 +351,51 @@
           "type": "boolean"
         }
       }
+    },
+    "format": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "columnLimit": {
+          "type": "integer"
+        },
+        "tabWidth": {
+          "type": "integer"
+        },
+        "allowShortBlocksOnASingleLine": {
+          "type": "boolean"
+        },
+        "allowShortMatchLabelsOnASingleLine": {
+          "type": "boolean"
+        },
+        "allowShortIfStatementsOnASingleLine": {
+          "type": "boolean"
+        },
+        "allowShortLoopsOnASingleLine": {
+          "type": "boolean"
+        },
+        "alignConsecutiveDefinitions": {
+          "type": "boolean"
+        },
+        "elseBlocksOnANewLine": {
+          "type": "boolean"
+        },
+        "recordBraceSpacing": {
+          "type": "boolean"
+        },
+        "function": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "oneArgPerLine": {
+              "type": "boolean"
+            },
+            "paranAlign": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
     }
   }
 }
