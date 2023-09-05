@@ -22,8 +22,10 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -106,6 +108,9 @@ public class RunCommand implements BLauncherCmd {
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
 
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
+    private Boolean dumpBuildTime;
+
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
                     "    bal run [--offline]\n" +
@@ -135,6 +140,7 @@ public class RunCommand implements BLauncherCmd {
     }
 
     public void execute() {
+        long start = 0;
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(RUN_COMMAND);
             this.errStream.println(commandUsageInfo);
@@ -184,7 +190,14 @@ public class RunCommand implements BLauncherCmd {
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = SingleFileProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -193,7 +206,14 @@ public class RunCommand implements BLauncherCmd {
             isSingleFileBuild = true;
         } else {
             try {
+                if (buildOptions.dumpBuildTime()) {
+                    start = System.currentTimeMillis();
+                    BuildTime.getInstance().timestamp = start;
+                }
                 project = BuildProject.load(this.projectPath, buildOptions);
+                if (buildOptions.dumpBuildTime()) {
+                    BuildTime.getInstance().projectLoadDuration = System.currentTimeMillis() - start;
+                }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), runCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -219,6 +239,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
+                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
         taskExecutor.executeTasks(project);
     }
@@ -257,7 +278,8 @@ public class RunCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setConfigSchemaGen(configSchemaGen)
-                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setDumpBuildTime(dumpBuildTime);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
