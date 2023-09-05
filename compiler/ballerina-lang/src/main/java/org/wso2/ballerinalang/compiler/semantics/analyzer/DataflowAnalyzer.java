@@ -273,12 +273,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean possibleFailureReached = false;
     private boolean possibleFailureIgnoringCommit = false;
     private boolean definiteFailureReached = false;
-    enum REACH_STATUS {
+    enum ReachStatus {
         REACHED,
         UNREACHED,
         PARTIAL_REACH
     };
-    private REACH_STATUS commitRollbackReached = REACH_STATUS.UNREACHED;
+    private ReachStatus commitRollbackReached = ReachStatus.UNREACHED;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private Deque<BSymbol> currDependentSymbolDeque;
@@ -816,9 +816,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             }
         }
-        this.commitRollbackReached = ifResult.commitRollbackReached == REACH_STATUS.REACHED &&
-             elseResult.commitRollbackReached == REACH_STATUS.REACHED
-            ? REACH_STATUS.REACHED : REACH_STATUS.UNREACHED;
+        this.commitRollbackReached = ifResult.commitRollbackReached == ReachStatus.REACHED &&
+             elseResult.commitRollbackReached == ReachStatus.REACHED
+            ? ReachStatus.REACHED : ReachStatus.UNREACHED;
         this.uninitializedVars = mergeUninitializedVars(ifResult.uninitializedVars, elseResult.uninitializedVars);
         this.flowTerminated = ifResult.flowTerminated && elseResult.flowTerminated;
         this.definiteFailureReached = isDefiniteFailureCase(ifResult, elseResult);
@@ -1019,9 +1019,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, doResult.possibleFailureUnInitVars);
         }
         this.possibleFailureUnInitVars.put(onFailClause, copyUninitializedVars());
-        boolean didDoBlockReachedCommit = doResult.commitRollbackReached == REACH_STATUS.REACHED;
+        boolean didDoBlockReachedCommit = doResult.commitRollbackReached == ReachStatus.REACHED;
         if (didDoBlockReachedCommit) {
-            this.commitRollbackReached = REACH_STATUS.REACHED;
+            this.commitRollbackReached = ReachStatus.REACHED;
         }
         BranchResult onFailResult = analyzeBranch(onFailClause, env);
         if (!onFailResult.possibleFailureUnInitVars.isEmpty()) {
@@ -1029,7 +1029,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     onFailResult.possibleFailureUnInitVars);
         }
         if (!didDoBlockReachedCommit
-            && doResult.commitRollbackReached == REACH_STATUS.PARTIAL_REACH) {
+            && doResult.commitRollbackReached == ReachStatus.PARTIAL_REACH) {
             this.commitRollbackReached = onFailResult.commitRollbackReached;
         }
         this.uninitializedVars = prevUninitializedVars;
@@ -1061,10 +1061,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         boolean prevPossibleFailureExceptCommit = this.possibleFailureIgnoringCommit;
-        REACH_STATUS prevCommit = this.commitRollbackReached;
-        this.commitRollbackReached = REACH_STATUS.UNREACHED;
+        ReachStatus prevCommit = this.commitRollbackReached;
+        this.commitRollbackReached = ReachStatus.UNREACHED;
         analyzeStmtWithOnFail(transactionNode.transactionBody, transactionNode.onFailClause);
-        if (this.commitRollbackReached != REACH_STATUS.REACHED && this.enclosingOnFailClause.isEmpty()) {
+        if (this.commitRollbackReached != ReachStatus.REACHED && this.enclosingOnFailClause.isEmpty()) {
             dlog.error(transactionNode.pos, DiagnosticErrorCode.TRANSACTION_EXIT_PRIOR_COMMIT_ROLLBACK_IDENNTIFIED);
         }
         // marks the injected import as used
@@ -1082,23 +1082,23 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCommitExpr commitExpr) {
-        if(this.commitRollbackReached == REACH_STATUS.REACHED) {
+        if (this.commitRollbackReached == ReachStatus.REACHED) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
         this.commitRollbackReached = this.possibleFailureIgnoringCommit
-            ? REACH_STATUS.PARTIAL_REACH : REACH_STATUS.REACHED;
+            ? ReachStatus.PARTIAL_REACH : ReachStatus.REACHED;
     }
 
     @Override
     public void visit(BLangRollback rollbackNode) {
         analyzeNode(rollbackNode.expr, env);
-        if(this.commitRollbackReached == REACH_STATUS.REACHED) {
+        if (this.commitRollbackReached == ReachStatus.REACHED) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
         this.commitRollbackReached = this.possibleFailureReached
-            ? REACH_STATUS.PARTIAL_REACH : REACH_STATUS.REACHED;
+            ? ReachStatus.PARTIAL_REACH : ReachStatus.REACHED;
     }
 
     @Override
@@ -2539,7 +2539,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean prevFlowTerminated = this.flowTerminated;
         boolean prevFailureReached = this.possibleFailureReached;
         boolean prevDefiniteFailureReached = this.definiteFailureReached;
-        REACH_STATUS prevCommited = this.commitRollbackReached;
+        ReachStatus prevCommited = this.commitRollbackReached;
 
         // Get a snapshot of the current uninitialized vars before visiting the node.
         // This is done so that the original set of uninitialized vars will not be
@@ -2550,8 +2550,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.definiteFailureReached = false;
 
         analyzeNode(node, env);
-        BranchResult branchResult = new BranchResult(this.uninitializedVars, getPossibleFailureUnInitVars(),
-                this.flowTerminated, this.possibleFailureReached, this.definiteFailureReached, this.commitRollbackReached);
+        BranchResult branchResult = new BranchResult(this.uninitializedVars,
+            getPossibleFailureUnInitVars(), this.flowTerminated, this.possibleFailureReached,
+            this.definiteFailureReached, this.commitRollbackReached);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
@@ -2991,7 +2992,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean flowTerminated;
         boolean definiteFailureReached;
         boolean possibleFailureReached;
-        REACH_STATUS commitRollbackReached;
+        ReachStatus commitRollbackReached;
 
 
         BranchResult(Map<BSymbol, InitStatus> uninitializedVars, Map<BSymbol, InitStatus> possibleFailureUnInitVars,
@@ -3001,11 +3002,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.flowTerminated = flowTerminated;
             this.possibleFailureReached = possibleFailureReached;
             this.definiteFailureReached = definiteFailureReached;
-            this.commitRollbackReached = REACH_STATUS.UNREACHED;
+            this.commitRollbackReached = ReachStatus.UNREACHED;
         }
 
-        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, Map<BSymbol, InitStatus> possibleFailureUnInitVars,
-            boolean flowTerminated, boolean possibleFailureReached, boolean definiteFailureReached, REACH_STATUS commitRollbackReached) {
+        BranchResult(Map<BSymbol, InitStatus> uninitializedVars,
+            Map<BSymbol, InitStatus> possibleFailureUnInitVars, boolean flowTerminated,
+            boolean possibleFailureReached, boolean definiteFailureReached,
+            ReachStatus commitRollbackReached) {
             this.uninitializedVars = uninitializedVars;
             this.possibleFailureUnInitVars = possibleFailureUnInitVars;
             this.flowTerminated = flowTerminated;
