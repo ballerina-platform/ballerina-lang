@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
@@ -161,5 +163,27 @@ class FormatterUtils {
         int size = minutiaeList.size();
         return minutiaeList.get(size - 1).kind() == SyntaxKind.END_OF_LINE_MINUTIAE &&
                 minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
+    }
+
+    static boolean isBlockOnASingleLine(FormattingOptions options, BlockStatementNode node) {
+        if (node.lineRange().startLine().line() != node.lineRange().endLine().line()) {
+            return false;
+        }
+
+        if (options.allowShortBlocksOnASingleLine()) {
+            return true;
+        }
+
+        SyntaxKind parentKind = node.parent().kind();
+        return (options.allowShortIfStatementsOnASingleLine() && parentKind == SyntaxKind.IF_ELSE_STATEMENT) ||
+                (options.allowShortLoopsOnASingleLine() && parentKind == SyntaxKind.WHILE_STATEMENT) ||
+                (options.allowShortMatchLabelsOnASingleLine() && parentKind == SyntaxKind.MATCH_CLAUSE);
+    }
+
+    static int getConstDefLength(ConstantDeclarationNode node) {
+        int size = node.visibilityQualifier().isPresent() ? node.visibilityQualifier().get().text().length() : 0;
+        size += node.constKeyword().text().length();
+        size += node.variableName().text().length();
+        return size;
     }
 }
