@@ -43,6 +43,7 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING;
 import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING;
@@ -859,7 +860,7 @@ public class JsonParser {
                             setValueToJsonType(type, new DecimalValue(str));
                             break;
                         default:
-                            if (isNegativeZero(str)) {
+                            if (isValidFloat(str) && (isNegativeZero(str) || isHexadecimal(str))) {
                                 setValueToJsonType(type, Double.parseDouble(str));
                             } else {
                                 setValueToJsonType(type, new DecimalValue(str));
@@ -926,10 +927,12 @@ public class JsonParser {
                                 setValueToJsonType(type, new DecimalValue(str));
                                 break;
                             default:
-                                if (isNegativeZero(str)) {
+                                if (!isNegativeZero(str) && !isExponential(str)) {
+                                    setValueToJsonType(type, Long.parseLong(str));
+                                } else if (isValidFloat(str)) {
                                     setValueToJsonType(type, Double.parseDouble(str));
                                 } else {
-                                    setValueToJsonType(type, Long.parseLong(str));
+                                    setValueToJsonType(type, new DecimalValue(str));
                                 }
                                 break;
                         }
@@ -938,6 +941,41 @@ public class JsonParser {
                     }
                 }
             }
+        }
+
+        private boolean isHexadecimal(String str) {
+            return str.startsWith("0x") || str.startsWith("0X");
+        }
+
+        private boolean isExponential(String str) {
+            return str.contains("e") || str.contains("E") || str.contains("p") || str.contains("P");
+        }
+
+        boolean isValidFloat(String numericLiteral) {
+            // same validation used in Ballerina parser
+            double value;
+            try {
+                value = Double.parseDouble(numericLiteral);
+            } catch (Exception e) {
+                return false;
+            }
+            if (Double.isInfinite(value)) {
+                return false;
+            }
+            if (value != 0.0) {
+                return true;
+            }
+            List<Character> exponentIndicator = List.of('e', 'E', 'p', 'P');
+            for (int i = 0; i < numericLiteral.length(); i++) {
+                char character = numericLiteral.charAt(i);
+                if (exponentIndicator.contains(character)) {
+                    break;
+                }
+                if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void setValueToJsonType(ValueType type, Object value) {
