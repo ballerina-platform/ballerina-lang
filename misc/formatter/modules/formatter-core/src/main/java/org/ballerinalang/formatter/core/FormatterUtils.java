@@ -165,7 +165,7 @@ class FormatterUtils {
                 minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
     }
 
-    static boolean isBlockOnASingleLine(FormattingOptions options, BlockStatementNode node) {
+    static boolean isBlockOnASingleLine(BlockFormattingOptions options, BlockStatementNode node) {
         if (node.lineRange().startLine().line() != node.lineRange().endLine().line()) {
             return false;
         }
