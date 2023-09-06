@@ -166,7 +166,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test(description = "Push package with custom path", enabled = false)
+    @Test(description = "Push package with custom path")
     public void testPushWithCustomPath() throws IOException {
         Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
 
@@ -302,7 +302,7 @@ public class PushCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test ()
+    @Test
     public void testPushWithoutPackageMd() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
