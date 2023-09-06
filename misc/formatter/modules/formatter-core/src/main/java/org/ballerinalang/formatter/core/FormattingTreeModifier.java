@@ -366,13 +366,14 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
+        boolean paranAlign = options.getFunctionFormattingOptions().paranAlign();
         // Start a new indentation of two tabs for the parameters.
-        if (options.isParanAlignedIndentation()) {
+        if (paranAlign) {
             align();
         } else {
             indent(2);
         }
-        boolean oneArgPerLine = options.isOneArgPerLine();
+        boolean oneArgPerLine = options.getFunctionFormattingOptions().oneArgPerLine();
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, oneArgPerLine ? 0 : 1,
                         oneArgPerLine ? 1 : 0,
@@ -388,7 +389,7 @@ public class FormattingTreeModifier extends TreeModifier {
             closePara = formatToken(functionSignatureNode.closeParenToken(), env.trailingWS, env.trailingNL);
         }
 
-        if (options.isParanAlignedIndentation()) {
+        if (paranAlign) {
             unalign();
         } else {
             unindent(2);
@@ -534,7 +535,7 @@ public class FormattingTreeModifier extends TreeModifier {
         BlockStatementNode ifBody;
         Node elseBody = null;
         if (ifElseStatementNode.elseBody().isPresent()) {
-            boolean needNL = options.isElseBlockOnANewLine();
+            boolean needNL = options.getBlockFormattingOptions().elseBlockOnANewLine();
             ifBody = formatNode(ifElseStatementNode.ifBody(), needNL ? 0 : 1,
                     needNL ? 1 : 0);
             preserveIndentation(!hasTrailingNL(ifElseStatementNode.ifBody().closeBraceToken()));
@@ -566,7 +567,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         boolean preserveIndent = env.preserveIndentation;
         preserveIndentation(blockStatementNode.openBraceToken().isMissing() && preserveIndent);
-        int trailingNL = isBlockOnASingleLine(options, blockStatementNode) ? 0 : 1;
+        int trailingNL = isBlockOnASingleLine(options.getBlockFormattingOptions(), blockStatementNode) ? 0 : 1;
         int trailingWS = 1 - trailingNL;
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), trailingWS, trailingNL);
         preserveIndentation(preserveIndent);
@@ -575,7 +576,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNodeList(blockStatementNode.statements(), 0, 1, trailingWS, trailingNL);
         unindent(); // end the indentation
         int closingNewLine =
-                (options.isElseBlockOnANewLine() &&
+                (options.getBlockFormattingOptions().elseBlockOnANewLine() &&
                         blockStatementNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT) ? 1 :
                         env.trailingNL;
         Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), env.trailingWS, closingNewLine);
@@ -2853,7 +2854,11 @@ public class FormattingTreeModifier extends TreeModifier {
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
         int indentation = env.currentIndentation;
         if (indentation != 0) {
-            align();
+            if (options.alignMultiLineQueries()) {
+                align();
+            } else {
+                indent();
+            }
         }
 
         QueryConstructTypeNode queryConstructType =
@@ -2870,7 +2875,11 @@ public class FormattingTreeModifier extends TreeModifier {
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
                 env.trailingWS, env.trailingNL);
         if (indentation != 0) {
-            unalign();
+            if (options.alignMultiLineQueries()) {
+                unalign();
+            } else {
+                unindent();
+            }
         }
 
         return queryExpressionNode.modify()

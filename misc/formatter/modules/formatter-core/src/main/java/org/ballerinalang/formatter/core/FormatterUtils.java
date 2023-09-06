@@ -83,7 +83,7 @@ class FormatterUtils {
                 .toComparison());
     }
 
-    static boolean isBlockOnASingleLine(FormattingOptions options, BlockStatementNode node) {
+    static boolean isBlockOnASingleLine(BlockFormattingOptions options, BlockStatementNode node) {
         if (node.lineRange().startLine().line() != node.lineRange().endLine().line()) {
             return false;
         }
