@@ -40,23 +40,17 @@ public class FormattingOptions {
 
     private boolean recordBraceSpacing;
 
-    private boolean allowShortBlocksOnASingleLine;
-
-    private boolean allowShortMatchLabelsOnASingleLine;
-
-    private boolean allowShortIfStatementsOnASingleLine;
-
-    private boolean allowShortLoopsOnASingleLine;
-
-    private boolean elseBlockOnANewLine;
-
-    private boolean sortImports;
-
     private boolean alignConsecutiveDefinitions;
+
+    private boolean alignMultiLineQueries;
 
     private ForceFormattingOptions forceFormattingOptions;
 
     private ImportFormattingOptions importFormattingOptions;
+
+    private FunctionFormattingOptions functionFormattingOptions;
+
+    private BlockFormattingOptions blockFormattingOptions;
 
     private FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
                               int continuationIndent, ForceFormattingOptions forceFormattingOptions,
@@ -71,26 +65,25 @@ public class FormattingOptions {
     }
 
     FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
-                      ForceFormattingOptions forceFormattingOptions, boolean paranAlignedIndentation,
-                      boolean oneArgPerLine, boolean allowShortBlocksOnASingleLine, boolean recordBraceSpacing,
-                      boolean elseBlockOnANewLine, boolean sortImports, boolean alignConsecutiveDefinitions,
-                      boolean allowShortIfStatementsOnASingleLine, boolean allowShortLoopsOnASingleLine,
-                      boolean allowShortMatchLabelsOnASingleLine) {
+                      ForceFormattingOptions forceFormattingOptions,
+                      boolean recordBraceSpacing,
+                      boolean alignConsecutiveDefinitions,
+                      boolean alignMultiLineQueries,
+                      ImportFormattingOptions importFormattingOptions,
+                      FunctionFormattingOptions functionFormattingOptions,
+                      BlockFormattingOptions blockFormattingOptions) {
         this.tabSize = tabSize;
         this.wsCharacter = wsCharacter;
         this.columnLimit = columnLimit;
         this.lineWrapping = lineWrapping;
         this.forceFormattingOptions = forceFormattingOptions;
-        this.paranAlignedIndentation = paranAlignedIndentation;
-        this.oneArgPerLine = oneArgPerLine;
         this.recordBraceSpacing = recordBraceSpacing;
-        this.elseBlockOnANewLine = elseBlockOnANewLine;
-        this.sortImports = sortImports;
         this.alignConsecutiveDefinitions = alignConsecutiveDefinitions;
-        this.allowShortBlocksOnASingleLine = allowShortBlocksOnASingleLine;
-        this.allowShortIfStatementsOnASingleLine = allowShortIfStatementsOnASingleLine;
-        this.allowShortLoopsOnASingleLine = allowShortLoopsOnASingleLine;
-        this.allowShortMatchLabelsOnASingleLine = allowShortMatchLabelsOnASingleLine;
+        this.alignMultiLineQueries = alignMultiLineQueries;
+        this.importFormattingOptions = importFormattingOptions;
+        this.functionFormattingOptions = functionFormattingOptions;
+        this.blockFormattingOptions = blockFormattingOptions;
+
     }
 
     /**
@@ -200,44 +193,24 @@ public class FormattingOptions {
         return importFormattingOptions;
     }
 
-    public boolean isElseBlockOnANewLine() {
-        return elseBlockOnANewLine;
+    public FunctionFormattingOptions getFunctionFormattingOptions() {
+        return functionFormattingOptions;
     }
 
-    public boolean isParanAlignedIndentation() {
-        return paranAlignedIndentation;
-    }
-
-    public boolean isOneArgPerLine() {
-        return oneArgPerLine;
-    }
-
-    public boolean allowShortBlocksOnASingleLine() {
-        return allowShortBlocksOnASingleLine;
-    }
-
-    public boolean allowShortMatchLabelsOnASingleLine() {
-        return allowShortMatchLabelsOnASingleLine;
-    }
-
-    public boolean allowShortIfStatementsOnASingleLine() {
-        return allowShortIfStatementsOnASingleLine;
-    }
-
-    public boolean allowShortLoopsOnASingleLine() {
-        return allowShortLoopsOnASingleLine;
+    public BlockFormattingOptions getBlockFormattingOptions() {
+        return blockFormattingOptions;
     }
 
     public boolean isRecordBraceSpacing() {
         return recordBraceSpacing;
     }
 
-    public boolean sortImports() {
-        return sortImports;
-    }
-
     public boolean alignConsecutiveDefinitions() {
         return alignConsecutiveDefinitions;
+    }
+
+    public boolean alignMultiLineQueries() {
+        return alignMultiLineQueries;
     }
 
     public static FormattingOptionsBuilder builder() {
@@ -258,15 +231,16 @@ public class FormattingOptions {
         private boolean paranAlignedIndentation = false;
         private boolean oneArgPerLine = false;
         private boolean recordBraceSpacing = false;
-        private boolean elseBlockOnANewLine = false;
-        private Boolean sortImports = false;
-        private Boolean alignConsecutiveDefinitions = false;
-        private boolean allowShortBlocksOnASingleLine = false;
-        private Boolean allowShortMatchLabelsOnASingleLine = false;
-        private Boolean allowShortLoopsOnASingleLine = false;
-        private Boolean allowShortIfStatementsOnASingleLine = false;
+        private boolean alignConsecutiveDefinitions = false;
+        private boolean alignMultiLineQueries = false;
         private ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder().build();
-        private ImportFormattingOptions importFormattingOptions = ImportFormattingOptions.builder().build();
+        private ImportFormattingOptions.ImportFormattingOptionsBuilder importBuilder =
+                ImportFormattingOptions.builder();
+        private FunctionFormattingOptions.FunctionFormattingOptionsBuilder functionBuilder =
+                FunctionFormattingOptions.builder();
+        private BlockFormattingOptions.BlockFormattingOptionsBuilder blockBuilder =
+                BlockFormattingOptions.builder();
+        private ImportFormattingOptions importFormattingOptions = importBuilder.build();
 
         public FormattingOptions.FormattingOptionsBuilder setTabSize(int tabSize) {
             this.tabSize = tabSize;
@@ -317,41 +291,74 @@ public class FormattingOptions {
                     case "tabWidth":
                         this.tabSize = ((Number) value).intValue();
                         break;
-                    case "sortImports":
-                        this.sortImports = ((Boolean) value);
-                        break;
                     case "alignConsecutiveDefinitions":
                         this.alignConsecutiveDefinitions = ((Boolean) value);
-                        break;
-                    case "allowShortMatchLabelsOnASingleLine":
-                        this.allowShortMatchLabelsOnASingleLine = ((Boolean) value);
-                        break;
-                    case "allowShortIfStatementsOnASingleLine":
-                        this.allowShortIfStatementsOnASingleLine = ((Boolean) value);
-                        break;
-                    case "allowShortLoopsOnASingleLine":
-                        this.allowShortLoopsOnASingleLine = ((Boolean) value);
-                        break;
-                    case "allowShortBlocksOnASingleLine":
-                        this.allowShortBlocksOnASingleLine = ((Boolean) value);
                         break;
                     case "recordBraceSpacing":
                         this.recordBraceSpacing = ((Boolean) value);
                         break;
-                    case "elseBlockOnANewLine":
-                        this.elseBlockOnANewLine = ((Boolean) value);
+                    case "alignMultiLineQueries":
+                        this.alignMultiLineQueries = ((Boolean) value);
+                        break;
+                    case "block":
+                        Map<String, Object> blockConfigurations = (Map<String, Object>) value;
+                        for (Map.Entry<String, Object> funcEntry : blockConfigurations.entrySet()) {
+                            String blockKey = funcEntry.getKey();
+                            boolean blockValue = (Boolean) funcEntry.getValue();
+                            switch (blockKey) {
+                                case "elseBlockOnANewLine":
+                                    this.blockBuilder.setElseBlockOnANewLine(blockValue);
+                                    break;
+                                case "allowShortMatchLabelsOnASingleLine":
+                                    this.blockBuilder.setAllowShortMatchLabelsOnASingleLine(
+                                            blockValue);
+                                    break;
+                                case "allowShortIfStatementsOnASingleLine":
+                                    this.blockBuilder.setAllowShortIfStatementsOnASingleLine(
+                                            blockValue);
+                                    break;
+                                case "allowShortLoopsOnASingleLine":
+                                    this.blockBuilder.setAllowShortLoopsOnASingleLine(blockValue);
+                                    break;
+                                case "allowShortBlocksOnASingleLine":
+                                    this.blockBuilder.setAllowShortBlocksOnASingleLine(blockValue);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                         break;
                     case "function":
                         Map<String, Object> funcConfigurations = (Map<String, Object>) value;
                         for (Map.Entry<String, Object> funcEntry : funcConfigurations.entrySet()) {
                             String funcKey = funcEntry.getKey();
-                            Object funcValue = funcEntry.getValue();
+                            boolean funcValue = (Boolean) funcEntry.getValue();
                             switch (funcKey) {
                                 case "paranAlign":
-                                    this.paranAlignedIndentation = ((Boolean) funcValue);
+                                    this.functionBuilder.setParanAlign(funcValue);
                                     break;
                                 case "oneArgPerLine":
-                                    this.oneArgPerLine = ((Boolean) funcValue);
+                                    this.functionBuilder.setOneArgPerLine(funcValue);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    case "import":
+                        Map<String, Object> importConfigurations = (Map<String, Object>) value;
+                        for (Map.Entry<String, Object> funcEntry : importConfigurations.entrySet()) {
+                            String funcKey = funcEntry.getKey();
+                            boolean importValue = (Boolean) funcEntry.getValue();
+                            switch (funcKey) {
+                                case "groupImports":
+                                    this.importBuilder.setGroupImports(importValue);
+                                    break;
+                                case "sortImports":
+                                    this.importBuilder.setSortImports(importValue);
+                                    break;
+                                case "removeUnusedImports":
+                                    this.importBuilder.setRemoveUnusedImports(importValue);
                                     break;
                                 default:
                                     break;
@@ -363,9 +370,9 @@ public class FormattingOptions {
                 }
             }
             return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions,
-                    paranAlignedIndentation, oneArgPerLine, allowShortBlocksOnASingleLine, recordBraceSpacing,
-                    elseBlockOnANewLine, sortImports, alignConsecutiveDefinitions, allowShortIfStatementsOnASingleLine,
-                    allowShortLoopsOnASingleLine, allowShortMatchLabelsOnASingleLine);
+                    recordBraceSpacing,
+                    alignConsecutiveDefinitions, alignMultiLineQueries, importBuilder.build(),
+                    functionBuilder.build(), blockBuilder.build());
         }
     }
 }
