@@ -52,7 +52,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -65,7 +64,6 @@ import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the "bal push" command.
@@ -489,20 +487,16 @@ public class PushCommand implements BLauncherCmd {
      */
     private static boolean isPackageAvailableInRemote(DependencyManifest.Package pkg, CentralAPIClient client)
             throws CentralClientException {
-        List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
-        supportedPlatforms.add("any");
-
-        for (String supportedPlatform : supportedPlatforms) {
-            try {
-                client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
-                                  supportedPlatform, RepoUtils.getBallerinaVersion());
-                return true;
-            } catch (NoPackageException e) {
-                return false;
-            }
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(target -> target.code())
+                .collect(Collectors.joining(","));
+        try {
+            client.getPackage(pkg.org().toString(), pkg.name().toString(), pkg.version().toString(),
+                              supportedPlatform, RepoUtils.getBallerinaVersion());
+            return true;
+        } catch (NoPackageException e) {
+            return false;
         }
-
-        return false;
     }
 
     /**
