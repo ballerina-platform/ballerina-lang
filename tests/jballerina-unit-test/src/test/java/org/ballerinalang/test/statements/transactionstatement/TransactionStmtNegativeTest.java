@@ -42,17 +42,24 @@ public class TransactionStmtNegativeTest {
     public void testNegative1() {
         int index = 0;
         BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 11, 15);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 27, 5);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 48, 5);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 27, 5);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 48, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 48, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 68, 5);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 79, 8);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 79, 8);
         BAssertUtil.validateError(negativeFile, index++, "rollback not allowed here", 122, 13);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 139, 5);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 139, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 139, 5);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 180, 9);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 207, 9);
-        BAssertUtil.validateError(negativeFile, index++, "exit from transaction prior to commit/rollback identified", 220, 5);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 180, 9);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 207, 9);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 220, 5);
         Assert.assertEquals(negativeFile.getErrorCount(), index);
     }
 
