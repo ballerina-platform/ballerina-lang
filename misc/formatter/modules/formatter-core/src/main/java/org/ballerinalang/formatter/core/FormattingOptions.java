@@ -53,18 +53,7 @@ public class FormattingOptions {
     private BlockFormattingOptions blockFormattingOptions;
 
     private FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
-                              int continuationIndent, ForceFormattingOptions forceFormattingOptions,
-                              ImportFormattingOptions importFormattingOptions) {
-        this.tabSize = tabSize;
-        this.wsCharacter = wsCharacter;
-        this.columnLimit = columnLimit;
-        this.lineWrapping = lineWrapping;
-        this.continuationIndent = continuationIndent;
-        this.forceFormattingOptions = forceFormattingOptions;
-        this.importFormattingOptions = importFormattingOptions;
-    }
-
-    FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
+                      int continuationIndent, 
                       ForceFormattingOptions forceFormattingOptions,
                       boolean recordBraceSpacing,
                       boolean alignConsecutiveDefinitions,
@@ -76,6 +65,7 @@ public class FormattingOptions {
         this.wsCharacter = wsCharacter;
         this.columnLimit = columnLimit;
         this.lineWrapping = lineWrapping;
+        this.continuationIndent = continuationIndent;
         this.forceFormattingOptions = forceFormattingOptions;
         this.recordBraceSpacing = recordBraceSpacing;
         this.alignConsecutiveDefinitions = alignConsecutiveDefinitions;
@@ -275,11 +265,16 @@ public class FormattingOptions {
         }
 
         public FormattingOptions build() {
-            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, continuationIndent,
-                    forceFormattingOptions, importFormattingOptions);
+            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, continuationIndent, forceFormattingOptions,
+                    recordBraceSpacing, alignConsecutiveDefinitions, alignMultiLineQueries, importFormattingOptions,
+                    functionBuilder.build(), blockBuilder.build());
         }
 
-        public FormattingOptions build(Map<String, Object> configurations) {
+        public FormattingOptions build(Object data) {
+            if (!(data instanceof Map)) {
+                return build();
+            }
+            Map<String, Object> configurations = (Map<String, Object>) data;
             for (Map.Entry<String, Object> entry : configurations.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
@@ -369,9 +364,8 @@ public class FormattingOptions {
                         break;
                 }
             }
-            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions,
-                    recordBraceSpacing,
-                    alignConsecutiveDefinitions, alignMultiLineQueries, importBuilder.build(),
+            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, continuationIndent, forceFormattingOptions,
+                    recordBraceSpacing, alignConsecutiveDefinitions, alignMultiLineQueries, importBuilder.build(),
                     functionBuilder.build(), blockBuilder.build());
         }
     }

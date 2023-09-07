@@ -183,6 +183,7 @@ class FormatterUtils {
     static int getConstDefLength(ConstantDeclarationNode node) {
         int size = node.visibilityQualifier().isPresent() ? node.visibilityQualifier().get().text().length() : 0;
         size += node.constKeyword().text().length();
+        size += node.typeDescriptor().isPresent() ? node.typeDescriptor().get().toSourceCode().length() : 0;
         size += node.variableName().text().length();
         return size;
     }

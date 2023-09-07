@@ -382,8 +382,13 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean oneArgPerLine = options.getFunctionFormattingOptions().oneArgPerLine();
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, oneArgPerLine ? 0 : 1,
-                        oneArgPerLine ? 1 : 0,
-                        0, 0);
+                        oneArgPerLine ? 1 : 0, 0, 0, true);
+
+        if (paranAlign) {
+            unalign();
+        } else {
+            unindent(2);
+        }
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -1103,7 +1108,6 @@ public class FormattingTreeModifier extends TreeModifier {
         env.currentIndentation = prevIndentation;
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
                 env.trailingWS, env.trailingNL);
-        unindent(2);
         return functionCallExpressionNode.modify()
                 .withFunctionName(functionName)
                 .withOpenParenToken(functionCallOpenPara)
@@ -2867,8 +2871,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
-        int indentation = env.currentIndentation;
-        if (indentation != 0) {
+        int length = options.alignMultiLineQueries() ? env.currentIndentation : env.lineLength;
+        if (length != 0) {
             if (options.alignMultiLineQueries()) {
                 align();
             } else {
@@ -2889,7 +2893,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
                 env.trailingWS, env.trailingNL);
-        if (indentation != 0) {
+        if (length != 0) {
             if (options.alignMultiLineQueries()) {
                 unalign();
             } else {
@@ -4183,7 +4187,9 @@ public class FormattingTreeModifier extends TreeModifier {
             if (allowInAndMultiLine) {
                 separatorTrailingWS = 0;
                 separatorTrailingNL = 0;
-                if (hasNonWSMinutiae(oldSeparator.trailingMinutiae())) {
+                if (hasNonWSMinutiae(oldSeparator.trailingMinutiae()) ||
+                        (options.getFunctionFormattingOptions().oneArgPerLine() &&
+                                oldNode.parent().kind() == SyntaxKind.FUNCTION_SIGNATURE)) {
                     separatorTrailingNL++;
                 } else {
                     separatorTrailingWS++;

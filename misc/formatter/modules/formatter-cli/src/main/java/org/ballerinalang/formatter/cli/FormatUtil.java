@@ -43,7 +43,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Util class for compilation and format execution for formatting CLI tool.
@@ -129,7 +128,8 @@ class FormatUtil {
 
                     try {
                         project = BuildProject.load(projectPath, constructBuildOptions());
-                        options = constructFormattingOptions(project.currentPackage().manifest().getValue("format"));
+                        options = FormattingOptions.builder()
+                                .build(project.currentPackage().manifest().getValue("format"));
                     } catch (ProjectException e) {
                         throw LauncherUtils.createLauncherException(e.getMessage());
                     }
@@ -196,7 +196,7 @@ class FormatUtil {
                 FormattingOptions options;
                 try {
                     project = BuildProject.load(sourceRootPath, constructBuildOptions());
-                    options = constructFormattingOptions(project.currentPackage().manifest().getValue("format"));
+                    options = FormattingOptions.builder().build(project.currentPackage().manifest().getValue("format"));
                 } catch (ProjectException e) {
                     throw LauncherUtils.createLauncherException(e.getMessage());
                 }
@@ -338,13 +338,6 @@ class FormatUtil {
                 .setTestReport(false)
                 .setObservabilityIncluded(false)
                 .build();
-    }
-
-    private static FormattingOptions constructFormattingOptions(Object configurations) {
-        if (configurations instanceof Map) {
-            return FormattingOptions.builder().build((Map<String, Object>) configurations);
-        }
-        return FormattingOptions.builder().build();
     }
 
     /**
