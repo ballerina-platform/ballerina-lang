@@ -1,0 +1,6 @@
+[format]
+columnLimit = 80
+
+[format.function]
+oneArgPerLine = false
+paranAlign = true
