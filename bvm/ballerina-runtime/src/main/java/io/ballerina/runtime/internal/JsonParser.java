@@ -862,8 +862,7 @@ public class JsonParser {
                             if (isNegativeZero(str)) {
                                 setValueToJsonType(type, Double.parseDouble(str));
                             } else {
-                                String decimalStr = isHexadecimal(str) ? String.valueOf(Double.parseDouble(str)) : str;
-                                setValueToJsonType(type, new DecimalValue(decimalStr));
+                                setValueToJsonType(type, new DecimalValue(str));
                             }
                             break;
                     }
@@ -929,10 +928,8 @@ public class JsonParser {
                             default:
                                 if (isNegativeZero(str)) {
                                     setValueToJsonType(type, Double.parseDouble(str));
-                                } else if (isExponential(str) || isHexadecimal(str)) {
-                                    String decimalStr = isHexadecimal(str) ? String.valueOf(Double.parseDouble(str)) :
-                                            str;
-                                    setValueToJsonType(type, new DecimalValue(decimalStr));
+                                } else if (isExponential(str)) {
+                                    setValueToJsonType(type, new DecimalValue(str));
                                 } else {
                                     setValueToJsonType(type, Long.parseLong(str));
                                 }
