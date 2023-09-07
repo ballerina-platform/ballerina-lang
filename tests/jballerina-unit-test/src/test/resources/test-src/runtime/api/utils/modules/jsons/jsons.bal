@@ -205,14 +205,6 @@ public function validateJsonAPI() {
     j = convertStringToJson(s);
     test:assertEquals(j, 9.99E+6144d);
 
-    s = "0x0.0p1";
-    j = convertStringToJson(s);
-    test:assertEquals(j, 0.0d);
-
-    s = "0x1.0p23";
-    j = convertStringToJson(s);
-    test:assertEquals(j, 8388608.0d);
-
     s = "4.9e-325";
     j = convertStringToJson(s);
     test:assertEquals(j, 4.9E-325d);
@@ -221,6 +213,24 @@ public function validateJsonAPI() {
     "\r\n\"value\":0e-18\r\n}\r\n]\r\n}\r\n}\r\n}";
     j = convertStringToJson(s);
     test:assertEquals(j, {"factMap": {"105!T": {"aggregates": [{"label": "USD 0.00", "value": 0e-18d}]}}});
+
+    s = "0x0.0p1";
+    json|error result = trap convertStringToJson(s);
+    test:assertTrue(result is error);
+    error e = <error>result;
+    test:assertEquals(e.message(), "unrecognized token '0x0.0p1' at line: 1 column: 9");
+
+    s = "999E6143";
+    result = trap convertStringToJson(s);
+    test:assertTrue(result is error);
+    e = <error>result;
+    test:assertEquals(e.message(), "{ballerina}NumberOverflow");
+
+    s = "99.9E+6144";
+    result = trap convertStringToJson(s);
+    test:assertTrue(result is error);
+    e = <error>result;
+    test:assertEquals(e.message(), "{ballerina}NumberOverflow");
 }
 
 function convertStringToJson(string v) returns json = @java:Method {
