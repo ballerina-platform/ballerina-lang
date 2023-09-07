@@ -61,7 +61,7 @@ public class FunctionFormattingOptions {
         }
 
         public FunctionFormattingOptions build() {
-            return new FunctionFormattingOptions(oneArgPerLine, paranAlign);
+            return new FunctionFormattingOptions(paranAlign, oneArgPerLine);
         }
     }
 }

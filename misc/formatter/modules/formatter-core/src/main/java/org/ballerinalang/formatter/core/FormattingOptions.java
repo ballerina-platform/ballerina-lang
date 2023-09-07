@@ -262,10 +262,15 @@ public class FormattingOptions {
 
         public FormattingOptions build() {
             return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions,
-                    importFormattingOptions);
+                    recordBraceSpacing, alignConsecutiveDefinitions, alignMultiLineQueries, importFormattingOptions,
+                    functionBuilder.build(), blockBuilder.build());
         }
 
-        public FormattingOptions build(Map<String, Object> configurations) {
+        public FormattingOptions build(Object data) {
+            if (!(data instanceof Map)) {
+                return build();
+            }
+            Map<String, Object> configurations = (Map<String, Object>) data;
             for (Map.Entry<String, Object> entry : configurations.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
@@ -356,8 +361,7 @@ public class FormattingOptions {
                 }
             }
             return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions,
-                    recordBraceSpacing,
-                    alignConsecutiveDefinitions, alignMultiLineQueries, importBuilder.build(),
+                    recordBraceSpacing, alignConsecutiveDefinitions, alignMultiLineQueries, importBuilder.build(),
                     functionBuilder.build(), blockBuilder.build());
         }
     }
