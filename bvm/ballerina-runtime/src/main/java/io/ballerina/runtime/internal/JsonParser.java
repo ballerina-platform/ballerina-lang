@@ -860,10 +860,11 @@ public class JsonParser {
                             setValueToJsonType(type, new DecimalValue(str));
                             break;
                         default:
-                            if (isValidFloat(str) && (isNegativeZero(str) || isHexadecimal(str))) {
+                            if (isNegativeZero(str)) {
                                 setValueToJsonType(type, Double.parseDouble(str));
                             } else {
-                                setValueToJsonType(type, new DecimalValue(str));
+                                String decimalStr = isHexadecimal(str) ? String.valueOf(Double.parseDouble(str)) : str;
+                                setValueToJsonType(type, new DecimalValue(decimalStr));
                             }
                             break;
                     }
@@ -927,12 +928,14 @@ public class JsonParser {
                                 setValueToJsonType(type, new DecimalValue(str));
                                 break;
                             default:
-                                if (!isNegativeZero(str) && !isExponential(str)) {
-                                    setValueToJsonType(type, Long.parseLong(str));
-                                } else if (isValidFloat(str)) {
+                                if (isNegativeZero(str)) {
                                     setValueToJsonType(type, Double.parseDouble(str));
+                                } else if (isExponential(str) || isHexadecimal(str)) {
+                                    String decimalStr = isHexadecimal(str) ? String.valueOf(Double.parseDouble(str)) :
+                                            str;
+                                    setValueToJsonType(type, new DecimalValue(decimalStr));
                                 } else {
-                                    setValueToJsonType(type, new DecimalValue(str));
+                                    setValueToJsonType(type, Long.parseLong(str));
                                 }
                                 break;
                         }
@@ -949,33 +952,6 @@ public class JsonParser {
 
         private boolean isExponential(String str) {
             return str.contains("e") || str.contains("E") || str.contains("p") || str.contains("P");
-        }
-
-        boolean isValidFloat(String numericLiteral) {
-            // same validation used in Ballerina parser
-            double value;
-            try {
-                value = Double.parseDouble(numericLiteral);
-            } catch (Exception e) {
-                return false;
-            }
-            if (Double.isInfinite(value)) {
-                return false;
-            }
-            if (value != 0.0) {
-                return true;
-            }
-            List<Character> exponentIndicator = List.of('e', 'E', 'p', 'P');
-            for (int i = 0; i < numericLiteral.length(); i++) {
-                char character = numericLiteral.charAt(i);
-                if (exponentIndicator.contains(character)) {
-                    break;
-                }
-                if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
-                    return false;
-                }
-            }
-            return true;
         }
 
         private void setValueToJsonType(ValueType type, Object value) {
