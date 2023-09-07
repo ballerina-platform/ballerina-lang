@@ -942,12 +942,8 @@ public class JsonParser {
             }
         }
 
-        private boolean isHexadecimal(String str) {
-            return str.startsWith("0x") || str.startsWith("0X");
-        }
-
         private boolean isExponential(String str) {
-            return str.contains("e") || str.contains("E") || str.contains("p") || str.contains("P");
+            return str.contains("e") || str.contains("E");
         }
 
         private void setValueToJsonType(ValueType type, Object value) {
