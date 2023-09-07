@@ -191,11 +191,11 @@ function convertJSONToString(any|error v) returns string = @java:Method {
 public function validateJsonAPI() {
     string s = "0e-18";
     json j = convertStringToJson(s);
-    test:assertEquals(j, 0e-18);
+    test:assertEquals(j, 0e-18d);
 
     s = "{\"val\" : 0e-19}";
     j = convertStringToJson(s);
-    test:assertEquals(j, {"val": 0e-19});
+    test:assertEquals(j, {"val": 0e-19d});
 
     s = "99.9E+6143";
     j = convertStringToJson(s);
@@ -207,11 +207,11 @@ public function validateJsonAPI() {
 
     s = "0x0.0p1";
     j = convertStringToJson(s);
-    test:assertEquals(j, 0.0f);
+    test:assertEquals(j, 0.0d);
 
     s = "0x1.0p23";
     j = convertStringToJson(s);
-    test:assertEquals(j, 8388608.0f);
+    test:assertEquals(j, 8388608.0d);
 
     s = "4.9e-325";
     j = convertStringToJson(s);
@@ -220,7 +220,7 @@ public function validateJsonAPI() {
     s = "{\r\n\"factMap\":{\r\n\"105!T\":{\r\n\"aggregates\":[\r\n{\r\n\"label\":\"USD 0.00\"," +
     "\r\n\"value\":0e-18\r\n}\r\n]\r\n}\r\n}\r\n}";
     j = convertStringToJson(s);
-    test:assertEquals(j, {"factMap": {"105!T": {"aggregates": [{"label": "USD 0.00", "value": 0.0}]}}});
+    test:assertEquals(j, {"factMap": {"105!T": {"aggregates": [{"label": "USD 0.00", "value": 0e-18d}]}}});
 }
 
 function convertStringToJson(string v) returns json = @java:Method {
