@@ -368,9 +368,7 @@ public class JvmValueGen {
                                                jvmPackageGen.symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
-        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className,
-                RECORD_VALUE_CLASS,
-                MAP_VALUE_IMPL, new String[]{MAP_VALUE});
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL, new String[]{MAP_VALUE});
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
