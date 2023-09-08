@@ -16,11 +16,14 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormattingOptions;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.PathUtil;
@@ -439,7 +442,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (syntaxTree.isEmpty()) {
                     return Collections.emptyList();
                 }
-                String formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
+                Path rootPath = context.workspace().projectRoot(context.filePath());
+                BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
+                FormattingOptions options = FormattingOptions.builder()
+                        .build(project.currentPackage().manifest().getValue("format"));
+                String formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
                 LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 TextEdit textEdit = new TextEdit(range, formattedSource);
