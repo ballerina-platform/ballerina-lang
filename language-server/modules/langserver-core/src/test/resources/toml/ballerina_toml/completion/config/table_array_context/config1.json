@@ -92,6 +92,34 @@
       "detail": "Table Array",
       "sortText": "C",
       "insertText": "[[dependency]]"
+    },
+    {
+      "label": "format",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[format]"
+    },
+    {
+      "label": "format.function",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[format.function]"
+    },
+    {
+      "label": "format.import",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[format.import]"
+    },
+    {
+      "label": "format.block",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[format.block]"
     }
   ]
 }

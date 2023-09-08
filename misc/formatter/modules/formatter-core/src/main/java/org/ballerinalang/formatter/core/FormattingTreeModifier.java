@@ -259,8 +259,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
-import static org.ballerinalang.formatter.core.FormatterUtils.isBlockOnASingleLine;
-import static org.ballerinalang.formatter.core.FormatterUtils.getConstDefLength;
+import static org.ballerinalang.formatter.core.FormatterUtils.openBraceTrailingNLs;
+import static org.ballerinalang.formatter.core.FormatterUtils.getConstDefWidth;
 import static org.ballerinalang.formatter.core.FormatterUtils.sortImportDeclarations;
 import static org.ballerinalang.formatter.core.FormatterUtils.swapLeadingMinutiae;
 
@@ -372,23 +372,14 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
-        boolean paranAlign = options.getFunctionFormattingOptions().paranAlign();
+        boolean paranAlign = options.getFunctionFormattingOptions().getParanAlign();
         // Start a new indentation of two tabs for the parameters.
-        if (paranAlign) {
-            align();
-        } else {
-            indent(options.getContinuationIndent());
-        }
-        boolean oneArgPerLine = options.getFunctionFormattingOptions().oneArgPerLine();
+        alignOrIndent(paranAlign, options.getContinuationIndent());
+        boolean oneArgPerLine = options.getFunctionFormattingOptions().getOneArgPerLine();
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, oneArgPerLine ? 0 : 1,
                         oneArgPerLine ? 1 : 0, 0, 0, true);
-
-        if (paranAlign) {
-            unalign();
-        } else {
-            unindent(2);
-        }
+        unalignOrUnindent(paranAlign, options.getContinuationIndent());
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -578,7 +569,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         boolean preserveIndent = env.preserveIndentation;
         preserveIndentation(blockStatementNode.openBraceToken().isMissing() && preserveIndent);
-        int trailingNL = isBlockOnASingleLine(options.getBlockFormattingOptions(), blockStatementNode) ? 0 : 1;
+        int trailingNL = openBraceTrailingNLs(options.getBlockFormattingOptions(), blockStatementNode);
         int trailingWS = 1 - trailingNL;
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), trailingWS, trailingNL);
         preserveIndentation(preserveIndent);
@@ -586,11 +577,9 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<StatementNode> statements =
                 formatNodeList(blockStatementNode.statements(), 0, 1, trailingWS, trailingNL);
         unindent(); // end the indentation
-        int closingNewLine =
-                (options.getBlockFormattingOptions().elseBlockOnANewLine() &&
-                        blockStatementNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT) ? 1 :
-                        env.trailingNL;
-        Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), env.trailingWS, closingNewLine);
+        int closingNL = (options.getBlockFormattingOptions().elseBlockOnANewLine() &&
+                blockStatementNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT) ? 1 : env.trailingNL;
+        Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), env.trailingWS, closingNL);
 
         return blockStatementNode.modify()
                 .withOpenBraceToken(openBrace)
@@ -1169,7 +1158,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token constKeyword = formatToken(constantDeclarationNode.constKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptorNode = formatNode(constantDeclarationNode.typeDescriptor().orElse(null), 1, 0);
         int wSBeforeEqual = !options.alignConsecutiveDefinitions() ? 1 :
-                env.maxConstDefWidth - getConstDefLength(constantDeclarationNode) + 1;
+                env.maxConstDefWidth - getConstDefWidth(constantDeclarationNode) + 1;
         Token variableName = formatToken(constantDeclarationNode.variableName(), wSBeforeEqual, 0);
         Token equalsToken = formatToken(constantDeclarationNode.equalsToken(), 1, 0);
         Node initializer = formatNode(constantDeclarationNode.initializer(), 0, 0);
@@ -2873,11 +2862,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
         int length = options.alignMultiLineQueries() ? env.currentIndentation : env.lineLength;
         if (length != 0) {
-            if (options.alignMultiLineQueries()) {
-                align();
-            } else {
-                indent();
-            }
+            alignOrIndent(options.alignMultiLineQueries());
         }
 
         QueryConstructTypeNode queryConstructType =
@@ -2894,11 +2879,7 @@ public class FormattingTreeModifier extends TreeModifier {
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
                 env.trailingWS, env.trailingNL);
         if (length != 0) {
-            if (options.alignMultiLineQueries()) {
-                unalign();
-            } else {
-                unindent();
-            }
+            unalignOrUnindent(options.alignMultiLineQueries());
         }
 
         return queryExpressionNode.modify()
@@ -3940,7 +3921,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (options.alignConsecutiveDefinitions()) {
             env.maxConstDefWidth = members.stream()
                     .filter(member -> member.kind() == SyntaxKind.CONST_DECLARATION)
-                    .mapToInt(member -> getConstDefLength((ConstantDeclarationNode) member))
+                    .mapToInt(member -> getConstDefWidth((ConstantDeclarationNode) member))
                     .max()
                     .orElse(1);
         }
@@ -4184,16 +4165,9 @@ public class FormattingTreeModifier extends TreeModifier {
             }
 
             Token oldSeparator = nodeList.getSeparator(index);
-            if (allowInAndMultiLine) {
+            if (allowInAndMultiLine && hasNonWSMinutiae(oldSeparator.trailingMinutiae())) {
+                separatorTrailingNL = separatorTrailingNL > 0 ? separatorTrailingNL : 1;
                 separatorTrailingWS = 0;
-                separatorTrailingNL = 0;
-                if (hasNonWSMinutiae(oldSeparator.trailingMinutiae()) ||
-                        (options.getFunctionFormattingOptions().oneArgPerLine() &&
-                                oldNode.parent().kind() == SyntaxKind.FUNCTION_SIGNATURE)) {
-                    separatorTrailingNL++;
-                } else {
-                    separatorTrailingWS++;
-                }
             }
             Token newSeparator = formatToken(oldSeparator, separatorTrailingWS, separatorTrailingNL);
             newNodes[(2 * index) + 1] = newSeparator;
@@ -4562,6 +4536,9 @@ public class FormattingTreeModifier extends TreeModifier {
         env.currentIndentation += (options.getTabSize() * step);
     }
 
+    /**
+     * Align the code with the previous line.
+     */
     private void align() {
         env.preservedIndentation = env.currentIndentation;
         env.currentIndentation = env.lineLength;
@@ -4588,8 +4565,43 @@ public class FormattingTreeModifier extends TreeModifier {
         env.currentIndentation -= (options.getTabSize() * step);
     }
 
+    /**
+     * Undo the alignment with the previous line.
+     */
     private void unalign() {
         env.currentIndentation = env.preservedIndentation;
+    }
+
+    private void alignOrIndent(boolean shouldAlign) {
+        if (shouldAlign) {
+            align();
+        } else {
+            indent();
+        }
+    }
+
+    private void alignOrIndent(boolean shouldAlign, int step) {
+        if (shouldAlign) {
+            align();
+        } else {
+            indent(step);
+        }
+    }
+
+    private void unalignOrUnindent(boolean shouldAlign) {
+        if (shouldAlign) {
+            unalign();
+        } else {
+            unindent();
+        }
+    }
+
+    private void unalignOrUnindent(boolean shouldAlign, int step) {
+        if (shouldAlign) {
+            unalign();
+        } else {
+            unindent(step);
+        }
     }
 
     /**

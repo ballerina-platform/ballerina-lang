@@ -165,22 +165,22 @@ class FormatterUtils {
                 minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
     }
 
-    static boolean isBlockOnASingleLine(BlockFormattingOptions options, BlockStatementNode node) {
+    static int openBraceTrailingNLs(BlockFormattingOptions options, BlockStatementNode node) {
         if (node.lineRange().startLine().line() != node.lineRange().endLine().line()) {
-            return false;
+            return 1;
         }
 
         if (options.allowShortBlocksOnASingleLine()) {
-            return true;
+            return 0;
         }
 
         SyntaxKind parentKind = node.parent().kind();
-        return (options.allowShortIfStatementsOnASingleLine() && parentKind == SyntaxKind.IF_ELSE_STATEMENT) ||
+        return  (options.allowShortIfStatementsOnASingleLine() && parentKind == SyntaxKind.IF_ELSE_STATEMENT) ||
                 (options.allowShortLoopsOnASingleLine() && parentKind == SyntaxKind.WHILE_STATEMENT) ||
-                (options.allowShortMatchLabelsOnASingleLine() && parentKind == SyntaxKind.MATCH_CLAUSE);
+                (options.allowShortMatchLabelsOnASingleLine() && parentKind == SyntaxKind.MATCH_CLAUSE) ? 0 : 1;
     }
 
-    static int getConstDefLength(ConstantDeclarationNode node) {
+    static int getConstDefWidth(ConstantDeclarationNode node) {
         int size = node.visibilityQualifier().isPresent() ? node.visibilityQualifier().get().text().length() : 0;
         size += node.constKeyword().text().length();
         size += node.typeDescriptor().isPresent() ? node.typeDescriptor().get().toSourceCode().length() : 0;
