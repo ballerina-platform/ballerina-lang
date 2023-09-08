@@ -20,6 +20,7 @@ package org.ballerinalang.formatter.cli;
 import io.ballerina.cli.launcher.BLauncherException;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -29,8 +30,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 /**
  * Format CLI tool test suit for testing tool's exceptions.
@@ -53,9 +52,6 @@ public class FormatCmdTest {
             RES_DIR.resolve("BallerinaProject/source/ProjectTemp");
     private static final Path BALLERINA_PROJECT_ASSERT =
             RES_DIR.resolve("BallerinaProject/assert/Project");
-    private static final Path[] BALLERINA_CONFIGURATION_DIRS =
-            {RES_DIR.resolve("configurations/general/source"), RES_DIR.resolve("configurations/functions/source"),
-                    RES_DIR.resolve("configurations/blocks/source"), RES_DIR.resolve("configurations/imports/source")};
 
     @Test(description = "Test single file project formatting")
     public void formatCLIOnASingleFileProject() {
@@ -87,28 +83,44 @@ public class FormatCmdTest {
         }
     }
 
-    @Test(description = "Test ballerina project formatting")
-    public void formatCLIOnBallerinaProjectWithConfigurations() {
+    @Test(description = "Test ballerina project formatting with configurations",
+            dataProvider = "provideConfigurationProjects")
+    public void formatCLIOnBallerinaProjectWithConfigurations(String testCase, List<Path> dirs) {
         List<String> argList = new ArrayList<>();
-        for (Path dir : BALLERINA_CONFIGURATION_DIRS) {
-            try {
-                List<Path> subDirs = Files.list(dir)
-                        .filter(Files::isDirectory)
-                        .filter(d -> !d.getFileName().toString().endsWith("Temp"))
-                        .collect(Collectors.toList());
-                for (Path subDir : subDirs) {
-                    Path tempDir = subDir.resolveSibling(subDir.getFileName() + "Temp");
-                    Path assertDir = Paths.get(subDir.toString().replace("/source/", "/assert/"));
+        try {
+            for (Path dir : dirs) {
+                Path tempDir = dir.resolveSibling(dir.getFileName() + "Temp");
+                Path assertDir = Paths.get(dir.toString().replace("/source/", "/assert/"));
 
-                    FormatUtil.execute(argList, false, null, null, false, subDir);
-                    Assert.assertEquals(Files.readString(subDir.resolve("main.bal")),
-                            Files.readString(assertDir.resolve("main.bal")));
-                    FileUtils.copyDirectory(tempDir.toFile(), subDir.toFile());
-                }
-            } catch (IOException e) {
-                Assert.fail("Failed to update the source file.");
+                FormatUtil.execute(argList, false, null, null, false, dir);
+                Assert.assertEquals(Files.readString(dir.resolve("main.bal")),
+                        Files.readString(assertDir.resolve("main.bal")));
+                FileUtils.copyDirectory(tempDir.toFile(), dir.toFile());
             }
+        } catch (IOException e) {
+            Assert.fail(testCase + " test failed to update the source file.");
         }
+    }
+
+    @DataProvider(name = "provideConfigurationProjects")
+    private Object[][] provideConfigurationProjects() {
+        return new Object[][]{
+                {"general", List.of(
+                        RES_DIR.resolve("configurations/general/source/project")
+                )},
+                {"function", List.of(
+                        RES_DIR.resolve("configurations/functions/source/oneArg"),
+                        RES_DIR.resolve("configurations/functions/source/paranAlign"),
+                        RES_DIR.resolve("configurations/functions/source/paranAlignOneArg")
+                )},
+                {"blocks", List.of(
+                        RES_DIR.resolve("configurations/blocks/source/ifelse"),
+                        RES_DIR.resolve("configurations/blocks/source/short")
+                )},
+                {"import", List.of(
+                        RES_DIR.resolve("configurations/imports/source/project")
+                )}
+        };
     }
 
     @Test(description = "Test ballerina project formatting with dot op",

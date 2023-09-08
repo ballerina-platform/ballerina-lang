@@ -356,32 +356,38 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
+        "alignConsecutiveDefinitions": {
+          "type": "boolean"
+        },
         "columnLimit": {
           "type": "integer"
+        },
+        "recordBraceSpacing": {
+          "type": "boolean"
         },
         "tabWidth": {
           "type": "integer"
         },
-        "allowShortBlocksOnASingleLine": {
-          "type": "boolean"
-        },
-        "allowShortMatchLabelsOnASingleLine": {
-          "type": "boolean"
-        },
-        "allowShortIfStatementsOnASingleLine": {
-          "type": "boolean"
-        },
-        "allowShortLoopsOnASingleLine": {
-          "type": "boolean"
-        },
-        "alignConsecutiveDefinitions": {
-          "type": "boolean"
-        },
-        "elseBlocksOnANewLine": {
-          "type": "boolean"
-        },
-        "recordBraceSpacing": {
-          "type": "boolean"
+        "block": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "allowShortBlocksOnASingleLine": {
+              "type": "boolean"
+            },
+            "allowShortMatchLabelsOnASingleLine": {
+              "type": "boolean"
+            },
+            "allowShortIfStatementsOnASingleLine": {
+              "type": "boolean"
+            },
+            "allowShortLoopsOnASingleLine": {
+              "type": "boolean"
+            },
+            "elseBlocksOnANewLine": {
+              "type": "boolean"
+            }
+          }
         },
         "function": {
           "type": "object",
@@ -391,6 +397,18 @@
               "type": "boolean"
             },
             "paranAlign": {
+              "type": "boolean"
+            }
+          }
+        },
+        "import": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "groupImports": {
+              "type": "boolean"
+            },
+            "sortImports": {
               "type": "boolean"
             }
           }
