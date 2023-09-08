@@ -143,6 +143,11 @@ public class BinaryExprTest {
         Assert.assertEquals(((Byte) returns.get(3)).longValue(), b & d);
     }
 
+    @Test
+    public void testLengthyBinaryExpressionsForOOM() {
+        BRunUtil.invoke(result, "testLengthyBinaryExpressionsForOOM");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

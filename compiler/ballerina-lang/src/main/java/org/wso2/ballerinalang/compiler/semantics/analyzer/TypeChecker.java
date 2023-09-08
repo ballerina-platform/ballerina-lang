@@ -835,6 +835,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expectedType = Types.getImpliedType(expType);
 
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+            if (expectedType == symTable.noType && data.expNumericLiteralType != null) {
+                expectedType = data.expNumericLiteralType;
+            }
+            expectedType = Types.getImpliedType(expectedType);
             NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
             if (kind == NodeKind.INTEGER_LITERAL) {
                 return getIntegerLiteralType(literalExpr, literalValue, expectedType, data);
@@ -5072,7 +5076,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType referredExpType = Types.getImpliedType(binaryExpr.expectedType);
         if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
                 isOptionalFloatOrDecimal(referredExpType)) {
-            lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
+            lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, data);
         } else {
             lhsType = checkExpr(binaryExpr.lhsExpr, data);
         }
@@ -5089,7 +5093,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
                 isOptionalFloatOrDecimal(referredExpType)) {
-            rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
+            rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, data);
         } else {
             rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
         }
@@ -5174,26 +5178,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
-    private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr, AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
-        data.commonAnalyzerData.nonErrorLoggingCheck = true;
-        int prevErrorCount = this.dlog.errorCount();
-        this.dlog.resetErrorCount();
-        this.dlog.mute();
-
-        expr.cloneAttempt++;
-        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), env, binaryExpr.expectedType, data);
-        data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-        int errorCount = this.dlog.errorCount();
-        this.dlog.setErrorCount(prevErrorCount);
-        if (!prevNonErrorLoggingCheck) {
-            this.dlog.unmute();
+    private BType checkAndGetType(BLangExpression expr, SymbolEnv env, AnalyzerData data) {
+        // Flow down CET using `data.expNumericLiteralType` to be used by the numeric literals.
+        BType previousExpLiteralType = data.expNumericLiteralType;
+        if (previousExpLiteralType == null) {
+            data.expNumericLiteralType = data.expType;
         }
-        if (errorCount == 0 && exprCompatibleType != symTable.semanticError) {
-            return checkExpr(expr, env, binaryExpr.expectedType, data);
-        } else {
-            return checkExpr(expr, env, data);
-        }
+        BType operandType =  checkExpr(expr, env, data);
+        data.expNumericLiteralType = previousExpLiteralType;
+        return operandType;
     }
 
     public void visit(BLangTransactionalExpr transactionalExpr, AnalyzerData data) {
@@ -9602,5 +9595,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         boolean isResourceAccessPathSegments = false;
         QueryTypeChecker.AnalyzerData queryData = new QueryTypeChecker.AnalyzerData();
         Set<String> queryVariables;
+        BType expNumericLiteralType;
     }
 }

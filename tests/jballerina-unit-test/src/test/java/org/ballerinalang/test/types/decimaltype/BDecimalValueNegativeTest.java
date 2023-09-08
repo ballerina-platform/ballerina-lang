@@ -75,7 +75,7 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(negative, i++, "operator '*' not defined for 'decimal' and 'float'", 37, 17);
         BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'float' and 'decimal'", 38, 17);
         BAssertUtil.validateError(negative, i++, "operator '-' not defined for 'float' and 'decimal'", 39, 17);
-        BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'decimal' and 'float'", 41, 17);
+        BAssertUtil.validateError(negative, i++, "operator '/' not defined for 'decimal' and 'float'", 41, 29);
         BAssertUtil.validateError(negative, i++, "'9.9999999999999999999999999999999999e6144' is out of range" +
                 " for 'decimal'", 48, 17);
         BAssertUtil.validateError(negative, i++, "'9.999999999999999999999999999999999e6145' is out of range" +
