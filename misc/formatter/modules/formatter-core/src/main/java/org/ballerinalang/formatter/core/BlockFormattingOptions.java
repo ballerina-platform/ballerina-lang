@@ -22,15 +22,11 @@ package org.ballerinalang.formatter.core;
  */
 public class BlockFormattingOptions {
 
-    private boolean allowShortBlocksOnASingleLine;
-
-    private boolean allowShortMatchLabelsOnASingleLine;
-
-    private boolean allowShortIfStatementsOnASingleLine;
-
-    private boolean allowShortLoopsOnASingleLine;
-
-    private boolean elseBlockOnANewLine;
+    private final boolean allowShortBlocksOnASingleLine;
+    private final boolean allowShortMatchLabelsOnASingleLine;
+    private final boolean allowShortIfStatementsOnASingleLine;
+    private final boolean allowShortLoopsOnASingleLine;
+    private final boolean elseBlockOnANewLine;
 
     public BlockFormattingOptions(boolean allowShortBlocksOnASingleLine, boolean allowShortMatchLabelsOnASingleLine,
                                   boolean allowShortIfStatementsOnASingleLine, boolean allowShortLoopsOnASingleLine,
@@ -72,13 +68,9 @@ public class BlockFormattingOptions {
     public static class BlockFormattingOptionsBuilder {
 
         private boolean allowShortBlocksOnASingleLine = false;
-
         private boolean allowShortMatchLabelsOnASingleLine = false;
-
         private boolean allowShortIfStatementsOnASingleLine = false;
-
         private boolean allowShortLoopsOnASingleLine = false;
-
         private boolean elseBlockOnANewLine = false;
 
         public BlockFormattingOptions.BlockFormattingOptionsBuilder setAllowShortBlocksOnASingleLine(
