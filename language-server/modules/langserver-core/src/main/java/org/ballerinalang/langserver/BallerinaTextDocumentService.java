@@ -19,6 +19,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
@@ -442,11 +443,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (syntaxTree.isEmpty()) {
                     return Collections.emptyList();
                 }
-                Path rootPath = context.workspace().projectRoot(context.filePath());
-                BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
-                FormattingOptions options = FormattingOptions.builder()
-                        .build(project.currentPackage().manifest().getValue("format"));
-                String formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
+                    String formattedSource;
+                if (context.currentModule().isPresent() &&
+                        !(context.currentModule().get().project() instanceof SingleFileProject)) {
+                    Path rootPath = context.workspace().projectRoot(context.filePath());
+                    BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
+                    FormattingOptions options = FormattingOptions.builder()
+                            .build(project.currentPackage().manifest().getValue("format"));
+                    formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
+                } else {
+                    formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
+                }
+
                 LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 TextEdit textEdit = new TextEdit(range, formattedSource);
