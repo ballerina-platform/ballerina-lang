@@ -165,7 +165,7 @@ public class Profiler {
                     this.sourceRoot = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
-                case "--pDebug" -> {
+                case "--profilerDebug" -> {
                     this.profilerDebugArg = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
