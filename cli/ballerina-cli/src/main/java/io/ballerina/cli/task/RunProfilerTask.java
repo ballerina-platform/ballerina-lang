@@ -79,7 +79,7 @@ public class RunProfilerTask implements Task {
             commands.add("--sourceroot");
             commands.add(getProjectPath(project).toString());
             if (isInProfileDebugMode()) {
-                commands.add("--pDebug");
+                commands.add("--profilerDebug");
                 commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
