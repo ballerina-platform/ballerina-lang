@@ -47,6 +47,7 @@ public class ProfileAnalyzer {
     private final ArrayList<String> blockedMethods = new ArrayList<>();
     private static final List<String> skippedList = new ArrayList<>();
     private static final Set<String> skippedClasses = new HashSet<>(skippedList);
+    private static final String CPU_PRE_JSON = "cpu_pre.json";
 
     private static class ProfilerHolder {
         private static final ProfileAnalyzer PROFILER_INSTANCE = new ProfileAnalyzer();
@@ -143,10 +144,10 @@ public class ProfileAnalyzer {
     }
 
     private void printProfilerOutput(String dataStream) {
-        try (Writer myWriter = new FileWriter("cpu_pre.json", StandardCharsets.UTF_8)) {
+        try (Writer myWriter = new FileWriter(CPU_PRE_JSON, StandardCharsets.UTF_8)) {
             myWriter.write(dataStream);
         } catch (IOException e) {
-            throw new ProfilerRuntimeException("Error occurred while writing to the cpu_pre.json file");
+            throw new ProfilerRuntimeException("Error occurred while writing to the " + CPU_PRE_JSON + " file");
         }
     }
 

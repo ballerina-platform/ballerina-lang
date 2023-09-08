@@ -36,7 +36,7 @@ public class StackTraceMap {
 
     private static final Map<String, Integer> stackTraceIndexMap = new HashMap<>();
 
-     static String getStackKey(ArrayList<String> stacks) {
+    static String getStackKey(ArrayList<String> stacks) {
          StringBuilder keyBuilder = new StringBuilder();
          for (String stack : stacks) {
              if (stackTraceIndexMap.containsKey(stack)) {
