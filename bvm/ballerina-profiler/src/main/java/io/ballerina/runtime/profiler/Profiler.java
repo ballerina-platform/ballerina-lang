@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
 /**
@@ -89,7 +90,7 @@ public class Profiler {
                 HttpServer httpServer = new HttpServer();
                 jsonParser.initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
-                deleteFileIfExists("cpu_pre.json");
+                deleteFileIfExists(CPU_PRE_JSON);
                 OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
                 httpServer.initializeHTMLExport(this.sourceRoot);
@@ -378,11 +379,11 @@ public class Profiler {
     }
 
     void start(String[] args) {
-        addShutdownHookAndCleanup(); // Register a shutdown hook to handle graceful shutdown of the application
-        printHeader(); // Print the program header
-        handleProfilerArguments(args); // Handle command line arguments
-        extractProfiler(); // Extract the profiler used by the program
-        createTempJar(); // Create a temporary JAR file inside target/bin
-        initializeProfiling(); // Initialize profiling
+        addShutdownHookAndCleanup();
+        printHeader();
+        handleProfilerArguments(args);
+        extractProfiler();
+        createTempJar();
+        initializeProfiling();
     }
 }

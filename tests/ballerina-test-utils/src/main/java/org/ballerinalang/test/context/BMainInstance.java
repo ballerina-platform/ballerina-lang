@@ -298,7 +298,7 @@ public class BMainInstance implements BMain {
      *
      * @param command       command to run
      * @param args          command line arguments to pass when executing the sh or bat file
-     * @param envProperties environmental properties to be appended to the environment
+     * @param envProperties environment properties to be appended to the environment
      * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
@@ -307,7 +307,6 @@ public class BMainInstance implements BMain {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         try {
-
             if (Utils.isWindowsOS()) {
                 cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
                         File.separator + "bin" + File.separator + scriptName + ".bat", command};
@@ -315,7 +314,6 @@ public class BMainInstance implements BMain {
                 cmdArray = new String[]{"bash", balServer.getServerHome() +
                         File.separator + "bin/" + scriptName, command};
             }
-
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
@@ -324,10 +322,9 @@ public class BMainInstance implements BMain {
                     env.put(entry.getKey(), entry.getValue());
                 }
             }
-
             return processBuilder.start();
         } catch (IOException e) {
-            throw new BallerinaTestException("Error executing ballerina", e);
+            throw new BallerinaTestException("Error executing bal command", e);
         }
     }
 

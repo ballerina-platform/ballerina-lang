@@ -29,11 +29,11 @@ public class FileUtils {
         Path path = Paths.get(file);
         while (!Files.exists(path)) {
             try {
-                Thread.sleep(100); // Adjust sleep interval as needed
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-        return Files.readString(path); // Read Files as a String
+        return Files.readString(path);
     }
 }

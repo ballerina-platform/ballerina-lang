@@ -47,28 +47,22 @@ public class FrontEnd {
     }
 
     public String readFileAsString() throws IOException {
-        InputStreamReader inputStreamReader;
-        BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
 
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(FILE_LOCATION)) {
             if (inputStream == null) {
                 throw new ProfilerRuntimeException("resource file not found: " + FILE_LOCATION);
             }
-            inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-            br = new BufferedReader(inputStreamReader);
-            String content = br.readLine();
-            if (content == null) {
-                return sb.toString();
-            }
-            sb.append(content);
-
-            while ((content = br.readLine()) != null) {
-                sb.append('\n').append(content);
-            }
-        } finally {
-            if (br != null) {
-                br.close();
+            try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                 BufferedReader br = new BufferedReader(inputStreamReader)) {
+                String content = br.readLine();
+                if (content == null) {
+                    return sb.toString();
+                }
+                sb.append(content);
+                while ((content = br.readLine()) != null) {
+                    sb.append('\n').append(content);
+                }
             }
         }
         return sb.toString();
