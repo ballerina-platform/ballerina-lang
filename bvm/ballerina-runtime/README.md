@@ -186,8 +186,8 @@ public function main() {
 ```
 
 #### Java
-```Java
 
+```java
 class Test {
     public static BString callPlay(Environment env, BObject object, BString bString) {
         Future future = env.markAsync();
@@ -234,6 +234,7 @@ public isolated function invokeFunctionPointer(function func, any|error... args)
 ```
 
 #### Java
+
 ```java
 class Test {
     public static Object invokeFunctionPointer(Object func, Object[] args) {
