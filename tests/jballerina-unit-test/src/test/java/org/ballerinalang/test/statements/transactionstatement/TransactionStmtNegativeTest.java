@@ -54,12 +54,18 @@ public class TransactionStmtNegativeTest {
         BAssertUtil.validateError(negativeFile, index++,
             "exit from transaction prior to commit/rollback identified", 139, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 139, 5);
+        BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 162, 15);
         BAssertUtil.validateError(negativeFile, index++,
             "exit from transaction prior to commit/rollback identified", 180, 9);
         BAssertUtil.validateError(negativeFile, index++,
             "exit from transaction prior to commit/rollback identified", 207, 9);
         BAssertUtil.validateError(negativeFile, index++,
             "exit from transaction prior to commit/rollback identified", 220, 5);
+        BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 229, 19);
+        BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 244, 15);
+        BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 258, 19);
+        BAssertUtil.validateError(negativeFile, index++,
+            "exit from transaction prior to commit/rollback identified", 266, 5);
         Assert.assertEquals(negativeFile.getErrorCount(), index);
     }
 

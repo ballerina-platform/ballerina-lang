@@ -624,7 +624,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!data.commitRollbackAllowed || data.loopWithinTransactionCheckStack.peek()) {
+        if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
+                data.loopWithinTransactionCheckStack.peek()) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
@@ -635,7 +636,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRollback rollbackNode, AnalyzerData data) {
         data.rollbackCount++;
         data.rollbackCountWithinBlock++;
-        if (data.transactionCount == 0) {
+        if (data.transactionCount == 0 && !data.withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
@@ -643,7 +644,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!data.commitRollbackAllowed ||
+        if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
                 (!data.loopWithinTransactionCheckStack.empty() && data.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
@@ -3394,7 +3395,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
         boolean currentFailVisited = data.failVisited;
+        boolean currentWithinTrxScope = data.withinTransactionScope;
         data.failVisited = false;
+        data.withinTransactionScope = data.transactionCount != 0;
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
         if (onFailVarDefNode != null) {
@@ -3409,6 +3412,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.errorTypes.pop();
         analyzeNode(onFailClause.body, data);
         onFailClause.bodyContainsFail = data.failVisited;
+        data.withinTransactionScope =
+            (!currentFailVisited || data.withinTransactionScope) && currentWithinTrxScope;
         data.failVisited = currentFailVisited;
     }
 

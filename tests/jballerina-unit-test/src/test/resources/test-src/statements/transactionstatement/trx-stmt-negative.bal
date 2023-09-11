@@ -159,7 +159,7 @@ function testNestedTransactions2() returns error? {
         } on fail {
             rollback;
         }
-        check commit;
+        check commit; // Error: commit not allowed here
     }
 }
 
@@ -226,7 +226,7 @@ function testMultiplePreCommitExits1() returns error? {
         }
         do {
             check getError();
-            check commit;
+            check commit; // Error: commit not allowed
         } on fail {
             // No rollback here
         }
@@ -241,7 +241,7 @@ function testCommittedExit5() returns error? {
         } on fail {
             // No rollback here
         }
-        check commit;
+        check commit; // Error: commit not allowed
     }
 }
 
@@ -255,9 +255,29 @@ function testMultiplePreCommitExits2() returns error? {
         }
         do {
             check getError();
-            check commit;
+            check commit; // Error: commit not allowed
         } on fail {
             rollback;
         }
+    }
+}
+
+function testPreCommitExit4(boolean foo) returns error? {
+    transaction { // Error: exit from transaction prior to commit/rollback identified
+      if foo {
+        check commit;
+        return;
+      }
+    }
+}
+
+function testCommittedExit6(boolean foo) returns error? {
+    transaction {
+      if foo {
+        check commit;
+        return;
+      } else {
+        rollback;
+      }
     }
 }
