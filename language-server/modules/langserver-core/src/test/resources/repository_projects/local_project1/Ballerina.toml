@@ -2,3 +2,4 @@
 org="test"
 name="local_project1"
 version="0.0.1"
+export = ["local_project1","local_project1.local_mod1", "local_project1.local_mod2"]

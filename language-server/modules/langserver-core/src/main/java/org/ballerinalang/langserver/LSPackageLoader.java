@@ -147,7 +147,6 @@ public class LSPackageLoader {
                     .collect(Collectors.toSet());
             clientLogger.logTrace("Successfully loaded packages from Ballerina distribution");
 
-
             clientLogger.logTrace("Loading packages from Ballerina User Home");
             BallerinaUserHome ballerinaUserHome = BallerinaUserHome.from(environment);
             //Load modules from local repo

@@ -2,4 +2,5 @@
 org="test"
 name="project1"
 version="0.0.1"
+export = ["project1","project1.remote_mod1"]
 

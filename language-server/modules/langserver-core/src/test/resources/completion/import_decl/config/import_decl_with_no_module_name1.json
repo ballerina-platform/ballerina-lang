@@ -33,6 +33,41 @@
       "detail": "Module",
       "insertText": "local_project1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "local_project1.mod3",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "local_project1.mod3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "project1.remote_mod2",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "project1.remote_mod2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "local_project1.local_mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "local_project1.local_mod1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "project1.remote_mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "project1.remote_mod1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "local_project1.local_mod2",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "local_project1.local_mod2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -846,6 +846,126 @@
       "sortText": "BK",
       "insertText": "module1:Listener",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/local_project1.mod3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "mod3",
+      "insertText": "mod3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.mod3;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1.remote_mod2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "remote_mod2",
+      "insertText": "remote_mod2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1.remote_mod2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1.local_mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "local_mod1",
+      "insertText": "local_mod1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.local_mod1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1.remote_mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "remote_mod1",
+      "insertText": "remote_mod1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1.remote_mod1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1.local_mod2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "local_mod2",
+      "insertText": "local_mod2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.local_mod2;\n"
+        }
+      ]
     }
   ]
 }

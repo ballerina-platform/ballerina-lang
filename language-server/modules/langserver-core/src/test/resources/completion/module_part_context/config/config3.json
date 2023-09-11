@@ -4,6 +4,7 @@
     "character": 1
   },
   "source": "module_part_context/source/source3.bal",
+  "description": "",
   "items": [
     {
       "label": "import",
@@ -862,6 +863,174 @@
       "sortText": "CA",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/local_project1.mod3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "F",
+      "filterText": "mod3",
+      "insertText": "mod3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.mod3;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1.remote_mod2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "F",
+      "filterText": "remote_mod2",
+      "insertText": "remote_mod2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1.remote_mod2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1.local_mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "F",
+      "filterText": "local_mod1",
+      "insertText": "local_mod1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.local_mod1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1.remote_mod1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "F",
+      "filterText": "remote_mod1",
+      "insertText": "remote_mod1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1.remote_mod1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1.local_mod2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "F",
+      "filterText": "local_mod2",
+      "insertText": "local_mod2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.local_mod2;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on local_project1.local_mod1:LocalListener1",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_local_project1_local_mod1_LocalListener1",
+      "insertText": "service ${1} on new local_mod1:LocalListener1(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.local_mod1;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on local_project1.local_mod2:LocalListener2",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_local_project1_local_mod2_LocalListener2",
+      "insertText": "service ${1} on new local_mod2:LocalListener2(${2:0}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1.local_mod2;\n"
+        }
+      ]
     }
   ]
 }
