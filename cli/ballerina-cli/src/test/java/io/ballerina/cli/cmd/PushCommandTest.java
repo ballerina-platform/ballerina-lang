@@ -205,7 +205,7 @@ public class PushCommandTest extends BaseCommandTest {
 
     }
 
-    @Test(description = "Push package without bala directory", enabled = false)
+    @Test(description = "Push package without bala directory")
     public void testPushWithoutBalaDir() throws IOException {
         String expected = "cannot find bala file for the package: winery. Run "
                 + "'bal pack' to compile and generate the bala.";
@@ -220,7 +220,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test(description = "Push package without bala file", enabled = false)
+    @Test(description = "Push package without bala file")
     public void testPushWithoutBala() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
@@ -274,7 +274,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
-    @Test ()
+    @Test
     public void testPushToCustomRepo() throws IOException {
         Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
         FileUtils.copyDirectory(
@@ -353,7 +353,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test ()
+    @Test
     public void testPushToAnUnsupportedRepo() throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         // Build project
