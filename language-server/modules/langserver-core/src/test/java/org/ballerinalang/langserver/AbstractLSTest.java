@@ -68,7 +68,7 @@ public abstract class AbstractLSTest {
         try {
             preparePackageLoaders(context, languageServer);
         } catch (Exception e) {
-            //ignore
+            String s  = e.getMessage();
         }
     }
 
