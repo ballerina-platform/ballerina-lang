@@ -64,12 +64,12 @@ The following table summarizes how Java types are mapped to corresponding Baller
 |------------------------------------------|--------------------|--------------------------------------------------------|
 | Any reference type including “null type” | handle             |                                                        |
 | boolean                                  | boolean            |                                                        |
-| byte                                     | byte, int, float   | widening conversion when byte -> int and byte -> float |
-| short                                    | int, float         | widening conversion                                    |
-| char                                     | int, float         | widening conversion                                    |
-| int                                      | int, float         | widening conversion                                    |
-| long                                     | int, float         | widening conversion when long -> float                 |
-| float                                    | float              | widening conversion                                    |
+| byte                                     | byte, int, float   | Widening conversion when byte -> int and byte -> float |
+| short                                    | int, float         | Widening conversion                                    |
+| char                                     | int, float         | Widening conversion                                    |
+| int                                      | int, float         | Widening conversion                                    |
+| long                                     | int, float         | Widening conversion when long -> float                 |
+| float                                    | float              | Widening conversion                                    |
 | double                                   | float              |                                                        |
 
 ## Map Ballerina types to Java types
@@ -125,6 +125,16 @@ For example, a string type array can be created as follows.
 
 ```
 ArrayType strArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING)
+```
+
+Note: If we need to create a record type or object type defined in the module, we need to pass the type definition 
+name and module to get the type instance. 
+
+We can use other TypeCreator APIs to create own record or object type. But record or object values created using those 
+types will not work properly in Ballerina code since those type definitions are not defined in the module.
+
+Those can only be use for Java unit tests.
+
 ```
 
 ## Calling a Ballerina object method
