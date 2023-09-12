@@ -227,9 +227,8 @@ public class JvmValueGen {
             if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) optionalTypeDef.type;
-                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, jvmConstantsGen
-                        , asyncDataCollector);
-                jarEntries.put(className + ".class", bytes);
+                this.createObjectValueClasses(objectType, className, optionalTypeDef, jvmConstantsGen
+                        , asyncDataCollector, jarEntries);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
@@ -594,8 +593,9 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
+    private void createObjectValueClasses(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
+                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
+                                          Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
@@ -611,7 +611,7 @@ public class JvmValueGen {
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
             this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
-                    jvmConstantsGen, asyncDataCollector);
+                    jvmConstantsGen, asyncDataCollector, typeDef, jarEntries);
         }
 
         this.createObjectInit(cw, fields, className);
@@ -622,9 +622,8 @@ public class JvmValueGen {
         this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
-
         cw.visitEnd();
-        return jvmPackageGen.getBytes(cw, typeDef);
+        jarEntries.put(className + ".class", jvmPackageGen.getBytes(cw, typeDef));
     }
 
     private void createObjectFields(ClassWriter cw, Map<String, BField> fields) {
@@ -642,17 +641,34 @@ public class JvmValueGen {
         }
     }
 
-    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
+    private void createObjectMethods(ClassWriter cw, List<BIRFunction> attachedFuncs, String moduleClassName,
                                      BObjectType currentObjectType, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
+                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
+                                     BIRNode.BIRTypeDefinition typeDef, Map<String, byte[]> jarEntries) {
+
+        ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
+        splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
+        String splitClassName = moduleClassName + "$split";
+        splitCW.visit(V1_8, ACC_PUBLIC + ACC_SUPER, splitClassName, null, null, null);
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                    jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+            if (func.name.value.contains("$init$")) {
+                methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
+                        jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
+                continue;
+            }
+            methodGen.genJMethodWithBObjectMethodCall(func, cw, module, jvmTypeGen, jvmCastGen, jvmConstantsGen,
+                    moduleClassName, currentObjectType, asyncDataCollector, splitClassName);
+            methodGen.genJMethodForBFunc(func, splitCW, module, jvmTypeGen, jvmCastGen, jvmConstantsGen,
+                    moduleClassName, currentObjectType, asyncDataCollector, true);
         }
+
+        splitCW.visitEnd();
+        byte[] splitBytes = jvmPackageGen.getBytes(splitCW, typeDef);
+        jarEntries.put(splitClassName + ".class", splitBytes);
     }
 
     private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
