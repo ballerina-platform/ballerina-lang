@@ -75,32 +75,33 @@ public class ProfileAnalyzer {
     }
 
     private void removeDuplicates(List<String> list) {
-        List<String> newList = new ArrayList<>();
-        for (String element : list) {
-            if (!newList.contains(element)) {
-                newList.add(element);
-            }
-        }
+        List<String> newList = list.stream()
+                .distinct()
+                .collect(Collectors.toList());
         list.clear();
         list.addAll(newList);
     }
 
-    public void start(int id) {
+    public synchronized void start(int id) {
         if (!blockedMethods.contains(getMethodName() + id)) {
             ArrayList<String> stackTrace = getStackTrace();
             String stackKey = StackTraceMap.getStackKey(stackTrace);
-            Data p = this.profiles.computeIfAbsent(stackKey, key -> {
+            Data p;
+            if (this.profiles.containsKey(stackKey)) {
+                 p = this.profiles.get(stackKey);
+            } else {
                 Data newData = new Data(stackTrace.toString());
-                profilesStack.add(newData);
-                return newData;
-            });
+                this.profiles.put(stackKey, newData);
+                this.profilesStack.add(newData);
+                p = newData;
+            }
             p.start();
             removeDuplicates(blockedMethods);
         }
         blockedMethods.remove(getMethodName() + id);
     }
 
-    public void start() {
+    public synchronized void start() {
         ArrayList<String> stackTrace = getStackTrace();
         String stackKey = StackTraceMap.getStackKey(stackTrace);
         Data p = this.profiles.get(stackKey);
@@ -113,7 +114,7 @@ public class ProfileAnalyzer {
         removeDuplicates(blockedMethods);
     }
 
-    public void stop(String strandState, int id) {
+    public synchronized void stop(String strandState, int id) {
         String stackKey = StackTraceMap.getStackKey(getStackTrace());
         Data p = this.profiles.get(stackKey);
         if (strandState.equals("RUNNABLE")) {
