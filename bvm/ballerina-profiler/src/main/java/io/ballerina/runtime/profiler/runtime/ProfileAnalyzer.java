@@ -44,7 +44,7 @@ public class ProfileAnalyzer {
 
     private final HashMap<String, Data> profiles = new HashMap<>();
     private final ArrayList<Data> profilesStack = new ArrayList<>();
-    private final ArrayList<String> blockedMethods = new ArrayList<>();
+    private final Set<String> blockedMethods = new HashSet<>();
     private static final List<String> skippedList = new ArrayList<>();
     private static final Set<String> skippedClasses = new HashSet<>(skippedList);
     private static final String CPU_PRE_JSON = "cpu_pre.json";
@@ -74,15 +74,7 @@ public class ProfileAnalyzer {
         return stack.get(2).getMethodName() + "()";
     }
 
-    private void removeDuplicates(List<String> list) {
-        List<String> newList = list.stream()
-                .distinct()
-                .collect(Collectors.toList());
-        list.clear();
-        list.addAll(newList);
-    }
-
-    public synchronized void start(int id) {
+    public void start(int id) {
         if (!blockedMethods.contains(getMethodName() + id)) {
             ArrayList<String> stackTrace = getStackTrace();
             String stackKey = StackTraceMap.getStackKey(stackTrace);
@@ -96,12 +88,11 @@ public class ProfileAnalyzer {
                 p = newData;
             }
             p.start();
-            removeDuplicates(blockedMethods);
         }
         blockedMethods.remove(getMethodName() + id);
     }
 
-    public synchronized void start() {
+    public void start() {
         ArrayList<String> stackTrace = getStackTrace();
         String stackKey = StackTraceMap.getStackKey(stackTrace);
         Data p = this.profiles.get(stackKey);
@@ -111,10 +102,9 @@ public class ProfileAnalyzer {
             this.profilesStack.add(p);
         }
         p.start();
-        removeDuplicates(blockedMethods);
     }
 
-    public synchronized void stop(String strandState, int id) {
+    public void stop(String strandState, int id) {
         String stackKey = StackTraceMap.getStackKey(getStackTrace());
         Data p = this.profiles.get(stackKey);
         if (strandState.equals("RUNNABLE")) {
