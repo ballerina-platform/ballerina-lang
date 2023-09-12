@@ -18,6 +18,24 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.EnumerableCharString;
+import io.ballerina.types.EnumerableDecimal;
+import io.ballerina.types.EnumerableFloat;
+import io.ballerina.types.EnumerableString;
+import io.ballerina.types.EnumerableType;
+import io.ballerina.types.ProperSubtypeData;
+import io.ballerina.types.SemType;
+import io.ballerina.types.UniformTypeBitSet;
+import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
+import io.ballerina.types.subtypedata.Range;
+import io.ballerina.types.subtypedata.StringSubtype;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -31,6 +49,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -40,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -86,6 +104,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getStringConstantsClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
@@ -479,7 +498,7 @@ public class JvmTypeGen {
                     }
                     return;
                 case TypeTags.FINITE:
-                    loadFiniteType(mv, (BFiniteType) bType);
+                    loadFiniteType(mv, bType);
                     return;
                 case TypeTags.FUTURE:
                     loadFutureType(mv, (BFutureType) bType);
@@ -1102,7 +1121,7 @@ public class JvmTypeGen {
         }
     }
 
-    private void loadFiniteType(MethodVisitor mv, BFiniteType finiteType) {
+    private void loadFiniteType(MethodVisitor mv, BType finiteType) {
 
         mv.visitTypeInsn(NEW, FINITE_TYPE_IMPL);
         mv.visitInsn(DUP);
@@ -1117,49 +1136,152 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
-        for (BLangExpression valueTypePair : finiteType.getValueSpace()) {
-            Object value = ((BLangLiteral) valueTypePair).value;
-            BType valueType = valueTypePair.getBType();
-            mv.visitInsn(DUP);
-
-            JvmCodeGenUtil.loadConstantValue(valueType, value, mv, jvmConstantsGen);
-
-            if (TypeTags.isIntegerTypeTag(valueType.tag)) {
-                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF,
-                        false);
-            } else {
-                loadValueType(mv, valueType);
+        SemType semType = SemTypeResolver.getSemTypeComponent(finiteType);
+        if (semType instanceof UniformTypeBitSet uniformTypeBitSet) {
+            if ((uniformTypeBitSet.bitset & (1 << UniformTypeCode.UT_NIL.code)) != 0) {
+                loadNilValue(mv);
+            } else if ((uniformTypeBitSet.bitset & (1 << UniformTypeCode.UT_BOOLEAN.code)) != 0) {
+                loadBooleanValue(mv, true);
+                loadBooleanValue(mv, false);
             }
+        } else {
+            ComplexSemType complexSemType = (ComplexSemType) semType;
+            for (ProperSubtypeData psd : complexSemType.subtypeDataList) {
+                if (psd instanceof IntSubtype intSubtype) {
+                    for (Range range : intSubtype.ranges) {
+                        for (long i = range.min; i <= range.max; i++) {
+                            if (0 <= i && i <= 255) {
+                                loadByteValue(mv, (int) i);
+                            } else {
+                                loadIntValue(mv, i);
+                            }
+                            if (i == Long.MAX_VALUE) {
+                                // To avoid overflow
+                                break;
+                            }
+                        }
+                    }
+                } else if (psd instanceof BooleanSubtype booleanSubtype) {
+                    loadBooleanValue(mv, booleanSubtype.value);
+                } else if (psd instanceof StringSubtype stringSubtype) {
+                    CharStringSubtype charStringSubtype = stringSubtype.getChar();
+                    assert charStringSubtype.allowed;
+                    for (EnumerableType enumerableType : charStringSubtype.values()) {
+                        loadStringValue(mv, enumerableType);
+                    }
 
-            // Add the value to the set
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-            mv.visitInsn(POP);
+                    NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
+                    assert nonCharStringSubtype.allowed;
+                    for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
+                        loadStringValue(mv, enumerableType);
+                    }
+                } else if (psd instanceof DecimalSubtype decimalSubtype) {
+                    assert decimalSubtype.allowed;
+                    for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
+                        loadDecimalValue(mv, (EnumerableDecimal) enumerableDecimal);
+                    }
+                } else if (psd instanceof FloatSubtype floatSubtype) {
+                    assert floatSubtype.allowed;
+                    for (EnumerableType enumerableFloat : floatSubtype.values()) {
+                        loadFloatValue(mv, (EnumerableFloat) enumerableFloat);
+                    }
+                } else {
+                    throw new BLangCompilerException("JVM generation unsupported type");
+                }
+            }
         }
 
         // Load type flags
-        mv.visitLdcInsn(typeFlag(finiteType));
+        mv.visitLdcInsn(TypeFlags.asMask(finiteType.isNullable(), false, false));
 
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD, INIT_FINITE_TYPE_IMPL, false);
     }
 
-    private void loadValueType(MethodVisitor mv, BType valueType) {
-        switch (valueType.tag) {
-            case TypeTags.BOOLEAN:
-                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                        BOOLEAN_VALUE_OF_METHOD, false);
-                break;
-            case TypeTags.FLOAT:
-                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
-                        DOUBLE_VALUE_OF_METHOD, false);
-                break;
-            case TypeTags.BYTE:
-                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
-                        INT_VALUE_OF_METHOD, false);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadValueType(mv, JvmCodeGenUtil.getReferredType(valueType));
-        }
+    private void loadNilValue(MethodVisitor mv) {
+        mv.visitInsn(DUP);
+        mv.visitInsn(ACONST_NULL);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
     }
 
+    private void loadBooleanValue(MethodVisitor mv, boolean booleanVal) {
+        mv.visitInsn(DUP);
+
+        mv.visitLdcInsn(booleanVal);
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
+    }
+
+    private void loadByteValue(MethodVisitor mv, int intValue) {
+        mv.visitInsn(DUP);
+
+        mv.visitLdcInsn(intValue);
+        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD, INT_VALUE_OF_METHOD, false);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
+    }
+
+    private void loadIntValue(MethodVisitor mv, long intValue) {
+        mv.visitInsn(DUP);
+
+        mv.visitLdcInsn(intValue);
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF, false);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
+    }
+
+    private void loadStringValue(MethodVisitor mv, EnumerableType enumerableType) {
+        mv.visitInsn(DUP);
+
+        int index;
+        if (enumerableType instanceof EnumerableCharString enumerableCharString) {
+            index = jvmConstantsGen.getBStringConstantVarIndex(enumerableCharString.value);
+        } else if (enumerableType instanceof EnumerableString enumerableString) {
+            index = jvmConstantsGen.getBStringConstantVarIndex(enumerableString.value);
+        } else {
+            throw new IllegalStateException();
+        }
+
+        String varName = B_STRING_VAR_PREFIX + index;
+        String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
+        mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
+    }
+
+    private void loadDecimalValue(MethodVisitor mv, EnumerableDecimal enumerableDecimal) {
+        mv.visitInsn(DUP);
+
+        mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(enumerableDecimal.value.toPlainString());
+        mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
+    }
+
+    private void loadFloatValue(MethodVisitor mv, EnumerableFloat enumerableFloat) {
+        mv.visitInsn(DUP);
+
+        mv.visitLdcInsn(enumerableFloat.value);
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD, DOUBLE_VALUE_OF_METHOD, false);
+
+        // Add the value to the set
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+        mv.visitInsn(POP);
+    }
 }

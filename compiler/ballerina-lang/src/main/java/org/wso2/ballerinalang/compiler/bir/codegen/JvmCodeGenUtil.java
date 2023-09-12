@@ -789,7 +789,7 @@ public class JvmCodeGenUtil {
         }
     }
 
-    private static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
+    static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
         int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
         return jvmConstantsGen.getStringConstantsClass() + UNDERSCORE + classIndex;
     }
