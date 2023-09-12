@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
@@ -24,15 +25,23 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.SubtypeData;
+import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.definition.MappingDefinition;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.StringSubtype;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -68,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -75,8 +85,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
+import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
+import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
+import static io.ballerina.types.UniformTypeCode.UT_INT;
+import static io.ballerina.types.UniformTypeCode.UT_STRING;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter.getTypeOrClassName;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getReferredType;
 
@@ -368,9 +385,9 @@ public class SemTypeResolver {
         return resolveSingletonType((BLangLiteral) valueSpace.get(0));
     }
 
-    private static SemType resolveSingletonType(BLangLiteral literal) {
+    static SemType resolveSingletonType(BLangLiteral literal) {
         Object litVal = literal.value;
-        switch (literal.getBType().getKind()) {
+        switch (literal.getDeterminedType().getKind()) {
             case FLOAT:
                 double value;
                 if (litVal instanceof Long) {
@@ -889,4 +906,40 @@ public class SemTypeResolver {
                                             SemTypes.union(PredefinedType.INT,
                                             SemTypes.union(PredefinedType.FLOAT,
                                             SemTypes.union(PredefinedType.DECIMAL, PredefinedType.STRING)))));
+
+    /**
+     * Returns the basic type of singleton.
+     * <p>
+     * This will replace the existing <code>finiteType.getValueSpace().iterator().next().getBType()</code> calls
+     *
+     * @param t SemType component of BFiniteType
+     */
+    public static Optional<BType> singleShapeBroadType(SemType t, SymbolTable symTable) {
+        if (PredefinedType.NIL.equals(t)) {
+            return Optional.of(symTable.nilType);
+        } else if (t instanceof UniformTypeBitSet) {
+            return Optional.empty();
+        } else if (Core.isSubtypeSimple(t, PredefinedType.INT)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_INT);
+            Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(symTable.intType);
+        } else if (Core.isSubtypeSimple(t, PredefinedType.FLOAT)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_FLOAT);
+            Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(symTable.floatType);
+        } else if (Core.isSubtypeSimple(t, PredefinedType.STRING)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_STRING);
+            Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(symTable.stringType);
+        } else if (Core.isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_BOOLEAN);
+            Optional<Boolean> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(symTable.booleanType);
+        } else if (Core.isSubtypeSimple(t, PredefinedType.DECIMAL)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_DECIMAL);
+            Optional<BigDecimal> value = DecimalSubtype.decimalSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(symTable.decimalType);
+        }
+        return Optional.empty();
+    }
 }

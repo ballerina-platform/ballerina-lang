@@ -48,9 +48,14 @@ public class ConditionResolver {
                 if (value instanceof Boolean) {
                     return value == Boolean.TRUE ? symTable.trueType : symTable.falseType;
                 }
-                return new BFiniteType(null, new HashSet<>() { { add(condition); } });
+                BFiniteType finiteType =  new BFiniteType(null, new HashSet<>() { { add(condition); } });
+                // TODO: remove semtype resolving for add()
+                finiteType.setSemTypeComponent(SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
+                return finiteType;
             case NUMERIC_LITERAL:
-                return new BFiniteType(null, new HashSet<>() { { add(condition); } });
+                BFiniteType finiteType2 = new BFiniteType(null, new HashSet<>() { { add(condition); } });
+                finiteType2.setSemTypeComponent(SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
+                return finiteType2;
             case TYPE_TEST_EXPR:
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
                 BType exprType = typeTestExpr.expr.getBType();

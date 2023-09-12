@@ -154,8 +154,8 @@ public class SymbolTable {
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
-    public BFiniteType trueType;
-    public BFiniteType falseType;
+    public BType trueType;
+    public BType falseType;
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;

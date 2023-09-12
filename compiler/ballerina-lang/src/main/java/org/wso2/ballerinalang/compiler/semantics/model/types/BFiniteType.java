@@ -40,7 +40,6 @@ import java.util.StringJoiner;
 public class BFiniteType extends BType implements FiniteType {
 
     private Set<BLangExpression> valueSpace;
-    private boolean nullable = false;
     public Boolean isAnyData = null;
 
     private SemType semTypeComponent;
@@ -105,10 +104,6 @@ public class BFiniteType extends BType implements FiniteType {
 
     public void addValue(BLangExpression value) {
         this.valueSpace.add(value);
-        if (!this.nullable && value.getBType() != null &&  value.getBType().isNullable()) {
-            this.nullable = true;
-        }
-
         SemTypeResolver.addBFiniteValue(this, value);
     }
 

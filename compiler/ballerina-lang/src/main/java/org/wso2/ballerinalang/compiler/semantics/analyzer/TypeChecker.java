@@ -20,6 +20,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.UniformTypeBitSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -512,18 +516,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private int getPreferredMemberTypeTag(BFiniteType finiteType) {
-        for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-            int typeTag = Types.getReferredType(valueExpr.getBType()).tag;
-            if (typeTag > TypeTags.DECIMAL) {
-                continue;
-            }
-            for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
-                if (typeTag == i) {
-                    return i;
-                }
-            }
+        SemType t = finiteType.getSemTypeComponent();
+        if (t instanceof UniformTypeBitSet) {
+            return TypeTags.NONE;
         }
-        return TypeTags.NONE;
+
+        int bitset = ((ComplexSemType) t).some.bitset;
+
+        if ((bitset & PredefinedType.INT.bitset) != 0) {
+            return TypeTags.INT;
+        } else if ((bitset & PredefinedType.FLOAT.bitset) != 0) {
+            return TypeTags.FLOAT;
+        } else if ((bitset & PredefinedType.DECIMAL.bitset) != 0) {
+            return TypeTags.DECIMAL;
+        } else {
+            return TypeTags.NONE;
+        }
     }
 
     private BType getFiniteTypeMatchWithIntType(BLangLiteral literalExpr, BFiniteType finiteType, AnalyzerData data) {
@@ -5193,8 +5201,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 basicNumericTypes.add(symTable.decimalType);
                 break;
             } else if (typeTag == TypeTags.FINITE) {
-                LinkedHashSet<BType> typesInValueSpace = getTypesInFiniteValueSpace((BFiniteType) referredType);
-                basicNumericTypes.addAll(getBasicNumericTypes(typesInValueSpace));
+                basicNumericTypes.addAll(getTypesInFiniteValueSpace((BFiniteType) referredType));
             }
         }
         return basicNumericTypes;
@@ -5215,11 +5222,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public LinkedHashSet<BType> getTypesInFiniteValueSpace(BFiniteType referredType) {
-        Set<BLangExpression> valueSpace = referredType.getValueSpace();
-        LinkedHashSet<BType> typesInValueSpace = new LinkedHashSet<>(valueSpace.size());
-        for (BLangExpression expr : valueSpace) {
-            typesInValueSpace.add(expr.getBType());
+        LinkedHashSet<BType> typesInValueSpace = new LinkedHashSet<>(6);
+
+        int bitset = ((ComplexSemType) referredType.getSemTypeComponent()).some.bitset;
+        if ((bitset & PredefinedType.NIL.bitset) != 0) {
+            typesInValueSpace.add(symTable.nilType);
         }
+        if ((bitset & PredefinedType.BOOLEAN.bitset) != 0) {
+            typesInValueSpace.add(symTable.booleanType);
+        }
+        if ((bitset & PredefinedType.INT.bitset) != 0) {
+            typesInValueSpace.add(symTable.intType);
+        }
+        if ((bitset & PredefinedType.FLOAT.bitset) != 0) {
+            typesInValueSpace.add(symTable.floatType);
+        }
+        if ((bitset & PredefinedType.DECIMAL.bitset) != 0) {
+            typesInValueSpace.add(symTable.decimalType);
+        }
+        if ((bitset & PredefinedType.STRING.bitset) != 0) {
+            typesInValueSpace.add(symTable.stringType);
+        }
+
         return typesInValueSpace;
     }
 
@@ -9422,7 +9446,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private LinkedHashSet<BType> getTypeWithoutNilForNonAnyTypeWithNil(BType type) {
         BType referredType = Types.getReferredType(type);
         if (referredType.tag == TypeTags.FINITE) {
-            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace();
+            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace(); // TODO: can remove at end
             LinkedHashSet<BLangExpression> nonNilValueSpace = new LinkedHashSet<>();
             for (BLangExpression expression : valueSpace) {
                 if (expression.getBType().tag != TypeTags.NIL) {

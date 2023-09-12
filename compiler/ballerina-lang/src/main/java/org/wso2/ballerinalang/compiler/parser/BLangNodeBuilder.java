@@ -895,7 +895,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangUnaryExpr unaryExpr = createBLangUnaryExpr(unaryConstant.pos, unaryConstant.operator,
                     unaryConstant.expr);
             unaryExpr.setBType(unaryConstant.expr.getBType());
-            unaryExpr.isConstant = true;
             finiteTypeNode.valueSpace.add(unaryExpr);
         }
         finiteTypeNode.pos = identifierPos;

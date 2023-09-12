@@ -41,8 +41,6 @@ public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNo
     // Semantic Data
     public BOperatorSymbol opSymbol;
 
-    public boolean isConstant;
-
     @Override
     public BLangExpression getExpression() {
         return expr;

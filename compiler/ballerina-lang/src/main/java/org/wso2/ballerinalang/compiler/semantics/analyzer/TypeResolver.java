@@ -128,6 +128,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
@@ -1670,43 +1671,28 @@ public class TypeResolver {
                 (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
-        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals.
-         replaceUnaryExprWithNumericLiteral(td);
-
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        for (BLangExpression literal : td.valueSpace) {
-            BType type = blangTypeUpdate(literal);
+        for (BLangExpression exprOrLiteral : td.valueSpace) {
+            BType type = blangTypeUpdate(exprOrLiteral);
             if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
             }
             if (type != null) {
-                literal.setBType(symTable.getTypeFromTag(type.tag));
+                exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
+            }
+
+            BLangLiteral literal;
+            if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
+                literal = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
+            } else {
+                literal = (BLangLiteral) exprOrLiteral;
             }
             finiteType.addValue(literal);
         }
+
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
-    }
-
-    private void replaceUnaryExprWithNumericLiteral(BLangFiniteTypeNode finiteTypeNode) {
-        List<BLangExpression> valueSpace = finiteTypeNode.valueSpace;
-        for (int i = 0; i < valueSpace.size(); i++) {
-            BLangExpression value;
-            NodeKind valueKind;
-            value = valueSpace.get(i);
-            valueKind = value.getKind();
-
-            if (valueKind == NodeKind.UNARY_EXPR) {
-                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
-                if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    // Replacing unary expression with numeric literal type for + and - numeric values.
-                    BLangNumericLiteral newNumericLiteral =
-                            Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
-                    valueSpace.set(i, newNumericLiteral);
-                }
-            }
-        }
     }
 
     private BType blangTypeUpdate(BLangExpression expression) {
@@ -2064,7 +2050,7 @@ public class TypeResolver {
         boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
                 || nodeKind == NodeKind.UNARY_EXPR;
         if (typeDef != null && isLiteral) {
-            resolveTypeDefinition(symEnv, modTable, typeDef, 0);
+            resolveTypeDefinition(symEnv, modTable, typeDef, 0); // TODO: 12/9/23 fix type resolving for constant-expr
         }
         if (constant.typeNode != null) {
             // Type node is available.
@@ -2108,7 +2094,8 @@ public class TypeResolver {
         // Update the final type in necessary fields.
         constantSymbol.type = intersectionType;
         if (intersectionType.tag == TypeTags.FINITE) {
-            constantSymbol.literalType = ((BFiniteType) intersectionType).getValueSpace().iterator().next().getBType();
+            constantSymbol.literalType =
+                    singleShapeBroadType(((BFiniteType) intersectionType).getSemTypeComponent(), symTable).get();
         } else {
             constantSymbol.literalType = intersectionType;
         }

@@ -38,6 +38,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import io.ballerina.types.Core;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -503,7 +504,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isInlineSingletonType(BSymbol symbol) {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
         return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
-                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+                Core.singleShape(((BFiniteType) symbol.type).getSemTypeComponent()).isPresent();
     }
 
     private boolean isInlineErrorType(BSymbol symbol) {
