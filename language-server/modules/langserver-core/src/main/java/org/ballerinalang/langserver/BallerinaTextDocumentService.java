@@ -18,8 +18,8 @@ package org.ballerinalang.langserver;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
@@ -443,9 +443,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 if (syntaxTree.isEmpty()) {
                     return Collections.emptyList();
                 }
-                    String formattedSource;
+                String formattedSource;
                 if (context.currentModule().isPresent() &&
-                        !(context.currentModule().get().project() instanceof SingleFileProject)) {
+                        !(context.currentModule().get().project().kind() == ProjectKind.SINGLE_FILE_PROJECT)) {
                     Path rootPath = context.workspace().projectRoot(context.filePath());
                     BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
                     FormattingOptions options = FormattingOptions.builder()

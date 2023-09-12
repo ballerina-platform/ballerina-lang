@@ -29,7 +29,6 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormattingOptions;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

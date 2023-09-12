@@ -22,19 +22,19 @@ package org.ballerinalang.formatter.core;
  */
 public class FunctionFormattingOptions {
 
-    private boolean paranAlign;
-    private boolean oneArgPerLine;
+    private final boolean paranAlign;
+    private final boolean oneArgPerLine;
 
     private FunctionFormattingOptions(boolean paranAlign, boolean oneArgPerLine) {
         this.paranAlign = paranAlign;
         this.oneArgPerLine = oneArgPerLine;
     }
 
-    public boolean paranAlign() {
+    public boolean getParanAlign() {
         return paranAlign;
     }
 
-    public boolean oneArgPerLine() {
+    public boolean getOneArgPerLine() {
         return oneArgPerLine;
     }
 

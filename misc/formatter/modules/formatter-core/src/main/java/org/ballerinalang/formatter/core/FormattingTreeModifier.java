@@ -366,10 +366,10 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
-        boolean paranAlign = options.getFunctionFormattingOptions().paranAlign();
+        boolean paranAlign = options.getFunctionFormattingOptions().getParanAlign();
         // Start a new indentation of two tabs for the parameters.
         alignOrIndent(paranAlign, 2);
-        boolean oneArgPerLine = options.getFunctionFormattingOptions().oneArgPerLine();
+        boolean oneArgPerLine = options.getFunctionFormattingOptions().getOneArgPerLine();
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, oneArgPerLine ? 0 : 1,
                         oneArgPerLine ? 1 : 0, 0, 0, true);
