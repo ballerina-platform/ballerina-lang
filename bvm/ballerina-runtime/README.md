@@ -126,15 +126,13 @@ For example, a string type array can be created as follows.
 ```
 ArrayType strArrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING)
 ```
-
 Note: If we need to create a record type or object type defined in the module, we need to pass the type definition 
 name and module to get the type instance. 
 
-We can use other TypeCreator APIs to create own record or object type. But record or object values created using those 
-types will not work properly in Ballerina code since those type definitions are not defined in the module.
+We can use other TypeCreator APIs to create our own record or object type. But record or object values created using those 
+types will not work correctly in the Ballerina code since those type definitions are not defined in the module.
 
-Those can only be use for Java unit tests.
-
+Those can only be used for Java unit tests.
 ```
 
 ## Calling a Ballerina object method
