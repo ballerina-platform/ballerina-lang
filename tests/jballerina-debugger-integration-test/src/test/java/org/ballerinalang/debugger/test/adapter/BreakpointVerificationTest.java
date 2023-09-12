@@ -47,7 +47,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
 
     private static final int ENUM_DCLN_START = 17;
     private static final int CLASS_DEFN_START = ENUM_DCLN_START + 6;
-    private static final int IF_STATEMENT_START = CLASS_DEFN_START + 36;
+    private static final int IF_STATEMENT_START = CLASS_DEFN_START + 25;
     private static final int WHILE_LOOP_START = IF_STATEMENT_START + 9;
     private static final int FOREACH_LOOP_START = WHILE_LOOP_START + 10;
     private static final int MATCH_STMT_START = FOREACH_LOOP_START + 10;
