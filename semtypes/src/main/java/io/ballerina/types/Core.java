@@ -23,12 +23,14 @@ import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.typeops.SubtypePair;
 import io.ballerina.types.typeops.SubtypePairs;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -608,7 +610,7 @@ public class Core {
         } else if (isSubtypeSimple(t, PredefinedType.INT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_INT);
             Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.FLOAT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_FLOAT);
             Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
@@ -616,11 +618,15 @@ public class Core {
         } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_STRING);
             Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_BOOLEAN);
             Optional<Boolean> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
+        } else if (isSubtypeSimple(t, PredefinedType.DECIMAL)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_DECIMAL);
+            Optional<BigDecimal> value = DecimalSubtype.decimalSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get().toString()));
         }
         return Optional.empty();
     }

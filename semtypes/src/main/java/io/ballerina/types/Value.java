@@ -23,7 +23,7 @@ package io.ballerina.types;
  * @since 2201.8.0
  */
 public class Value {
-    final Object value;
+    public final Object value;
 
     private Value(Object value) {
         this.value = value;
