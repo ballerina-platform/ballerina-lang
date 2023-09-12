@@ -733,33 +733,38 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.returnTypes.peek().add(returnStmt.expr.getBType());
     }
 
+    private void resetTransactionScope(AnalyzerData data) {
+        data.commitRollbackAllowed = true;
+        data.withinTransactionScope = true;
+    }
+
+    private BLangExpression unwrapGroupedExpr(BLangExpression expression) {
+        if (expression.getKind() == NodeKind.GROUP_EXPR) {
+            return unwrapGroupedExpr(((BLangGroupExpr) expression).expression);
+        }
+        return expression;
+    }
+
     @Override
     public void visit(BLangIf ifStmt, AnalyzerData data) {
-        boolean independentBlocks = false;
         int prevCommitCount = data.commitCount;
         int prevRollbackCount = data.rollbackCount;
         BLangStatement elseStmt = ifStmt.elseStmt;
-        if (data.withinTransactionScope && elseStmt != null && elseStmt.getKind() != NodeKind.IF) {
-                independentBlocks = true;
-                data.commitRollbackAllowed = true;
-        }
         boolean prevTxMode = data.withinTransactionScope;
-        if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
-                ((BLangGroupExpr) ifStmt.expr).expression.getKind() :
-                ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        boolean isTransactional = unwrapGroupedExpr(ifStmt.expr).getKind()
+            == NodeKind.TRANSACTIONAL_EXPRESSION;
+        if (isTransactional) {
             data.withinTransactionScope = true;
         }
         BLangBlockStmt body = ifStmt.body;
         analyzeNode(body, data);
-
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        if (isTransactional) {
             data.withinTransactionScope = prevTxMode;
         }
+        if (prevTxMode && elseStmt != null) {
+            resetTransactionScope(data);
+        }
         if (elseStmt != null) {
-            if (independentBlocks) {
-                data.commitRollbackAllowed = true;
-                data.withinTransactionScope = true;
-            }
             analyzeNode(elseStmt, data);
             if ((prevCommitCount != data.commitCount) || prevRollbackCount != data.rollbackCount) {
                 data.commitRollbackAllowed = false;

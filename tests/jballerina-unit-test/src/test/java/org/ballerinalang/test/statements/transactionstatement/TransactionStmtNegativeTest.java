@@ -43,29 +43,29 @@ public class TransactionStmtNegativeTest {
         int index = 0;
         BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 11, 15);
         BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 27, 5);
-        BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 48, 5);
+            "premature exit detected before commit/rollback", 27, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 48, 5);
+        BAssertUtil.validateError(negativeFile, index++,
+            "premature exit detected before commit/rollback", 48, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 68, 5);
         BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 79, 8);
+            "premature exit detected before commit/rollback", 79, 8);
         BAssertUtil.validateError(negativeFile, index++, "rollback not allowed here", 122, 13);
-        BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 139, 5);
         BAssertUtil.validateError(negativeFile, index++, "invalid transaction commit count", 139, 5);
+        BAssertUtil.validateError(negativeFile, index++,
+            "premature exit detected before commit/rollback", 139, 5);
         BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 162, 15);
         BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 180, 9);
+            "premature exit detected before commit/rollback", 180, 9);
         BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 207, 9);
+            "premature exit detected before commit/rollback", 207, 9);
         BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 220, 5);
+            "premature exit detected before commit/rollback", 220, 5);
         BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 229, 19);
         BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 244, 15);
         BAssertUtil.validateError(negativeFile, index++, "commit not allowed here", 258, 19);
         BAssertUtil.validateError(negativeFile, index++,
-            "exit from transaction prior to commit/rollback identified", 266, 5);
+            "premature exit detected before commit/rollback", 266, 5);
         Assert.assertEquals(negativeFile.getErrorCount(), index);
     }
 
