@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -41,6 +42,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
@@ -172,14 +174,55 @@ public class MethodGen {
                     asyncDataCollector, types);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                    attachedType, asyncDataCollector);
+                    attachedType, asyncDataCollector, false);
         }
+    }
+
+    public void genJMethodWithBObjectMethodCall(BIRFunction func, ClassWriter cw, BIRPackage module,
+                                                JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                                JvmConstantsGen jvmConstantsGen, String moduleClassName,
+                                                BType attachedType, AsyncDataCollector asyncDataCollector,
+                                                String splitClassName) {
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        int access = Opcodes.ACC_PUBLIC;
+        indexMap.addIfNotExists("self", symbolTable.anyType);
+        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+        String funcName = func.name.value;
+        BType retType = getReturnType(func);
+        String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
+        mv.visitCode();
+
+        int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
+        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv, ICONST_0);
+        LabelGenerator labelGen = new LabelGenerator();
+        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
+                jvmCastGen, jvmConstantsGen, asyncDataCollector,
+                types);
+        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
+                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+
+        mv.visitVarInsn(ALOAD, 1); // load strand
+        mv.visitVarInsn(ALOAD, 0); // load self
+
+        String encodedMethodName = Utils.encodeFunctionIdentifier(funcName);
+        for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
+            instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.value, parameter.type));
+        }
+        String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, attachedType);
+        mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
+
+        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
+        mv.visitEnd();
     }
 
     public void genJMethodForBFunc(BIRFunction func, ClassWriter cw, BIRPackage module,
                                    JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                    JvmConstantsGen jvmConstantsGen, String moduleClassName,
-                                   BType attachedType, AsyncDataCollector asyncDataCollector) {
+                                   BType attachedType, AsyncDataCollector asyncDataCollector,
+                                   boolean isObjectMethodSplit) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         boolean isWorker = Symbols.isFlagOn(func.flags, Flags.WORKER);
@@ -188,7 +231,7 @@ public class MethodGen {
         int access = Opcodes.ACC_PUBLIC;
         // localVarOffset is actually the local var index of the strand which is passed as an argument to the function
         int localVarOffset;
-        if (attachedType != null) {
+        if (attachedType != null && !isObjectMethodSplit) {
             localVarOffset = 1;
             // add the self as the first local var
             indexMap.addIfNotExists("self", symbolTable.anyType);
@@ -198,6 +241,9 @@ public class MethodGen {
         }
 
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+        if (isObjectMethodSplit) {
+            indexMap.addIfNotExists("self", symbolTable.anyType);
+        }
 
         String funcName = func.name.value;
         BType retType = getReturnType(func);
@@ -206,6 +252,8 @@ public class MethodGen {
         if (isWorker) {
             invocationCountArgVarIndex = indexMap.addIfNotExists(INVOCATION_COUNT, symbolTable.stringType);
             desc = INITIAL_METHOD_DESC + "I" + populateMethodDesc(func.type.paramTypes) + generateReturnType(retType);
+        } else if (isObjectMethodSplit) {
+            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, attachedType);
         } else {
             desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
         }

@@ -432,7 +432,7 @@ public class JvmInstructionGen {
 
         switch (varDcl.kind) {
             case SELF:
-                mv.visitVarInsn(ALOAD, 0);
+                mv.visitVarInsn(ALOAD, this.indexMap.get("self"));
                 return;
             case CONSTANT:
             case GLOBAL:

@@ -83,8 +83,8 @@ public class CodeGenerator {
         largeMethodOptimizer.splitLargeBIRFunctions(packageSymbol.bir);
 
         // Desugar BIR to include the observations
-        JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
-        jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
+//        JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
+//        jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
 
         // Re-arrange basic blocks and error entries
         BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
