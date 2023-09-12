@@ -20,8 +20,8 @@ public class Constants {
     public static final PrintStream ERROR_STREAM = System.err;
 
     public static final String CLASS_SUFFIX = ".class";
-    public   static final String PROFILE_ANALYZER = "io/ballerina/runtime/profiler/runtime/ProfileAnalyzer";
-    public   static final String GET_INSTANCE_DESCRIPTOR = "()L" + PROFILE_ANALYZER + ";";
+    public static final String PROFILE_ANALYZER = "io/ballerina/runtime/profiler/runtime/ProfileAnalyzer";
+    public static final String GET_INSTANCE_DESCRIPTOR = "()L" + PROFILE_ANALYZER + ";";
     public static final String CPU_PRE_JSON = "cpu_pre.json";
 
     private Constants() {

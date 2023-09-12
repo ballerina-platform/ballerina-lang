@@ -49,6 +49,3 @@ public class StackTraceMap {
         return keyBuilder.toString();
     }
 }
-
-
-
