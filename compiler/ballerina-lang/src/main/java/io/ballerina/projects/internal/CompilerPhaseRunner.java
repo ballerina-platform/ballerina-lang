@@ -121,6 +121,11 @@ public class CompilerPhaseRunner {
         }
 
         isolationAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_CODE_ANALYZE)) {
+            return;
+        }
+
+        deadCodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
             return;
         }
@@ -132,11 +137,6 @@ public class CompilerPhaseRunner {
 
         propagateConstants(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
-            return;
-        }
-
-        deadCodeAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_CODE_ANALYZE)) {
             return;
         }
 
