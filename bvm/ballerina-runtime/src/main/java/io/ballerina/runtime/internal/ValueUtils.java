@@ -47,11 +47,14 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
@@ -72,35 +75,44 @@ public class ValueUtils {
      * @return               value of the record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
+        return createRecordValue(packageId, recordTypeName, new HashSet<>());
+    }
+
+    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
+                                                          Set<String> providedFields) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
         try {
-            return getPopulatedRecordValue(valueCreator, recordTypeName);
+            return getPopulatedRecordValue(valueCreator, recordTypeName, providedFields);
         } catch (BError e) {
             // If record type definition not found, get it from test module.
             String testLookupKey = ValueCreator.getLookupKey(packageId, true);
             if (ValueCreator.containsValueCreator(testLookupKey)) {
-                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName);
+                return getPopulatedRecordValue(ValueCreator.getValueCreator(testLookupKey), recordTypeName,
+                        providedFields);
             }
             throw e;
         }
     }
 
-    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName) {
+    private static BMap<BString, Object> getPopulatedRecordValue(ValueCreator valueCreator, String recordTypeName,
+                                                                 Set<String> providedFields) {
         MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
         BRecordType type = (BRecordType) TypeUtils.getImpliedType(recordValue.getType());
-        return populateDefaultValues(recordValue, type);
+        return populateDefaultValues(recordValue, type, providedFields);
     }
 
-    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type) {
+    public static BMap<BString, Object> populateDefaultValues(BMap<BString, Object> recordValue, BRecordType type,
+                                                              Set<String> providedFields) {
         Map<String, BFunctionPointer<Object, ?>> defaultValues = type.getDefaultValues();
         if (defaultValues.isEmpty()) {
             return recordValue;
         }
+        defaultValues = getNonProvidedDefaultValues(defaultValues, providedFields);
         Strand strand = Scheduler.getStrandNoException();
         if (strand == null) {
             try {
                 final CountDownLatch latch = new CountDownLatch(defaultValues.size());
-                populateInitialValuesWithNoStrand(recordValue, type, latch);
+                populateInitialValuesWithNoStrand(recordValue, latch, defaultValues);
                 latch.await();
             } catch (InterruptedException e) {
                 throw ErrorCreator.createError(
@@ -115,9 +127,15 @@ public class ValueUtils {
         return recordValue;
     }
 
-    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, BRecordType recordType,
-                                                          CountDownLatch latch) {
-        Map<String, BFunctionPointer<Object, ?>> defaultValues = recordType.getDefaultValues();
+    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues
+            (Map<String, BFunctionPointer<Object, ?>> defaultValues, Set<String> providedFields) {
+        return defaultValues.entrySet().stream()
+                .filter(entry -> !providedFields.contains(entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, CountDownLatch latch,
+                                                          Map<String, BFunctionPointer<Object, ?>> defaultValues) {
         String[] fields = defaultValues.keySet().toArray(new String[0]);
         invokeFPAsyncIterativelyWithNoStrand(recordValue, defaultValues, fields, "default",
                 Scheduler.getDaemonStrand().getMetadata(), defaultValues.size(), o -> {
@@ -197,7 +215,7 @@ public class ValueUtils {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
-        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName);
+        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName, valueMap.keySet());
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
             // TODO: Remove the following String to BString conversion.
@@ -220,7 +238,8 @@ public class ValueUtils {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           BMap<BString, Object> valueMap) {
-        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName);
+        Set<String> keySet = Arrays.stream(valueMap.getKeys()).map(BString::getValue).collect(Collectors.toSet());
+        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName, keySet);
         for (Map.Entry<BString, Object> fieldEntry : valueMap.entrySet()) {
             recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
         }

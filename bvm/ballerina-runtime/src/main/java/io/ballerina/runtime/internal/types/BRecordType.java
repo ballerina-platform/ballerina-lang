@@ -39,6 +39,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -128,7 +129,7 @@ public class BRecordType extends BStructureType implements RecordType {
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
         BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
-        ValueUtils.populateDefaultValues(recordValue, this);
+        ValueUtils.populateDefaultValues(recordValue, this, new HashSet<>());
         if (defaultValues.isEmpty()) {
             return (V) recordValue;
         }
