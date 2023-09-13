@@ -127,6 +127,7 @@ public class RuntimeConstants {
 
     // Name of the system property to hold the debug port
     public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
+    public static final String SYSTEM_PROP_PROFILE_DEBUG = "profilerDebug";
 
     // Transaction constants
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
