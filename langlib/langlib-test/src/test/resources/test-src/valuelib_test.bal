@@ -3901,6 +3901,35 @@ function testToJsonWithArray() {
     assert(<json[]> arrStringJson, <json[]> ["hello", "world"]);
 }
 
+type Counter record {|
+    int[] x = getX();
+    int[] y = getY();
+|};
+
+isolated int counter = 0;
+
+isolated function getX() returns int[] {
+    lock {
+        counter += 1;
+    }
+    return [1];
+}
+
+isolated function getY() returns int[] {
+    lock {
+        counter += 1;
+    }
+    return [2];
+}
+
+function testCloneWithTypeRecordDefaultValues() {
+    map<anydata> m = {y:  [3]};
+    Counter n = checkpanic m.cloneWithType();
+    lock {
+        assertEquality(1, counter);
+    }
+}
+
 type XmlType xml;
 
 function testToJsonWithXML() {
@@ -4633,7 +4662,7 @@ function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
 
-function assertEquality(any|error expected, any|error actual) {
+isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }
