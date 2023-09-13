@@ -32,9 +32,11 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -270,7 +272,11 @@ class ModuleContext {
         } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
                 && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-        } else {
+        }
+//        else if (!this.moduleDescriptor.packageName().toString().contains("lang") && !this.moduleDescriptor.packageName().toString().contains("jballerina")) {
+//            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+//        }
+        else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
         }
         return moduleCompState;
@@ -450,6 +456,9 @@ class ModuleContext {
             return;
         }
 
+        // TODO implement DCE for library packages as well
+        eliminateDeadFunctions(moduleContext);
+
         // Generate and write the thin JAR to the file system
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
 
@@ -509,6 +518,23 @@ class ModuleContext {
     static void loadBirBytesInternal(ModuleContext moduleContext) {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
+
+    public static void eliminateDeadFunctions(ModuleContext moduleContext) {
+        HashSet<String> deadFunctionNames = new HashSet<>();
+        HashSet<BInvokableSymbol> deadFunctionSymbols = moduleContext.bLangPackage().symbol.deadFunctions;
+        deadFunctionSymbols.forEach((deadSymbol)-> {
+            deadFunctionNames.add(deadSymbol.getOriginalName().value);});
+        List<BIRNode.BIRFunction> deadBIRFunctions = new ArrayList<>();
+
+        // Filtering out the unused BIRFunctions
+        for (BIRNode.BIRFunction birFunction : moduleContext.bLangPackage().symbol.bir.functions) {
+            if (deadFunctionNames.contains(birFunction.originalName.getValue())) {
+                deadBIRFunctions.add(birFunction);
+            }
+        }
+        moduleContext.bLangPackage().symbol.bir.functions.removeAll(deadBIRFunctions);
+    }
+
 
     static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
         // TODO implement
