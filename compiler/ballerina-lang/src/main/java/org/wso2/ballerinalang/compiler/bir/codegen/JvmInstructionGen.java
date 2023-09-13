@@ -520,7 +520,7 @@ public class JvmInstructionGen {
         generateVarStoreForType(mv, bType, valueIndex);
     }
 
-    private void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
+    public void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
         bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);

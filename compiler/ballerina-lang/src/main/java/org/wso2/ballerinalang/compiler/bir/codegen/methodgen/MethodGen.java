@@ -193,8 +193,6 @@ public class MethodGen {
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
-        int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
-        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv, ICONST_0);
         LabelGenerator labelGen = new LabelGenerator();
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
                 jvmCastGen, jvmConstantsGen, asyncDataCollector,
@@ -212,7 +210,9 @@ public class MethodGen {
         }
         String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, attachedType);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
-
+        int returnVarRefIndex = indexMap.addIfNotExists("return", retType);
+        int invocationVarIndex = indexMap.addIfNotExists("invocation", symbolTable.stringType);
+        instGen.generateVarStoreForType(mv, retType, returnVarRefIndex);
         termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
         mv.visitEnd();
