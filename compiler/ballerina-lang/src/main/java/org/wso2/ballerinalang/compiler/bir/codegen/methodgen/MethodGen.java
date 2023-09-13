@@ -69,11 +69,13 @@ import java.util.Set;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DLOAD;
+import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.DSTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP_X1;
@@ -91,10 +93,12 @@ import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.ISUB;
 import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LLOAD;
+import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
@@ -184,38 +188,44 @@ public class MethodGen {
                                                 BType attachedType, AsyncDataCollector asyncDataCollector,
                                                 String splitClassName) {
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        int access = Opcodes.ACC_PUBLIC;
         indexMap.addIfNotExists("self", symbolTable.anyType);
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
         String funcName = func.name.value;
         BType retType = getReturnType(func);
         String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
-        MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, funcName, desc, null, null);
         mv.visitCode();
-
-        LabelGenerator labelGen = new LabelGenerator();
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                jvmCastGen, jvmConstantsGen, asyncDataCollector,
-                types);
-        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
-        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
-                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
-
+                jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         mv.visitVarInsn(ALOAD, 1); // load strand
         mv.visitVarInsn(ALOAD, 0); // load self
-
         String encodedMethodName = Utils.encodeFunctionIdentifier(funcName);
         for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
             instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.value, parameter.type));
         }
         String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, attachedType);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
-        int returnVarRefIndex = indexMap.addIfNotExists("return", retType);
-        int invocationVarIndex = indexMap.addIfNotExists("invocation", symbolTable.stringType);
-        instGen.generateVarStoreForType(mv, retType, returnVarRefIndex);
-        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
+        generateReturnTermFromType(retType, mv);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
         mv.visitEnd();
+    }
+
+    private void generateReturnTermFromType(BType bType, MethodVisitor mv) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+            mv.visitInsn(LRETURN);
+            return;
+        } else if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)
+                || TypeTags.REGEXP == bType.tag) {
+            mv.visitInsn(ARETURN);
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE, TypeTags.BOOLEAN -> mv.visitInsn(IRETURN);
+            case TypeTags.FLOAT -> mv.visitInsn(DRETURN);
+            default -> mv.visitInsn(ARETURN);
+        }
     }
 
     public void genJMethodForBFunc(BIRFunction func, ClassWriter cw, BIRPackage module,
