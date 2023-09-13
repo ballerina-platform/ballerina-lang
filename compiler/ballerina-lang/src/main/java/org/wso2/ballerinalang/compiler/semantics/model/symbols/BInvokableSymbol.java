@@ -57,6 +57,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public Set<BVarSymbol> dependentGlobalVars;
 
+    public HashSet<BInvokableSymbol> childrenFunctions;
+    public UsedState usedState;
+
     public BInvokableSymbol(long tag,
                             long flags,
                             Name name,
@@ -84,6 +87,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.dependentGlobalVars = new HashSet<>();
         this.paramDefaultValTypes = new HashMap<>();
         this.kind = SymbolKind.FUNCTION;
+        this.childrenFunctions = new HashSet<>();
+        this.usedState = UsedState.UNEXPOLORED;
     }
 
     @Override

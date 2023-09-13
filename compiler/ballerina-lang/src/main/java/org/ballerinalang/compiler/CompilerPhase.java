@@ -40,6 +40,7 @@ public enum CompilerPhase {
 
     CONSTANT_PROPAGATION("constantPropagation"),
 
+    DEAD_CODE_ANALYZE("deadCodeAnalyze"),
     COMPILER_PLUGIN("compilerPlugin"),
 
     DESUGAR("desugar"),
@@ -48,9 +49,8 @@ public enum CompilerPhase {
 
     BIR_EMIT("birEmit"),
 
-    CODE_GEN("codeGen"),
+    CODE_GEN("codeGen");
 
-    DEAD_CODE_ANALYZE("deadCodeAnalyze");
 
     private final String value;
 
@@ -70,6 +70,8 @@ public enum CompilerPhase {
                 return DOCUMENTATION_ANALYZE;
             case "constantPropagation":
                 return CONSTANT_PROPAGATION;
+            case "deadCodeAnalyze":
+                return DEAD_CODE_ANALYZE;
             case "compilerPlugin":
                 return COMPILER_PLUGIN;
             case "desugar":
@@ -80,8 +82,6 @@ public enum CompilerPhase {
                 return BIR_GEN;
             case "birEmit":
                 return BIR_EMIT;
-            case "deadCodeAnalyze":
-                return DEAD_CODE_ANALYZE;
             default:
                 throw new IllegalArgumentException("invalid compiler phase: " + value);
         }

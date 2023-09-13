@@ -42,28 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -144,6 +123,13 @@ public class BIRPackageSymbolEnter {
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
+    private HashMap<BInvokableSymbol, HashSet<String>> undefinedChildrenMap = new HashMap<>();     // Children functions from the same pkg which are not yet defined
+
+    private BInvokableSymbol lastParent = null;      // used for debugging
+    private String lastChildName = "";              // used for debugging
+    private String lastChildPkgID = "";             // used for debugging
+    private HashMap<BInvokableSymbol, HashSet<String>> failedSymbolsMap = new HashMap<>();       // used for debugging
+
 
     private static final int SERVICE_TYPE_TAG = 54;
 
@@ -253,6 +239,7 @@ public class BIRPackageSymbolEnter {
 
         // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
+        addRemainingChildren(); // if the both child and parent are in the same package
 
         // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
@@ -408,6 +395,35 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
+        // TODO merge the following 3 lines together?
+        invokableSymbol.usedState= UsedState.UNUSED;    // Only toplevel symbols are defined as usused. Others(Arrow functions) will be Unexplored by default
+        this.env.pkgSymbol.invocationMap.putIfAbsent(invokableSymbol, new HashSet<>());
+        this.env.pkgSymbol.deadFunctions.add(invokableSymbol);      // pre declare as dead
+
+        // Reading the children(Invocations inside the body)
+//        if (!this.env.pkgSymbol.pkgID.pkgName.value.contains("lang") && !this.env.pkgSymbol.pkgID.pkgName.value.contains("jballerina")) {
+        if (true) {
+            int numOfChildren = dataInStream.readInt();
+            for (int i = 0; i < numOfChildren; i++) {
+                String childPkgName = getStringCPEntryValue(dataInStream);
+                String childName = getStringCPEntryValue(dataInStream);
+                this.lastParent = invokableSymbol;
+                this.lastChildName = childName;
+                this.lastChildPkgID = childPkgName;
+                // TODO find a better way to get the child functions
+                if (functionIsDefined(childPkgName, childName)) {
+                    BInvokableSymbol childSymbol = getFunctionSymbol(childPkgName, childName);
+                    addInvocation(invokableSymbol, childSymbol);
+                } else if (isClassFunction(childPkgName, childName)) {
+                    BInvokableSymbol childSymbol = getFunctionInsideClass(childPkgName, childName);
+                    addInvocation(invokableSymbol, childSymbol);
+                } else {
+                    undefinedChildrenMap.putIfAbsent(invokableSymbol, new HashSet<>());
+                    undefinedChildrenMap.get(invokableSymbol).add(childName); // Saving only the child name because all the symbols are from the same package
+                }
+            }
+        }
+
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         boolean isResourceFunction = dataInStream.readBoolean();
@@ -516,6 +532,68 @@ public class BIRPackageSymbolEnter {
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+    }
+
+    // Handles internal function calls (parent and child being in the same package)
+    private void addRemainingChildren() {
+        BPackageSymbol parentPackage = this.env.pkgSymbol;
+        this.undefinedChildrenMap.forEach((parentSymbol, childrenStrings) -> {
+            childrenStrings.forEach((childString) -> {
+                String[] classAndChild = childString.split("\\.");
+                if (isClassFunction(childString)) {     // is defined inside a class
+                    BClassSymbol classSymbol = (BClassSymbol) parentPackage.scope.entries.get(new Name(classAndChild[0])).symbol;
+                    BInvokableSymbol childSymbol = (BInvokableSymbol) classSymbol.scope.entries.get(new Name(childString)).symbol;
+                    addInvocation(parentSymbol, childSymbol);
+                } else if (parentPackage.scope.entries.containsKey(new Name(childString))) {                // is not defined inside a class
+                    BInvokableSymbol childSymbol = (BInvokableSymbol) parentPackage.scope.entries.get(new Name(childString)).symbol;
+                    addInvocation(parentSymbol, childSymbol);
+                } else {
+                    failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
+                    failedSymbolsMap.get(parentSymbol).add(childString);
+                }
+            });
+        });
+        // Flushing the HashMap
+        this.undefinedChildrenMap.clear();
+    }
+
+    private boolean pkgIsDefined(String pkgName) {
+        return this.packageCache.packageSymbolMap.containsKey(pkgName);
+    }
+
+    private boolean functionIsDefined(String pkgName, String functionName) {
+        if (pkgIsDefined(pkgName)) {
+            return this.packageCache.packageSymbolMap.get(pkgName).entrySet().iterator().next().getValue().scope.entries.containsKey(new Name(functionName));
+        }
+        return false;
+    }
+
+    private boolean isClassFunction(String pkgName,String functionName) {
+        if (pkgIsDefined(pkgName)) {
+            return functionName.contains(".");
+        }
+        return false;
+    }
+
+    private boolean isClassFunction(String functionName) {
+        return functionName.contains(".");
+    }
+
+    private void addInvocation(BInvokableSymbol parentSymbol, BInvokableSymbol childSymbol) {
+        parentSymbol.childrenFunctions.add(childSymbol);     // TODO Merge this and next line
+        this.env.pkgSymbol.invocationMap.putIfAbsent(parentSymbol, new HashSet<>());
+        this.env.pkgSymbol.invocationMap.get(parentSymbol).add(childSymbol);
+    }
+
+    // Make sure to call only after confirming function is defined
+    private BInvokableSymbol getFunctionSymbol(String pkgName, String functionName) {
+        return (BInvokableSymbol) this.packageCache.packageSymbolMap.get(pkgName).entrySet().iterator().next().getValue().scope.entries.get(new Name(functionName)).symbol;
+    }
+
+    private BInvokableSymbol getFunctionInsideClass(String pkgName, String functionName) {
+        String[] classAndChild = functionName.split("\\.");
+        BClassSymbol classSymbol = (BClassSymbol) this.packageCache.packageSymbolMap.get(pkgName).entrySet().iterator().next().getValue().scope.entries.get(new Name(classAndChild[0])).symbol;
+        return (BInvokableSymbol) classSymbol.scope.entries.get(new Name(functionName)).symbol;
     }
 
     private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
