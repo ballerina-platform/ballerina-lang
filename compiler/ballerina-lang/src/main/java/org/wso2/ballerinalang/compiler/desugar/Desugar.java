@@ -5924,7 +5924,13 @@ public class Desugar extends BLangNodeVisitor {
                 expression = visitCloneReadonly(expression, invokableSymbol.retType);
             }
             if (env.enclInvokable != null) {
-                updateClosureVariable((BVarSymbol) ((BLangInvocation) expression).symbol, env.enclInvokable, pos);
+                BLangInvocation invocation = (BLangInvocation) expression;
+                if (invocation.expr.getKind() == NodeKind.INVOCATION) {
+                    updateClosureVariable((BVarSymbol) ((BLangInvocation) invocation.expr).symbol, env.enclInvokable,
+                                                        pos);
+                } else {
+                    updateClosureVariable((BVarSymbol) invocation.symbol, env.enclInvokable, pos);
+                }
             }
             BLangRecordLiteral.BLangRecordKeyValueField member = createRecordKeyValueField(pos, fieldName, expression);
             fields.add(member);
