@@ -44,9 +44,10 @@ public class ProfileAnalyzer {
 
     private final HashMap<String, Data> profiles = new HashMap<>();
     private final ArrayList<Data> profilesStack = new ArrayList<>();
-    private final ArrayList<String> blockedMethods = new ArrayList<>();
+    private final Set<String> blockedMethods = new HashSet<>();
     private static final List<String> skippedList = new ArrayList<>();
     private static final Set<String> skippedClasses = new HashSet<>(skippedList);
+    private static final String CPU_PRE_JSON = "cpu_pre.json";
 
     private static class ProfilerHolder {
         private static final ProfileAnalyzer PROFILER_INSTANCE = new ProfileAnalyzer();
@@ -73,46 +74,39 @@ public class ProfileAnalyzer {
         return stack.get(2).getMethodName() + "()";
     }
 
-    private void removeDuplicates(List<String> list) {
-        List<String> newList = new ArrayList<>();
-        for (String element : list) {
-            if (!newList.contains(element)) {
-                newList.add(element);
-            }
-        }
-        list.clear();
-        list.addAll(newList);
-    }
-
     public void start(int id) {
-        String name = getStackTrace();
         if (!blockedMethods.contains(getMethodName() + id)) {
-            Data p = this.profiles.computeIfAbsent(name, key -> {
-                Data newData = new Data(key);
-                profilesStack.add(newData);
-                return newData;
-            });
+            ArrayList<String> stackTrace = getStackTrace();
+            String stackKey = StackTraceMap.getStackKey(stackTrace);
+            Data p;
+            if (this.profiles.containsKey(stackKey)) {
+                 p = this.profiles.get(stackKey);
+            } else {
+                Data newData = new Data(stackTrace.toString());
+                this.profiles.put(stackKey, newData);
+                this.profilesStack.add(newData);
+                p = newData;
+            }
             p.start();
-            removeDuplicates(blockedMethods);
         }
         blockedMethods.remove(getMethodName() + id);
     }
 
     public void start() {
-        String name = getStackTrace();
-        Data p = this.profiles.get(name);
+        ArrayList<String> stackTrace = getStackTrace();
+        String stackKey = StackTraceMap.getStackKey(stackTrace);
+        Data p = this.profiles.get(stackKey);
         if (p == null) {
-            p = new Data(name);
-            this.profiles.put(name, p);
+            p = new Data(stackTrace.toString());
+            this.profiles.put(stackKey, p);
             this.profilesStack.add(p);
         }
         p.start();
-        removeDuplicates(blockedMethods);
     }
 
     public void stop(String strandState, int id) {
-        String name = getStackTrace();
-        Data p = this.profiles.get(name);
+        String stackKey = StackTraceMap.getStackKey(getStackTrace());
+        Data p = this.profiles.get(stackKey);
         if (strandState.equals("RUNNABLE")) {
             if (p != null) {
                 p.stop();
@@ -123,8 +117,8 @@ public class ProfileAnalyzer {
     }
 
     public void stop() {
-        String name = getStackTrace();
-        Data p = this.profiles.get(name);
+        String stackKey = StackTraceMap.getStackKey(getStackTrace());
+        Data p = this.profiles.get(stackKey);
         if (p != null) {
             p.stop();
         }
@@ -132,18 +126,19 @@ public class ProfileAnalyzer {
 
     public final String getProfileStackString() {
         StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < this.profilesStack.size(); i++) {
-            sb.append(this.profilesStack.get(i)).append("\n");
+        ArrayList<Data> stackList = new ArrayList<>(this.profilesStack);
+        for (Data data : stackList) {
+            sb.append(data).append("\n");
         }
         sb.append("]");
         return sb.toString();
     }
 
     private void printProfilerOutput(String dataStream) {
-        try (Writer myWriter = new FileWriter("CpuPre.json", StandardCharsets.UTF_8)) {
+        try (Writer myWriter = new FileWriter(CPU_PRE_JSON, StandardCharsets.UTF_8)) {
             myWriter.write(dataStream);
         } catch (IOException e) {
-            throw new ProfilerRuntimeException("Error occurred while writing to the CpuPre.json file");
+            throw new ProfilerRuntimeException("Error occurred while writing to the " + CPU_PRE_JSON + " file");
         }
     }
 
@@ -156,7 +151,7 @@ public class ProfileAnalyzer {
     }
 
     // This method returns a string representation of the current call stack in the form of a list of strings
-    private String getStackTrace() {
+    private ArrayList<String> getStackTrace() {
         ArrayList<String> result = new ArrayList<>();
 
         final List<StackWalker.StackFrame> stack = StackWalker.getInstance().walk(s -> s.collect(Collectors.toList()));
@@ -180,6 +175,6 @@ public class ProfileAnalyzer {
             }
         }
 
-        return result.toString();
+        return result;
     }
 }

@@ -16,20 +16,24 @@
  * under the License.
  */
 
-package io.ballerina.runtime.profiler.runtime;
+package io.ballerina.runtime.profiler.ui;
 
-/**
- * This class is used as a runtime exception class for profiler.
- *
- * @since 2201.8.0
- */
-public class ProfilerRuntimeException extends RuntimeException {
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-    public ProfilerRuntimeException(String message) {
-        super(message);
-    }
+public class FileUtils {
 
-    public ProfilerRuntimeException(String message, Throwable e) {
-        super(message, e);
+    static String readFileAsString(String file) throws IOException {
+        Path path = Paths.get(file);
+        while (!Files.exists(path)) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        return Files.readString(path);
     }
 }
