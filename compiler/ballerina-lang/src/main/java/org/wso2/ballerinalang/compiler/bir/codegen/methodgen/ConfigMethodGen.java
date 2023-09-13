@@ -59,7 +59,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
@@ -94,7 +94,7 @@ public class ConfigMethodGen {
                                      Map<String, byte[]> jarEntries, SymbolTable symbolTable) {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
+        cw.visit(V17, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);

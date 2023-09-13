@@ -34,7 +34,9 @@ import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
+import static io.ballerina.cli.utils.DebugUtils.getProfileDebugArg;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.cli.utils.DebugUtils.isInProfileDebugMode;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
@@ -46,24 +48,19 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME
  * @since 2201.8.0
  */
 public class RunProfilerTask implements Task {
-
-    private final String[] args;
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
 
-    public RunProfilerTask(PrintStream errStream, String[] args) {
+    public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
-        this.args = args;
     }
 
-
-    private void initiateProfiler(Project project, String[] args) {
-        String profilerArguments = String.join(" ", args);
+    private void initiateProfiler(Project project) {
         String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
         ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
-        Path targetPath = getExecutablePath(project, "Profiler");
+        Path targetPath = getTargetProfilerPath(project);
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
         try {
             Files.copy(sourcePath, targetPath, copyOption);
@@ -79,9 +76,11 @@ public class RunProfilerTask implements Task {
             commands.add(getPackageJarName(project, projectKind));
             commands.add("--target");
             commands.add(targetPath.toString());
-            if (args.length != 0) {
-                commands.add("--args");
-                commands.add("[" + profilerArguments + "]");
+            commands.add("--sourceroot");
+            commands.add(getProjectPath(project).toString());
+            if (isInProfileDebugMode()) {
+                commands.add("--profilerDebug");
+                commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             pb.environment().put(JAVA_OPTS, getAgentArgs());
@@ -109,12 +108,12 @@ public class RunProfilerTask implements Task {
         if (kind == ProjectKind.SINGLE_FILE_PROJECT) {
             return getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT;
         }
-        return project.currentPackage().packageName() + ".jar";
+        return project.currentPackage().packageName() + BLANG_COMPILED_JAR_EXT;
     }
 
     @Override
     public void execute(Project project) {
-        initiateProfiler(project, this.args);
+        initiateProfiler(project);
     }
 
     private String getAgentArgs() {
@@ -125,12 +124,15 @@ public class RunProfilerTask implements Task {
         return jacocoArgLine + " ";
     }
 
-    private Path getExecutablePath(Project project, String fileName) {
-        Path currentDir = Paths.get(System.getProperty(USER_DIR));
+    private Path getTargetProfilerPath(Project project) {
+        return getProjectPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
+    }
+
+    private Path getProjectPath(Project project) {
         // If the --output flag is not set, create the executable in the current directory
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return currentDir.resolve(fileName + BLANG_COMPILED_JAR_EXT);
+            return Paths.get(System.getProperty(USER_DIR));
         }
-        return project.targetDir().resolve("bin").resolve(fileName + BLANG_COMPILED_JAR_EXT);
+        return project.targetDir().resolve("bin");
     }
 }
