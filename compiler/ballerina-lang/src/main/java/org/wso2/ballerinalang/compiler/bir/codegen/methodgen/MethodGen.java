@@ -116,6 +116,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -188,7 +189,7 @@ public class MethodGen {
                                                 BType attachedType, AsyncDataCollector asyncDataCollector,
                                                 String splitClassName) {
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        indexMap.addIfNotExists("self", symbolTable.anyType);
+        indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
         String funcName = func.name.value;
         BType retType = getReturnType(func);
@@ -244,7 +245,7 @@ public class MethodGen {
         if (attachedType != null && !isObjectMethodSplit) {
             localVarOffset = 1;
             // add the self as the first local var
-            indexMap.addIfNotExists("self", symbolTable.anyType);
+            indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
         } else {
             localVarOffset = 0;
             access += ACC_STATIC;
@@ -252,7 +253,7 @@ public class MethodGen {
 
         indexMap.addIfNotExists(STRAND, symbolTable.stringType);
         if (isObjectMethodSplit) {
-            indexMap.addIfNotExists("self", symbolTable.anyType);
+            indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
         }
 
         String funcName = func.name.value;
@@ -1065,7 +1066,7 @@ public class MethodGen {
                 localVarOffset);
         // Add self to the LVT
         if (func.receiver != null) {
-            mv.visitLocalVariable("self", GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
+            mv.visitLocalVariable(OBJECT_SELF_INSTANCE, GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
         }
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);

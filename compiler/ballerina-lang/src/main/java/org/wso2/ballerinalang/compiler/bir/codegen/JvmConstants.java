@@ -291,6 +291,7 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String OBJECT_SELF_INSTANCE = "self";
     public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_union_type_constants";
     public static final String ERROR_TYPE_CONSTANT_CLASS_NAME = "constants/$_error_type_constants";
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
