@@ -152,9 +152,9 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(lsLightWeightMode));
         initializationOptions.setEnableLSLightWeightMode(enableLSLightWeightMode);
 
-        
+
         Object positionalRenameSupport = initOptions.get(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT);
-        boolean enablePositionalRenameSupport = positionalRenameSupport != null && 
+        boolean enablePositionalRenameSupport = positionalRenameSupport != null &&
                 Boolean.parseBoolean(String.valueOf(positionalRenameSupport));
         initializationOptions.setSupportPositionalRenamePopup(enablePositionalRenameSupport);
 
@@ -162,6 +162,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         boolean enableInlayHintsSupport = inlayHintsSupport != null &&
                 Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
         initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
+
+        //Enable indexing user home by default
+        Object indexUserHome = initOptions.get(InitializationOptions.KEY_ENABLE_INDEX_USER_HOME);
+        boolean enableIndexUserHome = indexUserHome == null || Boolean.parseBoolean(String.valueOf(indexUserHome));
+        initializationOptions.setEnableIndexUserHome(enableIndexUserHome);
 
         return initializationOptions;
     }
@@ -214,7 +219,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
         private boolean enableInlayHints = false;
-        
+        private boolean enableIndexUserHome = false;
+
         @Override
         public boolean isBalaSchemeSupported() {
             return supportBalaScheme;
@@ -266,6 +272,15 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setEnableInlayHints(boolean enableInlayHints) {
             this.enableInlayHints = enableInlayHints;
+        }
+
+        @Override
+        public boolean isEnableIndexUserHome() {
+            return enableIndexUserHome;
+        }
+
+        public void setEnableIndexUserHome(boolean enableIndexUserHome) {
+            this.enableIndexUserHome = enableIndexUserHome;
         }
     }
 }

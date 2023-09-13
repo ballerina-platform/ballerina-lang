@@ -20,6 +20,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.Gson;
 import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
@@ -52,79 +53,80 @@ public abstract class AbstractLSTest {
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
     private static final List<LSPackageLoader.ModuleInfo> REMOTE_MODULES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> LOCAL_MODULES = new ArrayList<>();
-    private static final List<org.ballerinalang.central.client.model.Package> CENTRAL_PACKAGES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
-
-    private LSPackageLoader lsPackageLoader;
-
     private static CentralPackageDescriptorLoader centralPackageLoader;
-    private static LSPackageLoader unmockedLSPackageLoader;
+    private static LSPackageLoader lsPackageLoader;
     private BallerinaLanguageServer languageServer;
 
     static {
-        LanguageServerContext context = new LanguageServerContextImpl();
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         try {
-            preparePackageLoaders(context, languageServer);
+            preparePackageLoaders();
         } catch (Exception e) {
-            String s  = e.getMessage();
+            String m = e.getMessage();
         }
     }
 
-    private static void preparePackageLoaders(LanguageServerContext context,
-                                              BallerinaLanguageServer languageServer)
+    private static void preparePackageLoaders()
             throws InterruptedException, WorkspaceDocumentException, IOException {
+
+        BallerinaLanguageServer server = new BallerinaLanguageServer();
+        LanguageServerContext context = server.getServerContext();
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
+                .withLanguageServer(server).withInitOption(LSClientCapabilitiesImpl.InitializationOptionsImpl.KEY_ENABLE_INDEX_USER_HOME, false);
+
         //Mock central package loader
         FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
-        CENTRAL_PACKAGES.addAll(GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages());
+        List<org.ballerinalang.central.client.model.Package> packages =
+                GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages();
         centralPackageLoader = Mockito.mock(CentralPackageDescriptorLoader.class, Mockito.withSettings().stubOnly());
-        Mockito.when(centralPackageLoader.getCentralPackages(Mockito.any())).thenReturn(CENTRAL_PACKAGES);
+        Mockito.when(centralPackageLoader.getCentralPackages(Mockito.any())).thenReturn(packages);
         context.put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, centralPackageLoader);
 
-        unmockedLSPackageLoader = LSPackageLoader.getInstance(context);
-        //Wait for LS Package loader to load the modules form distribution
+        //Build the LS. This will populate the init options and load the packages into the LSPackage Loader.
         long initTime = System.currentTimeMillis();
-        while (!unmockedLSPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 2 * 60 * 1000) {
+        builder.build();
+        LSPackageLoader loader = LSPackageLoader.getInstance(context);
+        //Wait for LS Package loader to load the modules form distribution
+        while (!loader.isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
             Thread.sleep(2000);
         }
-        if (!unmockedLSPackageLoader.isInitialized()) {
+        if (!loader.isInitialized()) {
             Assert.fail("LS Package Loader initialization failed!");
         }
-        getPackages(REMOTE_PROJECTS, languageServer.getWorkspaceManager(), context)
+        lsPackageLoader = Mockito.spy(loader);
+        
+        //Load mock Ballerina projects
+        getPackages(REMOTE_PROJECTS, server.getWorkspaceManager(), context)
                 .forEach(pkg -> pkg.modules().forEach(module ->
                         REMOTE_MODULES.add(new LSPackageLoader.ModuleInfo(module))));
-        getPackages(LOCAL_PROJECTS, languageServer.getWorkspaceManager(), context).forEach(pkg ->
+        getPackages(LOCAL_PROJECTS, server.getWorkspaceManager(), context).forEach(pkg ->
                 pkg.modules().forEach(module ->
                         LOCAL_MODULES.add(new LSPackageLoader.ModuleInfo(module))));
-    }
-
-    public boolean loadMockedPackages() {
-        return false;
+        
+        Mockito.when(lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_MODULES);
+        Mockito.when(lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_MODULES);
     }
 
     @BeforeClass
     public void init() throws Exception {
         this.languageServer = new BallerinaLanguageServer();
-        if (this.loadMockedPackages()) {
-            setUp();
-        }
+        this.languageServer.getServerContext().put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY,
+                centralPackageLoader);
+        this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, lsPackageLoader);
         TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
-                .withLanguageServer(languageServer);
+                .withLanguageServer(this.languageServer);
         setupLanguageServer(builder);
         this.serviceEndpoint = builder.build();
     }
 
+    /**
+     * Set up the Language Server with custom initialization options.
+     *
+     * @param builder
+     */
     protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
-    }
-
-    public void setUp() {
-        this.lsPackageLoader = Mockito.spy(unmockedLSPackageLoader);
-        this.languageServer.getServerContext().put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, 
-                centralPackageLoader);
-        this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
-        Mockito.when(this.lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_MODULES);
-        Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_MODULES);
+        builder.withInitOption(InitializationOptions.KEY_ENABLE_INDEX_USER_HOME, false);
     }
 
     protected static List<Package> getPackages(Map<String, String> projects,
@@ -138,18 +140,6 @@ public abstract class AbstractLSTest {
             TestUtil.compileAndGetPackage(path, workspaceManager, context).ifPresent(packages::add);
         }
         return packages;
-    }
-
-    @AfterClass
-    public void cleanMocks() {
-        if (this.lsPackageLoader != null) {
-            Mockito.reset(this.lsPackageLoader);
-            this.lsPackageLoader = null;
-        }
-        if (centralPackageLoader != null) {
-            Mockito.reset(centralPackageLoader);
-            centralPackageLoader = null;
-        }
     }
 
     @AfterClass

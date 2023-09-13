@@ -188,11 +188,6 @@ public abstract class CompletionTest extends AbstractLSTest {
 //                "Failed Test for: " + configJsonPath);
     }
 
-    @Override
-    public boolean loadMockedPackages() {
-        return true;
-    }
-
     /**
      * Represents a test configuration.
      */

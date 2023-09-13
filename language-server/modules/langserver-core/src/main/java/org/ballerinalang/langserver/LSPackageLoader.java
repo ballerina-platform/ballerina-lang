@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.eclipse.lsp4j.ProgressParams;
@@ -141,43 +142,46 @@ public class LSPackageLoader {
             BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
             PackageRepository packageRepository = ballerinaDistribution.packageRepository();
             List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
-            this.distRepoModuleDescriptors.addAll(resolveModulesFromRepository(packageRepository, REPO.DIST, 
+            this.distRepoModuleDescriptors.addAll(resolveModulesFromRepository(packageRepository, REPO.DIST,
                     skippedLangLibs, Collections.emptySet()));
             Set<String> distRepoModuleIdentifiers = distRepoModuleDescriptors.stream().map(ModuleInfo::moduleIdentifier)
                     .collect(Collectors.toSet());
             clientLogger.logTrace("Successfully loaded packages from Ballerina distribution");
 
-            clientLogger.logTrace("Loading packages from Ballerina User Home");
-            BallerinaUserHome ballerinaUserHome = BallerinaUserHome.from(environment);
-            //Load modules from local repo
-            PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-            this.localRepoModuleDescriptors.addAll(resolveModulesFromRepository(localRepository, REPO.LOCAL,
-                    Collections.emptyList(), distRepoModuleIdentifiers));
+            LSClientCapabilities lsClientCapabilities = lsContext.get(LSClientCapabilities.class);
+            if (lsClientCapabilities.getInitializationOptions().isEnableIndexUserHome()) {
+                clientLogger.logTrace("Loading packages from Ballerina User Home");
+                BallerinaUserHome ballerinaUserHome = BallerinaUserHome.from(environment);
+                //Load modules from local repo
+                PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
+                this.localRepoModuleDescriptors.addAll(resolveModulesFromRepository(localRepository, REPO.LOCAL,
+                        Collections.emptyList(), distRepoModuleIdentifiers));
 
-            //Load modules from remote repo
-            PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-            Set<String> loadedModules = new HashSet<>();
-            loadedModules.addAll(distRepoModuleIdentifiers);
-            loadedModules.addAll(distRepoModuleDescriptors.stream().map(ModuleInfo::moduleIdentifier)
-                    .collect(Collectors.toSet()));
-            this.remoteRepoModuleDescriptors.addAll(resolveModulesFromRepository(remoteRepository, REPO.REMOTE,
-                    Collections.emptyList(),
-                    loadedModules));
-            clientLogger.logTrace("Successfully loaded packages from Ballerina User Home");
+                //Load modules from remote repo
+                PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
+                Set<String> loadedModules = new HashSet<>();
+                loadedModules.addAll(distRepoModuleIdentifiers);
+                loadedModules.addAll(distRepoModuleDescriptors.stream().map(ModuleInfo::moduleIdentifier)
+                        .collect(Collectors.toSet()));
+                this.remoteRepoModuleDescriptors.addAll(resolveModulesFromRepository(remoteRepository, REPO.REMOTE,
+                        Collections.emptyList(),
+                        loadedModules));
+                clientLogger.logTrace("Successfully loaded packages from Ballerina User Home");
 
-            //Load packages from central
-            clientLogger.logTrace("Loading packages from Ballerina Central");
-            this.centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext)
-                    .getCentralPackages(lsContext).stream()
-                    .map(packageInfo -> {
-                        PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
-                        PackageName packageName = PackageName.from(packageInfo.getName());
-                        PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
-                        PackageDescriptor packageDescriptor =
-                                PackageDescriptor.from(packageOrg, packageName, packageVersion, null);
-                        return new ModuleInfo(packageDescriptor);
-                    }).toList());
-            clientLogger.logTrace("Successfully loaded packages from Ballerina Central");
+                //Load packages from central
+                clientLogger.logTrace("Loading packages from Ballerina Central");
+                this.centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext)
+                        .getCentralPackages(lsContext).stream()
+                        .map(packageInfo -> {
+                            PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+                            PackageName packageName = PackageName.from(packageInfo.getName());
+                            PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+                            PackageDescriptor packageDescriptor =
+                                    PackageDescriptor.from(packageOrg, packageName, packageVersion, null);
+                            return new ModuleInfo(packageDescriptor);
+                        }).toList());
+                clientLogger.logTrace("Successfully loaded packages from Ballerina Central");
+            }
             this.initialized = true;
         }).thenRunAsync(() -> {
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();

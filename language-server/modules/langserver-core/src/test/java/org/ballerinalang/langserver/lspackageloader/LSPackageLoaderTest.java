@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -55,7 +56,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
     private List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemoteModules());
 
     @Test(dataProvider = "data-provider")
-    public void test(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
+    public void testPullModuleEvent(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
         //Open the source text document and load project
         Path sourcePath = testRoot.resolve("source").resolve(source);
         Endpoint endpoint = getServiceEndpoint();
@@ -80,7 +81,32 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         Assert.assertTrue(packageCount < packageCountAfterPullModule);
     }
 
-    @Override
+    @Test(dataProvider = "data-provider")
+    public void testPackageLoading(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
+        //Open the source text document and load project
+        Path sourcePath = testRoot.resolve("source").resolve(source);
+        Endpoint endpoint = getServiceEndpoint();
+        TestUtil.openDocument(endpoint, sourcePath);
+
+        BallerinaLanguageServer languageServer = this.getLanguageServer();
+        EventSyncPubSubHolder eventSyncPubSubHolder =
+                EventSyncPubSubHolder.getInstance(languageServer.getServerContext());
+        DocumentServiceContext documentServiceContext =
+                ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
+                        languageServer.getWorkspaceManager(), LSContextOperation.WS_EXEC_CMD,
+                        languageServer.getServerContext());
+        //ModuleInfo count before adding a new package
+        int packageCount = getLoadedPackagesFromLoader(documentServiceContext).size();
+
+        //Publish a mock event using pull module publisher.
+        eventSyncPubSubHolder.getPublisher(EventKind.PULL_MODULE).publish(this.getLanguageServer().getClient(),
+                languageServer.getServerContext(), documentServiceContext);
+
+        //Assert if the package info map is updated with the newly added package.
+        int packageCountAfterPullModule = getLoadedPackagesFromLoader(documentServiceContext).size();
+        Assert.assertTrue(packageCount < packageCountAfterPullModule);
+    }
+    
     public void setUp() {
         LSPackageLoader lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
         setLsPackageLoader(lsPackageLoader);
@@ -123,8 +149,8 @@ public class LSPackageLoaderTest extends AbstractLSTest {
     }
 
     @Override
-    public boolean loadMockedPackages() {
-        return true;
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
+        builder.withInitOption(InitializationOptions.KEY_ENABLE_INDEX_USER_HOME, true);
     }
 
     public List<LSPackageLoader.ModuleInfo> getRemoteRepoPackages() {

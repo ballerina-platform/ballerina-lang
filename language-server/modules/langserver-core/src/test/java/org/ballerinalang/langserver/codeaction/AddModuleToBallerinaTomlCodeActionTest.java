@@ -113,11 +113,6 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
         return "add-module-ballerina-toml";
     }
 
-    @Override
-    public boolean loadMockedPackages() {
-        return true;
-    }
-
     private static List<Package> getLocalPackages(Map<String, String> projects, WorkspaceManager workspaceManager,
                                                   LanguageServerContext context)
             throws WorkspaceDocumentException, IOException {

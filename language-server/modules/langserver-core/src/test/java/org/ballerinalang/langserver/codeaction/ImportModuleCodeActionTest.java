@@ -47,11 +47,6 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
         super.negativeTest(config);
     }
 
-    @Override
-    public boolean loadMockedPackages() {
-        return true;
-    }
-
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
