@@ -1,14 +1,14 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
 import org.wso2.ballerinalang.compiler.tree.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.statements.*;
@@ -28,11 +28,6 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     private static final CompilerContext.Key<DeadCodeAnalyzer> DEAD_CODE_ANALYZER_KEY = new CompilerContext.Key<>();
     final DeadCodeAnalyzer.AnalyzerData data = new DeadCodeAnalyzer.AnalyzerData();
 
-    private final SymbolTable symTable;  // Do we need this?
-
-    private BLangPackage pkgNodeCopy = null;    // Used for debugging purposes TODO remove this
-
-
     public static DeadCodeAnalyzer getInstance(CompilerContext context) {
         DeadCodeAnalyzer deadCodeAnalyzer = context.get(DEAD_CODE_ANALYZER_KEY);
         if (deadCodeAnalyzer == null) {
@@ -43,14 +38,10 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
 
     private DeadCodeAnalyzer(CompilerContext context) {
         context.put(DEAD_CODE_ANALYZER_KEY, this);
-        this.symTable = SymbolTable.getInstance(context);
     }
 
     // 1st Method that gets called
     public BLangPackage analyze(BLangPackage pkgNode) {
-        pkgNodeCopy = pkgNode;
-
-
         visitNode(pkgNode, data);
         return pkgNode;
     }
@@ -87,6 +78,8 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
                 for (BLangFunction classLevelFunction : ((BLangClassDefinition) topLevelNode).functions) {
                     registerFunctions(classLevelFunction);
                 }
+                if (((BLangClassDefinition) topLevelNode).initFunction != null)
+                    registerFunctions(((BLangClassDefinition) topLevelNode).initFunction);
             }
         }
 
@@ -95,21 +88,15 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
             visitNode((BLangNode) topLevelNode, data);
         }
 
-        data.invocationData.findDeadFunctionsGlobally();
+//        if(isMainPkgNode(pkgNode)) data.findDeadFunctionsGlobally();      // Disabling for testing purposes
+        data.findDeadFunctionsGlobally();
         pkgNode.completedPhases.add(CompilerPhase.DEAD_CODE_ANALYZE);
     }
 
 
-    // Commented the body to stop it from causing infinite loops
+    // Empty body to stop it from causing infinite loops
     @Override
     public void analyzeNode(BLangNode node, AnalyzerData data) {
-//        SymbolEnv prevEnv = data.env;
-//        BLangNode parent = data.parent;
-//        node.parent = parent;
-//        data.parent = node;
-//        visitNode(node, data);
-//        data.parent = parent;
-//        data.env = prevEnv;
     }
 
 
@@ -124,22 +111,22 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         }
 
         // TODO remove null check
-        if (!(function.body == null)) {         // body was null for certain functions pulled from ballerina central
-            if (function.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY) {        // handling remote functions
-                BLangBlockFunctionBody functionBody = (BLangBlockFunctionBody) function.getBody();
+        if (function.body != null) {         // body was null for certain functions pulled from ballerina central
+            if (function.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY && function.getBody() instanceof BLangBlockFunctionBody functionBody) {        // handling remote functions
                 for (BLangStatement stmt : functionBody.stmts) {
                     data.currentParentFunction = parentFunction;                // Reassign the currentParentFunction in case it got changed inside a visit call
                     visitNode(stmt, data);
                 }
             }
         }
-
     }
 
-    // Arrow functions are also added to the current module
+    // Arrow functions are also added as parent functions
     @Override
     public void visit(BLangArrowFunction node, AnalyzerData data) {
-        data.invocationData.addFunctionToModule((BInvokableSymbol) ((BLangSimpleVariable) node.parent).symbol);  // TODO Find a cleaner way
+        if (node.parent instanceof BLangSimpleVariable && !node.parent.getBType().getKind().equals(TypeKind.TYPEREFDESC)) {
+            data.addParentFunctionToModule((BInvokableSymbol) ((BLangSimpleVariable) node.parent).symbol);  // TODO Find a cleaner way
+        }
         visitNode(node.params, data);
         visitNode((BLangNode) node.functionName, data);
         visitNode(node.body, data);
@@ -147,16 +134,17 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
 
     // Adds the invocation to the current module
     @Override
-    public void visit(BLangInvocation iExpression, AnalyzerData data) {
-        if (iExpression.symbol != null) {
-            BInvokableSymbol symbol = (BInvokableSymbol) iExpression.symbol;
-            data.invocationData.addInvocation(data.currentParentFunction, symbol);
-            visitNode(iExpression.expr, data);
-            visitNode(iExpression.argExprs, data);
+    public void visit(BLangInvocation node, AnalyzerData data) {
+        if (node.symbol != null) {
+            BInvokableSymbol symbol = (BInvokableSymbol) node.symbol;
+            data.addInvocation(data.currentParentFunction, symbol);
+            visitNode(node.expr, data);
+            visitNode(node.argExprs, data);
         }
     }
 
-    // Used to track the invocations of Lambda function pointers.
+    // Used to track the invocations of Lambda function pointers. -- NOT CORRECT
+    // Can track arrow functions as well
     @Override
     public void visit(BLangSimpleVarRef node, AnalyzerData data) {
         analyzeNode(node, data);
@@ -165,7 +153,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         // TODO Remove null check
         if (node.symbol != null) {          // Certain packages pulled from ballerina central had null symbols
             if (node.symbol.getKind() == SymbolKind.FUNCTION) {
-                data.invocationData.addInvocation(data.currentParentFunction, ((BInvokableSymbol) node.symbol));
+                data.addInvocation(data.currentParentFunction, ((BInvokableSymbol) node.symbol));
             }
         }
     }
@@ -184,14 +172,16 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     private void addLambdaFunctionToMap(BLangFunction topLevelFunction) {
         BInvokableSymbol functionPointer = (BInvokableSymbol) ((BLangSimpleVariable) ((topLevelFunction).parent).parent).symbol;
         BInvokableSymbol function = topLevelFunction.symbol;
-        data.invocationData.addFunctionToModule(functionPointer);
-        data.invocationData.addLambdaPointer(functionPointer, function); // Add the Lambda functions and their var pointers to a HashMap for future use
+        data.addParentFunctionToModule(functionPointer);
+        data.addLambdaPointer(functionPointer, function); // Add the Lambda functions and their var pointers to a HashMap for future use
     }
 
     private void addFunctionToMap(BLangFunction topLevelFunction) {
-        data.invocationData.addFunctionToModule(topLevelFunction.symbol);
+        data.addParentFunctionToModule(topLevelFunction.symbol);
         if (topLevelFunction.symbol.originalName.value.equals("main") || topLevelFunction.symbol.originalName.value.equals("init")) {
-            data.invocationData.getModule(topLevelFunction.symbol).usedFunctions.add(topLevelFunction.symbol);      // Setting the main and init functions as the starting points of used function chains
+            data.getModule(topLevelFunction.symbol).usedFunctions.add(topLevelFunction.symbol);      // Setting the main and init functions as the starting points of used function chains
+            data.addToUsedListInPkgSym(topLevelFunction.symbol);
+            topLevelFunction.symbol.usedState = UsedState.USED;
         }
     }
 
@@ -203,10 +193,19 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         }
     }
 
+    // Checks if an invocation is a temporary invocation
+    // Example :- ("Function Type object" as the element in a forEach loop)
+//    private boolean isProxyInvocation(BInvokableSymbol symbol) {
+//        if (symbol.pkgID)
+//    }
 
-    public static class AnalyzerData {      // TODO merge AnalyzerData and InvocationData
-        BInvokableSymbol currentParentFunction;     // used to determine the parent of the invocation
-        InvocationData invocationData = new InvocationData();
+    private boolean isMainPkgNode(BLangPackage pkgNode) {
+        if (pkgNode.moduleContextDataHolder != null) {
+            if (pkgNode.moduleContextDataHolder.descriptor().name().moduleNamePart() == null && pkgNode.moduleContextDataHolder.projectKind() == ProjectKind.BUILD_PROJECT) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -215,23 +214,21 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
      * determines used functions and dead functions.
      * keeps track of lambda pointer variables and their functions.
      */
-    public static class InvocationData {
+    public static class AnalyzerData {
+        BInvokableSymbol currentParentFunction;     // used to determine the parent of the invocation
         private final HashMap<PackageID, ModuleData> moduleMap;     // holds the data related to each module separately
+        public boolean analyzedMainMethod = false;
 
-        public InvocationData() {
+        public AnalyzerData() {
             this.moduleMap = new HashMap<>();
         }
 
-        // If the Module does not already exist, create a new one and add it
-        public void addModule(PackageID packageID, ModuleData moduleData) {
-            if (!moduleMap.containsKey(packageID)) {
-                moduleMap.put(packageID, moduleData);
-            }
-        }
-
         // Add a function to the module as a parent function
-        public void addFunctionToModule(BInvokableSymbol symbol) {
+        public void addParentFunctionToModule(BInvokableSymbol symbol) {
             getModule(symbol).declareFunction(symbol);
+            getPackageSymbol(symbol).invocationMap.putIfAbsent(symbol, new HashSet<>());    // Adding to the pkgSymbol
+            if (symbol.usedState == UsedState.UNEXPOLORED) symbol.usedState = UsedState.UNUSED;
+            getPackageSymbol(symbol).deadFunctions.add(symbol);
         }
 
         /**
@@ -243,22 +240,70 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
          */
         public void addInvocation(BInvokableSymbol startFunctionSymbol, BInvokableSymbol endFunctionSymbol) {
             getModule(startFunctionSymbol).addFunctionInvocation(startFunctionSymbol, endFunctionSymbol);
+            if (endFunctionSymbol.usedState == UsedState.UNEXPOLORED) endFunctionSymbol.usedState = UsedState.UNUSED;
+            addToPkgSymbolInvocationMap(startFunctionSymbol, endFunctionSymbol);
             if (isUsedFunction(startFunctionSymbol)) {
                 registerChildrenAsUsed(endFunctionSymbol);
+                markSelfAndChildrenAsUsed_NEW(endFunctionSymbol);
             }
         }
 
         /**
          * Iterates through the children chains and registers them as "used"
          *
-         * @param symbol current parent function symbol
+         * @param parentSymbol current parent function symbol
          */
-        public void registerChildrenAsUsed(BInvokableSymbol symbol) {
-            getModule(symbol).usedFunctions.add(symbol);
-            if (getModule(symbol).invocationMap.containsKey(symbol)) {
-                for (BInvokableSymbol child : getChildren(symbol)) {
-                    registerChildrenAsUsed(child);
+        public void registerChildrenAsUsed(BInvokableSymbol parentSymbol) {
+            getModule(parentSymbol).usedFunctions.add(parentSymbol);
+            if (getModule(parentSymbol).lambdaPointers.containsKey(parentSymbol)) {         // if the function is a lambda pointer, related lambda function will also be used
+                getModule(parentSymbol).usedFunctions.add(getModule(parentSymbol).lambdaPointers.get(parentSymbol));
+            }
+            if (getModule(parentSymbol).invocationMap.containsKey(parentSymbol)) {
+                for (BInvokableSymbol child : getChildren(parentSymbol)) {
+                    if (!getModule(child).usedFunctions.contains(child)) {          // In case of recursion (Parent having itself as a child)
+                        registerChildrenAsUsed(child);
+                    }
                 }
+            }
+        }
+
+        public void markSelfAndChildrenAsUsed_NEW(BInvokableSymbol parentSymbol) {
+            parentSymbol.usedState = UsedState.USED;
+            // Populating the "used" graph for PackageSymbol
+            addToUsedListInPkgSym(parentSymbol);
+            for (BInvokableSymbol child : parentSymbol.childrenFunctions) {
+                if (child.usedState == UsedState.UNUSED) {         // If a given child is used, its descendants should also be used
+                    child.usedState = UsedState.USED;
+                    markSelfAndChildrenAsUsed_NEW(child);
+//                    child.owner.
+                }
+            }
+        }
+
+        // TODO do we need a recursive check for this?
+        public void addToUsedListInPkgSym(BInvokableSymbol symbol) {
+//            if (symbol.owner.getKind().equals(SymbolKind.PACKAGE)) {    //Module level functions
+//                ((BPackageSymbol) symbol.owner).usedFunctions.add(symbol);
+//                ((BPackageSymbol) symbol.owner).deadFunctions.remove(symbol);
+//            }
+//            if (symbol.owner.getKind().equals(SymbolKind.OBJECT)) {     //Class level functions
+//                ((BPackageSymbol) symbol.owner.owner).usedFunctions.add(symbol);
+//                ((BPackageSymbol) symbol.owner.owner).deadFunctions.remove(symbol);
+//            }
+            getPackageSymbol(symbol).usedFunctions.add(symbol);
+            getPackageSymbol(symbol).deadFunctions.remove(symbol);
+        }
+
+        public void addToPkgSymbolInvocationMap(BInvokableSymbol startSymbol, BInvokableSymbol endSymbol) {
+            getPackageSymbol(startSymbol).invocationMap.putIfAbsent(startSymbol, new HashSet<>());
+            getPackageSymbol(startSymbol).invocationMap.get(startSymbol).add(endSymbol);
+        }
+
+        public BPackageSymbol getPackageSymbol(BSymbol symbol) {
+            if (symbol.owner.getKind().equals(SymbolKind.PACKAGE)) {    //Module level functions
+                return (BPackageSymbol) symbol.owner;
+            } else {
+                return getPackageSymbol(symbol.owner);
             }
         }
 
@@ -270,14 +315,13 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
          * @return ModuleData object holding the given symbol
          */
         private ModuleData getModule(BInvokableSymbol symbol) {
-            if (!moduleMap.containsKey(symbol.pkgID)) {
-                addModule(symbol.pkgID, new ModuleData());
-            }
+            moduleMap.putIfAbsent(symbol.pkgID, new ModuleData());
             return moduleMap.get(symbol.pkgID);
         }
 
         private boolean isUsedFunction(BInvokableSymbol symbol) {
-            return getModule(symbol).usedFunctions.contains(symbol);
+//            return getModule(symbol).usedFunctions.contains(symbol);
+            return symbol.usedState == UsedState.USED;
         }
 
         private HashSet<BInvokableSymbol> getChildren(BInvokableSymbol parentSymbol) {
@@ -295,7 +339,9 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
                 module.findDeadFunctions();
             }
         }
+
     }
+
 
     /**
      * Represents a single Module for dead code detection
@@ -321,9 +367,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
          * @param functionSymbol Function to be declared
          */
         public void declareFunction(BInvokableSymbol functionSymbol) {
-            if (!invocationMap.containsKey(functionSymbol)) {
-                invocationMap.put(functionSymbol, new HashSet<>());
-            }
+            invocationMap.putIfAbsent(functionSymbol, new HashSet<>());
         }
 
         /**
@@ -334,7 +378,15 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
          * @param endFunctionSymbol   Child function called by the invocation
          */
         public void addFunctionInvocation(BInvokableSymbol startFunctionSymbol, BInvokableSymbol endFunctionSymbol) {
-            invocationMap.get(startFunctionSymbol).add(endFunctionSymbol);
+            // TODO this filters out class level functions as well. Find a way to include them -- DONE -- HAVE TO DOUBLE CHECK
+            // Found a way. EXPERIMENTAL
+            if (!endFunctionSymbol.getFlags().contains(Flag.ATTACHED) || endFunctionSymbol.owner.getKind().equals(SymbolKind.OBJECT)) {
+                invocationMap.get(startFunctionSymbol).add(endFunctionSymbol);
+                startFunctionSymbol.childrenFunctions.add(endFunctionSymbol);     // Adding children to the start(parent) BInvokableSymbol
+                if (endFunctionSymbol.usedState == UsedState.UNEXPOLORED) {
+                    endFunctionSymbol.usedState = UsedState.UNUSED;
+                }
+            }
         }
 
         /**
@@ -344,7 +396,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
          */
         public void findDeadFunctions() {
             for (BInvokableSymbol functionSymbol : invocationMap.keySet()) {
-                if (!usedFunctions.contains(functionSymbol)) {
+                if (!usedFunctions.contains(functionSymbol) && !isRemoteOrResourceFunction(functionSymbol)) {
                     HashSet<BInvokableSymbol> deadFunctions = Symbols.isPublic(functionSymbol) ? publicDeadFunctions : privateDeadFunctions;
                     deadFunctions.add(functionSymbol);
                     if (lambdaPointers.containsKey(functionSymbol)) {     // Adding the lambda function along with the function pointer variable
@@ -355,6 +407,10 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
                     publicDeadFunctions.remove(functionSymbol);
                 }
             }
+        }
+
+        public boolean isRemoteOrResourceFunction(BInvokableSymbol functionSymbol) {
+            return functionSymbol.getFlags().contains(Flag.RESOURCE) || functionSymbol.getFlags().contains(Flag.REMOTE);
         }
     }
 }

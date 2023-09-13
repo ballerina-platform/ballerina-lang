@@ -57,6 +57,9 @@ public class BPackageSymbol extends BTypeSymbol {
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
+    public HashMap<BInvokableSymbol, HashSet<BInvokableSymbol>> invocationMap = new HashMap<>();     // Key = Start Function // Value = End Function
+    public HashSet<BInvokableSymbol> usedFunctions = new HashSet<>();
+    public HashSet<BInvokableSymbol> deadFunctions = new HashSet<>();
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
