@@ -40,6 +40,7 @@ public enum CompilerPhase {
 
     CONSTANT_PROPAGATION("constantPropagation"),
 
+    DEAD_CODE_ANALYZE("deadCodeAnalyze"),
     COMPILER_PLUGIN("compilerPlugin"),
 
     DESUGAR("desugar"),
@@ -48,9 +49,8 @@ public enum CompilerPhase {
 
     BIR_EMIT("birEmit"),
 
-    CODE_GEN("codeGen"),
+    CODE_GEN("codeGen");
 
-    DEAD_CODE_ANALYZE("deadCodeAnalyze");
 
     private final String value;
 
@@ -59,20 +59,32 @@ public enum CompilerPhase {
     }
 
     public static CompilerPhase fromValue(String value) {
-        return switch (value) {
-            case "define" -> DEFINE;
-            case "typeCheck" -> TYPE_CHECK;
-            case "codeAnalyze" -> CODE_ANALYZE;
-            case "documentationAnalyze" -> DOCUMENTATION_ANALYZE;
-            case "constantPropagation" -> CONSTANT_PROPAGATION;
-            case "compilerPlugin" -> COMPILER_PLUGIN;
-            case "desugar" -> DESUGAR;
-            case "codeGen" -> CODE_GEN;
-            case "birGen" -> BIR_GEN;
-            case "birEmit" -> BIR_EMIT;
-            case "deadCodeAnalyze" -> DEAD_CODE_ANALYZE;
-            default -> throw new IllegalArgumentException("invalid compiler phase: " + value);
-        };
+        switch (value) {
+            case "define":
+                return DEFINE;
+            case "typeCheck":
+                return TYPE_CHECK;
+            case "codeAnalyze":
+                return CODE_ANALYZE;
+            case "documentationAnalyze":
+                return DOCUMENTATION_ANALYZE;
+            case "constantPropagation":
+                return CONSTANT_PROPAGATION;
+            case "deadCodeAnalyze":
+                return DEAD_CODE_ANALYZE;
+            case "compilerPlugin":
+                return COMPILER_PLUGIN;
+            case "desugar":
+                return DESUGAR;
+            case "codeGen":
+                return CODE_GEN;
+            case "birGen":
+                return BIR_GEN;
+            case "birEmit":
+                return BIR_EMIT;
+            default:
+                throw new IllegalArgumentException("invalid compiler phase: " + value);
+        }
     }
 
     @Override
