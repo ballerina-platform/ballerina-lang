@@ -133,7 +133,6 @@ We can use other TypeCreator APIs to create our own record or object type. But r
 types will not work correctly in the Ballerina code since those type definitions are not defined in the module.
 
 Those can only be used for Java unit tests.
-```
 
 ## Calling a Ballerina object method
 
