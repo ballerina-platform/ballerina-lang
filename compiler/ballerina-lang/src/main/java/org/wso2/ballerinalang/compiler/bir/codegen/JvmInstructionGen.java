@@ -1518,7 +1518,7 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, className);
             visitKeyValueExpressions(objectStoreIns);
             // invoke setOnInitialization() method
-            this.mv.visitMethodInsn(INVOKESPECIAL, className, "setOnInitialization",
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, className, "setOnInitialization",
                     SET_ON_INIT, false);
             return;
         }

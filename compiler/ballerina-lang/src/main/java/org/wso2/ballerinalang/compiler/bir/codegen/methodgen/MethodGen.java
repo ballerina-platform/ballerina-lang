@@ -186,7 +186,7 @@ public class MethodGen {
     public void genJMethodWithBObjectMethodCall(BIRFunction func, ClassWriter cw, BIRPackage module,
                                                 JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                                 JvmConstantsGen jvmConstantsGen, String moduleClassName,
-                                                BType attachedType, AsyncDataCollector asyncDataCollector,
+                                                AsyncDataCollector asyncDataCollector,
                                                 String splitClassName) {
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         indexMap.addIfNotExists(OBJECT_SELF_INSTANCE, symbolTable.anyType);
@@ -204,7 +204,7 @@ public class MethodGen {
         for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
             instGen.generateVarLoad(mv, parameter, indexMap.addIfNotExists(parameter.name.value, parameter.type));
         }
-        String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, attachedType);
+        String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
         generateReturnTermFromType(retType, mv);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
@@ -264,7 +264,7 @@ public class MethodGen {
             invocationCountArgVarIndex = indexMap.addIfNotExists(INVOCATION_COUNT, symbolTable.stringType);
             desc = INITIAL_METHOD_DESC + "I" + populateMethodDesc(func.type.paramTypes) + generateReturnType(retType);
         } else if (isObjectMethodSplit) {
-            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, attachedType);
+            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
         } else {
             desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
         }
