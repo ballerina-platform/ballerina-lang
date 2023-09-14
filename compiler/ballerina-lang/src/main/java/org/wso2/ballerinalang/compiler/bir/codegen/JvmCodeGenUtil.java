@@ -384,6 +384,11 @@ public class JvmCodeGenUtil {
                 generateReturnType(retType);
     }
 
+    public static String getMethodDesc(List<BType> paramTypes, BType retType, String attachedTypeClassName) {
+        return INITIAL_METHOD_DESC + "L" + attachedTypeClassName + ";" + populateMethodDesc(paramTypes) +
+                generateReturnType(retType);
+    }
+
     public static String populateMethodDesc(List<BType> paramTypes) {
         StringBuilder descBuilder = new StringBuilder();
         for (BType type : paramTypes) {

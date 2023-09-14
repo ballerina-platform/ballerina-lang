@@ -657,13 +657,13 @@ public class JvmValueGen {
                 continue;
             }
             // change this to a better way rather than checking name to filter the functions
-            if (func.name.value.contains("init")) {
+            if (func.name.value.contains("$init$")) {
                 methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
                         jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
                 continue;
             }
             methodGen.genJMethodWithBObjectMethodCall(func, cw, module, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                    moduleClassName, currentObjectType, asyncDataCollector, splitClassName);
+                    moduleClassName, asyncDataCollector, splitClassName);
             methodGen.genJMethodForBFunc(func, splitCW, module, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                     moduleClassName, currentObjectType, asyncDataCollector, true);
         }
