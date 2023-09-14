@@ -72,7 +72,7 @@ public class ExternalMethodGen {
                     jvmCastGen, jvmConstantsGen, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                    moduleClassName, attachedType, lambdaGenMetadata);
+                    moduleClassName, attachedType, lambdaGenMetadata, false);
         }
     }
 
