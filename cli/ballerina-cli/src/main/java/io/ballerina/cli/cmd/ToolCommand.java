@@ -525,6 +525,14 @@ public class ToolCommand implements BLauncherCmd {
             return;
         }
 
+        org = tool.get().org();
+        name = tool.get().name();
+        boolean isDistsCompatible = checkToolDistCompatibility();
+        if (!isDistsCompatible) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         balToolsManifest.removeToolVersion(toolId, version);
         balToolsToml.modify(balToolsManifest);
         deleteCachedToolVersion(tool.get().org(), tool.get().name(), version);
