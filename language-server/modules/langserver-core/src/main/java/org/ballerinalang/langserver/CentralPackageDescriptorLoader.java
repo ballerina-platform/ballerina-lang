@@ -17,6 +17,10 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Central package descriptor holder.
@@ -39,7 +44,10 @@ public class CentralPackageDescriptorLoader {
     public static final LanguageServerContext.Key<CentralPackageDescriptorLoader> CENTRAL_PACKAGE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
     private final List<Package> centralPackages = new ArrayList<>();
+    private final List<LSPackageLoader.ModuleInfo> centralModules = new ArrayList<>();
     private boolean isLoaded = false;
+
+    private final LSClientLogger clientLogger;
 
     public static CentralPackageDescriptorLoader getInstance(LanguageServerContext context) {
         CentralPackageDescriptorLoader centralPackageDescriptorLoader = context.get(CENTRAL_PACKAGE_HOLDER_KEY);
@@ -51,24 +59,37 @@ public class CentralPackageDescriptorLoader {
 
     private CentralPackageDescriptorLoader(LanguageServerContext context) {
         context.put(CENTRAL_PACKAGE_HOLDER_KEY, this);
-    }
-
-    public void loadBallerinaxPackagesFromCentral(LanguageServerContext lsContext) {
-            centralPackages.addAll(CentralPackageDescriptorLoader
-                    .getInstance(lsContext).getPackagesFromCentral());
-    }
-
-    public List<Package> getCentralPackages(LanguageServerContext context) {
+        this.clientLogger = LSClientLogger.getInstance(context);
         if (!isLoaded) {
-            loadBallerinaxPackagesFromCentral(context);
+            //Load packages from central
+            CompletableFuture.runAsync(() -> {
+                clientLogger.logTrace("Loading packages from Ballerina Central");
+                loadBallerinaxPackagesFromCentral();
+                clientLogger.logTrace("Successfully loaded packages from Ballerina Central");
+            });
         }
-        return centralPackages;
+    }
+
+    public List<LSPackageLoader.ModuleInfo> getCentralModules() {
+        return centralModules;
+    }
+
+    private void loadBallerinaxPackagesFromCentral() {
+        this.getPackagesFromCentral().forEach(packageInfo -> {
+            centralPackages.add(packageInfo);
+            PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+            PackageName packageName = PackageName.from(packageInfo.getName());
+            PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+            PackageDescriptor packageDescriptor =
+                    PackageDescriptor.from(packageOrg, packageName, packageVersion, null);
+            centralModules.add(new LSPackageLoader.ModuleInfo(packageDescriptor));
+        });
     }
 
     private List<Package> getPackagesFromCentral() {
         List<Package> packageList = new ArrayList<>();
         try {
-            for (int page = 0;; page++) {
+            for (int page = 0; ; page++) {
                 Settings settings = RepoUtils.readSettings();
 
                 CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),

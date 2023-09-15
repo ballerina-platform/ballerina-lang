@@ -19,11 +19,14 @@ package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -32,6 +35,7 @@ import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -55,9 +59,11 @@ public abstract class AbstractLSTest {
     private static final List<LSPackageLoader.ModuleInfo> LOCAL_MODULES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
-    private static CentralPackageDescriptorLoader centralPackageLoader;
-    private static LSPackageLoader lsPackageLoader;
+    private static LSPackageLoader unMockedlsPackageLoader;
     private BallerinaLanguageServer languageServer;
+
+    private LSPackageLoader lsPackageLoader;
+    private static CentralPackageDescriptorLoader centralPackageLoader;
 
     static {
         try {
@@ -77,25 +83,32 @@ public abstract class AbstractLSTest {
 
         //Mock central package loader
         FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
-        List<org.ballerinalang.central.client.model.Package> packages =
-                GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages();
+        List<LSPackageLoader.ModuleInfo> packages =
+                GSON.fromJson(fileReader, CentralPackageListResult.class).getPackages().stream().map(packageInfo -> {
+                    PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+                    PackageName packageName = PackageName.from(packageInfo.getName());
+                    PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+                    PackageDescriptor packageDescriptor =
+                            PackageDescriptor.from(packageOrg, packageName, packageVersion, null);
+                    return new LSPackageLoader.ModuleInfo(packageDescriptor);
+                }).toList();
         centralPackageLoader = Mockito.mock(CentralPackageDescriptorLoader.class, Mockito.withSettings().stubOnly());
-        Mockito.when(centralPackageLoader.getCentralPackages(Mockito.any())).thenReturn(packages);
+        Mockito.when(centralPackageLoader.getCentralModules()).thenReturn(packages);
         context.put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, centralPackageLoader);
 
-        //Build the LS. This will populate the init options and load the packages into the LSPackage Loader.
+        //Build the LS. This will populate the init options and load the packages from distribution into the LSPackage Loader.
         long initTime = System.currentTimeMillis();
-        builder.build();
-        LSPackageLoader loader = LSPackageLoader.getInstance(context);
+        Endpoint tempEndPoint = builder.build();
+        unMockedlsPackageLoader = LSPackageLoader.getInstance(context);
         //Wait for LS Package loader to load the modules form distribution
-        while (!loader.isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
+        while (!unMockedlsPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
             Thread.sleep(2000);
         }
-        if (!loader.isInitialized()) {
+        TestUtil.shutdownLanguageServer(tempEndPoint);
+        if (!unMockedlsPackageLoader.isInitialized()) {
             Assert.fail("LS Package Loader initialization failed!");
         }
-        lsPackageLoader = Mockito.spy(loader);
-        
+
         //Load mock Ballerina projects
         getPackages(REMOTE_PROJECTS, server.getWorkspaceManager(), context)
                 .forEach(pkg -> pkg.modules().forEach(module ->
@@ -103,17 +116,22 @@ public abstract class AbstractLSTest {
         getPackages(LOCAL_PROJECTS, server.getWorkspaceManager(), context).forEach(pkg ->
                 pkg.modules().forEach(module ->
                         LOCAL_MODULES.add(new LSPackageLoader.ModuleInfo(module))));
-        
-        Mockito.when(lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_MODULES);
-        Mockito.when(lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_MODULES);
+
     }
 
     @BeforeClass
     public void init() throws Exception {
         this.languageServer = new BallerinaLanguageServer();
+
+        //Add mocks to the context
         this.languageServer.getServerContext().put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY,
                 centralPackageLoader);
-        this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, lsPackageLoader);
+        this.lsPackageLoader = Mockito.spy(unMockedlsPackageLoader);
+        this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
+        Mockito.when(this.lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_MODULES);
+        Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_MODULES);
+
+        //Build and start the LS
         TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
                 .withLanguageServer(this.languageServer);
         setupLanguageServer(builder);
@@ -147,6 +165,10 @@ public abstract class AbstractLSTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
         this.languageServer = null;
         this.serviceEndpoint = null;
+        if (this.lsPackageLoader != null) {
+            Mockito.reset(this.lsPackageLoader);
+            this.lsPackageLoader = null;
+        }
     }
 
     public BallerinaLanguageServer getLanguageServer() {

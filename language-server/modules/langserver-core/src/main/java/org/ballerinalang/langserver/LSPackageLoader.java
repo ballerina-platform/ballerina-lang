@@ -81,7 +81,6 @@ public class LSPackageLoader {
     private final List<ModuleInfo> distRepoModuleDescriptors = new ArrayList<>();
     private final List<ModuleInfo> remoteRepoModuleDescriptors = new ArrayList<>();
     private final List<ModuleInfo> localRepoModuleDescriptors = new ArrayList<>();
-    private final List<ModuleInfo> centralPackages = new ArrayList<>();
     private final LSClientLogger clientLogger;
 
     ExtendedLanguageClient languageClient;
@@ -89,6 +88,8 @@ public class LSPackageLoader {
     private String notificationTaskId;
 
     private boolean initialized = false;
+
+    private CentralPackageDescriptorLoader centralPackageDescriptorLoader;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -100,6 +101,7 @@ public class LSPackageLoader {
 
     private LSPackageLoader(LanguageServerContext context) {
         this.clientLogger = LSClientLogger.getInstance(context);
+        this.centralPackageDescriptorLoader = CentralPackageDescriptorLoader.getInstance(context);
         context.put(LS_PACKAGE_LOADER_KEY, this);
         loadModules(context);
     }
@@ -167,20 +169,6 @@ public class LSPackageLoader {
                         Collections.emptyList(),
                         loadedModules));
                 clientLogger.logTrace("Successfully loaded packages from Ballerina User Home");
-
-                //Load packages from central
-                clientLogger.logTrace("Loading packages from Ballerina Central");
-                this.centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext)
-                        .getCentralPackages(lsContext).stream()
-                        .map(packageInfo -> {
-                            PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
-                            PackageName packageName = PackageName.from(packageInfo.getName());
-                            PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
-                            PackageDescriptor packageDescriptor =
-                                    PackageDescriptor.from(packageOrg, packageName, packageVersion, null);
-                            return new ModuleInfo(packageDescriptor);
-                        }).toList());
-                clientLogger.logTrace("Successfully loaded packages from Ballerina Central");
             }
             this.initialized = true;
         }).thenRunAsync(() -> {
@@ -279,7 +267,7 @@ public class LSPackageLoader {
      * @return {@link List<ModuleInfo>} list of module descriptors.
      */
     public List<ModuleInfo> getCentralPackages() {
-        return centralPackages;
+        return centralPackageDescriptorLoader.getCentralModules();
     }
 
     /**
