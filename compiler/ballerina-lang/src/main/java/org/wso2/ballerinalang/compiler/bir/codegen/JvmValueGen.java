@@ -646,7 +646,7 @@ public class JvmValueGen {
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
         String splitClassName = moduleClassName + "$split";
-        splitCW.visit(V1_8, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+        splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
         JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
