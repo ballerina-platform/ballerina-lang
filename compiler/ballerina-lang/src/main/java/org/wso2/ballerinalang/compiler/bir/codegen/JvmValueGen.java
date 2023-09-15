@@ -98,6 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_METHO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SPLIT_CLASS_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -647,7 +648,7 @@ public class JvmValueGen {
         int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
-        String splitClassName = moduleClassName + "$split" + splitClassNum;
+        String splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
         splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
         JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
         int methodCountPerSplitClass = 0;
@@ -673,7 +674,7 @@ public class JvmValueGen {
                 splitClassNum++;
                 splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
                 splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
-                splitClassName = moduleClassName + "$split" + splitClassNum;
+                splitClassName = moduleClassName + SPLIT_CLASS_SUFFIX + splitClassNum;
                 splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
                 methodCountPerSplitClass = 0;
