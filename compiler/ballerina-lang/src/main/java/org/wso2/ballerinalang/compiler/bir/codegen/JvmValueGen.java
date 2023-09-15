@@ -94,6 +94,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_METHOD_COUNT_PER_BALLERINA_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
@@ -643,17 +644,18 @@ public class JvmValueGen {
                                      JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
                                      BIRNode.BIRTypeDefinition typeDef, Map<String, byte[]> jarEntries) {
 
+        int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
         splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
-        String splitClassName = moduleClassName + "$split";
+        String splitClassName = moduleClassName + "$split" + splitClassNum;
         splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
         JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
+        int methodCountPerSplitClass = 0;
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            // change this to a better way rather than checking name to filter the functions
             if (func.name.value.contains("$init$")) {
                 methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
                         jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
@@ -663,11 +665,25 @@ public class JvmValueGen {
                     moduleClassName, asyncDataCollector, splitClassName);
             methodGen.genJMethodForBFunc(func, splitCW, module, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                     moduleClassName, currentObjectType, asyncDataCollector, true);
+            methodCountPerSplitClass++;
+            if (methodCountPerSplitClass == MAX_METHOD_COUNT_PER_BALLERINA_OBJECT) {
+                splitCW.visitEnd();
+                byte[] splitBytes = jvmPackageGen.getBytes(splitCW, typeDef);
+                jarEntries.put(splitClassName + ".class", splitBytes);
+                splitClassNum++;
+                splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
+                splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
+                splitClassName = moduleClassName + "$split" + splitClassNum;
+                splitCW.visit(V17, ACC_PUBLIC + ACC_SUPER, splitClassName, null, OBJECT, null);
+                JvmCodeGenUtil.generateDefaultConstructor(splitCW, OBJECT);
+                methodCountPerSplitClass = 0;
+            }
         }
-
-        splitCW.visitEnd();
-        byte[] splitBytes = jvmPackageGen.getBytes(splitCW, typeDef);
-        jarEntries.put(splitClassName + ".class", splitBytes);
+        if (methodCountPerSplitClass != 0) {
+            splitCW.visitEnd();
+            byte[] splitBytes = jvmPackageGen.getBytes(splitCW, typeDef);
+            jarEntries.put(splitClassName + ".class", splitBytes);
+        }
     }
 
     private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
