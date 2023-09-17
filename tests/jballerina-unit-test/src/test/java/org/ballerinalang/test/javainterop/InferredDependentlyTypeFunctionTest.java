@@ -199,10 +199,10 @@ public class InferredDependentlyTypeFunctionTest {
         validateError(negativeResult, index++, "incompatible types: expected 'function (typedesc<(any|error)>," +
                 "typedesc<boolean>) returns ((t|td))', found 'function (typedesc<(any|error)>,typedesc<boolean>) " +
                 "returns ((int|string))'", 180, 74);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
-                "an argument for the parameter or a contextually-expected type to infer the argument", 185, 44);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
-                "an argument for the parameter or a contextually-expected type to infer the argument", 186, 52);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc" +
+                " value: expected 'typedesc<int>', found 'typedesc<boolean>'", 185, 44);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc " +
+                "value: expected 'typedesc<stream<int>>', found 'typedesc<BooleanStream>'", 186, 52);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                         "an argument for the parameter or a contextually-expected type to infer the argument", 196, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': expected " +

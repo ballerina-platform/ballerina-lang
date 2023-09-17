@@ -256,6 +256,11 @@ function testGlobalArrowExpressionsWithClosure() {
     assertEquality(expected, result);
 }
 
+function testCETViaTypeCastExpressionForArrowExpr() {
+    var func = <function (int) returns int>(a => a); // add this test case
+    assertEquality(func(1), 1);
+}
+
 function testExpressionBodiedFunctionWithBinaryExpr() {
     string[] a = ["foo","bar","baz"].map(s => s + "1");
     assertEquality(<string[]> ["foo1", "bar1", "baz1"], a);

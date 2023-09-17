@@ -163,7 +163,7 @@ public class FiniteTypeNegativeTest {
                 183, 12);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found 'string'",
                 187, 12);
-        validateError(resultNegativeTwo, i++, "incompatible types: 'int' cannot be cast to '2f'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found '2f'",
                 191, 12);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '3d', found '4f'",
                 192, 12);

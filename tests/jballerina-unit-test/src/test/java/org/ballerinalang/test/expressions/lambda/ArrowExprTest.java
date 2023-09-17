@@ -286,6 +286,11 @@ public class ArrowExprTest {
         BRunUtil.invoke(basic, "testExpressionBodiedFunctionWithBinaryExpr");
     }
 
+    @Test
+    public void testCETViaTypeCastExpressionForArrowExpr() {
+        BRunUtil.invoke(basic, "testCETViaTypeCastExpressionForArrowExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         basic = null;
