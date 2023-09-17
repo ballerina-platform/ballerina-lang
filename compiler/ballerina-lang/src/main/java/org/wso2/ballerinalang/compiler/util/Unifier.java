@@ -1132,7 +1132,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return paramsWithInferredTypedescDefault;
     }
 
-    // If the `expType` is `int|string|boolean` and the original type is`t|string` then the expected type for `t`
+    // If the `expType` is `int|string|boolean` and the original type is `t|string` then the expected type for `t`
     // is `int|boolean`.
     private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
         if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
@@ -1169,22 +1169,22 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         // Add the original union type if all the members of the original type are present in the `types` list.
-        LinkedHashSet<BType> originalTypesSet = new LinkedHashSet<>(); // This is to maintain the order of members
+        LinkedHashSet<BType> expectedTypesSet = new LinkedHashSet<>(); // This is to maintain the order of the members
         for (BType originalMemberType : expUnionType.getOriginalMemberTypes()) {
             LinkedHashSet<BType> flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
             Set<BType> typesToAdd = flatTypeSet.stream().filter(types::contains).collect(Collectors.toSet());
             if (typesToAdd.containsAll(flatTypeSet)) {
-                originalTypesSet.add(originalMemberType);
+                expectedTypesSet.add(originalMemberType);
             } else {
-                originalTypesSet.addAll(typesToAdd);
+                expectedTypesSet.addAll(typesToAdd);
             }
         }
 
-        if (originalTypesSet.size() == 1) {
-            return originalTypesSet.iterator().next();
+        if (expectedTypesSet.size() == 1) {
+            return expectedTypesSet.iterator().next();
         }
 
-        return BUnionType.create(null, originalTypesSet);
+        return BUnionType.create(null, expectedTypesSet);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {

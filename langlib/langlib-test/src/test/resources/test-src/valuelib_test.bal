@@ -3772,10 +3772,9 @@ function testCloneWithTypeToRecordWithIntersectingUnionMembers() {
                     "\n\t\t{" +
                     "\n\t\t  field 'a' in record 'A1' should be of type 'int', found '\"Ballerina\"'" +
                     "\n\t\t}";
-    if (z is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", z.message());
-        assertEquality(errMsg, <string> checkpanic z.detail()["message"]);
-    }
+    error errorZ = <error>z;
+    assertEquality("{ballerina/lang.value}ConversionError", errorZ.message());
+    assertEquality(errMsg, <string> checkpanic errorZ.detail()["message"]);
 }
 
 type GraphQLQuery record {|
