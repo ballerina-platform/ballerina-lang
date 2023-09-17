@@ -26,12 +26,11 @@ import com.google.gson.JsonObject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
 /**
@@ -57,13 +56,11 @@ public class JsonParser {
     }
 
     private int getTotalTime(JsonObject node) {
-        int totalTime = 0; // Initialize total time
-        // Get the "children" array from the JSONObject
+        int totalTime = 0;
         JsonArray children = node.getAsJsonArray("children");
         if (children != null) {
             for (int i = 0; i < children.size(); i++) {
                 if (children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt() != -1) {
-                    // Add the value to the total time
                     totalTime += children.get(i).getAsJsonObject().get(VALUE_KEY).getAsInt();
                 }
             }
@@ -71,17 +68,13 @@ public class JsonParser {
         return totalTime;
     }
 
-    private String readFileAsString(String file) throws IOException {
-        return Files.readString(Paths.get(file)); // Read Files as a String
-    }
-
-    private void writer(String parsedJson) {
+    private void writePerformanceJson(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
         try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
-            myWriter.write(parsedJson); // Write the parsed json string to the file
-            myWriter.flush(); // Flush the writer
+            myWriter.write(parsedJson);
+            myWriter.flush();
         } catch (IOException e) {
-            OUT_STREAM.printf("An error occurred.%n"); // Print an error message
+            OUT_STREAM.printf("An error occurred.%n");
         }
     }
 
@@ -96,24 +89,20 @@ public class JsonParser {
 
     private void cpuParser(ArrayList<String> skipList) {
         try {
-            String file = "CpuPre.json"; // File path of the Profiler Output json file
-            String jsonInput = readFileAsString(file); // Read the json file as a string
-
-            // Removes the trailing comma
+            String jsonInput = FileUtils.readFileAsString(CPU_PRE_JSON);
             StringBuilder jsonInputStringBuffer = new StringBuilder(jsonInput);
-            jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
+            if (jsonInputStringBuffer.length() > 3) {
+                // Removes the trailing comma
+                jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
+            }
             jsonInput = jsonInputStringBuffer.toString();
-            // Populate the input list
             List<StackTraceItem> input = populateStackTraceItems(jsonInput);
             // Create a Data object to store the output
             Data output = new Data("Root", input.get(0).time, new ArrayList<>());
-            // Iterate through the input list
             for (StackTraceItem stackTraceItem : input) {
                 if (stackTraceItem.stackTrace.size() == 1) {
-                    // Update the value of the root node
                     output.value = Math.max(output.value, stackTraceItem.time);
                 } else {
-                    // Iterate through the stack trace
                     analyseStackTraceItems(skipList, stackTraceItem, output);
                 }
             }
@@ -141,18 +130,16 @@ public class JsonParser {
         Gson gson = new Gson();
         String json = gson.toJson(output);
         JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        int totalTime = getTotalTime(jsonObject); // Calculate the total time
-        jsonObject.remove(VALUE_KEY); // Remove the "value" key
-        jsonObject.addProperty(VALUE_KEY, totalTime); // Add the total time as the value
-        writer(jsonObject.toString()); // write the json object to a file
+        int totalTime = getTotalTime(jsonObject);
+        jsonObject.remove(VALUE_KEY);
+        jsonObject.addProperty(VALUE_KEY, totalTime);
+        writePerformanceJson(jsonObject.toString());
     }
 
     private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String name) {
         boolean found = false;
-        // Check if the child node already exists
         for (Data child : current.children) {
             if (child.name.equals(name)) {
-                // Update the value of the existing child node
                 child.value = Math.max(child.value, stackTraceItem.time);
                 current = child;
                 found = true;
@@ -160,7 +147,6 @@ public class JsonParser {
             }
         }
         if (!found) {
-            // Create a new child node if it doesn't exist
             Data newChild = new Data(name, stackTraceItem.time, new ArrayList<>());
             current.children.add(newChild);
             current = newChild;

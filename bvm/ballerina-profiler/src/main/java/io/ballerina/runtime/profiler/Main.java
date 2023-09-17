@@ -32,7 +32,7 @@ public class Main {
 
     public static void main(String[] args) throws ProfilerException {
         profiler = new Profiler(TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS));
-        profiler.start(args); // Start the profiler tasks
+        profiler.start(args);
     }
 
     public static void incrementBalFunctionCount() {

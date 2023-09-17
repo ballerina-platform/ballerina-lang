@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
 /**
@@ -62,6 +63,8 @@ public class Profiler {
     private String balJarArgs = null;
     private String balJarName = null;
     private String targetDir = null;
+    private String sourceRoot = null;
+    private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
     private final List<String> utilInitPaths = new ArrayList<>();
@@ -87,10 +90,10 @@ public class Profiler {
                 HttpServer httpServer = new HttpServer();
                 jsonParser.initializeCPUParser(skipFunctionString);
                 deleteFileIfExists("usedPathsList.txt");
-                deleteFileIfExists("CpuPre.json");
+                deleteFileIfExists(CPU_PRE_JSON);
                 OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
-                httpServer.initializeHTMLExport();
+                httpServer.initializeHTMLExport(this.sourceRoot);
                 deleteFileIfExists("performance_report.json");
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
@@ -157,6 +160,14 @@ public class Profiler {
                 }
                 case "--target" -> {
                     this.targetDir = args[i + 1];
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--sourceroot" -> {
+                    this.sourceRoot = args[i + 1];
+                    addToUsedArgs(args, usedArgs, i);
+                }
+                case "--profilerDebug" -> {
+                    this.profilerDebugArg = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
                 default -> handleUnrecognizedArgument(args[i], usedArgs);
@@ -271,7 +282,7 @@ public class Profiler {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
             FileUtils.deleteDirectory(new File("io/ballerina/runtime/profiler/runtime"));
-            profilerMethodWrapper.invokeMethods();
+            profilerMethodWrapper.invokeMethods(profilerDebugArg);
         }
     }
 
@@ -368,11 +379,11 @@ public class Profiler {
     }
 
     void start(String[] args) {
-        addShutdownHookAndCleanup(); // Register a shutdown hook to handle graceful shutdown of the application
-        printHeader(); // Print the program header
-        handleProfilerArguments(args); // Handle command line arguments
-        extractProfiler(); // Extract the profiler used by the program
-        createTempJar(); // Create a temporary JAR file inside target/bin
-        initializeProfiling(); // Initialize profiling
+        addShutdownHookAndCleanup();
+        printHeader();
+        handleProfilerArguments(args);
+        extractProfiler();
+        createTempJar();
+        initializeProfiling();
     }
 }

@@ -292,6 +292,48 @@ public class BMainInstance implements BMain {
         }
     }
 
+
+    /**
+     * Executing the sh or bat file to start the server and return the PID for service handling.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environment properties to be appended to the environment
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    public Process runCommandAndGetProcess(String command, String[] args, Map<String, String> envProperties,
+                                           String commandDir) throws BallerinaTestException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        try {
+            if (Utils.isWindowsOS()) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return processBuilder.start();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing bal command", e);
+        }
+    }
+
+    public void waitForLeechers(List<LogLeecher> logLeechers, int timeout) throws BallerinaTestException {
+        for (LogLeecher leecher : logLeechers) {
+            leecher.waitForText(timeout);
+        }
+    }
+
     /**
      * Executing the sh or bat file to start the server in debug mode.
      *
