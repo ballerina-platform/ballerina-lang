@@ -16,10 +16,14 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
@@ -41,7 +45,6 @@ import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
@@ -91,15 +94,26 @@ public class LSPackageLoader {
 
     private CentralPackageDescriptorLoader centralPackageDescriptorLoader;
 
+    private Path userHome;
+
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
         if (lsPackageLoader == null) {
-            lsPackageLoader = new LSPackageLoader(context);
+            lsPackageLoader = new LSPackageLoader(context, null);
         }
         return lsPackageLoader;
     }
 
-    private LSPackageLoader(LanguageServerContext context) {
+    public static LSPackageLoader getInstance(LanguageServerContext context, Path userHome) {
+        LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
+        if (lsPackageLoader == null) {
+            lsPackageLoader = new LSPackageLoader(context, userHome);
+        }
+        return lsPackageLoader;
+    }
+
+    private LSPackageLoader(LanguageServerContext context, Path userHome) {
+        this.userHome = userHome;
         this.clientLogger = LSClientLogger.getInstance(context);
         this.centralPackageDescriptorLoader = CentralPackageDescriptorLoader.getInstance(context);
         context.put(LS_PACKAGE_LOADER_KEY, this);
@@ -140,7 +154,9 @@ public class LSPackageLoader {
             }
         }).thenRunAsync(() -> {
             clientLogger.logTrace("Loading packages from Ballerina distribution");
-            Environment environment = EnvironmentBuilder.getBuilder().build();
+            Environment environment = userHome == null ?
+                    EnvironmentBuilder.getBuilder().build() :
+                    EnvironmentBuilder.getBuilder().setUserHome(userHome).build();
             BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
             PackageRepository packageRepository = ballerinaDistribution.packageRepository();
             List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
@@ -153,7 +169,8 @@ public class LSPackageLoader {
             LSClientCapabilities lsClientCapabilities = lsContext.get(LSClientCapabilities.class);
             if (lsClientCapabilities.getInitializationOptions().isEnableIndexUserHome()) {
                 clientLogger.logTrace("Loading packages from Ballerina User Home");
-                BallerinaUserHome ballerinaUserHome = BallerinaUserHome.from(environment);
+                BallerinaUserHome ballerinaUserHome = userHome == null ?
+                        BallerinaUserHome.from(environment) : BallerinaUserHome.from(environment, userHome);
                 //Load modules from local repo
                 PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
                 this.localRepoModuleDescriptors.addAll(resolveModulesFromRepository(localRepository, REPO.LOCAL,
@@ -352,8 +369,9 @@ public class LSPackageLoader {
                                 });
                             });
                 } catch (Throwable e) {
-                    clientLogger.logTrace("Failed to resolve package "
-                            + packageOrg + (!packageOrg.value().isEmpty() ? "/" : packageName + ":" + pkgVersion));
+                    clientLogger.logTrace(String.format("Failed to resolve package %s%s:%s",
+                            packageOrg.value().isEmpty() ? "" : packageOrg + "/",
+                            packageName, version));
                 }
             });
 
@@ -381,7 +399,7 @@ public class LSPackageLoader {
 
         private final Map<REPO, List<PackageVersion>> versionMap = new LinkedHashMap<>();
 
-        private final List<ServiceTemplateGenerator.ListenerMetaData> listenerMetaDataList = new ArrayList<>();
+        private final List<ServiceTemplateGenerator.ListenerMetaData> moduleListeners = new ArrayList<>();
 
         public ModuleInfo(PackageDescriptor packageDescriptor) {
             this.moduleName = packageDescriptor.name().value();
@@ -446,8 +464,8 @@ public class LSPackageLoader {
             return Optional.ofNullable(moduleDescriptor);
         }
 
-        public List<ServiceTemplateGenerator.ListenerMetaData> getListenerMetaDataList() {
-            return listenerMetaDataList;
+        public List<ServiceTemplateGenerator.ListenerMetaData> getModuleListeners() {
+            return moduleListeners;
         }
 
         public boolean isModuleFromCurrentPackage() {
@@ -459,16 +477,27 @@ public class LSPackageLoader {
         }
 
         public void addVersion(PackageVersion packageVersion, REPO repoKind) {
-            versionMap.computeIfAbsent(repoKind, (repo) -> Collections.emptyList()).add(packageVersion);
+            versionMap.computeIfAbsent(repoKind, (repo) -> new ArrayList<>(List.of(packageVersion)));
         }
 
         private void addServiceSnippetMetaData(Module module) {
-            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+//            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            List<ClassDefinitionNode> listeners = new ArrayList<>();
+            module.documentIds().stream().forEach(documentId -> {
+                Document document = module.document(documentId);
+                SyntaxTree syntaxTree = document.syntaxTree();
+                if (syntaxTree.rootNode().kind() != SyntaxKind.MODULE_PART) {
+                    return;
+                }
+                ((ModulePartNode) (document.syntaxTree().rootNode())).members().stream()
+                        .filter(listenerPredicate()).map(member -> (ClassDefinitionNode) member)
+                        .forEach(listeners::add);
+            });
+
             ModuleID moduleID = CodeActionModuleId.from(this.packageOrg().value(), this.moduleName(),
                     this.packageVersion().toString());
-            semanticModel.moduleSymbols().stream().filter(listenerPredicate())
-                    .forEach(listener -> ServiceTemplateGenerator.generateServiceSnippetMetaData(listener, moduleID)
-                            .ifPresent(this.listenerMetaDataList::add));
+            listeners.forEach(listener -> ServiceTemplateGenerator.generateServiceSnippetMetaData(listener, moduleID)
+                    .ifPresent(this.moduleListeners::add));
         }
     }
 
@@ -481,7 +510,24 @@ public class LSPackageLoader {
         REMOTE
     }
 
-    private static Predicate<Symbol> listenerPredicate() {
-        return symbol -> SymbolUtil.isListener(symbol) && symbol.kind() == SymbolKind.CLASS;
+    private static Predicate<Node> listenerPredicate() {
+        return node -> {
+            if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
+                return false;
+            }
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
+            if (classDefinitionNode.visibilityQualifier().isEmpty()
+                    || classDefinitionNode.visibilityQualifier().get().kind()
+                    != SyntaxKind.PUBLIC_KEYWORD) {
+                return false;
+            }
+            List<String> methodNames = ((ClassDefinitionNode) node).members().stream()
+                    .filter(classMember -> classMember.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                    .map(method -> ((FunctionDefinitionNode) method).functionName().text())
+                    .toList();
+            return methodNames.contains("'start")
+                    && methodNames.contains("attach")
+                    && methodNames.contains("immediateStop");
+        };
     }
 }

@@ -4,7 +4,6 @@
     "character": 7
   },
   "source": "import_decl/source/lsproject2/modules/module3/main.bal",
-  "description": "",
   "items": [
     {
       "label": "'service.'transaction.'join",

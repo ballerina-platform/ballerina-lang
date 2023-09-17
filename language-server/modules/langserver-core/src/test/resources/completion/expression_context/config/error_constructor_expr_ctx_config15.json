@@ -4,7 +4,6 @@
     "character": 50
   },
   "source": "expression_context/source/error_constructor_expr_ctx_source15.bal",
-  "description": "",
   "items": [
     {
       "label": "ballerina/lang.runtime",

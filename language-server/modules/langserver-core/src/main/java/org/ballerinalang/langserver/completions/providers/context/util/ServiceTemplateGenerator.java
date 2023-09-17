@@ -29,6 +29,8 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
@@ -58,6 +60,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -118,7 +121,7 @@ public class ServiceTemplateGenerator {
                     || moduleInfo.isModuleFromCurrentPackage()) {
                 return;
             }
-            moduleInfo.getListenerMetaDataList().forEach(listenerMetaData -> {
+            moduleInfo.getModuleListeners().forEach(listenerMetaData -> {
                 completionItems.add(generateServiceSnippet(listenerMetaData, true, currentModuleID, ctx));
             });
             processedModuleList.add(moduleInfo.moduleIdentifier());
@@ -170,6 +173,47 @@ public class ServiceTemplateGenerator {
     /**
      * Given a Symbol of a listener, process and pre-generate listener meta data.
      *
+     * @param classDefinitionNode Listener class.
+     * @param moduleID            ModuleID of the module of symbol.
+     * @return {@link ListenerMetaData} Pre processed metadata of the symbol.
+     */
+    public static Optional<ListenerMetaData> generateServiceSnippetMetaData(ClassDefinitionNode classDefinitionNode,
+                                                                            ModuleID moduleID) {
+
+        //Check if the provided symbol is a listener.
+        List<String> methodNames = classDefinitionNode.members().stream()
+                .filter(classMember -> classMember.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(method -> ((FunctionDefinitionNode) method).functionName().text())
+                .toList();
+
+        if (!(methodNames.contains("'start")
+                && methodNames.contains("attach")
+                && methodNames.contains("immediateStop"))) {
+            return Optional.empty();
+        }
+
+        //Listener initialization snippet
+        //Snippet index 1 is provided for attachment point in service definition.
+        //Check if the provided symbol is a listener.
+        Optional<FunctionDefinitionNode> initMethod = classDefinitionNode.members().stream()
+                .filter(classMember -> classMember.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(node -> (FunctionDefinitionNode) node)
+                .filter(method -> method.functionName().text().equals("init"))
+                .findAny();
+        int snippetIndex = 2;
+        String listenerInitArgs = "";
+        if (initMethod.isPresent() && !initMethod.get().functionSignature().parameters().isEmpty()) {
+            listenerInitArgs = String.format("${%s}", snippetIndex);
+            snippetIndex += 1;
+        }
+
+        String symbolName = classDefinitionNode.className().text();
+        return Optional.of(new ListenerMetaData(listenerInitArgs, symbolName, snippetIndex, moduleID));
+    }
+
+    /**
+     * Given a Symbol of a listener, process and pre-generate listener meta data.
+     *
      * @param symbol   Listener symbol.
      * @param moduleID ModuleID of the module of symbol.
      * @return {@link ListenerMetaData} Pre processed metadata of the symbol.
@@ -186,7 +230,6 @@ public class ServiceTemplateGenerator {
         if (classSymbol.getName().isEmpty()) {
             return Optional.empty();
         }
-
         //Get the attach method of the listener.
         MethodSymbol attachMethod = classSymbol.methods().get("attach");
         if (attachMethod == null) {
@@ -214,7 +257,6 @@ public class ServiceTemplateGenerator {
         } else {
             return Optional.empty();
         }
-
         //Listener initialization snippet
         //Snippet index 1 is provided for attachment point in service definition.
         Optional<MethodSymbol> initMethod = classSymbol.initMethod();
@@ -223,8 +265,7 @@ public class ServiceTemplateGenerator {
         if (initMethod.isPresent() && initMethod.get().typeDescriptor().params().isPresent()) {
             List<String> args = new ArrayList<>();
             List<ParameterSymbol> requiredParams = initMethod.get().typeDescriptor().params().get().stream()
-                    .filter(parameterSymbol ->
-                            parameterSymbol.paramKind() == ParameterKind.REQUIRED).toList();
+                    .filter(parameterSymbol -> parameterSymbol.paramKind() == ParameterKind.REQUIRED).toList();
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
                         DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())
@@ -233,55 +274,50 @@ public class ServiceTemplateGenerator {
             }
             listenerInitArgs = String.join(",", args);
         }
-
         String symbolName = classSymbol.getName().get();
         return Optional.of(new ListenerMetaData(listenerInitArgs,
                 new ArrayList<>(serviceTypeSymbol.methods().values()),
                 symbolName, snippetIndex, moduleID));
+
     }
 
-    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet, Boolean shouldImport,
+    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet,
+                                                    Boolean shouldImport,
                                                     ModuleID currentModuleID,
                                                     BallerinaCompletionContext context) {
-
         String symbolReference;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, currentModuleID,
                 serviceSnippet.moduleID, context);
         String moduleAlias = modulePrefix.replace(":", "");
         String moduleName = ModuleUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
-
         if (!moduleAlias.isEmpty()) {
             symbolReference = modulePrefix + serviceSnippet.symbolName;
         } else {
             symbolReference = serviceSnippet.symbolName;
         }
-
         String listenerInitialization = "new " + symbolReference + "(" + serviceSnippet.listenerInitArgs + ")";
         List<String> methodSnippets = new ArrayList<>();
-
         SnippetContext snippetContext = new SnippetContext(serviceSnippet.currentSnippetIndex - 1);
 
-        if (!serviceSnippet.unimplementedMethods.isEmpty()) {
+        boolean implementMethods = serviceSnippet.unimplementedMethods != null
+                && !serviceSnippet.unimplementedMethods.isEmpty();
+        if (implementMethods) {
             for (MethodSymbol methodSymbol : serviceSnippet.unimplementedMethods) {
                 String functionSnippet =
                         generateMethodSnippet(importsAcceptor, methodSymbol, snippetContext, context);
                 methodSnippets.add(functionSnippet);
             }
         }
-
-
         String snippet = SyntaxKind.SERVICE_KEYWORD.stringValue() + " ${1} " +
                 SyntaxKind.ON_KEYWORD.stringValue() + " " + listenerInitialization +
-                " {" + CommonUtil.LINE_SEPARATOR + (serviceSnippet.unimplementedMethods.isEmpty() ?
+                " {" + CommonUtil.LINE_SEPARATOR + (!implementMethods ?
                 "    ${" + snippetContext.incrementAndGetPlaceholderCount()
                         + "}" : String.join("", methodSnippets)) + CommonUtil.LINE_SEPARATOR + "}" +
                 CommonUtil.LINE_SEPARATOR;
-
         String label;
         String filterText;
         String detail = ItemResolverConstants.SNIPPET_TYPE;
-
         label = shouldImport ? "service on " + moduleName + ":" +
                 serviceSnippet.symbolName : "service on " + symbolReference;
         filterText = moduleAlias.isEmpty() ? ItemResolverConstants.SERVICE :
@@ -293,7 +329,6 @@ public class ServiceTemplateGenerator {
         List<TextEdit> additionalTextEdits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
         return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
                 filterText.replace(".", "_"), additionalTextEdits), StaticCompletionItem.Kind.SERVICE_TEMPLATE);
-
     }
 
     private String generateMethodSnippet(ImportsAcceptor importsAcceptor, MethodSymbol methodSymbol,
@@ -367,6 +402,17 @@ public class ServiceTemplateGenerator {
             this.symbolName = symbolReference;
             this.currentSnippetIndex = currentSnippetIndex;
             this.moduleID = moduleID;
+        }
+
+        ListenerMetaData(String listenerInitialization,
+                         String symbolReference,
+                         int currentSnippetIndex,
+                         ModuleID moduleID) {
+            this.listenerInitArgs = listenerInitialization;
+            this.symbolName = symbolReference;
+            this.currentSnippetIndex = currentSnippetIndex;
+            this.moduleID = moduleID;
+            this.unimplementedMethods = Collections.emptyList();
         }
     }
 }

@@ -4,7 +4,6 @@
     "character": 8
   },
   "source": "field_access_expression_context/source/foreach_stmt_ctx_source7.bal",
-  "description": "",
   "items": [
     {
       "label": "xmlns",

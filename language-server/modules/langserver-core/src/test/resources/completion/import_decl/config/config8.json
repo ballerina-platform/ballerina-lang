@@ -4,7 +4,6 @@
     "character": 7
   },
   "source": "import_decl/source/lsproject/modules/module1/source1.bal",
-  "description": "",
   "items": [
     {
       "label": "lsproject.module2",

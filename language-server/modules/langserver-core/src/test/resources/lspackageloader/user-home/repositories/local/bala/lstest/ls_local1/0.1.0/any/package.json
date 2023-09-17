@@ -1,0 +1,17 @@
+{
+  "organization": "lstest",
+  "name": "ls_local1",
+  "version": "0.1.0",
+  "export": [
+    "ls_local1",
+    "ls_local1.module1",
+    "ls_local1.module1.mod1",
+    "ls_local1.module2"
+  ],
+  "ballerina_version": "2201.8.0-20230830-220400-8a7556d8",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2023R1",
+  "platform": "any",
+  "graalvmCompatible": true,
+  "template": false
+}

@@ -543,40 +543,6 @@
       ]
     },
     {
-      "label": "service on module1:Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "AC",
-      "filterText": "service_module1_Listener",
-      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "service on lang.test:MockListener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "AC",
-      "filterText": "service_lang_test_MockListener",
-      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "Service",
       "kind": "Interface",
       "detail": "Object",
@@ -924,6 +890,40 @@
             }
           },
           "newText": "import lsproject.module3;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on module1:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_module1_Listener",
+      "insertText": "service ${1} on new module1:Listener(${2}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "service on lang.test:MockListener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_lang_test_MockListener",
+      "insertText": "service ${1} on new test:MockListener(${2}) {\n    ${3}\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     }

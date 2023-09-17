@@ -4,7 +4,6 @@
     "character": 23
   },
   "source": "annotation_ctx/source/paramAnnotation10.bal",
-  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",

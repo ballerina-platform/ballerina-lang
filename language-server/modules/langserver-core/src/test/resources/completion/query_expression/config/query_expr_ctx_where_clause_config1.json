@@ -4,7 +4,6 @@
     "character": 14
   },
   "source": "query_expression/source/query_expr_ctx_where_clause_source1.bal",
-  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",

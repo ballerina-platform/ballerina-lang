@@ -35,7 +35,6 @@ import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -69,7 +68,7 @@ public abstract class AbstractLSTest {
         try {
             preparePackageLoaders();
         } catch (Exception e) {
-            String m = e.getMessage();
+            //ignore
         }
     }
 
@@ -79,7 +78,8 @@ public abstract class AbstractLSTest {
         BallerinaLanguageServer server = new BallerinaLanguageServer();
         LanguageServerContext context = server.getServerContext();
         TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
-                .withLanguageServer(server).withInitOption(LSClientCapabilitiesImpl.InitializationOptionsImpl.KEY_ENABLE_INDEX_USER_HOME, false);
+                .withLanguageServer(server)
+                .withInitOption(LSClientCapabilitiesImpl.InitializationOptionsImpl.KEY_ENABLE_INDEX_USER_HOME, false);
 
         //Mock central package loader
         FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
@@ -96,12 +96,13 @@ public abstract class AbstractLSTest {
         Mockito.when(centralPackageLoader.getCentralModules()).thenReturn(packages);
         context.put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, centralPackageLoader);
 
-        //Build the LS. This will populate the init options and load the packages from distribution into the LSPackage Loader.
+        //Build the LS. This will populate the init options and load the packages from distribution 
+        // into the LSPackage Loader.
         long initTime = System.currentTimeMillis();
         Endpoint tempEndPoint = builder.build();
         unMockedlsPackageLoader = LSPackageLoader.getInstance(context);
         //Wait for LS Package loader to load the modules form distribution
-        while (!unMockedlsPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
+        while (!unMockedlsPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 10 * 60 * 1000) {
             Thread.sleep(2000);
         }
         TestUtil.shutdownLanguageServer(tempEndPoint);
@@ -122,8 +123,8 @@ public abstract class AbstractLSTest {
     @BeforeClass
     public void init() throws Exception {
         this.languageServer = new BallerinaLanguageServer();
-
-        //Add mocks to the context
+        this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
+        //Add mocks to the language server context
         this.languageServer.getServerContext().put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY,
                 centralPackageLoader);
         this.lsPackageLoader = Mockito.spy(unMockedlsPackageLoader);
@@ -179,6 +180,10 @@ public abstract class AbstractLSTest {
         return this.serviceEndpoint;
     }
 
+    public void setServiceEndpoint(Endpoint endpoint) {
+        this.serviceEndpoint = endpoint;
+    }
+
     public void setLsPackageLoader(LSPackageLoader lsPackageLoader) {
         this.lsPackageLoader = lsPackageLoader;
     }
@@ -193,5 +198,9 @@ public abstract class AbstractLSTest {
 
     public static List<LSPackageLoader.ModuleInfo> getRemoteModules() {
         return REMOTE_MODULES;
+    }
+
+    public void setLanguageServer(BallerinaLanguageServer languageServer) {
+        this.languageServer = languageServer;
     }
 }

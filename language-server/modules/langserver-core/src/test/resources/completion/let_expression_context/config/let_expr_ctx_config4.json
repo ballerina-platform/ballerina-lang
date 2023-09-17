@@ -4,7 +4,6 @@
     "character": 19
   },
   "source": "let_expression_context/source/let_expr_ctx_source4.bal",
-  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",

@@ -4,7 +4,6 @@
     "character": 22
   },
   "source": "field_access_expression_context/source/foreach_stmt_ctx_source6.bal",
-  "description": "",
   "items": [
     {
       "label": "start",

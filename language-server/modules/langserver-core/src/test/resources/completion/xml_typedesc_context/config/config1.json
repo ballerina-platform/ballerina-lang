@@ -4,7 +4,6 @@
     "character": 8
   },
   "source": "xml_typedesc_context/source/source1.bal",
-  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",

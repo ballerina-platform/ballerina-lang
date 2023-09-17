@@ -15,34 +15,23 @@
  */
 package org.ballerinalang.langserver.lspackageloader;
 
-import io.ballerina.projects.Project;
-import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
-import org.ballerinalang.langserver.commons.eventsync.EventKind;
-import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
-import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.mockito.Mockito;
 import org.testng.Assert;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Tests {@link org.ballerinalang.langserver.LSPackageLoader}.
@@ -50,110 +39,61 @@ import java.util.Optional;
  * @since 2201.2.1
  */
 public class LSPackageLoaderTest extends AbstractLSTest {
-
     private final Path testRoot = FileUtils.RES_DIR.resolve("lspackageloader");
-    private static final Map<String, String> REMOTE_PROJECTS = Map.of("project3", "main.bal");
-    private List<LSPackageLoader.ModuleInfo> remoteRepoPackages = new ArrayList<>(getRemoteModules());
 
-    @Test(dataProvider = "data-provider")
-    public void testPullModuleEvent(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
-        //Open the source text document and load project
-        Path sourcePath = testRoot.resolve("source").resolve(source);
-        Endpoint endpoint = getServiceEndpoint();
-        TestUtil.openDocument(endpoint, sourcePath);
-
-        BallerinaLanguageServer languageServer = this.getLanguageServer();
-        EventSyncPubSubHolder eventSyncPubSubHolder =
-                EventSyncPubSubHolder.getInstance(languageServer.getServerContext());
-        DocumentServiceContext documentServiceContext =
-                ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
-                        languageServer.getWorkspaceManager(), LSContextOperation.WS_EXEC_CMD,
-                        languageServer.getServerContext());
-        //ModuleInfo count before adding a new package
-        int packageCount = getLoadedPackagesFromLoader(documentServiceContext).size();
-
-        //Publish a mock event using pull module publisher.
-        eventSyncPubSubHolder.getPublisher(EventKind.PULL_MODULE).publish(this.getLanguageServer().getClient(),
-                languageServer.getServerContext(), documentServiceContext);
-
-        //Assert if the package info map is updated with the newly added package.
-        int packageCountAfterPullModule = getLoadedPackagesFromLoader(documentServiceContext).size();
-        Assert.assertTrue(packageCount < packageCountAfterPullModule);
+    @BeforeClass
+    @Override
+    public void init() throws Exception {
+        Path userHome = testRoot.resolve("user-home");
+        setLanguageServer(new BallerinaLanguageServer());
+        setLsPackageLoader(LSPackageLoader.getInstance(getLanguageServer().getServerContext(), userHome));
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer().withLanguageServer(getLanguageServer());
+        setupLanguageServer(builder);
+        setServiceEndpoint(builder.build());
+        //Wait for LS Package loader to load the modules
+        long initTime = System.currentTimeMillis();
+        while (!getLSPackageLoader().isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
+            Thread.sleep(2000);
+        }
+        if (!getLSPackageLoader().isInitialized()) {
+            Assert.fail("LS Package Loader initialization failed!");
+        }
     }
 
-    @Test(dataProvider = "data-provider")
-    public void testPackageLoading(String source) throws IOException, EventSyncException, WorkspaceDocumentException {
+    @Test
+    public void testPackageLoading() throws IOException {
+        BallerinaLanguageServer languageServer = getLanguageServer();
+        List<LSPackageLoader.ModuleInfo> localRepoModules =
+                LSPackageLoader.getInstance(languageServer.getServerContext()).getLocalRepoModules();
+        List<LSPackageLoader.ModuleInfo> remoteRepoModules =
+                LSPackageLoader.getInstance(languageServer.getServerContext()).getRemoteRepoModules();
+
         //Open the source text document and load project
-        Path sourcePath = testRoot.resolve("source").resolve(source);
+        Path sourcePath = testRoot.resolve("source")
+                .resolve("package_test_source.bal");
         Endpoint endpoint = getServiceEndpoint();
         TestUtil.openDocument(endpoint, sourcePath);
 
-        BallerinaLanguageServer languageServer = this.getLanguageServer();
-        EventSyncPubSubHolder eventSyncPubSubHolder =
-                EventSyncPubSubHolder.getInstance(languageServer.getServerContext());
         DocumentServiceContext documentServiceContext =
                 ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
-                        languageServer.getWorkspaceManager(), LSContextOperation.WS_EXEC_CMD,
+                        languageServer.getWorkspaceManager(), LSContextOperation.TXT_DID_OPEN,
                         languageServer.getServerContext());
-        //ModuleInfo count before adding a new package
-        int packageCount = getLoadedPackagesFromLoader(documentServiceContext).size();
 
-        //Publish a mock event using pull module publisher.
-        eventSyncPubSubHolder.getPublisher(EventKind.PULL_MODULE).publish(this.getLanguageServer().getClient(),
-                languageServer.getServerContext(), documentServiceContext);
+        List<LSPackageLoader.ModuleInfo> allVisibleModules =
+                LSPackageLoader.getInstance(languageServer.getServerContext())
+                        .getAllVisibleModules(documentServiceContext);
 
-        //Assert if the package info map is updated with the newly added package.
-        int packageCountAfterPullModule = getLoadedPackagesFromLoader(documentServiceContext).size();
-        Assert.assertTrue(packageCount < packageCountAfterPullModule);
+        //The module info content is verified by completion and code action tests, 
+        // therefore, we only assert the size of the list of modules in each repo. 
+        Assert.assertTrue(allVisibleModules.size() == 30);
+        Assert.assertTrue(localRepoModules.size() == 4);
+        Assert.assertTrue(remoteRepoModules.size() == 4);
     }
     
-    public void setUp() {
-        LSPackageLoader lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
-        setLsPackageLoader(lsPackageLoader);
-        this.getLanguageServer().getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, getLSPackageLoader());
-        Mockito.when(lsPackageLoader.getRemoteRepoModules())
-                .thenAnswer(invocation -> getRemoteRepoPackages());
-        Mockito.when(lsPackageLoader.getLocalRepoModules()).thenReturn(getLocalModules());
-        Mockito.when(lsPackageLoader.getDistributionRepoModules()).thenCallRealMethod();
-        Mockito.when(lsPackageLoader.getAllVisibleModules(Mockito.any())).thenCallRealMethod();
-        Mockito.when(lsPackageLoader.getModulesFromBallerinaUserHome()).thenCallRealMethod();
-        Mockito.doAnswer(invocation -> {
-            invocation.getArguments();
-            Object[] arguments = invocation.getArguments();
-            if (arguments != null && arguments.length == 1 && arguments[0] != null) {
-                DocumentServiceContext context = (DocumentServiceContext) arguments[0];
-                getPackages(REMOTE_PROJECTS,
-                        context.workspace(), context.languageServercontext())
-                        .forEach(pkg -> pkg.modules().forEach(module ->
-                                this.remoteRepoPackages.add(new LSPackageLoader.ModuleInfo(module))));
-            }
-            return null;
-        }).when(lsPackageLoader).refreshRemoteModules(Mockito.any());
-    }
-
-    private List<LSPackageLoader.ModuleInfo> getLoadedPackagesFromLoader(DocumentServiceContext context) {
-        Optional<Project> project = context.workspace().project(context.filePath());
-        if (project.isEmpty()) {
-            return Collections.emptyList();
-        }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        return getLSPackageLoader().getRemoteRepoModules();
-    }
-
-    @DataProvider(name = "data-provider")
-    public Object[][] dataProvider() {
-        return new Object[][]{
-                {"pull_module_event_source.bal"}
-        };
-    }
 
     @Override
     protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
         builder.withInitOption(InitializationOptions.KEY_ENABLE_INDEX_USER_HOME, true);
     }
-
-    public List<LSPackageLoader.ModuleInfo> getRemoteRepoPackages() {
-        return remoteRepoPackages;
-    }
+    
 }

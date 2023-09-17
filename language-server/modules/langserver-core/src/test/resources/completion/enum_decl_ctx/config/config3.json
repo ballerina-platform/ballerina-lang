@@ -4,7 +4,6 @@
     "character": 16
   },
   "source": "enum_decl_ctx/source/projectls/enum_member_source1.bal",
-  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",

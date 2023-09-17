@@ -1,0 +1,109 @@
+{
+  "packages": [
+    {
+      "org": "ballerina",
+      "name": "jballerina.java",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    },
+    {
+      "org": "lstest",
+      "name": "ls_local1",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "io",
+          "version": "1.6.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "io",
+      "version": "1.6.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        },
+        {
+          "org": "ballerina",
+          "name": "lang.value",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "lang.value",
+      "version": "0.0.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "jballerina.java",
+          "version": "0.0.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "lstest",
+      "package_name": "ls_local1",
+      "version": "0.1.0",
+      "module_name": "ls_local1",
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "package_name": "io",
+          "version": "1.6.0",
+          "module_name": "io",
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "org": "lstest",
+      "package_name": "ls_local1",
+      "version": "0.1.0",
+      "module_name": "ls_local1.module2",
+      "dependencies": []
+    },
+    {
+      "org": "lstest",
+      "package_name": "ls_local1",
+      "version": "0.1.0",
+      "module_name": "ls_local1.module1.mod1",
+      "dependencies": []
+    },
+    {
+      "org": "lstest",
+      "package_name": "ls_local1",
+      "version": "0.1.0",
+      "module_name": "ls_local1.module1",
+      "dependencies": []
+    }
+  ]
+}

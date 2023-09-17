@@ -4,7 +4,6 @@
     "character": 20
   },
   "source": "query_expression/source/query_expr_ctx_select_clause_source5.bal",
-  "description": "",
   "items": [
     {
       "label": "from",
