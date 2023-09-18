@@ -551,7 +551,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = varNode.expr;
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
-        lambdaFunction.capturedClosureEnv = env.createClone();
+        lambdaFunction.capturedClosureEnv = env;
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
         env.enclPkg.functions.add(function);
