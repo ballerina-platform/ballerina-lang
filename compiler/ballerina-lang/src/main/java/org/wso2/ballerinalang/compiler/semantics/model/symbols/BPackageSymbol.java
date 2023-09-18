@@ -56,9 +56,6 @@ public class BPackageSymbol extends BTypeSymbol {
     public BIRNode.BIRPackage bir;   // TODO try to remove this
     public BIRPackageFile birPackageFile;
 
-    // kep code generated jar binary content in memory
-    public CompiledJarFile compiledJarFile;
-
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
 
