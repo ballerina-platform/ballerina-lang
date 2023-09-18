@@ -211,7 +211,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         startListeningFileChanges();
 
         LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
-
+        
         if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return;
         }

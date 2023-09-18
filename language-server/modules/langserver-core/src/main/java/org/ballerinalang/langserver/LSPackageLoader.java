@@ -256,7 +256,6 @@ public class LSPackageLoader {
         Map<String, ModuleInfo> moduleInfoMap = new HashMap<>();
         this.getDistributionRepoModules().forEach(moduleInfo ->
                 moduleInfoMap.put(moduleInfo.moduleIdentifier(), moduleInfo));
-
         this.getModulesFromBallerinaUserHome().forEach(moduleInfo ->
                 moduleInfoMap.put(moduleInfo.moduleIdentifier(), moduleInfo));
 
@@ -481,9 +480,11 @@ public class LSPackageLoader {
         }
 
         private void addServiceSnippetMetaData(Module module) {
-//            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            //SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            //When the Semantic model is used the memory consumption high and the performance of the LS is very low. 
+            //Therefore, we are using the Syntax tree based approach here. 
             List<ClassDefinitionNode> listeners = new ArrayList<>();
-            module.documentIds().stream().forEach(documentId -> {
+            module.documentIds().forEach(documentId -> {
                 Document document = module.document(documentId);
                 SyntaxTree syntaxTree = document.syntaxTree();
                 if (syntaxTree.rootNode().kind() != SyntaxKind.MODULE_PART) {
@@ -496,7 +497,7 @@ public class LSPackageLoader {
 
             ModuleID moduleID = CodeActionModuleId.from(this.packageOrg().value(), this.moduleName(),
                     this.packageVersion().toString());
-            listeners.forEach(listener -> ServiceTemplateGenerator.generateServiceSnippetMetaData(listener, moduleID)
+            listeners.forEach(listener -> ServiceTemplateGenerator.generateServiceTemplateMetaData(listener, moduleID)
                     .ifPresent(this.moduleListeners::add));
         }
     }

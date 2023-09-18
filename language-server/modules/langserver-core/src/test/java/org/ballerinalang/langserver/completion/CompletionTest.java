@@ -87,6 +87,11 @@ public abstract class CompletionTest extends AbstractLSTest {
         }
     }
 
+    @Override
+    protected boolean loadMockedPackages() {
+        return true;
+    }
+
     protected String getResponse(TestConfig testConfig) throws IOException {
         Path sourcePath = testRoot.resolve(testConfig.source);
         String triggerChar = testConfig.triggerCharacter == null ? "" : testConfig.triggerCharacter;

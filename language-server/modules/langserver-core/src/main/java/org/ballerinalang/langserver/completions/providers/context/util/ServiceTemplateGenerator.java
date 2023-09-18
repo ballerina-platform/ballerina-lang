@@ -114,19 +114,6 @@ public class ServiceTemplateGenerator {
         String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
         ModuleID currentModuleID = CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
 
-        List<LSPackageLoader.ModuleInfo> visibleModules =
-                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisibleModules(ctx);
-        visibleModules.forEach(moduleInfo -> {
-            if (processedModuleList.contains(moduleInfo.moduleIdentifier())
-                    || moduleInfo.isModuleFromCurrentPackage()) {
-                return;
-            }
-            moduleInfo.getModuleListeners().forEach(listenerMetaData -> {
-                completionItems.add(generateServiceSnippet(listenerMetaData, true, currentModuleID, ctx));
-            });
-            processedModuleList.add(moduleInfo.moduleIdentifier());
-        });
-
         //Generate service template completion items for the listeners in the current project.
         //LS Package loader does not load the listeners from the current project.
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
@@ -150,23 +137,36 @@ public class ServiceTemplateGenerator {
             String version = currentModule.get().packageInstance().descriptor().version().value().toString();
             ModuleID moduleID = isCurrentModule ? currentModuleID :
                     CodeActionModuleId.from(currentOrg, moduleName, version);
-
             if (processedModuleList.contains(moduleIdentifier)) {
                 return;
             }
-
             try {
                 SemanticModel semanticModel = packageCompilation.get().getSemanticModel(module.moduleId());
                 semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
-                        generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
-                                completionItems.add(generateServiceSnippet(item,
+                        generateServiceTemplateMetaData(listener, moduleID).ifPresent(item ->
+                                completionItems.add(generateServiceTemplate(item,
                                         !isCurrentModule, currentModuleID, ctx))));
+                processedModuleList.add(moduleIdentifier);
             } catch (Throwable throwable) {
                 LSClientLogger clientLogger = LSClientLogger.getInstance(ctx.languageServercontext());
                 String msg = String.format("Operation 'txt/completion' failed for %s", moduleName);
                 clientLogger.logError(LSContextOperation.TXT_COMPLETION, msg, throwable, null, (Position) null);
             }
         });
+
+        List<LSPackageLoader.ModuleInfo> visibleModules =
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisibleModules(ctx);
+        visibleModules.forEach(moduleInfo -> {
+            if (processedModuleList.contains(moduleInfo.moduleIdentifier())
+                    || moduleInfo.isModuleFromCurrentPackage()) {
+                return;
+            }
+            moduleInfo.getModuleListeners().forEach(listenerMetaData -> {
+                completionItems.add(generateServiceTemplate(listenerMetaData, true, currentModuleID, ctx));
+            });
+            processedModuleList.add(moduleInfo.moduleIdentifier());
+        });
+
         return completionItems;
     }
 
@@ -177,8 +177,8 @@ public class ServiceTemplateGenerator {
      * @param moduleID            ModuleID of the module of symbol.
      * @return {@link ListenerMetaData} Pre processed metadata of the symbol.
      */
-    public static Optional<ListenerMetaData> generateServiceSnippetMetaData(ClassDefinitionNode classDefinitionNode,
-                                                                            ModuleID moduleID) {
+    public static Optional<ListenerMetaData> generateServiceTemplateMetaData(ClassDefinitionNode classDefinitionNode,
+                                                                             ModuleID moduleID) {
 
         //Check if the provided symbol is a listener.
         List<String> methodNames = classDefinitionNode.members().stream()
@@ -218,8 +218,8 @@ public class ServiceTemplateGenerator {
      * @param moduleID ModuleID of the module of symbol.
      * @return {@link ListenerMetaData} Pre processed metadata of the symbol.
      */
-    public static Optional<ListenerMetaData> generateServiceSnippetMetaData(Symbol symbol,
-                                                                            ModuleID moduleID) {
+    public static Optional<ListenerMetaData> generateServiceTemplateMetaData(Symbol symbol,
+                                                                             ModuleID moduleID) {
 
         //Check if the provided symbol is a listener.
         Optional<? extends TypeSymbol> symbolTypeDesc = SymbolUtil.getTypeDescriptor(symbol);
@@ -281,10 +281,10 @@ public class ServiceTemplateGenerator {
 
     }
 
-    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet,
-                                                    Boolean shouldImport,
-                                                    ModuleID currentModuleID,
-                                                    BallerinaCompletionContext context) {
+    private LSCompletionItem generateServiceTemplate(ListenerMetaData serviceSnippet,
+                                                     Boolean shouldImport,
+                                                     ModuleID currentModuleID,
+                                                     BallerinaCompletionContext context) {
         String symbolReference;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, currentModuleID,

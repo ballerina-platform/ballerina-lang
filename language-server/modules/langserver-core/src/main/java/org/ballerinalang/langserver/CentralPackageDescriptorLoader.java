@@ -89,7 +89,7 @@ public class CentralPackageDescriptorLoader {
     private List<Package> getPackagesFromCentral() {
         List<Package> packageList = new ArrayList<>();
         try {
-            for (int page = 0; ; page++) {
+            for (int page = 0;; page++) {
                 Settings settings = RepoUtils.readSettings();
 
                 CentralAPIClient centralAPIClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),

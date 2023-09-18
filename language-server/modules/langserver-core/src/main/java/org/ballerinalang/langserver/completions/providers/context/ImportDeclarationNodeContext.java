@@ -315,7 +315,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             TextEdit removeModNameEdit = new TextEdit(editRange, "");
             additionalEdits.add(removeModNameEdit);
         }
-
+        
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedModuleNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();

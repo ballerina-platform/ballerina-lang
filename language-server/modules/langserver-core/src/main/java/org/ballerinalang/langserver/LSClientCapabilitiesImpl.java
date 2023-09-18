@@ -152,7 +152,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(lsLightWeightMode));
         initializationOptions.setEnableLSLightWeightMode(enableLSLightWeightMode);
 
-
+        
         Object positionalRenameSupport = initOptions.get(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT);
         boolean enablePositionalRenameSupport = positionalRenameSupport != null &&
                 Boolean.parseBoolean(String.valueOf(positionalRenameSupport));

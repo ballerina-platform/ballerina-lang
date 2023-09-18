@@ -106,7 +106,7 @@ public class CommandConstants {
 
     public static final String PULL_MOD_TITLE = "Pull unresolved modules";
     
-    public static final String ADD_MODULE_TO_BALLERINA_TOML = "Add module to Ballerina.toml";
+    public static final String ADD_PACKAGE_TO_BALLERINA_TOML = "Add '%s' package to Ballerina.toml";
 
     public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 

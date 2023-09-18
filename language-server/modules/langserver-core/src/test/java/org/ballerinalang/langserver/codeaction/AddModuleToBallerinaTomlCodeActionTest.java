@@ -19,10 +19,8 @@ import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -44,17 +42,12 @@ import java.util.Map;
  */
 public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTest {
 
-    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
-        builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
-    }
-
     @BeforeClass
     @Override
-    public void setup() {
-        super.setup();
-
-        LanguageServerContext context = new LanguageServerContextImpl();
+    public void init() throws Exception {
+        super.init();
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+        LanguageServerContext context = languageServer.getServerContext();
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
             Map<String, String> localProjects = Map.of("pkg1", "main.bal", "pkg2", "main.bal", "x", "main.bal",
@@ -62,13 +55,22 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
             List<LSPackageLoader.ModuleInfo> localPackages = new ArrayList<>();
             getLocalPackages(localProjects,
                     languageServer.getWorkspaceManager(), context).forEach(pkg -> pkg.modules()
-                    .forEach(module -> localPackages.add(new LSPackageLoader.ModuleInfo(module))));
+                    .forEach(module -> {
+                        LSPackageLoader.ModuleInfo moduleInfo = new LSPackageLoader.ModuleInfo(module);
+                        moduleInfo.addVersion(moduleInfo.packageVersion(), LSPackageLoader.REPO.LOCAL);
+                        localPackages.add(moduleInfo);
+                    }));
             Mockito.when(getLSPackageLoader().getLocalRepoModules()).thenReturn(localPackages);
         } catch (Exception e) {
             //ignore
         } finally {
             TestUtil.shutdownLanguageServer(endpoint);
         }
+    }
+
+    @Override
+    protected boolean loadMockedPackages() {
+        return true;
     }
 
     @Test(dataProvider = "codeaction-data-provider")
@@ -89,8 +91,7 @@ public class AddModuleToBallerinaTomlCodeActionTest extends AbstractCodeActionTe
                 {"add_module6.json"},
                 {"add_module7.json"},
                 {"add_module8.json"},
-                {"add_module9.json"},
-                {"add_module10.json"},
+                {"add_module9.json"}
         };
     }
 

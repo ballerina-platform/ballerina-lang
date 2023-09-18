@@ -124,19 +124,33 @@ public abstract class AbstractLSTest {
     public void init() throws Exception {
         this.languageServer = new BallerinaLanguageServer();
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
-        //Add mocks to the language server context
         this.languageServer.getServerContext().put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY,
                 centralPackageLoader);
-        this.lsPackageLoader = Mockito.spy(unMockedlsPackageLoader);
+
+        if (loadMockedPackages()) {
+            //Add mocks to the language server context
+            this.lsPackageLoader = Mockito.spy(unMockedlsPackageLoader);
+            Mockito.when(this.lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_MODULES);
+            Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_MODULES);
+        } else {
+            this.lsPackageLoader = unMockedlsPackageLoader;
+        }
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
-        Mockito.when(this.lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_MODULES);
-        Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_MODULES);
 
         //Build and start the LS
         TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
                 .withLanguageServer(this.languageServer);
         setupLanguageServer(builder);
         this.serviceEndpoint = builder.build();
+    }
+
+    /**
+     * Whether the LS Package loader should be mocked!
+     *
+     * @return {@link Boolean} should mock
+     */
+    protected boolean loadMockedPackages() {
+        return false;
     }
 
     /**

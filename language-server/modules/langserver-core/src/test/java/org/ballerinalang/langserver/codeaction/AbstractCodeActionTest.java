@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
 import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
@@ -77,6 +76,13 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     private WorkspaceManager workspaceManager;
 
     private LanguageServerContext serverContext;
+
+    @BeforeClass
+    public void init() throws Exception {
+        super.init();
+        serverContext = getLanguageServer().getServerContext();
+        workspaceManager = new BallerinaWorkspaceManager(serverContext);
+    }
 
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config) throws IOException, WorkspaceDocumentException {
@@ -289,12 +295,6 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         JsonObject responseJson = JsonParser.parseString(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
-    }
-
-    @BeforeClass
-    public void setup() {
-        workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
-        serverContext = new LanguageServerContextImpl();
     }
 
     /**

@@ -6,7 +6,7 @@
   "source": "testproject11/main.bal",
   "expected": [
     {
-      "title": "Add module to Ballerina.toml",
+      "title": "Add 'x.y' package to Ballerina.toml",
       "kind": "quickfix",
       "edits": [
         {
