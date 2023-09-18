@@ -609,8 +609,13 @@ public class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
-                    jvmConstantsGen, asyncDataCollector, typeDef, jarEntries);
+            if (attachedFuncs.size() > MAX_METHOD_COUNT_PER_BALLERINA_OBJECT) {
+                this.createObjectMethodsWithSplitClasses(cw, attachedFuncs, className, objectType, jvmTypeGen,
+                        jvmCastGen, jvmConstantsGen, asyncDataCollector, typeDef, jarEntries);
+            } else {
+                this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
+                        jvmConstantsGen, asyncDataCollector);
+            }
         }
 
         this.createObjectInit(cw, fields, className);
@@ -642,8 +647,24 @@ public class JvmValueGen {
 
     private void createObjectMethods(ClassWriter cw, List<BIRFunction> attachedFuncs, String moduleClassName,
                                      BObjectType currentObjectType, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
-                                     BIRNode.BIRTypeDefinition typeDef, Map<String, byte[]> jarEntries) {
+                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
+
+        for (BIRNode.BIRFunction func : attachedFuncs) {
+            if (func == null) {
+                continue;
+            }
+            methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName, jvmTypeGen, jvmCastGen,
+                    jvmConstantsGen, asyncDataCollector);
+        }
+    }
+
+    private void createObjectMethodsWithSplitClasses(ClassWriter cw, List<BIRFunction> attachedFuncs,
+                                                     String moduleClassName, BObjectType currentObjectType,
+                                                     JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
+                                                     JvmConstantsGen jvmConstantsGen,
+                                                     AsyncDataCollector asyncDataCollector,
+                                                     BIRNode.BIRTypeDefinition typeDef,
+                                                     Map<String, byte[]> jarEntries) {
 
         int splitClassNum = 1;
         ClassWriter splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
