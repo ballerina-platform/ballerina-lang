@@ -46,6 +46,7 @@ public class SyntaxTreeGenTest {
     private final Path multiLevelEndpoints = TestUtil.RES_DIR.resolve("multiLevelEndpoints");
     private final Path endpointOrder = TestUtil.RES_DIR.resolve("endpointOrder");
     private final Path classEndpoint = TestUtil.RES_DIR.resolve("classEndpoint");
+    private final Path regexTestFile = TestUtil.RES_DIR.resolve("regexTest").resolve("main.bal");
 
     @Test(description = "Generate ST for empty bal file.")
     public void testEmptyBalST() throws IOException {
@@ -689,6 +690,39 @@ public class SyntaxTreeGenTest {
         checkClientVisibleEndpoints(getUserFunctionVEp.get(5).getAsJsonObject(), "httpEpC2", "Client", "ballerina",
                 "http", "http", "2.8.0", 74, 74, false, true, true, false);
     }
+
+    @Test(description = "Test syntax tree generation works with Regex syntax")
+    public void testRegexSyntax() throws IOException {
+        Path inputFile = TestUtil.createTempFile(regexTestFile);
+
+        SingleFileProject project = SingleFileProject.load(inputFile);
+        Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
+        if (optionalModuleId.isEmpty()) {
+            Assert.fail("Failed to retrieve the module ID");
+        }
+        ModuleId moduleId = optionalModuleId.get();
+        Module module = project.currentPackage().module(moduleId);
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+        Optional<DocumentId> optionalDocumentId = module.documentIds().stream().findFirst();
+        if (optionalDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+        DocumentId documentId = optionalDocumentId.get();
+        Document document = module.document(documentId);
+        JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        // Check syntax tree JSON
+        Assert.assertTrue(stJson.isJsonObject());
+
+        // Test regex statement in the syntax tree JSON
+        Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+        JsonObject mainFunction = members.get(0).getAsJsonObject();
+        JsonObject regexStmt = mainFunction.get("functionBody").getAsJsonObject().get("statements").getAsJsonArray().get(0).getAsJsonObject();
+        String kind = regexStmt.get("initializer").getAsJsonObject().get("kind").getAsString();
+        Assert.assertEquals(kind, "RegexTemplateExpression");
+    }
+
 
     @Test(description = "Test visible endpoint defined in Class/Service level")
     public void testClassLevelVisibleEndpoint() throws IOException {
