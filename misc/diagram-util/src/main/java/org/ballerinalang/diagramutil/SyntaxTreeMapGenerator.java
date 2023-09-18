@@ -194,8 +194,17 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics != null) {
             nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
         }
-        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
-        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
+        // Some kinds are not supported trailing and leading minutiae. (eg: ReTag)
+        try {
+            nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
+        } catch (Exception e){
+            nodeJson.add("trailingMinutiae", new JsonObject());
+        }
+        try {
+            nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        } catch (Exception e){
+            nodeJson.add("leadingMinutiae", new JsonObject());
+        }
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -624,8 +633,17 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
-        nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
-        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
+//        Some kinds are not supported trailing and leading minutiae. (eg: ReTag)
+        try {
+            nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
+        } catch (Exception e){
+            nodeInfo.add("trailingMinutiae", new JsonObject());
+        }
+        try {
+            nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        } catch (Exception e){
+            nodeInfo.add("leadingMinutiae", new JsonObject());
+        }
         return nodeInfo;
     }
 
