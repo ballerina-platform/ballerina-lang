@@ -566,6 +566,21 @@ function testMethodCallExprsOnQueryExprs() {
     assertEquality(["c", "b", "a"], words);
 }
 
+function testPropagatedCETForQueryExpression() {
+    string[] x = ["a", "b"];
+    var var1 = <string>from var s in x
+        select s;
+    assertEquality("ab", var1);
+    string z = "ab";
+    var var2 = <string[]>from var s in z
+        select s;
+    assertEquality(["a", "b"], var2);
+    table<map<anydata>> t = table [{a: 1, b: 2}];
+    var var3 = <anydata[]>from var s in t
+        select s["a"];
+    assertEquality([1], var3);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

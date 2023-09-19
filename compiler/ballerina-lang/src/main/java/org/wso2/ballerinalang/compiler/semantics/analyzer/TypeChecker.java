@@ -835,7 +835,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expectedType = Types.getImpliedType(expType);
 
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-            expectedType = getExpectedConstructorOrLiteralType(expectedType, data);
+            expectedType = getPropagatedCET(expectedType, data);
             NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
             if (kind == NodeKind.INTEGER_LITERAL) {
                 return getIntegerLiteralType(literalExpr, literalValue, expectedType, data);
@@ -908,7 +908,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             byte[] byteArray = types.convertToByteArray((String) literalExpr.value);
             literalType = new BArrayType(symTable.byteType, null, byteArray.length,
                     BArrayState.CLOSED);
-            expectedType = Types.getImpliedType(getExpectedConstructorOrLiteralType(expectedType, data));
+            expectedType = Types.getImpliedType(getPropagatedCET(expectedType, data));
             if (expectedType.tag == TypeTags.ARRAY) {
                 BArrayType arrayType = (BArrayType) expectedType;
                 if (arrayType.state == BArrayState.INFERRED) {
@@ -925,7 +925,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return literalType;
     }
 
-    private BType getExpectedConstructorOrLiteralType(BType expectedType, AnalyzerData data) {
+    private BType getPropagatedCET(BType expectedType, AnalyzerData data) {
         return expectedType == symTable.noType && data.propagatedCET != null ?
                 data.propagatedCET : expectedType;
     }
@@ -1083,7 +1083,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangListConstructorExpr listConstructor, AnalyzerData data) {
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        data.expType = getPropagatedCET(data.expType, data);
         BType expType = data.expType;
         BType referredExpType = Types.getImpliedType(expType);
         if (referredExpType.tag == TypeTags.NONE || referredExpType.tag == TypeTags.READONLY) {
@@ -1101,7 +1101,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr, AnalyzerData data) {
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        data.expType = getPropagatedCET(data.expType, data);
         checkTableConstructorCompatibility(tableConstructorExpr, data);
         data.expType = originalExpType;
     }
@@ -2335,7 +2335,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        data.expType = getPropagatedCET(data.expType, data);
         BType expType = data.expType;
         int expTypeTag = Types.getImpliedType(expType).tag;
 
@@ -3744,7 +3744,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (errorTypeRef == null) {
             // If contextually expected type for error constructor without type-ref contain errors take it.
             // Else take default error type as the contextually expected type.
-            BType expType = getExpectedConstructorOrLiteralType(data.expType, data);
+            BType expType = getPropagatedCET(data.expType, data);
             int expReferredTypeTag = Types.getImpliedType(expType).tag;
             if (expReferredTypeTag == TypeTags.ERROR) {
                 return List.of(expType);
@@ -4145,9 +4145,30 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression, AnalyzerData data) {
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        BType expType = getPropagatedCET(data.expType, data);
+        if (isObjectOrObjectUnionType(expType)) {
+            // TODO: remove after fixing https://github.com/ballerina-platform/ballerina-lang/issues/38105
+            data.expType = expType;
+        }
         checkObjectConstructorCompatibility(objectCtorExpression, data);
         data.expType = originalExpType;
+    }
+
+    private boolean isObjectOrObjectUnionType(BType type) {
+        type = Types.getImpliedType(type);
+        switch (type.tag) {
+            case TypeTags.OBJECT:
+                return true;
+            case TypeTags.UNION:
+                for (BType member: ((BUnionType) type).getMemberTypes()) {
+                    if (!isObjectOrObjectUnionType(member)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
     }
 
     private void checkObjectConstructorCompatibility(BLangObjectConstructorExpression objectCtorExpression, AnalyzerData data) {
@@ -4275,7 +4296,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public void visit(BLangTypeInit cIExpr, AnalyzerData data) {
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        data.expType = getPropagatedCET(data.expType, data);
         BType referredExpType = Types.getImpliedType(data.expType);
         if ((referredExpType.tag == TypeTags.ANY && cIExpr.userDefinedType == null) ||
                 referredExpType.tag == TypeTags.RECORD) {
@@ -5619,7 +5640,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction, AnalyzerData data) {
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        data.expType = getPropagatedCET(data.expType, data);
         BType expectedType = Types.getImpliedType(data.expType);
         if (expectedType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) expectedType;
@@ -5969,7 +5990,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // First, ensure that the contextually expected type is compatible with the RawTemplate type.
         // The RawTemplate type should have just two fields: strings and insertions. There shouldn't be any methods.
         BType originalExpType = data.expType;
-        data.expType = getExpectedConstructorOrLiteralType(data.expType, data);
+        data.expType = getPropagatedCET(data.expType, data);
         BType type = determineRawTemplateLiteralType(rawTemplateLiteral, data.expType);
 
         if (type == symTable.semanticError) {
@@ -6159,7 +6180,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
+        BType originalExpType = data.expType;
+        data.expType = getPropagatedCET(data.expType, data);
         queryTypeChecker.checkQueryType(queryExpr, data);
+        data.expType = originalExpType;
     }
 
     @Override
@@ -7325,7 +7349,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 || Symbols.isFlagOn(invokableSymbolFlags, Flags.NATIVE)) &&
                 Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = unifier.build(retType,
-                    getExpectedConstructorOrLiteralType(data.expType, data), iExpr, types, symTable, dlog);
+                    getPropagatedCET(data.expType, data), iExpr, types, symTable, dlog);
         }
 
         // check argument types in arr:sort function

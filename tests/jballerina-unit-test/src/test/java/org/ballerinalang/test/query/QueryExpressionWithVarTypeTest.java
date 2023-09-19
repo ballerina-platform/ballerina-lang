@@ -271,7 +271,8 @@ public class QueryExpressionWithVarTypeTest {
                 "testUsingAnIntersectionTypeInQueryExpr",
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause2",
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause2",
-                "testUsingAnIntersectionTypeInQueryExpr2"
+                "testUsingAnIntersectionTypeInQueryExpr2",
+                "testPropagatedCETForQueryExpression"
         };
     }
 
