@@ -381,6 +381,7 @@ public class JvmConstants {
     public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
     public static final String CREATE_INTEROP_ERROR_METHOD = "createInteropError";
     public static final String LAMBDA_PREFIX = "$lambda$";
+    public static final String SPLIT_CLASS_SUFFIX = "$split$";
     public static final String POPULATE_METHOD_PREFIX = "$populate";
     public static final String ADD_METHOD = "add";
     public static final String TEST_EXECUTION_STATE = "__gH7W16nQmp0TestExecState__";
@@ -447,6 +448,7 @@ public class JvmConstants {
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_FUNCTION_CALL_METHOD = 100;
+    public static final int MAX_METHOD_COUNT_PER_BALLERINA_OBJECT = 100;
     /*
     MAX_STRINGS_PER_METHOD is calculated as below.
     No of instructions required for create ballerina string constant object = 12
