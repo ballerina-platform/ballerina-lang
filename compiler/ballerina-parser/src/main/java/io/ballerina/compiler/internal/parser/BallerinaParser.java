@@ -11949,7 +11949,8 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && 
+                (!isNestedQueryExpr() || (selectClause == null && collectClause == null))) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryConstructType, queryPipeline, selectClause);
