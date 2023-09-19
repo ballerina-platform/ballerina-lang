@@ -16,6 +16,9 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -45,6 +48,7 @@ import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
@@ -415,7 +419,7 @@ public class LSPackageLoader {
                     : this.moduleDescriptor.org().toString() + "/" + moduleName;
             this.sourceRoot = module.project().sourceRoot();
             this.moduleId = module.moduleId();
-            addServiceSnippetMetaData(module);
+            addServiceTemplateMetaDataUsingSemanticModel(module);
         }
 
         public ModuleInfo(Module module, boolean moduleFromCurrentPackage) {
@@ -479,7 +483,7 @@ public class LSPackageLoader {
             versionMap.computeIfAbsent(repoKind, (repo) -> new ArrayList<>(List.of(packageVersion)));
         }
 
-        private void addServiceSnippetMetaData(Module module) {
+        private void addServiceTemplateMetaData(Module module) {
             //SemanticModel semanticModel = module.getCompilation().getSemanticModel();
             //When the Semantic model is used the memory consumption high and the performance of the LS is very low. 
             //Therefore, we are using the Syntax tree based approach here. 
@@ -499,6 +503,15 @@ public class LSPackageLoader {
                     this.packageVersion().toString());
             listeners.forEach(listener -> ServiceTemplateGenerator.generateServiceTemplateMetaData(listener, moduleID)
                     .ifPresent(this.moduleListeners::add));
+        }
+
+        private void addServiceTemplateMetaDataUsingSemanticModel(Module module) {
+            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            ModuleID moduleID = CodeActionModuleId.from(this.packageOrg().value(), this.moduleName(),
+                    this.packageVersion().toString());
+            semanticModel.moduleSymbols().stream().filter(listenerSymbolPredicate())
+                    .forEach(listener -> ServiceTemplateGenerator.generateServiceTemplateMetaData(listener, moduleID)
+                            .ifPresent(this.moduleListeners::add));
         }
     }
 
@@ -530,5 +543,9 @@ public class LSPackageLoader {
                     && methodNames.contains("attach")
                     && methodNames.contains("immediateStop");
         };
+    }
+
+    private static Predicate<Symbol> listenerSymbolPredicate() {
+        return symbol -> SymbolUtil.isListener(symbol) && symbol.kind() == SymbolKind.CLASS;
     }
 }

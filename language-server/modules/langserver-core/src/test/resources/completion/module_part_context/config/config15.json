@@ -815,7 +815,7 @@
       "detail": "Snippet",
       "sortText": "AC",
       "filterText": "service_module1_Listener",
-      "insertText": "service ${1} on new module1:Listener(${2}) {\n    ${3}\n}\n",
+      "insertText": "service ${1} on new module1:Listener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -825,7 +825,7 @@
       "detail": "Snippet",
       "sortText": "AC",
       "filterText": "service_lang_test_MockListener",
-      "insertText": "service ${1} on new test:MockListener(${2}) {\n    ${3}\n}\n",
+      "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

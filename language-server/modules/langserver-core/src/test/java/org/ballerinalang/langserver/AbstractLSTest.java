@@ -181,7 +181,7 @@ public abstract class AbstractLSTest {
         this.languageServer = null;
         this.serviceEndpoint = null;
         if (this.lsPackageLoader != null) {
-            if(loadMockedPackages()) {
+            if (loadMockedPackages()) {
                 Mockito.reset(this.lsPackageLoader);
             }
             this.lsPackageLoader = null;
