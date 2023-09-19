@@ -609,13 +609,8 @@ public class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            if (attachedFuncs.size() > MAX_METHOD_COUNT_PER_BALLERINA_OBJECT) {
-                this.createObjectMethodsWithSplitClasses(cw, attachedFuncs, className, objectType, jvmTypeGen,
-                        jvmCastGen, jvmConstantsGen, asyncDataCollector, typeDef, jarEntries);
-            } else {
-                this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
-                        jvmConstantsGen, asyncDataCollector);
-            }
+            this.createObjectMethodsWithSplitClasses(cw, attachedFuncs, className, objectType, jvmTypeGen,
+                    jvmCastGen, jvmConstantsGen, asyncDataCollector, typeDef, jarEntries);
         }
 
         this.createObjectInit(cw, fields, className);
