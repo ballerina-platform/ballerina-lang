@@ -194,15 +194,16 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics != null) {
             nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
         }
-        // Some kinds are not supported trailing and leading minutiae. (eg: ReTag)
+        // Skip trailing minutiae if node doesn't have trailing minutiae (eg: ReTag)
         try {
             nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
-        } catch (Exception e){
+        } catch (Exception e) {
             nodeJson.add("trailingMinutiae", new JsonObject());
         }
+        // Skip leading minutiae if node doesn't have leading minutiae (eg: ReTag)
         try {
             nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
-        } catch (Exception e){
+        } catch (Exception e) {
             nodeJson.add("leadingMinutiae", new JsonObject());
         }
 
@@ -633,15 +634,16 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
-//        Some kinds are not supported trailing and leading minutiae. (eg: ReTag)
+        // Skip trailing minutiae if node doesn't have trailing minutiae (eg: ReTag)
         try {
             nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
-        } catch (Exception e){
+        } catch (Exception e) {
             nodeInfo.add("trailingMinutiae", new JsonObject());
         }
+        // Skip leading minutiae if node doesn't have leading minutiae
         try {
             nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
-        } catch (Exception e){
+        } catch (Exception e) {
             nodeInfo.add("leadingMinutiae", new JsonObject());
         }
         return nodeInfo;
