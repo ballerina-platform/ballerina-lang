@@ -31,6 +31,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
@@ -214,6 +215,9 @@ public class ManifestBuilder {
         // Process local repo dependencies
         List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
 
+        // Process pre build generator tools
+        List<PackageManifest.Tool> tools = getTools();
+
         // Compiler plugin descriptor
         CompilerPluginDescriptor pluginDescriptor = null;
         if (this.compilerPluginToml != null) {
@@ -222,7 +226,48 @@ public class ManifestBuilder {
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
                 diagnostics(), license, authors, keywords, exported, includes, repository, ballerinaVersion, visibility,
-                template, icon);
+                template, icon, tools);
+    }
+
+    private List<PackageManifest.Tool> getTools() {
+
+        TomlTableNode rootNode = ballerinaToml.toml().rootNode();
+        if (rootNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TopLevelNode toolEntries = rootNode.entries().get("tool");
+
+        List<PackageManifest.Tool> tools = new ArrayList<>();
+        if (toolEntries == null || toolEntries.kind() == TomlType.NONE) {
+            tools = Collections.emptyList();
+        } else {
+            if (toolEntries.kind() == TomlType.TABLE) {
+                TomlTableNode toolTable = (TomlTableNode) toolEntries;
+                Set<String> toolCodes = toolTable.entries().keySet();
+                for (String toolCode : toolCodes) {
+                    TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
+                    if (toolCodeNode.kind() == TomlType.TABLE_ARRAY) {
+                        TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
+                        for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
+                            String id = getStringValueFromPreBuildToolNode(dependencyNode, "id");
+                            String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath");
+                            String targetModule = getStringValueFromPreBuildToolNode(dependencyNode, "targetModule");
+                            Toml optionsToml = getToml(dependencyNode, "options");
+                            TopLevelNode topLevelNode = dependencyNode.entries().get("options");
+                            TomlTableNode optionsNode = null;
+                            if (topLevelNode != null || topLevelNode.kind() == TomlType.TABLE) {
+                                optionsNode = (TomlTableNode) topLevelNode;
+                            }
+                            PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath, targetModule,
+                                    optionsToml, optionsNode);
+                            tools.add(tool);
+                        }
+                    }
+                }
+            }
+        }
+        return tools;
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -714,6 +759,49 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key) {
+        TopLevelNode topLevelNode = toolNode.entries().get(key);
+        String errorMessage = "missing the key '[" + key + "]' in tools 'Ballerina.toml'.";
+        if (topLevelNode == null) {
+            reportDiagnostic(toolNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.ERROR);
+            return null;
+        }
+        return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    private Toml getToml(TomlTableNode toolNode, String key) {
+        TopLevelNode topLevelNode = toolNode.entries().get(key);
+        if (topLevelNode == null) {
+            return null;
+        }
+        if (topLevelNode.kind() != TomlType.TABLE) {
+            return null;
+        }
+        TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
+        return new Toml(optionsNode);
+    }
+
+    private Map<String, String> getMapFromPreBuildToolNode(TomlTableNode toolNode, String key) {
+        TopLevelNode topLevelNode = toolNode.entries().get(key);
+        if (topLevelNode == null) {
+            return Collections.emptyMap();
+        }
+        if (topLevelNode.kind() != TomlType.TABLE) {
+            return Collections.emptyMap();
+        }
+        TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
+        Set<String> toolCodes = optionsNode.entries().keySet();
+        Map<String, String> options = new HashMap<>();
+        for (String optionCode : toolCodes) {
+            TopLevelNode optionNode = optionsNode.entries().get(optionCode);
+            String optionValue = getStringFromTomlTableNode(optionNode);
+            options.put(optionCode, optionValue);
+        }
+        return options;
     }
 
     /**
