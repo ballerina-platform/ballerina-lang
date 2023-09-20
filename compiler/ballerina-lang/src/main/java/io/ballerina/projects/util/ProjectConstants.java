@@ -132,4 +132,5 @@ public class ProjectConstants {
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
     public static final String PROFILER_DIR_NAME = "profiler";
+    public static final String TOOL_CACHE_DIR = "tool-cache";
 }
