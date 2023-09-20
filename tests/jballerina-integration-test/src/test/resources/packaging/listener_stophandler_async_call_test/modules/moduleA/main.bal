@@ -17,23 +17,24 @@
 import ballerina/jballerina.java;
 import ballerina/lang.runtime;
 
-public function stopHandlerFunc() returns error? {
+public function stopHandlerFunc1() returns error? {
     runtime:sleep(1);
-    println("StopHandler1 of moduleA");
+    println("calling StopHandler1 of moduleA");
 }
 
 public function stopHandlerFunc2() returns error? {
     runtime:sleep(1);
-    println("StopHandler2 of moduleA");
+    println("calling StopHandler2 of moduleA");
 }
 
 function init() {
-    runtime:onGracefulStop(stopHandlerFunc);
+    runtime:onGracefulStop(stopHandlerFunc1);
     runtime:onGracefulStop(stopHandlerFunc2);
 }
 
-public class ListenerA {
+public class Listener1 {
 
+    *runtime:DynamicListener;
     private string name = "";
     public function init(string name) {
         self.name = name;
@@ -43,10 +44,8 @@ public class ListenerA {
     }
 
     public function gracefulStop() returns error? {
-        runtime:sleep(1);
-        if (self.name == "ModA") {
-            panic error("graceful stop of ModuleA");
-        }
+        runtime:sleep(2);
+        println("calling gracefulStop for " + self.name);
     }
 
     public function immediateStop() returns error? {
@@ -59,8 +58,9 @@ public class ListenerA {
     }
 }
 
-public class ListenerB {
+public class Listener2 {
 
+    *runtime:DynamicListener;
     private string name = "";
     public function init(string name) {
         self.name = name;
@@ -83,17 +83,18 @@ public class ListenerB {
     }
 }
 
-listener ListenerA listenerA = new ListenerA("ModA");
+listener Listener1 listener1 = new Listener1("static Listener1 of ModuleA");
 
-final ListenerB listenerB = new ListenerB("ListenerObjectB");
+listener listener2 = new Listener2("static Listener2 of ModuleA");
 
 public function main() {
-    final ListenerA listenerA = new ListenerA("ModDynA");
-    runtime:registerListener(listenerA);
-    runtime:registerListener(listenerB);
+    final Listener1 dynListener1 = new Listener1("dynamic Listener1 of ModuleA");
+    final Listener2 dynListener2 = new Listener2("dynamic Listener2 of ModuleA");
+    runtime:registerListener(dynListener1);
+    runtime:registerListener(dynListener2);
     runtime:sleep(2);
-    runtime:deregisterListener(listenerA);
-    runtime:deregisterListener(listenerB);
+    runtime:deregisterListener(dynListener1);
+    runtime:deregisterListener(dynListener2);
 }
 
 public function println(string value) {

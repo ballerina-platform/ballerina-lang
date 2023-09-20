@@ -17,24 +17,25 @@
 import ballerina/lang.runtime;
 import listener_stophandler_async_call_test.moduleA;
 
-public function stopHandlerFunc() returns error? {
+public function stopHandlerFunc1() returns error? {
     runtime:sleep(1);
-    moduleA:println("StopHandler1 of current module");
+    moduleA:println("calling StopHandler1 of current module");
 }
 
 public function stopHandlerFunc2() returns error? {
     runtime:sleep(1);
-    moduleA:println("StopHandler2 of current module");
+    moduleA:println("calling StopHandler2 of current module");
 }
 
 function init() {
-    runtime:onGracefulStop(stopHandlerFunc);
+    runtime:onGracefulStop(stopHandlerFunc1);
     runtime:onGracefulStop(stopHandlerFunc2);
 }
 
 
-public class ListenerObj1 {
+public class Listener {
 
+    *runtime:DynamicListener;
     private string name = "";
 
     public function init(string name) {
@@ -46,9 +47,7 @@ public class ListenerObj1 {
 
     public function gracefulStop() returns error? {
         runtime:sleep(1);
-        if (self.name == "ModC") {
-            panic error("graceful stop of current module");
-        }
+        moduleA:println("calling gracefulStop for " + self.name);
     }
 
     public function immediateStop() returns error? {
@@ -61,12 +60,12 @@ public class ListenerObj1 {
     }
 }
 
-listener ListenerObj1 lo1 = new ListenerObj1("ModC");
+listener Listener staticListener = new Listener("static listener of current module");
 
 public function main() {
-    ListenerObj1 lo1 = new ListenerObj1("ModDynC");
-    runtime:registerListener(lo1);
+    Listener dynamicListener = new Listener("dynamic listener of current module");
+    runtime:registerListener(dynamicListener);
     runtime:sleep(2);
-    runtime:deregisterListener(lo1);
+    runtime:deregisterListener(dynamicListener);
     moduleA:main();
 }

@@ -119,7 +119,7 @@ public class ModuleStopMethodGen {
         String moduleInitClass = getModuleInitClassName(module.packageID);
         String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
         String lambdaName = generateStopDynamicLambdaBody(cw, initClass);
-        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
+        indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
         while (i >= 0) {
@@ -129,6 +129,8 @@ public class ModuleStopMethodGen {
             moduleInitClass = getModuleInitClassName(id);
             scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         }
+        moduleInitClass = getModuleInitClassName(module.packageID);
+        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_STOP_METHOD, initClass);
         mv.visitEnd();
@@ -145,10 +147,10 @@ public class ModuleStopMethodGen {
     private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
                                                AsyncDataCollector asyncDataCollector) {
         addRuntimeRegistryAsParameter(mv);
-        int futureIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
         generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector);
 
         // handle any runtime errors
+        int futureIndex = indexMap.get(FUTURE_VAR);
         Label labelIf = new Label();
         mv.visitVarInsn(ALOAD, futureIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
