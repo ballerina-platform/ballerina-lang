@@ -7529,7 +7529,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         switch (expr.getKind()) {
             case GROUP_EXPR:
                 return requireTypeInference(((BLangGroupExpr) expr).expression, inferTypeForNumericLiteral);
-            case ARROW_EXPR: // why
+            case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
             case OBJECT_CTOR_EXPRESSION:

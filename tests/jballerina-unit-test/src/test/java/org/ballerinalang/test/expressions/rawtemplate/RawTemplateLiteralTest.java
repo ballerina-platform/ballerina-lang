@@ -131,6 +131,8 @@ public class RawTemplateLiteralTest {
                 "'(ballerina/lang.object:0:RawTemplate & readonly)'", 194, 5);
         validateError(errors, indx++, "cannot update 'readonly' value of type " +
                 "'((any|error)[] & readonly)'", 195, 5);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 204, 41);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 204, 61);
 
         assertEquals(errors.getErrorCount(), indx);
     }

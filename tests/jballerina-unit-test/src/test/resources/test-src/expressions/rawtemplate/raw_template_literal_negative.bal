@@ -194,3 +194,12 @@ function testRawTemplateWithIntersectionType() {
     tmp6.insertions[0] = 10;
     tmp6.insertions.push(30);
 }
+
+public type RawTemplate1 distinct object {
+    *object:RawTemplate;
+    public string[] insertions;
+};
+
+function testPropagatedCETForRawTemplate() {
+    var _ = <RawTemplate1> `some text ${1} some more text ${2}`;
+}
