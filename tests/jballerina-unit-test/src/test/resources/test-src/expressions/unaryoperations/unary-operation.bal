@@ -357,6 +357,11 @@ function testResultingTypeOfUnaryPlus() {
     assertEquality(k1, 32);
 }
 
+function testLengthyUnaryExpressionsForOOM() {
+    float a = ----------------------------------------------------------------------------------1;
+    assertEquality(a, 1f);
+}
+
 function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

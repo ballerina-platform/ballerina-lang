@@ -5126,7 +5126,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType referredExpType = Types.getImpliedType(binaryExpr.expectedType);
         if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
                 isOptionalFloatOrDecimal(referredExpType)) {
-            lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, data, data.expType);
+            lhsType = checkAndGetType(binaryExpr.lhsExpr, data.expType, data.env, data);
         } else {
             lhsType = checkExpr(binaryExpr.lhsExpr, data);
         }
@@ -5143,7 +5143,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
                 isOptionalFloatOrDecimal(referredExpType)) {
-            rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, data, data.expType);
+            rhsType = checkAndGetType(binaryExpr.rhsExpr, data.expType, rhsExprEnv, data);
         } else {
             rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
         }
@@ -5228,7 +5228,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
-    private BType checkAndGetType(BLangExpression expr, SymbolEnv env, AnalyzerData data, BType expType) {
+    private BType checkAndGetType(BLangExpression expr, BType expType, SymbolEnv env, AnalyzerData data) {
         // Flow down CET using `data.expNumericLiteralType` to be used by the numeric literals.
         BType previousExpLiteralType = data.propagatedCET;
         if (previousExpLiteralType == null) {
@@ -5399,16 +5399,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             newExpectedType = setExpectedTypeForSubtractionOperator(data);
         }
 
-        newExpectedType = silentTypeCheckExpr(unaryExpr.expr, newExpectedType, data);
-
-        BType exprType;
-        if (newExpectedType != symTable.semanticError) {
-            exprType = isAddOrSubOperator ? checkExpr(unaryExpr.expr, newExpectedType, data) :
-                    checkExpr(unaryExpr.expr, data);
-        } else {
-            exprType = isAddOrSubOperator ? checkExpr(unaryExpr.expr, data.expType, data) :
-                    checkExpr(unaryExpr.expr, data);
-        }
+        BType exprType = checkAndGetType(unaryExpr.expr, newExpectedType, data.env, data);
 
         if (exprType != symTable.semanticError) {
             BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
@@ -5569,32 +5560,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         conversionExpr.targetType = targetType;
 
-//        boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
-//        data.commonAnalyzerData.nonErrorLoggingCheck = true;
-//        int prevErrorCount = this.dlog.errorCount();
-//        this.dlog.resetErrorCount();
-//        this.dlog.mute();
-//
-//        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), targetType, data);
-//        data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-//        int errorCount = this.dlog.errorCount();
-//        this.dlog.setErrorCount(prevErrorCount);
-//
-//        if (!prevNonErrorLoggingCheck) {
-//            this.dlog.unmute();
-//        }
-//
-//        if ((errorCount == 0 && exprCompatibleType != symTable.semanticError) ||
-//                (requireTypeInference(expr, false) &&
-//                        // Temporary workaround for backward compatibility with `object {}` for
-//                        // https://github.com/ballerina-platform/ballerina-lang/issues/38105.
-//                        isNotObjectConstructorWithObjectSuperTypeInTypeCastExpr(expr, targetType))) {
-//            checkExpr(expr, targetType, data);
-//        } else {
-//            checkExpr(expr, symTable.noType, data);
-//        }
-
-        BType exprType = checkAndGetType(expr, data.env, data, targetType);
+        BType exprType = checkAndGetType(expr, targetType, data.env, data);
         if (types.isTypeCastable(expr, exprType, targetType, data.env)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
@@ -6170,7 +6136,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
+        BType originalExpType = data.expType;
+        BType propagatedCET = getPropagatedCET(data.expType, data);
+        if (types.isSubTypeOfSimpleBasicTypeOrString(propagatedCET)) {
+            // We only need to consider propagatedCET when `check Expr` is treated as check `val:ensureType(Expr, s)`.
+            data.expType = propagatedCET;
+            boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
+            data.commonAnalyzerData.nonErrorLoggingCheck = true;
+            int prevErrorCount = this.dlog.errorCount();
+            this.dlog.mute();
+
+            visitCheckAndCheckPanicExpr(nodeCloner.cloneNode(checkedExpr), data);
+            if (checkedExpr.getBType() == symTable.semanticError) {
+                data.expType = originalExpType;
+            }
+            unmuteDlog(data, prevNonErrorLoggingCheck, prevErrorCount);
+        }
+
         visitCheckAndCheckPanicExpr(checkedExpr, data);
+        data.expType = originalExpType;
     }
 
     @Override

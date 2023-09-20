@@ -62,6 +62,24 @@ function testJsonAccessWithCheckWithSubTypesOfSimpleBasicTypesCET() returns erro
                    check f2Err.detail()["message"].ensureType());
 }
 
+function testPropagatedCETForCheckExpression() returns error? {
+    json a = {name: "John", "age": 31, "city": "New York"};
+    float a1 = 1 + check a.age;
+    assertEquality(32f, a1);
+
+    json b = {key: 22};
+    var b1 = <float>check b.key;
+    assertEquality(22f, b1);
+
+    json c = "true";
+    boolean c1 = !check c;
+    assertEquality(false, c1);
+
+    json d = "1";
+    float d1 = -check d;
+    assertEquality(1f, d1);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

@@ -23,4 +23,16 @@ function testJsonAccessWithCheckNegative(json j) returns error? {
     "foo"|xml[] _ = check j.b;
     int[]|BooleanOrStringValue _ = check j.c;
     IntMax|1d|map<int> _ = check j.d;
+
+    json a = {name: "John", "age": 31, "city": "New York"};
+    xml _ = xml `some txt` + check a.age;
+
+    _Frame e = {id: 101};
+    float _ = 1 + check e["age"];
+    float _ = 1 + check e.id;
 }
+
+type _Frame record {|
+    int id;
+    anydata...;
+|};

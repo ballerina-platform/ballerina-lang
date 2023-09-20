@@ -238,6 +238,7 @@ public class CheckedExpressionOperatorTest {
                 "test-src/expressions/checkedexpr/check_expr_with_json_access.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         BRunUtil.invoke(result, "testJsonAccessWithCheckWithSubTypesOfSimpleBasicTypesCET");
+        BRunUtil.invoke(result, "testPropagatedCETForCheckExpression");
     }
 
     @Test
@@ -255,6 +256,9 @@ public class CheckedExpressionOperatorTest {
                 "found '(json|error)'", 24, 42);
         BAssertUtil.validateError(result, i++, "incompatible types: expected '(map<int>|IntMax|1d|error)', found '" +
                 "(json|error)'", 25, 34);
+        BAssertUtil.validateError(result, i++, "operator '+' not defined for 'xml:Text' and 'json'", 28, 13);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(float|error)', found 'anydata'", 31, 25);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(float|error)', found 'int'", 32, 25);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
