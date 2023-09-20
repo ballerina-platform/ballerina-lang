@@ -77,7 +77,7 @@ public class DecimalSubtype extends EnumerableSubtype implements ProperSubtypeDa
 
         DecimalSubtype v = (DecimalSubtype) d;
         for (EnumerableType val : v.values) {
-            if (val == f) {
+            if (val.equals(f)) {
                 return v.allowed;
             }
         }

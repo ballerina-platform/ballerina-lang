@@ -367,6 +367,15 @@ public class Core {
         return (bits & ~t2.bitset) == 0;
     }
 
+    public static UniformTypeBitSet widenToBasicTypes(SemType t) {
+        if (t instanceof UniformTypeBitSet uniformTypeBitSet) {
+            return uniformTypeBitSet;
+        } else {
+            ComplexSemType complexSemType = (ComplexSemType) t;
+            return UniformTypeBitSet.from(complexSemType.all.bitset | complexSemType.some.bitset);
+        }
+    }
+
     // If t is a non-empty subtype of a built-in unsigned int subtype (Unsigned8/16/32),
     // then return the smallest such subtype. Otherwise, return t.
     public static SemType wideUnsigned(SemType t) {
@@ -668,8 +677,10 @@ public class Core {
             return containsConstFloat(t, (Double) v);
         } else if (v instanceof String) {
             return containsConstString(t, (String) v);
-        } else {
+        } else if (v instanceof Boolean) {
             return containsConstBoolean(t, (Boolean) v);
+        } else {
+            return containsConstDecimal(t, (BigDecimal) v);
         }
     }
 
@@ -709,6 +720,15 @@ public class Core {
         } else {
             return FloatSubtype.floatSubtypeContains(
                     getComplexSubtypeData((ComplexSemType) t, UT_FLOAT), EnumerableFloat.from(n));
+        }
+    }
+
+    public static boolean containsConstDecimal(SemType t, BigDecimal n) {
+        if (t instanceof UniformTypeBitSet) {
+            return (((UniformTypeBitSet) t).bitset & (1 << UT_DECIMAL.code)) != 0;
+        } else {
+            return DecimalSubtype.decimalSubtypeContains(
+                    getComplexSubtypeData((ComplexSemType) t, UT_DECIMAL), EnumerableDecimal.from(n));
         }
     }
 

@@ -32,4 +32,15 @@ public class EnumerableFloat implements EnumerableType {
     public static EnumerableFloat from(double d) {
         return new EnumerableFloat(d);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnumerableFloat e)) {
+            return false;
+        }
+        return (e.value == this.value);
+    }
 }
