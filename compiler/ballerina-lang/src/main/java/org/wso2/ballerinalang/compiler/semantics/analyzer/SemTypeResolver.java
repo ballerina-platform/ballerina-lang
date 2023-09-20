@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -89,6 +90,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.types.Core.getComplexSubtypeData;
+import static io.ballerina.types.Core.widenToBasicTypes;
 import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
 import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
 import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
@@ -807,19 +809,19 @@ public class SemTypeResolver {
         // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
         replaceUnaryExprWithNumericLiteral(valueSpace);
 
-        Set<BLangExpression> nonSemValueSpace = new LinkedHashSet<>();
         SemType semType = PredefinedType.NEVER;
         for (BLangExpression bLangExpression : valueSpace) {
             BLangLiteral literal = (BLangLiteral) bLangExpression;
             if (semTypeSupported(literal.getBType().getKind())) {
                 semType = SemTypes.union(semType, resolveSingletonType((BLangLiteral) bLangExpression));
+            } else if (literal.getBType().getKind() == TypeKind.OTHER) {
+                // do nothing. continue
             } else {
-                nonSemValueSpace.add(bLangExpression);
+                throw new IllegalStateException("non-sem value found!");
             }
         }
 
         type.setSemTypeComponent(semType);
-        type.nonSemValueSpace = nonSemValueSpace;
     }
 
     public static void addBFiniteValue(BFiniteType type, BLangExpression value) {
@@ -831,7 +833,7 @@ public class SemTypeResolver {
             }
             semType = SemTypes.union(semType, resolveSingletonType((BLangLiteral) value));
         } else {
-            type.nonSemValueSpace.add(value);
+            throw new IllegalStateException("non-sem value found!");
         }
 
         type.setSemTypeComponent(semType);
@@ -885,7 +887,7 @@ public class SemTypeResolver {
 
     private static boolean semTypeSupported(TypeKind kind) {
         return switch (kind) {
-            case NIL, BOOLEAN, INT, BYTE, FLOAT, DECIMAL, STRING -> true;
+            case NIL, BOOLEAN, INT, BYTE, FLOAT, DECIMAL, STRING, FINITE -> true;
             default -> false;
         };
     }
@@ -896,7 +898,8 @@ public class SemTypeResolver {
                     TypeTags.SIGNED32_INT, TypeTags.SIGNED16_INT, TypeTags.SIGNED8_INT,
                     TypeTags.UNSIGNED32_INT, TypeTags.UNSIGNED16_INT, TypeTags.UNSIGNED8_INT ,
                     TypeTags.FLOAT, TypeTags.DECIMAL,
-                    TypeTags.STRING, TypeTags.CHAR_STRING-> true;
+                    TypeTags.STRING, TypeTags.CHAR_STRING,
+                    TypeTags.FINITE-> true;
             default -> false;
         };
     }
@@ -941,5 +944,64 @@ public class SemTypeResolver {
             return value.isEmpty() ? Optional.empty() : Optional.of(symTable.decimalType);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Returns the basic types of singleton/union of singleton.
+     * <p>
+     * This will replace the existing <code>finiteType.getValueSpace().iterator()</code> calls
+     *
+     * @param t SemType component of BFiniteType
+     */
+    public static Set<BType> singletonBroadTypes(SemType t, SymbolTable symTable) { // Equivalent to getValueTypes()
+        Set<BType> types = new HashSet<>(7);
+        UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(t);
+        if ((uniformTypeBitSet.bitset & PredefinedType.NIL.bitset) != 0) {
+            types.add(symTable.nilType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.INT.bitset) != 0) {
+            types.add(symTable.intType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.FLOAT.bitset) != 0) {
+            types.add(symTable.floatType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.STRING.bitset) != 0) {
+            types.add(symTable.stringType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.BOOLEAN.bitset) != 0) {
+            types.add(symTable.booleanType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
+            types.add(symTable.decimalType);
+        }
+
+        return types;
+    }
+
+    /**
+     * Counts number of bits set in bitset.
+     * <p>
+     * <i>Note: this is similar to <code>lib:bitCount()</code> in nBallerina<i/>
+     * </p><p>
+     * This is the Brian Kernighan algorithm.
+     * This won't work if bits is < 0.
+     * <p/>
+     *
+     * @param bitset bitset for bits to be counted
+     * @return the count
+     */
+    public static int bitCount(int bitset) {
+        int n = 0;
+        int v = bitset;
+        while (v != 0) {
+            v &= v - 1;
+            n += 1;
+        }
+        return n;
     }
 }

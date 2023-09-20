@@ -43,7 +43,6 @@ public class BFiniteType extends BType implements FiniteType {
     public Boolean isAnyData = null;
 
     private SemType semTypeComponent;
-    public Set<BLangExpression> nonSemValueSpace;
 
     public BFiniteType(BTypeSymbol tsymbol) {
         this(tsymbol, new LinkedHashSet<>(), null);
@@ -57,7 +56,11 @@ public class BFiniteType extends BType implements FiniteType {
         super(TypeTags.FINITE, tsymbol, semType);
         this.valueSpace = valueSpace;
         this.flags |= Flags.READONLY;
-        SemTypeResolver.resolveBFiniteTypeSemTypeComponent(this);
+        if (semType == null) {
+            SemTypeResolver.resolveBFiniteTypeSemTypeComponent(this);
+        } else {
+            this.semTypeComponent = semType;
+        }
     }
 
     @Override

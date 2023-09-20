@@ -137,10 +137,6 @@ public class BIRTypeWriter extends TypeVisitor {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.flags);
-        isPureTypeUniqueVisitor.reset();
-        isAnydataUniqueVisitor.reset();
-        buff.writeInt(TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
-                isPureTypeUniqueVisitor.visit(type)));
         type.accept(this);
     }
 

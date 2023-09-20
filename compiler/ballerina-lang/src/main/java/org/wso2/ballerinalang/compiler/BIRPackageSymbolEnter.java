@@ -1263,8 +1263,6 @@ public class BIRPackageSymbolEnter {
             Name name = names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
 
-            // Read the type flags to identify if type reference types are nullable.
-            int typeFlags = inputStream.readInt();
             switch (tag) {
                 case TypeTags.INT:
                     return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);
@@ -1395,9 +1393,7 @@ public class BIRPackageSymbolEnter {
                             names.fromString(typeDefName), pkg, null, pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
 
-                    boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;
-
-                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags, nullable);
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags);
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.referredType = readTypeFromCp();
