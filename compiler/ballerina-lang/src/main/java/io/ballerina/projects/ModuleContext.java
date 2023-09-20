@@ -560,6 +560,11 @@ class ModuleContext {
         // TODO implement
     }
 
+    //TODO: should be removed once we properly fix ballerina-lang#41407
+    static void shrinkDocuments(ModuleContext moduleContext) {
+        moduleContext.srcDocContextMap.values().forEach(DocumentContext::shrink);
+    }
+
     Optional<MdDocumentContext> moduleMdContext() {
         return Optional.ofNullable(this.moduleMdContext);
     }

@@ -206,6 +206,8 @@ public class PackageCompilation {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
                             moduleContext.project()));
                 }
+                //TODO: remove this once ballerina-lang#41407 is fixed
+                ModuleContext.shrinkDocuments(moduleContext);
             }
         }
         // add plugin diagnostics
