@@ -419,7 +419,7 @@ public class LSPackageLoader {
                     : this.moduleDescriptor.org().toString() + "/" + moduleName;
             this.sourceRoot = module.project().sourceRoot();
             this.moduleId = module.moduleId();
-            addServiceTemplateMetaDataUsingSemanticModel(module);
+            addServiceTemplateMetaData(module);
         }
 
         public ModuleInfo(Module module, boolean moduleFromCurrentPackage) {
@@ -487,6 +487,7 @@ public class LSPackageLoader {
             //SemanticModel semanticModel = module.getCompilation().getSemanticModel();
             //When the Semantic model is used the memory consumption high and the performance of the LS is very low. 
             //Therefore, we are using the Syntax tree based approach here. 
+            //Todo: Create an issue
             List<ClassDefinitionNode> listeners = new ArrayList<>();
             module.documentIds().forEach(documentId -> {
                 Document document = module.document(documentId);

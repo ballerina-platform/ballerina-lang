@@ -28,8 +28,11 @@ import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackageListResult;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -42,6 +45,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * An abstract class for LS unit tests.
@@ -97,12 +101,12 @@ public abstract class AbstractLSTest {
         context.put(CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, centralPackageLoader);
 
         //Build the LS. This will populate the init options and load the packages from distribution 
-        // into the LSPackage Loader.
+        //into the LSPackage Loader.
         long initTime = System.currentTimeMillis();
         Endpoint tempEndPoint = builder.build();
         unMockedlsPackageLoader = LSPackageLoader.getInstance(context);
         //Wait for LS Package loader to load the modules form distribution
-        while (!unMockedlsPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 10 * 60 * 1000) {
+        while (!unMockedlsPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
             Thread.sleep(2000);
         }
         TestUtil.shutdownLanguageServer(tempEndPoint);

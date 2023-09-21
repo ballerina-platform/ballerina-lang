@@ -15,9 +15,17 @@
  */
 package org.ballerinalang.langserver.test.completion;
 
+import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.LSClientCapabilitiesImpl;
+import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,6 +36,34 @@ import java.io.IOException;
  * Completion tests for compiler plugin based completion providers.
  */
 public class CompilerPluginCompletionTests extends CompletionTest {
+
+    @BeforeClass
+    @Override
+    public void init() throws Exception {
+        BallerinaLanguageServer server = new BallerinaLanguageServer();
+        LanguageServerContext context = server.getServerContext();
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
+                .withLanguageServer(server)
+                .withInitOption(LSClientCapabilitiesImpl.InitializationOptionsImpl.KEY_ENABLE_INDEX_USER_HOME, false);
+
+        //Build the LS. This will populate the init options and load the packages from distribution 
+        //into the LSPackage Loader.
+        long initTime = System.currentTimeMillis();
+        Endpoint endPoint = builder.build();
+        LSPackageLoader lsPackageLoader = LSPackageLoader.getInstance(context);
+        
+        //Wait for LS Package loader to load the modules form distribution
+        while (!lsPackageLoader.isInitialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
+            Thread.sleep(2000);
+        }
+        if (!lsPackageLoader.isInitialized()) {
+            Assert.fail("LS Package Loader initialization failed!");
+        }
+
+        //Build and start the LS
+        this.setLanguageServer(server);
+        this.setServiceEndpoint(endPoint);
+    }
 
     @BeforeSuite
     public void compilePlugins() {
@@ -54,6 +90,5 @@ public class CompilerPluginCompletionTests extends CompletionTest {
     public String getTestResourceDir() {
         return "compiler-plugins";
     }
-
 }
 
