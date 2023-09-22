@@ -176,6 +176,9 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleDiagnostics.add(
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
+
+            //TODO: remove this once ballerina-lang#41407 is fixed
+            ModuleContext.shrinkDocuments(moduleContext);
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
