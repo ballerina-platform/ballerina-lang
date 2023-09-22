@@ -35,6 +35,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
@@ -61,6 +62,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -224,11 +226,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 if (semanticModel != null) {
                     Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
                     if (node.kind() == SyntaxKind.OBJECT_FIELD) {
-                        // HACK: Cannot identify client qualifier with display annotation
-                        ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
-                        if (objectFieldNode.metadata().isPresent()) {
-                            typeSymbol = this.semanticModel.type(objectFieldNode.children().get(1));
-                        }
+                        // Identify client qualifier with display annotation and access modifies
+                        typeSymbol = getClientQualifierTypeSymbol((ObjectFieldNode) node);
                     }
                     if (typeSymbol.isPresent()) {
                         TypeSymbol rawType = getRawType(typeSymbol.get());
@@ -347,6 +346,30 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
 
         return nodeJson;
+    }
+
+    private Optional<TypeSymbol> getClientQualifierTypeSymbol(ObjectFieldNode node) {
+        if (node.metadata().isPresent()) {
+            SyntaxKind[] kindArray = {SyntaxKind.QUALIFIED_NAME_REFERENCE, SyntaxKind.SIMPLE_NAME_REFERENCE};
+            Optional<Node> clientNode = getChildNodeWithKind(node.children(), kindArray);
+            if (clientNode.isPresent()) {
+                return this.semanticModel.type(clientNode.get());
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Node> getChildNodeWithKind(ChildNodeList childNodeList, SyntaxKind[] kindArray) {
+        Iterator<Node> iterator = childNodeList.iterator();
+        while (iterator.hasNext()) {
+            Node node = iterator.next();
+            for (SyntaxKind kind : kindArray) {
+                if (node.kind() == kind) {
+                    return Optional.of(node);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     protected Optional<Node> getParentBlock(Node node) {
