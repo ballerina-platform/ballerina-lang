@@ -1718,13 +1718,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.getBType().tag);
-        if (literalType.tag == TypeTags.STRING && types.isCharLiteralValue((String) literalValue)) {
-            boolean foundMember = types.isAssignableToFiniteType(symTable.noType, literalExpr);
-            if (foundMember) {
-                setLiteralValueForFiniteType(literalExpr, literalType, data);
-                return literalType;
-            }
-        }
 
         // Byte arrays are not yet supported in constants.
         if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
@@ -1843,12 +1836,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return symTable.byteType;
         }
         return symTable.intType;
-    }
-
-    public void setLiteralValueForFiniteType(BLangLiteral literalExpr, BType type, AnalyzerData data) {
-        types.setImplicitCastExpr(literalExpr, type, data.expType);
-        data.resultType = type;
-        literalExpr.isFiniteContext = true;
     }
 
     private BType getTypeOfLiteralWithDecimalDiscriminator(BLangLiteral literalExpr, Object literalValue) {

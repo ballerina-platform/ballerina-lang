@@ -3883,20 +3883,7 @@ public class Types {
         }
 
         BFiniteType expType = (BFiniteType) type;
-        return expType.getValueSpace().stream().anyMatch(memberLiteral -> {
-            if (((BLangLiteral) memberLiteral).value == null) {
-                return literalExpr.value == null;
-            }
-
-            // If the literal which needs to be tested is from finite type and the type of the any member literal
-            // is not the same type, the literal cannot be assignable to finite type.
-            if (literalExpr.isFiniteContext && memberLiteral.getBType().tag != literalExpr.getBType().tag) {
-                return false;
-            }
-            // Check whether the literal that needs to be tested is assignable to any of the member literal in the
-            // value space.
-            return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
-        });
+        return checkLiteralAssignabilityBasedOnType(literalExpr, expType, literalExpr.getBType().tag);
     }
 
     /**
@@ -3905,18 +3892,14 @@ public class Types {
      * literal or a constant. In case of a constant, it is assignable to the base literal if and only if both
      * literals have same type and equivalent values.
      *
-     * @param baseLiteral      Literal based on which we check the assignability.
-     * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
+     * @param literal Literal to be tested whether it is assignable to the base literal or not.
+     * @param finiteType
+     * @param targetTypeTag
      * @return true if assignable; false otherwise.
      */
-    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
-        // Different literal kinds.
-        if (baseLiteral.getKind() != candidateLiteral.getKind()) {
-            return false;
-        }
-        Object baseValue = baseLiteral.value;
-        Object candidateValue = candidateLiteral.value;
-        int candidateTypeTag = candidateLiteral.getBType().tag;
+    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral literal, BFiniteType finiteType, int targetTypeTag) {
+        Object value = literal.value;
+        int literalTypeTag = literal.getBType().tag;
 
         // Numeric literal assignability is based on assignable type and numeric equivalency of values.
         // If the base numeric literal is,
@@ -3925,104 +3908,53 @@ public class Types {
         // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
         // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
         // with the same value.
-        switch (baseLiteral.getBType().tag) {
-            case TypeTags.BYTE:
-                if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
-                        !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
+        SemType t = finiteType.getSemTypeComponent();
+        switch (targetTypeTag) {
             case TypeTags.INT:
-                if (candidateTypeTag == TypeTags.INT) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.SIGNED32_INT:
-                if (candidateTypeTag == TypeTags.INT && isSigned32LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.SIGNED16_INT:
-                if (candidateTypeTag == TypeTags.INT && isSigned16LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.SIGNED8_INT:
-                if (candidateTypeTag == TypeTags.INT && isSigned8LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.UNSIGNED32_INT:
-                if (candidateTypeTag == TypeTags.INT && isUnsigned32LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.UNSIGNED16_INT:
-                if (candidateTypeTag == TypeTags.INT && isUnsigned16LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
-                }
-                break;
-            case TypeTags.UNSIGNED8_INT:
-                if (candidateTypeTag == TypeTags.INT && isUnsigned8LiteralValue((Long) candidateValue)) {
-                    return ((Number) baseValue).longValue() == ((Number) candidateValue).longValue();
+                if (literalTypeTag == TypeTags.INT) {
+                    return Core.containsConstInt(t, ((Number) value).longValue());
                 }
                 break;
             case TypeTags.FLOAT:
-                String baseValueStr = String.valueOf(baseValue);
-                String originalValue = baseLiteral.originalValue != null ? baseLiteral.originalValue : baseValueStr;
-                if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
-                    return false;
-                }
-                double baseDoubleVal;
-                try {
-                    baseDoubleVal = Double.parseDouble(baseValueStr);
-                } catch (NumberFormatException e) {
-                    // We reach here if a floating point literal has syntax diagnostics.
-                    return false;
-                }
-                double candidateDoubleVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
-                    if (candidateLiteral.value instanceof Double) {
+                double doubleValue;
+                if (literalTypeTag == TypeTags.INT && !literal.isConstant) {
+                    if (literal.value instanceof Double) {
                         // Out of range value for int but in range for float
-                        candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
-                        return baseDoubleVal == candidateDoubleVal;
+                        doubleValue = Double.parseDouble(String.valueOf(value));
                     } else {
-                        candidateDoubleVal = ((Long) candidateValue).doubleValue();
-                        return baseDoubleVal == candidateDoubleVal;
+                        doubleValue = ((Long) value).doubleValue();
                     }
-                } else if (candidateTypeTag == TypeTags.FLOAT) {
-                    candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
-                    return baseDoubleVal == candidateDoubleVal;
+                    return Core.containsConstFloat(t, doubleValue);
+                } else if (literalTypeTag == TypeTags.FLOAT) {
+                    doubleValue = Double.parseDouble(String.valueOf(value));
+                    return Core.containsConstFloat(t, doubleValue);
                 }
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
-                BigDecimal candidateDecimalVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
-                    if (candidateLiteral.value instanceof String) {
+                BigDecimal decimalValue;
+                if (literalTypeTag == TypeTags.INT && !literal.isConstant) {
+                    if (literal.value instanceof String) {
                         // out of range value for float but in range for decimal
-                        candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
-                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
-                    } else if (candidateLiteral.value instanceof Double) {
+                        decimalValue = NumericLiteralSupport.parseBigDecimal(value);
+                    } else if (literal.value instanceof Double) {
                         // out of range value for int in range for decimal and float
-                        candidateDecimalVal = new BigDecimal((Double) candidateValue, MathContext.DECIMAL128);
-                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                        decimalValue = new BigDecimal((Double) value, MathContext.DECIMAL128);
                     } else {
-                        candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
-                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                        decimalValue = new BigDecimal((long) value, MathContext.DECIMAL128);
                     }
-                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
-                        candidateTypeTag == TypeTags.DECIMAL) {
-                    if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {
+                    return Core.containsConstDecimal(t, decimalValue);
+                } else if (literalTypeTag == TypeTags.FLOAT && !literal.isConstant ||
+                        literalTypeTag == TypeTags.DECIMAL) {
+                    if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(value))) {
                         return false;
                     }
-                    candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
-                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                    decimalValue = NumericLiteralSupport.parseBigDecimal(value);
+                    return Core.containsConstDecimal(t, decimalValue);
                 }
                 break;
             default:
                 // Non-numeric literal kind.
-                return baseValue.equals(candidateValue);
+                return Core.containsConst(t, value);
         }
         return false;
     }
@@ -5711,34 +5643,24 @@ public class Types {
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
-        Set<BLangExpression> remainingValueSpace = new LinkedHashSet<>();
-
-        for (BLangExpression valueExpr : originalType.getValueSpace()) {
-            boolean matchExists = false;
-            for (BType remType : removeTypes) {
-                if (isAssignable(valueExpr.getBType(), remType) ||
-                        isAssignableToFiniteType(remType, (BLangLiteral) valueExpr)) {
-                    matchExists = true;
-                    break;
-                }
-            }
-
-            if (!matchExists) {
-                remainingValueSpace.add(valueExpr);
-            }
+        SemType originalSemType = originalType.getSemTypeComponent();
+        SemType removeSemType = PredefinedType.NEVER;
+        for (BType removeType : removeTypes) {
+            SemType semTypeToRemove = SemTypeResolver.getSemTypeComponent(removeType);
+            removeSemType = Core.union(removeSemType, semTypeToRemove);
         }
 
-        if (remainingValueSpace.isEmpty()) {
+        SemType diffSemType = Core.diff(originalSemType, removeSemType);
+        if (Core.isEmpty(semTypeCtx, diffSemType)) {
             return symTable.semanticError;
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
                 originalType.tsymbol.pkgID, null,
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
-        semTypeResolver.setSemTypeIfEnabled(intersectingFiniteType);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, new HashSet<>(), diffSemType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
     }

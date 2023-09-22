@@ -549,26 +549,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private BType getFiniteTypeMatchWithIntType(BLangLiteral literalExpr, BFiniteType finiteType, AnalyzerData data) {
+    private BType getFiniteTypeMatchWithIntType(BLangNumericLiteral literalExpr, BFiniteType finiteType,
+                                                AnalyzerData data) {
         if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.INT)) {
             setLiteralValueForFiniteType(literalExpr, symTable.intType, data);
             return symTable.intType;
-        } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.BYTE)) {
-            setLiteralValueForFiniteType(literalExpr, symTable.byteType, data);
-            return symTable.byteType;
-
-        } else {
-            for (int tag = TypeTags.SIGNED32_INT; tag <= TypeTags.UNSIGNED8_INT; tag++) {
-                if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
-                    setLiteralValueForFiniteType(literalExpr, symTable.getTypeFromTag(tag), data);
-                    return symTable.getTypeFromTag(tag);
-                }
-            }
         }
         return symTable.noType;
     }
 
-    private BType getFiniteTypeMatchWithIntLiteral(BLangLiteral literalExpr, BFiniteType finiteType,
+    private BType getFiniteTypeMatchWithIntLiteral(BLangNumericLiteral literalExpr, BFiniteType finiteType,
                                                    Object literalValue, AnalyzerData data) {
         BType intLiteralType = getFiniteTypeMatchWithIntType(literalExpr, finiteType, data);
         if (intLiteralType != symTable.noType) {
@@ -594,7 +584,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.intType;
     }
 
-    private BType silentIntTypeCheck(BLangLiteral literalExpr, Object literalValue, BType expType,
+    private BType silentIntTypeCheck(BLangNumericLiteral literalExpr, Object literalValue, BType expType,
                                      AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
@@ -613,7 +603,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return exprCompatibleType;
     }
 
-    private BType silentCompatibleLiteralTypeCheck(BFiniteType finiteType, BLangLiteral literalExpr,
+    private BType silentCompatibleLiteralTypeCheck(BFiniteType finiteType, BLangNumericLiteral literalExpr,
                                                    Object literalValue, AnalyzerData data) {
         BType resIntType = symTable.semanticError;
         Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(finiteType.getSemTypeComponent(), symTable);
@@ -626,8 +616,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return resIntType;
     }
 
-    private BType checkIfOutOfRangeAndReturnType(BFiniteType finiteType, BLangLiteral literalExpr, Object literalValue,
-                                                 AnalyzerData data) {
+    private BType checkIfOutOfRangeAndReturnType(BFiniteType finiteType, BLangNumericLiteral literalExpr,
+                                                 Object literalValue, AnalyzerData data) {
         BType compatibleType = silentCompatibleLiteralTypeCheck(finiteType, literalExpr, literalValue, data);
         if (compatibleType == symTable.semanticError) {
             dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
@@ -636,7 +626,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return compatibleType;
     }
 
-    public BType getIntegerLiteralType(BLangLiteral literalExpr, Object literalValue, BType expType,
+    public BType getIntegerLiteralType(BLangNumericLiteral literalExpr, Object literalValue, BType expType,
                                         AnalyzerData data) {
         BType expectedType = Types.getReferredType(expType);
         if (expectedType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expectedType.tag)) {
@@ -654,7 +644,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return symTable.semanticError;
             }
             if (literalValue instanceof Double) {
-                literalExpr.value = ((Double) literalValue).doubleValue();
+                literalExpr.value = literalValue;
             } else {
                 literalExpr.value = ((Long) literalValue).doubleValue();
             }
@@ -718,7 +708,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.intType;
     }
 
-    public BType getTypeOfLiteralWithFloatDiscriminator(BLangLiteral literalExpr, Object literalValue,
+    public BType getTypeOfLiteralWithFloatDiscriminator(BLangNumericLiteral literalExpr, Object literalValue,
                                                          BType expType, AnalyzerData data) {
         String numericLiteral = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
@@ -742,7 +732,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.floatType;
     }
 
-    public BType getTypeOfLiteralWithDecimalDiscriminator(BLangLiteral literalExpr, Object literalValue,
+    public BType getTypeOfLiteralWithDecimalDiscriminator(BLangNumericLiteral literalExpr, Object literalValue,
                                                            BType expType, AnalyzerData data) {
         literalExpr.value = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
         if (!types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
@@ -765,7 +755,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.decimalType;
     }
 
-    public BType getTypeOfDecimalFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType,
+    public BType getTypeOfDecimalFloatingPointLiteral(BLangNumericLiteral literalExpr, Object literalValue, BType expType,
                                                        AnalyzerData data) {
         BType expectedType = Types.getReferredType(expType);
         String numericLiteral = String.valueOf(literalValue);
@@ -808,7 +798,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 ? symTable.floatType : symTable.semanticError;
     }
 
-    public BType getTypeOfHexFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType,
+    public BType getTypeOfHexFloatingPointLiteral(BLangNumericLiteral literalExpr, Object literalValue, BType expType,
                                                    AnalyzerData data) {
         String numericLiteral = String.valueOf(literalValue);
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
@@ -832,25 +822,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.floatType;
     }
 
-    public BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) {
+    public BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) { // TODO: fix
         literalExpr.isFiniteContext = false;
         Object literalValue = literalExpr.value;
         BType expectedType = Types.getReferredType(expType);
 
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-            NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
-            if (kind == NodeKind.INTEGER_LITERAL) {
-                return getIntegerLiteralType(literalExpr, literalValue, expectedType, data);
-            } else if (kind == NodeKind.DECIMAL_FLOATING_POINT_LITERAL) {
-                if (NumericLiteralSupport.isFloatDiscriminated(literalExpr.originalValue)) {
-                    return getTypeOfLiteralWithFloatDiscriminator(literalExpr, literalValue, expectedType, data);
-                } else if (NumericLiteralSupport.isDecimalDiscriminated(literalExpr.originalValue)) {
-                    return getTypeOfLiteralWithDecimalDiscriminator(literalExpr, literalValue, expectedType, data);
+            BLangNumericLiteral numericLiteral = (BLangNumericLiteral) literalExpr;
+            if (numericLiteral.kind == NodeKind.INTEGER_LITERAL) {
+                return getIntegerLiteralType(numericLiteral, literalValue, expectedType, data);
+            } else if (numericLiteral.kind == NodeKind.DECIMAL_FLOATING_POINT_LITERAL) {
+                if (NumericLiteralSupport.isFloatDiscriminated(numericLiteral.originalValue)) {
+                    return getTypeOfLiteralWithFloatDiscriminator(numericLiteral, literalValue, expectedType, data);
+                } else if (NumericLiteralSupport.isDecimalDiscriminated(numericLiteral.originalValue)) {
+                    return getTypeOfLiteralWithDecimalDiscriminator(numericLiteral, literalValue, expectedType, data);
                 } else {
-                    return getTypeOfDecimalFloatingPointLiteral(literalExpr, literalValue, expectedType, data);
+                    return getTypeOfDecimalFloatingPointLiteral(numericLiteral, literalValue, expectedType, data);
                 }
             } else {
-                return getTypeOfHexFloatingPointLiteral(literalExpr, literalValue, expectedType, data);
+                return getTypeOfHexFloatingPointLiteral(numericLiteral, literalValue, expectedType, data);
             }
         }
 
@@ -975,19 +965,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.noType;
     }
 
-    private boolean literalAssignableToFiniteType(BLangLiteral literalExpr, BFiniteType finiteType,
-                                                  int targetMemberTypeTag) {
-//        SemType targetType = SemTypeResolver.getSemTypeComponent(symTable.getTypeFromTag(targetMemberTypeTag));
-//        SemType intersect = Core.intersect(finiteType.getSemTypeComponent(), targetType);
-//        SemType singleton = Core.singleton(literalExpr.value);
-//        return SemTypes.isSubtype(types.semTypeCtx, singleton, intersect);
-        for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-            if (valueExpr.getBType().tag == targetMemberTypeTag &&
-                    types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean literalAssignableToFiniteType(BLangNumericLiteral literalExpr, BFiniteType finiteType,
+                                                  int targetTypeTag) {
+        return types.checkLiteralAssignabilityBasedOnType(literalExpr, finiteType, targetTypeTag);
     }
 
     public void setLiteralValueForFiniteType(BLangLiteral literalExpr, BType type, AnalyzerData data) {
@@ -1006,39 +986,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         }
 
-//        SemType t = PredefinedType.NEVER;
-//        for (BFiniteType finiteType : finiteTypeMembers) {
-//            t = Core.union(t, finiteType.getSemTypeComponent());
-//        }
-//
-//        SemType matchSemType = SemTypeResolver.getSemTypeComponent(matchType);
-//        SemType intersection = Core.intersect(t, matchSemType);
-//
-//        if (PredefinedType.NEVER.equals(intersection)) {
-//            return symTable.semanticError;
-//        }
-//
-//        return new BFiniteType(null, new HashSet<>(), intersection);
-        int tag = matchType.tag;
-        Set<BLangExpression> matchedValueSpace = new LinkedHashSet<>();
-
+        SemType t = PredefinedType.NEVER;
         for (BFiniteType finiteType : finiteTypeMembers) {
-            Set<BLangExpression> set = new HashSet<>();
-            for (BLangExpression expression : finiteType.getValueSpace()) {
-                if (expression.getBType().tag == tag) {
-                    set.add(expression);
-                }
-            }
-            matchedValueSpace.addAll(set);
+            t = Core.union(t, finiteType.getSemTypeComponent());
         }
 
-        if (matchedValueSpace.isEmpty()) {
+        SemType matchSemType = SemTypeResolver.getSemTypeComponent(matchType);
+        SemType intersection = Core.intersect(t, matchSemType);
+        if (PredefinedType.NEVER.equals(intersection)) {
             return symTable.semanticError;
         }
 
-        BFiniteType finiteType = new BFiniteType(null, matchedValueSpace);
-        semTypeResolver.setSemTypeIfEnabled(finiteType);
-        return finiteType;
+        return new BFiniteType(null, new HashSet<>(), intersection);
     }
 
     private BType getIntLiteralType(BType expType, Object literalValue, AnalyzerData data) {
@@ -9491,26 +9450,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private LinkedHashSet<BType> getTypeWithoutNilForNonAnyTypeWithNil(BType type) {
         BType referredType = Types.getReferredType(type);
         if (referredType.tag == TypeTags.FINITE) {
-            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace(); // TODO: can remove at end
-            LinkedHashSet<BLangExpression> nonNilValueSpace = new LinkedHashSet<>();
-            for (BLangExpression expression : valueSpace) {
-                if (expression.getBType().tag != TypeTags.NIL) {
-                    nonNilValueSpace.add(expression);
-                }
-            }
+            SemType semType = ((BFiniteType) referredType).getSemTypeComponent();
+            SemType diff = Core.diff(semType, PredefinedType.NIL);
 
-            int nonNilValueSpaceSize = nonNilValueSpace.size();
-
-            if (nonNilValueSpaceSize == valueSpace.size()) {
-                return new LinkedHashSet<>(1) {{ add(referredType); }};
-            }
-
-            if (nonNilValueSpaceSize == 0) {
+            if (Core.isEmpty(types.semTypeCtx, diff)) {
                 return new LinkedHashSet<>(0);
             }
 
-            BFiniteType finiteType = new BFiniteType(null, nonNilValueSpace);
-            semTypeResolver.setSemTypeIfEnabled(finiteType);
+            BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), diff);
             return new LinkedHashSet<>(1) {{ add(finiteType); }};
         }
 

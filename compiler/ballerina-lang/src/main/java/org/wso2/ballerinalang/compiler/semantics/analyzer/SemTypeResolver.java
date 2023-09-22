@@ -397,6 +397,8 @@ public class SemTypeResolver {
                 } else if (litVal instanceof Double) {
                     value = (double) litVal;
                 } else {
+                    // literal value will be a string if it wasn't within the bounds of what is supported by Java Long
+                    // or Double when it was parsed in BLangNodeBuilder.
                     value = Double.parseDouble((String) litVal);
                 }
                 return SemTypes.floatConst(value);

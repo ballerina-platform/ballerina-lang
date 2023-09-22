@@ -5184,7 +5184,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(fail.pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(fail.pos, symTable.nilType, Names.NIL_VALUE.value);
         BLangStatementExpression statementExpression =
                 createStatementExpression(onFailBody, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -5424,7 +5424,7 @@ public class Desugar extends BLangNodeVisitor {
 
         enclLocks.push(lockStmt);
 
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE);
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE.value);
         BType nillableError = BUnionType.create(null, symTable.errorType, symTable.nilType);
         BLangStatementExpression statementExpression = createStatementExpression(lockNode.body, nilLiteral);
         statementExpression.setBType(symTable.nilType);
@@ -10022,7 +10022,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
         BLangAssignment assignmentStmt =
                 ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, createLiteral(pos, symTable.nilType,
-                        Names.NIL_VALUE));
+                        Names.NIL_VALUE.value));
         BLangBlockStmt clauseBody = ASTBuilderUtil.createBlockStmt(pos, this.env.scope, Lists.of(assignmentStmt));
 
         BLangWildCardMatchPattern wildCardMatchPattern = ASTBuilderUtil.createWildCardMatchPattern(matchExpr);

@@ -43,6 +43,6 @@ public class EnumerableDecimal implements EnumerableType {
         if (!(o instanceof EnumerableDecimal e)) {
             return false;
         }
-        return (e.value.equals(this.value));
+        return (e.value.compareTo(this.value) == 0);
     }
 }
