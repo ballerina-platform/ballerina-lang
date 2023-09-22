@@ -98,9 +98,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
+import static org.ballerinalang.model.symbols.SymbolOrigin.*;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -125,9 +123,10 @@ public class BIRPackageSymbolEnter {
     private LinkedList<Object> compositeStack = new LinkedList<>();
     private HashMap<BInvokableSymbol, HashSet<String>> undefinedChildrenMap = new HashMap<>();     // Children functions from the same pkg which are not yet defined
 
-    private BInvokableSymbol lastParent = null;      // used for debugging
-    private String lastChildName = "";              // used for debugging
-    private String lastChildPkgID = "";             // used for debugging
+    // TODO remove the following fields
+//    private BInvokableSymbol lastParent = null;      // used for debugging
+//    private String lastChildName = "";              // used for debugging
+//    private String lastChildPkgID = "";             // used for debugging
     private HashMap<BInvokableSymbol, HashSet<String>> failedSymbolsMap = new HashMap<>();       // used for debugging
 
 
@@ -395,32 +394,40 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
-        // TODO merge the following 3 lines together?
-        invokableSymbol.usedState= UsedState.UNUSED;    // Only toplevel symbols are defined as usused. Others(Arrow functions) will be Unexplored by default
+        if (!invokableSymbol.origin.equals(VIRTUAL)) {
+            invokableSymbol.usedState = UsedState.UNUSED;    // Only toplevel symbols are defined as usused. Others(Arrow functions) will be Unexplored by default
+            this.env.pkgSymbol.deadFunctions.add(invokableSymbol);      // pre declare as dead
+        } else {
+            this.env.pkgSymbol.usedFunctions.add(invokableSymbol);      // pre declare as used because these invocations are UNEXPLORED
+        }
         this.env.pkgSymbol.invocationMap.putIfAbsent(invokableSymbol, new HashSet<>());
-        this.env.pkgSymbol.deadFunctions.add(invokableSymbol);      // pre declare as dead
+
+
 
         // Reading the children(Invocations inside the body)
-//        if (!this.env.pkgSymbol.pkgID.pkgName.value.contains("lang") && !this.env.pkgSymbol.pkgID.pkgName.value.contains("jballerina")) {
-        if (true) {
-            int numOfChildren = dataInStream.readInt();
-            for (int i = 0; i < numOfChildren; i++) {
-                String childPkgName = getStringCPEntryValue(dataInStream);
-                String childName = getStringCPEntryValue(dataInStream);
-                this.lastParent = invokableSymbol;
-                this.lastChildName = childName;
-                this.lastChildPkgID = childPkgName;
-                // TODO find a better way to get the child functions
-                if (functionIsDefined(childPkgName, childName)) {
-                    BInvokableSymbol childSymbol = getFunctionSymbol(childPkgName, childName);
-                    addInvocation(invokableSymbol, childSymbol);
-                } else if (isClassFunction(childPkgName, childName)) {
-                    BInvokableSymbol childSymbol = getFunctionInsideClass(childPkgName, childName);
+        int numOfChildren = dataInStream.readInt();
+        for (int i = 0; i < numOfChildren; i++) {
+            String childPkgName = getStringCPEntryValue(dataInStream);
+            String childName = getStringCPEntryValue(dataInStream);
+//            this.lastParent = invokableSymbol;
+//            this.lastChildName = childName;
+//            this.lastChildPkgID = childPkgName;
+
+            if (pkgIsDefined(childPkgName)) {
+                BPackageSymbol childPkgSymbol = getPkgSymbol(childPkgName);
+                BInvokableSymbol childSymbol = getInvokableSymbol(childPkgSymbol, childName);
+                if (childSymbol != null) {
                     addInvocation(invokableSymbol, childSymbol);
                 } else {
-                    undefinedChildrenMap.putIfAbsent(invokableSymbol, new HashSet<>());
-                    undefinedChildrenMap.get(invokableSymbol).add(childName); // Saving only the child name because all the symbols are from the same package
+                    failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
+                    failedSymbolsMap.get(invokableSymbol).add(childName);
                 }
+            } else if (isProcessingPkg(childPkgName)) {
+                undefinedChildrenMap.putIfAbsent(invokableSymbol, new HashSet<>());
+                undefinedChildrenMap.get(invokableSymbol).add(childName);
+            } else {
+                failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
+                failedSymbolsMap.get(invokableSymbol).add(childName); // Saving only the child name because all the symbols are from the same parent package
             }
         }
 
@@ -536,16 +543,12 @@ public class BIRPackageSymbolEnter {
 
     // Handles internal function calls (parent and child being in the same package)
     private void addRemainingChildren() {
-        BPackageSymbol parentPackage = this.env.pkgSymbol;
+        BPackageSymbol childPkgSymbol = this.env.pkgSymbol;
         this.undefinedChildrenMap.forEach((parentSymbol, childrenStrings) -> {
             childrenStrings.forEach((childString) -> {
-                String[] classAndChild = childString.split("\\.");
-                if (isClassFunction(childString)) {     // is defined inside a class
-                    BClassSymbol classSymbol = (BClassSymbol) parentPackage.scope.entries.get(new Name(classAndChild[0])).symbol;
-                    BInvokableSymbol childSymbol = (BInvokableSymbol) classSymbol.scope.entries.get(new Name(childString)).symbol;
-                    addInvocation(parentSymbol, childSymbol);
-                } else if (parentPackage.scope.entries.containsKey(new Name(childString))) {                // is not defined inside a class
-                    BInvokableSymbol childSymbol = (BInvokableSymbol) parentPackage.scope.entries.get(new Name(childString)).symbol;
+
+                BInvokableSymbol childSymbol = getInvokableSymbol(childPkgSymbol, childString);
+                if (childSymbol != null) {
                     addInvocation(parentSymbol, childSymbol);
                 } else {
                     failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
@@ -561,20 +564,6 @@ public class BIRPackageSymbolEnter {
         return this.packageCache.packageSymbolMap.containsKey(pkgName);
     }
 
-    private boolean functionIsDefined(String pkgName, String functionName) {
-        if (pkgIsDefined(pkgName)) {
-            return this.packageCache.packageSymbolMap.get(pkgName).entrySet().iterator().next().getValue().scope.entries.containsKey(new Name(functionName));
-        }
-        return false;
-    }
-
-    private boolean isClassFunction(String pkgName,String functionName) {
-        if (pkgIsDefined(pkgName)) {
-            return functionName.contains(".");
-        }
-        return false;
-    }
-
     private boolean isClassFunction(String functionName) {
         return functionName.contains(".");
     }
@@ -585,17 +574,24 @@ public class BIRPackageSymbolEnter {
         this.env.pkgSymbol.invocationMap.get(parentSymbol).add(childSymbol);
     }
 
-    // Make sure to call only after confirming function is defined
-    private BInvokableSymbol getFunctionSymbol(String pkgName, String functionName) {
-        return (BInvokableSymbol) this.packageCache.packageSymbolMap.get(pkgName).entrySet().iterator().next().getValue().scope.entries.get(new Name(functionName)).symbol;
+    private BPackageSymbol getPkgSymbol(String pkgName) {
+        return this.packageCache.getSymbol(pkgName);
     }
 
-    private BInvokableSymbol getFunctionInsideClass(String pkgName, String functionName) {
-        String[] classAndChild = functionName.split("\\.");
-        BClassSymbol classSymbol = (BClassSymbol) this.packageCache.packageSymbolMap.get(pkgName).entrySet().iterator().next().getValue().scope.entries.get(new Name(classAndChild[0])).symbol;
-        return (BInvokableSymbol) classSymbol.scope.entries.get(new Name(functionName)).symbol;
+    private BInvokableSymbol getInvokableSymbol(BPackageSymbol pkgSymbol, String functionName) {
+        if (!isClassFunction(functionName)) {
+            return (BInvokableSymbol) pkgSymbol.scope.lookup(new Name(functionName)).symbol;
+        } else {
+            String[] classAndChild = functionName.split("\\.");
+            BClassSymbol classSymbol = (BClassSymbol) pkgSymbol.scope.lookup(new Name(classAndChild[0])).symbol;
+            return (BInvokableSymbol) classSymbol.scope.lookup(new Name(functionName)).symbol;
+        }
     }
 
+    private boolean isProcessingPkg(String pkgName) {
+        String processingPkgName = this.env.pkgSymbol.pkgID.orgName + "/" + this.env.pkgSymbol.pkgID.pkgName;
+        return pkgName.equals(processingPkgName);
+    }
     private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
             throws IOException {
 

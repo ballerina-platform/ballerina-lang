@@ -32,7 +32,6 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
@@ -41,6 +40,10 @@ import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Lists;
@@ -561,7 +564,10 @@ public class JBallerinaBackend extends CompilerBackend {
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String,
             StringBuilder> services) throws IOException {
 
-        ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
+        String pkgName = jarLibrary.packageName().get();
+        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = getDeadFunctionList(pkgName, this.compilerContext);
+
+        OptimisedZipFile zipFile = new OptimisedZipFile(jarLibrary.path().toFile(),classWiseDeadFunctionMap);
         ZipArchiveEntryPredicate predicate = entry -> {
             String entryName = entry.getName();
             if (entryName.equals("META-INF/MANIFEST.MF")) {
@@ -611,8 +617,29 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // Transfers selected entries from this zip file to the output stream, while preserving its compression and
         // all the other original attributes.
-        zipFile.copyRawEntries(outStream, predicate);
+        zipFile.copyOptimisedRawEntries(outStream, predicate);
+//        zipFile.copyRawEntries(outStream, predicate);
         zipFile.close();
+    }
+
+    private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName, CompilerContext compilerContext) {
+        org.wso2.ballerinalang.compiler.PackageCache packageCache = org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+
+        BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgName);
+        int majorVersion = packageCache.getSymbol(pkgName).descriptor.version().value().major();
+
+        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = new HashMap<>();
+
+        for (BInvokableSymbol deadFunction:pkgSymbol.deadFunctions) {
+            if (deadFunction.source != null) {
+                String className = deadFunction.source.replace(".bal", ".class");
+                String classLocationName = pkgName + "/" + majorVersion + "/" + className;
+                classWiseDeadFunctionMap.putIfAbsent(classLocationName, new HashSet<>());
+                classWiseDeadFunctionMap.get(classLocationName).add(deadFunction.originalName.value);
+            }
+        }
+
+        return classWiseDeadFunctionMap;
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
