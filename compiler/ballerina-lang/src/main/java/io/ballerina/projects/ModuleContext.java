@@ -47,10 +47,10 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
@@ -456,8 +457,10 @@ class ModuleContext {
             return;
         }
 
-        // TODO implement DCE for library packages as well
-        eliminateDeadFunctions(moduleContext);
+        // Eliminates dead BIR function nodes from BUILD_PROJECT
+        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)) {
+            eliminateDeadFunctionsFromBIR(moduleContext);
+        }
 
         // Generate and write the thin JAR to the file system
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
@@ -519,20 +522,40 @@ class ModuleContext {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
-    public static void eliminateDeadFunctions(ModuleContext moduleContext) {
+    /**
+     * Removes the dead BIRFunction nodes from BIR of the package Symbol of the given context
+     * @param moduleContext Module context holding the bir
+     */
+    public static void eliminateDeadFunctionsFromBIR(ModuleContext moduleContext) {
         HashSet<String> deadFunctionNames = new HashSet<>();
         HashSet<BInvokableSymbol> deadFunctionSymbols = moduleContext.bLangPackage().symbol.deadFunctions;
-        deadFunctionSymbols.forEach((deadSymbol)-> {
-            deadFunctionNames.add(deadSymbol.getOriginalName().value);});
+        deadFunctionSymbols.forEach((deadSymbol) -> {
+            deadFunctionNames.add(deadSymbol.getName().value);
+        });
         List<BIRNode.BIRFunction> deadBIRFunctions = new ArrayList<>();
 
-        // Filtering out the unused BIRFunctions
+        Predicate<BIRNode.BIRFunction> isTopLevelDeadFunction = birFunction -> deadFunctionNames.contains(birFunction.originalName.getValue());
+
+        // Filtering out the unused topLevel BIRFunctions
         for (BIRNode.BIRFunction birFunction : moduleContext.bLangPackage().symbol.bir.functions) {
-            if (deadFunctionNames.contains(birFunction.originalName.getValue())) {
+            if (isTopLevelDeadFunction.test(birFunction)) {
                 deadBIRFunctions.add(birFunction);
             }
         }
         moduleContext.bLangPackage().symbol.bir.functions.removeAll(deadBIRFunctions);
+
+        // Filtering out the unused classLevel BIRFunctions
+        List<BIRNode.BIRTypeDefinition> typeDefs = moduleContext.bLangPackage.symbol.bir.typeDefs;
+        for (BIRNode.BIRTypeDefinition typeDefinition : typeDefs) {
+            Predicate<BIRNode.BIRFunction> isClassLevelDeadFunction = birFunction -> deadFunctionNames.contains(typeDefinition.name.getValue() + "." + birFunction.originalName.getValue());
+            List<BIRNode.BIRFunction> classLevelDeadFunctions = new ArrayList<>();
+            for (BIRNode.BIRFunction birFunction : typeDefinition.attachedFuncs) {
+                if (isClassLevelDeadFunction.test(birFunction)) {
+                    classLevelDeadFunctions.add(birFunction);
+                }
+            }
+            typeDefinition.attachedFuncs.removeAll(classLevelDeadFunctions);
+        }
     }
 
 
