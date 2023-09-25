@@ -224,16 +224,6 @@ public class LangLibArrayTest {
         assertEquals(returns.toString(), "SunMonTues");
     }
 
-    @Test
-    public void testSetLengthNegative() {
-        BRunUtil.invoke(compileResult, "testSetLengthNegative");
-    }
-
-    @Test
-    public void testArrayPop() {
-        BRunUtil.invoke(compileResult, "testArrayPop");
-    }
-
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, long lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
         Object returns = BRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
@@ -610,7 +600,9 @@ public class LangLibArrayTest {
                 "testModificationWithinEvery",
                 "testArrSortWithNamedArgs1",
                 "testArrSortWithNamedArgs2",
-                "testArrSortWithNamedArgs3"
+                "testArrSortWithNamedArgs3",
+                "testArrayPop",
+                "testSetLengthNegative"
         };
     }
 }
