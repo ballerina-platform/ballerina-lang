@@ -150,10 +150,15 @@ public class RuntimeUtils {
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
-        if (returnValue instanceof ErrorValue) {
-            ErrorValue errorValue = (ErrorValue) returnValue;
+        if (returnValue instanceof ErrorValue errorValue) {
             errStream.println("error: " + errorValue.getPrintableError());
             Runtime.getRuntime().exit(1);
+        }
+    }
+
+    public static void handleRuntimeErrorReturns(Object returnValue) {
+        if (returnValue instanceof ErrorValue errorValue) {
+            errStream.println("error: " + errorValue.getPrintableError());
         }
     }
 
