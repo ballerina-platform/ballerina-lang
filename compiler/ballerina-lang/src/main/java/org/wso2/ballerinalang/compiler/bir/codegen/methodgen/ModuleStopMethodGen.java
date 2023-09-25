@@ -45,6 +45,7 @@ import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
@@ -56,6 +57,8 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
@@ -72,8 +75,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
@@ -160,7 +165,11 @@ public class ModuleStopMethodGen {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC,
                            false);
+        Label labelJump = new Label();
+        mv.visitJumpInsn(GOTO, labelJump);
         mv.visitLabel(labelIf);
+        genHandleErrorReturn(mv, indexMap);
+        mv.visitLabel(labelJump);
     }
 
     private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv, String lambdaName, String initClass) {
@@ -231,10 +240,11 @@ public class ModuleStopMethodGen {
     }
 
 
-    private void genHandleRuntimeErrors(MethodVisitor mv, String moduleClass, Label labelIf) {
+    private void genHandleRuntimeErrors(MethodVisitor mv, String moduleClass, Label labelJump) {
         int futureIndex = indexMap.get(FUTURE_VAR);
         mv.visitVarInsn(ALOAD, futureIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
+        Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_STARTED, "Z");
         mv.visitJumpInsn(IFEQ, labelIf);
@@ -243,7 +253,17 @@ public class ModuleStopMethodGen {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_STOP_PANIC,
                            false);
+        mv.visitJumpInsn(GOTO, labelJump);
         mv.visitLabel(labelIf);
+        genHandleErrorReturn(mv, indexMap);
+        mv.visitLabel(labelJump);
+    }
+
+    private void genHandleErrorReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
+        mv.visitVarInsn(ALOAD, indexMap.get(FUTURE_VAR));
+        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE, "result", GET_OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD_WITHOUT_EXIT,
+                HANDLE_ERROR_RETURN, false);
     }
 
     private Label createIfLabel(MethodVisitor mv, String moduleClass) {
