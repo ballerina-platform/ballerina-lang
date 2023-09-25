@@ -151,7 +151,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         int newLength = (int) length;
         checkFixedLength(length);
         rangeCheck(length, size);
-        fillerValueCheck(newLength, size);
+        fillerValueCheck(newLength, size, true);
         resizeInternalArray(newLength);
         fillValues(newLength);
         size = newLength;
@@ -195,7 +195,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     protected abstract void fillValues(int newLength);
 
-    protected abstract void fillerValueCheck(int newLength, int size2);
+    protected abstract void fillerValueCheck(int newLength, int size, boolean setLength);
 
     protected abstract void resizeInternalArray(int newLength);
 
