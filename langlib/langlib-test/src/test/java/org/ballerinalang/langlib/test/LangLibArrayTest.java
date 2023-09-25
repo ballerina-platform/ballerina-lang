@@ -224,6 +224,11 @@ public class LangLibArrayTest {
         assertEquals(returns.toString(), "SunMonTues");
     }
 
+    @Test
+    public void testSetLengthNegative() {
+        BRunUtil.invoke(compileResult, "testSetLengthNegative");
+    }
+
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, long lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
         Object returns = BRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});

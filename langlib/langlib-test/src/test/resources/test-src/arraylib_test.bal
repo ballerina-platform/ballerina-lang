@@ -1788,3 +1788,23 @@ function testPushWithErrorConstructorExpr() {
     assertTrue(e is Error);
     assertValueEquality("e2", e.message());
 }
+
+function testSetLengthNegative() {
+    string:Char[] arr = ["a","b"];
+    error? result = trap arr.setLength(5);
+    assertTrue(result is error);
+    if (result is error) {
+        assertValueEquality("{ballerina/lang.array}IllegalListInsertion", result.message());
+        assertValueEquality("array of length 2 cannot be expanded into array of length 5 without filler values",
+        <string> checkpanic result.detail()["message"]);
+    }
+
+    [string:Char...] tup = ["a","b"];
+    result = trap tup.setLength(10);
+    assertTrue(result is error);
+    if (result is error) {
+        assertValueEquality("{ballerina/lang.array}IllegalListInsertion", result.message());
+        assertValueEquality("tuple of length 2 cannot be expanded into tuple of length 10 without filler values",
+        <string> checkpanic result.detail()["message"]);
+    }
+}
