@@ -229,6 +229,11 @@ public class LangLibArrayTest {
         BRunUtil.invoke(compileResult, "testSetLengthNegative");
     }
 
+    @Test
+    public void testArrayPop() {
+        BRunUtil.invoke(compileResult, "testArrayPop");
+    }
+
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, long lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
         Object returns = BRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
