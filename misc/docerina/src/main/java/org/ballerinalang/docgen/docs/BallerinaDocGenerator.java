@@ -171,7 +171,7 @@ public class BallerinaDocGenerator {
             log.error("Failed to create {} file.", CENTRAL_STDLIB_INDEX_JSON, e);
         }
 
-        // Create the central standard library search json
+        // Create the central Ballerina library search JSON
         String stdSearchJson = gson.toJson(genSearchJson(moduleLib));
         File stdSearchJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_SEARCH_JSON).toFile();
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile),
