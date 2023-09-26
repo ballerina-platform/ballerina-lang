@@ -219,7 +219,7 @@ public class BIRBinaryWriter {
             BInvokableSymbol parentSymbol = (BInvokableSymbol) birFunction.type.tsymbol.owner;
             // Number of children
             buf.writeInt(parentSymbol.childrenFunctions.size());
-            // name and pkgId of each child
+            // name and pkgName of each child
             for (BInvokableSymbol child : parentSymbol.childrenFunctions) {
                 String childPkgName = child.pkgID.getOrgName().value + "/" + child.pkgID.getName().value;
                 buf.writeInt(addStringCPEntry(childPkgName));
