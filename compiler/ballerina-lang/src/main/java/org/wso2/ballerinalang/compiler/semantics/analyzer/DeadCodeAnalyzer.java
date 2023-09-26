@@ -128,7 +128,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     }
 
     // Registers an invocation
-    // Updates the usedFunctions, deadFunctions and invocationMaps accordingly
+    // Updates the usedStates, usedFunctions, deadFunctions and invocationMaps accordingly
     @Override
     public void visit(BLangInvocation node, AnalyzerData data) {
         if (node.symbol != null) {
@@ -142,8 +142,8 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     // Used to track the invocations of Lambda and arrow function pointers
     @Override
     public void visit(BLangSimpleVarRef node, AnalyzerData data) {
-        // TODO Remove null check
-        if (node.symbol != null) {          // Certain packages pulled from ballerina central had null symbols
+        // TODO Record Key expressions had null symbols. Find a way to omit them
+        if (node.symbol != null) {
             if (node.symbol.getKind() == SymbolKind.FUNCTION) {
                 data.addInvocation(data.currentParentFunction, ((BInvokableSymbol) node.symbol));
             }
@@ -206,50 +206,41 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
             this.lambdaPointers = new HashMap<>();
         }
 
-        // Add a function to the module as a parent function
-        public void addParentFunctionToPkgSymbol(BInvokableSymbol symbol) {
-            if (symbol.usedState == UsedState.UNEXPOLORED) symbol.usedState = UsedState.UNUSED;
-            getPackageSymbol(symbol).invocationMap.putIfAbsent(symbol, new HashSet<>());    // Adding to the pkgSymbol
-            getPackageSymbol(symbol).deadFunctions.add(symbol);     // Pre declare as dead
+        /**
+         * Initializes a function as a parent function
+         * Replaces "UNEXPLORED" used state as "UNUSED"
+         *
+         * @param parentFunctionSymbol Symbol of the parent function
+         */
+        private void addParentFunctionToPkgSymbol(BInvokableSymbol parentFunctionSymbol) {
+            if (parentFunctionSymbol.usedState == UsedState.UNEXPOLORED) parentFunctionSymbol.usedState = UsedState.UNUSED;
+            getPackageSymbol(parentFunctionSymbol).invocationMap.putIfAbsent(parentFunctionSymbol, new HashSet<>());    // Adding to the pkgSymbol
+            getPackageSymbol(parentFunctionSymbol).deadFunctions.add(parentFunctionSymbol);     // Pre declare as dead
         }
 
         /**
-         * Updates the invocation graph of the relevant Module
+         * Updates the invocationMap of the relevant pkgSymbol
          * if the startFunction is already a "USED" function, declare children "USED" as well
          *
          * @param startFunctionSymbol Symbol of the parent function
          * @param endFunctionSymbol   Symbol of the invoked (callee) function
          */
-        public void addInvocation(BInvokableSymbol startFunctionSymbol, BInvokableSymbol endFunctionSymbol) {
+        private void addInvocation(BInvokableSymbol startFunctionSymbol, BInvokableSymbol endFunctionSymbol) {
             startFunctionSymbol.childrenFunctions.add(endFunctionSymbol);     // Adding children to the start(parent) BInvokableSymbol
 
             if (endFunctionSymbol.usedState == UsedState.UNEXPOLORED) endFunctionSymbol.usedState = UsedState.UNUSED;       // Update the initial state
             updatePkgSymbolInvocationMap(startFunctionSymbol, endFunctionSymbol);
-            if (isUsedFunction(startFunctionSymbol)) {
+
+            // Update the children chains if the parent is "USED"
+            if (startFunctionSymbol.isUsed()) {
                 markSelfAndChildrenAsUsed(endFunctionSymbol);
             }
         }
 
-//        /**
-//         * Iterates through the children chains and registers them as "used"
-//         *
-//         * @param parentSymbol current parent function symbol
-//         */
-//        public void registerChildrenAsUsed(BInvokableSymbol parentSymbol) {
-//            getModule(parentSymbol).usedFunctions.add(parentSymbol);
-//            if (getModule(parentSymbol).lambdaPointers.containsKey(parentSymbol)) {         // if the function is a lambda pointer, related lambda function will also be used
-//                getModule(parentSymbol).usedFunctions.add(getModule(parentSymbol).lambdaPointers.get(parentSymbol));
-//            }
-//            if (getModule(parentSymbol).invocationMap.containsKey(parentSymbol)) {
-//                for (BInvokableSymbol child : getChildren(parentSymbol)) {
-//                    if (!getModule(child).usedFunctions.contains(child)) {          // In case of recursion (Parent having itself as a child)
-//                        registerChildrenAsUsed(child);
-//                    }
-//                }
-//            }
-//        }
-
-        public void markSelfAndChildrenAsUsed(BInvokableSymbol parentSymbol) {
+        /**
+         * Updates the given symbol and its descendants as "USED"
+         */
+        private void markSelfAndChildrenAsUsed(BInvokableSymbol parentSymbol) {
             parentSymbol.usedState = UsedState.USED;
             // Populating the "used" graph for PackageSymbol
             addToUsedListInPkgSym(parentSymbol);
@@ -265,30 +256,32 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
             }
         }
 
-        public void addToUsedListInPkgSym(BInvokableSymbol symbol) {
+        /**
+         * Removes the given function from deadFunctions and add to usedFunctions
+         */
+        private void addToUsedListInPkgSym(BInvokableSymbol symbol) {
             getPackageSymbol(symbol).deadFunctions.remove(symbol);
             getPackageSymbol(symbol).usedFunctions.add(symbol);
         }
 
-        public void updatePkgSymbolInvocationMap(BInvokableSymbol startSymbol, BInvokableSymbol endSymbol) {
+        /**
+         * Updates the invocationMap of respective pkgSymbol
+         */
+        private void updatePkgSymbolInvocationMap(BInvokableSymbol startSymbol, BInvokableSymbol endSymbol) {
             getPackageSymbol(startSymbol).invocationMap.putIfAbsent(startSymbol, new HashSet<>());
             getPackageSymbol(startSymbol).invocationMap.get(startSymbol).add(endSymbol);
         }
 
-        public boolean isLambdaFunctionPointer(BInvokableSymbol symbol) {
+        private boolean isLambdaFunctionPointer(BInvokableSymbol symbol) {
             return lambdaPointers.containsKey(symbol);
         }
 
-        public BPackageSymbol getPackageSymbol(BSymbol symbol) {
+        private BPackageSymbol getPackageSymbol(BSymbol symbol) {
             if (symbol.owner.getKind().equals(SymbolKind.PACKAGE)) {    //Module level functions
                 return (BPackageSymbol) symbol.owner;
             } else {
                 return getPackageSymbol(symbol.owner);
             }
-        }
-
-        private boolean isUsedFunction(BInvokableSymbol symbol) {
-            return symbol.usedState == UsedState.USED;
         }
     }
 }

@@ -114,4 +114,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public void setAnnotationAttachments(List<BAnnotationAttachmentSymbol> annotationAttachments) {
         this.annotationAttachments = annotationAttachments;
     }
+
+    public boolean isUsed() {
+        return this.usedState == UsedState.USED;
+    }
 }
