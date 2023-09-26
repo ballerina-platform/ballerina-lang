@@ -17,10 +17,9 @@
 import ballerina/jballerina.java;
 import ballerina/lang.runtime;
 
-listener Listener staticListener1 = check new Listener("static listener2");
 Listener dynamicListener1 = check new Listener("dynamic listener1");
 Listener dynamicListener2 = check new Listener("dynamic listener2");
-listener Listener staticListener2 = check new Listener("static listener1");
+listener Listener staticListener = check new Listener("static listener");
 
 
 public function main() returns error? {
@@ -55,6 +54,7 @@ public class Listener {
 
     public isolated function gracefulStop() returns error? {
         print("Calling stop for " + self.name);
+        return error("error during the gracefulStop call of " + self.name);
     }
 
     public isolated function immediateStop() returns error? {
@@ -73,6 +73,7 @@ public function stopHandler1() returns error? {
 
 public function stopHandler2() returns error? {
     print("stopHandler2 called");
+    return error("error during the gracefulStop call of StopHandler2");
 }
 
 isolated function print(string value) {
