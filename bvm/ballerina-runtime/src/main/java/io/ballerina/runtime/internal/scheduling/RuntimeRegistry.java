@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
@@ -112,6 +113,9 @@ public class RuntimeRegistry {
 
         @Override
         public void notifySuccess(Object result) {
+            if (result instanceof ErrorValue errorValue) {
+                outStream.println(ERROR_PRINT_PREFIX + errorValue.getPrintableError());
+            }
             invokeListenerGracefulStop(strand, scheduler, iterator);
         }
 
@@ -136,6 +140,9 @@ public class RuntimeRegistry {
 
         @Override
         public void notifySuccess(Object result) {
+            if (result instanceof ErrorValue errorValue) {
+                outStream.println(ERROR_PRINT_PREFIX + errorValue.getPrintableError());
+            }
             invokeStopHandlerFunction(strand, scheduler);
         }
 
