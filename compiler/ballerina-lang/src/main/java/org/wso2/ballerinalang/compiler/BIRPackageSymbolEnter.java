@@ -98,7 +98,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.*;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -212,7 +211,7 @@ public class BIRPackageSymbolEnter {
         String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
 
         PackageID pkgId = createPackageID(orgName, pkgName, moduleName, pkgVersion);
-        this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, COMPILED_SOURCE);
+        this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, SymbolOrigin.COMPILED_SOURCE);
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
@@ -233,7 +232,6 @@ public class BIRPackageSymbolEnter {
 
         // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
-//        addRemainingChildren(); // if the both child and parent are in the same package
 
         // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
@@ -253,11 +251,14 @@ public class BIRPackageSymbolEnter {
         if (unresolvedInvocations.containsKey(latestPkgName)) {
             unresolvedInvocations.get(latestPkgName).forEach((childSymName, parentSymbols) -> {
                 BInvokableSymbol childSymbol = getInvokableSymbol(latestPkgSymbol,childSymName);
-                if (childSymbol != null) {
-                    parentSymbols.forEach(parentSymbol -> {
+                parentSymbols.forEach(parentSymbol -> {
+                    if (childSymbol != null) {
                         parentSymbol.childrenFunctions.add(childSymbol);
-                    });
-                }
+                    } else {
+                        failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
+                        failedSymbolsMap.get(parentSymbol).add(childSymName);
+                    }
+                });
             });
         }
     }
@@ -404,7 +405,7 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
-        if (!invokableSymbol.origin.equals(VIRTUAL)) {
+        if (!invokableSymbol.origin.equals(SymbolOrigin.VIRTUAL)) {
             // Only toplevel symbols are defined as "UNUSED". Others(Arrow functions) will be Unexplored by default
             invokableSymbol.usedState = UsedState.UNUSED;
             this.env.pkgSymbol.deadFunctions.add(invokableSymbol);
@@ -431,17 +432,8 @@ public class BIRPackageSymbolEnter {
                     failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
                     failedSymbolsMap.get(invokableSymbol).add(childName);
                 }
-//            } else if (isCurrentlyReadPkg(childPkgName)) {
-//                // If the child Symbol is not yet defined, it is added to a list to be resolved later
-//                undefinedChildrenMap.putIfAbsent(invokableSymbol, new HashSet<>());
-//                undefinedChildrenMap.get(invokableSymbol).add(childName);
             } else {
-                // Symbols that do not belong to already resolved pkg or currently resolving pkg are considered failed
-                // This code block should never execute
-//                failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
-//                failedSymbolsMap.get(invokableSymbol).add(childName);
-
-                // TODO handle the failed symbols after their pkgSymbols has been resolved
+                // Undefined child symbols will be resolved later
                 unresolvedInvocations.putIfAbsent(childPkgName, new HashMap<>());
                 unresolvedInvocations.get(childPkgName).putIfAbsent(childName, new HashSet<>());
                 unresolvedInvocations.get(childPkgName).get(childName).add(invokableSymbol);
@@ -468,7 +460,7 @@ public class BIRPackageSymbolEnter {
                         Name pathParamName = Names.fromString(getStringCPEntryValue(dataInStream));
                         BType paramType = readBType(dataInStream);
                         BVarSymbol varSymbol = new BVarSymbol(0, pathParamName, this.env.pkgSymbol.pkgID,
-                                paramType, null, symTable.builtinPos, COMPILED_SOURCE);
+                                paramType, null, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                         pathParams.add(varSymbol);
                     }
 
@@ -478,7 +470,7 @@ public class BIRPackageSymbolEnter {
                         Name pathParamName = Names.fromString(getStringCPEntryValue(dataInStream));
                         BType paramType = readBType(dataInStream);
                         restPathParam = new BVarSymbol(0, pathParamName, this.env.pkgSymbol.pkgID, paramType,
-                                null, symTable.builtinPos, COMPILED_SOURCE);
+                                null, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                     }
 
                     int resourcePathCount = dataInStream.readInt();
@@ -506,7 +498,7 @@ public class BIRPackageSymbolEnter {
 
                         BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(
                                 resourcePathSymbolName, env.pkgSymbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
-                                resourcePathSegmentPosList.get(i), parentResource, resourceFunction, COMPILED_SOURCE);
+                                resourcePathSegmentPosList.get(i), parentResource, resourceFunction, SymbolOrigin.COMPILED_SOURCE);
 
                         objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
                         pathSegmentSymbols.add(pathSym);
@@ -685,7 +677,7 @@ public class BIRPackageSymbolEnter {
             if (!isClass) {
                 ((BStructureTypeSymbol) type.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) symbol;
             }
-            type.tsymbol.origin = toOrigin(origin);
+            type.tsymbol.origin = SymbolOrigin.toOrigin(origin);
             this.structureTypes.add((BStructureTypeSymbol) type.tsymbol);
         }
 
@@ -707,7 +699,7 @@ public class BIRPackageSymbolEnter {
 
         if (invokableType.restType != null) {
             tsymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.pkgSymbol.pkgID, invokableType.restType, null,
-                    symTable.builtinPos, COMPILED_SOURCE);
+                    symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
         }
 
         tsymbol.returnType = invokableType.retType;
@@ -826,19 +818,19 @@ public class BIRPackageSymbolEnter {
 
         if (!constAnnotation) {
             return new BAnnotationAttachmentSymbol(pkgId, annotTagRef, this.env.pkgSymbol.pkgID, owner, pos,
-                    COMPILED_SOURCE, null);
+                    SymbolOrigin.COMPILED_SOURCE, null);
         }
 
         BType constantValType = readBType(dataInStream);
 
         BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY,
                 this.env.pkgSymbol.pkgID, null, constantValType,
-                owner, pos, COMPILED_SOURCE);
+                owner, pos, SymbolOrigin.COMPILED_SOURCE);
         constantSymbol.value = readConstLiteralValue(constantValType, dataInStream);
         constantSymbol.literalType = constantSymbol.value.type;
         return new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(pkgId, annotTagRef,
                 this.env.pkgSymbol.pkgID, owner, pos,
-                COMPILED_SOURCE, constantSymbol, null);
+                SymbolOrigin.COMPILED_SOURCE, constantSymbol, null);
     }
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
@@ -1095,7 +1087,7 @@ public class BIRPackageSymbolEnter {
                 varType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | varType.paramSymbol.flags,
                         varType.paramSymbol.name, varType.paramSymbol.originalName,
                         varType.paramSymbol.pkgID, varType, invSymbol,
-                        varType.paramSymbol.pos, VIRTUAL);
+                        varType.paramSymbol.pos, SymbolOrigin.VIRTUAL);
                 break;
             case TypeTags.MAP:
             case TypeTags.FUTURE:
@@ -1292,7 +1284,7 @@ public class BIRPackageSymbolEnter {
 
             BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, Names.fromString(name),
                     Names.fromString(name), pkgId, type, null, false,
-                    symTable.builtinPos, VIRTUAL);
+                    symTable.builtinPos, SymbolOrigin.VIRTUAL);
             invokableSymbol.retType = invokableSymbol.type.getReturnType();
 
             int parameters = inputStream.readInt();
@@ -1302,7 +1294,7 @@ public class BIRPackageSymbolEnter {
                 byte[] docBytes = readDocBytes(inputStream);
                 BType fieldType = readTypeFromCp();
                 BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName), pkgId, fieldType, null,
-                        symTable.builtinPos, COMPILED_SOURCE);
+                        symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                 defineMarkDownDocAttachment(varSymbol, docBytes);
                 invokableSymbol.params.add(varSymbol);
             }
@@ -1408,7 +1400,7 @@ public class BIRPackageSymbolEnter {
                                 Symbols.createFunctionSymbol(recordInitFuncFlags, initFuncName,
                                         initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
                                         env.pkgSymbol, isNative, symTable.builtinPos,
-                                        COMPILED_SOURCE);
+                                        SymbolOrigin.COMPILED_SOURCE);
                         recordInitFuncSymbol.retType = recordInitFuncType.retType;
                         // Define resource function
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
@@ -1495,7 +1487,7 @@ public class BIRPackageSymbolEnter {
                                     Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                             Names.EMPTY, env.pkgSymbol.pkgID,
                                             bTableType.keyTypeConstraint, env.pkgSymbol.owner,
-                                            symTable.builtinPos, COMPILED_SOURCE);
+                                            symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                         }
                     }
                     return bTableType;
@@ -1508,7 +1500,7 @@ public class BIRPackageSymbolEnter {
                     bInvokableType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                             env.pkgSymbol.pkgID, null,
                             env.pkgSymbol.owner, symTable.builtinPos,
-                            COMPILED_SOURCE);
+                            SymbolOrigin.COMPILED_SOURCE);
                     bInvokableType.flags = flags;
                     if (inputStream.readBoolean()) {
                         // Return if an any function
@@ -1546,7 +1538,7 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             Names.EMPTY, env.pkgSymbol.pkgID, null,
                             env.pkgSymbol.owner, symTable.builtinPos,
-                            COMPILED_SOURCE);
+                            SymbolOrigin.COMPILED_SOURCE);
                     BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state),
                             flags);
                     bArrayType.eType = readTypeFromCp();
@@ -1564,7 +1556,7 @@ public class BIRPackageSymbolEnter {
                     }
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionName, unionsPkgId,
-                            null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                            null, env.pkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
 
                     int unionMemberCount = inputStream.readInt();
                     BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(unionMemberCount));
@@ -1613,7 +1605,7 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             Names.EMPTY, env.pkgSymbol.pkgID,
                             null, env.pkgSymbol,
-                            symTable.builtinPos, COMPILED_SOURCE);
+                            symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                     int intersectionMemberCount = inputStream.readInt();
                     LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>(intersectionMemberCount);
                     for (int i = 0; i < intersectionMemberCount; i++) {
@@ -1647,10 +1639,10 @@ public class BIRPackageSymbolEnter {
                     BTypeSymbol errorSymbol;
                     if (owner != null) {
                         errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY, owner.pkgID,
-                                null, owner, symTable.builtinPos, COMPILED_SOURCE);
+                                null, owner, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                     } else {
                         errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
-                                env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                                env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                     }
                     BErrorType errorType = new BErrorType(errorSymbol);
                     addShapeCP(errorType, cpI);
@@ -1679,7 +1671,7 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             Names.EMPTY, env.pkgSymbol.pkgID, null,
                             env.pkgSymbol.owner, symTable.builtinPos,
-                            COMPILED_SOURCE);
+                            SymbolOrigin.COMPILED_SOURCE);
                     int tupleMemberCount = inputStream.readInt();
                     List<BTupleMember> tupleMembers = new ArrayList<>(tupleMemberCount);
                     BSymbol tupleOwner = tupleTypeSymbol.owner;
@@ -1737,11 +1729,11 @@ public class BIRPackageSymbolEnter {
                     if (Symbols.isFlagOn(objSymFlags, Flags.CLASS)) {
                         objectSymbol = Symbols.createClassSymbol(objSymFlags, Names.fromString(objName),
                                 env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                symTable.builtinPos, COMPILED_SOURCE, false);
+                                symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE, false);
                     } else {
                         objectSymbol = Symbols.createObjectSymbol(objSymFlags, Names.fromString(objName),
                                 env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                symTable.builtinPos, COMPILED_SOURCE);
+                                symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
                     }
 
                     objectSymbol.scope = new Scope(objectSymbol);
@@ -1924,7 +1916,7 @@ public class BIRPackageSymbolEnter {
                     Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
                             env.pkgSymbol.pkgID, attachedFuncType,
                             env.pkgSymbol, false, symTable.builtinPos,
-                            COMPILED_SOURCE);
+                            SymbolOrigin.COMPILED_SOURCE);
             BAttachedFunction attachedFunction = new BAttachedFunction(Names.fromString(attachedFuncName),
                     attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
