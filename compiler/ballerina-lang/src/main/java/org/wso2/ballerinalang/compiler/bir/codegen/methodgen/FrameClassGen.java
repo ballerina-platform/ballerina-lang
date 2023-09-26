@@ -33,7 +33,7 @@ import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_FRAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.FUNCTION_INVOCATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.STATE;
@@ -77,7 +77,7 @@ public class FrameClassGen {
         if (func.pos != null && func.pos.lineRange().fileName() != null) {
             cw.visitSource(func.pos.lineRange().fileName(), null);
         }
-        cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, FUNCTION_FRAME, null);
+        cw.visit(V17, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, FUNCTION_FRAME, null);
         JvmCodeGenUtil.generateDefaultConstructor(cw, FUNCTION_FRAME);
 
         int k = 0;

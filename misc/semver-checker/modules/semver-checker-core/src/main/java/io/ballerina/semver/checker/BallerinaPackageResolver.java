@@ -47,6 +47,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -90,11 +91,11 @@ class BallerinaPackageResolver {
             throws SemverToolException {
         try {
             List<String> publishedVersions = new ArrayList<>();
-            for (JvmTarget jvmTarget : JvmTarget.values()) {
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
                 publishedVersions.addAll(centralClient.getPackageVersions(orgName, pkgName,
-                        jvmTarget.code(), RepoUtils.getBallerinaVersion()));
-            }
-
+                        supportedPlatform, RepoUtils.getBallerinaVersion()));
             if (publishedVersions.isEmpty()) {
                 throw new SemverToolException(String.format("couldn't find any published packages in " +
                         "Ballerina central under the org '%s' with name '%s'", orgName, pkgName));

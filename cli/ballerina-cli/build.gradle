@@ -73,6 +73,7 @@ dependencies {
 
     testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
+    testRt project(':ballerina-profiler')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
     testRuntimeOnly project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
