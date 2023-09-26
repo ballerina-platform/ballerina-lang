@@ -459,7 +459,7 @@ class ModuleContext {
 
         // Eliminates dead BIR function nodes from BUILD_PROJECT
         if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            eliminateDeadFunctionsFromBIR(moduleContext);
+//            eliminateDeadFunctionsFromBIR(moduleContext);
         }
 
         // Generate and write the thin JAR to the file system
@@ -528,15 +528,13 @@ class ModuleContext {
      */
     public static void eliminateDeadFunctionsFromBIR(ModuleContext moduleContext) {
         HashSet<String> deadFunctionNames = new HashSet<>();
-        HashSet<BInvokableSymbol> deadFunctionSymbols = moduleContext.bLangPackage().symbol.deadFunctions;
-        deadFunctionSymbols.forEach((deadSymbol) -> {
+        moduleContext.bLangPackage().symbol.deadFunctions.forEach((deadSymbol) -> {
             deadFunctionNames.add(deadSymbol.getName().value);
         });
-        List<BIRNode.BIRFunction> deadBIRFunctions = new ArrayList<>();
-
-        Predicate<BIRNode.BIRFunction> isTopLevelDeadFunction = birFunction -> deadFunctionNames.contains(birFunction.originalName.getValue());
 
         // Filtering out the unused topLevel BIRFunctions
+        List<BIRNode.BIRFunction> deadBIRFunctions = new ArrayList<>();
+        Predicate<BIRNode.BIRFunction> isTopLevelDeadFunction = birFunction -> deadFunctionNames.contains(birFunction.originalName.getValue());
         for (BIRNode.BIRFunction birFunction : moduleContext.bLangPackage().symbol.bir.functions) {
             if (isTopLevelDeadFunction.test(birFunction)) {
                 deadBIRFunctions.add(birFunction);
