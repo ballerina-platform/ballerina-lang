@@ -46,6 +46,7 @@ public class SyntaxTreeGenTest {
     private final Path multiLevelEndpoints = TestUtil.RES_DIR.resolve("multiLevelEndpoints");
     private final Path endpointOrder = TestUtil.RES_DIR.resolve("endpointOrder");
     private final Path classEndpoint = TestUtil.RES_DIR.resolve("classEndpoint");
+    private final Path annotatedEndpoint = TestUtil.RES_DIR.resolve("annotatedEndpoint");
     private final Path regexTestFile = TestUtil.RES_DIR.resolve("regexTest").resolve("main.bal");
 
     @Test(description = "Generate ST for empty bal file.")
@@ -759,6 +760,48 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(userPostFunctionVEp.size(), 1);
         checkClientVisibleEndpoints(userPostFunctionVEp.get(0).getAsJsonObject(), "httpEpS10", "Client", "ballerina",
                 "http", "http", "2.8.0", 4, 4, false, true, true, false);
+    }
+
+    @Test(description = "Test visible endpoint with annotations and access modifiers")
+    public void testAnnotatedVisibleEndpoint() throws IOException {
+        Path inputFile = TestUtil.createTempProject(annotatedEndpoint);
+
+        BuildProject project = BuildProject.load(inputFile);
+        Optional<ModuleId> optionalModuleId = project.currentPackage().moduleIds().stream().findFirst();
+        if (optionalModuleId.isEmpty()) {
+            Assert.fail("Failed to retrieve the module ID");
+        }
+        ModuleId moduleId = optionalModuleId.get();
+        Module module = project.currentPackage().module(moduleId);
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+        Optional<DocumentId> optionalDocumentId = module.documentIds().stream()
+                .filter(documentId -> module.document(documentId).name().equals("main.bal")).findFirst();
+        if (optionalDocumentId.isEmpty()) {
+            Assert.fail("Failed to retrieve the document ID");
+        }
+        DocumentId documentId = optionalDocumentId.get();
+        Document document = module.document(documentId);
+        JsonElement stJson = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+        Assert.assertTrue(stJson.isJsonObject());
+
+        Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
+        JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
+
+        // Verify user service
+        JsonObject userService = members.get(0).getAsJsonObject();
+        JsonObject userPostFunction = userService.get("members").getAsJsonArray().get(5).getAsJsonObject();
+        JsonArray userPostFunctionVEp = userPostFunction.get("functionBody").getAsJsonObject().get("VisibleEndpoints")
+                .getAsJsonArray();
+        Assert.assertEquals(userPostFunctionVEp.size(), 5);
+        checkClientVisibleEndpoints(userPostFunctionVEp.get(0).getAsJsonObject(), "httpEp", "Client", "ballerina",
+                "http", "http", "2.8.0", 4, 4, false, true, true, false);
+        checkClientVisibleEndpoints(userPostFunctionVEp.get(1).getAsJsonObject(), "httpEpPvt", "Client", "ballerina",
+                "http", "http", "2.8.0", 6, 6, false, true, true, false);
+        checkClientVisibleEndpoints(userPostFunctionVEp.get(2).getAsJsonObject(), "httpEpAnt", "Client", "ballerina",
+                "http", "http", "2.8.0", 8, 11, false, true, true, false);
+        checkClientVisibleEndpoints(userPostFunctionVEp.get(3).getAsJsonObject(), "httpEpAntPvt", "Client", "ballerina",
+                "http", "http", "2.8.0", 13, 16, false, true, true, false);
     }
 
     private void checkClientVisibleEndpoints(JsonObject ep, String varName, String typeName, String orgName,
