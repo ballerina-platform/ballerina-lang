@@ -840,7 +840,7 @@ public class AnnotationDesugar {
 
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, pkgID, owner);
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(function, lambdaFunctionSymbol, env);
-        lambdaFunction.capturedClosureEnv = env.createClone();
+        lambdaFunction.capturedClosureEnv = env;
 
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);
