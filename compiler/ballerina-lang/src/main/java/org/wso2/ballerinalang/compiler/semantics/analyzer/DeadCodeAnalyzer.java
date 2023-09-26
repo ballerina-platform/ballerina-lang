@@ -1,16 +1,43 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
-import org.wso2.ballerinalang.compiler.tree.*;
-import org.wso2.ballerinalang.compiler.tree.expressions.*;
-import org.wso2.ballerinalang.compiler.tree.statements.*;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
@@ -20,10 +47,13 @@ import java.util.List;
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 
+/**
+ * Analyze function invocation chains and detect unused functions
+ *
+ */
 public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.AnalyzerData> {
 
 
-    // --------------------------------------------------------- SAME AS CODEANALYZER --------------------------------------------------------- //
     private static final CompilerContext.Key<DeadCodeAnalyzer> DEAD_CODE_ANALYZER_KEY = new CompilerContext.Key<>();
     final DeadCodeAnalyzer.AnalyzerData data = new DeadCodeAnalyzer.AnalyzerData();
 
@@ -53,7 +83,6 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         pkgNode.getTestablePkgs().forEach(testablePackage -> visitNode(testablePackage, data));
     }
 
-    // --------------------------------------------------------- MODIFICATIONS AND ADDITIONS --------------------------------------------------------- //
 
     /**
      * Iterates over the nodes of BLangPackage and populates the invocationMap
@@ -106,22 +135,28 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         // if the function is a lambda one, method of getting parent is different
         BInvokableSymbol parentFunctionSymbol = isLambda(function) ? (BInvokableSymbol) ((BLangSimpleVariable) ((function).parent).parent).symbol : function.symbol;
 
-        if (!function.getFlags().contains(Flag.INTERFACE)) {         // body is null for abstract functions
-            if (function.body.getKind() != NodeKind.EXTERN_FUNCTION_BODY && function.getBody() instanceof BLangBlockFunctionBody functionBody) {        // handling remote functions
-                for (BLangStatement stmt : functionBody.stmts) {
-                    data.currentParentFunction = parentFunctionSymbol;      // Reassign the currentParentFunction in case it got changed inside a visit call (Lambda functions might change it)
-                    visitNode(stmt, data);
-                }
+        // body is null for abstract functions
+        if (!function.getFlags().contains(Flag.INTERFACE)) {
+            return;
+        }
+
+        if (function.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {        // handling remote functions
+            for (BLangStatement stmt : ((BLangBlockFunctionBody) function.getBody()).getStatements()) {
+                data.currentParentFunction = parentFunctionSymbol;      // Reassign the currentParentFunction in case it got changed inside a visit call (Lambda functions might change it)
+                visitNode(stmt, data);
             }
         }
+
     }
 
-    // Top level nodes does not contain Arrow functions
-    // Because of this they have to be manually added as parent functions
     public void visit(BLangArrowFunction node, AnalyzerData data) {
-        if (node.parent instanceof BLangSimpleVariable && !node.parent.getBType().getKind().equals(TypeKind.TYPEREFDESC)) {
-            data.addParentFunctionToPkgSymbol((BInvokableSymbol) ((BLangSimpleVariable) node.parent).symbol);  // TODO Find a cleaner way
+        if (!(node.parent.getKind() == NodeKind.SIMPLE_VARIABLE_REF)) {
+            return;
+        } else if (!(node.parent.getBType().getKind() == TypeKind.TYPEREFDESC)) {
+            return;
         }
+        data.addParentFunctionToPkgSymbol((BInvokableSymbol) ((BLangSimpleVariable) node.parent).symbol);  // TODO Find a cleaner way
+
         visitNode(node.params, data);
         visitNode((BLangNode) node.functionName, data);
         visitNode(node.body, data);
@@ -131,23 +166,25 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     // Updates the usedStates, usedFunctions, deadFunctions and invocationMaps accordingly
     @Override
     public void visit(BLangInvocation node, AnalyzerData data) {
-        if (node.symbol != null) {
-            BInvokableSymbol symbol = (BInvokableSymbol) node.symbol;
-            data.addInvocation(data.currentParentFunction, symbol);
-            visitNode(node.expr, data);
-            visitNode(node.argExprs, data);
+        if (node.symbol == null) {
+            return;
         }
+        BInvokableSymbol symbol = (BInvokableSymbol) node.symbol;
+        data.addInvocation(data.currentParentFunction, symbol);
+        visitNode(node.expr, data);
+        visitNode(node.argExprs, data);
     }
 
     // Used to track the invocations of Lambda and arrow function pointers
     @Override
     public void visit(BLangSimpleVarRef node, AnalyzerData data) {
-        // TODO Record Key expressions had null symbols. Find a way to omit them
         if (node.symbol != null) {
-            if (node.symbol.getKind() == SymbolKind.FUNCTION) {
-                data.addInvocation(data.currentParentFunction, ((BInvokableSymbol) node.symbol));
-            }
+            return;
+        } else if (node.symbol.getKind() != SymbolKind.FUNCTION) {
+            return;
         }
+
+        data.addInvocation(data.currentParentFunction, ((BInvokableSymbol) node.symbol));
     }
 
     /**
@@ -182,27 +219,18 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         }
     }
 
-    private boolean isMainPkgNode(BLangPackage pkgNode) {
-        if (pkgNode.moduleContextDataHolder != null) {
-            if (pkgNode.moduleContextDataHolder.descriptor().name().moduleNamePart() == null && pkgNode.moduleContextDataHolder.projectKind() == ProjectKind.BUILD_PROJECT) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     /**
      * keeps track of function invocations using a HashMap.
      * determines used functions and dead functions.
      * keeps track of lambda pointer variables and their functions.
      */
-    public static class AnalyzerData {
+    protected static class AnalyzerData {
         BInvokableSymbol currentParentFunction;     // used to determine the parent of the current invocation
         private HashMap<BInvokableSymbol, BInvokableSymbol> lambdaPointers;   // Key = Function pointer variable // Value = Lambda Function
 
 
-        public AnalyzerData() {
+        private AnalyzerData() {
             this.lambdaPointers = new HashMap<>();
         }
 
