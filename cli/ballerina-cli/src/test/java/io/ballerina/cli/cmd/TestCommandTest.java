@@ -64,7 +64,6 @@ public class TestCommandTest extends BaseCommandTest {
     private Path testDistCacheDirectory;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
-
     @BeforeClass
     public void setup() throws IOException {
         super.setup();

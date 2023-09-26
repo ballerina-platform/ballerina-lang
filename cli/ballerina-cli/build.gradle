@@ -111,6 +111,7 @@ test {
     dependsOn copyCompilerPluginJars
 
     systemProperty "ballerina.home", "$buildDir"
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
         if (!project.hasProperty("native.test")) {
