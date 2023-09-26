@@ -25,7 +25,16 @@ import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.*;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.DeadCodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -116,7 +125,7 @@ public class CompilerPhaseRunner {
         }
 
         dataflowAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
             return;
         }
 
@@ -126,7 +135,7 @@ public class CompilerPhaseRunner {
         }
 
         deadCodeAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
+        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
             return;
         }
 
