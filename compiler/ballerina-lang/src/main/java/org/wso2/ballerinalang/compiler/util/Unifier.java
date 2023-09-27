@@ -69,6 +69,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType.toFlatTypeSet;
 
 /**
  * Util class for building concrete BType types from parameterized types.
@@ -1129,17 +1132,21 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return paramsWithInferredTypedescDefault;
     }
 
+    // If the `expType` is `int|string|boolean` and the original type is `t|string` then the expected type for `t`
+    // is `int|boolean`.
     private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
         if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
             return null;
         }
 
-        if (Types.getImpliedType(expType).tag != TypeTags.UNION) {
+        BType impliedExpType = Types.getImpliedType(expType);
+        if (impliedExpType.tag != TypeTags.UNION) {
             return expType;
         }
 
+        BUnionType expUnionType = (BUnionType) impliedExpType;
         LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) Types.getImpliedType(expType)).getMemberTypes()) {
+        for (BType expMemType : expUnionType.getMemberTypes()) {
             boolean hasMatchWithOtherType = false;
             for (BType origMemType : originalType.getMemberTypes()) {
                 if (origMemType == member) {
@@ -1161,11 +1168,23 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (types.size() == 1) {
-            return types.iterator().next();
+        // Add the original union type if all the members of the original type are present in the `types` list.
+        LinkedHashSet<BType> expectedTypesSet = new LinkedHashSet<>(); // This is to maintain the order of the members
+        for (BType originalMemberType : expUnionType.getOriginalMemberTypes()) {
+            LinkedHashSet<BType> flatTypeSet = toFlatTypeSet(new LinkedHashSet<>(Set.of(originalMemberType)));
+            Set<BType> typesToAdd = flatTypeSet.stream().filter(types::contains).collect(Collectors.toSet());
+            if (typesToAdd.containsAll(flatTypeSet)) {
+                expectedTypesSet.add(originalMemberType);
+            } else {
+                expectedTypesSet.addAll(typesToAdd);
+            }
         }
 
-        return BUnionType.create(null, types);
+        if (expectedTypesSet.size() == 1) {
+            return expectedTypesSet.iterator().next();
+        }
+
+        return BUnionType.create(null, expectedTypesSet);
     }
 
     private boolean isSameTypeOrError(BType newType, BType originalType) {
