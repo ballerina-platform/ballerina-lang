@@ -234,17 +234,7 @@ public class IsAnydataUniqueVisitor extends UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BFiniteType type) {
-        if (type.isAnyData != null) {
-            return type.isAnyData;
-        }
-        for (BLangExpression value : type.getValueSpace()) {
-            if (!visit(value.getBType())) {
-                type.isAnyData = false;
-                return false;
-            }
-        }
-        type.isAnyData = true;
-        return isAnydata;
+        return true;
     }
 
     @Override

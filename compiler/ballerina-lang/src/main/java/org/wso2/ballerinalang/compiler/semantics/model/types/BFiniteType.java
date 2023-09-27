@@ -40,7 +40,6 @@ import java.util.StringJoiner;
 public class BFiniteType extends BType implements FiniteType {
 
     private Set<BLangExpression> valueSpace;
-    public Boolean isAnyData = null;
 
     private SemType semTypeComponent;
 
