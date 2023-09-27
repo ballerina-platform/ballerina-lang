@@ -257,7 +257,7 @@ public class BIRPackageSymbolEnter {
             BInvokableSymbol childSymbol = getInvokableSymbol(latestPkgSymbol, childSymName);
             parentSymbols.forEach(parentSymbol -> {
                 if (childSymbol != null) {
-                    parentSymbol.childrenFunctions.add(childSymbol);
+                    addInvocation(parentSymbol, childSymbol);
                 } else {
                     failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
                     failedSymbolsMap.get(parentSymbol).add(childSymName);

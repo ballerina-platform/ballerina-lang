@@ -79,7 +79,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
 
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
 
-        // Registering top level nodes as parents
+        // Identifying all available functions and registering lambda function pointers
         for (TopLevelNode topLevelNode : topLevelNodes) {
             if (topLevelNode.getKind() == FUNCTION) {
                 BLangFunction topLevelFunction = (BLangFunction) topLevelNode;
@@ -150,7 +150,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
 
         if (node.parent.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
-        } else if (node.parent.getBType().getKind() != TypeKind.TYPEREFDESC) {
+        } else if (node.parent.getBType().getKind() == TypeKind.TYPEREFDESC) {
             return;
         }
         data.addParentFunctionToPkgSymbol((BInvokableSymbol) ((BLangSimpleVariable) node.parent).symbol);  // TODO Find a cleaner way
@@ -175,9 +175,10 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     @Override
     public void visit(BLangSimpleVarRef node, AnalyzerData data) {
 
-        if (node.symbol != null) {
+        if (node.symbol == null) {
             return;
-        } else if (node.symbol.getKind() != SymbolKind.FUNCTION) {
+        }
+        if (node.symbol.getKind() != SymbolKind.FUNCTION) {
             return;
         }
 
