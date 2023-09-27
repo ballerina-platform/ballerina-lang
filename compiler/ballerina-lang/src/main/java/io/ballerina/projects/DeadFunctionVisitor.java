@@ -24,7 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import java.util.HashSet;
 
 /**
- * Replace unused functions with null
+ * This visitor replaces unused functions with null
  *
  */
 public class DeadFunctionVisitor extends ClassVisitor {
