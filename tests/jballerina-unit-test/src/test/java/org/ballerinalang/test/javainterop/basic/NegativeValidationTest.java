@@ -60,7 +60,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
-                        "'acceptStringOrErrorReturn' found in class 'class org.ballerinalang.nativeimpl." +
+                        "'acceptStringOrErrorReturn' found in class 'org.ballerinalang.nativeimpl." +
                         "jvm.tests.StaticMethods''", "method_not_found1.bal", 8, 1);
     }
 
@@ -74,7 +74,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method " +
-                        "'acceptObjectAndObjectReturn' with '3' " + "parameter(s) found in class 'class " +
+                        "'acceptObjectAndObjectReturn' with '3' " + "parameter(s) found in class '" +
                         "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found2.bal", 22, 1);
     }
@@ -90,7 +90,7 @@ public class NegativeValidationTest {
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method " +
                         "'acceptRecordAndRecordReturn' with '3' " + "parameter(s) found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found3.bal", 21, 1);
     }
 
@@ -104,7 +104,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
-                        "'acceptIntAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl.jvm." +
+                        "'acceptIntAndUnionReturn' found in class 'org.ballerinalang.nativeimpl.jvm." +
                         "tests.StaticMethods''", "method_not_found4.bal", 23, 1);
     }
 
@@ -118,7 +118,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
-                        "'acceptIntStringAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl." +
+                        "'acceptIntStringAndUnionReturn' found in class 'org.ballerinalang.nativeimpl." +
                         "jvm.tests.StaticMethods''", "method_not_found5.bal", 23, 1);
     }
 
@@ -132,7 +132,7 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, 4);
 
         String message = "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method '%s' that matches with " +
-                "parameter types '(%s)' found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''";
+                "parameter types '(%s)' found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''";
 
         String bTypeDescClassName = BTypedesc.class.getName();
         String bFutureClassName = BFuture.class.getName();
@@ -150,6 +150,24 @@ public class NegativeValidationTest {
         BAssertUtil.validateError(compileResult, 3,
                 String.format(message, "getTypeDescOnly", bTypeDescClassName + "," + bFutureClassName),
                 testFileName, 21, 1);
+    }
+
+    @Test
+    public void testMethodNotFound7() {
+
+        String path = "test-src/javainterop/negative/method_not_found7.bal";
+
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+
+        String message = "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method '%s' with " +
+                "'%s' parameter(s) found in class '%s''";
+
+        BAssertUtil.validateError(compileResult, 0, String.format(message, "getPrintableStackTrace", "1",
+                        "io.ballerina.runtime.api.values.BError"), "method_not_found7.bal", 19, 1);
+
+        BAssertUtil.validateError(compileResult, 1, String.format(message, "concat", "2",
+                        "io.ballerina.runtime.api.values.BString"), "method_not_found7.bal", 23, 1);
     }
 
     @Test
