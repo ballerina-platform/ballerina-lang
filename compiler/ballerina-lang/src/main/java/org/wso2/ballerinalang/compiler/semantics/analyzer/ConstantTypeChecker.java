@@ -1782,16 +1782,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 literalExpr.value = String.valueOf(literalValue);
                 return symTable.decimalType;
             case TypeTags.FINITE:
-                Set<BLangExpression> valueSpace = ((BFiniteType) expectedType).getValueSpace();
-                if (valueSpace.size() > 1) {
-                    LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
-                    valueSpace.forEach(memExpr -> memTypes.add(memExpr.getBType()));
-                    BUnionType unionType = new BUnionType(null, memTypes, false, false);
-                    return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, unionType);
+                SemType semType = ((BFiniteType) expectedType).getSemTypeComponent();
+                Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(semType, symTable);
+                if (broadTypes.size() == 1) {
+                    return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, broadTypes.iterator().next());
                 }
-                BType expBroadType = singleShapeBroadType(((BFiniteType) expectedType).getSemTypeComponent(), symTable)
-                        .get();
-                return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expBroadType);
+
+                BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(broadTypes), false, false);
+                return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, unionType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
                 List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
