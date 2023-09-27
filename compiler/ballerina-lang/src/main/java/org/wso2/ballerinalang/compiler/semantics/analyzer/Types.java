@@ -862,8 +862,8 @@ public class Types {
 
     private boolean isAssignableInternal(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (SemTypeResolver.SEMTYPE_ENABLED) {
-            SemType sourceSemType = source.getSemtype();
-            SemType targetSemType = target.getSemtype();
+            SemType sourceSemType = source.getSemType();
+            SemType targetSemType = target.getSemType();
 
             if (SemTypeResolver.isSemTypeEnabled(source, target)) {
                 assert sourceSemType != null && targetSemType != null : "SemTypes cannot be null";

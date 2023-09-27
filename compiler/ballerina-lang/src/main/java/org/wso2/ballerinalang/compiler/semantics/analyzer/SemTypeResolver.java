@@ -144,7 +144,7 @@ public class SemTypeResolver {
 
         try {
             SemType s = resolveTypeDescSubset(env.enclPkg.semtypeEnv, modTable, null, 0, typeNode);
-            resultType.setSemtype(s);
+            resultType.setSemType(s);
         } catch (UnsupportedOperationException e) {
             // Do nothing
         }
@@ -155,7 +155,7 @@ public class SemTypeResolver {
             return;
         }
 
-        finiteType.setSemtype(resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
+        finiteType.setSemType(resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     // --------------------------------------- Subset suffixed methods ----------------------------------------------
@@ -329,7 +329,7 @@ public class SemTypeResolver {
 
     private void addSemtypeBType(BLangType typeNode, SemType semType) {
         if (typeNode != null) {
-            typeNode.getBType().setSemtype(semType);
+            typeNode.getBType().setSemType(semType);
         }
     }
 
@@ -867,7 +867,7 @@ public class SemTypeResolver {
         }
 
         if (semTypeSupported(t.tag)) {
-            return t.getSemtype();
+            return t.getSemType();
         }
 
         return PredefinedType.NEVER;

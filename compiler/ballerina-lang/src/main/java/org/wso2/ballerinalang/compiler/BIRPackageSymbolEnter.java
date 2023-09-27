@@ -116,7 +116,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -1253,7 +1252,7 @@ public class BIRPackageSymbolEnter {
             SemType semType = readSemType();
             BType bType = readTypeInternal(cpI);
             if (bType != null) {
-                bType.setSemtype(semType);
+                bType.setSemType(semType);
             }
             return bType;
         }

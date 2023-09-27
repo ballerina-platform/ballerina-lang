@@ -57,7 +57,7 @@ public class BType implements ValueType {
     public long flags;
 
     // SemType related properties
-    private SemType semtype;
+    private SemType semType;
     public boolean isBTypeComponent = false; // TODO: This is temporary workaround until we migrate all types
 
     private final boolean isNullable;
@@ -110,12 +110,12 @@ public class BType implements ValueType {
         return new BNeverType();
     }
 
-    public SemType getSemtype() {
-        return semtype;
+    public SemType getSemType() {
+        return semType;
     }
 
-    public void setSemtype(SemType semtype) {
-        this.semtype = semtype;
+    public void setSemType(SemType semtype) {
+        this.semType = semtype;
     }
 
     public BType getReturnType() {

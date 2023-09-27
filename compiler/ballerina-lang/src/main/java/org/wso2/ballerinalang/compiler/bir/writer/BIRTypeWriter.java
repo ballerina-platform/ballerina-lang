@@ -100,7 +100,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -133,7 +132,7 @@ public class BIRTypeWriter extends TypeVisitor {
     }
 
     public void visitType(BType type) {
-        writeSemType(type.getSemtype());
+        writeSemType(type.getSemType());
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.flags);
