@@ -2094,8 +2094,7 @@ public class TypeResolver {
         // Update the final type in necessary fields.
         constantSymbol.type = intersectionType;
         if (intersectionType.tag == TypeTags.FINITE) {
-            constantSymbol.literalType =
-                    singleShapeBroadType(((BFiniteType) intersectionType).getSemTypeComponent(), symTable).get();
+            constantSymbol.literalType = singleShapeBroadType(intersectionType.getSemType(), symTable).get();
         } else {
             constantSymbol.literalType = intersectionType;
         }

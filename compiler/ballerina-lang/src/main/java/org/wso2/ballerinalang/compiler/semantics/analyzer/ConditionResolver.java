@@ -54,11 +54,11 @@ public class ConditionResolver {
                 }
                 BFiniteType finiteType =  new BFiniteType(null, new HashSet<>() { { add(condition); } });
                 // TODO: remove semtype resolving for add()
-                finiteType.setSemTypeComponent(SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
+                finiteType.setSemType(SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
                 return finiteType;
             case NUMERIC_LITERAL:
                 BFiniteType finiteType2 = new BFiniteType(null, new HashSet<>() { { add(condition); } });
-                finiteType2.setSemTypeComponent(SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
+                finiteType2.setSemType(SemTypeResolver.resolveSingletonType((BLangLiteral) condition));
                 return finiteType2;
             case TYPE_TEST_EXPR:
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
@@ -131,7 +131,7 @@ public class ConditionResolver {
                     return symTable.semanticError;
                 }
 
-                Optional<Value> val = Core.singleShape(((BFiniteType) baseType).getSemTypeComponent());
+                Optional<Value> val = Core.singleShape(baseType.getSemType());
                 if (val.isEmpty()) {
                     return symTable.semanticError;
                 }

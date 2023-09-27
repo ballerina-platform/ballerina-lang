@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Constructor;
@@ -51,7 +50,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -565,8 +563,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    for (BType t : SemTypeResolver.singletonBroadTypes(((BFiniteType) bType).getSemTypeComponent(),
-                            symbolTable)) {
+                    for (BType t : SemTypeResolver.singletonBroadTypes(bType.getSemType(), symbolTable)) {
                         if (!isValidParamBType(jType, t, isLastParam, restParamExist)) {
                             return false;
                         }
@@ -727,8 +724,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    for (BType t : SemTypeResolver.singletonBroadTypes(((BFiniteType) bType).getSemTypeComponent(),
-                            symbolTable)) {
+                    for (BType t : SemTypeResolver.singletonBroadTypes(bType.getSemType(), symbolTable)) {
                         if (isValidReturnBType(jType, t, jMethodRequest, visitedSet)) {
                             return true;
                         }

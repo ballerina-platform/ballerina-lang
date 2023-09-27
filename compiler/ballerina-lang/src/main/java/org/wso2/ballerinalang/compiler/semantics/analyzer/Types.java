@@ -457,7 +457,7 @@ public class Types {
     }
 
     boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
-        return !Core.isEmpty(semTypeCtx, Core.intersect(finiteType.getSemTypeComponent(), PredefinedType.NUMBER));
+        return !Core.isEmpty(semTypeCtx, Core.intersect(finiteType.getSemType(), PredefinedType.NUMBER));
     }
 
     public boolean containsErrorType(BType bType) {
@@ -3095,8 +3095,8 @@ public class Types {
                 return false;
             }
 
-            SemType semSource = ((BFiniteType)s).getSemTypeComponent();
-            SemType semTarget = t.getSemTypeComponent();
+            SemType semSource = s.getSemType();
+            SemType semTarget = t.getSemType();
             return SemTypes.isSameType(semTypeCtx, semSource, semTarget);
         }
 
@@ -3401,7 +3401,7 @@ public class Types {
         if (referredTypeKind == TypeKind.NIL) {
             return true;
         } else if (referredTypeKind == TypeKind.FINITE) {
-            return Core.isSubtype(semTypeCtx, ((BFiniteType) referredType).getSemTypeComponent(), PredefinedType.NIL);
+            return Core.isSubtype(semTypeCtx, referredType.getSemType(), PredefinedType.NIL);
         }
         return false;
     }
@@ -3411,7 +3411,7 @@ public class Types {
         for (BType type : memberTypes) {
             type = getReferredType(type);
             if (type.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = singletonBroadTypes(((BFiniteType) type).getSemTypeComponent(), symTable);
+                Set<BType> broadTypes = singletonBroadTypes(type.getSemType(), symTable);
                 for (BType broadType : broadTypes) {
                     if (!isSameOrderedType(broadType, baseType)) {
                         return false;
@@ -3447,11 +3447,11 @@ public class Types {
     private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType type) {
         BType baseType = getReferredType(type);
         if (baseType.tag == TypeTags.FINITE) {
-            BType baseExprType = singleShapeBroadType((finiteType).getSemTypeComponent(), symTable).get();
+            BType baseExprType = singleShapeBroadType((finiteType).getSemType(), symTable).get();
             return checkValueSpaceHasSameType(((BFiniteType) baseType), baseExprType);
         }
         boolean isValueSpaceSameType = false;
-        Set<BType> broadTypes = singletonBroadTypes(finiteType.getSemTypeComponent(), symTable);
+        Set<BType> broadTypes = singletonBroadTypes(finiteType.getSemType(), symTable);
         for (BType broadType : broadTypes) {
             isValueSpaceSameType = isSameOrderedType(broadType, baseType);
             if (!isValueSpaceSameType) {
@@ -3908,7 +3908,7 @@ public class Types {
         // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
         // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
         // with the same value.
-        SemType t = finiteType.getSemTypeComponent();
+        SemType t = finiteType.getSemType();
         switch (targetTypeTag) {
             case TypeTags.INT:
                 if (literalTypeTag == TypeTags.INT) {
@@ -4245,8 +4245,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                return !Core.isEmpty(semTypeCtx, Core.intersect(((BFiniteType) type).getSemTypeComponent(),
-                        PredefinedType.INT));
+                return !Core.isEmpty(semTypeCtx, Core.intersect(type.getSemType(), PredefinedType.INT));
             case TypeTags.INTERSECTION:
                 return validIntegerTypeExists(((BIntersectionType) type).getEffectiveType());
             default:
@@ -4280,7 +4279,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                SemType semType = ((BFiniteType) type).getSemTypeComponent();
+                SemType semType = type.getSemType();
                 return SemTypes.isSubtype(semTypeCtx, semType, PredefinedType.STRING);
             case TypeTags.TYPEREFDESC:
                 return isStringSubType(getReferredType(type));
@@ -4313,7 +4312,7 @@ public class Types {
                 memberTypes.add(symTable.byteType);
                 break;
             case TypeTags.FINITE:
-                Set<BType> broadTypes = singletonBroadTypes(((BFiniteType) bType).getSemTypeComponent(), symTable);
+                Set<BType> broadTypes = singletonBroadTypes(bType.getSemType(), symTable);
                 memberTypes.addAll(broadTypes);
                 break;
             case TypeTags.UNION:
@@ -5643,7 +5642,7 @@ public class Types {
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
-        SemType originalSemType = originalType.getSemTypeComponent();
+        SemType originalSemType = originalType.getSemType();
         SemType removeSemType = PredefinedType.NEVER;
         for (BType removeType : removeTypes) {
             SemType semTypeToRemove = SemTypeResolver.getSemTypeComponent(removeType);
@@ -5785,8 +5784,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                return isAllowedConstantType(singleShapeBroadType(((BFiniteType) type).getSemTypeComponent(), symTable)
-                        .get());
+                return isAllowedConstantType(singleShapeBroadType(type.getSemType(), symTable).get());
             case TypeTags.INTERSECTION:
                 return isAllowedConstantType(((BIntersectionType) type).getEffectiveType());
             case TypeTags.TYPEREFDESC:
@@ -5929,7 +5927,7 @@ public class Types {
             case TypeTags.ARRAY:
                 return checkFillerValue((BArrayType) type);
             case TypeTags.FINITE:
-                return hasFiller(((BFiniteType) type).getSemTypeComponent());
+                return hasFiller(type.getSemType());
             case TypeTags.UNION:
                 return checkFillerValue((BUnionType) type);
             case TypeTags.OBJECT:
@@ -6026,9 +6024,9 @@ public class Types {
 
         for (BType member : getAllTypes(type, true)) {
             if (member.tag == TypeTags.FINITE) {
-                Set<BType> broadTypes = singletonBroadTypes(((BFiniteType) member).getSemTypeComponent(), symTable);
+                Set<BType> broadTypes = singletonBroadTypes(member.getSemType(), symTable);
                 memberTypes.addAll(broadTypes);
-                if (!hasFillerValue && hasFiller(((BFiniteType) member).getSemTypeComponent())) {
+                if (!hasFillerValue && hasFiller(member.getSemType())) {
                     hasFillerValue = true;
                 }
             } else {
@@ -6153,8 +6151,7 @@ public class Types {
                 for (BType memType : memberTypes) {
                     memType = getEffectiveTypeForIntersection(getReferredType(memType));
                     if (isFirstTypeInUnionFinite && memType.tag == TypeTags.FINITE && !isNil(memType)) {
-                        BType baseExprType = singleShapeBroadType(((BFiniteType) firstTypeInUnion).getSemTypeComponent(),
-                                symTable).get();
+                        BType baseExprType = singleShapeBroadType(firstTypeInUnion.getSemType(), symTable).get();
                         if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                             return false;
                         }
@@ -6188,7 +6185,7 @@ public class Types {
                 BType restType = ((BTupleType) type).restType;
                 return restType == null || isOrderedType(restType, hasCycle);
             case TypeTags.FINITE:
-                return isOrderedType(((BFiniteType) type).getSemTypeComponent());
+                return isOrderedType(type.getSemType());
             case TypeTags.TYPEREFDESC:
                 return isOrderedType(getReferredType(type), hasCycle);
             case TypeTags.INTERSECTION:
@@ -6261,7 +6258,7 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 return findCompatibleType(((BTypeReferenceType) type).referredType);
             default:
-                BType t = singleShapeBroadType(((BFiniteType) type).getSemTypeComponent(), symTable).get();
+                BType t = singleShapeBroadType(type.getSemType(), symTable).get();
                 return findCompatibleType(t);
         }
     }
@@ -6419,12 +6416,12 @@ public class Types {
 
     boolean isSingletonType(BType bType) {
         BType type = getReferredType(bType);
-        return type.tag == TypeTags.FINITE && Core.singleShape(((BFiniteType) type).getSemTypeComponent()).isPresent();
+        return type.tag == TypeTags.FINITE && Core.singleShape(type.getSemType()).isPresent();
     }
 
     boolean isSameSingletonType(BFiniteType type1, BFiniteType type2) {
-        SemType t1 = type1.getSemTypeComponent();
-        SemType t2 = type2.getSemTypeComponent();
+        SemType t1 = type1.getSemType();
+        SemType t2 = type2.getSemType();
         return SemTypes.isSameType(semTypeCtx, t1, t2);
     }
 
@@ -6867,7 +6864,7 @@ public class Types {
                 basicTypes.add(BasicTypes.OBJECT);
                 return;
             case TypeTags.FINITE:
-                SemType semType = ((BFiniteType) type).getSemTypeComponent();
+                SemType semType = type.getSemType();
                 populateBasicTypes(semType, basicTypes);
                 return;
             case TypeTags.HANDLE:

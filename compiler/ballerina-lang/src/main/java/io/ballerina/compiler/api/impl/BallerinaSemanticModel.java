@@ -504,7 +504,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isInlineSingletonType(BSymbol symbol) {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
         return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
-                Core.singleShape(((BFiniteType) symbol.type).getSemTypeComponent()).isPresent();
+                Core.singleShape((symbol.type).getSemType()).isPresent();
     }
 
     private boolean isInlineErrorType(BSymbol symbol) {

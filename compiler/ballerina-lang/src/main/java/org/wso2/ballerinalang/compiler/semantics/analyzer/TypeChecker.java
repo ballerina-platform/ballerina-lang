@@ -531,7 +531,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private int getPreferredMemberTypeTag(BFiniteType finiteType) {
-        SemType t = finiteType.getSemTypeComponent();
+        SemType t = finiteType.getSemType();
         if (t instanceof UniformTypeBitSet) {
             return TypeTags.NONE;
         }
@@ -606,7 +606,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType silentCompatibleLiteralTypeCheck(BFiniteType finiteType, BLangNumericLiteral literalExpr,
                                                    Object literalValue, AnalyzerData data) {
         BType resIntType = symTable.semanticError;
-        Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(finiteType.getSemTypeComponent(), symTable);
+        Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(finiteType.getSemType(), symTable);
         for (BType broadType : broadTypes) {
             resIntType = silentIntTypeCheck(literalExpr, literalValue, broadType, data);
             if (resIntType != symTable.semanticError) {
@@ -988,7 +988,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         SemType t = PredefinedType.NEVER;
         for (BFiniteType finiteType : finiteTypeMembers) {
-            t = Core.union(t, finiteType.getSemTypeComponent());
+            t = Core.union(t, finiteType.getSemType());
         }
 
         SemType matchSemType = SemTypeResolver.getSemTypeComponent(matchType);
@@ -5216,7 +5216,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public LinkedHashSet<BType> getTypesInFiniteValueSpace(BFiniteType referredType) {
         LinkedHashSet<BType> typesInValueSpace = new LinkedHashSet<>(6);
 
-        int bitset = ((ComplexSemType) referredType.getSemTypeComponent()).some.bitset;
+        int bitset = ((ComplexSemType) referredType.getSemType()).some.bitset;
         if ((bitset & PredefinedType.NIL.bitset) != 0) {
             typesInValueSpace.add(symTable.nilType);
         }
@@ -8623,7 +8623,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         switch (tag) {
             case TypeTags.FINITE:
-                SemType t = ((BFiniteType) indexExprType).getSemTypeComponent();
+                SemType t = indexExprType.getSemType();
                 long maxIndexValue;
                 if (arrayType.state == BArrayState.OPEN) {
                     maxIndexValue = Long.MAX_VALUE;
@@ -8645,7 +8645,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 for (BType memType : ((BUnionType) indexExprType).getMemberTypes()) {
                     BType referredType = Types.getReferredType(memType);
                     if (referredType.tag == TypeTags.FINITE) {
-                        t = Core.union(t, ((BFiniteType) referredType).getSemTypeComponent());
+                        t = Core.union(t, referredType.getSemType());
                     }
                 }
 
@@ -8713,7 +8713,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.FINITE:
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
 
-                SemType t = ((BFiniteType) currentType).getSemTypeComponent();
+                SemType t = currentType.getSemType();
                 assert SemTypes.isSubtypeSimple(t, PredefinedType.INT);
                 SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_INT);
                 IntSubtype intSubtype = (IntSubtype) sd;
@@ -8752,7 +8752,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 SemType t2 = PredefinedType.NEVER;
                 for (BFiniteType finiteType : finiteTypes) {
-                    t2 = Core.union(t2, finiteType.getSemTypeComponent());
+                    t2 = Core.union(t2, finiteType.getSemType());
                 }
 
                 BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), t2);
@@ -8884,7 +8884,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.FINITE:
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
 
-                SemType t = ((BFiniteType) currentType).getSemTypeComponent();
+                SemType t = currentType.getSemType();
                 assert SemTypes.isSubtypeSimple(t, PredefinedType.STRING);
                 SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_STRING);
                 StringSubtype stringSubtype = (StringSubtype) sd;
@@ -8955,7 +8955,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 SemType t2 = PredefinedType.NEVER;
                 for (BFiniteType finiteType : finiteTypes) {
-                    t2 = Core.union(t2, finiteType.getSemTypeComponent());
+                    t2 = Core.union(t2, finiteType.getSemType());
                 }
 
                 BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), t2);
@@ -9450,7 +9450,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private LinkedHashSet<BType> getTypeWithoutNilForNonAnyTypeWithNil(BType type) {
         BType referredType = Types.getReferredType(type);
         if (referredType.tag == TypeTags.FINITE) {
-            SemType semType = ((BFiniteType) referredType).getSemTypeComponent();
+            SemType semType = referredType.getSemType();
             SemType diff = Core.diff(semType, PredefinedType.NIL);
 
             if (Core.isEmpty(types.semTypeCtx, diff)) {

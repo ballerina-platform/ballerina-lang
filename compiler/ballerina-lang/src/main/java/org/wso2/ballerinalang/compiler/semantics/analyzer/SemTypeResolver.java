@@ -823,11 +823,11 @@ public class SemTypeResolver {
             }
         }
 
-        type.setSemTypeComponent(semType);
+        type.setSemType(semType);
     }
 
     public static void addBFiniteValue(BFiniteType type, BLangExpression value) {
-        SemType semType = type.getSemTypeComponent();
+        SemType semType = type.getSemType();
 
         if (semTypeSupported(value.getBType().getKind())) {
             if (value.getKind() == NodeKind.UNARY_EXPR) {
@@ -838,7 +838,7 @@ public class SemTypeResolver {
             throw new IllegalStateException("non-sem value found!");
         }
 
-        type.setSemTypeComponent(semType);
+        type.setSemType(semType);
     }
 
     public static SemType getSemTypeComponent(BType t) {
@@ -852,10 +852,6 @@ public class SemTypeResolver {
 
         if (t.tag == TypeTags.INTERSECTION) {
             return ((BIntersectionType) t).getSemTypeComponent();
-        }
-
-        if (t.tag == TypeTags.FINITE) {
-            return ((BFiniteType) t).getSemTypeComponent();
         }
 
         if (t.tag == TypeTags.ANY) {

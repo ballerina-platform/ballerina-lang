@@ -60,7 +60,6 @@ public class BType implements ValueType {
     private SemType semType;
     public boolean isBTypeComponent = false; // TODO: This is temporary workaround until we migrate all types
 
-    private final boolean isNullable;
     private final String toString;
 
     public BType(int tag, BTypeSymbol tsymbol) {
@@ -83,22 +82,16 @@ public class BType implements ValueType {
         this(tag, tsymbol, Names.EMPTY, flags, semType);
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, long flags, SemType semType, boolean isNullable, String toString) {
-        this(tag, tsymbol, Names.EMPTY, flags, semType, isNullable, toString);
-    }
-
     public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
-        this(tag, tsymbol, name, flags, semType, false, null);
+        this(tag, tsymbol, name, flags, semType, null);
     }
 
-    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType, boolean nullable,
-                 String toString) {
+    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType, String toString) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
-        this.semtype = semType;
-        this.isNullable = nullable;
+        this.semType = semType;
         this.toString = toString == null ? getKind().typeName() : toString;
     }
 

@@ -1085,7 +1085,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private Object getConstValueFromFiniteType(BFiniteType type) {
-        Optional<Value> value = Core.singleShape(type.getSemTypeComponent());
+        Optional<Value> value = Core.singleShape(type.getSemType());
         return value.map(v -> v.value).orElse(null);
     }
 
