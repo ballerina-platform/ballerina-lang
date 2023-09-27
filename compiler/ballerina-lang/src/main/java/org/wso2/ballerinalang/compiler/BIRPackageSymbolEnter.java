@@ -241,26 +241,29 @@ public class BIRPackageSymbolEnter {
 
         populateReferencedFunctions();
 
-        resolveFailedChildSymbols(this.env.pkgSymbol);
+        resolveRemainingChildSymbols(this.env.pkgSymbol);
         this.typeReader = null;
         return this.env.pkgSymbol;
     }
 
-    private void resolveFailedChildSymbols(BPackageSymbol latestPkgSymbol) {
+    private void resolveRemainingChildSymbols(BPackageSymbol latestPkgSymbol) {
+
         String latestPkgName = String.format("ballerina/%s", latestPkgSymbol.getName());
-        if (unresolvedInvocations.containsKey(latestPkgName)) {
-            unresolvedInvocations.get(latestPkgName).forEach((childSymName, parentSymbols) -> {
-                BInvokableSymbol childSymbol = getInvokableSymbol(latestPkgSymbol,childSymName);
-                parentSymbols.forEach(parentSymbol -> {
-                    if (childSymbol != null) {
-                        parentSymbol.childrenFunctions.add(childSymbol);
-                    } else {
-                        failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
-                        failedSymbolsMap.get(parentSymbol).add(childSymName);
-                    }
-                });
-            });
+        if (!unresolvedInvocations.containsKey(latestPkgName)) {
+            return;
         }
+
+        unresolvedInvocations.get(latestPkgName).forEach((childSymName, parentSymbols) -> {
+            BInvokableSymbol childSymbol = getInvokableSymbol(latestPkgSymbol, childSymName);
+            parentSymbols.forEach(parentSymbol -> {
+                if (childSymbol != null) {
+                    parentSymbol.childrenFunctions.add(childSymbol);
+                } else {
+                    failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
+                    failedSymbolsMap.get(parentSymbol).add(childSymName);
+                }
+            });
+        });
     }
 
     private void populateReferencedFunctions() {
@@ -406,7 +409,7 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.retType = funcType.retType;
 
         if (!invokableSymbol.origin.equals(SymbolOrigin.VIRTUAL)) {
-            // Only toplevel symbols are defined as "UNUSED". Others(Arrow functions) will be Unexplored by default
+            // Only toplevel symbols are defined as "UNUSED". Others(arrow and $ functions) will be UNEXPLORED by default
             invokableSymbol.usedState = UsedState.UNUSED;
             this.env.pkgSymbol.deadFunctions.add(invokableSymbol);
         } else {
