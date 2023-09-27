@@ -131,6 +131,8 @@ public class ReferencesUtil {
 
         if (parentKind == SyntaxKind.TYPE_PARAMETER || parentKind == SyntaxKind.STREAM_TYPE_PARAMS) {
             if (nonTerminalNode.lineRange().endLine().offset() == position.getCharacter()) {
+                // When there is a type parameter and cursor is at the end of the type parameter, semantic API does not
+                // provide the correct symbol. Therefore, here we search for the symbol at (col - 1).
                 return semanticModel.get().symbol(document,
                         LinePosition.from(position.getLine(), position.getCharacter() - 1));
             }
