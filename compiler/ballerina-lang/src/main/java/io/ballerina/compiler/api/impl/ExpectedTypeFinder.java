@@ -163,6 +163,22 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         this.document = srcDocument;
     }
 
+    public Optional<TypeSymbol> resolveType(Node node) {
+        TypeParamBoundFinder typeParamVisitor = new TypeParamBoundFinder();
+        node.accept(typeParamVisitor);
+
+        try {
+            TypeSymbol expressionSymbol = typeParamVisitor.getExpressionNode().apply(this).orElseThrow();
+            FunctionSymbol langLibFunction =
+                    expressionSymbol.langLibMethods().stream()
+                            .filter(methd -> methd.nameEquals(typeParamVisitor.getMethodName()))
+                            .findFirst().orElseThrow();
+            return Optional.of(langLibFunction.typeDescriptor().params().orElseThrow().get(1).typeDescriptor());
+        } catch (Exception e) {
+            return node.apply(this);
+        }
+    }
+
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
