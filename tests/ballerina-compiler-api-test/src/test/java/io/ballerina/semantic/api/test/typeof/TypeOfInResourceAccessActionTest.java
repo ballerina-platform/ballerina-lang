@@ -58,8 +58,8 @@ public class TypeOfInResourceAccessActionTest {
     @DataProvider(name = "NamedArgsPos")
     public Object[][] getPos() {
         return new Object[][]{
-                {40, 23, 40, 54, UNION},
-                {40, 23, 40, 32, TYPE_REFERENCE},
+                {42, 23, 42, 54, UNION},
+                {42, 23, 42, 32, TYPE_REFERENCE},
         };
     }
 

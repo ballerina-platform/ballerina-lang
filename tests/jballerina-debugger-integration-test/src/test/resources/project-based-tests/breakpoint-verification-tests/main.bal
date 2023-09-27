@@ -36,17 +36,6 @@ public class Counter {
     }
 }
 
-type Headers record {
-    string 'from;
-    string to;
-    string subject?;
-};
-
-Headers h = {
-    'from: "John",
-    to: "Jill"
-};
-
 public function main() {
     Counter ct = new();
     Counter ct2 = new();

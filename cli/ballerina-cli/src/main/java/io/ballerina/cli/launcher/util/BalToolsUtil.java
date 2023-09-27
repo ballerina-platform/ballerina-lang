@@ -70,6 +70,7 @@ import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PERSIST_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
@@ -88,7 +89,6 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
-import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 
 /**
@@ -109,16 +109,16 @@ public class BalToolsUtil {
     // if a command is a built-in tool command, remove it from this list
     private static final List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, BINDGEN_COMMAND,
             SHELL_COMMAND, VERSION_COMMAND, OPENAPI_COMMAND, GRAPHQL_COMMAND, ASYNCAPI_COMMAND, GRPC_COMMAND,
-            PERSIST_COMMAND);
+            PERSIST_COMMAND, PROFILE_COMMAND);
     private static final List<String> hiddenCommands = Arrays.asList(INIT_COMMAND, TOOL_COMMAND, DIST_COMMAND,
             UPDATE_COMMAND, START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND,
             GENCACHE_COMMAND);
     // if a command is a built-in tool command, add it to this list
     private static final List<String> builtInToolCommands = Arrays.asList();
 
-    private static final Path balToolsTomlPath = Path.of(
-            System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
-    private static Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
+    private static final Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(
+            Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
+    private static final Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
             .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
             .resolve(ProjectConstants.BALA_DIR_NAME);
 
@@ -164,7 +164,7 @@ public class BalToolsUtil {
     }
 
     private static List<File> getToolCommandJarAndDependencyJars(String commandName) {
-        Path userHomeDirPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME);
+        Path userHomeDirPath = RepoUtils.createAndGetHomeReposPath();
         Path balToolsTomlPath = userHomeDirPath.resolve(Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
         Path centralBalaDirPath = userHomeDirPath.resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
@@ -177,8 +177,8 @@ public class BalToolsUtil {
                     .flatMap(map -> map.values().stream())
                     .filter(BalToolsManifest.Tool::active)
                     .map(tool1 -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
-                            tool1.org(), tool1.name(), tool1.version(), centralBalaDirPath).resolve(TOOL).resolve(LIBS)
-                            .toFile()))
+                        tool1.org(), tool1.name(), tool1.version(), centralBalaDirPath).resolve(TOOL).resolve(LIBS)
+                        .toFile()))
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
         }
