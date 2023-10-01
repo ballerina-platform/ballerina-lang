@@ -43,8 +43,8 @@ public class LangLibFunctionBinder {
     private final Types types;
     private final CompilerContext context;
 
-    public LangLibFunctionBinder(Types types, CompilerContext context) {
-        this.types = types;
+    public LangLibFunctionBinder(CompilerContext context) {
+        this.types = Types.getInstance(context);
         this.context = context;
     }
 

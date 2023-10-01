@@ -152,6 +152,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     private final NodeFinder nodeFinder;
     private final Document document;
+    private final LangLibrary langLibrary;
+    private final LangLibFunctionBinder langLibFunctionBinder;
 
     public ExpectedTypeFinder(SemanticModel semanticModel, BLangCompilationUnit bLangCompilationUnit,
                               CompilerContext context, LinePosition linePosition, Document srcDocument) {
@@ -161,22 +163,45 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         this.typesFactory = TypesFactory.getInstance(context);
         this.linePosition = linePosition;
         this.document = srcDocument;
+        this.langLibrary = LangLibrary.getInstance(context);
+        this.langLibFunctionBinder = new LangLibFunctionBinder(context);
     }
 
     public Optional<TypeSymbol> resolveType(Node node) {
         TypeParamBoundFinder typeParamVisitor = new TypeParamBoundFinder();
         node.accept(typeParamVisitor);
 
-        try {
-            TypeSymbol expressionSymbol = typeParamVisitor.getExpressionNode().apply(this).orElseThrow();
-            FunctionSymbol langLibFunction =
-                    expressionSymbol.langLibMethods().stream()
-                            .filter(methd -> methd.nameEquals(typeParamVisitor.getMethodName()))
-                            .findFirst().orElseThrow();
-            return Optional.of(langLibFunction.typeDescriptor().params().orElseThrow().get(1).typeDescriptor());
-        } catch (Exception e) {
+        if (typeParamVisitor.getExpressionNode() == null) {
             return node.apply(this);
         }
+
+        BLangNode langNode =
+                nodeFinder.lookup(this.bLangCompilationUnit, typeParamVisitor.getExpressionNode().lineRange());
+        BInvokableSymbol originalLangLibMethod =
+                this.langLibrary.getLangLibMethod(langNode.getBType(),
+                        SymbolUtils.unescapeUnicode(typeParamVisitor.getMethodName()));
+
+        if (originalLangLibMethod == null || originalLangLibMethod.params.size() == 0) {
+            return node.apply(this);
+        }
+
+        BVarSymbol firstParam = originalLangLibMethod.params.get(0);
+        BType typeParam = new TypeParamFinder().find(firstParam.getType());
+
+        if (typeParam == null) {
+            return node.apply(this);
+        }
+
+        BInvokableSymbol langLibMethod =
+                this.langLibFunctionBinder.cloneAndBind(originalLangLibMethod, langNode.getBType(),
+                        SymbolUtils.getTypeParamBoundType(langNode.getBType()));
+
+        if (langLibMethod.getParameters().size() < 2) {
+            return node.apply(this);
+        }
+
+        return Optional.of(typesFactory.getTypeDescriptor(
+                langLibMethod.getType().getParameterTypes().get(typeParamVisitor.getPosition())));
     }
 
     @Override
