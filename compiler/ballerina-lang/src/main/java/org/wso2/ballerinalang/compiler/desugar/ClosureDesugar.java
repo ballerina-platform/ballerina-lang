@@ -748,8 +748,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // If its a variable declaration with a RHS value, and also a closure.
         varDefNode.var.typeNode = rewrite(varDefNode.var.typeNode, env);
         if (varDefNode.var.expr != null) {
-            BLangAssignment stmt = createAssignmentToClosureMap(varDefNode);
-            result = rewrite(stmt, env);
+            BLangBlockStmt stmt = createAssignmentToClosureMap(varDefNode);
+            result = stmt;
         } else {
             // Note: Although it's illegal to use a closure variable without initializing it in it's declared scope,
             // when we access (initialize) a variable from outer scope, since we desugar transaction block into a
@@ -765,7 +765,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @param varDefNode variable definition node
      * @return assignment statement created
      */
-    private BLangAssignment createAssignmentToClosureMap(BLangSimpleVariableDef varDefNode) {
+    private BLangBlockStmt createAssignmentToClosureMap(BLangSimpleVariableDef varDefNode) {
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
+        blockStmt.addStatement(createSimpleVarDef(varDefNode));
         BVarSymbol mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
 
         // Add the variable to the created map.
@@ -777,7 +779,20 @@ public class ClosureDesugar extends BLangNodeVisitor {
         accessExpr.setBType(((BMapType) mapSymbol.type).constraint);
         accessExpr.isLValue = true;
         // Written to: 'map["x"] = 8'.
-        return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
+        blockStmt.addStatement(rewrite(ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr,
+                                                                           varDefNode.var.expr), env));
+        return blockStmt;
+    }
+
+    private BLangSimpleVariableDef createSimpleVarDef(BLangSimpleVariableDef varDefNode) {
+        BLangSimpleVariable variable = varDefNode.var;
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(variable.pos, variable.name.value,
+                                                                           variable.getBType(), null, variable.symbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(varDefNode.pos);
+        simpleVariableDef.var = simpleVariable;
+        simpleVariable.typeNode = variable.typeNode;
+        simpleVariableDef.setBType(simpleVariable.getBType());
+        return simpleVariableDef;
     }
 
     private BVarSymbol createMapSymbolIfAbsent(BLangNode node, int closureMapCount) {
