@@ -365,10 +365,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
         // Start a new indentation of two tabs for the parameters.
-        indent(2);
+        indent(options.getContinuationIndent());
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0, 0, 0, true);
-        unindent(2);
+        unindent(options.getContinuationIndent());
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -1062,10 +1062,10 @@ public class FormattingTreeModifier extends TreeModifier {
     public FunctionCallExpressionNode transform(FunctionCallExpressionNode functionCallExpressionNode) {
         NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 0, 0);
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0, 0);
-        indent(2);
+        indent(options.getContinuationIndent());
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
                 .arguments(), 0, 0, 0, 0, true);
-        unindent(2);
+        unindent(options.getContinuationIndent());
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
                 env.trailingWS, env.trailingNL);
 
