@@ -1,6 +1,0 @@
-[format]
-tabWidth = 2
-recordBraceSpacing = true
-columnLimit = 80
-alignMultiLineQueries = true
-alignConsecutiveDefinitions = true

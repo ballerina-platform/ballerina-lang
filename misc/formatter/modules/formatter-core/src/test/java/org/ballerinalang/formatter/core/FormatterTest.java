@@ -20,6 +20,8 @@ package org.ballerinalang.formatter.core;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.ballerinalang.formatter.core.options.FormattingOptions;
+import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -74,8 +76,8 @@ public abstract class FormatterTest {
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingOptions formattingOptions =
-                FormattingOptions.builder().setLineWrapping(true).setColumnLimit(120).build();
+        FormattingOptions formattingOptions = FormattingOptions.builder().setWrappingFormattingOptions(
+                WrappingFormattingOptions.builder().setMaxLineLength(120).setLineWrap(true).build()).build();
         try {
             SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
             Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));

@@ -1,0 +1,6 @@
+[methodDeclaration]
+parametersWrap = "CHOPDOWN"
+alignMultilineParameters = true
+
+[wrapping]
+maxLineLength = 80
