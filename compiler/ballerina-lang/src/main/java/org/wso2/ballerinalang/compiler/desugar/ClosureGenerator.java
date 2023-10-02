@@ -265,7 +265,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
             pkgEnv.enclPkg.topLevelNodes.add(0, variableDef);
         }
         for (BLangSimpleVariableDef closureReference : annotationClosureReferences) {
-            pkgEnv.enclPkg.globalVars.add(rewrite(closureReference.var, pkgEnv));
+            BLangSimpleVariable simpleVariable = rewrite(closureReference.var, pkgEnv);
+            pkgEnv.enclPkg.globalVars.add(simpleVariable);
+            pkgEnv.enclPkg.topLevelNodes.add(simpleVariable);
         }
     }
 
@@ -1612,7 +1614,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
             E node = rewrite(nodeList.remove(0), env);
             Iterator<BLangSimpleVariableDef> iterator = annotationClosureReferences.iterator();
             while (iterator.hasNext()) {
-                nodeList.add(rewrite((E) annotationClosureReferences.poll().var, env));
+                E simpleVariable = rewrite((E) annotationClosureReferences.poll().var, env);
+                nodeList.add(simpleVariable);
+                env.enclPkg.topLevelNodes.add((BLangSimpleVariable)simpleVariable);
             }
             nodeList.add(node);
         }
