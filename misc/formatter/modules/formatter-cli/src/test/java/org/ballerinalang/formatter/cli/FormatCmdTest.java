@@ -105,20 +105,36 @@ public class FormatCmdTest {
     @DataProvider(name = "provideConfigurationProjects")
     private Object[][] provideConfigurationProjects() {
         return new Object[][]{
-                {"general", List.of(
-                        RES_DIR.resolve("configurations/general/source/project")
+                {"brace", List.of(
+                        RES_DIR.resolve("configurations/brace/source/project")
                 )},
-                {"function", List.of(
-                        RES_DIR.resolve("configurations/functions/source/oneArg"),
-                        RES_DIR.resolve("configurations/functions/source/paranAlign"),
-                        RES_DIR.resolve("configurations/functions/source/paranAlignOneArg")
+                {"functionCall", List.of(
+                        RES_DIR.resolve("configurations/functionCall/source/chopDown"),
+                        RES_DIR.resolve("configurations/functionCall/source/noWrap"),
+                        RES_DIR.resolve("configurations/functionCall/source/wrap")
                 )},
-                {"blocks", List.of(
-                        RES_DIR.resolve("configurations/blocks/source/ifelse"),
-                        RES_DIR.resolve("configurations/blocks/source/short")
+                {"functionDeclaration", List.of(
+                        RES_DIR.resolve("configurations/functionDeclaration/source/chopDown"),
+                        RES_DIR.resolve("configurations/functionDeclaration/source/noWrap"),
+                        RES_DIR.resolve("configurations/functionDeclaration/source/wrap")
                 )},
-                {"import", List.of(
+                {"ifStatement", List.of(
+                        RES_DIR.resolve("configurations/ifStatement/source/ifelse")
+                )},
+                {"imports", List.of(
                         RES_DIR.resolve("configurations/imports/source/project")
+                )},
+                {"indent", List.of(
+                        RES_DIR.resolve("configurations/indent/source/project")
+                )},
+                {"query", List.of(
+                        RES_DIR.resolve("configurations/query/source/project")
+                )},
+                {"spacing", List.of(
+                        RES_DIR.resolve("configurations/spacing/source/project")
+                )},
+                {"wrapping", List.of(
+                        RES_DIR.resolve("configurations/wrapping/source/project")
                 )}
         };
     }

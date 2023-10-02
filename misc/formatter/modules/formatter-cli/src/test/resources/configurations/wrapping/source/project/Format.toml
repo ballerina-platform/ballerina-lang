@@ -1,0 +1,5 @@
+[wrapping]
+maxLineLength = 80
+keepLineBreaks = true
+simpleBlocksInOneLine = true
+simpleMethodsInOneLine = true

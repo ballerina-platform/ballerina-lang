@@ -1,0 +1,8 @@
+[methodDeclaration]
+parametersWrap = "WRAP"
+alignMultilineParameters = true
+newLineAfterLeftParen = true
+rightParenOnNewLine = true
+
+[wrapping]
+maxLineLength = 80

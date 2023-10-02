@@ -1,3 +1,2 @@
-[format.import]
-groupImports = true
-sortImports = true
+[format]
+configPath = "src/test/resources/configurations/imports/source/project/Format.toml"
