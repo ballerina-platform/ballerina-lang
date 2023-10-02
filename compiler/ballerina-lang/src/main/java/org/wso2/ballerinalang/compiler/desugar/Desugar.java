@@ -8189,9 +8189,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
      */
     private BLangFunction createUserDefinedObjectInitFn(BLangClassDefinition classDefn, SymbolEnv env) {
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefn.pos, classDefn.symbol, env,
-                                                                        names, Names.USER_DEFINED_INIT_SUFFIX,
-                                                                        symTable, classDefn.getBType());
+                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefn.symbol, env, names,
+                        Names.USER_DEFINED_INIT_SUFFIX, symTable, classDefn.getBType());
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefn.getBType().tsymbol);
         typeSymbol.initializerFunc = new BAttachedFunction(Names.USER_DEFINED_INIT_SUFFIX, initFunction.symbol,
                                                            (BInvokableType) initFunction.getBType(), classDefn.pos);
@@ -9879,6 +9878,10 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         fieldAccess.isStoreOnCreation = true;
 
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        // position information is not passed to remove code coverage for record/class definition
+        expr.pos = null;
+        fieldName.pos = null;
+        fieldSymbol.pos = null;
         assignmentStmt.expr = expr;
         assignmentStmt.pos = function.pos;
         assignmentStmt.setVariable(fieldAccess);
@@ -10300,9 +10303,8 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         }
 
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(null, classDefinition.symbol,
-                        env, names, GENERATED_INIT_SUFFIX,
-                        classDefinition.getBType(), returnType);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.symbol, env, names,
+                        GENERATED_INIT_SUFFIX, classDefinition.getBType(), returnType);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.getBType().tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(GENERATED_INIT_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.getBType(), null);

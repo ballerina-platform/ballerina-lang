@@ -94,7 +94,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getImpliedType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
@@ -185,7 +185,7 @@ public class JvmCreateTypeGen {
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
-        typesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
+        typesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
     }
 
     public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
@@ -596,7 +596,7 @@ public class JvmCreateTypeGen {
     public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                       String moduleInitClass, Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, anonTypesClass, null, OBJECT, null);
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, anonTypesClass, null, OBJECT, null);
         generateGetAnonTypeMainMethod(cw, module.typeDefs, moduleInitClass);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
