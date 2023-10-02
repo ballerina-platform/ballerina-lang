@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -417,16 +419,17 @@ public class TypeNarrower extends BLangNodeVisitor {
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                 env.scope.owner, expr.pos, SOURCE);
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        SemType semType;
         if (expr.getKind() == NodeKind.UNARY_EXPR) {
-            finiteType.addValue(Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
+            semType = SemTypeResolver.resolveSingletonType(Types.constructNumericLiteralFromUnaryExpr(
+                    (BLangUnaryExpr) expr));
         } else {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
-            finiteType.addValue(expr);
+            semType = SemTypeResolver.resolveSingletonType((BLangLiteral) expr);
         }
-        semTypeResolver.setSemTypeIfEnabled(finiteType);
-        finiteTypeSymbol.type = finiteType;
 
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType);
+        finiteTypeSymbol.type = finiteType;
         return finiteType;
     }
 

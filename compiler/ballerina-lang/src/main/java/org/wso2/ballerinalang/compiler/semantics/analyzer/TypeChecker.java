@@ -997,7 +997,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         }
 
-        return new BFiniteType(null, new HashSet<>(), intersection);
+        return new BFiniteType(null, intersection);
     }
 
     private BType getIntLiteralType(BType expType, Object literalValue, AnalyzerData data) {
@@ -5204,9 +5204,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 0, Names.EMPTY, data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 unaryExpr.pos, SOURCE);
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        finiteType.addValue(newNumericLiteral);
-        semTypeResolver.setSemTypeIfEnabled(finiteType);
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol,
+                SemTypeResolver.resolveSingletonType(newNumericLiteral));
         finiteTypeSymbol.type = finiteType;
 
         types.setImplicitCastExpr(unaryExpr, unaryExpr.expr.getBType(), data.expType);
@@ -8649,7 +8648,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 }
 
-                BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), t);
+                BFiniteType finiteType = new BFiniteType(null, t);
                 BType elementType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
                 if (elementType == symTable.semanticError) {
                     return symTable.semanticError;
@@ -8755,7 +8754,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     t2 = Core.union(t2, finiteType.getSemType());
                 }
 
-                BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), t2);
+                BFiniteType finiteType = new BFiniteType(null, t2);
                 BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, finiteType);
                 if (possibleType.tag == TypeTags.UNION) {
                     possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
@@ -8958,7 +8957,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     t2 = Core.union(t2, finiteType.getSemType());
                 }
 
-                BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), t2);
+                BFiniteType finiteType = new BFiniteType(null, t2);
                 BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, finiteType, data);
                 if (possibleType.tag == TypeTags.UNION) {
                     possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
@@ -9457,7 +9456,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return new LinkedHashSet<>(0);
             }
 
-            BFiniteType finiteType = new BFiniteType(null, new HashSet<>(), diff);
+            BFiniteType finiteType = new BFiniteType(null, diff);
             return new LinkedHashSet<>(1) {{ add(finiteType); }};
         }
 

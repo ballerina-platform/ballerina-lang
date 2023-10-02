@@ -123,8 +123,6 @@ public class BIRTypeWriter extends TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
-    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
-    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -198,15 +196,6 @@ public class BIRTypeWriter extends TypeVisitor {
         BTypeSymbol tsymbol = bFiniteType.tsymbol;
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeLong(tsymbol.flags);
-        buff.writeInt(bFiniteType.getValueSpace().size());
-        for (BLangExpression valueLiteral : bFiniteType.getValueSpace()) {
-            if (!(valueLiteral instanceof BLangLiteral)) {
-                throw new AssertionError(
-                        "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
-            }
-            writeTypeCpIndex(valueLiteral.getBType());
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
-        }
     }
 
     @Override

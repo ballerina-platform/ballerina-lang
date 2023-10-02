@@ -4083,7 +4083,7 @@ public class Types {
                 sourceType.tsymbol.pkgID, null,
                 sourceType.tsymbol.owner, sourceType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, new HashSet<>(), intersectingSemType);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, intersectingSemType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return Optional.of(intersectingFiniteType);
     }
@@ -5659,7 +5659,7 @@ public class Types {
                 originalType.tsymbol.pkgID, null,
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);
-        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, new HashSet<>(), diffSemType);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, diffSemType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
     }
@@ -6258,8 +6258,9 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 return findCompatibleType(((BTypeReferenceType) type).referredType);
             default:
-                BType t = singleShapeBroadType(type.getSemType(), symTable).get();
-                return findCompatibleType(t);
+                Set<BType> broadTypes = singletonBroadTypes(type.getSemType(), symTable);
+                assert broadTypes.size() == 1; // all values should belong to a single basic type
+                return broadTypes.iterator().next();
         }
     }
 

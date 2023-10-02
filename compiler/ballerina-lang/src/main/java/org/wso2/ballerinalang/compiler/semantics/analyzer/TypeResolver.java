@@ -18,6 +18,9 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -123,11 +126,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.semTypeSupported;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
@@ -1667,11 +1672,13 @@ public class TypeResolver {
     }
 
     private BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
+        // TODO: 2/10/23 can we use the same logic for SymbolResolver?
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        SemType semType = PredefinedType.NEVER;
+        StringJoiner stringJoiner = new StringJoiner("|");
         for (BLangExpression exprOrLiteral : td.valueSpace) {
             BType type = blangTypeUpdate(exprOrLiteral);
             if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
@@ -1681,18 +1688,31 @@ public class TypeResolver {
                 exprOrLiteral.setBType(symTable.getTypeFromTag(type.tag));
             }
 
-            BLangLiteral literal;
-            if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
-                literal = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
+            if (semTypeSupported(exprOrLiteral.getBType().getKind())) {
+                if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
+                    exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
+                }
+
+                stringJoiner.add(getToString(exprOrLiteral));
+                semType = SemTypes.union(semType, SemTypeResolver.resolveSingletonType((BLangLiteral) exprOrLiteral));
             } else {
-                literal = (BLangLiteral) exprOrLiteral;
+                throw new IllegalStateException("non-sem value found!");
             }
-            finiteType.addValue(literal);
         }
 
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString());
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
+    }
+
+    String getToString(BLangExpression value) {
+        return switch (value.getBType().tag) {
+            case TypeTags.FLOAT -> value + "f";
+            case TypeTags.DECIMAL -> value + "d";
+            case TypeTags.STRING, TypeTags.CHAR_STRING -> "\"" + value + "\"";
+            default -> value.toString();
+        };
     }
 
     private BType blangTypeUpdate(BLangExpression expression) {

@@ -1963,13 +1963,11 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return literal;
     }
 
-    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangExpression expr) {
+    private BFiniteType createFiniteType(BConstantSymbol constantSymbol, BLangLiteral literal) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags, Names.EMPTY,
                 constantSymbol.pkgID, null, constantSymbol.owner,
                 constantSymbol.pos, VIRTUAL);
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        finiteType.addValue(expr);
-        semTypeResolver.setSemTypeIfEnabled(finiteType);
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, SemTypeResolver.resolveSingletonType(literal));
         finiteType.tsymbol.type = finiteType;
         return finiteType;
     }
@@ -1979,7 +1977,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         for (BType memberType : type.getMemberTypes()) {
             BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, constantSymbol.flags,
                     Names.EMPTY, constantSymbol.pkgID, null, constantSymbol.owner, constantSymbol.pos, VIRTUAL);
-            BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
             Object memberValue;
             switch (memberType.tag) {
                 case TypeTags.FLOAT:
@@ -1992,8 +1989,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 default:
                     memberValue = value;
             }
-            finiteType.addValue(getLiteral(memberValue, pos, memberType));
-            semTypeResolver.setSemTypeIfEnabled(finiteType);
+            BFiniteType finiteType = new BFiniteType(finiteTypeSymbol,
+                    SemTypeResolver.resolveSingletonType(getLiteral(memberValue, pos, memberType)));
             finiteType.tsymbol.type = finiteType;
             memberTypes.add(finiteType);
         }

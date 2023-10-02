@@ -1259,7 +1259,7 @@ public class BIRPackageSymbolEnter {
 
         private BType readTypeInternal(int cpI) throws IOException {
             byte tag = inputStream.readByte();
-            Name name = names.fromString(getStringCPEntryValue(inputStream));
+            Name name = Names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
 
             switch (tag) {
@@ -1653,17 +1653,13 @@ public class BIRPackageSymbolEnter {
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     var finiteTypeFlags = inputStream.readLong();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
-                                                                  names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
+                                                                  Names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
                                                                   null, env.pkgSymbol, symTable.builtinPos,
                                                                   COMPILED_SOURCE);
                     symbol.scope = new Scope(symbol);
-                    BFiniteType finiteType = new BFiniteType(symbol);
+                    BFiniteType finiteType = new BFiniteType(symbol, null);
                     finiteType.flags = flags;
                     symbol.type = finiteType;
-                    int valueSpaceSize = inputStream.readInt();
-                    for (int i = 0; i < valueSpaceSize; i++) {
-                        defineValueSpace(inputStream, finiteType, this);
-                    }
                     return finiteType;
                 case TypeTags.OBJECT:
                     boolean service = inputStream.readByte() == 1;
@@ -2155,54 +2151,6 @@ public class BIRPackageSymbolEnter {
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
         return new PackageID(names.fromString(orgName), names.fromString(pkgName),
                 names.fromString(moduleName), names.fromString(version), null);
-    }
-
-    private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
-            throws IOException {
-        BType valueType = typeReader.readTypeFromCp();
-
-        dataInStream.readInt(); // read and ignore value length
-
-        BLangLiteral litExpr = createLiteralBasedOnType(valueType);
-        switch (valueType.tag) {
-            case TypeTags.INT:
-                int integerCpIndex = dataInStream.readInt();
-                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[integerCpIndex];
-                litExpr.value = integerCPEntry.value;
-                break;
-            case TypeTags.BYTE:
-                int byteCpIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[byteCpIndex];
-                litExpr.value = byteCPEntry.value;
-                break;
-            case TypeTags.FLOAT:
-                int floatCpIndex = dataInStream.readInt();
-                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[floatCpIndex];
-                litExpr.value = Double.toString(floatCPEntry.value);
-                break;
-            case TypeTags.STRING:
-            case TypeTags.DECIMAL:
-                litExpr.value = getStringCPEntryValue(dataInStream);
-                break;
-            case TypeTags.BOOLEAN:
-                litExpr.value = dataInStream.readBoolean();
-                break;
-            case TypeTags.NIL:
-                litExpr.originalValue = "null";
-                break;
-            default:
-                throw new UnsupportedOperationException("finite type value is not supported for type: " + valueType);
-        }
-
-        litExpr.setBType(valueType);
-
-        finiteType.addValue(litExpr);
-    }
-
-    private BLangLiteral createLiteralBasedOnType(BType valueType) {
-        NodeKind nodeKind = valueType.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
-        return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
-                (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
     }
 
     private boolean isImmutable(long flags) {

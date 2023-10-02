@@ -150,14 +150,6 @@ public class SemTypeResolver {
         }
     }
 
-    void setSemTypeIfEnabled(BFiniteType finiteType) {
-        if (!SEMTYPE_ENABLED) {
-            return;
-        }
-
-        finiteType.setSemType(resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
-    }
-
     // --------------------------------------- Subset suffixed methods ----------------------------------------------
 
     // All methods end with suffix "Subset", support only subset of ported sem-types.
@@ -387,7 +379,7 @@ public class SemTypeResolver {
         return resolveSingletonType((BLangLiteral) valueSpace.get(0));
     }
 
-    static SemType resolveSingletonType(BLangLiteral literal) {
+    public static SemType resolveSingletonType(BLangLiteral literal) {
         Object litVal = literal.value;
         switch (literal.getDeterminedType().getKind()) {
             case FLOAT:
@@ -806,41 +798,6 @@ public class SemTypeResolver {
         type.setSemTypeComponent(semType);
     }
 
-    public static void resolveBFiniteTypeSemTypeComponent(BFiniteType type) {
-        List<BLangExpression>  valueSpace = new ArrayList<>(type.getValueSpace());
-        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
-        replaceUnaryExprWithNumericLiteral(valueSpace);
-
-        SemType semType = PredefinedType.NEVER;
-        for (BLangExpression bLangExpression : valueSpace) {
-            BLangLiteral literal = (BLangLiteral) bLangExpression;
-            if (semTypeSupported(literal.getBType().getKind())) {
-                semType = SemTypes.union(semType, resolveSingletonType((BLangLiteral) bLangExpression));
-            } else if (literal.getBType().getKind() == TypeKind.OTHER) {
-                // do nothing. continue
-            } else {
-                throw new IllegalStateException("non-sem value found!");
-            }
-        }
-
-        type.setSemType(semType);
-    }
-
-    public static void addBFiniteValue(BFiniteType type, BLangExpression value) {
-        SemType semType = type.getSemType();
-
-        if (semTypeSupported(value.getBType().getKind())) {
-            if (value.getKind() == NodeKind.UNARY_EXPR) {
-                value = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
-            }
-            semType = SemTypes.union(semType, resolveSingletonType((BLangLiteral) value));
-        } else {
-            throw new IllegalStateException("non-sem value found!");
-        }
-
-        type.setSemType(semType);
-    }
-
     public static SemType getSemTypeComponent(BType t) {
         if (t.tag == TypeTags.TYPEREFDESC) {
             return getSemTypeComponent(((BTypeReferenceType) t).referredType);
@@ -883,7 +840,7 @@ public class SemTypeResolver {
         return t;
     }
 
-    private static boolean semTypeSupported(TypeKind kind) {
+    protected static boolean semTypeSupported(TypeKind kind) {
         return switch (kind) {
             case NIL, BOOLEAN, INT, BYTE, FLOAT, DECIMAL, STRING, FINITE -> true;
             default -> false;

@@ -19,6 +19,9 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Core;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -136,11 +139,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.StringJoiner;
 
 import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.semTypeSupported;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
@@ -1423,7 +1428,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 finiteTypeNode.pos, SOURCE);
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        SemType semType = PredefinedType.NEVER;
+        StringJoiner stringJoiner = new StringJoiner("|");
         for (BLangExpression exprOrLiteral : finiteTypeNode.valueSpace) {
             BLangLiteral literal;
             if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
@@ -1431,9 +1437,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             } else {
                 literal = (BLangLiteral) exprOrLiteral;
             }
-            finiteType.addValue(literal);
+            stringJoiner.add(typeResolver.getToString(exprOrLiteral));
+            assert semTypeSupported(literal.getDeterminedType().getKind());
+            semType = Core.union(semType, SemTypeResolver.resolveSingletonType(literal));
         }
-        semTypeResolver.setSemTypeIfEnabled(finiteType);
+
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString());
         finiteTypeSymbol.type = finiteType;
         return finiteType;
     }
