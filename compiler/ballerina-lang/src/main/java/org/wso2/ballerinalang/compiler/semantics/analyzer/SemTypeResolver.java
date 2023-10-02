@@ -380,33 +380,36 @@ public class SemTypeResolver {
     }
 
     public static SemType resolveSingletonType(BLangLiteral literal) {
-        Object litVal = literal.value;
-        switch (literal.getDeterminedType().getKind()) {
+        return resolveSingletonType(literal.value, literal.getDeterminedType().getKind());
+    }
+
+    public static SemType resolveSingletonType(Object value, TypeKind targetTypeKind) {
+        switch (targetTypeKind) {
             case FLOAT:
-                double value;
-                if (litVal instanceof Long) {
-                    value = ((Long) litVal).doubleValue();
-                } else if (litVal instanceof Double) {
-                    value = (double) litVal;
+                double doubleVal;
+                if (value instanceof Long) {
+                    doubleVal = ((Long) value).doubleValue();
+                } else if (value instanceof Double) {
+                    doubleVal = (double) value;
                 } else {
                     // literal value will be a string if it wasn't within the bounds of what is supported by Java Long
                     // or Double when it was parsed in BLangNodeBuilder.
-                    value = Double.parseDouble((String) litVal);
+                    doubleVal = Double.parseDouble((String) value);
                 }
-                return SemTypes.floatConst(value);
+                return SemTypes.floatConst(doubleVal);
             case INT:
             case BYTE:
-                return SemTypes.intConst((Long) litVal);
+                return SemTypes.intConst((Long) value);
             case STRING:
-                return SemTypes.stringConst((String) litVal);
+                return SemTypes.stringConst((String) value);
             case BOOLEAN:
-                return SemTypes.booleanConst((Boolean) litVal);
+                return SemTypes.booleanConst((Boolean) value);
             case DECIMAL:
-                return SemTypes.decimalConst((String) litVal);
+                return SemTypes.decimalConst((String) value);
             case NIL:
                 return PredefinedType.NIL;
             default:
-                throw new UnsupportedOperationException("Finite type not implemented for: " + literal);
+                throw new UnsupportedOperationException("Finite type not implemented for: " + targetTypeKind);
         }
     }
 
