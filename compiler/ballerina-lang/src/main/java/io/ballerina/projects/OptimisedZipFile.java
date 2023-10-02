@@ -41,6 +41,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class OptimisedZipFile extends ZipFile {
     private final HashMap<String, HashSet<String>> deadFunctionMap;
+    private static final String INIT_CLASS_IDENTIFIER = "init.class";
 
     public OptimisedZipFile(File file, HashMap<String, HashSet<String>> deadFunctionMap) throws IOException {
         super(file);
@@ -52,7 +53,7 @@ public class OptimisedZipFile extends ZipFile {
         while (src.hasMoreElements()) {
             final ZipArchiveEntry entry = src.nextElement();
             if (predicate.test( entry)) {
-                if (!entry.getName().contains("init.class") && deadFunctionMap.containsKey(entry.getName())) {
+                if (!entry.getName().contains(INIT_CLASS_IDENTIFIER) && deadFunctionMap.containsKey(entry.getName())) {
                     target.putArchiveEntry(entry);
                     target.write(getOptimizedEntry(entry));
                     target.closeArchiveEntry();
@@ -68,7 +69,7 @@ public class OptimisedZipFile extends ZipFile {
 
         ClassReader classReader = new ClassReader(requireNonNull(inputStream));
         ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor classVisitor = new DeadFunctionVisitor(Opcodes.ASM7, classWriter, deadFunctionMap.get(originalEntry.getName()));
+        ClassVisitor classVisitor = new DeadFunctionVisitor(Opcodes.ASM9, classWriter, deadFunctionMap.get(originalEntry.getName()));
         classReader.accept(classVisitor, 0);
 
         return classWriter.toByteArray();

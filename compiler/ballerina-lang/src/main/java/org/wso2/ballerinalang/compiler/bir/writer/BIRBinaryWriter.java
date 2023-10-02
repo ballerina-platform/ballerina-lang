@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -210,13 +211,13 @@ public class BIRBinaryWriter {
         // Function type as a CP Index
         BIRWriterUtils.writeType(cp, buf, birFunction.type);
 
-
+        BTypeSymbol birFuncTSymbol = birFunction.type.tsymbol;
         // Children functions
-        if (birFunction.type.tsymbol == null || birFunction.type.tsymbol.owner == null) {
+        if (birFuncTSymbol == null || birFuncTSymbol.owner == null) {
             buf.writeInt(0); // no of children
-        } else if (birFunction.type.tsymbol.owner.getKind().equals(SymbolKind.FUNCTION)) {
+        } else if (birFuncTSymbol.owner.getKind().equals(SymbolKind.FUNCTION)) {
             // Writing the children(Invocations inside the body)
-            BInvokableSymbol parentSymbol = (BInvokableSymbol) birFunction.type.tsymbol.owner;
+            BInvokableSymbol parentSymbol = (BInvokableSymbol) birFuncTSymbol.owner;
             // Number of children
             buf.writeInt(parentSymbol.childrenFunctions.size());
             // name and pkgName of each child
