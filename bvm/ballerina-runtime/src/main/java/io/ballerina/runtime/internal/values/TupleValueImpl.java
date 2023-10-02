@@ -671,7 +671,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    protected void fillerValueCheck(int index, int size, boolean setLength) {
+    protected void fillerValueCheck(int index, int size, int expectedLength) {
         // if there has been values added beyond the current index, that means filler values
         // has already been checked. Therefore, no need to check again.
         if (this.size >= index) {
@@ -681,7 +681,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
         if (!TypeChecker.hasFillerValue(this.tupleType.getRestType()) && (index > size)) {
-            int expectedLength = setLength ? index : index + 1;
             throw ErrorHelper.getRuntimeException(ErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                     ErrorCodes.ILLEGAL_TUPLE_INSERTION, size, expectedLength);
         }
@@ -760,7 +759,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                                                          TypeChecker.getType(value)));
         }
 
-        fillerValueCheck(intIndex, size, false);
+        fillerValueCheck(intIndex, size, intIndex + 1);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
         resetSize(intIndex);

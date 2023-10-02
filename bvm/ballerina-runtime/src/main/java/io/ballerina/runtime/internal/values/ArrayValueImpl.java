@@ -1105,14 +1105,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    protected void fillerValueCheck(int index, int size, boolean setLength) {
+    protected void fillerValueCheck(int index, int size, int expectedLength) {
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
         if (arrayType.hasFillerValue()) {
             return;
         }
         if (index > size) {
-            int expectedLength = setLength ? index : index + 1;
             throw ErrorHelper.getRuntimeException(ErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            ErrorCodes.ILLEGAL_ARRAY_INSERTION, size, expectedLength);
         }
@@ -1173,7 +1172,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
         int intIndex = (int) index;
         rangeCheck(index, size);
-        fillerValueCheck(intIndex, size, false);
+        fillerValueCheck(intIndex, size, intIndex + 1);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
         resetSize(intIndex);
