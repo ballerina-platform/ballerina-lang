@@ -544,6 +544,11 @@ public class TypeChecker {
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
         }
+        if (typedescValue instanceof TypedescValueImpl && ((TypedescValueImpl) typedescValue).annotations != null) {
+            if (((TypedescValueImpl) typedescValue).annotations.containsKey(annotTag)) {
+                return ((TypedescValueImpl) typedescValue).annotations.get(annotTag);
+            }
+        }
         return ((BAnnotatableType) describingType).getAnnotation(annotTag);
     }
 
@@ -2151,7 +2156,7 @@ public class TypeChecker {
     private static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
                                            List<TypeValuePair> unresolvedValues,
                                            boolean allowNumericConversion, String varName) {
-        Type sourceType = getReferredType(getType(sourceValue));
+        Type sourceType = getImpliedType(getType(sourceValue));
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
