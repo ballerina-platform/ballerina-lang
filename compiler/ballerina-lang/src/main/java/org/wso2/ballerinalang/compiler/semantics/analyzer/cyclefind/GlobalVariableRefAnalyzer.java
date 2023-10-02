@@ -27,14 +27,21 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -344,6 +351,20 @@ public class GlobalVariableRefAnalyzer {
                 return ((BLangService) topLevelNode).symbol == symbol;
             case CLASS_DEFN:
                 return ((BLangClassDefinition) topLevelNode).symbol == symbol;
+            case TUPLE_VARIABLE:
+                return ((BLangTupleVariable) topLevelNode).symbol == symbol;
+            case RECORD_VARIABLE:
+                return ((BLangRecordVariable) topLevelNode).symbol == symbol;
+            case ANNOTATION:
+                return ((BLangAnnotation) topLevelNode).symbol == symbol;
+            case ERROR_VARIABLE:
+                return ((BLangErrorVariable) topLevelNode).symbol == symbol;
+            case RESOURCE_FUNC:
+                return ((BLangResourceFunction) topLevelNode).symbol == symbol;
+            case XMLNS:
+                return ((BLangXMLNS) topLevelNode).symbol == symbol;
+            case IMPORT:
+                return ((BLangImportPackage) topLevelNode).symbol == symbol;
             default:
                 return false;
         }
