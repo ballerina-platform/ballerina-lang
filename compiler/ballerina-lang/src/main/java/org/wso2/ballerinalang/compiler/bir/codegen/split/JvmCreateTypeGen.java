@@ -96,6 +96,7 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getImpliedType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
@@ -143,7 +144,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getEffectiveType;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -280,7 +280,7 @@ public class JvmCreateTypeGen {
                                           "()V", null, null);
         mv.visitCode();
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);
+            BType bType = getImpliedType(typeDefinition.type);
            if (bType.tag == TypeTags.RECORD) {
                 continue;
            }
@@ -296,7 +296,7 @@ public class JvmCreateTypeGen {
     }
 
     private void createTypedescInstances(MethodVisitor mv, BIRNonTerminator.NewTypeDesc typeDesc) {
-        BType type = JvmCodeGenUtil.getReferredType(typeDesc.type);
+        BType type = getImpliedType(typeDesc.type);
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
             className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
@@ -311,7 +311,7 @@ public class JvmCreateTypeGen {
     }
 
     public void generateGlobalVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl) {
-        BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
+        BType bType = getImpliedType(varDcl.type);
         String varName = varDcl.name.value;
         PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
         String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -327,8 +327,8 @@ public class JvmCreateTypeGen {
             PackageID pkgID = bType.tsymbol.pkgID;
             String packageName = JvmCodeGenUtil.getPackageName(pkgID);
             className = getTypeDescClassName(packageName, toNameString(bType));
-        } else if (getEffectiveType(bType).tag == TypeTags.TUPLE) {
-            bType = getEffectiveType(bType);
+        } else if (getImpliedType(bType).tag == TypeTags.TUPLE) {
+            bType = getImpliedType(bType);
             className = TYPEDESC_VALUE_IMPL;
         } else {
             return;
@@ -338,7 +338,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
         BType referenceType = typeDefinition.referenceType;
         if (referenceType == null) {
-            jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(bType));
+            jvmTypeGen.loadType(mv, getImpliedType(bType));
         } else {
             BType referredType = ((BTypeReferenceType) referenceType).referredType;
             if (referredType.tag == TypeTags.TYPEREFDESC || bType.tag == TypeTags.TUPLE) {
@@ -365,9 +365,9 @@ public class JvmCreateTypeGen {
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = getImpliedType(optionalTypeDef.type);
             if (bType.tag != TypeTags.RECORD && bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.ERROR &&
-                    bType.tag != TypeTags.UNION && getEffectiveType(bType).tag != TypeTags.TUPLE) {
+                    bType.tag != TypeTags.UNION && getImpliedType(bType).tag != TypeTags.TUPLE) {
                         // do not generate anything for other types (e.g.: finite type, etc.)
                         continue;
                     } else {
@@ -378,7 +378,7 @@ public class JvmCreateTypeGen {
                     mv.visitCode();
                 }
             }
-            switch (getEffectiveType(bType).tag) {
+            switch (getImpliedType(bType).tag) {
                 case TypeTags.RECORD:
                     jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, name);
                     break;
@@ -389,7 +389,7 @@ public class JvmCreateTypeGen {
                     jvmErrorTypeGen.createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
                     break;
                 case TypeTags.TUPLE:
-                    jvmTupleTypeGen.createTupleType(mv, (BTupleType) getEffectiveType(bType));
+                    jvmTupleTypeGen.createTupleType(mv, (BTupleType) getImpliedType(bType));
                     break;
                 default:
                     jvmUnionTypeGen.createUnionType(mv, (BUnionType) bType);

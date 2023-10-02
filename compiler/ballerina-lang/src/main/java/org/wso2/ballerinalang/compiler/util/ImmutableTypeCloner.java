@@ -621,6 +621,18 @@ public class ImmutableTypeCloner {
         setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
                     unresolvedTypes);
 
+        for (BLangTypeDefinition typeDefinition : env.enclPkg.typeDefinitions) {
+            BType type = typeDefinition.getBType();
+            if (type != null && type.tag != TypeTags.RECORD) {
+                continue;
+            }
+            if (type == originalType) {
+                BLangRecordTypeNode originRecordType = (BLangRecordTypeNode) typeDefinition.typeNode;
+                recordTypeNode.isAnonymous = originRecordType.isAnonymous;
+                recordTypeNode.isLocal = originRecordType.isLocal;
+            }
+        }
+
         TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol, recordTypeNode, env);
         return immutableRecordIntersectionType;

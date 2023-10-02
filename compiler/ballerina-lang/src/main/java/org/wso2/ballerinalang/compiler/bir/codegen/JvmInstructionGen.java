@@ -252,7 +252,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getEffectiveType;
 
 /**
  * Instruction generator helper class to hold its enclosing pkg and index map.
@@ -626,7 +625,8 @@ public class JvmInstructionGen {
             BType elementType = JvmCodeGenUtil.getImpliedType(((BArrayType) instType).eType);
             if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
                     ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
-                visitNewRecordArray(elementType);
+                // TODO:
+//                visitNewRecordArray(elementType);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                         INIT_ARRAY, false);
@@ -1591,7 +1591,7 @@ public class JvmInstructionGen {
     }
 
     private void visitNewRecordArray(BType type, BIRNonTerminator.NewArray inst) {
-        BType elementType = JvmCodeGenUtil.getReferredType(type);
+        BType elementType = JvmCodeGenUtil.getImpliedType(type);
         elementType = elementType.tag == TypeTags.INTERSECTION ?
                 ((BIntersectionType) elementType).effectiveType : elementType;
         if (inst.typedescOp == null) {
@@ -2165,7 +2165,7 @@ public class JvmInstructionGen {
     private void createTypedescInstance(MethodVisitor mv, BType bType, BIRNonTerminator.NewTypeDesc typedesc,
                                         String moduleInitClass) {
         String className;
-        BType effectiveType = getEffectiveType(bType);
+        BType effectiveType = JvmCodeGenUtil.getImpliedType(bType);
         if (bType.tag == TypeTags.RECORD) {
             PackageID pkgID = bType.tsymbol.pkgID;
             String packageName = JvmCodeGenUtil.getPackageName(pkgID);
@@ -2179,7 +2179,7 @@ public class JvmInstructionGen {
 
         mv.visitTypeInsn(NEW, className);
         mv.visitInsn(DUP);
-        jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(bType));
+        jvmTypeGen.loadType(mv, JvmCodeGenUtil.getImpliedType(bType));
 
         mv.visitInsn(ACONST_NULL);
         String constructorDesc =

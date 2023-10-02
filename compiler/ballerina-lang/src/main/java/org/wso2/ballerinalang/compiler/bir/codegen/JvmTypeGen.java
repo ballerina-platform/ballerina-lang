@@ -228,9 +228,9 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(typeDef.type);
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION || Types.getEffectiveType(bType).tag == TypeTags.TUPLE) {
+                    || bType.tag == TypeTags.UNION || Types.getImpliedType(bType).tag == TypeTags.TUPLE) {
                 String name = typeDef.internalName.value;
                 generateTypeField(cw, name);
                 generateTypedescField(cw, name);
