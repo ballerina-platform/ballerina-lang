@@ -1,0 +1,6 @@
+[methodCall]
+parametersWrap = "NOWRAP"
+newLineAfterLeftParen = true
+
+[wrapping]
+maxLineLength = 80

@@ -1,6 +1,0 @@
-[format]
-columnLimit = 120
-
-[format.function]
-oneArgPerLine = true
-paranAlign = true

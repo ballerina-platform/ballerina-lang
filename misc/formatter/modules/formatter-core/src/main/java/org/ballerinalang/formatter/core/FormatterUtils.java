@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.formatter.core;
 
-import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
@@ -25,22 +24,92 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Class that contains the util functions used by the formatting tree modifier.
  */
-class FormatterUtils {
+public class FormatterUtils {
 
     private FormatterUtils() {
 
     }
 
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
+
+    public static Map<String, Object> getFormattingConfigurations(String path) throws FormatterException {
+        String content;
+        if (isLocalFile(path)) {
+            try {
+                content = Files.readString(Path.of(path), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new FormatterException("Failed to retrieve local formatting configuration file");
+            }
+        } else {
+            content = readRemoteFormatFile(path);
+        }
+
+        TomlDocument document = TomlDocument.from(path, content);
+        TomlTableNode tomlAstNode = document.toml().rootNode();
+
+        Map<String, Object> formatConfigs = new HashMap<>();
+        if (!tomlAstNode.entries().isEmpty()) {
+            Map<String, Object> tomlMap = document.toml().toMap();
+            for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
+                formatConfigs.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return formatConfigs;
+    }
+
+    public static boolean isLocalFile(String path) {
+        return new File(path).exists();
+    }
+
+    static String readRemoteFormatFile(String fileUrl) throws FormatterException {
+        StringBuilder fileContent = new StringBuilder();
+
+        try {
+            URL url = new URL(fileUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        fileContent.append(line).append(NEWLINE_SYMBOL);
+                    }
+                }
+            } else {
+                throw new FormatterException("Failed to retrieve remote file. HTTP response code: " + responseCode);
+            }
+            connection.disconnect();
+        } catch (IOException e) {
+            throw new FormatterException("Failed to retrieve remote formatting configuration file");
+        }
+        return fileContent.toString();
+    }
 
     static boolean isInlineRange(Node node, LineRange lineRange) {
         if (lineRange == null) {
@@ -165,19 +234,16 @@ class FormatterUtils {
                 minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
     }
 
-    static int openBraceTrailingNLs(BlockFormattingOptions options, BlockStatementNode node) {
+    static int openBraceTrailingNLs(WrappingFormattingOptions options, Node node) {
         if (node.lineRange().startLine().line() != node.lineRange().endLine().line()) {
             return 1;
         }
 
-        if (options.allowShortBlocksOnASingleLine()) {
+        SyntaxKind parentKind = node.parent().kind();
+        if (options.isSimpleBlocksInOneLine() && parentKind != SyntaxKind.METHOD_DECLARATION) {
             return 0;
         }
-
-        SyntaxKind parentKind = node.parent().kind();
-        return  (options.allowShortIfStatementsOnASingleLine() && parentKind == SyntaxKind.IF_ELSE_STATEMENT) ||
-                (options.allowShortLoopsOnASingleLine() && parentKind == SyntaxKind.WHILE_STATEMENT) ||
-                (options.allowShortMatchLabelsOnASingleLine() && parentKind == SyntaxKind.MATCH_CLAUSE) ? 0 : 1;
+        return (options.isSimpleMethodsInOneLine() && parentKind == SyntaxKind.METHOD_DECLARATION) ? 0 : 1;
     }
 
     static int getConstDefWidth(ConstantDeclarationNode node) {

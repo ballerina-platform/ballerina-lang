@@ -1,0 +1,5 @@
+[methodDeclaration]
+parametersWrap = "NOWRAP"
+
+[wrapping]
+maxLineLength = 80
