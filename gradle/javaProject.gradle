@@ -102,7 +102,7 @@ dependencies {
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.2'
-
+        
         implementation 'info.picocli:picocli:4.0.1'
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
         implementation 'io.ballerina.messaging:broker-core:0.970.5'
