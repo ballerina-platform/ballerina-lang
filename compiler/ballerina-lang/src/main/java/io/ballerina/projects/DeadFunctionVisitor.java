@@ -28,21 +28,19 @@ import java.util.HashSet;
  */
 public class DeadFunctionVisitor extends ClassVisitor {
 
+    private static final String INIT_FUNCTION_IDENTIFIER = "init";
+
     private final HashSet<String> deadFunctionNames;
 
     public DeadFunctionVisitor(int api, ClassWriter cw, HashSet<String> deadFunctionNames) {
-
         super(api, cw);
         this.deadFunctionNames = deadFunctionNames;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-
-        MethodVisitor methodVisitor;
-        if (!name.contains("init") && deadFunctionNames.contains(name)) {
-            methodVisitor = null;
-        } else {
+        MethodVisitor methodVisitor = null;
+        if (name.contains(INIT_FUNCTION_IDENTIFIER) || !deadFunctionNames.contains(name)) {
             methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
         }
         return methodVisitor;

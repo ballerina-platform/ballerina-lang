@@ -42,7 +42,29 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -120,11 +142,13 @@ public class BIRPackageSymbolEnter {
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
-    private HashMap<BInvokableSymbol, HashSet<String>> undefinedChildrenMap = new HashMap<>();     // Children functions from the same pkg which are not yet defined
-    private HashMap<BInvokableSymbol, HashSet<String>> failedSymbolsMap = new HashMap<>();       // used for debugging
+    // Following HashMap is used for debugging purposes
+    // It can be used to analyze which child symbols were failed to be resolved
+    private HashMap<BInvokableSymbol, HashSet<String>> failedSymbolsMap = new HashMap<>();
     private HashMap<String, HashMap<String, HashSet<BInvokableSymbol>>> unresolvedInvocations = new HashMap<>();
 
     private static final int SERVICE_TYPE_TAG = 54;
+    private static final String PKG_NAME_FIRST_PART = "ballerina";
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -247,8 +271,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void resolveRemainingChildSymbols(BPackageSymbol latestPkgSymbol) {
-
-        String latestPkgName = String.format("ballerina/%s", latestPkgSymbol.getName());
+        String latestPkgName = String.format("%s/%s", PKG_NAME_FIRST_PART, latestPkgSymbol.getName());
         if (!unresolvedInvocations.containsKey(latestPkgName)) {
             return;
         }
@@ -409,7 +432,8 @@ public class BIRPackageSymbolEnter {
         invokableSymbol.retType = funcType.retType;
 
         if (!invokableSymbol.origin.equals(SymbolOrigin.VIRTUAL)) {
-            // Only toplevel symbols are defined as "UNUSED". Others(arrow and $ functions) will be UNEXPLORED by default
+            // Only toplevel symbols are defined as "UNUSED"
+            // Others(arrow and Desugar generated functions) will be UNEXPLORED by default
             invokableSymbol.usedState = UsedState.UNUSED;
             this.env.pkgSymbol.deadFunctions.add(invokableSymbol);
         } else {
@@ -418,7 +442,7 @@ public class BIRPackageSymbolEnter {
         }
         this.env.pkgSymbol.invocationMap.putIfAbsent(invokableSymbol, new HashSet<>());
 
-        // Reading the children(Invocations inside the body)
+        // Reading the children(Invocations inside the parent's body)
         int numOfChildren = dataInStream.readInt();
         for (int i = 0; i < numOfChildren; i++) {
             String childPkgName = getStringCPEntryValue(dataInStream);
@@ -553,25 +577,6 @@ public class BIRPackageSymbolEnter {
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
-    // Handles internal function calls (parent and child being in the same package)
-    private void addRemainingChildren() {
-        BPackageSymbol childPkgSymbol = this.env.pkgSymbol;
-        this.undefinedChildrenMap.forEach((parentSymbol, childrenStrings) -> {
-            childrenStrings.forEach((childString) -> {
-
-                BInvokableSymbol childSymbol = getInvokableSymbol(childPkgSymbol, childString);
-                if (childSymbol != null) {
-                    addInvocation(parentSymbol, childSymbol);
-                } else {
-                    failedSymbolsMap.putIfAbsent(parentSymbol, new HashSet<>());
-                    failedSymbolsMap.get(parentSymbol).add(childString);
-                }
-            });
-        });
-        // Flushing the HashMap
-        this.undefinedChildrenMap.clear();
-    }
-
     private boolean pkgIsDefined(String pkgName) {
         return this.packageCache.packageSymbolMap.containsKey(pkgName);
     }
@@ -598,11 +603,6 @@ public class BIRPackageSymbolEnter {
             BClassSymbol classSymbol = (BClassSymbol) pkgSymbol.scope.lookup(new Name(classAndChild[0])).symbol;
             return (BInvokableSymbol) classSymbol.scope.lookup(new Name(functionName)).symbol;
         }
-    }
-
-    private boolean isCurrentlyReadPkg(String pkgName) {
-        String processingPkgName = this.env.pkgSymbol.pkgID.orgName + "/" + this.env.pkgSymbol.pkgID.pkgName;
-        return pkgName.equals(processingPkgName);
     }
 
     private void defineGlobalVarDependencies(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
