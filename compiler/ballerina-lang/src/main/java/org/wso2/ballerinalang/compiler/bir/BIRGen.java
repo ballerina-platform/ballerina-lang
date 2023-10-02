@@ -1727,7 +1727,8 @@ public class BIRGen extends BLangNodeVisitor {
                                    VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        setScopeAndEmit(createNewStructureInst(generateMappingConstructorEntries(astMapLiteralExpr.fields), toVarRef, Types.getImpliedType(type), astMapLiteralExpr.pos));
+        setScopeAndEmit(createNewStructureInst(generateMappingConstructorEntries(astMapLiteralExpr.fields), toVarRef,
+                                               Types.getImpliedType(type), astMapLiteralExpr.pos));
         this.env.targetOperand = toVarRef;
         this.env.isInArrayOrStructure--;
     }

@@ -1616,7 +1616,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             while (iterator.hasNext()) {
                 E simpleVariable = rewrite((E) annotationClosureReferences.poll().var, env);
                 nodeList.add(simpleVariable);
-                env.enclPkg.topLevelNodes.add((BLangSimpleVariable)simpleVariable);
+                env.enclPkg.topLevelNodes.add((BLangSimpleVariable) simpleVariable);
             }
             nodeList.add(node);
         }
