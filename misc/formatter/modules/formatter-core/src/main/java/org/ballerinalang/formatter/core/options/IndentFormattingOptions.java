@@ -23,12 +23,12 @@ import java.util.Map;
  * @since 2201.8.0
  */
 public class IndentFormattingOptions {
+
     private final int indentSize;
     private final int continuationIndentSize;
     private final String wsCharacter;
 
-
-    public IndentFormattingOptions(int indentSize, int continuationIndentSize, String wsCharacter) {
+    private IndentFormattingOptions(int indentSize, int continuationIndentSize, String wsCharacter) {
         this.indentSize = indentSize;
         this.continuationIndentSize = continuationIndentSize;
         this.wsCharacter = wsCharacter;
@@ -54,6 +54,7 @@ public class IndentFormattingOptions {
      * A builder for the {@code IndentFormattingOptions}.
      */
     public static class IndentFormattingOptionsBuilder {
+
         private int indentSize = 4;
         private int continuationIndentSize = 2;
         private String wsCharacter = " ";

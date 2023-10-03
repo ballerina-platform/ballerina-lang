@@ -1,5 +1,5 @@
 [methodCall]
-parametersWrap = "WRAP"
+parametersWrap = "Wrap"
 alignMultilineParameters = true
 newLineAfterLeftParen = true
 rightParenOnNewLine = true

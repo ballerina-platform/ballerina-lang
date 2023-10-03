@@ -1,5 +1,5 @@
 [methodCall]
-parametersWrap = "CHOPDOWN"
+parametersWrap = "ChopDown"
 alignMultilineParameters = true
 newLineAfterLeftParen = true
 

@@ -1,5 +1,5 @@
 function getDateFormatIncludingDayName(string year, int month, int day, 
-                                       int dayNumber) returns string {
+                                      int dayNumber) returns string {
   string? text = ();
   match dayNumber {
     1 => { text = "Sunday"; }
@@ -13,7 +13,5 @@ function getDateFormatIncludingDayName(string year, int month, int day,
   if text !is () {
     return string `${year} ${month} ${text} ${day}`;
   }
-  else {
-    return string `${year} ${month} ${day}`;
-  }
+  else { return string `${year} ${month} ${day}`; }
 }

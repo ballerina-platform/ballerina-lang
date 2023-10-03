@@ -323,7 +323,7 @@ public class FormattingTreeModifier extends TreeModifier {
             functionName = formatToken(functionDefinitionNode.functionName(), 1, 0);
         }
         NodeList<Node> relativeResourcePath = formatNodeList(functionDefinitionNode.relativeResourcePath(), 0, 0, 0, 0);
-        int trailingNL = options.braceFormattingOptions().methodBraceStyle() == BraceStyle.NEWLINE ? 1 : 0;
+        int trailingNL = options.braceFormattingOptions().methodBraceStyle() == BraceStyle.NewLine ? 1 : 0;
         FunctionSignatureNode functionSignatureNode =
                 formatNode(functionDefinitionNode.functionSignature(), 1 - trailingNL,
                         trailingNL);
@@ -388,7 +388,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
-        boolean oneArgPerLine = funcOptions.parametersWrap() == WrappingMethod.CHOPDOWN;
+        boolean oneArgPerLine = funcOptions.parametersWrap() == WrappingMethod.ChopDown;
         int closeParenLeadingNL = funcOptions.rightParenOnNewLine() ? 1 : 0;
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, oneArgPerLine ? 0 : 1,
@@ -1106,7 +1106,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0,
                 callOptions.newLineAfterLeftParen() ? 1 : 0);
 
-        boolean oneArgPerLine = callOptions.parametersWrap() == WrappingMethod.CHOPDOWN;
+        boolean oneArgPerLine = callOptions.parametersWrap() == WrappingMethod.ChopDown;
         int closeParenLeadingNL = callOptions.rightParenOnNewLine() ? 1 : 0;
         SeparatedNodeList<FunctionArgumentNode> arguments =
                 formatSeparatedNodeList(functionCallExpressionNode.arguments(), 0, 0, oneArgPerLine ? 0 : 1,
@@ -3535,7 +3535,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token visibilityQualifier = formatToken(classDefinitionNode.visibilityQualifier().orElse(null), 1, 0);
         NodeList<Token> classTypeQualifiers = formatNodeList(classDefinitionNode.classTypeQualifiers(), 1, 0, 1, 0);
         Token classKeyword = formatToken(classDefinitionNode.classKeyword(), 1, 0);
-        int trailingNL = options.braceFormattingOptions().classBraceStyle() == BraceStyle.NEWLINE ? 1 : 0;
+        int trailingNL = options.braceFormattingOptions().classBraceStyle() == BraceStyle.NewLine ? 1 : 0;
         Token className = formatToken(classDefinitionNode.className(), 1 - trailingNL,
                 trailingNL);
         Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
@@ -4280,7 +4280,7 @@ public class FormattingTreeModifier extends TreeModifier {
             case REQUIRED_PARAM:
             case REST_PARAM:
             case RETURN_TYPE_DESCRIPTOR:
-                if (options.functionDeclFormattingOptions().parametersWrap() == WrappingMethod.NOWRAP) {
+                if (options.functionDeclFormattingOptions().parametersWrap() == WrappingMethod.NoWrap) {
                     return false;
                 }
                 return true;
@@ -4289,7 +4289,7 @@ public class FormattingTreeModifier extends TreeModifier {
             case POSITIONAL_ARG:
             case NAMED_ARG:
             case REST_ARG:
-                if (options.functionCallFormattingOptions().parametersWrap() == WrappingMethod.NOWRAP) {
+                if (options.functionCallFormattingOptions().parametersWrap() == WrappingMethod.NoWrap) {
                     return false;
                 }
                 return true;

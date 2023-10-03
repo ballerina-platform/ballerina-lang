@@ -356,62 +356,8 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "alignConsecutiveDefinitions": {
-          "type": "boolean"
-        },
-        "columnLimit": {
-          "type": "integer"
-        },
-        "recordBraceSpacing": {
-          "type": "boolean"
-        },
-        "tabWidth": {
-          "type": "integer"
-        },
-        "block": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "allowShortBlocksOnASingleLine": {
-              "type": "boolean"
-            },
-            "allowShortMatchLabelsOnASingleLine": {
-              "type": "boolean"
-            },
-            "allowShortIfStatementsOnASingleLine": {
-              "type": "boolean"
-            },
-            "allowShortLoopsOnASingleLine": {
-              "type": "boolean"
-            },
-            "elseBlocksOnANewLine": {
-              "type": "boolean"
-            }
-          }
-        },
-        "function": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "oneArgPerLine": {
-              "type": "boolean"
-            },
-            "paranAlign": {
-              "type": "boolean"
-            }
-          }
-        },
-        "import": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "groupImports": {
-              "type": "boolean"
-            },
-            "sortImports": {
-              "type": "boolean"
-            }
-          }
+        "configPath": {
+          "type": "string"
         }
       }
     }

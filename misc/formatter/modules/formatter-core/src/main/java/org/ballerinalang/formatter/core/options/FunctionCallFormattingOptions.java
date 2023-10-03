@@ -31,8 +31,8 @@ public class FunctionCallFormattingOptions {
     private final boolean newLineAfterLeftParen;
     private final boolean rightParenOnNewLine;
 
-    public FunctionCallFormattingOptions(WrappingMethod parametersWrap, boolean alignMultilineParameters,
-                                         boolean newLineAfterLeftParen, boolean rightParenOnNewLine) {
+    private FunctionCallFormattingOptions(WrappingMethod parametersWrap, boolean alignMultilineParameters,
+                                          boolean newLineAfterLeftParen, boolean rightParenOnNewLine) {
         this.parametersWrap = parametersWrap;
         this.alignMultilineParameters = alignMultilineParameters;
         this.newLineAfterLeftParen = newLineAfterLeftParen;
@@ -64,7 +64,7 @@ public class FunctionCallFormattingOptions {
      */
     public static class FunctionCallFormattingOptionsBuilder {
 
-        private WrappingMethod parametersWrap = WrappingMethod.WRAP;
+        private WrappingMethod parametersWrap = WrappingMethod.Wrap;
         private boolean alignMultilineParameters = false;
         private boolean newLineAfterLeftParen = false;
         private boolean rightParenOnNewLine = false;

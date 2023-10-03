@@ -31,7 +31,9 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -55,7 +57,7 @@ public class FormatterUtils {
 
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
-    public static Map<String, Object> getFormattingConfigurations(String path) throws FormatterException {
+    public static Map<String, Object> getFormattingConfigurations(Path root, String path) throws FormatterException {
         String content;
         if (isLocalFile(path)) {
             try {
@@ -64,7 +66,7 @@ public class FormatterUtils {
                 throw new FormatterException("Failed to retrieve local formatting configuration file");
             }
         } else {
-            content = readRemoteFormatFile(path);
+            content = readRemoteFormatFile(root, path);
         }
 
         TomlDocument document = TomlDocument.from(path, content);
@@ -84,8 +86,17 @@ public class FormatterUtils {
         return new File(path).exists();
     }
 
-    static String readRemoteFormatFile(String fileUrl) throws FormatterException {
+    static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
         StringBuilder fileContent = new StringBuilder();
+        Path cachePath = root.resolve("target").resolve("format").resolve("Format.toml");
+
+        if (Files.exists(cachePath)) {
+            try {
+                return Files.readString(cachePath, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new FormatterException("Failed to read cached formatting configuration file");
+            }
+        }
 
         try {
             URL url = new URL(fileUrl);
@@ -108,7 +119,28 @@ public class FormatterUtils {
         } catch (IOException e) {
             throw new FormatterException("Failed to retrieve remote formatting configuration file");
         }
+        cacheRemoteConfigurationFile(root, fileContent.toString());
+
         return fileContent.toString();
+    }
+
+    private static void cacheRemoteConfigurationFile(Path root, String content) throws FormatterException {
+        if (Files.exists(root.resolve("target"))) {
+            if (!Files.exists(root.resolve("target").resolve("format"))) {
+                try {
+                    Files.createDirectories(root.resolve("target").resolve("format"));
+                } catch (IOException e) {
+                    throw new FormatterException("Failed to create format configuration cache directory");
+                }
+            }
+            String filePath = root.resolve("target").resolve("format").resolve("Format.toml")
+                    .toString();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
+                writer.write(content);
+            } catch (IOException e) {
+                throw new FormatterException("Failed to write format configuration cache file");
+            }
+        }
     }
 
     static boolean isInlineRange(Node node, LineRange lineRange) {
