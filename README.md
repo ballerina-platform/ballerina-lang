@@ -41,7 +41,7 @@ You can use one of the following options to try out Ballerina.
 * [Set up Ballerina](https://ballerina.io/learn/get-started/)
 * [Ballerina Playground](https://play.ballerina.io/)
 
-You can use following resources to learn Ballerina.
+You can use the following resources to learn Ballerina.
 
 * [Ballerina by Example](https://ballerina.io/learn/by-example/)
 * [Ballerina learn pages and guides](https://ballerina.io/learn/)
@@ -62,14 +62,14 @@ Try out Ballerina's development capabilities using the [Ballerina extension for 
 
 >**Tip:** If you are unsure whether you have found a bug, search the existing issues in the GitHub repo and raise it in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2) or [Stack Overflow](https://stackoverflow.com/questions/tagged/ballerina).
 
-  - Language, Tooling, Standard Library, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
+  - Language, Tooling, Ballerina library, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
   - Extended library: <a href="https://github.com/ballerina-platform/ballerina-extended-library/issues">ballerina-extended-library</a> repo
   - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
 
 
 ## Contribute to Ballerina
 
-As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
+As an open-source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
 
 We look forward to receiving your contributions.
 
