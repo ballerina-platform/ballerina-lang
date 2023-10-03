@@ -2535,10 +2535,12 @@ public class Types {
             }
         }
 
-        if (sourceType.tag == TypeTags.FINITE || targetType.tag == TypeTags.FINITE) {
-            if (isFiniteTypeCastable(sourceType, targetType).isPresent()) {
-                validTypeCast = true;
-            }
+        if (sourceType.tag == TypeTags.FINITE && getFiniteTypeForAssignableValues(sourceType, targetType).isPresent()) {
+            validTypeCast = true;
+        }
+
+        if (targetType.tag == TypeTags.FINITE && getFiniteTypeForAssignableValues(targetType, sourceType).isPresent()) {
+            validTypeCast = true;
         }
 
         if (validTypeCast) {
@@ -4064,13 +4066,14 @@ public class Types {
      * Method to retrieve a type representing all the values in the value space of a finite type that are assignable to
      * the target type.
      *
-     * @param sourceType the source type
-     * @param targetType the target type
+     * @param finiteType finite type
+     * @param targetType target type
      * @return a new finite type if at least one value in the value space of the specified finiteType is
      * assignable to targetType (the same if all are assignable), else semanticError
      */
-    Optional<BType> isFiniteTypeCastable(BType sourceType, BType targetType) {
-        SemType intersectingSemType = Core.intersect(SemTypeResolver.getSemTypeComponent(sourceType),
+    Optional<BType> getFiniteTypeForAssignableValues(BType finiteType, BType targetType) {
+        assert finiteType.tag == TypeTags.FINITE;
+        SemType intersectingSemType = Core.intersect(finiteType.getSemType(),
                 SemTypeResolver.getSemTypeComponent(targetType));
 
         if (PredefinedType.NEVER.equals(intersectingSemType)) {
@@ -4078,10 +4081,10 @@ public class Types {
         }
 
         // Create a new finite type representing the assignable values.
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, sourceType.tsymbol.flags,
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
                 Names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
-                sourceType.tsymbol.pkgID, null,
-                sourceType.tsymbol.owner, sourceType.tsymbol.pos,
+                finiteType.tsymbol.pkgID, null,
+                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, intersectingSemType);
         finiteTypeSymbol.type = intersectingFiniteType;
@@ -4992,8 +4995,13 @@ public class Types {
             return type;
         } else if (!intersectionContext.preferNonGenerativeIntersection && isAssignable(lhsType, type)) {
             return lhsType;
-        } else if (lhsType.tag == TypeTags.FINITE || type.tag == TypeTags.FINITE) {
-            Optional<BType> intersectionType = isFiniteTypeCastable(lhsType, type);
+        } else if (lhsType.tag == TypeTags.FINITE) {
+            Optional<BType> intersectionType = getFiniteTypeForAssignableValues(lhsType, type);
+            if (intersectionType.isPresent()) {
+                return intersectionType.get();
+            }
+        } else if (type.tag == TypeTags.FINITE) {
+            Optional<BType> intersectionType = getFiniteTypeForAssignableValues(type, lhsType);
             if (intersectionType.isPresent()) {
                 return intersectionType.get();
             }

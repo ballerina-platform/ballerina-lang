@@ -1428,18 +1428,16 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 finiteTypeNode.pos, SOURCE);
 
+        // Unary expr in BLangFiniteTypeNode will be replaced with numeric literals.
+        // Note: calling semanticAnalyzer form symbolResolver is a temporary fix.
+        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
+
         SemType semType = PredefinedType.NEVER;
         StringJoiner stringJoiner = new StringJoiner("|");
-        for (BLangExpression exprOrLiteral : finiteTypeNode.valueSpace) {
-            BLangLiteral literal;
-            if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
-                literal = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
-            } else {
-                literal = (BLangLiteral) exprOrLiteral;
-            }
-            stringJoiner.add(typeResolver.getToString(exprOrLiteral));
+        for (BLangExpression literal : finiteTypeNode.valueSpace) {
             assert semTypeSupported(literal.getDeterminedType().getKind());
-            semType = Core.union(semType, SemTypeResolver.resolveSingletonType(literal));
+            stringJoiner.add(typeResolver.getToString(literal));
+            semType = Core.union(semType, SemTypeResolver.resolveSingletonType((BLangLiteral) literal));
         }
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString());
