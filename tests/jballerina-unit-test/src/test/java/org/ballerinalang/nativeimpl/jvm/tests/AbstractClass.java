@@ -19,6 +19,11 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.values.BString;
 
+/**
+ * This class contains abstract methods required for interoperability testing.
+ *
+ * @since 2201.9.0
+ */
 public abstract class AbstractClass {
 
     public abstract BString getMessage();
