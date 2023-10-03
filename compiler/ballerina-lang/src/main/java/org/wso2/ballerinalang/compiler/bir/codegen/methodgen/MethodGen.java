@@ -370,7 +370,8 @@ public class MethodGen {
         termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
 
         // Create Local Variable Table
-        createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
+        createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel,
+                isObjectMethodSplit);
 
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
         mv.visitEnd();
@@ -1059,14 +1060,15 @@ public class MethodGen {
 
     private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap indexMap, int localVarOffset,
                                           MethodVisitor mv, Label methodStartLabel, LabelGenerator labelGen,
-                                          Label methodEndLabel) {
+                                          Label methodEndLabel, boolean isObjectMethodSplit) {
         String funcName = func.name.value;
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", GET_STRAND, null, methodStartLabel, methodEndLabel,
                 localVarOffset);
         // Add self to the LVT
         if (func.receiver != null) {
-            mv.visitLocalVariable(OBJECT_SELF_INSTANCE, GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
+            int selfIndex = isObjectMethodSplit ? 1 : 0;
+            mv.visitLocalVariable(OBJECT_SELF_INSTANCE, GET_BOBJECT, null, methodStartLabel, methodEndLabel, selfIndex);
         }
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
