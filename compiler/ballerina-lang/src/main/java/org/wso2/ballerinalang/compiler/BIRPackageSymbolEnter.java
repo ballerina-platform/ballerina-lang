@@ -600,7 +600,11 @@ public class BIRPackageSymbolEnter {
             return (BInvokableSymbol) pkgSymbol.scope.lookup(new Name(functionName)).symbol;
         } else {
             String[] classAndChild = functionName.split("\\.");
-            BClassSymbol classSymbol = (BClassSymbol) pkgSymbol.scope.lookup(new Name(classAndChild[0])).symbol;
+            BSymbol bSymbol = pkgSymbol.scope.lookup(new Name(classAndChild[0])).symbol;
+            if (bSymbol.getKind() == SymbolKind.TYPE_DEF) {
+                return null;
+            }
+            BClassSymbol classSymbol = (BClassSymbol) bSymbol;
             return (BInvokableSymbol) classSymbol.scope.lookup(new Name(functionName)).symbol;
         }
     }
