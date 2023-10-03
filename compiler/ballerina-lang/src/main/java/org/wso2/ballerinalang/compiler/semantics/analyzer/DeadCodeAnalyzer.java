@@ -208,13 +208,19 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         data.addParentFunctionToPkgSymbol(functionPointer);
     }
 
-    private void addFunctionToMap(BLangFunction topLevelFunction) {
-        data.addParentFunctionToPkgSymbol(topLevelFunction.symbol);
+    private void addFunctionToMap(BLangFunction function) {
+        data.addParentFunctionToPkgSymbol(function.symbol);
+
         // "main" and "init" functions are the roots of USED function chains
-        if (topLevelFunction.symbol.originalName.value.equals(MAIN_FUNCTION_NAME) ||
-                topLevelFunction.symbol.originalName.value.equals(INIT_FUNCTION_NAME)) {
-            data.addToUsedListInPkgSym(topLevelFunction.symbol);
-            topLevelFunction.symbol.usedState = UsedState.USED;
+        if (function.symbol.originalName.value.equals(MAIN_FUNCTION_NAME) ||
+                function.symbol.originalName.value.equals(INIT_FUNCTION_NAME)) {
+            data.addToUsedListInPkgSym(function.symbol);
+            function.symbol.usedState = UsedState.USED;
+        }
+        // Resource functions should be USED by default
+        if (function.flagSet.contains(Flag.RESOURCE)) {
+            function.symbol.usedState = UsedState.USED;
+            data.addToUsedListInPkgSym(function.symbol);
         }
     }
 
