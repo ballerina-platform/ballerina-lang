@@ -1,5 +1,5 @@
 [methodDeclaration]
-parametersWrap = "CHOPDOWN"
+parametersWrap = "ChopDown"
 alignMultilineParameters = true
 
 [wrapping]

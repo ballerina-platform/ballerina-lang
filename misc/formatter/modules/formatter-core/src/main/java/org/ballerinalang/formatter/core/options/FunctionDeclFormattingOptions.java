@@ -31,8 +31,8 @@ public class FunctionDeclFormattingOptions {
     private final boolean newLineAfterLeftParen;
     private final boolean rightParenOnNewLine;
 
-    public FunctionDeclFormattingOptions(WrappingMethod parametersWrap, boolean alignMultilineParameters,
-                                         boolean newLineAfterLeftParen, boolean rightParenOnNewLine) {
+    private FunctionDeclFormattingOptions(WrappingMethod parametersWrap, boolean alignMultilineParameters,
+                                          boolean newLineAfterLeftParen, boolean rightParenOnNewLine) {
         this.parametersWrap = parametersWrap;
         this.alignMultilineParameters = alignMultilineParameters;
         this.newLineAfterLeftParen = newLineAfterLeftParen;
@@ -61,7 +61,7 @@ public class FunctionDeclFormattingOptions {
 
     public static class FunctionDeclFormattingOptionsBuilder {
 
-        private WrappingMethod parametersWrap = WrappingMethod.WRAP;
+        private WrappingMethod parametersWrap = WrappingMethod.Wrap;
         private boolean alignMultilineParameters = false;
         private boolean newLineAfterLeftParen = false;
         private boolean rightParenOnNewLine = false;

@@ -128,7 +128,7 @@ class FormatUtil {
                     try {
                         project = BuildProject.load(projectPath, constructBuildOptions());
                         options = FormattingOptions.builder()
-                                .build(project.currentPackage().manifest().getValue("format"));
+                                .build(project.sourceRoot(), project.currentPackage().manifest().getValue("format"));
                     } catch (ProjectException e) {
                         throw LauncherUtils.createLauncherException(e.getMessage());
                     }
@@ -195,7 +195,8 @@ class FormatUtil {
                 FormattingOptions options;
                 try {
                     project = BuildProject.load(sourceRootPath, constructBuildOptions());
-                    options = FormattingOptions.builder().build(project.currentPackage().manifest().getValue("format"));
+                    options = FormattingOptions.builder()
+                            .build(project.sourceRoot(), project.currentPackage().manifest().getValue("format"));
                 } catch (ProjectException e) {
                     throw LauncherUtils.createLauncherException(e.getMessage());
                 }

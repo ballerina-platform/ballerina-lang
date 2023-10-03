@@ -3,8 +3,8 @@ package org.ballerinalang.formatter.core.options;
 import org.ballerinalang.formatter.core.FormatterException;
 
 public enum BraceStyle {
-    NEWLINE,
-    ENDOFLINE;
+    NewLine,
+    EndOfLine;
 
     public static BraceStyle fromString(String value) throws FormatterException {
         try {

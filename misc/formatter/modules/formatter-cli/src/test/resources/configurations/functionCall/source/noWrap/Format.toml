@@ -1,5 +1,5 @@
 [methodCall]
-parametersWrap = "NOWRAP"
+parametersWrap = "NoWrap"
 newLineAfterLeftParen = true
 
 [wrapping]

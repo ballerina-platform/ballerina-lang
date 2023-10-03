@@ -25,10 +25,11 @@ import java.util.Map;
  * @since 2201.8.0
  */
 public class BraceFormattingOptions {
+
     private final BraceStyle classBraceStyle;
     private final BraceStyle methodBraceStyle;
 
-    public BraceFormattingOptions(BraceStyle classBraceStyle, BraceStyle methodBraceStyle) {
+    private BraceFormattingOptions(BraceStyle classBraceStyle, BraceStyle methodBraceStyle) {
         this.classBraceStyle = classBraceStyle;
         this.methodBraceStyle = methodBraceStyle;
     }
@@ -47,8 +48,8 @@ public class BraceFormattingOptions {
 
     public static class BraceFormattingOptionsBuilder {
 
-        private BraceStyle classBraceStyle = BraceStyle.ENDOFLINE;
-        private BraceStyle methodBraceStyle = BraceStyle.ENDOFLINE;
+        private BraceStyle classBraceStyle = BraceStyle.EndOfLine;
+        private BraceStyle methodBraceStyle = BraceStyle.EndOfLine;
 
         public BraceFormattingOptionsBuilder setClassBraceStyle(BraceStyle classBraceStyle) {
             this.classBraceStyle = classBraceStyle;

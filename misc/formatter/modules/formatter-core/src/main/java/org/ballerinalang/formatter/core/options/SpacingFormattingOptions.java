@@ -28,8 +28,8 @@ public class SpacingFormattingOptions {
     private final boolean aroundRecordBraces;
     private final boolean alignConsecutiveDefinitions;
 
-    public SpacingFormattingOptions(boolean afterTypeCast, boolean aroundRecordBraces,
-                                    boolean alignConsecutiveDefinitions) {
+    private SpacingFormattingOptions(boolean afterTypeCast, boolean aroundRecordBraces,
+                                     boolean alignConsecutiveDefinitions) {
         this.afterTypeCast = afterTypeCast;
         this.aroundRecordBraces = aroundRecordBraces;
         this.alignConsecutiveDefinitions = alignConsecutiveDefinitions;
@@ -85,6 +85,9 @@ public class SpacingFormattingOptions {
                         break;
                     case "aroundRecordBraces":
                         setAroundRecordBraces((Boolean) spacingEntry.getValue());
+                        break;
+                    case "alignConsecutiveDefinitions":
+                        setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
                         break;
                     default:
                         break;

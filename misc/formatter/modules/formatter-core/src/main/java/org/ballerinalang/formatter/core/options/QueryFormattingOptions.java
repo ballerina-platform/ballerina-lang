@@ -26,7 +26,7 @@ public class QueryFormattingOptions {
 
     private final boolean alignMultiLineQueries;
 
-    public QueryFormattingOptions(boolean alignMultiLineQueries) {
+    private QueryFormattingOptions(boolean alignMultiLineQueries) {
         this.alignMultiLineQueries = alignMultiLineQueries;
     }
 
