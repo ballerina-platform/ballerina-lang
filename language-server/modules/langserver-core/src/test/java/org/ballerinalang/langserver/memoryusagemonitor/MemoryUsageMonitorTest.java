@@ -65,7 +65,8 @@ public class MemoryUsageMonitorTest extends AbstractLSTest {
         Thread.sleep(2000);
 
         Mockito.verify(mockClient).showMessage(new MessageParams(MessageType.Error,
-                "Memory usage is high. Please reload the window.")
+                "Memory usage is high. Some features may become unresponsive. " +
+                        "Please reload the window or increase the memory allocated for Ballerina")
         );
     }
 

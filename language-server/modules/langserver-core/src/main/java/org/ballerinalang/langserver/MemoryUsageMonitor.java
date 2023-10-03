@@ -64,7 +64,8 @@ public class MemoryUsageMonitor {
 
                     if (usedMemory >= maxMemory * 0.9) {
                         client.showMessage(new MessageParams(MessageType.Error,
-                                "Memory usage is high. Please reload the window."));
+                                "Memory usage is high. Some features may become unresponsive. " +
+                                        "Please reload the window or increase the memory allocated for Ballerina"));
                     }
                     Thread.sleep(60000);
                 } catch (InterruptedException e) {
