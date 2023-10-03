@@ -221,6 +221,7 @@ public class CompilerPhaseRunner {
     private BLangPackage birEmit(BLangPackage pkgNode) {
         return this.birEmitter.emit(pkgNode);
     }
+
     private BLangPackage deadCodeAnalyze(BLangPackage pkgNode) {
         return this.deadCodeAnalyzer.analyze(pkgNode);
     }
