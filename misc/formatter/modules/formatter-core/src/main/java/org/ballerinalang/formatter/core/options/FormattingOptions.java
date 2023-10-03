@@ -17,6 +17,7 @@ package org.ballerinalang.formatter.core.options;
 
 import org.ballerinalang.formatter.core.FormatterException;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingConfigurations;
@@ -37,16 +38,16 @@ public class FormattingOptions {
     private ImportFormattingOptions importFormattingOptions;
     private QueryFormattingOptions queryFormattingOptions;
 
-    public FormattingOptions(IndentFormattingOptions indentFormattingOptions,
-                             WrappingFormattingOptions wrappingFormattingOptions,
-                             BraceFormattingOptions braceFormattingOptions,
-                             FunctionDeclFormattingOptions functionDeclFormattingOptions,
-                             FunctionCallFormattingOptions functionCallFormattingOptions,
-                             IfStatementFormattingOptions ifStatementFormattingOptions,
-                             SpacingFormattingOptions spacingFormattingOptions,
-                             ForceFormattingOptions forceFormattingOptions,
-                             ImportFormattingOptions importFormattingOptions,
-                             QueryFormattingOptions queryFormattingOptions) {
+    private FormattingOptions(IndentFormattingOptions indentFormattingOptions,
+                              WrappingFormattingOptions wrappingFormattingOptions,
+                              BraceFormattingOptions braceFormattingOptions,
+                              FunctionDeclFormattingOptions functionDeclFormattingOptions,
+                              FunctionCallFormattingOptions functionCallFormattingOptions,
+                              IfStatementFormattingOptions ifStatementFormattingOptions,
+                              SpacingFormattingOptions spacingFormattingOptions,
+                              ForceFormattingOptions forceFormattingOptions,
+                              ImportFormattingOptions importFormattingOptions,
+                              QueryFormattingOptions queryFormattingOptions) {
         this.indentFormattingOptions = indentFormattingOptions;
         this.wrappingFormattingOptions = wrappingFormattingOptions;
         this.braceFormattingOptions = braceFormattingOptions;
@@ -110,6 +111,10 @@ public class FormattingOptions {
      */
     public static class FormattingOptionsBuilder {
 
+        private int tabSize = 4;
+        private String wsCharacter = " ";
+        private int columnLimit = 120;
+        private boolean lineWrapping = false;
         private IndentFormattingOptions indentFormattingOptions = IndentFormattingOptions.builder().build();
         private WrappingFormattingOptions wrappingFormattingOptions = WrappingFormattingOptions.builder().build();
         private BraceFormattingOptions braceFormattingOptions = BraceFormattingOptions.builder().build();
@@ -123,6 +128,30 @@ public class FormattingOptions {
         private ImportFormattingOptions importFormattingOptions = ImportFormattingOptions.builder().build();
         private QueryFormattingOptions queryFormattingOptions = QueryFormattingOptions.builder().build();
         private ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder().build();
+
+        @Deprecated
+        public FormattingOptions.FormattingOptionsBuilder setTabSize(int tabSize) {
+            this.tabSize = tabSize;
+            return this;
+        }
+
+        @Deprecated
+        public FormattingOptions.FormattingOptionsBuilder setWSCharacter(String wsCharacter) {
+            this.wsCharacter = wsCharacter;
+            return this;
+        }
+
+        @Deprecated
+        public FormattingOptions.FormattingOptionsBuilder setColumnLimit(int columnLimit) {
+            this.columnLimit = columnLimit;
+            return this;
+        }
+
+        @Deprecated
+        public FormattingOptions.FormattingOptionsBuilder setLineWrapping(boolean lineWrapping) {
+            this.lineWrapping = lineWrapping;
+            return this;
+        }
 
         public FormattingOptionsBuilder setForceFormattingOptions(ForceFormattingOptions forceFormattingOptions) {
             this.forceFormattingOptions = forceFormattingOptions;
@@ -146,7 +175,7 @@ public class FormattingOptions {
                     spacingFormattingOptions, forceFormattingOptions, importFormattingOptions, queryFormattingOptions);
         }
 
-        public FormattingOptions build(Object data) throws FormatterException {
+        public FormattingOptions build(Path root, Object data) throws FormatterException {
             if (!(data instanceof Map)) {
                 return build();
             }
@@ -155,7 +184,7 @@ public class FormattingOptions {
             if (path == null) {
                 return build();
             }
-            Map<String, Object> configurations = getFormattingConfigurations((String) path.toString());
+            Map<String, Object> configurations = getFormattingConfigurations(root, path.toString());
 
             for (Map.Entry<String, Object> entry : configurations.entrySet()) {
                 String key = entry.getKey();
@@ -189,14 +218,13 @@ public class FormattingOptions {
                     case "spacing":
                         spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
                         break;
-//                    case "import":
-//                        importFormattingOptions = ImportFormattingOptions.builder().build(configs);
-//                        break;
+                    case "import":
+                        importFormattingOptions = ImportFormattingOptions.builder().build(configs);
+                        break;
                     default:
                         break;
                 }
             }
-
             return build();
         }
     }

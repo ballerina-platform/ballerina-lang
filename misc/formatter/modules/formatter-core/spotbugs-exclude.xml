@@ -17,7 +17,7 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Class name="org.ballerinalang.formatter.core.FormattingTreeModifier"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="org.ballerinalang.formatter.core.options.FormattingOptions$FormattingOptionsBuilder"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
 </FindBugsFilter>

@@ -26,7 +26,7 @@ public class IfStatementFormattingOptions {
 
     private final boolean elseOnNewLine;
 
-    public IfStatementFormattingOptions(boolean elseOnNewLine) {
+    private IfStatementFormattingOptions(boolean elseOnNewLine) {
         this.elseOnNewLine = elseOnNewLine;
     }
 

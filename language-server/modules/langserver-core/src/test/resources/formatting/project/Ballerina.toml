@@ -1,12 +1,2 @@
 [format]
-columnLimit = 80
-tabWidth = 2
-recordBraceSpacing = true
-
-[format.function]
-oneArgPerLine = false
-paranAlign = true
-
-[format.block]
-allowShortMatchLabelsOnASingleLine = true
-elseBlocksOnANewLine = true
+configPath = "src/test/resources/formatting/project/Format.toml"

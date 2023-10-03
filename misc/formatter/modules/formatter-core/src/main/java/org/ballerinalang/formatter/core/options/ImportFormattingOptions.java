@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import java.util.Map;
+
 /**
  * A model for formatting and optimizing imports by the API user, that could be passed onto the formatter.
  *
@@ -75,6 +77,23 @@ public class ImportFormattingOptions {
 
         public ImportFormattingOptions build() {
             return new ImportFormattingOptions(groupImports, sortImports, removeUnusedImports);
+        }
+
+        public ImportFormattingOptions build(Map<String, Object> configs) {
+            for (Map.Entry<String, Object> importEntry : configs.entrySet()) {
+                String ifStatementKey = importEntry.getKey();
+                switch (ifStatementKey) {
+                    case "sortImports":
+                        setSortImports((Boolean) importEntry.getValue());
+                        break;
+                    case "groupImports":
+                        setGroupImports((Boolean) importEntry.getValue());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return build();
         }
     }
 }

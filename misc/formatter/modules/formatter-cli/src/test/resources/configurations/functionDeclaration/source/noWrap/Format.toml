@@ -1,5 +1,5 @@
 [methodDeclaration]
-parametersWrap = "NOWRAP"
+parametersWrap = "NoWrap"
 
 [wrapping]
 maxLineLength = 80

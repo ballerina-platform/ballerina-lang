@@ -26,32 +26,19 @@ public class WrappingFormattingOptions {
 
     private final int maxLineLength;
     private final boolean lineWrap;
-    private final boolean multipleExpressionsInOneLine;
-    private final boolean keepLineBreaks;
     private final boolean simpleBlocksInOneLine;
     private final boolean simpleMethodsInOneLine;
 
-    public WrappingFormattingOptions(int maxLineLength, boolean lineWrap, boolean multipleExpressionsInOneLine,
-                                     boolean keepLineBreaks, boolean simpleBlocksInOneLine,
-                                     boolean simpleMethodsInOneLine) {
+    private WrappingFormattingOptions(int maxLineLength, boolean lineWrap, boolean simpleBlocksInOneLine,
+                                      boolean simpleMethodsInOneLine) {
         this.maxLineLength = maxLineLength;
         this.lineWrap = lineWrap;
-        this.multipleExpressionsInOneLine = multipleExpressionsInOneLine;
-        this.keepLineBreaks = keepLineBreaks;
         this.simpleBlocksInOneLine = simpleBlocksInOneLine;
         this.simpleMethodsInOneLine = simpleMethodsInOneLine;
     }
 
     public int maxLineLength() {
         return maxLineLength;
-    }
-
-    public boolean isMultipleExpressionsInOneLine() {
-        return multipleExpressionsInOneLine;
-    }
-
-    public boolean isKeepLineBreaks() {
-        return keepLineBreaks;
     }
 
     public boolean isSimpleBlocksInOneLine() {
@@ -73,24 +60,12 @@ public class WrappingFormattingOptions {
     public static class WrappingFormattingOptionsBuilder {
 
         private int maxLineLength = 120;
-        private boolean multipleExpressionsInOneLine = false;
-        private boolean keepLineBreaks = true;
         private boolean simpleBlocksInOneLine = false;
         private boolean simpleMethodsInOneLine = false;
         private boolean lineWrap = false;
 
         public WrappingFormattingOptionsBuilder setMaxLineLength(int maxLineLength) {
             this.maxLineLength = maxLineLength;
-            return this;
-        }
-
-        public WrappingFormattingOptionsBuilder setMultipleExpressionsInOneLine(boolean multipleExpressionsInOneLine) {
-            this.multipleExpressionsInOneLine = multipleExpressionsInOneLine;
-            return this;
-        }
-
-        public WrappingFormattingOptionsBuilder setKeepLineBreaks(boolean keepLineBreaks) {
-            this.keepLineBreaks = keepLineBreaks;
             return this;
         }
 
@@ -110,8 +85,8 @@ public class WrappingFormattingOptions {
         }
 
         public WrappingFormattingOptions build() {
-            return new WrappingFormattingOptions(maxLineLength, lineWrap, multipleExpressionsInOneLine,
-                    keepLineBreaks, simpleBlocksInOneLine, simpleMethodsInOneLine);
+            return new WrappingFormattingOptions(maxLineLength, lineWrap, simpleBlocksInOneLine,
+                    simpleMethodsInOneLine);
         }
 
         public WrappingFormattingOptions build(Map<String, Object> configs) {
@@ -121,12 +96,6 @@ public class WrappingFormattingOptions {
                     case "maxLineLength":
                         setMaxLineLength(((Number) wrappingEntry.getValue()).intValue());
                         setLineWrap(true);
-                        break;
-                    case "multipleExpressionsInOneLine":
-                        setMultipleExpressionsInOneLine((Boolean) wrappingEntry.getValue());
-                        break;
-                    case "keepLineBreaks":
-                        setKeepLineBreaks((Boolean) wrappingEntry.getValue());
                         break;
                     case "simpleBlocksInOneLine":
                         setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());

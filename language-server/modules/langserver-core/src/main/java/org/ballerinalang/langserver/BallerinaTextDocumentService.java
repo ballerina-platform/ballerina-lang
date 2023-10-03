@@ -449,7 +449,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Path rootPath = context.workspace().projectRoot(context.filePath());
                     BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
                     FormattingOptions options = FormattingOptions.builder()
-                            .build(project.currentPackage().manifest().getValue("format"));
+                            .build(project.sourceRoot(), project.currentPackage().manifest().getValue("format"));
                     formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
                 } else {
                     formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
