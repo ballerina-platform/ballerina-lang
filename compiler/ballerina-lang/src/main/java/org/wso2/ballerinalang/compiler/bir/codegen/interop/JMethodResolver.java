@@ -898,9 +898,10 @@ class JMethodResolver {
     private List<Executable> getExecutables(Class<?> clazz, String methodName, JMethodKind kind) {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
+            String classType = clazz.isInterface() ? "interface" : "abstract class";
             if (Modifier.isAbstract(clazz.getModifiers())) {
                 throw new JInteropException(DiagnosticErrorCode.INSTANTIATION_ERROR,
-                        "Cannot instantiate abstract class '" + clazz.getName() + "'");
+                        "Cannot instantiate " + classType + " '" + clazz.getName() + "'");
             }
             return Arrays.asList(getConstructors(clazz));
         } else {

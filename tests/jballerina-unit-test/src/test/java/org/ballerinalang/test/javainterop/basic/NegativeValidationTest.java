@@ -544,11 +544,16 @@ public class NegativeValidationTest {
     public void testAbstractClassInstantiationError() {
         String path = "test-src/javainterop/negative/instantiation_error.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
         BAssertUtil.validateError(
                 compileResult, 0,
                 "{ballerina/jballerina.java}INSTANTIATION_ERROR 'Cannot instantiate abstract class " +
                         "'org.ballerinalang.nativeimpl.jvm.tests.AbstractClass''",
                 19, 1);
+        BAssertUtil.validateError(
+                compileResult, 1,
+                "{ballerina/jballerina.java}INSTANTIATION_ERROR 'Cannot instantiate interface " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.Interface''",
+                23, 1);
     }
 }

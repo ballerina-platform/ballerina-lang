@@ -19,3 +19,7 @@ import ballerina/jballerina.java;
 function getAbstractClass() returns handle = @java:Constructor {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.AbstractClass"
 } external;
+
+function getInterface() returns handle = @java:Constructor {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.Interface"
+} external;
