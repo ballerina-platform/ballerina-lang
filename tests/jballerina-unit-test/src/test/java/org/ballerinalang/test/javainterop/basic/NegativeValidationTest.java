@@ -157,6 +157,27 @@ public class NegativeValidationTest {
     }
 
     @Test
+    public void testConstructorNotFound() {
+        String path = "test-src/javainterop/negative/constructor_not_found.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}CONSTRUCTOR_NOT_FOUND 'No such public constructor found " +
+                        "in class 'org.ballerinalang.nativeimpl.jvm.tests.ClassWithPrivateConstructor''",
+                "constructor_not_found.bal", 19, 1);
+        BAssertUtil.validateError(compileResult, 1,
+                "{ballerina/jballerina.java}CONSTRUCTOR_NOT_FOUND " +
+                "'No such public constructor with '2' parameter(s) found in class " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor''",
+                "constructor_not_found.bal", 23, 1);
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}CONSTRUCTOR_NOT_FOUND " +
+                "'No such public constructor that matches with parameter types '(int)' found in class " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor''",
+                "constructor_not_found.bal", 27, 1);
+    }
+
+    @Test
     public void testMethodSignatureNotMatch1() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";

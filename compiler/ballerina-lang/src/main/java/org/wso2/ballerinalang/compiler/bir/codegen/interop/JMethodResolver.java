@@ -851,8 +851,8 @@ class JMethodResolver {
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' that matches with parameter types " +
-                                "'" +
-                                paramTypesSig + "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
+                                "'" + paramTypesSig + "' found in class '" + jMethodRequest.declaringClass.getName() +
+                                "'");
             }
         } else if (resolvedJMethods.size() > 1) {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
