@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -99,10 +100,39 @@ public class CodeGenerator {
 
         // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
-
-        //Revert encoding identifier names
-        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
+        cleanUpBirPackage(packageSymbol.bir);
         return packageSymbol.compiledJarFile;
+    }
+
+    private void cleanUpBirPackage(BIRNode.BIRPackage bir) {
+        for (BIRNode.BIRTypeDefinition typeDef : bir.typeDefs) {
+            for (BIRNode.BIRFunction attachedFunc : typeDef.attachedFuncs) {
+                cleanUpBirFunction(attachedFunc);
+            }
+            typeDef.annotAttachments = null;
+        }
+        bir.importedGlobalVarsDummyVarDcls.clear();
+        for (BIRNode.BIRFunction function : bir.functions) {
+            cleanUpBirFunction(function);
+        }
+        bir.annotations.clear();
+        bir.constants.clear();
+        bir.serviceDecls.clear();
+    }
+
+    private static void cleanUpBirFunction(BIRNode.BIRFunction function) {
+        function.receiver = null;
+        function.localVars = null;
+        function.returnVariable = null;
+        function.parameters = null;
+        function.basicBlocks = null;
+        function.errorTable = null;
+        function.workerChannels = null;
+        function.annotAttachments = null;
+        function.returnTypeAnnots = null;
+        function.dependentGlobalVars = null;
+        function.pathParams = null;
+        function.restPathParam = null;
     }
 
     private void populateExternalMap(JvmPackageGen jvmPackageGen) {

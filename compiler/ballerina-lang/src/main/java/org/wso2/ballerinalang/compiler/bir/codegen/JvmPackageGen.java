@@ -842,7 +842,9 @@ public class JvmPackageGen {
                 if (importPkgSymbol == null) {
                     continue;
                 }
-                return listenerDeclarationFound(importPkgSymbol);
+                if (listenerDeclarationFound(importPkgSymbol)) {
+                    return true;
+                }
             }
         }
         return false;
