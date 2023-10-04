@@ -20,26 +20,27 @@ import ballerina/test;
 import stop_handler.moduleA;
 
 function stopHandlerFunc1() returns error? {
+    runtime:sleep(2.5);
+    moduleA:incrementCount();
+    moduleA:assertCount(11);
+}
+
+function stopHandlerFunc2() returns error? {
     runtime:sleep(1);
     moduleA:incrementCount();
     moduleA:assertCount(10);
 }
 
-function stopHandlerFunc2() returns error? {
-    moduleA:incrementCount();
-    moduleA:assertCount(9);
-}
-
 function stopHandlerFunc3() returns error? {
     runtime:sleep(0.5);
     moduleA:incrementCount();
-    moduleA:assertCount(7);
+    moduleA:assertCount(8);
 }
 
 function stopHandlerFunc4() returns error? {
     runtime:sleep(1.5);
     moduleA:incrementCount();
-    moduleA:assertCount(8);
+    moduleA:assertCount(9);
 }
 
 function init() {
@@ -57,7 +58,12 @@ public function main() {
     moduleA:assertCount(2);
     runtime:registerListener(lo);
     runtime:onGracefulStop(stopHandlerFunc3);
-
+    runtime:StopHandler inlineStopHandler = function() returns error? {
+        runtime:sleep(2);
+        moduleA:incrementCount();
+        moduleA:assertCount(7);
+    };
+    runtime:onGracefulStop(inlineStopHandler);
     checkpanic lo.'start();
     error? v = lo.gracefulStop();
     if (v is error) {

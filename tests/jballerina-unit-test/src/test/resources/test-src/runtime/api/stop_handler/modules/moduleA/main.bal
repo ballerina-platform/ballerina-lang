@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/lang.runtime;
 import ballerina/test;
 
@@ -22,7 +21,7 @@ int count = 0;
 function stopHandlerFunc1() returns error? {
     runtime:sleep(1);
     incrementCount();
-    assertCount(11);
+    assertCount(12);
 }
 
 function stopHandlerFunc2() returns error? {
