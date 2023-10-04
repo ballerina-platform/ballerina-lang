@@ -142,20 +142,21 @@ public class LSPackageLoader {
         this.languageClient = lsContext.get(ExtendedLanguageClient.class);
         LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
         CompletableFuture.runAsync(() -> {
-            if (languageClient != null) {
-                // Initialize progress notification
-                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-                workDoneProgressCreateParams.setToken(taskId);
-                languageClient.createProgress(workDoneProgressCreateParams);
-
-                // Start progress
-                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-                beginNotification.setTitle("Package Loader");
-                beginNotification.setCancellable(false);
-                beginNotification.setMessage("Initializing...");
-                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                        Either.forLeft(beginNotification)));
+            if (languageClient == null) {
+                return;
             }
+            // Initialize progress notification
+            WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+            workDoneProgressCreateParams.setToken(taskId);
+            languageClient.createProgress(workDoneProgressCreateParams);
+
+            // Start progress
+            WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+            beginNotification.setTitle("Package Loader");
+            beginNotification.setCancellable(false);
+            beginNotification.setMessage("Initializing...");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(beginNotification)));
         }).thenRunAsync(() -> {
             clientLogger.logTrace("Loading packages from Ballerina distribution");
             Environment environment = userHome == null ?
