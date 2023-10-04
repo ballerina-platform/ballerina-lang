@@ -143,6 +143,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.bitCount;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singletonBroadTypes;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -3135,7 +3136,7 @@ public class Types {
                         isIntOrStringType(sourceTag, targetTag);
             }
             if (sourceTag == TypeTags.FINITE) {
-                return checkValueSpaceHasSameType(((BFiniteType) source), target);
+                return checkValueSpaceHasSameOrderedType(((BFiniteType) source), target);
             }
             return isSameOrderedType(target, source, this.unresolvedTypes);
         }
@@ -3267,7 +3268,7 @@ public class Types {
             if (checkUnionHasAllFiniteOrNilMembers(sourceTypes) &&
                     checkUnionHasAllFiniteOrNilMembers(targetTypes)) {
                 BType type = target.getMemberTypes().iterator().next();
-                return checkValueSpaceHasSameType(((BFiniteType) getReferredType(type)),
+                return checkValueSpaceHasSameOrderedType(((BFiniteType) getReferredType(type)),
                         sUnionType.getMemberTypes().iterator().next());
             }
 
@@ -3302,7 +3303,7 @@ public class Types {
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
-            return checkValueSpaceHasSameType(t, s);
+            return checkValueSpaceHasSameOrderedType(t, s);
         }
 
         private boolean hasSameReadonlyFlag(BType source, BType target) {
@@ -3441,26 +3442,27 @@ public class Types {
     }
 
     /**
-     * Checks whether all values belong to the same basic type.
+     * Checks whether all values belong to the same ordered type.
+     *
      * @param finiteType BFiniteType to be checked
-     * @param type
-     * @return
+     * @param type       BType to be checked
+     * @return true if all values of two types belong to the same ordered type, false otherwise
      */
-    private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType type) {
+    private boolean checkValueSpaceHasSameOrderedType(BFiniteType finiteType, BType type) {
         BType baseType = getReferredType(type);
-        if (baseType.tag == TypeTags.FINITE) {
-            BType baseExprType = singleShapeBroadType((finiteType).getSemType(), symTable).get();
-            return checkValueSpaceHasSameType(((BFiniteType) baseType), baseExprType);
-        }
-        boolean isValueSpaceSameType = false;
         Set<BType> broadTypes = singletonBroadTypes(finiteType.getSemType(), symTable);
+        if (baseType.tag == TypeTags.FINITE) {
+            BType baseExprType = broadTypes.iterator().next();
+            return checkValueSpaceHasSameOrderedType(((BFiniteType) baseType), baseExprType);
+        }
+
         for (BType broadType : broadTypes) {
-            isValueSpaceSameType = isSameOrderedType(broadType, baseType);
-            if (!isValueSpaceSameType) {
-                break;
+            if (!isSameOrderedType(broadType, baseType)) {
+                return false;
             }
         }
-        return isValueSpaceSameType;
+
+        return true;
     }
 
     private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
@@ -6159,8 +6161,7 @@ public class Types {
                 for (BType memType : memberTypes) {
                     memType = getEffectiveTypeForIntersection(getReferredType(memType));
                     if (isFirstTypeInUnionFinite && memType.tag == TypeTags.FINITE && !isNil(memType)) {
-                        BType baseExprType = singleShapeBroadType(firstTypeInUnion.getSemType(), symTable).get();
-                        if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                        if (!checkValueSpaceHasSameOrderedType((BFiniteType) memType, firstTypeInUnion)) {
                             return false;
                         }
                     } else if (memType.tag == TypeTags.UNION || memType.tag == TypeTags.ARRAY ||
@@ -6219,7 +6220,7 @@ public class Types {
         SemType tButNil = Core.diff(t, PredefinedType.NIL);
         UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
         if (Core.isSubtypeSimple(uniformTypeBitSet, PredefinedType.SIMPLE_OR_STRING)) {
-            int bitCount = SemTypeResolver.bitCount(uniformTypeBitSet.bitset);
+            int bitCount = bitCount(uniformTypeBitSet.bitset);
             return bitCount <= 1;
         }
 
