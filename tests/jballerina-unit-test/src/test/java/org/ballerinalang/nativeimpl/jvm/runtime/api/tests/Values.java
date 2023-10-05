@@ -500,10 +500,7 @@ public class Values {
         BString errorMsg = StringUtils.fromString("error message!");
         BError bError = ErrorCreator.createError(errorModule, errorTypeName.getValue(), errorTypeName,
                 ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
-        // TODO: fix https://github.com/ballerina-platform/ballerina-lang/issues/41025
-        String typeName = errorTypeName.getValue().equals("ResourceDispatchingError") ?
-                "RequestDispatchingError" : errorTypeName.getValue();
-        assert bError.getType().getName().equals(typeName);
+        assert bError.getType().getName().equals(errorTypeName.getValue());
         return bError;
     }
 }
