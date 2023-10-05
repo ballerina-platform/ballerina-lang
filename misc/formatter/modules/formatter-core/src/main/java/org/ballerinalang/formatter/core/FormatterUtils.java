@@ -69,17 +69,7 @@ public class FormatterUtils {
             content = readRemoteFormatFile(root, path);
         }
 
-        TomlDocument document = TomlDocument.from(path, content);
-        TomlTableNode tomlAstNode = document.toml().rootNode();
-
-        Map<String, Object> formatConfigs = new HashMap<>();
-        if (!tomlAstNode.entries().isEmpty()) {
-            Map<String, Object> tomlMap = document.toml().toMap();
-            for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
-                formatConfigs.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return formatConfigs;
+        return parseConfigurationToml(TomlDocument.from(path, content));
     }
 
     public static boolean isLocalFile(String path) {
@@ -141,6 +131,18 @@ public class FormatterUtils {
                 throw new FormatterException("Failed to write format configuration cache file");
             }
         }
+    }
+
+    public static Map<String, Object> parseConfigurationToml(TomlDocument document) {
+        TomlTableNode tomlAstNode = document.toml().rootNode();
+        Map<String, Object> formatConfigs = new HashMap<>();
+        if (!tomlAstNode.entries().isEmpty()) {
+            Map<String, Object> tomlMap = document.toml().toMap();
+            for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
+                formatConfigs.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return formatConfigs;
     }
 
     static boolean isInlineRange(Node node, LineRange lineRange) {
