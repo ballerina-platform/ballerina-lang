@@ -172,7 +172,7 @@ public class ExternalMethodGen {
             boolean isEntryModule, SymbolTable symbolTable) {
         List<BType> jMethodPramTypes = new ArrayList<>(birFunc.type.paramTypes);
         if (isEntryModule) {
-            addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
+            addDefaultableBooleanVarsToSignature(birFunc);
         }
         BInvokableType functionTypeDesc = birFunc.type;
 
@@ -226,7 +226,7 @@ public class ExternalMethodGen {
         String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
         if (birFunc instanceof JBIRFunction) {
             if (isEntry) {
-                addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc);
             }
             birFuncWrapper = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         } else {

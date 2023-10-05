@@ -33,7 +33,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 
 /**
  * JVM byte code generator from BIR model.
@@ -96,7 +95,7 @@ public class CodeGenerator {
         populateExternalMap(jvmPackageGen);
 
         //Rewrite identifier names with encoding special characters
-        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
+        JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);

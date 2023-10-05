@@ -191,7 +191,7 @@ public class JvmValueGen {
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 }
             } else {
-                addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc);
                 enrichWithDefaultableParamInits(birFunc, initMethodGen);
             }
         }
