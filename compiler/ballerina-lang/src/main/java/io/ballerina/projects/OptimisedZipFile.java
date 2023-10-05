@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -11,7 +11,7 @@
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
+ *  KIND, either express or implied. See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
  */
@@ -48,11 +48,12 @@ public class OptimisedZipFile extends ZipFile {
         this.deadFunctionMap = deadFunctionMap;
     }
 
-    public void copyOptimisedRawEntries(final ZipArchiveOutputStream target, final ZipArchiveEntryPredicate predicate) throws IOException {
+    public void copyOptimisedRawEntries(final ZipArchiveOutputStream target, final ZipArchiveEntryPredicate predicate)
+            throws IOException {
         final Enumeration<ZipArchiveEntry> src = getEntriesInPhysicalOrder();
         while (src.hasMoreElements()) {
             final ZipArchiveEntry entry = src.nextElement();
-            if (predicate.test( entry)) {
+            if (predicate.test(entry)) {
                 if (!entry.getName().contains(INIT_CLASS_IDENTIFIER) && deadFunctionMap.containsKey(entry.getName())) {
                     target.putArchiveEntry(entry);
                     target.write(getOptimizedEntry(entry));
