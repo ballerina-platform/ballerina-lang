@@ -574,10 +574,9 @@ public class JBallerinaBackend extends CompilerBackend {
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String,
             StringBuilder> services) throws IOException {
 
-        String pkgName = jarLibrary.packageName().get();
-        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = getDeadFunctionList(pkgName, this.compilerContext);
+        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = getDeadFunctionList(jarLibrary.packageName().get(), this.compilerContext);
 
-        OptimisedZipFile zipFile = new OptimisedZipFile(jarLibrary.path().toFile(),classWiseDeadFunctionMap);
+        OptimisedZipFile zipFile = new OptimisedZipFile(jarLibrary.path().toFile(), classWiseDeadFunctionMap);
         ZipArchiveEntryPredicate predicate = entry -> {
             String entryName = entry.getName();
             if (entryName.equals("META-INF/MANIFEST.MF")) {
@@ -665,7 +664,7 @@ public class JBallerinaBackend extends CompilerBackend {
         for (BInvokableSymbol deadFunction:pkgSymbol.deadFunctions) {
             if (deadFunction.source != null) {
                 String className = deadFunction.source.replace(".bal", ".class");
-                String classLocationName = pkgName + "/" + majorVersion + "/" + className;
+                String classLocationName = pkgName + File.separator + majorVersion + "/" + className;
                 classWiseDeadFunctionMap.putIfAbsent(classLocationName, new HashSet<>());
                 classWiseDeadFunctionMap.get(classLocationName).add(deadFunction.originalName.value);
             }
