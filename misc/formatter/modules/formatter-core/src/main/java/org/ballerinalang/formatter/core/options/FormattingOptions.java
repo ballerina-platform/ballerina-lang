@@ -27,16 +27,16 @@ import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingConfi
  */
 public class FormattingOptions {
 
-    private IndentFormattingOptions indentFormattingOptions;
-    private WrappingFormattingOptions wrappingFormattingOptions;
-    private BraceFormattingOptions braceFormattingOptions;
-    private FunctionDeclFormattingOptions functionDeclFormattingOptions;
-    private FunctionCallFormattingOptions functionCallFormattingOptions;
-    private IfStatementFormattingOptions ifStatementFormattingOptions;
-    private SpacingFormattingOptions spacingFormattingOptions;
-    private ForceFormattingOptions forceFormattingOptions;
-    private ImportFormattingOptions importFormattingOptions;
-    private QueryFormattingOptions queryFormattingOptions;
+    private final IndentFormattingOptions indentFormattingOptions;
+    private final WrappingFormattingOptions wrappingFormattingOptions;
+    private final BraceFormattingOptions braceFormattingOptions;
+    private final FunctionDeclFormattingOptions functionDeclFormattingOptions;
+    private final FunctionCallFormattingOptions functionCallFormattingOptions;
+    private final IfStatementFormattingOptions ifStatementFormattingOptions;
+    private final SpacingFormattingOptions spacingFormattingOptions;
+    private final ForceFormattingOptions forceFormattingOptions;
+    private final ImportFormattingOptions importFormattingOptions;
+    private final QueryFormattingOptions queryFormattingOptions;
 
     private FormattingOptions(IndentFormattingOptions indentFormattingOptions,
                               WrappingFormattingOptions wrappingFormattingOptions,
