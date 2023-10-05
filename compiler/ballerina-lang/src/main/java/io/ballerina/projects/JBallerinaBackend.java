@@ -574,7 +574,8 @@ public class JBallerinaBackend extends CompilerBackend {
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String,
             StringBuilder> services) throws IOException {
 
-        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = getDeadFunctionList(jarLibrary.packageName().get(), this.compilerContext);
+        HashMap<String, HashSet<String>> classWiseDeadFunctionMap =
+                getDeadFunctionList(jarLibrary.packageName().get(), this.compilerContext);
 
         OptimisedZipFile zipFile = new OptimisedZipFile(jarLibrary.path().toFile(), classWiseDeadFunctionMap);
         ZipArchiveEntryPredicate predicate = entry -> {
@@ -653,18 +654,20 @@ public class JBallerinaBackend extends CompilerBackend {
         zipFile.close();
     }
 
-    private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName, CompilerContext compilerContext) {
-        org.wso2.ballerinalang.compiler.PackageCache packageCache = org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+    private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName,
+                                                                        CompilerContext compilerContext) {
+        org.wso2.ballerinalang.compiler.PackageCache packageCache =
+                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
 
         BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgName);
         int majorVersion = packageCache.getSymbol(pkgName).descriptor.version().value().major();
 
         HashMap<String, HashSet<String>> classWiseDeadFunctionMap = new HashMap<>();
 
-        for (BInvokableSymbol deadFunction:pkgSymbol.deadFunctions) {
+        for (BInvokableSymbol deadFunction : pkgSymbol.deadFunctions) {
             if (deadFunction.source != null) {
                 String className = deadFunction.source.replace(".bal", ".class");
-                String classLocationName = pkgName + File.separator + majorVersion + "/" + className;
+                String classLocationName = pkgName + "/" + majorVersion + "/" + className;
                 classWiseDeadFunctionMap.putIfAbsent(classLocationName, new HashSet<>());
                 classWiseDeadFunctionMap.get(classLocationName).add(deadFunction.originalName.value);
             }
