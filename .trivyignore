@@ -7,3 +7,6 @@ GMS-2022-7
 
 # com.github.docker-java:docker-java:3.1.5
 CVE-2020-13956
+
+# quartz:2.3.2
+CVE-2023-39017
