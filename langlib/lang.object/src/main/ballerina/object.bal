@@ -25,4 +25,17 @@ public type Iterable distinct object {
     public function iterator() returns object {
         public function next() returns record {| any|error value; |}|error?;
     };
+}
+
+# Distinct RawTemplate type.
+# A raw template expression constructs an object belonging to this type.
+public type RawTemplate distinct object {
+    # An array of the strings containing the characters in BacktickString
+    # outside of interpolations, split at the interpolation points.
+    # The length of this array is one greater than
+    # the length of the `insertions` array.
+    public (readonly & string[]) strings;
+    # An array containing the results of evaluating the
+    # interpolations in the BacktickString.
+    public (any|error)[] insertions;
 };
