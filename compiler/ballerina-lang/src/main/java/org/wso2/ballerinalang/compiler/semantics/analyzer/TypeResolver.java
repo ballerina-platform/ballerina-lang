@@ -2066,12 +2066,6 @@ public class TypeResolver {
         BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
         constant.symbol = constantSymbol;
         BLangTypeDefinition typeDef = constant.associatedTypeDefinition;
-        NodeKind nodeKind = constant.expr.getKind();
-        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
-                || nodeKind == NodeKind.UNARY_EXPR;
-        if (typeDef != null && isLiteral) {
-            resolveTypeDefinition(symEnv, modTable, typeDef, 0); // TODO: 12/9/23 fix type resolving for constant-expr
-        }
         if (constant.typeNode != null) {
             // Type node is available.
             ResolverData data = new ResolverData();
@@ -2090,6 +2084,17 @@ public class TypeResolver {
         // Type check and resolve the constant expression.
         BType resolvedType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
         data.anonTypeNameSuffixes.pop();
+
+        NodeKind nodeKind = constant.expr.getKind();
+        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
+                || nodeKind == NodeKind.UNARY_EXPR;
+        if (typeDef != null && isLiteral) {
+            typeDef.typeNode.setBType(resolvedType);
+            // Define the typeDefinition. Add symbol, flags etc.
+            resolvedType = defineTypeDefinition(typeDef, resolvedType, symEnv);
+            typeDef.setBType(resolvedType);
+            typeDef.cycleDepth = -1;
+        }
 
         if (resolvedType == symTable.semanticError) {
             // Constant expression contains errors.
