@@ -42,14 +42,12 @@ import java.io.IOException;
 public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
-    private SymbolTable symbolTable;
-    private PackageCache packageCache;
-    private BLangDiagnosticLog dlog;
-    private Types types;
-    private LargeMethodOptimizer largeMethodOptimizer;
+    private final SymbolTable symbolTable;
+    private final PackageCache packageCache;
+    private final BLangDiagnosticLog dlog;
+    private final Types types;
 
     private CodeGenerator(CompilerContext compilerContext) {
-
         compilerContext.put(CODE_GEN, this);
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.packageCache = PackageCache.getInstance(compilerContext);
@@ -58,12 +56,10 @@ public class CodeGenerator {
     }
 
     public static CodeGenerator getInstance(CompilerContext context) {
-
         CodeGenerator codeGenerator = context.get(CODE_GEN);
         if (codeGenerator == null) {
             codeGenerator = new CodeGenerator(context);
         }
-
         return codeGenerator;
     }
 
@@ -79,7 +75,7 @@ public class CodeGenerator {
     private CompiledJarFile generate(BPackageSymbol packageSymbol) {
 
         // Split large BIR functions into smaller methods
-        largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
+        LargeMethodOptimizer largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
         largeMethodOptimizer.splitLargeBIRFunctions(packageSymbol.bir);
 
         // Desugar BIR to include the observations
