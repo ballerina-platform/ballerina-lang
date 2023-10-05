@@ -18,6 +18,9 @@
 package org.ballerinalang.formatter.core;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
@@ -33,7 +36,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The abstract class that is extended by all formatting test classes.
@@ -64,6 +69,35 @@ public abstract class FormatterTest {
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         try {
             SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
+    }
+
+    public void testWithConfigurationFile(String source, String sourcePath) throws IOException, FormatterException {
+        Path assertFilePath =
+                Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceDir =
+                Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR);
+        Path sourceFilePath = Paths.get(sourceDir.toString(), source);
+        Path tomlPath = Paths.get(sourceDir.toString(), ProjectConstants.BALLERINA_TOML);
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        TomlTableNode tomlAstNode = ballerinaToml.toml().rootNode();
+        Map<String, Object> formatConfigs = new HashMap<>();
+        if (!tomlAstNode.entries().isEmpty()) {
+            Map<String, Object> tomlMap = ballerinaToml.toml().toMap();
+            for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
+                formatConfigs.put(entry.getKey(), entry.getValue());
+            }
+        }
+        FormattingOptions formattingOptions = FormattingOptions.builder().build(sourceDir, formatConfigs.get("format"));
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
             Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
         } catch (FormatterException e) {
             Assert.fail(e.getMessage(), e);
