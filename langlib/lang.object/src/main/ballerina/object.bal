@@ -25,7 +25,7 @@ public type Iterable distinct object {
     public function iterator() returns object {
         public function next() returns record {| any|error value; |}|error?;
     };
-}
+};
 
 # Distinct RawTemplate type.
 # A raw template expression constructs an object belonging to this type.
