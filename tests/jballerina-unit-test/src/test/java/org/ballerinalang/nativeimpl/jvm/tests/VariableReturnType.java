@@ -243,7 +243,7 @@ public class VariableReturnType {
             return val;
         }
 
-        assert describingType.getTag() == XML_COMMENT_TAG : describingType;
+        Assert.assertEquals(describingType.getTag(), XML_COMMENT_TAG, describingType.toString());
         return val;
     }
 
