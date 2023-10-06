@@ -23,6 +23,15 @@ import io.ballerina.runtime.profiler.util.Constants;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 
@@ -33,9 +42,18 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
  */
 public class HttpServer {
 
-    public void initializeHTMLExport(String sourceRoot) throws IOException {
+    public void initializeHTMLExport(String profilerDir) throws IOException {
         OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
-                "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", sourceRoot);
+                "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", profilerDir);
+        Path sourcePath = Paths.get(System.getenv("ballerina.home")).resolve("resources")
+                .resolve("profiler");
+
+        try {
+            copyFolder(sourcePath, Paths.get(profilerDir));
+        } catch (IOException e) {
+            OUT_STREAM.printf("%s%n", e);
+        }
+
         String content = FileUtils.readFileAsString("performance_report.json");
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);
@@ -45,5 +63,28 @@ public class HttpServer {
         } catch (IOException e) {
             OUT_STREAM.printf("%s%n", e);
         }
+    }
+
+    public static void copyFolder(Path source, Path target) throws IOException {
+        EnumSet<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+        Files.walkFileTree(source, options, Integer.MAX_VALUE, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                Path targetDir = target.resolve(source.relativize(dir));
+                Files.createDirectories(targetDir);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                // exclude the template html file.
+                if (file.toString().endsWith(".html")) {
+                    return FileVisitResult.CONTINUE;
+                }
+                Path targetFile = target.resolve(source.relativize(file));
+                Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

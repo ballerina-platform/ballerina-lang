@@ -44,6 +44,7 @@ public class Target {
     private Path docPath;
     private Path nativePath;
     private Path nativeConfigPath;
+    private Path profilerPath;
 
     public Target(Path targetPath) throws IOException {
         this.targetPath = targetPath;
@@ -57,6 +58,7 @@ public class Target {
         this.docPath = this.targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
         this.nativePath = this.targetPath.resolve(ProjectConstants.NATIVE_DIR_NAME);
         this.nativeConfigPath = this.testsCachePath.resolve(ProjectConstants.NATIVE_CONFIG_DIR_NAME);
+        this.profilerPath = this.targetPath.resolve(ProjectConstants.PROFILER_DIR_NAME);
 
         if (Files.exists(this.targetPath)) {
             ProjectUtils.checkWritePermission(this.targetPath);
@@ -79,6 +81,9 @@ public class Target {
 
         if (Files.exists(this.reportPath)) {
             ProjectUtils.checkWritePermission(this.reportPath);
+        }
+        if (Files.exists(this.profilerPath)) {
+            ProjectUtils.checkWritePermission(this.profilerPath);
         }
     }
 
@@ -138,6 +143,11 @@ public class Target {
     public Path getReportPath() throws IOException {
         Files.createDirectories(reportPath);
         return reportPath;
+    }
+
+    public Path getProfilerPath() throws IOException {
+        Files.createDirectories(profilerPath);
+        return profilerPath;
     }
 
     /**

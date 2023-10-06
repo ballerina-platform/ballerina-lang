@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.model.Target;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,18 +74,19 @@ public class RunProfilerTask implements Task {
             commands.add("Profiler.jar");
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("--file");
-            commands.add(getPackageJarName(project, projectKind));
+            commands.add(getTargetFilePath(project));
             commands.add("--target");
             commands.add(targetPath.toString());
-            commands.add("--sourceroot");
-            commands.add(getProjectPath(project).toString());
+            commands.add("--profiler-dir");
+            commands.add(getProfilerPath(project).toString());
             if (isInProfileDebugMode()) {
                 commands.add("--profilerDebug");
                 commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             pb.environment().put(JAVA_OPTS, getAgentArgs());
-            setWorkingDirectory(project, projectKind, pb);
+            pb.environment().put(BALLERINA_HOME, System.getProperty(BALLERINA_HOME));
+            pb.directory(new File(getProfilerPath(project).toUri()));
             Process process = pb.start();
             process.waitFor();
             int exitValue = process.exitValue();
@@ -94,21 +96,6 @@ public class RunProfilerTask implements Task {
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("error occurred while running the profiler ", e);
         }
-    }
-
-    private static void setWorkingDirectory(Project project, ProjectKind projectKind, ProcessBuilder pb) {
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            pb.directory(new File(project.targetDir() + "/bin"));
-        } else {
-            pb.directory(new File(System.getProperty(USER_DIR)));
-        }
-    }
-
-    private static String getPackageJarName(Project project, ProjectKind kind) {
-        if (kind == ProjectKind.SINGLE_FILE_PROJECT) {
-            return getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT;
-        }
-        return project.currentPackage().packageName() + BLANG_COMPILED_JAR_EXT;
     }
 
     @Override
@@ -125,14 +112,33 @@ public class RunProfilerTask implements Task {
     }
 
     private Path getTargetProfilerPath(Project project) {
-        return getProjectPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
+        return getProfilerPath(project).resolve("Profiler" + BLANG_COMPILED_JAR_EXT);
     }
 
-    private Path getProjectPath(Project project) {
-        // If the --output flag is not set, create the executable in the current directory
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return Paths.get(System.getProperty(USER_DIR));
+    private Path getProfilerPath(Project project) {
+        Target target;
+        try {
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                target = new Target(Paths.get(System.getProperty(USER_DIR)));
+            } else {
+                target = new Target(project.targetDir());
+            }
+        } catch (IOException e) {
+            throw createLauncherException("error while creating target directory: ", e);
         }
-        return project.targetDir().resolve("bin");
+        try {
+            return target.getProfilerPath();
+        } catch (IOException e) {
+            throw createLauncherException("error while creating profiler directory: ", e);
+        }
+    }
+
+    private String getTargetFilePath(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return Paths.get(System.getProperty(USER_DIR)).resolve(
+                    getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT).toString();
+        }
+        return project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
+                BLANG_COMPILED_JAR_EXT).toString();
     }
 }

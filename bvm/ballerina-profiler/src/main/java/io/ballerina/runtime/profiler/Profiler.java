@@ -162,7 +162,7 @@ public class Profiler {
                     this.targetDir = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
-                case "--sourceroot" -> {
+                case "--profiler-dir" -> {
                     this.sourceRoot = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }

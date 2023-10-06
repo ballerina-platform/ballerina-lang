@@ -21,10 +21,14 @@ package io.ballerina.runtime.profiler.ui;
 import io.ballerina.runtime.profiler.runtime.ProfilerRuntimeException;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This class contains the front end of the Ballerina profiler.
@@ -47,12 +51,13 @@ public class FrontEnd {
     }
 
     public String readFileAsString() throws IOException {
+        Path resourceFilePath = Paths.get(System.getenv("ballerina.home")).resolve("resources")
+                .resolve("profiler").resolve("profiler_output.html");
+        if (!Files.exists(resourceFilePath)) {
+            throw new ProfilerRuntimeException("resource file not found: " + FILE_LOCATION);
+        }
         StringBuilder sb = new StringBuilder();
-
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(FILE_LOCATION)) {
-            if (inputStream == null) {
-                throw new ProfilerRuntimeException("resource file not found: " + FILE_LOCATION);
-            }
+        try (InputStream inputStream = new FileInputStream(resourceFilePath.toFile())) {
             try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                  BufferedReader br = new BufferedReader(inputStreamReader)) {
                 String content = br.readLine();
