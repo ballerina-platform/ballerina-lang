@@ -59,7 +59,6 @@ public class RunProfilerTask implements Task {
     private void initiateProfiler(Project project) {
         String profilerSource = Paths.get(System.getProperty(BALLERINA_HOME), "bre", "lib",
                 "ballerina-profiler-1.0.jar").toString();
-        ProjectKind projectKind = project.kind();
         Path sourcePath = Path.of(profilerSource);
         Path targetPath = getTargetProfilerPath(project);
         StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
