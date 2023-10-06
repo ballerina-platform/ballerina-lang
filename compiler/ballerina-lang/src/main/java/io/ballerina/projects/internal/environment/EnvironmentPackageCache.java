@@ -23,9 +23,14 @@ import java.util.Optional;
 public class EnvironmentPackageCache implements WritablePackageCache {
 
     private final Map<PackageId, Project> projects = new HashMap<>();
+    private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Package>>> packageCache = new HashMap<>();
 
     public void cache(Package pkg) {
         projects.put(pkg.packageId(), pkg.project());
+        packageCache
+            .computeIfAbsent(pkg.packageOrg(), org -> new HashMap<>())
+            .computeIfAbsent(pkg.packageName(), name -> new HashMap<>())
+            .put(pkg.packageVersion(), pkg);
     }
 
     @Override
@@ -51,15 +56,12 @@ public class EnvironmentPackageCache implements WritablePackageCache {
     public Optional<Package> getPackage(PackageOrg packageOrg,
                                         PackageName packageName,
                                         PackageVersion version) {
-        // Do we have a need to improve this logic?
-        for (Project project : projects.values()) {
-            PackageDescriptor pkgDesc = project.currentPackage().descriptor();
-            if (pkgDesc.org().equals(packageOrg) && pkgDesc.name().equals(packageName) &&
-                    pkgDesc.version().equals(version)) {
-                return Optional.of(project.currentPackage());
-            }
-        }
-        return Optional.empty();
+        return Optional.ofNullable(
+            projectCache
+                .getOrDefault(packageOrg, Collections.emptyMap())
+                .getOrDefault(packageName, Collections.emptyMap())
+                .get(version)
+        );
     }
 
     @Override
