@@ -4785,6 +4785,10 @@ public class FormattingTreeModifier extends TreeModifier {
             NodeList<ImportDeclarationNode> importDeclarationNodes) {
         // moduleImports would collect only module level imports if grouping is enabled,
         // and would collect all imports otherwise
+        if (importDeclarationNodes.size() == 0) {
+            return importDeclarationNodes;
+        }
+        ImportDeclarationNode firstImport = importDeclarationNodes.get(0);
         List<ImportDeclarationNode> moduleImports = new ArrayList<>();
         List<ImportDeclarationNode> stdLibImports = new ArrayList<>();
         List<ImportDeclarationNode> thirdPartyImports = new ArrayList<>();
@@ -4818,6 +4822,35 @@ public class FormattingTreeModifier extends TreeModifier {
         imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+
+        ImportDeclarationNode sortedFirstImport = imports.get(0);
+        int prevFirstImportIndex = 0;
+        for (int i = 0; i < imports.size(); i++) {
+            if (imports.get(i).toSourceCode().trim().equals(firstImport.toSourceCode().trim())) {
+                prevFirstImportIndex = i;
+                break;
+            }
+        }
+        // swap leading minutiae of the prev first import and the sorted first import
+        if (firstImport != null && prevFirstImportIndex != 0 && firstImport.importKeyword().containsLeadingMinutiae()) {
+            List<Minutiae> leadingMinutiaes = new ArrayList<>();
+            if (firstImport.leadingMinutiae().get(0).kind() !=
+                    imports.get(prevFirstImportIndex).leadingMinutiae().get(0).kind()) {
+                leadingMinutiaes.add(imports.get(prevFirstImportIndex).leadingMinutiae().get(0));
+            }
+            Token prevFirstImportToken = firstImport.importKeyword()
+                    .modify(NodeFactory.createMinutiaeList(leadingMinutiaes),
+                            firstImport.importKeyword().trailingMinutiae());
+            ImportDeclarationNode prevFirstImport =
+                    firstImport.modify().withImportKeyword(prevFirstImportToken).apply();
+            imports.set(prevFirstImportIndex, prevFirstImport);
+
+            Token modifiedSortedImportToken = sortedFirstImport.importKeyword()
+                    .modify(firstImport.leadingMinutiae(), sortedFirstImport.importKeyword().trailingMinutiae());
+            ImportDeclarationNode modifiedFirstImport =
+                    sortedFirstImport.modify().withImportKeyword(modifiedSortedImportToken).apply();
+            imports.set(0, modifiedFirstImport);
+        }
         return NodeFactory.createNodeList(imports);
     }
 
