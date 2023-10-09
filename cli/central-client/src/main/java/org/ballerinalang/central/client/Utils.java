@@ -467,10 +467,8 @@ public class Utils {
                     "'. BALA content download process failed due to hash mismatch.";
             throw new CentralClientException(errorMessage);
 
-        } else {
-            System.out.println("======" + trueDigest);
-
-        }
+        } 
+        
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
             List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
