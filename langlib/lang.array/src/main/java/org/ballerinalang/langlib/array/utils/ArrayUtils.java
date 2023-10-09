@@ -86,6 +86,12 @@ public class ArrayUtils {
         }
     }
 
+    public static void checkIsClosedArray(ArrayType arrType, String op) {
+        if (arrType.getState() == ArrayType.ArrayState.CLOSED) {
+            throw createOpNotSupportedError(arrType, op);
+        }
+    }
+
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
