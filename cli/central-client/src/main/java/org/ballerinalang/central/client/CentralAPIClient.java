@@ -48,7 +48,7 @@ import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
