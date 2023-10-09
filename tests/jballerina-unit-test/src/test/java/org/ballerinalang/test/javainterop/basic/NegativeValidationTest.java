@@ -34,7 +34,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testAcceptNothing() {
-
         String path = "test-src/javainterop/ballerina_types_as_interop_types_negative.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 12);
@@ -42,7 +41,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testClassNotFound() {
-
         String path = "test-src/javainterop/negative/class_not_found.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -53,7 +51,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound1() {
-
         String path = "test-src/javainterop/negative/method_not_found1.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -66,7 +63,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound2() {
-
         String path = "test-src/javainterop/negative/method_not_found2.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -80,7 +76,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound3() {
-
         String path = "test-src/javainterop/negative/method_not_found3.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -94,7 +89,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound4() {
-
         String path = "test-src/javainterop/negative/method_not_found4.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -107,7 +101,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound5() {
-
         String path = "test-src/javainterop/negative/method_not_found5.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -120,7 +113,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound6() {
-
         String testFileName = "method_not_found6.bal";
         String path = "test-src/javainterop/negative/" + testFileName;
         CompileResult compileResult = BCompileUtil.compile(path);
@@ -144,7 +136,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound7() {
-
         String path = "test-src/javainterop/negative/method_not_found7.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
@@ -179,7 +170,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch1() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -194,7 +184,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch2() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match2.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -210,7 +199,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch3() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match3.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -226,7 +214,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch4() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match4.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -242,7 +229,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch5() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match5.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -258,7 +244,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch6() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -274,7 +259,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch7() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match15.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -290,7 +274,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch8() {
-
         CompileResult compileResult = BCompileUtil.compile("test-src/javainterop/negative/distinct_error");
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
@@ -305,7 +288,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch9() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -318,7 +300,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch10() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -331,7 +312,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch11() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -346,7 +326,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch12() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -361,7 +340,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testReturnStringForBUnionFromJava() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -376,7 +354,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testJavaPrimitiveForBJsonParam() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -390,7 +367,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testJavaPrimitiveForBUnionParam() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -404,7 +380,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch14() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match14.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -419,7 +394,6 @@ public class NegativeValidationTest {
 
     @Test(description = "When there are instance and static methods with same name and parameters that differ by one")
     public void testResolveWithInstanceAndStatic() {
-
         String path = "test-src/javainterop/negative/method_resolve_error.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -439,7 +413,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testNoClassDefFoundError() {
-
         String path = "test-src/javainterop/negative/project_no_class_def_found";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -450,7 +423,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testNoClassDefFoundErrorForConstructorCalls() {
-
         String path = "test-src/javainterop/negative/project_no_class_def_found_constructor";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -461,7 +433,6 @@ public class NegativeValidationTest {
 
     @Test(description = "Test error in instance field set without exactly two parameters")
     public void testInstanceFieldSetWithoutTwoParameters() {
-
         String path = "test-src/javainterop/negative/fieldset_error1.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -472,7 +443,6 @@ public class NegativeValidationTest {
 
     @Test(description = "Test error in instance field set with no handle type first parameter")
     public void testNotHandleTypeFirstParameterForInstanceFieldSet() {
-
         String path = "test-src/javainterop/negative/fieldset_error2.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -483,7 +453,6 @@ public class NegativeValidationTest {
 
     @Test(description = "Test error in instance field get without exactly one parameter")
     public void testInstanceFieldGetWithoutOneParameter() {
-
         String path = "test-src/javainterop/negative/fieldget_error1.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
@@ -495,7 +464,6 @@ public class NegativeValidationTest {
 
     @Test(description = "Test error in instance field get with no handle type parameter")
     public void testNoHandleTypeParameterForInstanceFieldGet() {
-
         String path = "test-src/javainterop/negative/fieldget_error2.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
@@ -507,7 +475,6 @@ public class NegativeValidationTest {
 
     @Test(description = "Test error in static field set without exactly one parameter")
     public void testStaticFieldSetWithoutOneParameter() {
-
         String path = "test-src/javainterop/negative/fieldset_error3.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -518,7 +485,6 @@ public class NegativeValidationTest {
 
     @Test(description = "Test error in static field get with any parameter")
     public void testStaticFieldGetWithAnyParameter() {
-
         String path = "test-src/javainterop/negative/fieldget_error3.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
@@ -530,7 +496,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch16() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match16.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -547,7 +512,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch17() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match17.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
