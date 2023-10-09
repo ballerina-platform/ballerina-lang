@@ -95,11 +95,13 @@ public class CodeGenerator {
 
         // TODO Get-rid of the following assignment
         packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
-        cleanUpBirPackage(packageSymbol.bir);
+        cleanUpBirPackage(packageSymbol);
         return packageSymbol.compiledJarFile;
     }
 
-    private void cleanUpBirPackage(BIRNode.BIRPackage bir) {
+    private void cleanUpBirPackage(BPackageSymbol packageSymbol) {
+        packageSymbol.birPackageFile = null;
+        BIRNode.BIRPackage bir = packageSymbol.bir;
         for (BIRNode.BIRTypeDefinition typeDef : bir.typeDefs) {
             for (BIRNode.BIRFunction attachedFunc : typeDef.attachedFuncs) {
                 cleanUpBirFunction(attachedFunc);
