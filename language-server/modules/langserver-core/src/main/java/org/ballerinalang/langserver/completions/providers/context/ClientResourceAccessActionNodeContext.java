@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
@@ -32,6 +33,7 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
@@ -343,9 +345,10 @@ public class ClientResourceAccessActionNodeContext
                     return Pair.of(Collections.emptyList(), false);
                 }
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
+                    ExpressionNode exprNode = ((ComputedResourceAccessSegmentNode) node).expression();
                     Optional<TypeSymbol> exprType =
-                            semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
-                    if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
+                            semanticModel.get().typeOf(exprNode);
+                    if (exprType.isEmpty() || !checkSubtype(typeSymbol, exprType.get(), exprNode.toString())) {
                         return Pair.of(Collections.emptyList(), false);
                     }
                     if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
@@ -353,8 +356,8 @@ public class ClientResourceAccessActionNodeContext
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
-                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN
-                        && semanticModel.get().types().STRING.subtypeOf(typeSymbol)) {
+                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN &&
+                        checkSubtype(typeSymbol, semanticModel.get().types().STRING, "\"" + node + "\"")) {
                     if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
                             && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;
@@ -369,6 +372,27 @@ public class ClientResourceAccessActionNodeContext
                 completableSegmentStartIndex <= segments.size() ?
                         segments.subList(completableSegmentStartIndex, segments.size()) : Collections.emptyList();
         return Pair.of(completableSegments, true);
+    }
+
+    private boolean checkSubtype(TypeSymbol paramType, TypeSymbol exprType, String exprValue) {
+        if (exprType.subtypeOf(paramType)) {
+            return true;
+        }
+        switch (paramType.typeKind()) {
+            case UNION:
+                for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
+                    if (checkSubtype(childSymbol, exprType, exprValue)) {
+                        return true;
+                    }
+                }
+                return false;
+            case SINGLETON:
+                return paramType.subtypeOf(exprType) && exprValue.equals(paramType.signature());
+            case TYPE_REFERENCE:
+                return paramType.subtypeOf(exprType);
+            default:
+                return false;
+        }
     }
 
     private boolean onSuggestClients(ClientResourceAccessActionNode node, BallerinaCompletionContext context) {

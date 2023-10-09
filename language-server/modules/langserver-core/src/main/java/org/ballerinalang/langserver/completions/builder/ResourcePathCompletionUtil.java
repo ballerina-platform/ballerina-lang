@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
@@ -106,7 +107,7 @@ public class ResourcePathCompletionUtil {
             signatureWithComputedResourceSegments.append("/").append(resourceAccessPart.computedPathSignature);
             insertTextWithComputedResourceSegments.append("/").append(resourceAccessPart.computedPathInsertText);
 
-            if (resourceAccessPart.isStringPathPram) {
+            if (resourceAccessPart.isStringPathParam) {
                 isStringPathParamsAvailable = true;
                 signatureWithNamedSegments.append("/").append(resourceAccessPart.namedPathSignature);
                 insertTextWithNamedSegments.append("/").append(resourceAccessPart.namedPathInsertText);
@@ -211,18 +212,46 @@ public class ResourcePathCompletionUtil {
         String paramType = FunctionCompletionItemBuilder
                 .getFunctionParameterSyntax(pathParameterSymbol, context).orElse("");
         String computedSignature = "[" + paramType + "]";
-        String computedInsertText = "[${" + placeHolderIndex + ":" + defaultValue.orElse("") + "}]";
+        String computedInsertText =
+                typeSymbol.typeKind().equals(TypeDescKind.SINGLETON) ? "[" + defaultValue.orElse("") + "]" :
+                        "[${" + placeHolderIndex + ":" + defaultValue.orElse("") + "}]";
         ResourceAccessPathPart resourceAccessPathPart =
                 new ResourceAccessPathPart(computedInsertText, computedSignature);
         if (context.currentSemanticModel().isPresent() &&
-                context.currentSemanticModel().get().types().STRING.subtypeOf(typeSymbol)) {
-            resourceAccessPathPart.namedPathSignature = "<" +
-                    (pathParameterSymbol.getName().isPresent() ? pathParameterSymbol.getName().get() : "path") + ">";
-            resourceAccessPathPart.namedPathInsertText = "${" + placeHolderIndex + ":" + "path" + "}";
-            resourceAccessPathPart.computedPathInsertText = "[${" + placeHolderIndex + ":" + "\"path\"" + "}]";
-            resourceAccessPathPart.isStringPathPram = true;
+                checkSubtype(typeSymbol, context.currentSemanticModel().get().types().STRING)) {
+            if (typeSymbol.typeKind().equals(TypeDescKind.SINGLETON)) {
+                resourceAccessPathPart.namedPathSignature =
+                        typeSymbol.signature().substring(1, typeSymbol.signature().length() - 1);
+                resourceAccessPathPart.namedPathInsertText = resourceAccessPathPart.namedPathSignature;
+            } else {
+                resourceAccessPathPart.namedPathSignature =  "<" +
+                        (pathParameterSymbol.getName().isPresent() ? pathParameterSymbol.getName().get() : "path") + ">";
+                resourceAccessPathPart.namedPathInsertText = "${" + placeHolderIndex + ":" + "path" + "}";
+                resourceAccessPathPart.computedPathInsertText = "[${" + placeHolderIndex + ":" + "\"path\"" + "}]";
+            }
+            resourceAccessPathPart.isStringPathParam = true;
         }
         return resourceAccessPathPart;
+    }
+
+    private static boolean checkSubtype(TypeSymbol paramType, TypeSymbol stringType) {
+        if (stringType.subtypeOf(paramType)) {
+            return true;
+        }
+        switch (paramType.typeKind()) {
+            case UNION:
+                for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
+                    if (checkSubtype(childSymbol, stringType)) {
+                        return true;
+                    }
+                }
+                return false;
+            case SINGLETON:
+            case TYPE_REFERENCE:
+                return paramType.subtypeOf(stringType);
+            default:
+                return false;
+        }
     }
 
     private static class ResourceAccessPathPart {
@@ -233,7 +262,7 @@ public class ResourcePathCompletionUtil {
         private String namedPathSignature;
         private String namedPathInsertText;
 
-        boolean isStringPathPram = false;
+        boolean isStringPathParam = false;
 
         ResourceAccessPathPart(String computedPathInsertText, String computedPathSignature) {
             this.computedPathInsertText = computedPathInsertText;
