@@ -48,16 +48,12 @@ import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -514,7 +510,7 @@ public class CentralAPIClient {
                 Optional<String> deprecationMsg = Optional.ofNullable(packagePullResponse.header(DEPRECATE_MESSAGE));
                 Optional<String> digest = Optional.ofNullable(packagePullResponse.header(DIGEST));
 
-                String digestVal = digest.isPresent() ? digest.get() :"";
+                String digestVal = digest.isPresent() ? digest.get() : "";
                 boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
                 String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
 
@@ -540,7 +536,8 @@ public class CentralAPIClient {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
                                 isDeprecated ? deprecationMessage : null,
-                                balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter, digestVal);
+                                balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter,
+                                digestVal);
                         return;
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +

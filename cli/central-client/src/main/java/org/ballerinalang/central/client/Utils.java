@@ -455,7 +455,8 @@ public class Utils {
         return sb.toString();
     }
 
-    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName) throws Exception {
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName) 
+    throws Exception {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
         byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
