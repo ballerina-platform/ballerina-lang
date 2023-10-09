@@ -40,6 +40,7 @@ public class JMethodCallInstruction extends JInstruction {
         super(pos);
         jKind = JInsKind.CALL;
     }
+
     @Override
     public void accept(BIRVisitor visitor) {
         visitor.visit(this);

@@ -51,7 +51,7 @@ import static org.testng.Assert.assertTrue;
 public class ArrayFillTest {
 
     private CompileResult compileResult;
-    private final long index = 250;
+    private static final long index = 250;
 
     @BeforeClass
     public void setup() {

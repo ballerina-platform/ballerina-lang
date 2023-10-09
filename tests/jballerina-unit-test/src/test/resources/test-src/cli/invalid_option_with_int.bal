@@ -23,4 +23,3 @@ public type Student record {|
 public function main(*Student student) {
     test:assertEquals(student["val"], 10);
 }
-

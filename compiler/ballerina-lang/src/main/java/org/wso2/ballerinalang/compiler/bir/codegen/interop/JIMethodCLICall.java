@@ -24,14 +24,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import java.util.List;
 
 /**
- * Java method invocation call for internal cli argument population modeled as BIR terminator.
+ * Java method invocation call, modelled as BIR terminator, for internal CLI argument population.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class JIMethodCLICall extends JTerminator {
 
     public List<BIROperand> lhsArgs;
-
     public String jClassName;
     public String jMethodVMSig;
     public String name;

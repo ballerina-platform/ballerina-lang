@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -35,5 +36,10 @@ public class JCast extends JInstruction {
 
         super(pos);
         jKind = JInsKind.JCAST;
+    }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        // do nothing
     }
 }

@@ -45,7 +45,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.TYPE_CAS
 /**
  * Remove redundant default function calls for record value creation.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class BIRRecordValueOptimizer extends BIRVisitor {
 
@@ -61,7 +61,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     private boolean valueCreated = false;
 
     public void optimizeNode(BIRNode node) {
-        // Collect lock nodes
+        // Optimize record default value function calls
         node.accept(this);
     }
 
@@ -157,7 +157,6 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
     }
 
     private void moveConstLoadInstruction(BIRTerminator.FPCall fpCall, BIRNode.BIRBasicBlock firstBB) {
-
         BIRNonTerminator.ConstantLoad constantLoad = (BIRNonTerminator.ConstantLoad) firstBB.instructions.get(0);
         if (firstBB.instructions.size() == 2) {
             BIRNonTerminator.TypeCast typeCast = (BIRNonTerminator.TypeCast) firstBB.instructions.get(1);

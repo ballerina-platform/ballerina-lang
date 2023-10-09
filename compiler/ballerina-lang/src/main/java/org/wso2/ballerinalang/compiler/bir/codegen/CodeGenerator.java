@@ -76,12 +76,6 @@ public class CodeGenerator {
     }
 
     private CompiledJarFile generate(BPackageSymbol packageSymbol) {
-
-        // Split large BIR functions into smaller methods
-        BIRRecordValueOptimizer recordValueOptimizer = new BIRRecordValueOptimizer();
-
-        // Optimize record value creation for default values - remove unnecessary method call
-        recordValueOptimizer.optimizeNode(packageSymbol.bir);
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);

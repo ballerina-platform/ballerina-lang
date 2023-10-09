@@ -47,14 +47,13 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 
@@ -65,7 +64,7 @@ import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
  */
 public class ValueUtils {
 
-    private static final PrintStream outStream = System.err;
+    private static final PrintStream errStream = System.err;
 
     /**
      * Create a record value using the given package ID and record type name.
@@ -127,11 +126,15 @@ public class ValueUtils {
         return recordValue;
     }
 
-    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues
-            (Map<String, BFunctionPointer<Object, ?>> defaultValues, Set<String> providedFields) {
-        return defaultValues.entrySet().stream()
-                .filter(entry -> !providedFields.contains(entry.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    private static Map<String, BFunctionPointer<Object, ?>> getNonProvidedDefaultValues(
+            Map<String, BFunctionPointer<Object, ?>> defaultValues, Set<String> providedFields) {
+        Map<String, BFunctionPointer<Object, ?>> result = new HashMap<>();
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+            if (!providedFields.contains(entry.getKey())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
     }
 
     private static void populateInitialValuesWithNoStrand(BMap<BString, Object> recordValue, CountDownLatch latch,
@@ -161,7 +164,7 @@ public class ValueUtils {
                                              AtomicInteger callCount, Consumer<Object> futureResultConsumer,
                                              Scheduler scheduler, CountDownLatch latch) {
         BFunctionPointer<?, ?> func = defaultValues.get(fields[callCount.get()]);
-        Type retType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
+        Type retType = ((FunctionType) TypeUtils.getImpliedType(func.getType())).getReturnType();
         FutureValue future = scheduler.createFuture(null, null, null, retType, strandName, metadata);
         AsyncFunctionCallback callback = new AsyncFunctionCallback(null) {
             @Override
@@ -178,7 +181,7 @@ public class ValueUtils {
 
             @Override
             public void notifyFailure(BError error) {
-                outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+                errStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
             }
         };
 
@@ -238,7 +241,10 @@ public class ValueUtils {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           BMap<BString, Object> valueMap) {
-        Set<String> keySet = Arrays.stream(valueMap.getKeys()).map(BString::getValue).collect(Collectors.toSet());
+        Set<String> keySet = new HashSet<>();
+        for (BString key : valueMap.getKeys()) {
+            keySet.add(key.getValue());
+        }
         BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName, keySet);
         for (Map.Entry<BString, Object> fieldEntry : valueMap.entrySet()) {
             recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());

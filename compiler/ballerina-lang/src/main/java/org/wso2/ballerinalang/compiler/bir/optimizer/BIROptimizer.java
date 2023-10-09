@@ -64,8 +64,7 @@ public class BIROptimizer {
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
     private final BIRBasicBlockOptimizer bbOptimizer;
-
-    private LargeMethodOptimizer largeMethodOptimizer;
+    private final LargeMethodOptimizer largeMethodOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -83,12 +82,12 @@ public class BIROptimizer {
         this.lockOptimizer = new BIRLockOptimizer();
         this.bbOptimizer = new BIRBasicBlockOptimizer();
         this.largeMethodOptimizer = new LargeMethodOptimizer(SymbolTable.getInstance(context));
-
     }
 
     public void optimizePackage(BIRPackage pkg) {
         // RHS temp var optimization
         pkg.accept(this.rhsTempVarOptimizer);
+        // Split large BIR functions into smaller methods based on maps and arrays
         largeMethodOptimizer.splitLargeBIRFunctions(pkg);
         // LHS temp var optimization
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
@@ -98,6 +97,10 @@ public class BIROptimizer {
 
         // Optimize BB - unnecessary goto removal
         bbOptimizer.optimizeNode(pkg, null);
+
+        // Optimize record value creation for default values - remove unnecessary method call
+        BIRRecordValueOptimizer recordValueOptimizer = new BIRRecordValueOptimizer();
+        recordValueOptimizer.optimizeNode(pkg;
     }
 
     /**

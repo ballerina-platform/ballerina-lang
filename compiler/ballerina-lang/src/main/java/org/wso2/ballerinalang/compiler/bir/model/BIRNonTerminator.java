@@ -875,7 +875,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType enclosedType = null;
         public String fieldName;
 
-
         public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
                       List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
                       SchedulerPolicy schedulerPolicy) {

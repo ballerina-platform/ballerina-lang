@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import java.util.Comparator;
 
 /**
- * BIR Function Param comparator to sort according to RETURN and ARG kinds.
+ * BIR Function Param comparator to sort according to RETURN, ARG varkinds and TEMP vars according to their names.
  *
  * @since 1.2.0
  */

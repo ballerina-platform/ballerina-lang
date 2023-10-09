@@ -129,7 +129,6 @@ class InstructionEmitter {
                 return emitInsNewTypeDesc((BIRNonTerminator.NewTypeDesc) ins, tabs);
             case NEW_TABLE:
                 return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
-            case RECORD_DEFAULT_FP_LOAD:
             default:
                 return emitBIRInstruction(ins.getClass().getSimpleName(), ((BIRAbstractInstruction) ins).lhsOp,
                         ((BIRAbstractInstruction) ins).getRhsOperands(), tabs);

@@ -66,10 +66,6 @@ public class OptionTest {
                 {"option_with_boolean_array", new String[] {"--array"}},
                 {"option_with_boolean_array", new String[] {"--array", "--array"}},
                 {"option_with_boolean", new String[] {"--bool"}},
-
-
-
-
         };
     }
 
