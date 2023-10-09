@@ -48,12 +48,16 @@ import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
 import org.ballerinalang.central.client.model.ToolSearchResult;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +89,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TY
 import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_MESSAGE;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
+import static org.ballerinalang.central.client.CentralClientConstants.DIGEST;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
@@ -507,9 +512,12 @@ public class CentralAPIClient {
                 Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
                 Optional<String> deprecationFlag = Optional.ofNullable(packagePullResponse.header(IS_DEPRECATED));
                 Optional<String> deprecationMsg = Optional.ofNullable(packagePullResponse.header(DEPRECATE_MESSAGE));
+                Optional<String> digest = Optional.ofNullable(packagePullResponse.header(DIGEST));
 
+                String digestVal = digest.isPresent() ? digest.get() :"";
                 boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
                 String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
+
                 if (!isBuild && isDeprecated) {
                     outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated: "
                             + deprecationMessage);
@@ -532,7 +540,7 @@ public class CentralAPIClient {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
                                 isDeprecated ? deprecationMessage : null,
-                                balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
+                                balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter, digestVal);
                         return;
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
@@ -687,7 +695,7 @@ public class CentralAPIClient {
                         try {
                             createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
                                     isNightlyBuild, null, balaUrl.get(), balaFileName,
-                                    enableOutputStream ? outStream : null, logFormatter);
+                                    enableOutputStream ? outStream : null, logFormatter, "");
                             return new String[]{String.valueOf(true), org.get(), pkgName.get(), latestVersion.get()};
                         } catch (PackageAlreadyExistsException ignore) {
                             // package already exists. setting org, name and version fields is enough

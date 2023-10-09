@@ -47,6 +47,7 @@ public class CentralClientConstants {
     static final String ANY_PLATFORM = "any";
     static final String PKG_NAME = "name";
     static final String IS_DEPRECATED = "isdeprecated";
+    static final String DIGEST = "digest";
     static final String DEPRECATE_MESSAGE = "deprecatemessage";
     public static final String ENABLE_OUTPUT_STREAM = "enableOutputStream";
     static final String PRODUCTION_REPO = "central.ballerina.io";
