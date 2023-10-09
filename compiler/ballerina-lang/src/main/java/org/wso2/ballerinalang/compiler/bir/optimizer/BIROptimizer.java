@@ -100,7 +100,7 @@ public class BIROptimizer {
 
         // Optimize record value creation for default values - remove unnecessary method call
         BIRRecordValueOptimizer recordValueOptimizer = new BIRRecordValueOptimizer();
-        recordValueOptimizer.optimizeNode(pkg;
+        recordValueOptimizer.optimizeNode(pkg);
     }
 
     /**
