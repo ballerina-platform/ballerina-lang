@@ -17,7 +17,7 @@ import ballerina/io as console;
 import google/gmail;
 // Third-Party library imports
 import apache/kafka as apache_kafka;
-// Ballerina extended library imports
+// Ballerina library imports
 import ballerinax/kafka;
 import ballerinax/transformer as _;
 
