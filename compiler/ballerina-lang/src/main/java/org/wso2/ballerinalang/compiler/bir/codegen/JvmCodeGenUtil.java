@@ -609,8 +609,7 @@ public class JvmCodeGenUtil {
     }
 
     public static boolean isAnonType(BIRNode.BIRTypeDefinition typedef) {
-        return typedef.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX) ||
-                Symbols.isFlagOn(typedef.type.flags, Flags.ANONYMOUS);
+        return Symbols.isFlagOn(typedef.type.flags, Flags.ANONYMOUS);
     }
 
     private static BirScope getLastScope(BIRAbstractInstruction instruction, String funcName, LabelGenerator labelGen,
