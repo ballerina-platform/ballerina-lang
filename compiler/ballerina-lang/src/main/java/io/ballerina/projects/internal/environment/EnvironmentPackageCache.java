@@ -23,14 +23,14 @@ import java.util.Optional;
 public class EnvironmentPackageCache implements WritablePackageCache {
 
     private final Map<PackageId, Project> projects = new HashMap<>();
-    private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Package>>> projectCache = new HashMap<>();
+    private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Project>>> projectCache = new HashMap<>();
 
     public void cache(Package pkg) {
         projects.put(pkg.packageId(), pkg.project());
         projectCache
             .computeIfAbsent(pkg.packageOrg(), org -> new HashMap<>())
             .computeIfAbsent(pkg.packageName(), name -> new HashMap<>())
-            .put(pkg.packageVersion(), pkg);
+            .put(pkg.packageVersion(), pkg.project());
     }
 
     @Override
@@ -60,8 +60,8 @@ public class EnvironmentPackageCache implements WritablePackageCache {
             projectCache
                 .getOrDefault(packageOrg, Collections.emptyMap())
                 .getOrDefault(packageName, Collections.emptyMap())
-                .get(version)
-        );
+                .getOrDefault(version, Collections.emptyMap())
+        ).map(Project::currentPackage);
     }
 
     @Override
