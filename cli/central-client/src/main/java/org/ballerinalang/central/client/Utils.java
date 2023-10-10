@@ -462,7 +462,7 @@ public class Utils {
         byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
 
         // If the hash value is not matching , throw an exception.
-        if (("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
+        if (!("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
             BuildLogFormatter logFormatter = null;
             String errorMessage = ERR_CANNOT_PULL_PACKAGE + "'" + packageName +
                     "'. BALA content download process failed due to hash mismatch.";
