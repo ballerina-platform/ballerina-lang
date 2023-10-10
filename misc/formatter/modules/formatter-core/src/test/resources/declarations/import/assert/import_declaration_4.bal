@@ -7,7 +7,7 @@ import ballerina/lang.'int;
 import ballerina/log as logger;
 import ballerina/math;
 import ballerina/io as console;
-// Ballerina extended library imports
+// Ballerina library imports
 import ballerinax/kafka;
 import ballerinax/transformer as _;
 
