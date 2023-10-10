@@ -181,6 +181,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         } else {
             BIRNonTerminator.ConstantLoad newConstLoad = new BIRNonTerminator.ConstantLoad(constantLoad.pos,
                     constantLoad.value, constantLoad.type, fpCall.lhsOp);
+            newConstLoad.scope = fpCall.scope;
             lastBB.instructions.add(newConstLoad);
         }
     }
