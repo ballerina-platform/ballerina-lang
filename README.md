@@ -63,7 +63,7 @@ Try out Ballerina's development capabilities using the [Ballerina extension for 
 >**Tip:** If you are unsure whether you have found a bug, search the existing issues in the GitHub repo and raise it in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2) or [Stack Overflow](https://stackoverflow.com/questions/tagged/ballerina).
 
   - Language, Tooling, Ballerina library, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
-  - Extended library: <a href="https://github.com/ballerina-platform/ballerina-extended-library/issues">ballerina-extended-library</a> repo
+  - Ballerina library: <a href="https://github.com/ballerina-platform/ballerina-extended-library/issues">ballerina-extended-library</a> repo
   - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
 
 
