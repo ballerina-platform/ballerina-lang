@@ -232,13 +232,12 @@ class JMethodResolver {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
                 throw new JInteropException(OVERLOADED_METHODS,
                         "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
-                                jMethodRequest.declaringClass.getName() +
-                                "', please specify class names for each parameter " +
+                                jMethodRequest.declaringClass + "', please specify class names for each parameter " +
                                 "in 'paramTypes' field in the annotation");
             } else {
                 throw new JInteropException(OVERLOADED_METHODS,
                         "Overloaded methods '" + jMethodRequest.methodName + "' with '" + paramCount +
-                                "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                                "' parameter(s) in class '" + jMethodRequest.declaringClass +
                                 "', please specify class names for each parameter " +
                                 "with 'paramTypes' field in the annotation");
             }
@@ -858,12 +857,12 @@ class JMethodResolver {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
                 throw new JInteropException(OVERLOADED_METHODS,
                         "More than one public constructors that match with the parameter types '" +
-                                paramTypesSig + "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
+                                paramTypesSig + "' found in class '" + jMethodRequest.declaringClass + "'");
             } else {
                 throw new JInteropException(OVERLOADED_METHODS,
                         "More than one public methods '" + jMethodRequest.methodName +
                                 "' that match with the parameter types '" + paramTypesSig +
-                                "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
+                                "' found in class '" + jMethodRequest.declaringClass + "'");
             }
         } else {
             return resolvedJMethods.get(0);

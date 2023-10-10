@@ -815,4 +815,12 @@ public class StaticMethods {
         output.put(StringUtils.fromString("results"), results);
         balFuture.complete(output);
     }
+
+    public static BString testOverloadedMethods(Environment env, BArray arr, BString str) {
+        return str;
+    }
+
+    public static BString testOverloadedMethods(ArrayValue obj, BString str) {
+        return str;
+    }
 }

@@ -412,6 +412,22 @@ public class NegativeValidationTest {
     }
 
     @Test
+    public void testOverloadedMethods() {
+        String path = "test-src/javainterop/negative/overloaded_methods.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                        "cannot be differentiated. Please specify the parameterTypes for each " +
+                        "parameter in 'paramTypes' field in the annotation'",
+                "overloaded_methods.bal", 24, 5);
+        BAssertUtil.validateError(compileResult, 1,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                "cannot be differentiated. Please specify the parameterTypes for each parameter in " +
+                "'paramTypes' field in the annotation'", "overloaded_methods.bal", 30, 1);
+    }
+
+    @Test
     public void testNoClassDefFoundError() {
         String path = "test-src/javainterop/negative/project_no_class_def_found";
         CompileResult compileResult = BCompileUtil.compile(path);
