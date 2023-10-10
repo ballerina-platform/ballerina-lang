@@ -23,11 +23,11 @@ import java.util.Optional;
 public class EnvironmentPackageCache implements WritablePackageCache {
 
     private final Map<PackageId, Project> projects = new HashMap<>();
-    private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Package>>> packageCache = new HashMap<>();
+    private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Package>>> projectCache = new HashMap<>();
 
     public void cache(Package pkg) {
         projects.put(pkg.packageId(), pkg.project());
-        packageCache
+        projectCache
             .computeIfAbsent(pkg.packageOrg(), org -> new HashMap<>())
             .computeIfAbsent(pkg.packageName(), name -> new HashMap<>())
             .put(pkg.packageVersion(), pkg);
