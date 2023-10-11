@@ -431,7 +431,7 @@ public class Utils {
     }
 
     private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName) 
-    throws Exception {
+    throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
         byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
