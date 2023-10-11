@@ -66,7 +66,7 @@ public class LangLibrary {
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
         this.types = Types.getInstance(context);
-        this.methodBinder = new LangLibFunctionBinder(context);
+        this.methodBinder = new LangLibFunctionBinder(this.types, context);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -132,13 +132,10 @@ public class LangLibrary {
     }
 
     private String getLangLibName(BType type) {
-        String langLibName;
         if (type.getKind() == TypeKind.UNION && types.isAllErrorMembers((BUnionType) type)) {
-            langLibName = TypeKind.ERROR.typeName();
-        } else {
-            langLibName = getAssociatedLangLibName(type.getKind());
+            return TypeKind.ERROR.typeName();
         }
-        return langLibName;
+        return getAssociatedLangLibName(type.getKind());
     }
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type,

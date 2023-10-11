@@ -167,16 +167,23 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         this.langLibFunctionBinder = new LangLibFunctionBinder(context);
     }
 
+    /**
+     * Resolves the expected type for a given node. Inclusively, the method resolves the expected type for parameters
+     * with the `@typeParam` annotation.
+     *
+     * @param node The syntax tree node of which the expected type is required
+     * @return Expected type symbol
+     */
     public Optional<TypeSymbol> resolveType(Node node) {
         TypeParamBoundFinder typeParamVisitor = new TypeParamBoundFinder();
         node.accept(typeParamVisitor);
 
-        if (typeParamVisitor.getExpressionNode() == null) {
+        if (typeParamVisitor.getFunctionCallExpressionNode() == null) {
             return node.apply(this);
         }
 
-        BLangNode langNode =
-                nodeFinder.lookup(this.bLangCompilationUnit, typeParamVisitor.getExpressionNode().lineRange());
+        BLangNode langNode = nodeFinder.lookup(this.bLangCompilationUnit,
+                typeParamVisitor.getFunctionCallExpressionNode().lineRange());
         BInvokableSymbol originalLangLibMethod =
                 this.langLibrary.getLangLibMethod(langNode.getBType(),
                         SymbolUtils.unescapeUnicode(typeParamVisitor.getMethodName()));
@@ -192,9 +199,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return node.apply(this);
         }
 
+        BType langNodeBType = langNode.getBType();
         BInvokableSymbol langLibMethod =
-                this.langLibFunctionBinder.cloneAndBind(originalLangLibMethod, langNode.getBType(),
-                        SymbolUtils.getTypeParamBoundType(langNode.getBType()));
+                this.langLibFunctionBinder.cloneAndBind(originalLangLibMethod, langNodeBType,
+                        SymbolUtils.getTypeParamBoundType(langNodeBType));
 
         if (langLibMethod.getParameters().size() < 2) {
             return node.apply(this);

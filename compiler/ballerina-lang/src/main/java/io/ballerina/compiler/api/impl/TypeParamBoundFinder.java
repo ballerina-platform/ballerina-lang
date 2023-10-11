@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
@@ -27,16 +27,14 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 
-import java.util.Iterator;
-
 /**
  * A visitor class to determine the bound type of the type param.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class TypeParamBoundFinder extends NodeVisitor {
 
-    private ExpressionNode expressionNode;
+    private ExpressionNode functionCallExpressionNode;
     private NameReferenceNode methodName;
     private PositionalArgumentNode positionalArgumentNode;
     private int position;
@@ -59,17 +57,14 @@ public class TypeParamBoundFinder extends NodeVisitor {
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
-        this.expressionNode = methodCallExpressionNode.expression();
+        this.functionCallExpressionNode = methodCallExpressionNode.expression();
         this.methodName = methodCallExpressionNode.methodName();
 
-        Iterator<Node> it = methodCallExpressionNode.children().iterator();
         int positionIndex = 0;
-        Node childNode;
 
-        while (it.hasNext()) {
-            childNode = it.next();
-            if (childNode.equals(this.positionalArgumentNode)) {
-                this.position = (positionIndex - 4) / 2;
+        for (FunctionArgumentNode argNode : methodCallExpressionNode.arguments()) {
+            if (argNode.equals(this.positionalArgumentNode)) {
+                this.position = positionIndex;
                 break;
             }
             positionIndex++;
@@ -84,8 +79,8 @@ public class TypeParamBoundFinder extends NodeVisitor {
         node.parent().accept(this);
     }
 
-    public ExpressionNode getExpressionNode() {
-        return expressionNode;
+    public ExpressionNode getFunctionCallExpressionNode() {
+        return functionCallExpressionNode;
     }
 
     public String getMethodName() {
