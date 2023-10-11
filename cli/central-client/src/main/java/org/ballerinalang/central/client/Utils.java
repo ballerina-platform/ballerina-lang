@@ -435,11 +435,14 @@ public class Utils {
         try {
             md = MessageDigest.getInstance(algorithm);
             InputStream is = new FileInputStream(filePath);
-            DigestInputStream dis = new DigestInputStream(is, md);
-            while (dis.read() != -1) { // empty loop to clear the data
+            try(DigestInputStream dis = new DigestInputStream(is, md)){
+                while (dis.read() != -1) { // empty loop to clear the data
 
+                }
+                md = dis.getMessageDigest();
             }
-            md = dis.getMessageDigest();
+            
+    
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
@@ -463,7 +466,7 @@ public class Utils {
 
         // If the hash value is not matching , throw an exception.
         if (!("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
-            BuildLogFormatter logFormatter = null;
+
             String errorMessage = ERR_CANNOT_PULL_PACKAGE + "'" + packageName +
                     "'. BALA content download process failed due to hash mismatch.";
             throw new CentralClientException(errorMessage);
