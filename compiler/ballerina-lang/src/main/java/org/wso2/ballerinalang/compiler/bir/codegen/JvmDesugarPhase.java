@@ -163,24 +163,23 @@ public class JvmDesugarPhase {
     }
 
     private static void encodePackageIdentifiers(PackageID packageID) {
-        packageID.orgName = Names.fromString(encodeNonFunctionIdentifier(packageID.orgName.value));
-        packageID.name = Names.fromString(encodeNonFunctionIdentifier(packageID.name.value));
+        packageID.orgName = encodeNonFunctionIdentifier(packageID.orgName.value);
+        packageID.name = encodeNonFunctionIdentifier(packageID.name.value);
     }
 
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            Name encodedName = Names.fromString(encodeNonFunctionIdentifier(
-                    typeDefinition.type.tsymbol.name.value));
+            Name encodedName = encodeNonFunctionIdentifier(typeDefinition.type.tsymbol.name.value);
             if (typeDefinition.type.tsymbol.name.value.equals(typeDefinition.internalName.value)) {
                 typeDefinition.internalName = encodedName;
             } else {
                 typeDefinition.internalName =
-                        Names.fromString(encodeNonFunctionIdentifier(typeDefinition.internalName.value));
+                        encodeNonFunctionIdentifier(typeDefinition.internalName.value);
             }
             typeDefinition.type.tsymbol.name = encodedName;
             if (typeDefinition.referenceType != null) {
-                typeDefinition.referenceType.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
-                        typeDefinition.referenceType.tsymbol.name.value));
+                typeDefinition.referenceType.tsymbol.name = encodeNonFunctionIdentifier(
+                        typeDefinition.referenceType.tsymbol.name.value);
             }
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs);
             BType bType = JvmCodeGenUtil.getImpliedType(typeDefinition.type);
@@ -191,13 +190,13 @@ public class JvmDesugarPhase {
                     encodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs);
                 }
                 for (BField field : objectType.fields.values()) {
-                    field.name = Names.fromString(encodeNonFunctionIdentifier(field.name.value));
+                    field.name = encodeNonFunctionIdentifier(field.name.value);
                 }
             }
             if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 for (BField field : recordType.fields.values()) {
-                    field.name = Names.fromString(encodeNonFunctionIdentifier(field.name.value));
+                    field.name = encodeNonFunctionIdentifier(field.name.value);
                 }
             }
         }
@@ -205,19 +204,19 @@ public class JvmDesugarPhase {
 
     private static void encodeFunctionIdentifiers(List<BIRFunction> functions) {
         for (BIRFunction function : functions) {
-            function.name = Names.fromString(encodeFunctionIdentifier(function.name.value));
+            function.name = encodeFunctionIdentifier(function.name.value);
             for (BIRNode.BIRVariableDcl localVar : function.localVars) {
                 if (localVar.metaVarName == null) {
                     continue;
                 }
-                localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName);
+                localVar.metaVarName = Utils.encodeNonFunctionIdentifier(localVar.metaVarName);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value));
+                parameter.name = encodeNonFunctionIdentifier(parameter.name.value);
             }
             if (function.type.tsymbol != null) {
                 for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
-                    parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value));
+                    parameter.name = encodeNonFunctionIdentifier(parameter.name.value);
                 }
             }
             encodeDefaultFunctionName(function.type);
@@ -231,19 +230,19 @@ public class JvmDesugarPhase {
             return;
         }
         for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
-            defaultFunc.name = Names.fromString(encodeFunctionIdentifier(defaultFunc.name.value));
+            defaultFunc.name = encodeFunctionIdentifier(defaultFunc.name.value);
         }
     }
 
     private static void encodeWorkerName(BIRFunction function) {
         if (function.workerName != null) {
-            function.workerName = Names.fromString(encodeNonFunctionIdentifier(function.workerName.value));
+            function.workerName = encodeNonFunctionIdentifier(function.workerName.value);
         }
     }
 
     private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions) {
         for (BAttachedFunction function : functions) {
-            function.funcName = Names.fromString(encodeFunctionIdentifier(function.funcName.value));
+            function.funcName = encodeFunctionIdentifier(function.funcName.value);
         }
     }
 
@@ -253,21 +252,21 @@ public class JvmDesugarPhase {
             if (globalVar == null) {
                 continue;
             }
-            globalVar.name = Names.fromString(encodeNonFunctionIdentifier(globalVar.name.value));
+            globalVar.name = encodeNonFunctionIdentifier(globalVar.name.value);
         }
     }
 
     private static void encodeImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            globalVar.name = Names.fromString(encodeNonFunctionIdentifier(globalVar.name.value));
+            globalVar.name = encodeNonFunctionIdentifier(globalVar.name.value);
         }
     }
 
-    private static String encodeFunctionIdentifier(String identifier) {
-        return Utils.encodeFunctionIdentifier(identifier);
+    private static Name encodeFunctionIdentifier(String identifier) {
+        return Names.fromString(Utils.encodeFunctionIdentifier(identifier));
     }
 
-    private static String encodeNonFunctionIdentifier(String identifier) {
-        return Utils.encodeNonFunctionIdentifier(identifier);
+    private static Name encodeNonFunctionIdentifier(String identifier) {
+        return Names.fromString(Utils.encodeNonFunctionIdentifier(identifier));
     }
 }
