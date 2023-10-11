@@ -106,7 +106,7 @@ public class TransactionResourceManager {
         resourceRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
-        transactionInfoMap = new HashMap<>();
+        transactionInfoMap = new ConcurrentHashMap<>();
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
             trxRegistry = new HashMap<>();
