@@ -69,6 +69,9 @@ import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
+import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
+import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
  * Utils class for this package.
@@ -277,7 +280,7 @@ public class Utils {
                             logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
                 }
                 try {
-                    extractBala(balaPath, Optional.of(balaPath.getParent()).get(), trueDigest, fullPkgName);
+                    extractBala(balaPath, Optional.of(balaPath.getParent()).get(), trueDigest, fullPkgName, outStream);
                     Files.delete(balaPath);
                 } catch (IOException | CentralClientException e) {
                     throw new CentralClientException(
@@ -431,7 +434,7 @@ public class Utils {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 
-    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName) 
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName, PrintStream outStream) 
     throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
@@ -439,10 +442,15 @@ public class Utils {
 
         // If the hash value is not matching , throw an exception.
         if (!("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
-
-            String errorMessage = ERR_CANNOT_PULL_PACKAGE + "'" + packageName +
-                    "'. BALA content download process failed due to hash mismatch.";
-            throw new CentralClientException(errorMessage);
+            StringBuilder warning = new StringBuilder(
+                String.format("*************************************************************%n" +
+                        "* WARNING: Some packages may not be from original source. *%n" +
+                        "*************************************************************%n%n" +
+                        "The following package was failed to verify the hash value %n" +
+                        packageName +
+                        "%n"));
+            
+            outStream.println(warning.toString());
 
         } 
         
@@ -524,18 +532,20 @@ public class Utils {
             long byteConverter;
             String unitName;
 
-            if (totalBytes < 1024 * 5) { // use bytes for progress bar if payload is less than 5 KB
+            if (totalBytes < BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) { 
+                // use bytes for progress bar if payload is less than 5 KB
                 byteConverter = 1;
                 unitName = " B";
-            } else if (totalBytes < 1024 * 1024 * 5) { // use kilobytes for progress bar if payload is less than 5 MB
-                byteConverter = 1024;
+            } else if (totalBytes < BYTES_FOR_KB * BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) { 
+                // use kilobytes for progress bar if payload is less than 5 MB
+                byteConverter = BYTES_FOR_KB;
                 unitName = " KB";
             } else { // else use megabytes for progress bar.
-                byteConverter = 1024 * 1024;
+                byteConverter = BYTES_FOR_KB * BYTES_FOR_KB;
                 unitName = " MB";
             }
 
-            ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out,
+            ProgressBar progressBar = new ProgressBar(task, contentLength(), UPDATE_INTERVAL_MILLIS, out,
                     ProgressBarStyle.ASCII, unitName, byteConverter);
             CountingSink countingSink = new CountingSink(sink, progressBar);
             BufferedSink progressSink = Okio.buffer(countingSink);
