@@ -63,7 +63,6 @@ public class Profiler {
     private String balJarArgs = null;
     private String balJarName = null;
     private String targetDir = null;
-    private String sourceRoot = null;
     private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
@@ -93,7 +92,7 @@ public class Profiler {
                 deleteFileIfExists(CPU_PRE_JSON);
                 OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 deleteTempData();
-                httpServer.initializeHTMLExport(this.sourceRoot);
+                httpServer.initializeHTMLExport();
                 deleteFileIfExists("performance_report.json");
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
@@ -160,10 +159,6 @@ public class Profiler {
                 }
                 case "--target" -> {
                     this.targetDir = args[i + 1];
-                    addToUsedArgs(args, usedArgs, i);
-                }
-                case "--profiler-dir" -> {
-                    this.sourceRoot = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
                 case "--profilerDebug" -> {

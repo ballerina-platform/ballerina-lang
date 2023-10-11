@@ -76,8 +76,6 @@ public class RunProfilerTask implements Task {
             commands.add(getTargetFilePath(project));
             commands.add("--target");
             commands.add(targetPath.toString());
-            commands.add("--profiler-dir");
-            commands.add(getProfilerPath(project).toString());
             if (isInProfileDebugMode()) {
                 commands.add("--profilerDebug");
                 commands.add(getProfileDebugArg(err));
@@ -115,29 +113,27 @@ public class RunProfilerTask implements Task {
     }
 
     private Path getProfilerPath(Project project) {
-        Target target;
         try {
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                target = new Target(Paths.get(System.getProperty(USER_DIR)));
-            } else {
-                target = new Target(project.targetDir());
-            }
-        } catch (IOException e) {
-            throw createLauncherException("error while creating target directory: ", e);
-        }
-        try {
+            Target target = new Target(getTargetPath(project));
             return target.getProfilerPath();
         } catch (IOException e) {
             throw createLauncherException("error while creating profiler directory: ", e);
         }
     }
 
+    private Path getTargetPath(Project project) {
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return Paths.get(System.getProperty(USER_DIR));
+        }
+        return project.targetDir();
+    }
+
     private String getTargetFilePath(Project project) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return Paths.get(System.getProperty(USER_DIR)).resolve(
-                    getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT).toString();
+                    getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT).toUri().getPath();
         }
         return project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
-                BLANG_COMPILED_JAR_EXT).toString();
+                BLANG_COMPILED_JAR_EXT).toUri().getPath();
     }
 }

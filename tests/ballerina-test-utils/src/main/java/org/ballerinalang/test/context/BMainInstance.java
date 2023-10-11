@@ -207,7 +207,7 @@ public class BMainInstance implements BMain {
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
-    public synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    public synchronized void addJavaAgents(Map<String, String> envProperties) {
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
@@ -216,10 +216,14 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
-        if ("".equals(javaOpts)) {
+        if (javaOpts.isEmpty()) {
             return;
         }
         envProperties.put(JAVA_OPTS, javaOpts);
+    }
+
+    public String getBalServerHome() {
+        return Paths.get(balServer.getServerHome()).toString();
     }
 
     /**

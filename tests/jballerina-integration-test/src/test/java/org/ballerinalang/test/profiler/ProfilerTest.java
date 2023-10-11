@@ -43,6 +43,7 @@ public class ProfilerTest extends BaseTest {
             .toAbsolutePath().toString();
     private final String outputFile = "ProfilerOutput.html";
     private BMainInstance bMainInstance;
+    public static final String BALLERINA_HOME = "ballerina.home";
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -51,11 +52,11 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithBalPackage() throws BallerinaTestException {
-        String sourceRoot = testFileLocation + "/";
         String packageName = "projectForProfile/package_a";
+        String sourceRoot = testFileLocation + "/";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
+        LogLeecher[] leechers = getProfilerLogLeechers(sourceRoot + packageName + "/target/profiler/" + outputFile);
         bMainInstance.runMain("profile", new String[]{packageName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {
@@ -84,7 +85,8 @@ public class ProfilerTest extends BaseTest {
         String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(sourceRoot + outputFile);
+        envProperties.put(BALLERINA_HOME, bMainInstance.getBalServerHome());
+        LogLeecher[] leechers = getProfilerLogLeechers(sourceRoot + "profiler/" + outputFile);
         bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
                 null, leechers, sourceRoot);
         for (LogLeecher leecher : leechers) {

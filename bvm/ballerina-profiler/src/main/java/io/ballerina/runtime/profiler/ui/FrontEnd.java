@@ -30,15 +30,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.runtime.profiler.util.Constants.BALLERINA_HOME;
+import static io.ballerina.runtime.profiler.util.Constants.HTML_TEMPLATE_FILE;
+import static io.ballerina.runtime.profiler.util.Constants.PROFILE_DATA;
+
 /**
  * This class contains the front end of the Ballerina profiler.
  *
  * @since 2201.8.0
  */
 public class FrontEnd {
-
-    private static final String PROFILE_DATA = "${profile_data}";
-    private static final String FILE_LOCATION = "profiler_output.html";
 
     String getSiteData(String contents) {
         String htmlContent;
@@ -51,10 +52,10 @@ public class FrontEnd {
     }
 
     public String readFileAsString() throws IOException {
-        Path resourceFilePath = Paths.get(System.getenv("ballerina.home")).resolve("resources")
-                .resolve("profiler").resolve("profiler_output.html");
+        Path resourceFilePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
+                .resolve("profiler").resolve(HTML_TEMPLATE_FILE);
         if (!Files.exists(resourceFilePath)) {
-            throw new ProfilerRuntimeException("resource file not found: " + FILE_LOCATION);
+            throw new ProfilerRuntimeException("resource file not found: " + HTML_TEMPLATE_FILE);
         }
         StringBuilder sb = new StringBuilder();
         try (InputStream inputStream = new FileInputStream(resourceFilePath.toFile())) {

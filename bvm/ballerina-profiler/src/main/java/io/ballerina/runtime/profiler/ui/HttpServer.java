@@ -33,7 +33,9 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 
+import static io.ballerina.runtime.profiler.util.Constants.BALLERINA_HOME;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.WORKING_DIRECTORY;
 
 /**
  * This class contains the HTTP server of the Ballerina profiler.
@@ -42,14 +44,15 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
  */
 public class HttpServer {
 
-    public void initializeHTMLExport(String profilerDir) throws IOException {
+    public void initializeHTMLExport() throws IOException {
+        String profilerOutputDir = System.getProperty(WORKING_DIRECTORY);
         OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
-                "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", profilerDir);
-        Path sourcePath = Paths.get(System.getenv("ballerina.home")).resolve("resources")
+                "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", profilerOutputDir);
+        Path resourcePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
                 .resolve("profiler");
 
         try {
-            copyFolder(sourcePath, Paths.get(profilerDir));
+            copyFolder(resourcePath, Path.of(profilerOutputDir));
         } catch (IOException e) {
             OUT_STREAM.printf("%s%n", e);
         }
