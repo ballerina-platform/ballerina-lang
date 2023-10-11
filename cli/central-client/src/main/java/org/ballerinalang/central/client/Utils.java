@@ -464,7 +464,7 @@ public class Utils {
         try {
             md = MessageDigest.getInstance(algorithm);
             InputStream is = new FileInputStream(filePath);
-            try(DigestInputStream dis = new DigestInputStream(is, md)) {
+            try (DigestInputStream dis = new DigestInputStream(is, md)) {
                 while (dis.read() != -1) { // empty loop to clear the data
                 }
                 md = dis.getMessageDigest();
