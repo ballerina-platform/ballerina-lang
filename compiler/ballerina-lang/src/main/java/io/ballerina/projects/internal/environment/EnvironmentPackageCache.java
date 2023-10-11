@@ -66,17 +66,13 @@ public class EnvironmentPackageCache implements WritablePackageCache {
 
     @Override
     public List<Package> getPackages(PackageOrg packageOrg, PackageName packageName) {
-        // Do we have a need to improve this logic?
-        // TODO Optimize this logic
-        List<Package> foundList = new ArrayList<>();
-        for (Project project : projects.values()) {
-            PackageManifest pkgDesc = project.currentPackage().manifest();
-            if (pkgDesc.org().equals(packageOrg) &&
-                    pkgDesc.name().equals(packageName)) {
-                foundList.add(project.currentPackage());
-            }
-        }
-        return foundList;
+        return projectCache
+                .getOrDefault(packageOrg, Collections.emptyMap())
+                .getOrDefault(packageName, Collections.emptyMap())
+                .values()
+                .stream()
+                .map(Project::currentPackage)
+                .collect(Collectors.toList());
     }
 
     @Override
