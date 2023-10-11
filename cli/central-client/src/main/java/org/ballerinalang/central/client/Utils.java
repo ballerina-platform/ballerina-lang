@@ -434,7 +434,8 @@ public class Utils {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 
-    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName, PrintStream outStream) 
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName, 
+    PrintStream outStream) 
     throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
