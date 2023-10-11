@@ -278,7 +278,7 @@ public class Utils {
                 try {
                     extractBala(balaPath, Optional.of(balaPath.getParent()).get(), trueDigest, fullPkgName);
                     Files.delete(balaPath);
-                } catch (Exception e) {
+                } catch (IOException | CentralClientException e) {
                     throw new CentralClientException(
                             logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
                 }
@@ -430,34 +430,6 @@ public class Utils {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 
-    private static byte[] checkHash(String filePath, String algorithm) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(algorithm);
-            InputStream is = new FileInputStream(filePath);
-            try(DigestInputStream dis = new DigestInputStream(is, md)){
-                while (dis.read() != -1) { // empty loop to clear the data
-
-                }
-                md = dis.getMessageDigest();
-            }
-            
-    
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-        return md.digest();
-
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
-
     private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName) 
     throws Exception {
         Files.createDirectories(balaFileDestPath);
@@ -485,6 +457,32 @@ public class Utils {
                 Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
             }
         }
+    }
+
+    private static byte[] checkHash(String filePath, String algorithm) {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance(algorithm);
+            InputStream is = new FileInputStream(filePath);
+            try(DigestInputStream dis = new DigestInputStream(is, md)) {
+                while (dis.read() != -1) { // empty loop to clear the data
+                }
+                md = dis.getMessageDigest();
+            }
+            
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+        return md.digest();
+
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     static String getBearerToken(String accessToken) {
