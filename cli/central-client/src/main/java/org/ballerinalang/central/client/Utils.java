@@ -56,6 +56,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -463,18 +464,21 @@ public class Utils {
         MessageDigest md;
         try {
             md = MessageDigest.getInstance(algorithm);
-            InputStream is = new FileInputStream(filePath);
-            try (DigestInputStream dis = new DigestInputStream(is, md)) {
-                while (dis.read() != -1) { // empty loop to clear the data
-                }
-                md = dis.getMessageDigest();
-            }
-            
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException(e);
         }
-        return md.digest();
-
+        
+        try (InputStream is = new FileInputStream(filePath);
+            DigestInputStream dis = new DigestInputStream(is, md)) {
+            while (dis.read() != -1) {
+            }
+            md = dis.getMessageDigest();
+            return md.digest();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }      
     }
 
     public static String bytesToHex(byte[] bytes) {
