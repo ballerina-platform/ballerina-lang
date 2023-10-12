@@ -46,6 +46,7 @@ public enum CompilerPhase {
     DESUGAR("desugar"),
 
     BIR_GEN("birGen"),
+    BIR_DEAD_NODE_ANALYZE("birDeadNodeAnalyze"),
 
     BIR_EMIT("birEmit"),
 
@@ -80,6 +81,8 @@ public enum CompilerPhase {
                 return CODE_GEN;
             case "birGen":
                 return BIR_GEN;
+            case "birDeadNodeAnalyze":
+                return BIR_DEAD_NODE_ANALYZE;
             case "birEmit":
                 return BIR_EMIT;
             default:
