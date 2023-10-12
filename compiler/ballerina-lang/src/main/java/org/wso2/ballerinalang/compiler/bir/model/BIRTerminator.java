@@ -102,6 +102,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public boolean isVirtual;
         public List<BIROperand> args;
         public Name name;
+        public Name originalName;
         public PackageID calleePkg;
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
         public Set<Flag> calleeFlags;
@@ -125,6 +126,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.calleePkg = calleePkg;
             this.calleeAnnotAttachments = calleeAnnotAttachments;
             this.calleeFlags = calleeFlags;
+            this.originalName = name;
         }
 
         public Call(Location pos,
@@ -140,6 +142,23 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     BirScope scope) {
             this(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
             this.scope = scope;
+        }
+
+        public Call(Location pos,
+                    InstructionKind kind,
+                    boolean isVirtual,
+                    PackageID calleePkg,
+                    Name name,
+                    Name originalName,
+                    List<BIROperand> args,
+                    BIROperand lhsOp,
+                    BIRBasicBlock thenBB,
+                    List<BIRAnnotationAttachment> calleeAnnotAttachments,
+                    Set<Flag> calleeFlags,
+                    BirScope scope) {
+            this(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
+            this.scope = scope;
+            this.originalName = originalName;
         }
 
         @Override
