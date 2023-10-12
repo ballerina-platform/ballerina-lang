@@ -81,7 +81,7 @@ public class ProfileCommandTest extends BaseCommandTest {
         profileCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
         Assert.assertEquals(buildLog, getOutput("run-project-with-profile.txt"));
-        Path htmlPath = projectPath.resolve("target").resolve("bin").resolve("ProfilerOutput.html");
+        Path htmlPath = projectPath.resolve("target").resolve("profiler").resolve("ProfilerOutput.html");
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
