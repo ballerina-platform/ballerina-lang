@@ -623,7 +623,7 @@ public class JvmPackageGen {
                                                                   birModuleClassName, lookupKey, this);
         } else {
             if (isEntry && birFunc.receiver == null) {
-                addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc);
             }
             birFuncWrapperOrError = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         }

@@ -47,7 +47,6 @@ import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
@@ -93,12 +92,12 @@ public class ExternalMethodGen {
                                                                              jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
+                    initMethodGen.resetIds();
                 } else if (birFunc instanceof JMethodBIRFunction) {
                     desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
+                    initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
-                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
+                    initMethodGen.resetIds();
                 }
             }
         }
@@ -172,7 +171,7 @@ public class ExternalMethodGen {
             boolean isEntryModule, SymbolTable symbolTable) {
         List<BType> jMethodPramTypes = new ArrayList<>(birFunc.type.paramTypes);
         if (isEntryModule) {
-            addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
+            addDefaultableBooleanVarsToSignature(birFunc);
         }
         BInvokableType functionTypeDesc = birFunc.type;
 
@@ -226,7 +225,7 @@ public class ExternalMethodGen {
         String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
         if (birFunc instanceof JBIRFunction) {
             if (isEntry) {
-                addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc);
             }
             birFuncWrapper = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         } else {
