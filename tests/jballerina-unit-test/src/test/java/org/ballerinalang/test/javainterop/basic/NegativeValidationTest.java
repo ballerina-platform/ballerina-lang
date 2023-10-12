@@ -546,10 +546,10 @@ public class NegativeValidationTest {
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
         BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INSTANTIATION_ERROR" +
-                        " ''org.ballerinalang.nativeimpl.jvm.tests.AbstractClass' is abstract; cannot be instantiated'",
-                19, 1);
+                        " ''org.ballerinalang.nativeimpl.jvm.tests.AbstractClass' is abstract, " +
+                        "and cannot be instantiated'", 19, 1);
         BAssertUtil.validateError(compileResult, 1, "{ballerina/jballerina.java}INSTANTIATION_ERROR" +
-                        " ''org.ballerinalang.nativeimpl.jvm.tests.Interface' is abstract; cannot be instantiated'",
+                        " ''org.ballerinalang.nativeimpl.jvm.tests.Interface' is abstract, and cannot be instantiated'",
                 23, 1);
     }
 }

@@ -900,7 +900,7 @@ class JMethodResolver {
         if (kind == JMethodKind.CONSTRUCTOR) {
             if (Modifier.isAbstract(clazz.getModifiers())) {
                 throw new JInteropException(DiagnosticErrorCode.INSTANTIATION_ERROR,
-                        "'" + clazz.getName() + "' is abstract; cannot be instantiated");
+                        "'" + clazz.getName() + "' is abstract, and cannot be instantiated");
             }
             return Arrays.asList(getConstructors(clazz));
         } else {
