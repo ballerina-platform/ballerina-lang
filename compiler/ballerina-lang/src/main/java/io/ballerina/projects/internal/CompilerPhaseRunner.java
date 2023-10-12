@@ -19,6 +19,8 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
@@ -67,6 +69,7 @@ public class CompilerPhaseRunner {
     private final DataflowAnalyzer dataflowAnalyzer;
     private final IsolationAnalyzer isolationAnalyzer;
     private final DeadCodeAnalyzer deadCodeAnalyzer;
+    private final BIRDeadNodeAnalyzer birDeadNodeAnalyzer;
     private final boolean isToolingCompilation;
 
     public static CompilerPhaseRunner getInstance(CompilerContext context) {
@@ -95,6 +98,7 @@ public class CompilerPhaseRunner {
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.deadCodeAnalyzer = DeadCodeAnalyzer.getInstance(context);
+        this.birDeadNodeAnalyzer = BIRDeadNodeAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -120,11 +124,6 @@ public class CompilerPhaseRunner {
         }
 
         isolationAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_CODE_ANALYZE)) {
-            return;
-        }
-
-        deadCodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
             return;
         }
@@ -148,11 +147,21 @@ public class CompilerPhaseRunner {
         }
 
         desugar(pkgNode);
+//        if (this.stopCompilation(pkgNode, CompilerPhase.DEAD_CODE_ANALYZE)) {
+//            return;
+//        }
+//
+//        deadCodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_GEN)) {
             return;
         }
 
         birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.BIR_DEAD_NODE_ANALYZE)) {
+            return;
+        }
+
+        birDeadNodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_EMIT)) {
             return;
         }
@@ -224,6 +233,10 @@ public class CompilerPhaseRunner {
 
     private BLangPackage deadCodeAnalyze(BLangPackage pkgNode) {
         return this.deadCodeAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage birDeadNodeAnalyze(BLangPackage pkgNode) {
+        return this.birDeadNodeAnalyzer.analyze(pkgNode);
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {

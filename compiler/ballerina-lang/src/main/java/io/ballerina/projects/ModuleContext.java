@@ -273,7 +273,7 @@ class ModuleContext {
                 && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         }
-//        else if (!this.moduleDescriptor.packageName().toString().contains("lang") && !this.moduleDescriptor.packageName().toString().contains("jballerina")) {
+//        else if (!this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/lang") && !this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina")) {
 //            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
 //        }
         else {
