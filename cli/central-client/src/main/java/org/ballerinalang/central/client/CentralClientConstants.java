@@ -59,6 +59,4 @@ public class CentralClientConstants {
     public static final int PROGRESS_BAR_BYTE_THRESHOLD = 5;
     public static final int UPDATE_INTERVAL_MILLIS = 1000;
 
-    
-
 }

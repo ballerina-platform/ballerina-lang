@@ -434,9 +434,9 @@ public class Utils {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 
-    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName, 
-    PrintStream outStream) 
-    throws IOException, CentralClientException {
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName,
+            PrintStream outStream)
+            throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
         byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
@@ -444,18 +444,18 @@ public class Utils {
         // If the hash value is not matching , throw an exception.
         if (!("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
             StringBuilder warning = new StringBuilder(
-                String.format("*************************************************************%n" +
-                        "* WARNING: Some packages may not be from original source. *%n" +
-                        "*************************************************************%n%n" +
-                        "The following package was failed to verify the hash value %n" +
-                        packageName +
-                        "%n"));
+                    String.format("*************************************************************%n" +
+                            "* WARNING: Some packages may not be from original source. *%n" +
+                            "*************************************************************%n%n" +
+                            "The following package was failed to verify the hash value %n" +
+                            packageName +
+                            "%n"));
             if (outStream != null) {
                 outStream.println(warning.toString());
             }
 
-        } 
-        
+        }
+
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
             List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
@@ -477,9 +477,9 @@ public class Utils {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException(e);
         }
-        
+
         try (InputStream is = new FileInputStream(filePath);
-            DigestInputStream dis = new DigestInputStream(is, md)) {
+                DigestInputStream dis = new DigestInputStream(is, md)) {
             while (dis.read() != -1) {
             }
             md = dis.getMessageDigest();
@@ -488,7 +488,7 @@ public class Utils {
             throw e;
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
-        }      
+        }
     }
 
     public static String bytesToHex(byte[] bytes) {
@@ -534,11 +534,11 @@ public class Utils {
             long byteConverter;
             String unitName;
 
-            if (totalBytes < BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) { 
+            if (totalBytes < BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) {
                 // use bytes for progress bar if payload is less than 5 KB
                 byteConverter = 1;
                 unitName = " B";
-            } else if (totalBytes < BYTES_FOR_KB * BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) { 
+            } else if (totalBytes < BYTES_FOR_KB * BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) {
                 // use kilobytes for progress bar if payload is less than 5 MB
                 byteConverter = BYTES_FOR_KB;
                 unitName = " KB";
