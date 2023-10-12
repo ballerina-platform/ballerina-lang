@@ -276,9 +276,6 @@ public class JvmDesugarPhase {
     private static void encodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
                                                         HashMap<String, String> encodedVsInitialIds) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar == null) {
-                continue;
-            }
             globalVar.name = Names.fromString(encodeNonFunctionIdentifier(globalVar.name.value, encodedVsInitialIds));
         }
     }
@@ -295,7 +292,6 @@ public class JvmDesugarPhase {
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
-        replaceEncodedImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
         replaceEncodedFunctionIdentifiers(module.functions, encodedVsInitialIds);
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
@@ -337,12 +333,6 @@ public class JvmDesugarPhase {
                                                           HashMap<String, String> encodedVsInitialIds) {
         for (BIRFunction function : functions) {
             function.name = getInitialIdString(function.name, encodedVsInitialIds);
-            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
-                if (localVar.metaVarName == null) {
-                    continue;
-                }
-                localVar.metaVarName = getInitialIdString(localVar.metaVarName, encodedVsInitialIds);
-            }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
@@ -383,16 +373,6 @@ public class JvmDesugarPhase {
 
     private static void replaceEncodedGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
                                                                 HashMap<String, String> encodedVsInitialIds) {
-        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar == null) {
-                continue;
-            }
-            globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
-        }
-    }
-
-    private static void replaceEncodedImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars,
-                                                                        HashMap<String, String> encodedVsInitialIds) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
             globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
         }
