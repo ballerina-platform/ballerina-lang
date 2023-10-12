@@ -23,3 +23,8 @@ function getPrintableStackTrace(error s) returns handle = @java:Method {
 function concat(string s1, string s2) returns handle = @java:Method {
     'class: "io.ballerina.runtime.api.values.BString"
 } external;
+
+function concatString(handle h, string s1, string s2) returns handle = @java:Method {
+    'class: "io.ballerina.runtime.api.values.BString",
+    name: "concat"
+} external;
