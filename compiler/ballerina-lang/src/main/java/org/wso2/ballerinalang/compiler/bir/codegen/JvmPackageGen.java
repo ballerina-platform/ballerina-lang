@@ -837,12 +837,10 @@ public class JvmPackageGen {
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
         if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
             return true;
-        } else {
-            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
-                if (importPkgSymbol == null) {
-                    continue;
-                }
-                return listenerDeclarationFound(importPkgSymbol);
+        }
+        for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+            if (importPkgSymbol != null && listenerDeclarationFound(importPkgSymbol)) {
+                return true;
             }
         }
         return false;
