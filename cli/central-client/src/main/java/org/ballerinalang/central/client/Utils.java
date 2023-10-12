@@ -450,7 +450,7 @@ public class Utils {
                         "The following package was failed to verify the hash value %n" +
                         packageName +
                         "%n"));
-            if(outStream != null){
+            if (outStream != null) {
                 outStream.println(warning.toString());
             }
 
