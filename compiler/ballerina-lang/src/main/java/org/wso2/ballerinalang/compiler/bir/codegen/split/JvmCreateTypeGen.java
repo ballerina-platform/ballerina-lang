@@ -56,6 +56,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import org.testng.Assert;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -602,15 +604,20 @@ public class JvmCreateTypeGen {
                 Integer typeHash = typeHashVisitor.visit(type);
                 boolean fieldExists = labelFieldMapping.containsKey(fieldName);
                 boolean hashExists = labelHashMapping.containsKey(typeHash);
+                
                 if (!fieldExists && !hashExists) {
                     Label label = new Label();
                     labelFieldMapping.put(fieldName, label);
                     labelHashMapping.put(typeHash, label);
                 } else {
-                    assert fieldExists && hashExists; // hashing issues.
+                    Assert.assertTrue(fieldExists);
+                    Assert.assertTrue(hashExists);
+                    // Assert the condition for hashing issues, if needed.
                 }
+                
                 typeHashVisitor.reset();
             }
+            
         }
         int[] hashes = new int[10];
         int count = 0;
