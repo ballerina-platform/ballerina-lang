@@ -98,6 +98,8 @@ import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
 import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
+import static org.ballerinalang.central.client.Utils.checkHash;
+import static org.ballerinalang.central.client.Utils.bytesToHex;
 
 /**
  * {@code CentralAPIClient} is a client for the Central API.
@@ -373,8 +375,11 @@ public class CentralAPIClient {
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
+            byte[] hashInBytes = checkHash(balaPath.toString(), "SHA-256");
+            String digestVal = "sha-256="+bytesToHex(hashInBytes);
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .addHeader(DIGEST, digestVal)
                     .post(enableOutputStream ? balaFileReqBodyWithProgressBar : balaFileReqBody)
                     .url(url)
                     .build();

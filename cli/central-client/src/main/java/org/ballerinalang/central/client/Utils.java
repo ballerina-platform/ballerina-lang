@@ -470,7 +470,7 @@ public class Utils {
         }
     }
 
-    private static byte[] checkHash(String filePath, String algorithm) {
+    public static byte[] checkHash(String filePath, String algorithm) {
         MessageDigest md;
         try {
             md = MessageDigest.getInstance(algorithm);
