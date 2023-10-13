@@ -7795,6 +7795,7 @@ public class Desugar extends BLangNodeVisitor {
             funcSymbol.addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
             funcSymbol.schedulerPolicy = SchedulerPolicy.ANY;
         }
+        bLangLambdaFunction.capturedClosureEnv = null;
         result = bLangLambdaFunction;
     }
 
