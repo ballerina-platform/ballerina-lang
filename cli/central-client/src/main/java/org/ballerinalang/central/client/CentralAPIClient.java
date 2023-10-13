@@ -376,7 +376,7 @@ public class CentralAPIClient {
                     packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             byte[] hashInBytes = checkHash(balaPath.toString(), "SHA-256");
-            String digestVal = "sha-256="+bytesToHex(hashInBytes);
+            String digestVal = "sha-256=" + bytesToHex(hashInBytes);
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                     .addHeader(DIGEST, digestVal)
