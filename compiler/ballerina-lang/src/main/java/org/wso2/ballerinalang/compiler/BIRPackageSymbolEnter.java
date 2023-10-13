@@ -48,7 +48,6 @@ import io.ballerina.types.subtypedata.RwTableSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.XmlSubtype;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -56,7 +55,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
@@ -119,7 +117,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -1250,11 +1247,24 @@ public class BIRPackageSymbolEnter {
 
         public BType readType(int cpI) throws IOException {
             SemType semType = readSemType();
+            String userStrRep = readUserStrRep();
             BType bType = readTypeInternal(cpI);
             if (bType != null) {
                 bType.setSemType(semType);
+                bType.userStrRep = userStrRep;
             }
             return bType;
+        }
+
+        private String readUserStrRep() throws IOException {
+            boolean hasUserStrRep = inputStream.readBoolean();
+            String userStrRep;
+            if (hasUserStrRep) {
+                userStrRep = getStringCPEntryValue(inputStream);
+            } else {
+                userStrRep = null;
+            }
+            return userStrRep;
         }
 
         private BType readTypeInternal(int cpI) throws IOException {

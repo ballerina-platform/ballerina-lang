@@ -50,12 +50,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -100,9 +95,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
@@ -131,10 +123,19 @@ public class BIRTypeWriter extends TypeVisitor {
 
     public void visitType(BType type) {
         writeSemType(type.getSemType());
+        writeUserStrRep(type);
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeLong(type.flags);
         type.accept(this);
+    }
+
+    private void writeUserStrRep(BType type) {
+        boolean hasUserStrRep = type.userStrRep != null;
+        buff.writeBoolean(hasUserStrRep);
+        if (hasUserStrRep) {
+            buff.writeInt(addStringCPEntry(type.userStrRep));
+        }
     }
 
     private void writeTypeCpIndex(BType type) {
@@ -583,59 +584,6 @@ public class BIRTypeWriter extends TypeVisitor {
 
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new StringCPEntry(value));
-    }
-
-    private int addIntCPEntry(long value) {
-        return cp.addCPEntry(new IntegerCPEntry(value));
-    }
-
-    private int addFloatCPEntry(double value) {
-        return cp.addCPEntry(new FloatCPEntry(value));
-    }
-
-    private int addByteCPEntry(int value) {
-        return cp.addCPEntry(new ByteCPEntry(value));
-    }
-
-    private void writeValue(Object value, BType typeOfValue) {
-        ByteBuf byteBuf = Unpooled.buffer();
-        switch (typeOfValue.tag) {
-            case TypeTags.INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
-                byteBuf.writeInt(addIntCPEntry((Long) value));
-                break;
-            case TypeTags.BYTE:
-                int byteValue = ((Number) value).intValue();
-                byteBuf.writeInt(addByteCPEntry(byteValue));
-                break;
-            case TypeTags.FLOAT:
-                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal =
-                        value instanceof String ? Double.parseDouble((String) value) : ((Number) value).doubleValue();
-                byteBuf.writeInt(addFloatCPEntry(doubleVal));
-                break;
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.DECIMAL:
-                byteBuf.writeInt(addStringCPEntry(String.valueOf(value)));
-                break;
-            case TypeTags.BOOLEAN:
-                byteBuf.writeBoolean((Boolean) value);
-                break;
-            case TypeTags.NIL:
-                break;
-            default:
-                throw new UnsupportedOperationException("finite type value is not supported for type: " + typeOfValue);
-        }
-
-        int length = byteBuf.nioBuffer().limit();
-        buff.writeInt(length);
-        buff.writeBytes(byteBuf.nioBuffer().array(), 0, length);
     }
 
     private void writeTypeInclusions(List<BType> inclusions) {

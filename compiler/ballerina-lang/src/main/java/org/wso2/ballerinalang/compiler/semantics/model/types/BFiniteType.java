@@ -51,16 +51,13 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements ReferenceType {
 
-    String toString;
-
-    public BFiniteType(BTypeSymbol tsymbol, SemType semType) {
-        super(TypeTags.FINITE, tsymbol, semType);
-        this.flags |= Flags.READONLY;
+    public BFiniteType(BTypeSymbol tsymbol, SemType semType) { // TODO: Get rid of this constructor
+        this(tsymbol, semType, null);
     }
 
-    public BFiniteType(BTypeSymbol tsymbol, SemType semType, String toString) {
-        this(tsymbol, semType);
-        this.toString = toString;
+    public BFiniteType(BTypeSymbol tsymbol, SemType semType, String userStrRep) {
+        super(TypeTags.FINITE, tsymbol, semType, userStrRep);
+        this.flags |= Flags.READONLY;
     }
 
     @Override
@@ -144,8 +141,8 @@ public class BFiniteType extends BType implements ReferenceType {
 
     @Override
     public String toString() {
-        if (toString != null) {
-            return toString;
+        if (this.userStrRep != null) {
+            return userStrRep;
         }
         return toNormalizedString();
     }
