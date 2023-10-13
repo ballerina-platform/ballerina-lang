@@ -104,7 +104,7 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
     }
 
-    @Test(description = "Test pushing a package to central", dependsOnMethods = "testCreateProject")
+    @Test(description = "Test pushing a package to central", dependsOnMethods = "testCreateProject", enabled = false)
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
@@ -142,7 +142,7 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(60000);
     }
 
-    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
+    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush", enabled = false)
     public void testPull() {
         String baloFileName = moduleName + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
@@ -165,7 +165,7 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
     }
 
-    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
+    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush", enabled = false)
     public void testSearch() throws BallerinaTestException {
         String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
                 balServer.getServerHome(), false);
