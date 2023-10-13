@@ -583,6 +583,34 @@ function testKeyCollisionWithStringAndRegExpAsKeyValues() {
     assertEqual(tbl, tbl5);
 }
 
+type Employee record {|
+    readonly string orgId;
+    readonly string appId;
+    string company;
+|};
+
+function testTupleAsKeyValue() {
+    table<Employee> key(orgId, appId) tbl = table [
+        {orgId: "1", appId: "1", company: "xxx"}
+    ];
+
+    tbl.put({
+        orgId: "1",
+        appId: "1",
+        company: "yyy"
+    });
+
+    table<Employee> tbl1 = from Employee r in tbl
+        where r.orgId == "1" && r.appId == "1"
+        select r;
+
+    table<Employee> tbl2 = table [
+        {orgId: "1", appId: "1", company: "yyy"}
+    ];
+
+    assertEqual(tbl1, tbl2);
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

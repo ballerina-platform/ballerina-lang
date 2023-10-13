@@ -72,7 +72,8 @@ public class TableKeyFieldValueTest {
                 "testGroupExprAsKeyValue",
                 "testKeyCollision",
                 "testRegExpAsKeyValue",
-                "testKeyCollisionWithStringAndRegExpAsKeyValues"
+                "testKeyCollisionWithStringAndRegExpAsKeyValues",
+                "testTupleAsKeyValue"
         };
     }
 
