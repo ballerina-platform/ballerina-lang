@@ -1,19 +1,19 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
-import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Environment-level Package cache.
@@ -66,6 +66,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
 
     @Override
     public List<Package> getPackages(PackageOrg packageOrg, PackageName packageName) {
+        // Improved logic: Use streams to simplify the code
         return projectCache
                 .getOrDefault(packageOrg, Collections.emptyMap())
                 .getOrDefault(packageName, Collections.emptyMap())
@@ -77,6 +78,13 @@ public class EnvironmentPackageCache implements WritablePackageCache {
 
     @Override
     public void removePackage(PackageId packageId) {
-        projects.remove(packageId);
+        Project project = projects.remove(packageId);
+        if (project != null) {
+            Package pkg = project.currentPackage();
+            projectCache
+                .getOrDefault(pkg.packageOrg(), Collections.emptyMap())
+                .getOrDefault(pkg.packageName(), Collections.emptyMap())
+                .remove(pkg.packageVersion());
+        }
     }
 }
