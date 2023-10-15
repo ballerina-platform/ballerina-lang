@@ -402,7 +402,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 this.compilerContext, linePosition, sourceDocument);
         while (node != null) {
             try {
-                typeSymbol = expectedTypeFinder.resolveType(node);
+                typeSymbol = node.apply(expectedTypeFinder);
             } catch (IllegalStateException e) {
                 break;
             }
