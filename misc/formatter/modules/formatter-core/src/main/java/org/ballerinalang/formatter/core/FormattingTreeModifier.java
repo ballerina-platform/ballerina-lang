@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ClauseNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
@@ -312,8 +313,25 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         NodeList<Node> relativeResourcePath = formatNodeList(functionDefinitionNode.relativeResourcePath(), 0, 0, 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
+        int trailingNL = env.trailingNL;
+        if (isMemberOfScope(functionDefinitionNode)) {
+            ChildNodeList parentChildren = functionDefinitionNode.parent().children();
+            int nChildren = parentChildren.size();
+            boolean lastNode = false;
+
+            for (int i = nChildren - 1; i > -1; i--) {
+                Node child = parentChildren.get(i);
+                if (isMemberOfScope(child)) {
+                    if (child.equals(functionDefinitionNode)) {
+                        lastNode = true;
+                    }
+                    break;
+                }
+            }
+            trailingNL = (env.trailingNL > 2 || lastNode) ? env.trailingNL : 2;
+        }
         FunctionBodyNode functionBodyNode =
-                formatNode(functionDefinitionNode.functionBody(), env.trailingWS, env.trailingNL);
+                formatNode(functionDefinitionNode.functionBody(), env.trailingWS, trailingNL);
 
         return functionDefinitionNode.modify()
                 .withMetadata(metadata)
@@ -3896,6 +3914,17 @@ public class FormattingTreeModifier extends TreeModifier {
         }
     }
 
+    private <T extends Node> boolean isMemberOfScope(T node) {
+        switch (node.kind()) {
+            case OBJECT_METHOD_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
+            case OBJECT_FIELD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Format a list of nodes.
      *
@@ -4230,7 +4259,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
         int consecutiveNewlines = 0;
         Minutiae prevMinutiae = null;
-        if (env.hasNewline) {
+        boolean missingTokenWithNL = token.isMissing() && env.hasNewline;
+        if (!token.isMissing() && env.hasNewline) {
             // 'hasNewlines == true' means a newline has already been added.
             // Therefore, increase the 'consecutiveNewlines' count
             consecutiveNewlines++;
@@ -4288,6 +4318,9 @@ public class FormattingTreeModifier extends TreeModifier {
                 case INVALID_TOKEN_MINUTIAE_NODE:
                 case INVALID_NODE_MINUTIAE:
                 default:
+                    if (missingTokenWithNL) {
+                        missingTokenWithNL = false;
+                    }
                     consecutiveNewlines = 0;
                     leadingMinutiae.add(minutiae);
                     break;
@@ -4297,7 +4330,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         // token.isMission() issue has to be discussed.
-        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
+        if ((consecutiveNewlines > 0 || missingTokenWithNL) && !env.preserveIndentation) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
