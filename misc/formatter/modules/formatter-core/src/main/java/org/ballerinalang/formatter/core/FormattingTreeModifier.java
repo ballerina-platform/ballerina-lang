@@ -4482,13 +4482,14 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private int getPreservedIndentation(Token token) {
         int position = token.lineRange().startLine().offset();
-        int offset = position % 4;
-        if (env.currentIndentation % 4 == 0 && env.currentIndentation > position) {
+        int tabSize = options.getTabSize();
+        int offset = position % tabSize;
+        if (env.currentIndentation % tabSize == 0 && env.currentIndentation > position) {
             return env.currentIndentation;
         }
         if (offset != 0) {
             if (offset > 2) {
-                position = position + 4 - offset;
+                position = position + tabSize - offset;
             } else {
                 position = position - offset;
             }
