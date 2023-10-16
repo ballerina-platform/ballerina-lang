@@ -82,12 +82,12 @@ class DocumentContext {
     }
 
     SyntaxTree parse() {
-        if (syntaxTree != null) {
-            return syntaxTree;
+        if (this.syntaxTree != null) {
+            return this.syntaxTree;
         }
         if (!disableSyntaxTree) {
-            syntaxTree = SyntaxTree.from(this.textDocument(), name);
-            return syntaxTree;
+            this.syntaxTree = SyntaxTree.from(this.textDocument(), name);
+            return this.syntaxTree;
         }
         return SyntaxTree.from(this.textDocument(), name);
     }
@@ -97,10 +97,14 @@ class DocumentContext {
     }
 
     TextDocument textDocument() {
-        if (this.textDocument == null) {
-            this.textDocument = TextDocuments.from(this.content);
+        if (this.textDocument != null) {
+            return this.textDocument;
         }
-        return this.textDocument;
+        if (!disableSyntaxTree) {
+            this.textDocument = TextDocuments.from(this.content);
+            return this.textDocument;
+        }
+        return TextDocuments.from(this.content);
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
