@@ -724,11 +724,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangReturn returnStmt, AnalyzerData data) {
-        if (checkReturnValidityInTransaction(data)) {
-            this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
-            return;
+        boolean checkReturnValidityInTransaction =
+                                            !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0;
+        if (checkReturnValidityInTransaction) {
+            if (data.withinTransactionScope) {
+                this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+                return;
+            }
+            data.withinTransactionScope = true;
         }
-
         analyzeExpr(returnStmt.expr, data);
         data.returnTypes.peek().add(returnStmt.expr.getBType());
     }
@@ -3904,11 +3908,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean checkNextBreakValidityInTransaction(AnalyzerData data) {
         return !data.loopWithinTransactionCheckStack.peek() && data.transactionCount > 0 && data.withinTransactionScope;
-    }
-
-    private boolean checkReturnValidityInTransaction(AnalyzerData data) {
-        return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0
-                && data.withinTransactionScope;
     }
 
     private void analyzeInvocationParams(BLangInvocation iExpr, AnalyzerData data) {
