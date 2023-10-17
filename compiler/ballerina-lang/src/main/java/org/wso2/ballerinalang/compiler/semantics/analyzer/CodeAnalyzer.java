@@ -724,42 +724,51 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangReturn returnStmt, AnalyzerData data) {
-        if (checkReturnValidityInTransaction(data)) {
-            this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
-            return;
+        boolean checkReturnValidityInTransaction =
+                                            !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0;
+        if (checkReturnValidityInTransaction) {
+            if (data.withinTransactionScope) {
+                this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+                return;
+            }
+            data.withinTransactionScope = true;
         }
-
         analyzeExpr(returnStmt.expr, data);
         data.returnTypes.peek().add(returnStmt.expr.getBType());
     }
 
+    private void resetTransactionScope(AnalyzerData data) {
+        data.commitRollbackAllowed = true;
+        data.withinTransactionScope = true;
+    }
+
+    private BLangExpression unwrapGroupedExpr(BLangExpression expression) {
+        if (expression.getKind() == NodeKind.GROUP_EXPR) {
+            return unwrapGroupedExpr(((BLangGroupExpr) expression).expression);
+        }
+        return expression;
+    }
+
     @Override
     public void visit(BLangIf ifStmt, AnalyzerData data) {
-        boolean independentBlocks = false;
         int prevCommitCount = data.commitCount;
         int prevRollbackCount = data.rollbackCount;
         BLangStatement elseStmt = ifStmt.elseStmt;
-        if (data.withinTransactionScope && elseStmt != null && elseStmt.getKind() != NodeKind.IF) {
-                independentBlocks = true;
-                data.commitRollbackAllowed = true;
-        }
         boolean prevTxMode = data.withinTransactionScope;
-        if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
-                ((BLangGroupExpr) ifStmt.expr).expression.getKind() :
-                ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        boolean isTransactional = unwrapGroupedExpr(ifStmt.expr).getKind()
+            == NodeKind.TRANSACTIONAL_EXPRESSION;
+        if (isTransactional) {
             data.withinTransactionScope = true;
         }
         BLangBlockStmt body = ifStmt.body;
         analyzeNode(body, data);
-
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        if (isTransactional) {
             data.withinTransactionScope = prevTxMode;
         }
+        if (prevTxMode && elseStmt != null) {
+            resetTransactionScope(data);
+        }
         if (elseStmt != null) {
-            if (independentBlocks) {
-                data.commitRollbackAllowed = true;
-                data.withinTransactionScope = true;
-            }
             analyzeNode(elseStmt, data);
             if ((prevCommitCount != data.commitCount) || prevRollbackCount != data.rollbackCount) {
                 data.commitRollbackAllowed = false;
@@ -1514,6 +1523,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangDo doNode, AnalyzerData data) {
         boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
+        boolean prevWithinTransactionScope = data.withinTransactionScope;
         if (onFailExists) {
             data.errorTypes.push(new LinkedHashSet<>());
             data.failureHandled = true;
@@ -3394,7 +3404,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
         boolean currentFailVisited = data.failVisited;
+        boolean currentWithinTrxScope = data.withinTransactionScope;
         data.failVisited = false;
+        data.withinTransactionScope = data.transactionCount != 0;
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
         if (onFailVarDefNode != null) {
@@ -3409,6 +3421,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.errorTypes.pop();
         analyzeNode(onFailClause.body, data);
         onFailClause.bodyContainsFail = data.failVisited;
+        data.withinTransactionScope =
+            (!currentFailVisited || data.withinTransactionScope) && currentWithinTrxScope;
         data.failVisited = currentFailVisited;
     }
 
@@ -3894,11 +3908,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean checkNextBreakValidityInTransaction(AnalyzerData data) {
         return !data.loopWithinTransactionCheckStack.peek() && data.transactionCount > 0 && data.withinTransactionScope;
-    }
-
-    private boolean checkReturnValidityInTransaction(AnalyzerData data) {
-        return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0
-                && data.withinTransactionScope;
     }
 
     private void analyzeInvocationParams(BLangInvocation iExpr, AnalyzerData data) {
