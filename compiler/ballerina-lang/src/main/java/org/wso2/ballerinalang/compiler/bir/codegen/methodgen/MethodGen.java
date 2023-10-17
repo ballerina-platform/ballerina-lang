@@ -120,6 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_LOCAL_VARIABLE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
@@ -196,6 +197,8 @@ public class MethodGen {
         String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, funcName, desc, null, null);
         mv.visitCode();
+        Label methodStartLabel = new Label();
+        mv.visitLabel(methodStartLabel);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
                 jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         mv.visitVarInsn(ALOAD, 1); // load strand
@@ -206,7 +209,18 @@ public class MethodGen {
         }
         String methodDesc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType, moduleClassName);
         mv.visitMethodInsn(INVOKESTATIC, splitClassName, encodedMethodName, methodDesc, false);
+        Label methodEndLabel = new Label();
+        mv.visitLabel(methodEndLabel);
         generateReturnTermFromType(retType, mv);
+        mv.visitLocalVariable(OBJECT_SELF_INSTANCE, GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
+        mv.visitLocalVariable(STRAND_LOCAL_VARIABLE_NAME, GET_STRAND, null, methodStartLabel, methodEndLabel, 1);
+        for (BIRNode.BIRFunctionParameter parameter : func.parameters) {
+            String metaVarName = parameter.metaVarName;
+            if (isValidArg(parameter) && isCompilerAddedVars(metaVarName)) {
+                mv.visitLocalVariable(metaVarName, getJVMTypeSign(parameter.type), null, methodStartLabel,
+                        methodEndLabel, indexMap.addIfNotExists(parameter.name.value, parameter.type));
+            }
+        }
         JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
         mv.visitEnd();
     }
@@ -1063,7 +1077,7 @@ public class MethodGen {
                                           Label methodEndLabel, boolean isObjectMethodSplit) {
         String funcName = func.name.value;
         // Add strand variable to LVT
-        mv.visitLocalVariable("__strand", GET_STRAND, null, methodStartLabel, methodEndLabel,
+        mv.visitLocalVariable(STRAND_LOCAL_VARIABLE_NAME, GET_STRAND, null, methodStartLabel, methodEndLabel,
                 localVarOffset);
         // Add self to the LVT
         if (func.receiver != null) {
