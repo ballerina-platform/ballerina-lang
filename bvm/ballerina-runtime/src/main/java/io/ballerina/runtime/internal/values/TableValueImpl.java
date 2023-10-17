@@ -46,7 +46,6 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -97,7 +96,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     //These are required to achieve the iterator behavior
     private LinkedHashMap<Long, Long> indexToKeyMap;
     private LinkedHashMap<Long, Long> keyToIndexMap;
-    private LinkedHashMap<Long, Pair<K, V>> keyValues;
+    private LinkedHashMap<Long, KeyValuePair<K, V>> keyValues;
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
@@ -481,7 +480,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         public Object next() {
             Long hash = indexToKeyMap.get(cursor);
             if (hash != null) {
-                Pair<K, V> keyValuePair = (Pair<K, V>) keyValues.get(hash);
+                KeyValuePair<K, V> keyValuePair = (KeyValuePair<K, V>) keyValues.get(hash);
                 K key = keyValuePair.getKey();
                 V value = keyValuePair.getValue();
 
@@ -537,7 +536,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             entries.put(hash, entryList);
             updateIndexKeyMappings((K) data, hash);
             values.put(hash, newData);
-            keyValues.put(hash, Pair.of((K) data, data));
+            keyValues.put(hash, KeyValuePair.of((K) data, data));
             return data;
         }
 
@@ -591,7 +590,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 extEntries.add(entry);
                 List<V> extValues = values.get(hash);
                 extValues.add(data);
-                keyValues.put(hash, Pair.of(key, data));
+                keyValues.put(hash, KeyValuePair.of(key, data));
                 updateIndexKeyMappings(key, hash);
                 return;
             }
@@ -639,7 +638,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             keys.put(hash, key);
             updateIndexKeyMappings(key, hash);
             values.put(hash, data);
-            keyValues.put(hash, Pair.of(key, value));
+            keyValues.put(hash, KeyValuePair.of(key, value));
             return data.get(0);
         }
 
@@ -746,6 +745,28 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 }
                 return (K) arr;
             }
+        }
+    }
+
+    private static final class KeyValuePair<K, V> {
+        private K key;
+        private V value;
+
+        public KeyValuePair(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public static <K, V> KeyValuePair<K, V> of(K key, V value) {
+            return new KeyValuePair<>(key, value);
+        }
+
+        public K getKey() {
+            return key;
+        }
+
+        public V getValue() {
+            return value;
         }
     }
 
