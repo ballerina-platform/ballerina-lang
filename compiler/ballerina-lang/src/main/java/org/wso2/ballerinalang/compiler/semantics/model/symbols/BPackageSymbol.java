@@ -23,6 +23,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -63,10 +65,12 @@ public class BPackageSymbol extends BTypeSymbol {
     public HashMap<BInvokableSymbol, HashSet<BInvokableSymbol>> invocationMap = new HashMap<>();     // Key = Start Function // Value = End Function
     public HashSet<BInvokableSymbol> usedFunctions = new HashSet<>();
     public HashSet<BInvokableSymbol> deadFunctions = new HashSet<>();
+    public BIRDeadNodeAnalyzer.InvocationData invocationData;
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
         this.type = new BPackageType(this);
+        this.invocationData = new BIRDeadNodeAnalyzer.InvocationData(pkgID);
     }
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, long flags, Location pos, SymbolOrigin origin) {
