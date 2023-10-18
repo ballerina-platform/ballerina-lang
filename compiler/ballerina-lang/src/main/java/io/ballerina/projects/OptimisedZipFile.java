@@ -42,10 +42,13 @@ import static java.util.Objects.requireNonNull;
 public class OptimisedZipFile extends ZipFile {
     private final HashMap<String, HashSet<String>> deadFunctionMap;
     private static final String INIT_CLASS_IDENTIFIER = "init.class";
+    private HashSet<String> deletedFunctions;
 
-    public OptimisedZipFile(File file, HashMap<String, HashSet<String>> deadFunctionMap) throws IOException {
+    public OptimisedZipFile(File file, HashMap<String, HashSet<String>> deadFunctionMap,
+                            HashSet<String> deletedFunctions) throws IOException {
         super(file);
         this.deadFunctionMap = deadFunctionMap;
+        this.deletedFunctions = deletedFunctions;
     }
 
     public void copyOptimisedRawEntries(final ZipArchiveOutputStream target, final ZipArchiveEntryPredicate predicate)
@@ -70,7 +73,7 @@ public class OptimisedZipFile extends ZipFile {
 
         ClassReader classReader = new ClassReader(requireNonNull(inputStream));
         ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor classVisitor = new DeadFunctionVisitor(Opcodes.ASM9, classWriter, deadFunctionMap.get(originalEntry.getName()));
+        ClassVisitor classVisitor = new DeadFunctionVisitor(Opcodes.ASM9, classWriter, deadFunctionMap.get(originalEntry.getName()), deletedFunctions);
         classReader.accept(classVisitor, 0);
 
         return classWriter.toByteArray();
