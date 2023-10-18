@@ -36,6 +36,8 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -97,7 +99,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-    public static final String JAR_NAME_SEPARATOR = "-";
+    public HashMap<String, HashSet<String>> pkgWiseDeletedEntries = new HashMap<>();
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -577,7 +579,12 @@ public class JBallerinaBackend extends CompilerBackend {
         HashMap<String, HashSet<String>> classWiseDeadFunctionMap =
                 getDeadFunctionList(jarLibrary.packageName().get(), this.compilerContext);
 
-        OptimisedZipFile zipFile = new OptimisedZipFile(jarLibrary.path().toFile(), classWiseDeadFunctionMap);
+        HashSet<String> deadTypeDefSet = getDeadTypeDefList(jarLibrary.packageName().get(), this.compilerContext);
+        HashSet<String> currentEntry = new HashSet<>();
+        pkgWiseDeletedEntries.putIfAbsent(jarLibrary.packageName().get(), currentEntry);
+
+        OptimisedZipFile zipFile =
+                new OptimisedZipFile(jarLibrary.path().toFile(), classWiseDeadFunctionMap, currentEntry);
         ZipArchiveEntryPredicate predicate = entry -> {
             String entryName = entry.getName();
             if (entryName.equals("META-INF/MANIFEST.MF")) {
@@ -642,6 +649,11 @@ public class JBallerinaBackend extends CompilerBackend {
             if (isExcludedEntry(entryName)) {
                 return false;
             }
+            if (deadTypeDefSet.contains(entryName)) {
+                pkgWiseDeletedEntries.putIfAbsent(jarLibrary.packageName().get(), new HashSet<>());
+                pkgWiseDeletedEntries.get(jarLibrary.packageName().get()).add("TYPEDEF     "+ entryName);
+                return false;
+            }
             // SPIs will be merged first and then put into jar separately.
             copiedEntries.put(entryName, jarLibrary);
             return true;
@@ -654,7 +666,7 @@ public class JBallerinaBackend extends CompilerBackend {
         zipFile.close();
     }
 
-    private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName,
+    private static HashMap<String, HashSet<String>> getDeadFunctionListOLD(String pkgName,
                                                                         CompilerContext compilerContext) {
         org.wso2.ballerinalang.compiler.PackageCache packageCache =
                 org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
@@ -663,6 +675,9 @@ public class JBallerinaBackend extends CompilerBackend {
         int majorVersion = packageCache.getSymbol(pkgName).descriptor.version().value().major();
 
         HashMap<String, HashSet<String>> classWiseDeadFunctionMap = new HashMap<>();
+        if (pkgName.equals("ballerina/observe") || pkgName.equals("ballerina/os")) {
+            return classWiseDeadFunctionMap;
+        }
 
         for (BInvokableSymbol deadFunction : pkgSymbol.deadFunctions) {
             if (deadFunction.source != null) {
@@ -672,8 +687,35 @@ public class JBallerinaBackend extends CompilerBackend {
                 classWiseDeadFunctionMap.get(classLocationName).add(deadFunction.originalName.value);
             }
         }
-
         return classWiseDeadFunctionMap;
+    }
+
+    private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName,
+                                                                           CompilerContext compilerContext) {
+        if (pkgName.equals("ballerina/observe")) {
+            return new HashMap<>();
+        }
+
+        org.wso2.ballerinalang.compiler.PackageCache packageCache =
+                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+
+        BIRDeadNodeAnalyzer.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData;
+        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = invocationData.deadFunctionJarPathMap;
+        return classWiseDeadFunctionMap;
+    }
+
+    private static HashSet<String> getDeadTypeDefList(String pkgName,
+                                                                        CompilerContext compilerContext) {
+        if (pkgName.equals("ballerina/observe")) {
+            return new HashSet<>();
+        }
+
+        org.wso2.ballerinalang.compiler.PackageCache packageCache =
+                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+
+        BIRDeadNodeAnalyzer.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData;
+        HashSet<String> classWiseDeadFunctionMap = invocationData.deadTypeDefJarPathMap;
+        return new HashSet<>(classWiseDeadFunctionMap);
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {

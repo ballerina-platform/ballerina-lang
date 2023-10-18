@@ -29,10 +29,12 @@ import java.util.HashSet;
 public class DeadFunctionVisitor extends ClassVisitor {
     private static final String INIT_FUNCTION_IDENTIFIER = "init";
     private final HashSet<String> deadFunctionNames;
+    public final HashSet<String> deletedFunctionNames;
 
-    public DeadFunctionVisitor(int api, ClassWriter cw, HashSet<String> deadFunctionNames) {
+    public DeadFunctionVisitor(int api, ClassWriter cw, HashSet<String> deadFunctionNames, HashSet<String> deletedFunctionNames) {
         super(api, cw);
         this.deadFunctionNames = deadFunctionNames;
+        this.deletedFunctionNames = deletedFunctionNames;
     }
 
     @Override
@@ -41,6 +43,7 @@ public class DeadFunctionVisitor extends ClassVisitor {
         if (name.contains(INIT_FUNCTION_IDENTIFIER) || !deadFunctionNames.contains(name)) {
             methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
         }
+        deletedFunctionNames.add(name);
         return methodVisitor;
     }
 }
