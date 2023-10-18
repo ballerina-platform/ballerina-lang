@@ -88,6 +88,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
@@ -212,7 +213,6 @@ public class JvmValueGen {
     }
 
     public static boolean isOptionalRecordField(BField field) {
-
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
@@ -234,10 +234,10 @@ public class JvmValueGen {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
                         , asyncDataCollector);
-                jarEntries.put(className + ".class", bytes);
+                jarEntries.put(className + CLASS_FILE_SUFFIX, bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
-                jarEntries.put(typedescClass + ".class", bytes);
+                jarEntries.put(typedescClass + CLASS_FILE_SUFFIX, bytes);
             }
         });
     }
@@ -577,16 +577,13 @@ public class JvmValueGen {
     }
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw, String className) {
-
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
                                           POPULATE_INITIAL_VALUES, null, null);
         mv.visitCode();
-
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, POPULATE_INITIAL_VALUES_METHOD,
                            POPULATE_INITIAL_VALUES, false);
-
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, POPULATE_INITIAL_VALUES_METHOD, className);
         mv.visitEnd();
@@ -627,11 +624,10 @@ public class JvmValueGen {
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
-        jarEntries.put(className + ".class", jvmPackageGen.getBytes(cw, typeDef));
+        jarEntries.put(className + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(cw, typeDef));
     }
 
     private void createObjectFields(ClassWriter cw, Map<String, BField> fields) {
-
         for (BField field : fields.values()) {
             if (field == null) {
                 continue;
@@ -648,7 +644,6 @@ public class JvmValueGen {
     private void createObjectMethods(ClassWriter cw, List<BIRFunction> attachedFuncs, String moduleClassName,
                                      BObjectType currentObjectType, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                      JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
-
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
@@ -691,7 +686,7 @@ public class JvmValueGen {
             if (methodCountPerSplitClass == MAX_METHOD_COUNT_PER_BALLERINA_OBJECT) {
                 splitCW.visitEnd();
                 byte[] splitBytes = jvmPackageGen.getBytes(splitCW, typeDef);
-                jarEntries.put(splitClassName + ".class", splitBytes);
+                jarEntries.put(splitClassName + CLASS_FILE_SUFFIX, splitBytes);
                 splitClassNum++;
                 splitCW = new BallerinaClassWriter(COMPUTE_FRAMES);
                 splitCW.visitSource(typeDef.pos.lineRange().fileName(), null);
@@ -704,7 +699,7 @@ public class JvmValueGen {
         if (methodCountPerSplitClass != 0) {
             splitCW.visitEnd();
             byte[] splitBytes = jvmPackageGen.getBytes(splitCW, typeDef);
-            jarEntries.put(splitClassName + ".class", splitBytes);
+            jarEntries.put(splitClassName + CLASS_FILE_SUFFIX, splitBytes);
         }
     }
 
