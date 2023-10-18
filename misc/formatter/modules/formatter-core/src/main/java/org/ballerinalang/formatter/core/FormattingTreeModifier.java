@@ -4371,6 +4371,7 @@ public class FormattingTreeModifier extends TreeModifier {
                         continue;
                     }
 
+                    // If last minutiae, use env.trailingWS; otherwise, add a single space after the invalid node
                     if (i == size - 1) {
                         addWhitespace(env.trailingWS, trailingMinutiae);
                     } else {
