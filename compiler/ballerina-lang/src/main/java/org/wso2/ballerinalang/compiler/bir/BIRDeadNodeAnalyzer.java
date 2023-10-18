@@ -1,7 +1,27 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ *
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied. See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
@@ -9,25 +29,29 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 public class BIRDeadNodeAnalyzer extends BIRVisitor {
 
     private static final CompilerContext.Key<BIRDeadNodeAnalyzer> BIR_DEAD_NODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private static final String MAIN_FUNCTION_NAME = "main";
-    private static final String INIT_FUNCTION_NAME = "init";
-    public final HashMap<PackageID, HashSet<BIRInvocationGraphNode>> pkgWiseInvocationGraphs = new HashMap<>();
-    public final HashMap<PackageID, HashSet<BIRInvocationGraphNode>> usedFunctions = new HashMap<>();
-    public final HashMap<PackageID, HashSet<BIRInvocationGraphNode>> deadFunctions = new HashMap<>();
-    public final HashMap<String, BIRInvocationGraphNode> invocationNodePool = new HashMap<>();
-    public HashSet<BIRInvocationGraphNode> currentInvocationGraph;
-    private static BIRNode.BIRFunction currentParentFunction;
-    public static PackageID currentPkgId;
+    private static final HashSet<String> USED_FUNCTION_NAMES =
+            new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>"));
+    public final HashMap<PackageID, InvocationData> pkgWiseInvocationData = new HashMap<>();
+    public final HashMap<String, InvocationGraphNode> invocationNodePool = new HashMap<>();
+    public final HashSet<InvocationGraphNode.TypeDefNode> unresolvedTypeDefs = new HashSet<>();
+    private final PackageCache pkgCache;
+    public PackageID currentPkgId;
+    private BIRNode.BIRFunction currentParentFunction;
 
     private BIRDeadNodeAnalyzer(CompilerContext context) {
         context.put(BIR_DEAD_NODE_ANALYZER_KEY, this);
+        this.pkgCache = PackageCache.getInstance(context);
     }
 
     public static BIRDeadNodeAnalyzer getInstance(CompilerContext context) {
@@ -39,18 +63,15 @@ public class BIRDeadNodeAnalyzer extends BIRVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        pkgWiseInvocationGraphs.putIfAbsent(pkgNode.packageID, new HashSet<>());
         currentPkgId = pkgNode.packageID;
-        currentInvocationGraph = pkgWiseInvocationGraphs.get(currentPkgId);
-        usedFunctions.putIfAbsent(currentPkgId, new HashSet<>());
-        deadFunctions.putIfAbsent(currentPkgId, new HashSet<>());
-
+        pkgWiseInvocationData.put(pkgNode.packageID, pkgNode.symbol.invocationData);
         visit(pkgNode.symbol.bir);
         return pkgNode;
     }
 
     @Override
     public void visit(BIRNode.BIRPackage birPackage) {
+        birPackage.typeDefs.forEach(this::createGraphNode);
         birPackage.typeDefs.forEach(tDef -> tDef.accept(this));
         birPackage.functions.forEach(func -> func.accept(this));
     }
@@ -63,103 +84,188 @@ public class BIRDeadNodeAnalyzer extends BIRVisitor {
     @Override
     public void visit(BIRNode.BIRFunction birFunction) {
         currentParentFunction = birFunction;
-        BIRInvocationGraphNode graphNode = getGraphNode(birFunction);
+        InvocationGraphNode.FunctionNode graphNode = getGraphNode(birFunction);
 
-        if (birFunction.originalName.value.equals(MAIN_FUNCTION_NAME) ||
-                birFunction.originalName.value.equals(INIT_FUNCTION_NAME)) {
-            graphNode.markAsUsed();
+        if (USED_FUNCTION_NAMES.contains(birFunction.originalName.value)) {
+            graphNode.markSelfAndChildrenAsUsed(pkgWiseInvocationData);
         }
-
         birFunction.basicBlocks.forEach(bb -> {
-            if (bb.terminator.getKind() == InstructionKind.CALL) {
-                bb.accept(this);
-            }
+            bb.accept(this);
         });
     }
 
     @Override
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
-        BIRTerminator.Call terminatorCall = (BIRTerminator.Call) birBasicBlock.terminator;
-        addInvocation(currentParentFunction, terminatorCall);
+        if (birBasicBlock.terminator.getKind() == InstructionKind.CALL) {
+            BIRTerminator.Call terminatorCall = (BIRTerminator.Call) birBasicBlock.terminator;
+            addInvocation(currentParentFunction, terminatorCall);
+        }
+
+        birBasicBlock.instructions.forEach(instruction -> {
+            if (instruction.getKind() == InstructionKind.NEW_TYPEDESC ||
+                    instruction.getKind() == InstructionKind.NEW_INSTANCE) {
+                instruction.accept(this);
+            }
+        });
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewTypeDesc typeDesc) {
+        addInvocation(currentParentFunction, typeDesc);
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        addInvocation(currentParentFunction, newInstance);
     }
 
     private void addInvocation(BIRNode.BIRFunction parentFunction, BIRTerminator.Call childFunction) {
-        BIRInvocationGraphNode parentNode = getGraphNode(parentFunction);
-        BIRInvocationGraphNode childNode = getGraphNode(childFunction);
-        addInvocation(parentNode, childNode);
+        InvocationGraphNode parentNode = getGraphNode(parentFunction);
+        InvocationGraphNode childNode = getGraphNode(childFunction);
+        parentNode.childrenInvocations.add(childNode);
+        childNode.parentFunctions.add(parentNode);
+        if (parentNode.usedState == UsedState.USED) {
+            childNode.markSelfAndChildrenAsUsed(pkgWiseInvocationData);
+        }
     }
 
-    private void addInvocation(BIRInvocationGraphNode parentNode, BIRInvocationGraphNode childNode) {
+    private void addInvocation(BIRNode.BIRFunction parentFunction, BIRNonTerminator.NewTypeDesc newTypeDesc) {
+        InvocationGraphNode parentNode = getGraphNode(parentFunction);
+        InvocationGraphNode.TypeDefNode childNode = getGraphNode(newTypeDesc);
         parentNode.childrenInvocations.add(childNode);
         if (parentNode.usedState == UsedState.USED) {
-            markSelfAndChildrenAsUsed(childNode);
+            childNode.markSelfAndChildrenAsUsed(pkgWiseInvocationData);
         }
     }
 
-    private void markSelfAndChildrenAsUsed(BIRInvocationGraphNode birFunctionGraphNode) {
-        if (birFunctionGraphNode.usedState == UsedState.UNUSED) {
-            deadFunctions.get(birFunctionGraphNode.pkgID).remove(birFunctionGraphNode);
-            usedFunctions.putIfAbsent(birFunctionGraphNode.pkgID, new HashSet<>());
-            usedFunctions.get(birFunctionGraphNode.pkgID).add(birFunctionGraphNode);
-            birFunctionGraphNode.markAsUsed();
-            birFunctionGraphNode.childrenInvocations.forEach(this::markSelfAndChildrenAsUsed);
+    private void addInvocation(BIRNode.BIRFunction parentFunction, BIRNonTerminator.NewInstance newInstance) {
+        InvocationGraphNode parentNode = getGraphNode(parentFunction);
+        InvocationGraphNode.TypeDefNode childNode = getGraphNode(newInstance);
+        parentNode.childrenInvocations.add(childNode);
+        if (parentNode.usedState == UsedState.USED) {
+            childNode.markSelfAndChildrenAsUsed(pkgWiseInvocationData);
         }
     }
 
-    private BIRInvocationGraphNode getGraphNode(BIRNode.BIRFunction parentFunction) {
+    private InvocationGraphNode.FunctionNode getGraphNode(BIRNode.BIRFunction parentFunction) {
         String nodeId = currentPkgId.toString() + "/" + parentFunction.originalName;
         if (invocationNodePool.containsKey(nodeId)) {
-            return invocationNodePool.get(nodeId);
+            return (InvocationGraphNode.FunctionNode) invocationNodePool.get(nodeId);
         }
 
-        BIRInvocationGraphNode graphNode =
-                new BIRInvocationGraphNode(parentFunction.originalName.value, currentPkgId);
+        InvocationGraphNode.FunctionNode graphNode =
+                new InvocationGraphNode.FunctionNode(parentFunction.originalName.value, currentPkgId,
+                        getFileName(parentFunction));
         initializeNode(graphNode);
         return graphNode;
     }
 
-    private BIRInvocationGraphNode getGraphNode(BIRTerminator.Call invocation) {
+    private InvocationGraphNode.FunctionNode getGraphNode(BIRTerminator.Call invocation) {
         String nodeId = invocation.calleePkg.toString() + "/" + invocation.originalName;
         if (invocationNodePool.containsKey(nodeId)) {
-            return invocationNodePool.get(nodeId);
+            return (InvocationGraphNode.FunctionNode) invocationNodePool.get(nodeId);
         }
 
-        BIRInvocationGraphNode graphNode =
-                new BIRInvocationGraphNode(invocation.originalName.value, invocation.calleePkg);
+        InvocationGraphNode.FunctionNode graphNode =
+                new InvocationGraphNode.FunctionNode(invocation.originalName.value, invocation.calleePkg,
+                        getFileName(invocation));
         initializeNode(graphNode);
         return graphNode;
     }
 
-    private void initializeNode(BIRInvocationGraphNode graphNode) {
-        invocationNodePool.putIfAbsent(graphNode.getNodeID(), graphNode);
-        pkgWiseInvocationGraphs.putIfAbsent(graphNode.pkgID, new HashSet<>());
-        pkgWiseInvocationGraphs.get(graphNode.pkgID).add(graphNode);
-        deadFunctions.putIfAbsent(graphNode.pkgID, new HashSet<>());
-        deadFunctions.get(graphNode.pkgID).add(graphNode);
+    private InvocationGraphNode.TypeDefNode getGraphNode(BIRNonTerminator.NewTypeDesc newTypeDesc) {
+        String nodeId = newTypeDesc.type.toString();
+        if (invocationNodePool.containsKey(nodeId)) {
+            return (InvocationGraphNode.TypeDefNode) invocationNodePool.get(nodeId);
+        }
+        // TODO Complete the read back cycle and remove the following temp Nodes
+        InvocationGraphNode.TypeDefNode tempGraphNode = new InvocationGraphNode.TypeDefNode(nodeId);
+        unresolvedTypeDefs.add(tempGraphNode);
+        return tempGraphNode;
     }
 
-    private class BIRInvocationGraphNode {
-
-        private String nodeName;
-        private PackageID pkgID;
-        private HashSet<BIRInvocationGraphNode> childrenInvocations = new HashSet<>();
-        private UsedState usedState = UsedState.UNUSED;
-
-        public BIRInvocationGraphNode(String nodeName, PackageID nodePkgID) {
-            this.nodeName = nodeName;
-            this.pkgID = nodePkgID;
+    private InvocationGraphNode.TypeDefNode getGraphNode(BIRNonTerminator.NewInstance newInstance) {
+        String nodeId = newInstance.expectedType.toString();
+        if (invocationNodePool.containsKey(nodeId)) {
+            return (InvocationGraphNode.TypeDefNode) invocationNodePool.get(nodeId);
         }
+        // TODO Complete the read back cycle and remove the following temp Nodes
+        InvocationGraphNode.TypeDefNode tempGraphNode = new InvocationGraphNode.TypeDefNode(nodeId);
+        unresolvedTypeDefs.add(tempGraphNode);
+        return tempGraphNode;
+    }
 
-        private void markAsUsed() {
-            this.usedState = UsedState.USED;
+    private void createGraphNode(BIRNode.BIRTypeDefinition birTypeDef) {
+        InvocationGraphNode.TypeDefNode graphNode =
+                new InvocationGraphNode.TypeDefNode(birTypeDef.internalName.toString(), currentPkgId,
+                        getFileName(birTypeDef), getTypeDefClassPath(birTypeDef), getTypeDescClassPath(birTypeDef), birTypeDef.type.toString());
+        initializeNode(graphNode);
+    }
+
+    private void initializeNode(InvocationGraphNode.FunctionNode graphNode) {
+        invocationNodePool.put(graphNode.getNodeID(), graphNode);
+
+        InvocationData invocationData = getInvocationData(graphNode.pkgID);
+        invocationData.allFunctions.add(graphNode);
+        invocationData.deadFunctions.add(graphNode);
+
+        invocationData.deadFunctionJarPathMap.putIfAbsent(graphNode.jarClassFilePath, new HashSet<>());
+        invocationData.deadFunctionJarPathMap.get(graphNode.jarClassFilePath).add(graphNode.nodeName);
+    }
+
+    private void initializeNode(InvocationGraphNode.TypeDefNode graphNode) {
+        invocationNodePool.put(graphNode.getNodeID(), graphNode);
+
+        InvocationData invocationData = getInvocationData(graphNode.pkgID);
+        invocationData.allTypedefs.add(graphNode);
+        invocationData.deadTypeDefs.add(graphNode);
+
+        invocationData.deadTypeDefJarPathMap.add(graphNode.jarClassFilePath);
+        invocationData.deadTypeDefJarPathMap.add(graphNode.typeDescJarPath);
+    }
+
+    private InvocationData getInvocationData(PackageID pkgId) {
+        return pkgCache.getSymbol(pkgId).invocationData;
+    }
+
+    private String getFileName(BIRNode invocation) {
+        if (invocation.pos == null) {
+            return null;
         }
+        return invocation.pos.lineRange().fileName();
+    }
 
-        private String getNodeID() {
-            return pkgID.toString() + "/" + nodeName;
+    private String getFileName(BIRNode.BIRTypeDefinition typeDef) {
+        if (typeDef.pos == null) {
+            return null;
         }
+        return typeDef.pos.lineRange().fileName();
+    }
 
-        public String toString() {
-            return nodeName;
+    private String getTypeDefClassPath(BIRNode.BIRTypeDefinition birTypeDef) {
+        return getTypeValueClassName(currentPkgId, birTypeDef.internalName.value) + ".class";
+    }
+
+    // TODO getTypeDescClassPath method adds type descs for all the type defs. But it is only needed for RECORDS and TypeDescs
+    private String getTypeDescClassPath(BIRNode.BIRTypeDefinition birTypeDef) {
+        String typeDesc = getTypeDescClassName(JvmCodeGenUtil.getPackageName(currentPkgId), birTypeDef.internalName.value) + ".class";
+        return typeDesc;
+    }
+
+    public static class InvocationData {
+
+        public final PackageID pkgID;
+        public final HashSet<InvocationGraphNode> allFunctions = new HashSet<>();
+        public final HashSet<InvocationGraphNode> usedFunctions = new HashSet<>();
+        public final HashSet<InvocationGraphNode> deadFunctions = new HashSet<>();
+        public final HashMap<String, HashSet<String>> deadFunctionJarPathMap = new HashMap<>();
+        public final HashSet<InvocationGraphNode> allTypedefs = new HashSet<>();
+        public final HashSet<InvocationGraphNode> usedTypeDefs = new HashSet<>();
+        public final HashSet<InvocationGraphNode> deadTypeDefs = new HashSet<>();
+        public final HashSet<String> deadTypeDefJarPathMap = new HashSet<>();
+
+        public InvocationData(PackageID pkgID) {
+            this.pkgID = pkgID;
         }
     }
 }
