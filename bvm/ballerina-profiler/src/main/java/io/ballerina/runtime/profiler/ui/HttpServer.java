@@ -47,7 +47,7 @@ public class HttpServer {
     public void initializeHTMLExport() throws IOException {
         String profilerOutputDir = System.getProperty(WORKING_DIRECTORY);
         OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
-                "%s/ProfilerOutput.html" + Constants.ANSI_RESET + "%n", profilerOutputDir);
+                "%s/ProfilerReport.html" + Constants.ANSI_RESET + "%n", profilerOutputDir);
         Path resourcePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
                 .resolve("profiler");
 
@@ -60,7 +60,7 @@ public class HttpServer {
         String content = FileUtils.readFileAsString("performance_report.json");
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);
-        String fileName = "ProfilerOutput.html";
+        String fileName = "ProfilerReport.html";
         try (FileWriter writer = new FileWriter(fileName, StandardCharsets.UTF_8)) {
             writer.write(htmlData);
         } catch (IOException e) {

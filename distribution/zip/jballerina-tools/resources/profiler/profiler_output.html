@@ -109,10 +109,11 @@
         .d3-flame-graph-tip {
                  visibility: hidden !important;
               }.balLogo {
-                 padding-left: 20px !important;
+                 padding-left: 50px !important;
                  padding-top: 25px !important;
-                 width: 200px !important;
-                 height: 50px !important;
+                 object-fit: contain; !important;
+                 width: 500px !important;
+                 height: auto !important;
               }
 
         #chart {
@@ -163,8 +164,8 @@
                 </form>
             </div>
         </nav>
-        <img class="balLogo" src="ballerina-logo.svg" alt="B7A"/>
-        <div id="profilerLogo"> Profiler</div>
+        <img class="balLogo" src="ballerina-profiler-report-logo.svg" alt="B7A"/>
+        <div id="profilerLogo"></div>
     </div>
     <div id="chart"></div>
     <div id="details"></div>

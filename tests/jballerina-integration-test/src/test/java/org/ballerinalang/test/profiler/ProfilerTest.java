@@ -41,7 +41,7 @@ import java.util.Map;
 public class ProfilerTest extends BaseTest {
     private static final String testFileLocation = Paths.get("src/test/resources/profiler")
             .toAbsolutePath().toString();
-    private final String outputFile = "ProfilerOutput.html";
+    private final String outputFile = "ProfilerReport.html";
     private BMainInstance bMainInstance;
     public static final String BALLERINA_HOME = "ballerina.home";
 
