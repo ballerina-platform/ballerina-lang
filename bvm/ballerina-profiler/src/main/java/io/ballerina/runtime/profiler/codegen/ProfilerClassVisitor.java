@@ -32,19 +32,20 @@ import static io.ballerina.runtime.profiler.util.Constants.STRAND_ARG;
  */
 public class ProfilerClassVisitor extends ClassVisitor {
 
-    public ProfilerClassVisitor(ClassVisitor classVisitor) {
+    private final String className;
+
+    public ProfilerClassVisitor(String className, ClassVisitor classVisitor) {
         super(Opcodes.ASM9, classVisitor);
+        this.className = className;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
-        if (!name.startsWith("$") && desc.startsWith(STRAND_ARG)) {
+        if (desc.startsWith(STRAND_ARG) && !name.contains("$gen$")) {
             Main.incrementBalFunctionCount();
+            return new StrandCheckAdapter(className, access, methodVisitor, name, desc, (access & Opcodes.ACC_STATIC));
         }
-        if (desc.startsWith(STRAND_ARG)) {
-            return new StrandCheckAdapter(access, methodVisitor, name, desc, (access & Opcodes.ACC_STATIC));
-        }
-        return new NonStrandCheckAdapter(access, methodVisitor, name, desc);
+        return methodVisitor;
     }
 }

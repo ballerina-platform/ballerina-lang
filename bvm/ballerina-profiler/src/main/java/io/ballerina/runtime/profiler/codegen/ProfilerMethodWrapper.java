@@ -62,7 +62,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
             commands.add(balJarArgs);
         }
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.redirectErrorStream(true);
+        processBuilder.inheritIO();
         Process process = processBuilder.start();
         OUT_STREAM.printf(Constants.ANSI_CYAN + "[5/6] Running executable..." + Constants.ANSI_RESET + "%n");
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(),
@@ -84,13 +84,13 @@ public class ProfilerMethodWrapper extends ClassLoader {
         }
     }
 
-    public byte[] modifyMethods(InputStream inputStream) {
+    public byte[] modifyMethods(InputStream inputStream, String className) {
         byte[] code;
         try {
             ClassReader reader = new ClassReader(inputStream);
             ClassWriter classWriter = new ProfilerClassWriter(reader, ClassWriter.COMPUTE_MAXS |
                     ClassWriter.COMPUTE_FRAMES);
-            ClassVisitor change = new ProfilerClassVisitor(classWriter);
+            ClassVisitor change = new ProfilerClassVisitor(className, classWriter);
             reader.accept(change, ClassReader.EXPAND_FRAMES);
             code = classWriter.toByteArray();
             return code;
