@@ -60,6 +60,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V17;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
@@ -108,7 +109,7 @@ public class ConfigMethodGen {
         populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(jvmConstantsGen, pkg.packageID,
                 typeHashVisitor, symbolTable));
         cw.visitEnd();
-        jarEntries.put(innerClassName + ".class", cw.toByteArray());
+        jarEntries.put(innerClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void generateConfigInit(ClassWriter cw, String moduleInitClass, List<PackageID> imprtMods,

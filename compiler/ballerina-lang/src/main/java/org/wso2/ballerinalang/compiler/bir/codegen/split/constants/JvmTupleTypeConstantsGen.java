@@ -46,6 +46,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
@@ -170,7 +171,7 @@ public class JvmTupleTypeConstantsGen {
         genMethodReturn(mv);
         visitTupleTypeConstPopulateInitMethods();
         cw.visitEnd();
-        jarEntries.put(tupleVarConstantsClass + ".class", cw.toByteArray());
+        jarEntries.put(tupleVarConstantsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     public String getTupleTypeConstantsClass() {

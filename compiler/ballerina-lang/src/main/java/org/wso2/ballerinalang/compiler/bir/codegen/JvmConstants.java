@@ -387,6 +387,7 @@ public class JvmConstants {
     public static final String TEST_EXECUTION_STATE = "__gH7W16nQmp0TestExecState__";
     public static final String GET_TEST_EXECUTION_STATE = "$getTestExecutionState";
     public static final String STRAND_LOCAL_VARIABLE_NAME = "__strand";
+    public static final String CLASS_FILE_SUFFIX = ".class";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

@@ -53,6 +53,7 @@ import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORD_TYPES_CLASS_NAME;
@@ -93,7 +94,7 @@ public class JvmRecordTypeGen {
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
         recordTypesCw.visitEnd();
-        jarEntries.put(recordTypesClass + ".class", jvmPackageGen.getBytes(recordTypesCw, module));
+        jarEntries.put(recordTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(recordTypesCw, module));
     }
 
     public void populateRecord(MethodVisitor mv, String methodName, BRecordType bType, SymbolTable symbolTable) {
