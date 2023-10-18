@@ -18,6 +18,9 @@ public service class StudentService {
     resource function post student(Student student) {
         self.students.push(student);
     }
+
+
+
     resource function post students(Student[] students) {
         self.students.push(...students);
     }

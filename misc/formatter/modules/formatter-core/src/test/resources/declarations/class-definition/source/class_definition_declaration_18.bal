@@ -9,6 +9,9 @@ class Student {
     public function getName() returns string {
         return self.name;
     }
+
+
+
     public function getAge() returns int {
         return self.age;
     }
