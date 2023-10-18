@@ -27,7 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
@@ -42,17 +41,19 @@ public class JsonParser {
 
     private static final String VALUE_KEY = "value";
 
-    public void initializeCPUParser(String skipFunctionString) {
-        ArrayList<String> skipList = new ArrayList<>();
-        skipList = skipFunctionString != null ? parseSkipFunctionStringToList(skipFunctionString) : skipList;
-        skipList.add("$gen");
-        skipList.add("getAnonType");
-        cpuParser(skipList);
-    }
-
-    private ArrayList<String> parseSkipFunctionStringToList(String skipFunctionString) {
-        String[] elements = skipFunctionString.replace("[", "").replace("]", "").split(", ");
-        return new ArrayList<>(Arrays.asList(elements));
+    public void initializeCPUParser() {
+        try {
+            String jsonInput = FileUtils.readFileAsString(CPU_PRE_JSON);
+            List<StackTrace> input = populateStackTraceItems(jsonInput);
+            // Create a Data object to store the output
+            Data output = new Data("Root", input.get(0).time, new ArrayList<>());
+            for (StackTrace stackTraceItem : input) {
+                analyseStackTraceItems(stackTraceItem, output);
+            }
+            writeToValueJson(output);
+        } catch (Exception throwable) {
+            OUT_STREAM.println(throwable + "%n");
+        }
     }
 
     private int getTotalTime(JsonObject node) {
@@ -78,52 +79,12 @@ public class JsonParser {
         }
     }
 
-    private boolean containsAnySkipList(String str, List<String> arrayList) {
-        for (String s : arrayList) {
-            if (str.contains(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void cpuParser(ArrayList<String> skipList) {
-        try {
-            String jsonInput = FileUtils.readFileAsString(CPU_PRE_JSON);
-            StringBuilder jsonInputStringBuffer = new StringBuilder(jsonInput);
-            if (jsonInputStringBuffer.length() > 3) {
-                // Removes the trailing comma
-                jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
-            }
-            jsonInput = jsonInputStringBuffer.toString();
-            List<StackTraceItem> input = populateStackTraceItems(jsonInput);
-            // Create a Data object to store the output
-            Data output = new Data("Root", input.get(0).time, new ArrayList<>());
-            for (StackTraceItem stackTraceItem : input) {
-                if (stackTraceItem.stackTrace.size() == 1) {
-                    output.value = Math.max(output.value, stackTraceItem.time);
-                } else {
-                    analyseStackTraceItems(skipList, stackTraceItem, output);
-                }
-            }
-            writeToValueJson(output);
-        } catch (Exception throwable) {
-            OUT_STREAM.println(throwable + "%n");
-        }
-    }
-
-    private void analyseStackTraceItems(ArrayList<String> skipList, StackTraceItem stackTraceItem, Data output) {
+    private void analyseStackTraceItems(StackTrace stackTraceItem, Data output) {
         Data current = output;
         for (int i = 1; i < stackTraceItem.stackTrace.size(); i++) {
-            String name = stackTraceItem.stackTrace.get(i);
-            if (name.contains("$configureInit()")) {
-                removeChildrenByNodeName(output, name);
-                break;
-            }
-            if (!containsAnySkipList(name, skipList)) {
-                current = populateChildNodes(stackTraceItem, current, name);
-            }
+            current = populateChildNodes(stackTraceItem, current, stackTraceItem.stackTrace.get(i));
         }
+        current.value = stackTraceItem.time;
     }
 
     private void writeToValueJson(Data output) {
@@ -136,43 +97,26 @@ public class JsonParser {
         writePerformanceJson(jsonObject.toString());
     }
 
-    private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String name) {
-        boolean found = false;
+    private Data populateChildNodes(StackTrace stackTraceItem, Data current, String stackTrace) {
         for (Data child : current.children) {
-            if (child.name.equals(name)) {
-                child.value = Math.max(child.value, stackTraceItem.time);
-                current = child;
-                found = true;
-                break;
+            if (child.name.equals(stackTrace)) {
+                return child;
             }
         }
-        if (!found) {
-            Data newChild = new Data(name, stackTraceItem.time, new ArrayList<>());
-            current.children.add(newChild);
-            current = newChild;
-        }
-        return current;
+        Data newChild = new Data(stackTrace, stackTraceItem.time, new ArrayList<>());
+        current.children.add(newChild);
+        return newChild;
     }
 
-    private List<StackTraceItem> populateStackTraceItems(String jsonInput) {
+    private List<StackTrace> populateStackTraceItems(String jsonInput) {
         Gson gson = new Gson();
         JsonArray jsonArr = gson.fromJson(jsonInput, JsonArray.class);
-        List<StackTraceItem> stackTraceItems = new ArrayList<>();
+        List<StackTrace> stackTraceItems = new ArrayList<>();
         for (JsonElement jsonElement : jsonArr) {
-            StackTraceItem person = gson.fromJson(jsonElement, StackTraceItem.class);
+            StackTrace person = gson.fromJson(jsonElement, StackTrace.class);
             stackTraceItems.add(person);
         }
         return stackTraceItems;
-    }
-
-    private void removeChildrenByNodeName(Data node, String nodeName) {
-        if (node.name != null && node.name.equals(nodeName)) {
-            node.children.clear();
-            return;
-        }
-        for (Data child : node.children) {
-            removeChildrenByNodeName(child, nodeName);
-        }
     }
 
     /**
@@ -180,12 +124,12 @@ public class JsonParser {
      *
      * @since 2201.8.0
      */
-    private static class StackTraceItem {
+    private static class StackTrace {
 
         int time;
         List<String> stackTrace;
 
-        public StackTraceItem(int time, List<String> stackTrace) {
+        public StackTrace(int time, List<String> stackTrace) {
             this.time = time;
             this.stackTrace = new ArrayList<>(stackTrace);
         }
