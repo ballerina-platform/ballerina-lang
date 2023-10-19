@@ -52,12 +52,18 @@ public class QueryWithClosuresTest {
                 "testClosuresInQueryInLet",
                 "testClosuresInNestedQueryInSelect",
                 "testClosuresInNestedQueryInSelect2",
-//                "testClosureInQueryActionInDo2" #39760
+                "testClosureInQueryActionInDo2",
                 "testClosureInQueryActionInDo3",
                 "testClosureInQueryActionInDo4",
                 "testClosureInQueryActionInDo5",
                 "testClosureInQueryActionInDo6",
-                "testClosureInQueryActionInDo7"
+                "testClosureInQueryActionInDo7",
+                "testClosureInQueryActionInDo8",
+                "testClosureInQueryActionInDo9",
+                "testClosureInQueryActionInDo10",
+                "testClosureInQueryActionWithLambda1",
+                "testClosureInQueryActionWithLambda2",
+                "testClosureInQueryActionWithLambda3"
         };
     }
 

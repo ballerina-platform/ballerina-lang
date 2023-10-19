@@ -166,7 +166,8 @@ function testClosureInQueryActionInDo2() {
     do {
         from var k in 5 ... 7
         do {
-            var x = from var i in 1 ... 2 select (from var t in 3 ... 4 where t == k select t);
+            var x = from var i in 1 ... 1 select (from var t in 1 ... 1 select k + j);
+            arr.push(...x[0]);
         };
     };
     assertEquality([6, 7, 8, 7, 8, 9, 8, 9, 10, 9, 10, 11, 10, 11, 12], arr);
@@ -330,6 +331,131 @@ function testClosureInQueryActionInDo7() returns error? {
                 // select string `${objectName1}`; issue:- #40701
         assertEquality([["result", "result", "result", "result"],[],[],[]], result);
     }
+}
+
+function testClosureInQueryActionInDo8() {
+    int[] newIndexes = [];
+    int[] oldIndexes = [];
+    from var i in 0 ... 4
+    do {
+        int index = 0;
+        from var j in 1 ... 1
+        do {
+            int newIndex = index + i + j;
+            newIndexes.push(newIndex);
+        };
+        oldIndexes.push(index + i);
+    };
+    
+    assertEquality([1, 2, 3, 4, 5], newIndexes);
+    assertEquality([0, 1, 2, 3, 4], oldIndexes);
+}
+
+function testClosureInQueryActionInDo9() {
+    int[] newIndexes = [];
+    int[] oldIndexes = [];
+    from var i in 0 ... 4
+    do {
+        int index = 0;
+        from var j in 1 ... 1
+        do {
+            from var k in 1 ... 1 
+            do {
+                from var l in 1 ... 1
+                do {
+                    int newIndex = index + i + j + k + l;
+                    newIndexes.push(newIndex);
+                };
+            };
+        };
+        oldIndexes.push(index + i);
+    };
+        
+    assertEquality([3, 4, 5, 6, 7], newIndexes);
+    assertEquality([0, 1, 2, 3, 4], oldIndexes);
+}
+
+function testClosureInQueryActionInDo10() {
+    int[] newIndexes = [];
+    int[] oldIndexes = [];
+    from var i in 0 ... 4
+    let int iVal = i
+    do {
+        int index = 0;
+        from var j in 1 ... 1
+        let int jVal = j
+        do {
+            int newIndex = index + iVal + jVal;
+            newIndexes.push(newIndex);
+        };
+        oldIndexes.push(index + iVal);
+    };
+    
+    assertEquality([1, 2, 3, 4, 5], newIndexes);
+    assertEquality([0, 1, 2, 3, 4], oldIndexes);
+}
+
+function testClosureInQueryActionWithLambda1() {
+    int[] newIndexes = [];
+    int[] oldIndexes = [];
+    from var i in 0 ... 4
+    do {
+        int index = 0;
+        function () returns int f = function () returns int {
+            return index + i;
+        };
+        from var j in 1 ... 1
+        do {
+            int newIndex = f() + j;
+            newIndexes.push(newIndex);
+        };
+        oldIndexes.push(index + i);
+    };
+    
+    assertEquality([1, 2, 3, 4, 5], newIndexes);
+    assertEquality([0, 1, 2, 3, 4], oldIndexes);
+}
+
+function testClosureInQueryActionWithLambda2() {
+    int[] newIndexes = [];
+    int[] oldIndexes = [];
+    from var i in 0 ... 4
+    do {
+        int index = 0;
+        function (int a) returns int f = function (int a) returns int {
+            return index + a;
+        };
+        from var j in 1 ... 1
+        do {
+            int newIndex = f(index + i + j);
+            newIndexes.push(newIndex);
+        };
+        oldIndexes.push(f(index + i));
+    };
+    
+    assertEquality([1, 2, 3, 4, 5], newIndexes);
+    assertEquality([0, 1, 2, 3, 4], oldIndexes);
+}
+
+function testClosureInQueryActionWithLambda3() {
+    int[] newIndexes = [];
+    int[] oldIndexes = [];
+    from var i in 0 ... 4
+    do {
+        int index = 0;
+        from var j in 1 ... 1
+        do {
+            function (int a) returns int f = function (int a) returns int {
+                return index + a;
+            };
+            int newIndex = f(index + i + j);
+            newIndexes.push(newIndex);
+        };
+        oldIndexes.push(index + i);
+    };
+    
+    assertEquality([1, 2, 3, 4, 5], newIndexes);
+    assertEquality([0, 1, 2, 3, 4], oldIndexes);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
