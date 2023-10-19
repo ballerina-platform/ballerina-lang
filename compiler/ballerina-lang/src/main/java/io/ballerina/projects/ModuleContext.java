@@ -121,6 +121,10 @@ class ModuleContext {
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
     }
 
+    public void cleanBLangPackage() {
+        this.bLangPackage = null;
+    }
+
     static ModuleContext from(Project project, ModuleConfig moduleConfig, boolean disableSyntaxTree) {
         Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {

@@ -179,6 +179,9 @@ public class JBallerinaBackend extends CompilerBackend {
 
             //TODO: remove this once ballerina-lang#41407 is fixed
             ModuleContext.shrinkDocuments(moduleContext);
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
+            }
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
