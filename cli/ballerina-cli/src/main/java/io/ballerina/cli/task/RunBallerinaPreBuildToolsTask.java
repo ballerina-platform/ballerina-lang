@@ -24,6 +24,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ToolContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -59,18 +60,27 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     }
                 }
                 if (targetTool != null) {
-                    try{
-                        boolean hasErrors = FileUtils.validateToml(tool.getOptionsToml(), tool.getType());
-                        if (hasErrors) {
-                            throw new ProjectException("Ballerina toml validation contains errors");
+                    try {
+                        if (tool.getOptionsToml() != null) {
+                            boolean hasErrors = FileUtils.validateToml(tool.getOptionsToml(), tool.getType());
+                            if (hasErrors) {
+                                throw new ProjectException("Ballerina toml validation contains errors");
+                            }
                         }
                     } catch (IOException e) {
                         outStream.println("WARNING: Skipping the validation of tool options due to : " + e.getMessage());
                     }
                     ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
                     targetTool.executeTool(toolContext);
+                    boolean hasToolErrors = false;
                     for (Diagnostic d : targetTool.diagnostics()) {
                         System.out.println(d);
+                        if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                            hasToolErrors = true;
+                        }
+                    }
+                    if (hasToolErrors) {
+                        throw new ProjectException("Pre build tool " + tool.getType() + " execution contains errors");
                     }
                 } else {
                     // TODO: Install tool if not found
