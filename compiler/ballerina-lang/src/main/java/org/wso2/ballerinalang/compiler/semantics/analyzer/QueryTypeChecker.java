@@ -258,8 +258,7 @@ public class QueryTypeChecker extends TypeChecker {
         List<BType> collectionTypes = getCollectionTypes(clauses);
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
-                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, this, commonAnalyzerData);
+        semanticAnalyzer.analyzeNode(doClause.body, doClause.env, data.prevEnvs, this, commonAnalyzerData);
         BType actualType = completionType == null ? symTable.nilType : completionType;
         data.resultType = types.checkType(doClause.pos, actualType, data.expType,
                         DiagnosticErrorCode.INCOMPATIBLE_TYPES);
