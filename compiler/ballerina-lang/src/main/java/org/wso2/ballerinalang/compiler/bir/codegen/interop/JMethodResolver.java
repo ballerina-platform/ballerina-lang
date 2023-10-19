@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -897,6 +898,10 @@ class JMethodResolver {
     private List<Executable> getExecutables(Class<?> clazz, String methodName, JMethodKind kind) {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
+            if (Modifier.isAbstract(clazz.getModifiers())) {
+                throw new JInteropException(DiagnosticErrorCode.INSTANTIATION_ERROR,
+                        "'" + clazz.getName() + "' is abstract, and cannot be instantiated");
+            }
             return Arrays.asList(getConstructors(clazz));
         } else {
             List<Executable> list = new ArrayList<>();

@@ -131,7 +131,7 @@ public class JClass {
             }
         }
         tempList.sort(Comparator.comparing(JConstructor::getParamTypes));
-        for (JConstructor constructor:tempList) {
+        for (JConstructor constructor : tempList) {
             JConstructor jConstructor = new JConstructor(constructor.getConstructor(), env,
                     this, "new" + shortClassName + i);
             if (modulesFlag) {
