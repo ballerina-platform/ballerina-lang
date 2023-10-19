@@ -147,7 +147,7 @@ function getXML() returns xml {
 }
 
 function XMLWithDefaultNamespaceToString() returns string {
-    xml x = xml `<Order xmlns="http://acme.company" xmlns:acme="http://acme.company">
+    xml x = xml `<Order xmlns="http://acme.company" xmlns:acme="http://acme.company.nondefault">
         <OrderLines>
             <OrderLine acme:lineNo="334" itemCode="334-2"></OrderLine>
         </OrderLines>
@@ -292,5 +292,23 @@ function testXmlInterpolationWithQuery() returns error? {
         if (s12 != expectedStr8) {
             panic error("Assertion error", expected = expectedStr8, found = s12);
         }
+    }
+}
+
+function testAddAttributeToDefaultNS() {
+    xml x1 = xml `<root xmlns="http://sample.com/wso2/c1" xmlns:ns3="http://sample.com/wso2/f"></root>`;
+    var xAttr = let var x2 = <'xml:Element>x1 in x2.getAttributes();
+    //adding attribute with default namespace
+    xAttr["{http://sample.com/wso2/c1}foo1"] = "bar1";
+    string s = x1.toString();
+    string expectedStr = "<root xmlns=\"http://sample.com/wso2/c1\" xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar1\"/>";
+    if (s != expectedStr) {
+        panic error("Assertion error", expected = expectedStr, found=s);
+    }
+    s = xAttr.toString();
+    expectedStr = "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\"," +
+    "\"{http://www.w3.org/2000/xmlns/}ns3\":\"http://sample.com/wso2/f\",\"{http://sample.com/wso2/c1}foo1\":\"bar1\"}";
+        if (s != expectedStr) {
+        panic error("Assertion error", expected = expectedStr, found=s);
     }
 }
