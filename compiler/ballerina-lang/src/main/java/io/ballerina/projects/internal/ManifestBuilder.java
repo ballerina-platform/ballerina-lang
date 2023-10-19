@@ -785,25 +785,6 @@ public class ManifestBuilder {
         return new Toml(optionsNode);
     }
 
-    private Map<String, String> getMapFromPreBuildToolNode(TomlTableNode toolNode, String key) {
-        TopLevelNode topLevelNode = toolNode.entries().get(key);
-        if (topLevelNode == null) {
-            return Collections.emptyMap();
-        }
-        if (topLevelNode.kind() != TomlType.TABLE) {
-            return Collections.emptyMap();
-        }
-        TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
-        Set<String> toolCodes = optionsNode.entries().keySet();
-        Map<String, String> options = new HashMap<>();
-        for (String optionCode : toolCodes) {
-            TopLevelNode optionNode = optionsNode.entries().get(optionCode);
-            String optionValue = getStringFromTomlTableNode(optionNode);
-            options.put(optionCode, optionValue);
-        }
-        return options;
-    }
-
     /**
      * Check file name has {@code .png} extension.
      *

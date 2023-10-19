@@ -89,5 +89,7 @@ public class ToolContext {
     public Path outputPath() {
         return outputPath;
     }
+
+    public Package packageInstance() { return packageInstance; }
 }
 
