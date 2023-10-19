@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.tool.BuildToolRunner;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ToolContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
@@ -29,6 +30,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.PackageManifest.Tool;
 
 /**
@@ -58,7 +60,10 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 }
                 if (targetTool != null) {
                     try{
-                        FileUtils.validateToml(tool.getOptionsToml(), tool.getType(), tool.getId());
+                        boolean hasErrors = FileUtils.validateToml(tool.getOptionsToml(), tool.getType());
+                        if (hasErrors) {
+                            throw new ProjectException("Ballerina toml validation contains errors");
+                        }
                     } catch (IOException e) {
                         outStream.println("WARNING: Skipping the validation of tool options due to : " + e.getMessage());
                     }
@@ -71,8 +76,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     // TODO: Install tool if not found
                     outStream.println("Command not found: " + commandName);
                 }
-            } catch (Throwable e) {
-                outStream.println(e.getMessage());
+            } catch (ProjectException e) {
+                throw createLauncherException("compilation failed: " + e.getMessage());
             }
         }
 
