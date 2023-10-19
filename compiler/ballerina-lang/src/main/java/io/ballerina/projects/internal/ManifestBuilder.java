@@ -256,7 +256,7 @@ public class ManifestBuilder {
                             Toml optionsToml = getToml(dependencyNode, "options");
                             TopLevelNode topLevelNode = dependencyNode.entries().get("options");
                             TomlTableNode optionsNode = null;
-                            if (topLevelNode != null || topLevelNode.kind() == TomlType.TABLE) {
+                            if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
                                 optionsNode = (TomlTableNode) topLevelNode;
                             }
                             PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath, targetModule,
