@@ -32,7 +32,6 @@ public function main() {
     s:MyService myService = new ();
     o:Person300 p = new ("waruna", 14);
     test:assertEquals(p.getAge(), 14);
-    testRecords();
     en:EN299|() myEnum = en:A299;
     en:MyZnum myZnum = en:Z1000;
     test:assertTrue(myEnum is en:EN299);
@@ -46,9 +45,6 @@ public function main() {
     test:assertTrue(t:getLargeTuple() is typedesc<anydata>);
     test:assertTrue(a:testArrays() is true);
     test:assertTrue(e:testDistinctErrors() is true);
-}
-
-function testRecords() {
     r:MyRecordV10 myRecord = {a: "Hello World"};
     test:assertEquals(myRecord.a, "Hello World");
     r:BigRecord1 bigRecord1 = {};
