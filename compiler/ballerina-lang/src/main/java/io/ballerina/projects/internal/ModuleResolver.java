@@ -79,6 +79,10 @@ public class ModuleResolver {
             resolveModuleLoadRequest(moduleLoadRequest, pkgContainer, unresolvedModuleRequests);
         }
 
+        if (unresolvedModuleRequests.isEmpty()) {
+            return pkgContainer;
+        }
+
         // Resolve unresolved import module declarations
         Collection<ImportModuleResponse> importModResponses =
                 packageResolver.resolvePackageNames(unresolvedModuleRequests, resolutionOptions);

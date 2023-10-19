@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +61,7 @@ public class RemotePackageRepository implements PackageRepository {
 
     private final FileSystemRepository fileSystemRepo;
     private final CentralAPIClient client;
+    private Map<ResolutionRequest, PackageMetadataResponse> cachedPackageMetadata = new HashMap<>();
 
     public RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClient client) {
         this.fileSystemRepo = fileSystemRepo;
@@ -284,16 +287,14 @@ public class RemotePackageRepository implements PackageRepository {
                 }
             }
         }
+
+        List<PackageMetadataResponse> remotePackages = new ArrayList<>(retrieveFromCache(updatedRequests));
+
         // Resolve the requests from remote repository if there are unresolved requests
         if (!updatedRequests.isEmpty()) {
             try {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
-                Collection<PackageMetadataResponse> remotePackages =
-                        fromPackageResolutionResponse(updatedRequests, packageResolutionRequest);
-                // Merge central requests and local requests
-                // Here we will pick the latest package from remote or local
-                return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
-
+                remotePackages.addAll(fromPackageResolutionResponse(updatedRequests, packageResolutionRequest));
             } catch (ConnectionErrorException e) {
                 // ignore connect to remote repo failure
                 // TODO we need to add diagnostics for resolution errors
@@ -301,8 +302,99 @@ public class RemotePackageRepository implements PackageRepository {
                 throw new ProjectException(e.getMessage());
             }
         }
+        if (!remotePackages.isEmpty()) {
+            // Merge central requests and local requests
+            // Here we will pick the latest package from remote or local
+            return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
+        }
         // Return cachedPackages when central requests are not performed
         return cachedPackages;
+    }
+
+    private Collection<PackageMetadataResponse> retrieveFromCache(List<ResolutionRequest> updatedRequests) {
+        List<PackageMetadataResponse> response = new ArrayList<>();
+        Iterator<ResolutionRequest> requestIterator = updatedRequests.iterator();
+        while (requestIterator.hasNext()) {
+            ResolutionRequest request = requestIterator.next();
+            for (Map.Entry<ResolutionRequest, PackageMetadataResponse> entry : cachedPackageMetadata.entrySet()) {
+
+                ResolutionRequest cachedRequest = entry.getKey();
+                PackageMetadataResponse pkgMetaDataResponse = entry.getValue();
+                PackageDescriptor latestPkgDesc = pkgMetaDataResponse.resolvedDescriptor();
+
+                if (!(cachedRequest.orgName().equals(request.orgName()) &&
+                        cachedRequest.packageName().equals(request.packageName()))) {
+                    continue;
+                }
+                if (cachedRequest.version().isPresent() && request.version().isPresent()) {
+                    // Check in both requests
+                    if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
+                            cachedRequest.version().get().value().minor() == request.version().get().value().minor() &&
+                            cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
+                            request.packageLockingMode() == PackageLockingMode.MEDIUM) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
+                            cachedRequest.packageLockingMode() == PackageLockingMode.SOFT &&
+                            request.packageLockingMode() == PackageLockingMode.SOFT) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
+                            cachedRequest.version().get().value().minor() == request.version().get().value().minor() &&
+                            cachedRequest.version().get().value().patch() == request.version().get().value().patch() &&
+                            cachedRequest.packageLockingMode() == PackageLockingMode.HARD &&
+                            request.packageLockingMode() == PackageLockingMode.HARD) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
+                            cachedRequest.version().get().value().minor() == request.version().get().value().minor() &&
+                            cachedRequest.version().get().value().patch() == request.version().get().value().patch() &&
+                            cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
+                            request.packageLockingMode() == PackageLockingMode.HARD) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
+                            cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
+                            request.packageLockingMode() == PackageLockingMode.MEDIUM) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    } else if (request.version().get().value().major() == latestPkgDesc.version().value().major() &&
+                            request.version().get().value().minor() == latestPkgDesc.version().value().minor() &&
+                            request.packageLockingMode() == PackageLockingMode.MEDIUM) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    } else if (request.version().get().value().major() == latestPkgDesc.version().value().major() &&
+                            request.version().get().value().minor() == latestPkgDesc.version().value().minor() &&
+                            cachedRequest.version().get().value().patch() == request.version().get().value().patch() &&
+                            request.packageLockingMode() == PackageLockingMode.HARD) {
+                        response.add(pkgMetaDataResponse);
+                        requestIterator.remove();
+                    }
+                } else if (cachedRequest.version().isEmpty() && request.version().isPresent()) {
+                    // Check in responses
+                    if (request.version().get().value().major() == latestPkgDesc.version().value().major() &&
+                            request.version().get().value().minor() == latestPkgDesc.version().value().minor() &&
+                            request.packageLockingMode() == PackageLockingMode.MEDIUM) {
+                        response.add(entry.getValue());
+                        requestIterator.remove();
+                    } else if (request.version().get().value().major() == latestPkgDesc.version().value().major() &&
+                            request.packageLockingMode() == PackageLockingMode.SOFT) {
+                        response.add(entry.getValue());
+                        requestIterator.remove();
+                    } else if (request.version().get().value().major() == latestPkgDesc.version().value().major() &&
+                            request.version().get().value().minor() == latestPkgDesc.version().value().minor() &&
+                            request.version().get().value().patch() == latestPkgDesc.version().value().patch() &&
+                            request.packageLockingMode() == PackageLockingMode.HARD) {
+                        response.add(entry.getValue());
+                        requestIterator.remove();
+                    }
+                } else if (cachedRequest.version().isEmpty() && request.version().isEmpty()) {
+                    response.add(entry.getValue());
+                    requestIterator.remove();
+                }
+            }
+        }
+        return response;
     }
 
     private Collection<PackageMetadataResponse> mergeResolution(
@@ -381,6 +473,7 @@ public class RemotePackageRepository implements PackageRepository {
                         packageDescriptor,
                         dependencies);
                 response.add(responseDescriptor);
+                cachedPackageMetadata.put(resolutionRequest, responseDescriptor);
                 resolvedRequests.add(resolutionRequest);
             } else {
                 // If the package is not in resolved for all jvm platforms we assume the package is unresolved
