@@ -174,7 +174,7 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
                 "'(table<map<()>> & readonly)'\n\t" +
                 "map constraint type '()' is not supported", 106, 1);
-
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'host'", 110, 18);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

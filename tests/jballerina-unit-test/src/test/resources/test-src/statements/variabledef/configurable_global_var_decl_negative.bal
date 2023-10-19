@@ -104,3 +104,7 @@ configurable string? nilUnion = ?;
 configurable map<()> nilMap = ?;
 configurable Person6 nilRecord1 = ?;
 configurable table<map<()>> nilTable = ?;
+
+// Redeclared configurable variable
+configurable string host = ?;
+configurable int host = ?;
