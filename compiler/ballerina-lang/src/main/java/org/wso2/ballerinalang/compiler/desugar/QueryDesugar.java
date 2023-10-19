@@ -239,6 +239,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentQueryLambdaBody;
     private Map<String, BSymbol> identifiers;
+    private Map<String, BSymbol> newIdentifiers;
     private int streamElementCount = 0;
     private final Desugar desugar;
     private final SymbolTable symTable;
@@ -247,9 +248,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Types types;
     private SymbolEnv env;
     private SymbolEnv queryEnv;
+    private SymbolEnv doClauseEnv = null;
     private boolean containsCheckExpr;
     private boolean withinQuery = false;
     private boolean withinLambdaOrArrowFunc = false;
+    private boolean withinLetClause = false;
     private HashSet<BType> checkedErrorList;
     private BLangNode result;
 
@@ -750,7 +753,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             setSymbolOwner((BLangVariable) letVariable.definitionNode.getVariable(), env.scope.owner);
         }
         body.stmts.addAll(0, stmtsToBePropagated);
+        boolean prevWithinLetClause = withinLetClause;
+        withinLetClause = true;
         lambda.accept(this);
+        withinLetClause = prevWithinLetClause;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -946,7 +952,14 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BLangStatement stmt : doClause.body.stmts) {
             body.addStatement(stmt);
         }
+        SymbolEnv prevDoClauseEnv = doClauseEnv;
+        doClauseEnv = doClause.env;
+        doClause.body.scope.entries.entrySet().forEach(entery -> {
+            doClauseEnv.scope.define(entery.getKey(), entery.getValue().symbol);
+        });
+        
         lambda.accept(this);
+        doClauseEnv = prevDoClauseEnv;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_DO_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -1608,12 +1621,15 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangBlockFunctionBody prevQueryLambdaBody = currentQueryLambdaBody;
             BVarSymbol prevFrameSymbol = currentFrameSymbol;
             Map<String, BSymbol> prevIdentifiers = identifiers;
+            Map<String, BSymbol> prevNewIdentifiers = newIdentifiers;
             currentFrameSymbol = function.requiredParams.get(0).symbol;
             identifiers = new HashMap<>();
+            newIdentifiers = new HashMap<>();
             currentQueryLambdaBody = (BLangBlockFunctionBody) function.getBody();
             rewrite(currentQueryLambdaBody);
             currentFrameSymbol = prevFrameSymbol;
             identifiers = prevIdentifiers;
+            newIdentifiers = prevNewIdentifiers;
             currentQueryLambdaBody = prevQueryLambdaBody;
         } else {
             boolean prevWithinLambdaFunc = withinLambdaOrArrowFunc;
@@ -1917,7 +1933,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol);
         String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
                 String.valueOf(bLangSimpleVarRef.variableName);
-
+        
+        if (resolvedSymbol == symTable.notFoundSymbol 
+                && !withinLetClause && doClauseEnv != null 
+                && identifiers.containsKey(identifier) 
+                && withinQuery) {
+            resolvedSymbol = symResolver.lookupClosureVarSymbol(doClauseEnv, symbol);
+            if (resolvedSymbol != symTable.notFoundSymbol) {
+                SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                queryLambdaEnv.scope.define(symbol.name, symbol);
+            }
+        }
+        
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
@@ -1960,10 +1987,23 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
+                newIdentifiers.put(identifier, symbol);
             } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
+                if (symbol.closure) {
+                    SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                    queryLambdaEnv.scope.define(symbol.name, symbol);
+                }
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
+            } else if (!symbol.closure && newIdentifiers.containsKey(identifier)) {
+                symbol = newIdentifiers.get(identifier);
+                if (symbol.closure) {
+                    // when there is a closure symbol exist in the same scope
+                    // refer to the same symbol closure symbol
+                    bLangSimpleVarRef.symbol = symbol;
+                    bLangSimpleVarRef.varSymbol = symbol;
+                }
             }
         } else if (!resolvedSymbol.closure && resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
