@@ -4,7 +4,7 @@
     "character": 9
   },
   "source": "action_node_context/source/client_resource_access_action_source33.bal",
-  "description": "",
+  "description": "Test completions in resource param with a subtype of expression",
   "items": [
     {
       "label": "/[int|string:Char a].accessor",

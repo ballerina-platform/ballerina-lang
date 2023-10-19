@@ -4,7 +4,7 @@
     "character": 9
   },
   "source": "action_node_context/source/client_resource_access_action_source32.bal",
-  "description": "",
+  "description": "Test completions in union of singleton resource params",
   "items": [
     {
       "label": "/[\"A1\"|\"A2\" a].accessor",

@@ -346,8 +346,7 @@ public class ClientResourceAccessActionNodeContext
                 }
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
                     ExpressionNode exprNode = ((ComputedResourceAccessSegmentNode) node).expression();
-                    Optional<TypeSymbol> exprType =
-                            semanticModel.get().typeOf(exprNode);
+                    Optional<TypeSymbol> exprType = semanticModel.get().typeOf(exprNode);
                     if (exprType.isEmpty() || !checkSubtype(typeSymbol, exprType.get(), exprNode.toString())) {
                         return Pair.of(Collections.emptyList(), false);
                     }

@@ -4,7 +4,7 @@
     "character": 18
   },
   "source": "action_node_context/source/client_resource_access_action_source34.bal",
-  "description": "",
+  "description": "Test completions in multiple singleton resource access functions, and accessing with a field value",
   "items": [
     {
       "label": ".accessor",

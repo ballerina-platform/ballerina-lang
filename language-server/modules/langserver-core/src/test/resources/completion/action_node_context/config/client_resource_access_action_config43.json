@@ -4,7 +4,7 @@
     "character": 12
   },
   "source": "action_node_context/source/client_resource_access_action_source36.bal",
-  "description": "",
+  "description": "Test completions in multiple resource access functions with subtypes of the expression",
   "items": [
     {
       "label": ".accessor",
