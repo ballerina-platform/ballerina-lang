@@ -1156,9 +1156,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         BType lhsType = varNode.symbol.type;
         varNode.setBType(lhsType);
-
         // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null) {
+            if (lhsType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
+            }
             if (!types.isAssignable(lhsType, symTable.anydataType)) {
                 dlog.error(varNode.typeNode.pos,
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
