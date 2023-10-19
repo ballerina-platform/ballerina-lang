@@ -74,6 +74,15 @@ public class IdentifierTest {
         assertEquals(result.getErrorCount(), index);
     }
 
+    @Test(description = "Test identifiers containing escape character")
+    public void testEscapedIdentifier() {
+        CompileResult result = BCompileUtil.compile("test-src/identifiers/identifier_with_escape_char.bal");
+        int index = 0;
+        validateError(result, index++, "redeclared symbol 'a3'", 19, 9);
+        validateError(result, index++, "redeclared symbol 'student-performance'", 21, 9);
+        assertEquals(result.getErrorCount(), index);
+    }
+
     @Test(dataProvider = "functionsWithSelfAsIdentifier")
     public void testSelfAsIdentifier(String function) {
         CompileResult result = BCompileUtil.compile("test-src/identifiers/self_as_identifier.bal");
