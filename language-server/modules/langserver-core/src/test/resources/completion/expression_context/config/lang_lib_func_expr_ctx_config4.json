@@ -4,7 +4,7 @@
     "character": 21
   },
   "source": "expression_context/source/lang_lib_func_expr_ctx_source4.bal",
-  "description": "",
+  "description": "Test completions in a lang lib function for a single-argument function",
   "items": [
     {
       "label": "start",

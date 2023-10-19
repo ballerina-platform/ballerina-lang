@@ -4,7 +4,7 @@
     "character": 37
   },
   "source": "expression_context/source/lang_lib_func_expr_ctx_source5.bal",
-  "description": "",
+  "description": "Test completions in a lang lib function for a function expression",
   "items": [
     {
       "label": "start",

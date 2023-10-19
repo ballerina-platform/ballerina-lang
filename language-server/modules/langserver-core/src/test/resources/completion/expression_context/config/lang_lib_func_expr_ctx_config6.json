@@ -4,7 +4,7 @@
     "character": 17
   },
   "source": "expression_context/source/lang_lib_func_expr_ctx_source6.bal",
-  "description": "",
+  "description": "Test completions in lang lib function for a map",
   "items": [
     {
       "label": "start",

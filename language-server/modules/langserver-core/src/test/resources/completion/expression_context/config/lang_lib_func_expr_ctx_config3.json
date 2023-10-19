@@ -4,7 +4,7 @@
     "character": 21
   },
   "source": "expression_context/source/lang_lib_func_expr_ctx_source3.bal",
-  "description": "",
+  "description": "Test completions in a lang lib function with precise return type",
   "items": [
     {
       "label": "start",
