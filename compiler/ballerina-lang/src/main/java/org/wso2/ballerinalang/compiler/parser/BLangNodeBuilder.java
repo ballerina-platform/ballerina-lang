@@ -6060,10 +6060,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value.substring(1)));
+            bLIdentifer.setValue(Utils.unescapeBallerina(value.substring(1)));
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value));
+            bLIdentifer.setValue(Utils.unescapeBallerina(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.setOriginalValue(originalValue);
