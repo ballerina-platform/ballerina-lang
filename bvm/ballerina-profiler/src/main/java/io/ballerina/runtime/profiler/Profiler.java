@@ -45,7 +45,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
+import static io.ballerina.runtime.profiler.util.Constants.CURRENT_DIR_KEY;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 
 /**
  * This class is used to as the driver class of the Ballerina profiler.
@@ -67,10 +69,12 @@ public class Profiler {
     private int balFunctionCount = 0;
     private int moduleCount = 0;
     private final ProfilerMethodWrapper profilerMethodWrapper;
+    private final String currentDir;
 
     public Profiler(long profilerStartTime) {
         this.profilerStartTime = profilerStartTime;
         this.profilerMethodWrapper = new ProfilerMethodWrapper();
+        this.currentDir = System.getenv(CURRENT_DIR_KEY);
     }
 
     private void addShutdownHookAndCleanup() {
@@ -83,11 +87,12 @@ public class Profiler {
                 OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 JsonParser jsonParser = new JsonParser();
                 HttpServer httpServer = new HttpServer();
-                jsonParser.initializeCPUParser();
-                deleteFileIfExists(CPU_PRE_JSON);
+                String cpuFilePath = Paths.get(currentDir, CPU_PRE_JSON).toString();
+                jsonParser.initializeCPUParser(cpuFilePath);
+                deleteFileIfExists(cpuFilePath);
                 OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
                 httpServer.initializeHTMLExport(this.sourceRoot);
-                deleteFileIfExists("performance_report.json");
+                deleteFileIfExists(PERFORMANCE_JSON);
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);

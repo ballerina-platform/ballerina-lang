@@ -50,6 +50,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_HOME
 public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
+    private static final String CURRENT_DIR_KEY = "current.dir";
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
@@ -84,6 +85,7 @@ public class RunProfilerTask implements Task {
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             pb.environment().put(JAVA_OPTS, getAgentArgs());
+            pb.environment().put(CURRENT_DIR_KEY, System.getProperty(USER_DIR));
             setWorkingDirectory(project, projectKind, pb);
             Process process = pb.start();
             process.waitFor();

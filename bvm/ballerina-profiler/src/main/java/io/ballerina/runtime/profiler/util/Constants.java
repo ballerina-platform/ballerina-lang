@@ -18,6 +18,7 @@ public class Constants {
 
     public static final String CLASS_SUFFIX = ".class";
     public static final String CPU_PRE_JSON = "cpu_pre.json";
+    public static final String PERFORMANCE_JSON =  "performance_report.json";
     public static final String TEMP_JAR_FILE_NAME = "temp.jar";
     public static final String STRAND_PROFILER_STACK_PROPERTY = "b7a.profile.stack";
 
@@ -31,6 +32,8 @@ public class Constants {
             "(L" + STRAND_CLASS + ";L" + DATA_CLASS + ";)V";
     public static final String PROFILE_ANALYZER = "io/ballerina/runtime/profiler/runtime/ProfileAnalyzer";
     public static final String GET_INSTANCE_DESCRIPTOR = "()L" + PROFILE_ANALYZER + ";";
+    public static final String CURRENT_DIR_KEY = "current.dir";
+    public static final String USER_DIR = "user.dir";
 
     private Constants() {
     }
