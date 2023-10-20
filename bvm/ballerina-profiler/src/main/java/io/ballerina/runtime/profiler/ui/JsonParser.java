@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 
 /**
  * This class contains the JSON parser of the Ballerina profiler.
@@ -70,7 +71,7 @@ public class JsonParser {
 
     private void writePerformanceJson(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
-        try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
+        try (FileWriter myWriter = new FileWriter(PERFORMANCE_JSON, StandardCharsets.UTF_8)) {
             myWriter.write(parsedJson);
             myWriter.flush();
         } catch (IOException e) {
