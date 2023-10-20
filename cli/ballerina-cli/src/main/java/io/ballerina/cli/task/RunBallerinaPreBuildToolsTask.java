@@ -74,7 +74,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     targetTool.executeTool(toolContext);
                     boolean hasToolErrors = false;
                     for (Diagnostic d : targetTool.diagnostics()) {
-                        System.out.println(d);
+                        outStream.println(d);
                         if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                             hasToolErrors = true;
                         }
