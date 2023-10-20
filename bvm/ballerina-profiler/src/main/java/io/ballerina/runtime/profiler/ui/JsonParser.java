@@ -29,8 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 
 /**
  * This class contains the JSON parser of the Ballerina profiler.
@@ -41,9 +41,9 @@ public class JsonParser {
 
     private static final String VALUE_KEY = "value";
 
-    public void initializeCPUParser() {
+    public void initializeCPUParser(String cpuFilePath) {
         try {
-            String jsonInput = FileUtils.readFileAsString(CPU_PRE_JSON);
+            String jsonInput = FileUtils.readFileAsString(cpuFilePath);
             List<StackTrace> input = populateStackTraceItems(jsonInput);
             // Create a Data object to store the output
             Data output = new Data("Root", input.get(0).time, new ArrayList<>());
@@ -71,7 +71,7 @@ public class JsonParser {
 
     private void writePerformanceJson(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
-        try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
+        try (FileWriter myWriter = new FileWriter(PERFORMANCE_JSON, StandardCharsets.UTF_8)) {
             myWriter.write(parsedJson);
             myWriter.flush();
         } catch (IOException e) {
