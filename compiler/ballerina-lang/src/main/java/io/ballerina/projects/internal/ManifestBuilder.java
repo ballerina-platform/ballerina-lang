@@ -250,18 +250,20 @@ public class ManifestBuilder {
                     if (toolCodeNode.kind() == TomlType.TABLE_ARRAY) {
                         TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
                         for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
-                            String id = getStringValueFromPreBuildToolNode(dependencyNode, "id");
-                            String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath");
-                            String targetModule = getStringValueFromPreBuildToolNode(dependencyNode, "targetModule");
-                            Toml optionsToml = getToml(dependencyNode, "options");
-                            TopLevelNode topLevelNode = dependencyNode.entries().get("options");
-                            TomlTableNode optionsNode = null;
-                            if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
-                                optionsNode = (TomlTableNode) topLevelNode;
+                            if (!dependencyNode.entries().isEmpty()) {
+                                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id");
+                                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath");
+                                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode, "targetModule");
+                                Toml optionsToml = getToml(dependencyNode, "options");
+                                TopLevelNode topLevelNode = dependencyNode.entries().get("options");
+                                TomlTableNode optionsNode = null;
+                                if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
+                                    optionsNode = (TomlTableNode) topLevelNode;
+                                }
+                                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath, targetModule,
+                                        optionsToml, optionsNode);
+                                tools.add(tool);
                             }
-                            PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath, targetModule,
-                                    optionsToml, optionsNode);
-                            tools.add(tool);
                         }
                     }
                 }
