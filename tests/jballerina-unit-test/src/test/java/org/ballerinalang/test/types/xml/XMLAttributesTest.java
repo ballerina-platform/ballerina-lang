@@ -72,8 +72,7 @@ public class XMLAttributesTest {
                         "xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar\"/>");
     }
 
-    // ToDo: enable after fixing #40373
-    @Test(enabled = false)
+    @Test()
     public void testAddNamespaceAsAttribute1() {
         BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
         Assert.assertTrue(returns.get(0) instanceof BXml);
@@ -132,8 +131,7 @@ public class XMLAttributesTest {
                         "xmlns:ns5=\"http://sample.com/wso2/f/\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"/>");
     }
 
-    // ToDo: enable after fixing #40373
-    @Test(enabled = false)
+    @Test()
     public void testAddAttributeWithQName_5() {
         Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns instanceof BXml);
