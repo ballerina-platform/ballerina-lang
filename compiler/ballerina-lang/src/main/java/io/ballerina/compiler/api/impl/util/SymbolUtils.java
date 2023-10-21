@@ -87,6 +87,12 @@ public class SymbolUtils {
         }
     }
 
+    /**
+     * Retrieves the type parameter's bound type based on the kind of the input BType.
+     *
+     * @param type The input BType for which the bound type is to be retrieved.
+     * @return The bound type based on the kind of the input BType. Returns null if the kind is not supported.
+     */
      public static BType getTypeParamBoundType(BType type) {
         switch (type.getKind()) {
             case MAP:

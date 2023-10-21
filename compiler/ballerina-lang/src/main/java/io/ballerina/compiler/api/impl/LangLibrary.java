@@ -95,13 +95,12 @@ public class LangLibrary {
     /**
      * Returns the lang library method of the given type descriptor kind and the method name.
      *
-     * @param type Type descriptor kind
-     * @param methodName Name of the lang library function
+     * @param type          Type descriptor kind
+     * @param methodName    Name of the lang library function
      * @return The associated lang library function
      */
     public BInvokableSymbol getLangLibMethod(BType type, String methodName) {
-        Map<String, BInvokableSymbol> methods = langLibMethods.get(getLangLibName(type));
-        return methods.get(methodName);
+        return langLibMethods.get(getLangLibName(type)).get(methodName);
     }
 
     /**

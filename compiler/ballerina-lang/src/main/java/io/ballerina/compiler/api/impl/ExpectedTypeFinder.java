@@ -350,7 +350,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 //        TODO: Need to implement code to detect the position when the `PositionalArgumentNode`is null.
 //        (e.g. `arr.sort(array:ASCENDING, <cursor >`). Since sort is the only lang lib function that accepts a
 //        @typeParam function in the second parameter and it is yet to be supported, this should be implemented
-//        along with https://github.com/ballerina-platform/ballerina-lang/issues/41498.
+//        along with #41498.
         int position = 1;
         if (this.positionalArgNodeAtCursor != null) {
             for (FunctionArgumentNode argNode : node.arguments()) {
