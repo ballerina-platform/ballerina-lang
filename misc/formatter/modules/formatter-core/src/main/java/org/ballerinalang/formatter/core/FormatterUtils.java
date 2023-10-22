@@ -16,10 +16,16 @@
 package org.ballerinalang.formatter.core;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,5 +84,56 @@ class FormatterUtils {
                 .append(node1.moduleName().stream().map(node -> node.toString().trim()).collect(Collectors.joining()),
                         node2.moduleName().stream().map(node -> node.toString().trim()).collect(Collectors.joining()))
                 .toComparison());
+    }
+
+    /**
+     * Swap leading minutiae of the first import in the code and the first import when sorted.
+     *
+     * @param firstImport First ImportDeclarationNode in user code
+     * @param imports     Sorted formatted ImportDeclarationNode nodes
+     */
+    static void swapLeadingMinutiae(ImportDeclarationNode firstImport, List<ImportDeclarationNode> imports) {
+        String firstImportStr = getImportString(firstImport);
+        int prevFirstIndex = -1;
+        for (int i = 0; i < imports.size(); i++) {
+            if (firstImportStr.equals(getImportString(imports.get(i)))) {
+                prevFirstIndex = i;
+                break;
+            }
+
+        }
+        if (prevFirstIndex > 0) {
+            // remove comments from the previous first import
+            ImportDeclarationNode prevFirst = imports.get(prevFirstIndex);
+            MinutiaeList prevLeadingMinutiae = prevFirst.leadingMinutiae();
+            List<Minutiae> leadingMinutiae = new ArrayList<>();
+            if (prevLeadingMinutiae.get(0).kind() != SyntaxKind.COMMENT_MINUTIAE) {
+                prevLeadingMinutiae = prevLeadingMinutiae.remove(0);
+                leadingMinutiae.add(prevFirst.leadingMinutiae().get(0));
+            }
+            Token prevFirstImportToken = prevFirst.importKeyword()
+                    .modify(NodeFactory.createMinutiaeList(leadingMinutiae),
+                            prevFirst.importKeyword().trailingMinutiae());
+            prevFirst = prevFirst.modify().withImportKeyword(prevFirstImportToken).apply();
+            imports.set(prevFirstIndex, prevFirst);
+
+            // add leading comments from the previous first import
+            ImportDeclarationNode sortedFirst = imports.get(0);
+            for (Minutiae minutiae : sortedFirst.importKeyword().leadingMinutiae()) {
+                prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
+            }
+            Token sortedFirstImportToken = sortedFirst.importKeyword()
+                    .modify(prevLeadingMinutiae, sortedFirst.importKeyword().trailingMinutiae());
+            sortedFirst = sortedFirst.modify().withImportKeyword(sortedFirstImportToken).apply();
+            imports.set(0, sortedFirst);
+        }
+    }
+
+    private static String getImportString(ImportDeclarationNode node) {
+        String orgName = node.orgName().isPresent() ? node.orgName().get().toSourceCode() : "";
+        String moduleName = node.moduleName().stream()
+                .map(n -> n.toSourceCode())
+                .collect(Collectors.joining("."));
+        return orgName + moduleName;
     }
 }
