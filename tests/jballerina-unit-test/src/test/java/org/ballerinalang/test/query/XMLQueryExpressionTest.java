@@ -522,6 +522,11 @@ public class XMLQueryExpressionTest {
         BRunUtil.invoke(result, "testQueryExpressionIteratingOverStreamReturningXMLWithReadonly");
     }
 
+    @Test(description = "Test XML template with query expression iterating over xml starting with whitespace")
+    public void testQueryExpressionXmlStartWithWhiteSpace() {
+        BRunUtil.invoke(result, "testQueryExpressionXmlStartWithWhiteSpace");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
