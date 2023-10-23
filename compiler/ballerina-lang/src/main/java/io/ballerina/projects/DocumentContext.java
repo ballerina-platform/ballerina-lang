@@ -58,7 +58,7 @@ class DocumentContext {
     private NodeCloner nodeCloner;
     private final DocumentId documentId;
     private final String name;
-    private final String content;
+    private String content;
     private boolean disableSyntaxTree = false;
 
     private DocumentContext(DocumentId documentId, String name, String content, boolean disableSyntaxTree) {
@@ -186,5 +186,12 @@ class DocumentContext {
 
     DocumentContext duplicate() {
         return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode(), false);
+    }
+
+    void shrink() {
+        if (this.compilationUnit != null) {
+            this.compilationUnit.topLevelNodes.clear();
+        }
+        this.content = null;
     }
 }
