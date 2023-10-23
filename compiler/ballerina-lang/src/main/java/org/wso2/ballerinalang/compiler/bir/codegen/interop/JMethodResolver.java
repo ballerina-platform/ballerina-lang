@@ -47,12 +47,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -223,9 +223,8 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            Optional<JMethod> covariantRetTypeMethod = findCovariantReturnTypeMethod(jMethods);
-            if (covariantRetTypeMethod.isPresent()) {
-                return covariantRetTypeMethod.get();
+            if (areAllMethodsOverridden(jMethods)) {
+                return jMethods.get(0);
             }
 
             int paramCount = jMethods.get(0).getParamTypes().length;
@@ -251,28 +250,54 @@ class JMethodResolver {
         return jMethod;
     }
 
-    private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
+    private boolean areAllMethodsOverridden(List<JMethod> jMethods) {
+        if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
+            return false;
+        }
         for (int i = 0; i < jMethods.size(); i++) {
             for (int k = i + 1; k < jMethods.size(); k++) {
-                JMethod ithMethod = jMethods.get(i);
-                JMethod kthMethod = jMethods.get(k);
-
-                if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
-                        kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
-                    if (ithMethod.getParamTypes().length != kthMethod.getParamTypes().length) {
-                        // This occurs when there are static methods and instance methods and the static method
-                        // has one more parameter than the instance method. Also this occurs when an interop
-                        // method in an object maps to instance methods of which one accepting self and another
-                        // that doesn't.
-                        throw new JInteropException(
-                                OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
-                                "parameterTypes for each parameter in 'paramTypes' field in the annotation");
-                    }
-                    return Optional.of(ithMethod);
+                Method ithMethod = (Method) jMethods.get(i).getMethod();
+                Method kthMethod = (Method) jMethods.get(k).getMethod();
+                if (!isOverridden(ithMethod, kthMethod, ithMethod.getDeclaringClass())) {
+                    return false;
                 }
             }
         }
-        return Optional.empty();
+        return true;
+    }
+
+    private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
+        // Static methods cannot be overridden
+        if (Modifier.isStatic(method1.getModifiers()) || Modifier.isStatic(method2.getModifiers()) ||
+                method1.getParameterCount() != method2.getParameterCount()) {
+            // This occurs when there are static methods and instance methods and the static method has one more
+            // parameter than the instance method. Also, this occurs when an interop method in an object maps to
+            // instance methods of which one accepting self and another that doesn't.
+            throw new JInteropException(
+                    OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
+                    "parameterTypes for each parameter in 'paramTypes' field in the annotation");
+        }
+        // Return false if returns types are not covariant
+        Method currentMethod;
+        Method otherMethod;
+        if (method2.getReturnType().isAssignableFrom(method1.getReturnType())) {
+            currentMethod = method1;
+            otherMethod = method2;
+        } else if (method1.getReturnType().isAssignableFrom(method2.getReturnType())) {
+            currentMethod = method2;
+            otherMethod = method1;
+        } else {
+            return false;
+        }
+
+        try {
+            Method superMethod = clazz.getSuperclass().getDeclaredMethod(currentMethod.getName(),
+                    currentMethod.getParameterTypes());
+            return Arrays.equals(superMethod.getParameterTypes(), otherMethod.getParameterTypes()) &&
+                    superMethod.getReturnType().equals(otherMethod.getReturnType());
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
