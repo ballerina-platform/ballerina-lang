@@ -129,6 +129,22 @@ public class DependencyGraph<T> {
         return rootNode;
     }
 
+    // Returns all direct and indirect dependents of the node T
+    public Collection<T> getAllDependents(T node) {
+        Set<T> allDependents = new HashSet<>();
+        Set<T> visited = new HashSet<>();
+        getAllDependentsRecursive(node, allDependents, visited);
+        return allDependents;
+    }
+
+    // Returns all direct and indirect dependencies of node T 
+    public Collection<T> getAllDependencies(T node) {
+        Set<T> allDependencies = new HashSet<>();
+        Set<T> visited = new HashSet<>();
+        getAllDependenciesRecursive(node, allDependencies, visited);
+        return allDependencies;
+    }
+
     public boolean contains(T node) {
         return dependencies.containsKey(node);
     }
@@ -190,6 +206,30 @@ public class DependencyGraph<T> {
             visited.add(vertex);
         }
         ancestors.remove(vertex);
+    }
+
+    private void getAllDependentsRecursive(T node, Set<T> allDependents, Set<T> visited) {
+        visited.add(node);
+        Collection<T> directDependents = getDirectDependents(node);
+        allDependents.addAll(directDependents);
+
+        for (T dependent : directDependents) {
+            if (!visited.contains(dependent)) {
+                getAllDependentsRecursive(dependent, allDependents, visited);
+            }
+        }
+    }
+
+    private void getAllDependenciesRecursive(T node, Set<T> allDependencies, Set<T> visited) {
+        visited.add(node);
+        Collection<T> directDependencies = getDirectDependencies(node);
+        allDependencies.addAll(directDependencies);
+
+        for (T dependency : directDependencies) {
+            if (!visited.contains(dependency)) {
+                getAllDependenciesRecursive(dependency, allDependencies, visited);
+            }
+        }
     }
 
     /**
