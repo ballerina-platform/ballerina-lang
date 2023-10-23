@@ -22,7 +22,7 @@ package org.ballerinalang.test.javainterop.overloading.pkg;
  */
 public class Car extends Vehicle {
 
-    private String model;
+    private final String model;
 
     public Car(String name, String model) {
 
@@ -40,5 +40,9 @@ public class Car extends Vehicle {
     public String getDescription(String prefix) {
 
         return prefix + this.model;
+    }
+
+    public long getSeatCount() {
+        return 4;
     }
 }

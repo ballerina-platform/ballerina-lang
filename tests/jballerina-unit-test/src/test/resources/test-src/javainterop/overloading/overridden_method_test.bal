@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/test;
 
 function newVehicle(handle strName) returns handle = @java:Constructor {
     'class:"org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
@@ -7,6 +8,10 @@ function newVehicle(handle strName) returns handle = @java:Constructor {
 
 function newCar(handle strName, handle strModel) returns handle = @java:Constructor {
     'class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
+} external;
+
+function newSportsCar(handle strName, handle strModel, int seatCount) returns handle = @java:Constructor {
+    'class:"org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
 } external;
 
 
@@ -18,8 +23,18 @@ function getDescription(handle receiver, handle inputStr) returns handle = @java
     'class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
+function getSeatCount(handle receiver) returns int = @java:Method {
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar",
+    paramTypes: []
+} external;
 
-public function testOverriddenMethods() returns [string?, string?] {
+function getSeatCountWithModel(handle receiver) returns int = @java:Method {
+    name: "getSeatCount",
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar",
+    paramTypes: ["java.lang.String"]
+} external;
+
+public function testOverriddenMethods() {
     handle strName1 = java:fromString("Generic vehicle");
     handle vehicle = newVehicle(strName1);
 
@@ -27,7 +42,15 @@ public function testOverriddenMethods() returns [string?, string?] {
     handle strModel = java:fromString("Honda");
     handle car = newCar(strName2, strModel);
 
+    handle strName3 = java:fromString("Sports Car");
+    handle strModel2 = java:fromString("Nissan-GTR");
+    handle sportsCar = newSportsCar(strName3, strModel2, 4);
+
     handle carName = getName(car);
     handle carDesc = getDescription(car, java:fromString("Graze"));
-    return [java:toString(carName), java:toString(carDesc)];
+
+    test:assertEquals(java:toString(carName), "Motor Car : Honda");
+    test:assertEquals(java:toString(carDesc), "GrazeHonda");
+    test:assertEquals(getSeatCount(sportsCar), 4);
+    test:assertEquals(getSeatCountWithModel(java:fromString("Mazda MX-5")), 2);
 }

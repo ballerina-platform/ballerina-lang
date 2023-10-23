@@ -407,7 +407,7 @@ public class NegativeValidationTest {
         String path = "test-src/javainterop/negative/method_resolve_error.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 6);
         BAssertUtil.validateError(compileResult, 0,
                                   "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
                                           "cannot be differentiated. Please specify the parameterTypes for each " +
@@ -418,7 +418,27 @@ public class NegativeValidationTest {
                                           "cannot be differentiated. Please specify the parameterTypes for each " +
                                           "parameter in 'paramTypes' field in the annotation'",
                                   "method_resolve_error.bal", 24, 1);
-
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                        "cannot be differentiated. Please specify the parameterTypes for each " +
+                        "parameter in 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 29, 1);
+        BAssertUtil.validateError(compileResult, 3,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                        "cannot be differentiated. Please specify the parameterTypes for each " +
+                        "parameter in 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 33, 1);
+        BAssertUtil.validateError(compileResult, 4,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods 'getDescription' " +
+                        "with '1' parameter(s) in class " +
+                        "'class org.ballerinalang.test.javainterop.overloading.pkg.SportsCar', " +
+                        "please specify class names for each parameter with 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 38, 1);
+        BAssertUtil.validateError(compileResult, 5,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded constructors with '1' " +
+                        "parameter(s) in class 'class java.lang.Byte', please specify class names for each " +
+                        "parameter in 'paramTypes' field in the annotation'",
+                "method_resolve_error.bal", 42, 1);
     }
 
     @Test
