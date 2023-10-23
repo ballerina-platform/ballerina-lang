@@ -539,4 +539,17 @@ public class NegativeValidationTest {
                         "no return type expected but found 'error''",
                 "method_sig_not_match17.bal", 19, 1);
     }
+
+    @Test
+    public void testAbstractClassInstantiationError() {
+        String path = "test-src/javainterop/negative/instantiation_error.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}INSTANTIATION_ERROR" +
+                        " ''org.ballerinalang.nativeimpl.jvm.tests.AbstractClass' is abstract, " +
+                        "and cannot be instantiated'", 19, 1);
+        BAssertUtil.validateError(compileResult, 1, "{ballerina/jballerina.java}INSTANTIATION_ERROR" +
+                        " ''org.ballerinalang.nativeimpl.jvm.tests.Interface' is abstract, and cannot be instantiated'",
+                23, 1);
+    }
 }

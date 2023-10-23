@@ -814,7 +814,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4056",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
-    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4058", "invalid.binding.pattern.in.on.fail")
+    INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail")
     ;
 
     private String diagnosticId;
