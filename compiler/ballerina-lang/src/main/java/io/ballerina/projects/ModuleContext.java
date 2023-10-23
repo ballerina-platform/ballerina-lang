@@ -121,10 +121,6 @@ class ModuleContext {
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
     }
 
-    public void cleanBLangPackage() {
-        this.bLangPackage = null;
-    }
-
     static ModuleContext from(Project project, ModuleConfig moduleConfig, boolean disableSyntaxTree) {
         Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {
@@ -249,6 +245,10 @@ class ModuleContext {
         return getBLangPackageOrThrow();
     }
 
+    protected void cleanBLangPackage() {
+        this.bLangPackage = null;
+    }
+
     ModuleCompilationState compilationState() {
         return moduleCompState;
     }
@@ -310,10 +310,6 @@ class ModuleContext {
 
     void setCompilationState(ModuleCompilationState moduleCompState) {
         this.moduleCompState = moduleCompState;
-    }
-
-    void parse() {
-        currentCompilationState().parse(this);
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
@@ -510,12 +506,8 @@ class ModuleContext {
         if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
             return true;
         }
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
-                && moduleContext.project().buildOptions().enableCache()) {
-            return true;
-        }
-
-        return false;
+        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
+                && moduleContext.project().buildOptions().enableCache();
     }
 
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
