@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingConfigurations;
+import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingFilePath;
 
 /**
  * A model for formatting options that could be passed onto the formatter.
@@ -176,16 +177,11 @@ public class FormattingOptions {
         }
 
         public FormattingOptions build(Path root, Object data) throws FormatterException {
-            if (!(data instanceof Map)) {
-                return build();
-            }
-            Map<String, Object> balTomlConfigurations = (Map<String, Object>) data;
-            Object path = balTomlConfigurations.get("configPath");
+            String path = getFormattingFilePath(data, root.toString());
             if (path == null) {
                 return build();
             }
-            Map<String, Object> configurations = getFormattingConfigurations(root, path.toString());
-
+            Map<String, Object> configurations = getFormattingConfigurations(root, path);
             for (Map.Entry<String, Object> entry : configurations.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();

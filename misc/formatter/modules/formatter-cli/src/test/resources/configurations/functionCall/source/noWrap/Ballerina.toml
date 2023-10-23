@@ -1,2 +1,2 @@
 [format]
-configPath = "src/test/resources/configurations/functionCall/source/noWrap/Format.toml"
+configPath = "src/test/resources/configurations/functionCall/source/noWrap"
