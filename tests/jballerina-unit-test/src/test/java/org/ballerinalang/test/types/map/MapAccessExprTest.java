@@ -147,7 +147,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns.get(1).toString(), "Colombo");
     }
 
-    @Test(description = "Map access negative scenarios", groups = {"disableOnOldParser"})
+    @Test(description = "Map access negative scenarios")
     public void testNegativeSemantics() {
         Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 4);
         int index = 0;
