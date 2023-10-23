@@ -327,7 +327,7 @@ public class MappingConstructorExprTest {
         };
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test()
     public void testReadOnlyFieldsSemanticNegative() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field_negative.bal");
