@@ -57,6 +57,29 @@ public class FormatterUtils {
 
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
+    public static String getFormattingFilePath(Object data, String root) {
+        if (data instanceof Map) {
+            Object path = ((Map<String, Object>) data).get("configPath");
+            if (path != null) {
+                String str = path.toString();
+                if (str.endsWith(".toml")) {
+                    return str;
+                }
+                return Path.of(str, "Format.toml").toString();
+            }
+        }
+        File directory = new File(root);
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().equals("Format.toml")) {
+                    return file.getAbsolutePath();
+                }
+            }
+        }
+        return null;
+    }
+
     public static Map<String, Object> getFormattingConfigurations(Path root, String path) throws FormatterException {
         String content;
         if (isLocalFile(path)) {
