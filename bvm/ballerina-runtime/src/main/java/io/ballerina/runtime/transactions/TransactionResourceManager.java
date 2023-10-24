@@ -610,6 +610,11 @@ public class TransactionResourceManager {
     }
 
     public Object getTransactionRecord(BArray xid) {
-        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+        synchronized (transactionInfoMap) {
+            if (transactionInfoMap.containsKey(ByteBuffer.wrap(xid.getBytes()))) {
+                return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+            }
+            return null;
+        }
     }
 }
