@@ -232,6 +232,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -6317,6 +6318,13 @@ public class Desugar extends BLangNodeVisitor {
      * @return initial init function but trimmed in size
      */
     private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
+        int splitInitFuncClassCount = 1;
+        int splitFuncCount = 0;
+        DiagnosticPos packageNodePos = packageNode.pos;
+        String packageCUnitName = packageNodePos.src.cUnitName;
+        DiagnosticPos newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
+                packageCUnitName + "$" + splitInitFuncClassCount), packageNodePos.sLine,
+                packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
         int methodSize = INIT_METHOD_SPLIT_SIZE;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
         if (!isJvmTarget) {
@@ -6341,6 +6349,13 @@ public class Desugar extends BLangNodeVisitor {
             if (i > 0 && (i % methodSize == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
+                splitFuncCount++;
+                if (splitFuncCount % INIT_METHOD_SPLIT_SIZE == 0) {
+                    newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
+                            packageCUnitName + "$" + splitInitFuncClassCount++), packageNodePos.sLine,
+                            packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+                }
+                newFunc.pos = newFuncPos;
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
@@ -6361,6 +6376,13 @@ public class Desugar extends BLangNodeVisitor {
                 if (newFuncBody.stmts.size() + chunkStmts.size() > methodSize) {
                     generatedFunctions.add(newFunc);
                     newFunc = createIntermediateInitFunction(packageNode, env);
+                    splitFuncCount++;
+                    if (splitFuncCount % INIT_METHOD_SPLIT_SIZE == 0) {
+                        newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
+                                packageCUnitName + "$" + splitInitFuncClassCount++), packageNodePos.sLine,
+                                packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+                    }
+                    newFunc.pos = newFuncPos;
                     newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                     symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
                 }
@@ -6382,6 +6404,13 @@ public class Desugar extends BLangNodeVisitor {
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
+                splitFuncCount++;
+                if (splitFuncCount % INIT_METHOD_SPLIT_SIZE == 0) {
+                    newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
+                            packageCUnitName + "$" + splitInitFuncClassCount++), packageNodePos.sLine,
+                            packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+                }
+                newFunc.pos = newFuncPos;
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
