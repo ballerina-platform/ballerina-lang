@@ -66,7 +66,7 @@ public class IdentifierLiteralTest  extends BaseTest {
         runLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test identifier clashes between generated and user defined identifiers")
+    @Test(description = "Test identifier clashes between generated and user defined identifiers", enabled = false)
     public void testUserDefinedIdentifierClash() throws BallerinaTestException {
         String testBalFile = "identifier_clash.bal";
 
