@@ -5794,7 +5794,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.FINITE:
-                return isAllowedConstantType(singleShapeBroadType(type.getSemType(), symTable).get());
+                return isAllowedConstantType(singletonBroadTypes(type.getSemType(), symTable).iterator().next());
             case TypeTags.INTERSECTION:
                 return isAllowedConstantType(((BIntersectionType) type).getEffectiveType());
             case TypeTags.TYPEREFDESC:
