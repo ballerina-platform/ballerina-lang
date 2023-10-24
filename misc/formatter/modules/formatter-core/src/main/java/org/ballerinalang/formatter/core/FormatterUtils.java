@@ -89,14 +89,14 @@ class FormatterUtils {
     /**
      * Swap leading minutiae of the first import in the code and the first import when sorted.
      *
-     * @param firstImport First ImportDeclarationNode in user code
-     * @param imports     Sorted formatted ImportDeclarationNode nodes
+     * @param firstImportNode First ImportDeclarationNode in user code
+     * @param importNodes     Sorted formatted ImportDeclarationNode nodes
      */
-    static void swapLeadingMinutiae(ImportDeclarationNode firstImport, List<ImportDeclarationNode> imports) {
-        String firstImportStr = getImportString(firstImport);
+    static void swapLeadingMinutiae(ImportDeclarationNode firstImportNode, List<ImportDeclarationNode> importNodes) {
+        String firstImportStr = getImportString(firstImportNode);
         int prevFirstIndex = -1;
-        for (int i = 0; i < imports.size(); i++) {
-            if (firstImportStr.equals(getImportString(imports.get(i)))) {
+        for (int i = 0; i < importNodes.size(); i++) {
+            if (firstImportStr.equals(getImportString(importNodes.get(i)))) {
                 prevFirstIndex = i;
                 break;
             }
@@ -104,28 +104,28 @@ class FormatterUtils {
         }
         if (prevFirstIndex > 0) {
             // remove comments from the previous first import
-            ImportDeclarationNode prevFirst = imports.get(prevFirstIndex);
-            MinutiaeList prevLeadingMinutiae = prevFirst.leadingMinutiae();
+            ImportDeclarationNode prevFirstImportNode = importNodes.get(prevFirstIndex);
+            MinutiaeList prevLeadingMinutiae = prevFirstImportNode.leadingMinutiae();
             List<Minutiae> leadingMinutiae = new ArrayList<>();
             if (prevLeadingMinutiae.get(0).kind() != SyntaxKind.COMMENT_MINUTIAE) {
                 prevLeadingMinutiae = prevLeadingMinutiae.remove(0);
-                leadingMinutiae.add(prevFirst.leadingMinutiae().get(0));
+                leadingMinutiae.add(prevFirstImportNode.leadingMinutiae().get(0));
             }
-            Token prevFirstImportToken = prevFirst.importKeyword()
+            Token prevFirstImportToken = prevFirstImportNode.importKeyword()
                     .modify(NodeFactory.createMinutiaeList(leadingMinutiae),
-                            prevFirst.importKeyword().trailingMinutiae());
-            prevFirst = prevFirst.modify().withImportKeyword(prevFirstImportToken).apply();
-            imports.set(prevFirstIndex, prevFirst);
+                            prevFirstImportNode.importKeyword().trailingMinutiae());
+            prevFirstImportNode = prevFirstImportNode.modify().withImportKeyword(prevFirstImportToken).apply();
+            importNodes.set(prevFirstIndex, prevFirstImportNode);
 
             // add leading comments from the previous first import
-            ImportDeclarationNode sortedFirst = imports.get(0);
-            for (Minutiae minutiae : sortedFirst.importKeyword().leadingMinutiae()) {
+            ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
+            for (Minutiae minutiae : sortedFirstImportNode.importKeyword().leadingMinutiae()) {
                 prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
             }
-            Token sortedFirstImportToken = sortedFirst.importKeyword()
-                    .modify(prevLeadingMinutiae, sortedFirst.importKeyword().trailingMinutiae());
-            sortedFirst = sortedFirst.modify().withImportKeyword(sortedFirstImportToken).apply();
-            imports.set(0, sortedFirst);
+            Token sortedFirstImportToken = sortedFirstImportNode.importKeyword()
+                    .modify(prevLeadingMinutiae, sortedFirstImportNode.importKeyword().trailingMinutiae());
+            sortedFirstImportNode = sortedFirstImportNode.modify().withImportKeyword(sortedFirstImportToken).apply();
+            importNodes.set(0, sortedFirstImportNode);
         }
     }
 
