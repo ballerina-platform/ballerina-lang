@@ -268,7 +268,7 @@ class JMethodResolver {
 
     private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
         // Static methods cannot be overridden
-        if (Modifier.isStatic(method1.getModifiers()) || Modifier.isStatic(method2.getModifiers()) ||
+        if ((Modifier.isStatic(method1.getModifiers()) ^ Modifier.isStatic(method2.getModifiers())) ||
                 method1.getParameterCount() != method2.getParameterCount()) {
             // This occurs when there are static methods and instance methods and the static method has one more
             // parameter than the instance method. Also, this occurs when an interop method in an object maps to
@@ -293,6 +293,9 @@ class JMethodResolver {
         try {
             Method superMethod = clazz.getSuperclass().getDeclaredMethod(currentMethod.getName(),
                     currentMethod.getParameterTypes());
+            if (Modifier.isStatic(currentMethod.getModifiers())) {
+                return superMethod.equals(otherMethod);
+            }
             return Arrays.equals(superMethod.getParameterTypes(), otherMethod.getParameterTypes()) &&
                     superMethod.getReturnType().equals(otherMethod.getReturnType());
         } catch (NoSuchMethodException e) {

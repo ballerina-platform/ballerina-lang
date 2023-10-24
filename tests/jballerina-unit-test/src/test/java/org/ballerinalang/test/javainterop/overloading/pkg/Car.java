@@ -45,4 +45,11 @@ public class Car extends Vehicle {
     public long getSeatCount() {
         return 4;
     }
+
+    public static String getMaxSpeed(String model) {
+        if (model.equals("BMW")) {
+            return "200MPH";
+        }
+        return "160MPH";
+    }
 }

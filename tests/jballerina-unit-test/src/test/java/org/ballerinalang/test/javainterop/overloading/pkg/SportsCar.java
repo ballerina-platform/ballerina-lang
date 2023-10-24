@@ -47,4 +47,11 @@ public class SportsCar extends Car {
         }
         return 2;
     }
+
+    public static String getMaxSpeed(String model) {
+        if (model.equals("Nissan-GTR")) {
+            return "300MPH";
+        }
+        return "250MPH";
+    }
 }
