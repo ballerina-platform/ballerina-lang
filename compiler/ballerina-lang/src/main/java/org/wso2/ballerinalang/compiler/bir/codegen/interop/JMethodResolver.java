@@ -223,7 +223,7 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            if (areAllMethodsOverridden(jMethods)) {
+            if (areAllMethodsOverridden(jMethods, jMethodRequest.declaringClass)) {
                 return jMethods.get(0);
             }
 
@@ -250,7 +250,7 @@ class JMethodResolver {
         return jMethod;
     }
 
-    private boolean areAllMethodsOverridden(List<JMethod> jMethods) {
+    private boolean areAllMethodsOverridden(List<JMethod> jMethods, Class<?> declaringClass) {
         if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
             return false;
         }
@@ -258,7 +258,7 @@ class JMethodResolver {
             for (int k = i + 1; k < jMethods.size(); k++) {
                 Method ithMethod = (Method) jMethods.get(i).getMethod();
                 Method kthMethod = (Method) jMethods.get(k).getMethod();
-                if (!isOverridden(ithMethod, kthMethod, ithMethod.getDeclaringClass())) {
+                if (!isOverridden(ithMethod, kthMethod, declaringClass)) {
                     return false;
                 }
             }
