@@ -207,10 +207,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.DOLLAR;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.RECORD_DELIMITER;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.util.Constants.DOLLAR;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNDERSCORE;
 
 /**
  * ClosureGenerator for creating closures for default values.

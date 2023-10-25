@@ -213,7 +213,6 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.RECORD_DELIMITER;
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
@@ -221,6 +220,7 @@ import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.createBI
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRConstantVal;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
+import static org.wso2.ballerinalang.compiler.util.Constants.RECORD_DELIMITER;
 
 /**
  * Lower the AST to BIR.
