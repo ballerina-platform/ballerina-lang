@@ -61,6 +61,7 @@ import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -597,7 +598,7 @@ public class StaticMethods {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 
