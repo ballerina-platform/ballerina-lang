@@ -88,7 +88,7 @@ public final class Utils {
      * @return a new unescaped {@code String}, {@code null} if null string input
      */
     public static String unescapeJava(String str) {
-        String result = str.replaceAll("\\\\(\\d)", "$1");
+       String result = str.replaceAll("(?<!\\\\)\\\\(\\d)", "$1");
         return StringEscapeUtils.unescapeJava(result);
     }
 
