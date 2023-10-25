@@ -100,6 +100,8 @@ public class TransactionResourceManager {
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
+    private FileRecoveryLog fileRecoveryLog;
+
     Map<ByteBuffer, Object> transactionInfoMap;
 
     private TransactionResourceManager() {
@@ -114,6 +116,9 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
+            fileRecoveryLog = new FileRecoveryLog("recoverylog");
+            String str = "testlog|testlog|testlog|testlog\n";
+            fileRecoveryLog.put(str);
         }
     }
 
