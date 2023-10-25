@@ -1423,26 +1423,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
-                data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
-                finiteTypeNode.pos, SOURCE);
-
-        // Unary expr in BLangFiniteTypeNode will be replaced with numeric literals.
-        // Note: calling semanticAnalyzer form symbolResolver is a temporary fix.
-        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
-
-        SemType semType = PredefinedType.NEVER;
-        StringJoiner stringJoiner = new StringJoiner("|");
-        for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            assert semTypeSupported(literal.getDeterminedType().getKind());
-            stringJoiner.add(typeResolver.getToString(literal));
-            semType = Core.union(semType, SemTypeResolver.resolveSingletonType((BLangLiteral) literal));
-        }
-
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, semType, stringJoiner.toString());
-        finiteTypeSymbol.type = finiteType;
-        return finiteType;
+        return typeResolver.resolveSingletonType(finiteTypeNode, data.env);
     }
 
     @Override

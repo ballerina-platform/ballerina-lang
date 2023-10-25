@@ -822,7 +822,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.floatType;
     }
 
-    public BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) { // TODO: fix
+    public BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) {
         literalExpr.isFiniteContext = false;
         Object literalValue = literalExpr.value;
         BType expectedType = Types.getReferredType(expType);
@@ -5177,7 +5177,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(accessExpr, actualType, data.expType);
     }
 
-    public LinkedHashSet<BType> getBasicNumericTypes(LinkedHashSet<BType> memberTypes) {
+    public LinkedHashSet<BType> getBasicNumericTypes(Set<BType> memberTypes) {
         LinkedHashSet<BType> basicNumericTypes = new LinkedHashSet<>(memberTypes.size());
 
         for (BType value : memberTypes) {
@@ -5193,7 +5193,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 basicNumericTypes.add(symTable.decimalType);
                 break;
             } else if (typeTag == TypeTags.FINITE) {
-                basicNumericTypes.addAll(getTypesInFiniteValueSpace((BFiniteType) referredType));
+                basicNumericTypes.addAll(SemTypeResolver.singletonBroadTypes(referredType.getSemType(), symTable));
             }
         }
         return basicNumericTypes;
@@ -5212,33 +5212,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return finiteType;
     }
 
-    public LinkedHashSet<BType> getTypesInFiniteValueSpace(BFiniteType referredType) {
-        LinkedHashSet<BType> typesInValueSpace = new LinkedHashSet<>(6);
-
-        int bitset = ((ComplexSemType) referredType.getSemType()).some.bitset;
-        if ((bitset & PredefinedType.NIL.bitset) != 0) {
-            typesInValueSpace.add(symTable.nilType);
-        }
-        if ((bitset & PredefinedType.BOOLEAN.bitset) != 0) {
-            typesInValueSpace.add(symTable.booleanType);
-        }
-        if ((bitset & PredefinedType.INT.bitset) != 0) {
-            typesInValueSpace.add(symTable.intType);
-        }
-        if ((bitset & PredefinedType.FLOAT.bitset) != 0) {
-            typesInValueSpace.add(symTable.floatType);
-        }
-        if ((bitset & PredefinedType.DECIMAL.bitset) != 0) {
-            typesInValueSpace.add(symTable.decimalType);
-        }
-        if ((bitset & PredefinedType.STRING.bitset) != 0) {
-            typesInValueSpace.add(symTable.stringType);
-        }
-
-        return typesInValueSpace;
-    }
-
-    public BType getNewExpectedTypeForFiniteAndUnion(LinkedHashSet<BType> numericTypes, BType newExpectedType) {
+    public BType getNewExpectedTypeForFiniteAndUnion(Set<BType> numericTypes, BType newExpectedType) {
         LinkedHashSet<BType> basicNumericTypes = getBasicNumericTypes(numericTypes);
         if (basicNumericTypes.size() == 1) {
             newExpectedType = basicNumericTypes.iterator().next();
@@ -5264,7 +5238,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType),
                             referredType, data.env);
         } else if (referredTypeTag == TypeTags.FINITE) {
-            LinkedHashSet<BType> typesInValueSpace = getTypesInFiniteValueSpace((BFiniteType) referredType);
+            Set<BType> typesInValueSpace = SemTypeResolver.singletonBroadTypes(referredType.getSemType(), symTable);
             newExpectedType = getNewExpectedTypeForFiniteAndUnion(typesInValueSpace, newExpectedType);
         } else if (referredTypeTag == TypeTags.UNION) {
             newExpectedType = getNewExpectedTypeForFiniteAndUnion(((BUnionType) referredType).getMemberTypes(),

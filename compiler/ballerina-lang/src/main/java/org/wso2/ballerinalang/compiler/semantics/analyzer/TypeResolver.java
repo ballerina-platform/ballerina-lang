@@ -1671,8 +1671,7 @@ public class TypeResolver {
         return visitBuiltInTypeNode(td, data, td.typeKind);
     }
 
-    private BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
-        // TODO: 2/10/23 can we use the same logic for SymbolResolver?
+    protected BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
@@ -1727,7 +1726,7 @@ public class TypeResolver {
                 expression.setBType(type);
                 return type;
             case LITERAL:
-                return ((BLangLiteral) expression).getBType();
+                return expression.getBType();
             case BINARY_EXPR:
                 type = blangTypeUpdate(((BLangBinaryExpr) expression).lhsExpr);
                 expression.setBType(type);
