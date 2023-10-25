@@ -75,6 +75,7 @@ import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -173,7 +174,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
         if (node.name().text().startsWith("f") && node.parent().kind() == SyntaxKind.POSITIONAL_ARG) {
-            Optional<TypeSymbol>  expectedType = node.parent().apply(this);
+            Optional<TypeSymbol> expectedType = node.parent().apply(this);
             if (expectedType.isPresent()) {
                 return expectedType;
             }
@@ -326,18 +327,16 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangInvocation)) {
+        if (!(bLangNode instanceof BLangInvocation bLangInvocation)) {
             return Optional.empty();
         }
 
-        BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
-        Token openParen = node.openParenToken();
-        Token closeParen = node.closeParenToken();
-        if (isWithinParenthesis(openParen, closeParen)) {
-            return getExpectedTypeFromFunction(bLangInvocation);
-        }
-
-        return getExpectedType(bLangNode);
+        return (bLangInvocation.symbol instanceof BInvokableSymbol && bLangInvocation.getRequiredArgs().size() > 0) ?
+                transformFunctionOrMethod(bLangNode,
+                        ((BLangNode) bLangInvocation.getRequiredArgs().get(0)).getBType(),
+                        (BInvokableSymbol) bLangInvocation.symbol, node.arguments(),
+                        node.openParenToken(), node.closeParenToken(), true) :
+                transformFunctionOrMethodWithoutTypeParam(bLangNode, node.openParenToken(), node.closeParenToken());
     }
 
     @Override
@@ -347,13 +346,52 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-//        TODO: Need to implement code to detect the position when the `PositionalArgumentNode`is null.
+        ExpressionNode functionCallExpressionNode = node.expression();
+        if (functionCallExpressionNode == null) {
+            return transformFunctionOrMethodWithoutTypeParam(bLangNode, node.openParenToken(), node.closeParenToken());
+        }
+
+        BLangNode bLangFunctionCall = nodeFinder.lookup(this.bLangCompilationUnit,
+                functionCallExpressionNode.lineRange());
+        BInvokableSymbol bLangOriginalLangLib =
+                this.langLibrary.getLangLibMethod(bLangFunctionCall.getBType(),
+                        SymbolUtils.unescapeUnicode(node.methodName().toString()));
+
+        return transformFunctionOrMethod(bLangNode, bLangFunctionCall.getBType(), bLangOriginalLangLib, node.arguments(),
+                node.openParenToken(), node.closeParenToken(), false);
+    }
+
+    private Optional<TypeSymbol> transformFunctionOrMethod(BLangNode bLangNode, BType variableType,
+                                                           BInvokableSymbol bLangOriginalLangLib,
+                                                           SeparatedNodeList<FunctionArgumentNode> arguments,
+                                                           Token openParenToken, Token closeParenToken,
+                                                           boolean hasFirstArg) {
+        if (bLangOriginalLangLib == null || bLangOriginalLangLib.params.size() == 0) {
+            return transformFunctionOrMethodWithoutTypeParam(bLangNode, openParenToken, closeParenToken);
+        }
+
+        BVarSymbol firstParam = bLangOriginalLangLib.params.get(0);
+        BType typeParam = new TypeParamFinder().find(firstParam.getType());
+
+        if (typeParam == null) {
+            return transformFunctionOrMethodWithoutTypeParam(bLangNode, openParenToken, closeParenToken);
+        }
+
+        BInvokableSymbol langLibMethod =
+                this.langLibFunctionBinder.cloneAndBind(bLangOriginalLangLib, variableType,
+                        SymbolUtils.getTypeParamBoundType(variableType));
+
+        if (langLibMethod.getParameters().size() < 2) {
+            return transformFunctionOrMethodWithoutTypeParam(bLangNode, openParenToken, closeParenToken);
+        }
+
+//        TODO: Need to implement code to detect the position when the `PositionalArgumentNode` is null.
 //        (e.g. `arr.sort(array:ASCENDING, <cursor >`). Since sort is the only lang lib function that accepts a
 //        @typeParam function in the second parameter and it is yet to be supported, this should be implemented
 //        along with #41498.
-        int position = 1;
+        int position = hasFirstArg ? 0 : 1;
         if (this.positionalArgNodeAtCursor != null) {
-            for (FunctionArgumentNode argNode : node.arguments()) {
+            for (FunctionArgumentNode argNode : arguments) {
                 if (argNode.equals(this.positionalArgNodeAtCursor)) {
                     break;
                 }
@@ -361,50 +399,16 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             }
         }
 
-        ExpressionNode functionCallExpressionNode = node.expression();
-        if (functionCallExpressionNode == null) {
-            return transformDefaultMethodCallExprNode(bLangNode, node);
-        }
-
-        BLangNode langNode = nodeFinder.lookup(this.bLangCompilationUnit,
-                functionCallExpressionNode.lineRange());
-        BInvokableSymbol originalLangLibMethod =
-                this.langLibrary.getLangLibMethod(langNode.getBType(),
-                        SymbolUtils.unescapeUnicode(node.methodName().toString()));
-
-        if (originalLangLibMethod == null || originalLangLibMethod.params.size() == 0) {
-            return transformDefaultMethodCallExprNode(bLangNode, node);
-        }
-
-        BVarSymbol firstParam = originalLangLibMethod.params.get(0);
-        BType typeParam = new TypeParamFinder().find(firstParam.getType());
-
-        if (typeParam == null) {
-            return transformDefaultMethodCallExprNode(bLangNode, node);
-        }
-
-        BType langNodeBType = langNode.getBType();
-        BInvokableSymbol langLibMethod =
-                this.langLibFunctionBinder.cloneAndBind(originalLangLibMethod, langNodeBType,
-                        SymbolUtils.getTypeParamBoundType(langNodeBType));
-
-        if (langLibMethod.getParameters().size() < 2) {
-            return transformDefaultMethodCallExprNode(bLangNode, node);
-        }
-
         return Optional.of(typesFactory.getTypeDescriptor(
                 langLibMethod.getType().getParameterTypes().get(position)));
     }
 
-    private Optional<TypeSymbol> transformDefaultMethodCallExprNode(BLangNode bLangNode,
-                                                                    MethodCallExpressionNode node) {
+    private Optional<TypeSymbol> transformFunctionOrMethodWithoutTypeParam(BLangNode bLangNode, Token openParen,
+                                                                           Token closeParen) {
         BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
-        Token openParen = node.openParenToken();
-        Token closeParen = node.closeParenToken();
         if (isWithinParenthesis(openParen, closeParen)) {
             return getExpectedTypeFromFunction(bLangInvocation);
         }
-
         return getExpectedType(bLangNode);
     }
 
@@ -465,7 +469,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(PositionalArgumentNode node) {
-        if (node.parent().kind() == SyntaxKind.METHOD_CALL) {
+        if (node.parent().kind() == SyntaxKind.METHOD_CALL || node.parent().kind() == SyntaxKind.FUNCTION_CALL) {
             this.positionalArgNodeAtCursor = node;
             Optional<TypeSymbol> expectedType = node.parent().apply(this);
             if (expectedType.isPresent()) {

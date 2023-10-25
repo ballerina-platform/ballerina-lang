@@ -93,9 +93,9 @@ public class LangLibrary {
     }
 
     /**
-     * Returns the lang library method of the given type descriptor kind and the method name.
+     * Returns the lang library method of the given type descriptor type and the method name.
      *
-     * @param type          Type descriptor kind
+     * @param type          Type descriptor type
      * @param methodName    Name of the lang library function
      * @return The associated lang library function
      */
