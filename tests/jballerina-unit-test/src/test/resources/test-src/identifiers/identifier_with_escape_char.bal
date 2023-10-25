@@ -13,10 +13,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
 public function foo() {
     int a\3 = 0;
     int a3 = 2;
     int student\-performance = 3;
     int student\u{002D}performance = 2;
+    string resource\\1path = "https:\\";
+    string resource\u{005c}1path = "http";
+    io:println(resource\\1path);
 }
