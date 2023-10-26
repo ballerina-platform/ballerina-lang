@@ -785,11 +785,20 @@ public class SemTypeResolver {
 
     public static void resolveBUnionSemTypeComponent(BUnionType type) {
         LinkedHashSet<BType> memberTypes = type.getMemberTypes();
+        LinkedHashSet<BType> nonSemMemberTypes = new LinkedHashSet<>();
+
         SemType semType = PredefinedType.NEVER;
         for (BType memberType : memberTypes) {
             semType = SemTypes.union(semType, getSemTypeComponent(memberType));
+
+            if (memberType.tag == TypeTags.UNION) {
+                nonSemMemberTypes.addAll(((BUnionType)memberType).nonSemMemberTypes);
+            } else if (getBTypeComponent(memberType).tag != TypeTags.NEVER) {
+                nonSemMemberTypes.add(memberType);
+            }
         }
 
+        type.nonSemMemberTypes = nonSemMemberTypes;
         type.setSemTypeComponent(semType);
     }
 
@@ -841,6 +850,23 @@ public class SemTypeResolver {
         }
 
         return t;
+    }
+
+    public static boolean includesNonSemTypes(BType t) {
+        if (t.tag == TypeTags.TYPEREFDESC) {
+            return includesNonSemTypes(((BTypeReferenceType) t).referredType);
+        }
+
+        if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON ||
+                t.tag == TypeTags.READONLY) {
+            return true;
+        }
+
+        if (t.tag == TypeTags.UNION) { // TODO: Handle intersection
+            return !((BUnionType) t).nonSemMemberTypes.isEmpty();
+        }
+
+        return false;
     }
 
     protected static boolean semTypeSupported(TypeKind kind) {

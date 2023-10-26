@@ -56,6 +56,7 @@ public class BUnionType extends BType implements UnionType {
     private String cachedToString;
 
     protected LinkedHashSet<BType> memberTypes;
+    public LinkedHashSet<BType> nonSemMemberTypes;
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
     public boolean isCyclic = false;

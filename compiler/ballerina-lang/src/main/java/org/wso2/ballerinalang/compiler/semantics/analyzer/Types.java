@@ -4214,6 +4214,10 @@ public class Types {
     }
 
     boolean validNumericTypeExists(BType type) {
+        if (SemTypeResolver.includesNonSemTypes(type)) {
+            return false;
+        }
+
         SemType t = SemTypeResolver.getSemTypeComponent(type);
         SemType tButNil = Core.diff(t, PredefinedType.NIL); // nil lift
         UniformTypeBitSet uniformTypeBitSet = Core.widenToBasicTypes(tButNil);
