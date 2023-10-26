@@ -329,32 +329,32 @@ public class RemotePackageRepository implements PackageRepository {
                 if (cachedRequest.version().isPresent() && request.version().isPresent()) {
                     // Check in both requests
                     if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
-                            cachedRequest.version().get().value().minor() == request.version().get().value().minor() &&
-                            cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
+                            cachedRequest.version().get().value().minor() == request.version().get().value().minor()
+                            && cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
                             request.packageLockingMode() == PackageLockingMode.MEDIUM) {
                         response.add(pkgMetaDataResponse);
                         requestIterator.remove();
-                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
-                            cachedRequest.packageLockingMode() == PackageLockingMode.SOFT &&
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major()
+                            && cachedRequest.packageLockingMode() == PackageLockingMode.SOFT &&
                             request.packageLockingMode() == PackageLockingMode.SOFT) {
                         response.add(pkgMetaDataResponse);
                         requestIterator.remove();
-                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
-                            cachedRequest.version().get().value().minor() == request.version().get().value().minor() &&
-                            cachedRequest.version().get().value().patch() == request.version().get().value().patch() &&
-                            cachedRequest.packageLockingMode() == PackageLockingMode.HARD &&
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major()
+                            && cachedRequest.version().get().value().minor() == request.version().get().value().minor()
+                            && cachedRequest.version().get().value().patch() == request.version().get().value().patch()
+                            && cachedRequest.packageLockingMode() == PackageLockingMode.HARD &&
                             request.packageLockingMode() == PackageLockingMode.HARD) {
                         response.add(pkgMetaDataResponse);
                         requestIterator.remove();
-                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
-                            cachedRequest.version().get().value().minor() == request.version().get().value().minor() &&
-                            cachedRequest.version().get().value().patch() == request.version().get().value().patch() &&
-                            cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major()
+                            && cachedRequest.version().get().value().minor() == request.version().get().value().minor()
+                            && cachedRequest.version().get().value().patch() == request.version().get().value().patch()
+                            && cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
                             request.packageLockingMode() == PackageLockingMode.HARD) {
                         response.add(pkgMetaDataResponse);
                         requestIterator.remove();
-                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major() &&
-                            cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
+                    } else if (cachedRequest.version().get().value().major() == request.version().get().value().major()
+                            && cachedRequest.packageLockingMode() == PackageLockingMode.MEDIUM &&
                             request.packageLockingMode() == PackageLockingMode.MEDIUM) {
                         response.add(pkgMetaDataResponse);
                         requestIterator.remove();
