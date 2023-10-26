@@ -42,8 +42,9 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
+    private Path generatedDir;
     private boolean exitWhenFinish;
-    
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -62,9 +63,9 @@ public class CleanCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public CleanCommand(Path projectPath, boolean exitWhenFinish, Path targetDir) {
+    public CleanCommand(Path projectPath, PrintStream printStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = projectPath;
-        this.outStream =  System.out;
+        this.outStream =  printStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
     }
@@ -93,18 +94,40 @@ public class CleanCommand implements BLauncherCmd {
             CommandUtil.printError(this.outStream,
                     "provided target directory '" + this.targetDir + "' does not exist.",
                     null, false);
+        } else if (!Files.isDirectory(this.targetDir)) {
+            CommandUtil.printError(this.outStream,
+                    "provided target path '" + this.targetDir + "' is not a directory.",
+                    null, false);
+        } else {
+            ProjectUtils.deleteDirectory(this.targetDir);
+            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        }
+
+        //delete the generated directory
+        try {
+            Project project = BuildProject.load(this.projectPath);
+            this.generatedDir = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        if (!Files.isDirectory(this.targetDir)) {
+        if (Files.notExists(this.generatedDir)) {
             CommandUtil.printError(this.outStream,
-                    "provided target path '" + this.targetDir + "' is not a directory.",
+                    "generated directory '" + this.generatedDir + "' does not exist.",
                     null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        ProjectUtils.deleteDirectory(this.targetDir);
-        this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        if (!Files.isDirectory(this.generatedDir)) {
+            CommandUtil.printError(this.outStream,
+                    "generated path is not a directory.",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        ProjectUtils.deleteDirectory(this.generatedDir);
+        this.outStream.println("Successfully deleted '" + this.generatedDir + "'.");
     }
     
     @Override

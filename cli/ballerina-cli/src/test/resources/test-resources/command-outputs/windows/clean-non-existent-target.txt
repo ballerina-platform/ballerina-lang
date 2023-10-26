@@ -1,0 +1,2 @@
+ballerina: provided target directory '%TARGET_LOCATION%' does not exist.
+ballerina: generated directory '%GEN_LOCATION%' does not exist.
