@@ -150,6 +150,8 @@ public class HttpConstants {
     public static final String SESSION = "Session";
     public static final String HTTP_ONLY = "HttpOnly";
     public static final String SECURE = "Secure";
+    public static final String X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
+    public static final String NO_SNIFF = "nosniff";
 
     public static final String ALLOW_ORIGIN = "allowOrigins";
     public static final String ALLOW_CREDENTIALS = "allowCredentials";
