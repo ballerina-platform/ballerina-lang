@@ -581,7 +581,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
-        lambdaFunction.capturedClosureEnv = env;
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
         BTypeSymbol symbol = env.node.getBType().tsymbol;
         if (symbol.getKind() == SymbolKind.INVOKABLE_TYPE) {
@@ -595,7 +594,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
-        rewrite(lambdaFunction, lambdaFunction.capturedClosureEnv);
+        rewrite(lambdaFunction, env);
     }
 
     private void updateFunctionParams(BLangFunction funcNode, List<BVarSymbol> params, String paramName) {
@@ -620,7 +619,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = function;
         lambdaFunction.setBType(function.getBType());
-        lambdaFunction.capturedClosureEnv = env;
         lambdaFunction.pos = function.pos;
         return lambdaFunction;
     }
@@ -1152,7 +1150,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.capturedClosureEnv = env.createClone();
+        bLangLambdaFunction.capturedClosureEnv = env;
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         result = bLangLambdaFunction;
     }
