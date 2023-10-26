@@ -46,6 +46,8 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.NO_SNIFF;
+import static org.ballerinalang.net.http.HttpConstants.X_CONTENT_TYPE_OPTIONS;
 
 /**
  * Service/Resource dispatchers test class.
@@ -104,18 +106,24 @@ public class ServiceTest {
     public void testServiceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
+        Assert.assertNotNull(responseMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching service found for path : /foo/message");
+        String contentTypeOptions = responseMsg.getHeader(X_CONTENT_TYPE_OPTIONS);
+        Assert.assertEquals(contentTypeOptions, NO_SNIFF);
     }
 
     @Test(description = "Test for resource availability check")
     public void testResourceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
+        Assert.assertNotNull(responseMsg);
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching resource found for path : /echo/bar , method : GET");
+        String contentTypeOptions = responseMsg.getHeader(X_CONTENT_TYPE_OPTIONS);
+        Assert.assertEquals(contentTypeOptions, NO_SNIFF);
     }
 
     @Test
