@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Environment-level Package cache.
@@ -23,9 +25,14 @@ import java.util.Optional;
 public class EnvironmentPackageCache implements WritablePackageCache {
 
     private final Map<PackageId, Project> projects = new HashMap<>();
+    private final Map<PackageOrg, Map<PackageName, Map<PackageVersion, Project>>> projectCache = new HashMap<>();
 
     public void cache(Package pkg) {
         projects.put(pkg.packageId(), pkg.project());
+        projectCache
+            .computeIfAbsent(pkg.packageOrg(), org -> new HashMap<>())
+            .computeIfAbsent(pkg.packageName(), name -> new HashMap<>())
+            .put(pkg.packageVersion(), pkg.project());
     }
 
     @Override
@@ -51,34 +58,35 @@ public class EnvironmentPackageCache implements WritablePackageCache {
     public Optional<Package> getPackage(PackageOrg packageOrg,
                                         PackageName packageName,
                                         PackageVersion version) {
-        // Do we have a need to improve this logic?
-        for (Project project : projects.values()) {
-            PackageDescriptor pkgDesc = project.currentPackage().descriptor();
-            if (pkgDesc.org().equals(packageOrg) && pkgDesc.name().equals(packageName) &&
-                    pkgDesc.version().equals(version)) {
-                return Optional.of(project.currentPackage());
-            }
-        }
-        return Optional.empty();
+        return Optional.ofNullable(
+            projectCache
+                .getOrDefault(packageOrg, Collections.emptyMap())
+                .getOrDefault(packageName, Collections.emptyMap())
+                .getOrDefault(version, Collections.emptyMap())
+        ).map(Project::currentPackage);
     }
 
     @Override
     public List<Package> getPackages(PackageOrg packageOrg, PackageName packageName) {
-        // Do we have a need to improve this logic?
-        // TODO Optimize this logic
-        List<Package> foundList = new ArrayList<>();
-        for (Project project : projects.values()) {
-            PackageManifest pkgDesc = project.currentPackage().manifest();
-            if (pkgDesc.org().equals(packageOrg) &&
-                    pkgDesc.name().equals(packageName)) {
-                foundList.add(project.currentPackage());
-            }
-        }
-        return foundList;
+        // Improved logic: Use streams to simplify the code
+        return projectCache
+                .getOrDefault(packageOrg, Collections.emptyMap())
+                .getOrDefault(packageName, Collections.emptyMap())
+                .values()
+                .stream()
+                .map(Project::currentPackage)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void removePackage(PackageId packageId) {
-        projects.remove(packageId);
+        Project project = projects.remove(packageId);
+        if (project != null) {
+            Package pkg = project.currentPackage();
+            projectCache
+                .getOrDefault(pkg.packageOrg(), Collections.emptyMap())
+                .getOrDefault(pkg.packageName(), Collections.emptyMap())
+                .remove(pkg.packageVersion());
+        }
     }
 }
