@@ -1536,7 +1536,7 @@ function testQueryExpressionXmlStartWithWhiteSpace() {
             </body>
         </html>
     `;
-    assertEquality(xmlValue.toString(), string `
+    xml expected = xml `
         <html>
             <head>
                 <title>Dynamic Table</title>
@@ -1557,7 +1557,8 @@ function testQueryExpressionXmlStartWithWhiteSpace() {
                 </table>
             </body>
         </html>
-    `);
+    `;
+    assertEquality(xmlValue, expected);
 }
 
 function assertEquality(any|error actual, any|error expected) {
