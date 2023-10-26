@@ -51,6 +51,7 @@ import java.util.StringJoiner;
  */
 public class BFiniteType extends BType implements ReferenceType {
 
+    @Deprecated
     public BFiniteType(BTypeSymbol tsymbol, SemType semType) { // TODO: Get rid of this constructor
         this(tsymbol, semType, null);
     }
@@ -83,21 +84,19 @@ public class BFiniteType extends BType implements ReferenceType {
             joiner.add("()");
         }
 
-        if (Core.isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
-            SubtypeData subtypeData = Core.booleanSubtype(t);
-            if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
-                if (allOrNothing.isAllSubtype()) {
-                    joiner.add("true");
-                    joiner.add("false");
-                }
-            } else {
-                BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
-                joiner.add(booleanSubtype.value ? "true" : "false");
+        SubtypeData subtypeData = Core.booleanSubtype(t);
+        if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+            if (allOrNothing.isAllSubtype()) {
+                joiner.add("true");
+                joiner.add("false");
             }
+        } else {
+            BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
+            joiner.add(booleanSubtype.value ? "true" : "false");
         }
 
-        if (Core.isSubtypeSimple(t, PredefinedType.INT)) {
-            IntSubtype intSubtype = (IntSubtype) Core.intSubtype(t);
+        subtypeData = Core.intSubtype(t);
+        if (subtypeData instanceof IntSubtype intSubtype) {
             for (Range range : intSubtype.ranges) {
                 for (long i = range.min; i <= range.max; i++) {
                     joiner.add(Long.toString(i));
@@ -109,22 +108,22 @@ public class BFiniteType extends BType implements ReferenceType {
             }
         }
 
-        if (Core.isSubtypeSimple(t, PredefinedType.FLOAT)) {
-            FloatSubtype floatSubtype = (FloatSubtype) Core.floatSubtype(t);
+        subtypeData = Core.floatSubtype(t);
+        if (subtypeData instanceof FloatSubtype floatSubtype) {
             for (EnumerableType enumerableFloat : floatSubtype.values()) {
                 joiner.add(((EnumerableFloat) enumerableFloat).value + "f");
             }
         }
 
-        if (Core.isSubtypeSimple(t, PredefinedType.DECIMAL)) {
-            DecimalSubtype decimalSubtype = (DecimalSubtype) Core.decimalSubtype(t);
+        subtypeData = Core.decimalSubtype(t);
+        if (subtypeData instanceof DecimalSubtype decimalSubtype) {
             for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
                 joiner.add(((EnumerableDecimal) enumerableDecimal).value + "d");
             }
         }
 
-        if (Core.isSubtypeSimple(t, PredefinedType.STRING)) {
-            StringSubtype stringSubtype = (StringSubtype) Core.stringSubtype(t);
+        subtypeData = Core.stringSubtype(t);
+        if (subtypeData instanceof StringSubtype stringSubtype) {
             CharStringSubtype charStringSubtype = stringSubtype.getChar();
             for (EnumerableType enumerableType : charStringSubtype.values()) {
                 joiner.add("\"" + ((EnumerableCharString) enumerableType).value + "\"");

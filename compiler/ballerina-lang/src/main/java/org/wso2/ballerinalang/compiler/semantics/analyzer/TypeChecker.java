@@ -9430,7 +9430,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return new LinkedHashSet<>(0);
             }
 
-            BFiniteType finiteType = new BFiniteType(null, diff);
+            BFiniteType finiteType = new BFiniteType(null, diff, null);
             return new LinkedHashSet<>(1) {{ add(finiteType); }};
         }
 
