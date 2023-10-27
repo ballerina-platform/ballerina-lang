@@ -857,6 +857,10 @@ public class SemTypeResolver {
             return includesNonSemTypes(((BTypeReferenceType) t).referredType);
         }
 
+        if (semTypeSupported(t.tag)) {
+            return false;
+        }
+
         if (t.tag == TypeTags.ANY || t.tag == TypeTags.ANYDATA || t.tag == TypeTags.JSON ||
                 t.tag == TypeTags.READONLY) {
             return true;
@@ -866,7 +870,7 @@ public class SemTypeResolver {
             return !((BUnionType) t).nonSemMemberTypes.isEmpty();
         }
 
-        return false;
+        return true;
     }
 
     protected static boolean semTypeSupported(TypeKind kind) {

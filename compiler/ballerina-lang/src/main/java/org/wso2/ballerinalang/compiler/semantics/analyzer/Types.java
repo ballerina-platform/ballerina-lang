@@ -144,7 +144,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.bitCount;
-import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singleShapeBroadType;
 import static org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver.singletonBroadTypes;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -185,7 +184,6 @@ public class Types {
     private int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
-    private final SemTypeResolver semTypeResolver;
     protected final Context semTypeCtx;
 
     private static final String BASE_16 = "base16";
@@ -220,7 +218,6 @@ public class Types {
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.semTypeResolver = SemTypeResolver.getInstance(context);
         this.semTypeCtx = Context.from(new Env());
     }
 
@@ -4173,46 +4170,75 @@ public class Types {
         return matchFound;
     }
 
-    boolean validStringOrXmlTypeExists(BType type, TypeExistenceValidationFunction validationFunction) {
+    /**
+     * Checks where a type is subtype of either string or xml.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean validStringOrXmlTypeExists(BType type) {
+        return isStringSubtype(type) || isXmlSubType(type);
+    }
+
+    /**
+     * Checks whether a type is a subtype of xml.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean isXmlSubType(BType type) {
+        if (TypeTags.isXMLTypeTag(type.tag)) {
+            return true;
+        }
+
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
-                Set<BType> memberTypes = unionType.getMemberTypes();
-                BType firstTypeInUnion = getBasicTypeOfBuiltinSubtype(getReferredType(memberTypes.iterator().next()));
-                if (!validationFunction.validate(firstTypeInUnion)) {
+                if (!Core.isSubtypeSimple(unionType.getSemTypeComponent(), PredefinedType.NEVER)) {
                     return false;
                 }
-                if (firstTypeInUnion.tag == TypeTags.FINITE) {
-                    SemType t = SemTypeResolver.getSemTypeComponent(firstTypeInUnion);
-                    return Core.widenToBasicTypes(t).equals(PredefinedType.STRING);
-                } else {
-                    for (BType memType : memberTypes) {
-                        memType = getReferredType(memType);
-                        if (memType.tag == TypeTags.FINITE) {
-                            SemType t = SemTypeResolver.getSemTypeComponent(memType);
-                            if (!Core.widenToBasicTypes(t).equals(PredefinedType.STRING)) {
-                                return false;
-                            }
-                            continue;
-                        }
-                        if (!isSubTypeOfBaseType(memType, firstTypeInUnion.tag)) {
-                            return false;
-                        }
+
+                LinkedHashSet<BType> nonSemMemberTypes = unionType.nonSemMemberTypes;
+                if (nonSemMemberTypes.isEmpty()) {
+                    return false;
+                }
+
+                for (BType nonSemMember : nonSemMemberTypes) {
+                    if (!isXmlSubType(nonSemMember)) {
+                        return false;
                     }
                 }
                 return true;
-            case TypeTags.FINITE:
-                SemType t = SemTypeResolver.getSemTypeComponent(type);
-                return Core.widenToBasicTypes(t).equals(PredefinedType.STRING);
             case TypeTags.TYPEREFDESC:
-                return validationFunction.validate(getReferredType(type));
+                return isXmlSubType(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return validationFunction.validate(((BIntersectionType) type).getEffectiveType());
+                return isXmlSubType(((BIntersectionType) type).getEffectiveType());
             default:
                 return false;
         }
     }
 
+    /**
+     * Checks whether a type is a subtype of string.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
+    boolean isStringSubtype(BType type) {
+        if (SemTypeResolver.includesNonSemTypes(type)) {
+            return false;
+        }
+
+        SemType t = SemTypeResolver.getSemTypeComponent(type);
+        return Core.isSubtypeSimple(t, PredefinedType.STRING);
+    }
+
+    /**
+     * Checks whether a type is a subtype of one of int?, float? or decimal?.
+     *
+     * @param type type to be checked
+     * @return a boolean
+     */
     boolean validNumericTypeExists(BType type) {
         if (SemTypeResolver.includesNonSemTypes(type)) {
             return false;
@@ -4224,13 +4250,6 @@ public class Types {
         return uniformTypeBitSet.equals(PredefinedType.INT) ||
                 uniformTypeBitSet.equals(PredefinedType.FLOAT) ||
                 uniformTypeBitSet.equals(PredefinedType.DECIMAL);
-    }
-
-    boolean validStringOrXmlTypeExists(BType type) {
-        if (TypeTags.isStringTypeTag(type.tag) || TypeTags.isXMLTypeTag(type.tag)) {
-            return true;
-        }
-        return validStringOrXmlTypeExists(type, this::validStringOrXmlTypeExists);
     }
 
     boolean validIntegerTypeExists(BType bType) {
@@ -4260,19 +4279,6 @@ public class Types {
             default:
                 return false;
         }
-    }
-
-    public BType getBasicTypeOfBuiltinSubtype(BType type) {
-        if (TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) {
-            return symTable.intType;
-        }
-        if (TypeTags.isStringTypeTag(type.tag)) {
-            return symTable.stringType;
-        }
-        if (TypeTags.isXMLTypeTag(type.tag)) {
-            return symTable.xmlType;
-        }
-        return type;
     }
 
     public boolean isStringSubType(BType type) {
@@ -5910,15 +5916,6 @@ public class Types {
      */
     private interface TypeEqualityPredicate {
         boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
-    }
-
-    /**
-     * A functional interface to validate numeric, string or xml type existence.
-     *
-     * @since 2201.1.0
-     */
-    private interface TypeExistenceValidationFunction {
-        boolean validate(BType type);
     }
 
     public boolean hasFillerValue(BType type) {
