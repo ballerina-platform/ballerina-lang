@@ -145,7 +145,8 @@ public class SearchCommand implements BLauncherCmd {
                                                                     getAccessTokenOfCLI(settings),
                                                                     settings.getCentral().getConnectTimeout(),
                                                                     settings.getCentral().getReadTimeout(),
-                                                                    settings.getCentral().getWriteTimeout());
+                                                                    settings.getCentral().getWriteTimeout(),
+                                                                    settings.getCentral().getCallTimeout());
             PackageSearchResult packageSearchResult = client.searchPackage(query,
                                                                            JvmTarget.JAVA_11.code(),
                                                                            RepoUtils.getBallerinaVersion());
