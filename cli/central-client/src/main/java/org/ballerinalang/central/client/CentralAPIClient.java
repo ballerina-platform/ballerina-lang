@@ -137,6 +137,7 @@ public class CentralAPIClient {
     private final int connectTimeout;
     private final int readTimeout;
     private final int writeTimeout;
+    private final int callTimeout;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -149,10 +150,12 @@ public class CentralAPIClient {
         this.connectTimeout = 60;
         this.readTimeout = 60;
         this.writeTimeout = 60;
+        this.callTimeout = 0;
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
-                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout) {
+                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
+                            int callTimeout) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -163,6 +166,7 @@ public class CentralAPIClient {
         this.connectTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
         this.writeTimeout = writeTimeout;
+        this.callTimeout = callTimeout;
     }
 
     /**
@@ -1150,6 +1154,7 @@ public class CentralAPIClient {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1296,6 +1301,7 @@ public class CentralAPIClient {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1414,6 +1420,7 @@ public class CentralAPIClient {
                 .connectTimeout(connectTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 

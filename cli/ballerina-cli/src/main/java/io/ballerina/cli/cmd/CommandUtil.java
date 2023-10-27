@@ -437,7 +437,8 @@ public class CommandUtil {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout());
             client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);
         }
