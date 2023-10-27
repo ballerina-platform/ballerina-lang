@@ -1768,3 +1768,29 @@ function testEqualityByteWithIntSubTypes() {
     (g !== a) || (h !== a));
     // Need to add (a !== f) , (f !== a) after fixing #32924
 }
+
+type Part anydata[];
+type J anydata;
+
+function testEqualityWithCyclicReferences() {
+    map<anydata> m1 = {one: 1, two: 2};
+    map<anydata> m2 = {one: 1, two: 2};
+    m1["three"] = m2;
+    m2["three"] = m1;
+    test:assertTrue(m1 == m2);
+    test:assertFalse(m1 != m2);
+
+    map<J> j1 = { loop: () };
+    map<J> j2 = { loop: () };
+    j1["loop"] = j1;
+    j2["loop"] = j1;
+    map<J> j3 = { loop: () };
+    j3["loop"] = { loop: { loop: { loop: j3 }}};
+    test:assertTrue(j1 == j3);
+
+    Part yin = [];
+    Part yang = [];
+    yin[0] = yang;
+    yang[0] = yin;
+    test:assertTrue(yin == yang);
+}

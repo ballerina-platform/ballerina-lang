@@ -360,7 +360,29 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return false;
         }
 
+        if (hasCyclicReference(this, mapValue, new LinkedHashSet<>())) {
+            return false;
+        }
+
         return entrySet().equals(mapValue.entrySet());
+    }
+
+    private boolean hasCyclicReference(MapValueImpl<?, ?> obj1, MapValueImpl<?, ?> obj2,
+                                       Set<Map.Entry<MapValueImpl<?, ?>, MapValueImpl<?, ?>>> visited) {
+        if (visited.contains(Map.entry(obj1, obj2))) {
+            return true; // Cyclic reference detected.
+        }
+        visited.add(Map.entry(obj1, obj2)); // Mark this object pair as visited.
+
+        for (Map.Entry<?, ?> entry : obj1.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof MapValueImpl<?, ?>) {
+                if (hasCyclicReference((MapValueImpl<?, ?>) value, obj2, visited)) {
+                    return true;
+                }
+            }
+        }
+        return false; // No cyclic references detected.
     }
 
     /**
