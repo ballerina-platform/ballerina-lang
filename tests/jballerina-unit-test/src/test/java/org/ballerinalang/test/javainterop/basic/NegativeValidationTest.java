@@ -34,7 +34,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testAcceptNothing() {
-
         String path = "test-src/javainterop/ballerina_types_as_interop_types_negative.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 12);
@@ -42,7 +41,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testClassNotFound() {
-
         String path = "test-src/javainterop/negative/class_not_found.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -53,110 +51,130 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodNotFound1() {
-
         String path = "test-src/javainterop/negative/method_not_found1.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
-                        "'acceptStringOrErrorReturn' found in class 'class org.ballerinalang.nativeimpl." +
+                        "'acceptStringOrErrorReturn' found in class 'org.ballerinalang.nativeimpl." +
                         "jvm.tests.StaticMethods''", "method_not_found1.bal", 8, 1);
     }
 
     @Test
     public void testMethodNotFound2() {
-
         String path = "test-src/javainterop/negative/method_not_found2.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method " +
-                        "'acceptObjectAndObjectReturn' with '3' " + "parameter(s) found in class 'class " +
+                        "'acceptObjectAndObjectReturn' with '3' " + "parameter(s) found in class '" +
                         "org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found2.bal", 22, 1);
     }
 
     @Test
     public void testMethodNotFound3() {
-
         String path = "test-src/javainterop/negative/method_not_found3.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method " +
                         "'acceptRecordAndRecordReturn' with '3' " + "parameter(s) found in class " +
-                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
+                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''",
                 "method_not_found3.bal", 21, 1);
     }
 
     @Test
     public void testMethodNotFound4() {
-
         String path = "test-src/javainterop/negative/method_not_found4.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
-                        "'acceptIntAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl.jvm." +
+                        "'acceptIntAndUnionReturn' found in class 'org.ballerinalang.nativeimpl.jvm." +
                         "tests.StaticMethods''", "method_not_found4.bal", 23, 1);
     }
 
     @Test
     public void testMethodNotFound5() {
-
         String path = "test-src/javainterop/negative/method_not_found5.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method " +
-                        "'acceptIntStringAndUnionReturn' found in class 'class org.ballerinalang.nativeimpl." +
+                        "'acceptIntStringAndUnionReturn' found in class 'org.ballerinalang.nativeimpl." +
                         "jvm.tests.StaticMethods''", "method_not_found5.bal", 23, 1);
     }
 
     @Test
     public void testMethodNotFound6() {
-
         String testFileName = "method_not_found6.bal";
         String path = "test-src/javainterop/negative/" + testFileName;
-
         CompileResult compileResult = BCompileUtil.compile(path);
         Assert.assertEquals(compileResult.getDiagnostics().length, 4);
-
         String message = "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method '%s' that matches with " +
-                "parameter types '(%s)' found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''";
+                "parameter types '(%s)' found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods''";
 
         String bTypeDescClassName = BTypedesc.class.getName();
         String bFutureClassName = BFuture.class.getName();
-
         BAssertUtil.validateError(compileResult, 0, String.format(message, "getFuture", bTypeDescClassName),
                 testFileName, 3, 1);
-
         BAssertUtil.validateError(compileResult, 1, String.format(message, "getTypeDesc", bFutureClassName),
                 testFileName, 9, 1);
-
         BAssertUtil.validateError(compileResult, 2,
                 String.format(message, "getFutureOnly", bFutureClassName + "," + bTypeDescClassName),
                 testFileName, 15, 1);
-
         BAssertUtil.validateError(compileResult, 3,
                 String.format(message, "getTypeDescOnly", bTypeDescClassName + "," + bFutureClassName),
                 testFileName, 21, 1);
     }
 
     @Test
+    public void testMethodNotFound7() {
+        String path = "test-src/javainterop/negative/method_not_found7.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        String message = "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method '%s' with " +
+                "'%s' parameter(s) found in class '%s''";
+        BAssertUtil.validateError(compileResult, 0, String.format(message, "getPrintableStackTrace", "1",
+                        "io.ballerina.runtime.api.values.BError"), "method_not_found7.bal", 19, 1);
+        BAssertUtil.validateError(compileResult, 1, String.format(message, "concat", "2",
+                        "io.ballerina.runtime.api.values.BString"), "method_not_found7.bal", 23, 1);
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method 'concat' " +
+                        "with '3' parameter(s) found in class 'io.ballerina.runtime.api.values.BString''",
+                "method_not_found7.bal", 27, 1);
+    }
+
+    @Test
+    public void testConstructorNotFound() {
+        String path = "test-src/javainterop/negative/constructor_not_found.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}CONSTRUCTOR_NOT_FOUND 'No such public constructor found " +
+                        "in class 'org.ballerinalang.nativeimpl.jvm.tests.ClassWithPrivateConstructor''",
+                "constructor_not_found.bal", 19, 1);
+        BAssertUtil.validateError(compileResult, 1,
+                "{ballerina/jballerina.java}CONSTRUCTOR_NOT_FOUND " +
+                "'No such public constructor with '2' parameter(s) found in class " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor''",
+                "constructor_not_found.bal", 23, 1);
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}CONSTRUCTOR_NOT_FOUND " +
+                "'No such public constructor that matches with parameter types '(int)' found in class " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor''",
+                "constructor_not_found.bal", 27, 1);
+    }
+
+    @Test
     public void testMethodSignatureNotMatch1() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match1.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -170,9 +188,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch2() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match2.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -187,9 +203,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch3() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match3.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -204,9 +218,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch4() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match4.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -221,9 +233,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch5() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match5.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -238,9 +248,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch6() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -255,9 +263,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch7() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match15.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -286,9 +292,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch9() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -300,9 +304,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch10() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -314,9 +316,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch11() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -330,9 +330,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch12() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -346,7 +344,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testReturnStringForBUnionFromJava() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -361,7 +358,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testJavaPrimitiveForBJsonParam() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -375,7 +371,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testJavaPrimitiveForBUnionParam() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -389,7 +384,6 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch14() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match14.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
@@ -419,6 +413,22 @@ public class NegativeValidationTest {
                                           "parameter in 'paramTypes' field in the annotation'",
                                   "method_resolve_error.bal", 24, 1);
 
+    }
+
+    @Test
+    public void testOverloadedMethods() {
+        String path = "test-src/javainterop/negative/overloaded_methods.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                        "cannot be differentiated. Please specify the parameterTypes for each " +
+                        "parameter in 'paramTypes' field in the annotation'",
+                "overloaded_methods.bal", 24, 5);
+        BAssertUtil.validateError(compileResult, 1,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
+                "cannot be differentiated. Please specify the parameterTypes for each parameter in " +
+                "'paramTypes' field in the annotation'", "overloaded_methods.bal", 30, 1);
     }
 
     @Test
@@ -506,9 +516,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch16() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match16.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
@@ -524,9 +532,7 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch17() {
-
         String path = "test-src/javainterop/negative/method_sig_not_match17.bal";
-
         CompileResult compileResult = BCompileUtil.compile(path);
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
