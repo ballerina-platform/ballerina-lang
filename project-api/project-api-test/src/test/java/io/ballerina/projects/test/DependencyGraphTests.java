@@ -629,6 +629,56 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
+    public void testGetAllDependents() {
+        // Create a sample DependencyGraph with String nodes
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put("A", new LinkedHashSet<>() {{
+                add("B");
+                add("C");
+            }});
+            put("B", new LinkedHashSet<>() {{
+                add("D");
+            }});
+            put("C", new LinkedHashSet<>());
+            put("D", new LinkedHashSet<>());
+            put("E", new LinkedHashSet<>() {{
+                add("F");
+            }});
+            put("F", new LinkedHashSet<>());
+        }});
+
+        Collection<String> allDependents = dependencyGraph.getAllDependents("A");
+        Set<String> expectedDependents = new HashSet<>(Arrays.asList("B", "C", "D"));
+
+        Assert.assertEquals(expectedDependents, allDependents);
+    }
+
+    @Test
+    public void testGetAllDependencies() {
+        // Create a sample DependencyGraph with String nodes
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put("A", new LinkedHashSet<>() {{
+                add("B");
+                add("C");
+            }});
+            put("B", new LinkedHashSet<>() {{
+                add("D");
+            }});
+            put("C", new LinkedHashSet<>());
+            put("D", new LinkedHashSet<>());
+            put("E", new LinkedHashSet<>() {{
+                add("F");
+            }});
+            put("F", new LinkedHashSet<>());
+        }});
+
+        Collection<String> allDependencies = dependencyGraph.getAllDependencies("D");
+        Set<String> expectedDependencies = new HashSet<>(Arrays.asList("A", "B"));
+
+        Assert.assertEquals(expectedDependencies, allDependencies);
+    }
+
+    @Test
     public void testTopologicalSortOfModuleDescriptor() {
         PackageName packageName = PackageName.from("package");
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
