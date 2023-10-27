@@ -444,7 +444,9 @@ public class ToolCommand implements BLauncherCmd {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
@@ -567,7 +569,9 @@ public class ToolCommand implements BLauncherCmd {
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                    settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
             boolean foundTools = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
                     .map(JvmTarget::code)
@@ -719,7 +723,9 @@ public class ToolCommand implements BLauncherCmd {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
         List<String> versions = client.getPackageVersions(tool.org(), tool.name(), supportedPlatforms,
                 RepoUtils.getBallerinaVersion());
         return getLatestVersion(versions, tool.version());

@@ -109,7 +109,9 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                 Settings settings = RepoUtils.readSettings();
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                        settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                        settings.getCentral().getConnectTimeout(),
+                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
 
                 JsonElement connectorSearchResult = client.getConnectors(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
@@ -194,7 +196,9 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
-                    getAccessTokenOfCLI(settings));
+                    getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
             if (request.getConnectorId() != null) {
                 // Fetch connector by connector Id.
                 connector = client.getConnector(request.getConnectorId(), "any", RepoUtils.getBallerinaVersion());
