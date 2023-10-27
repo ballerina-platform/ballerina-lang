@@ -30,15 +30,19 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer_ASM_Approach;
+import org.wso2.ballerinalang.compiler.bir.DeadBIRNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -49,11 +53,13 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -70,6 +76,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -109,6 +116,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
+    private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
@@ -178,6 +186,13 @@ public class JBallerinaBackend extends CompilerBackend {
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 moduleDiagnostics.add(
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+            }
+        }
+
+        // Generate optimized thin JAR byte streams
+        for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            if (moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED && !moduleContext.moduleId().moduleName().contains("observe")) {
+                performOptimizedCodeGen(moduleContext);
             }
         }
         // add compilation diagnostics
@@ -351,6 +366,52 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
+    public void performOptimizedCodeGen(ModuleContext moduleContext) {
+        optimizeBirPackage(moduleContext.bLangPackage().symbol);
+
+        BLangPackage bLangPackage = moduleContext.bLangPackage();
+        interopValidator.validate(moduleContext.moduleId(), this, bLangPackage);
+        if (bLangPackage.getErrorCount() > 0) {
+            return;
+        }
+        CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
+        if (compiledJarFile == null) {
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
+        }
+        String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
+        try {
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
+            optimizedJarStreams.putIfAbsent(jarFileName, byteStream);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
+        }
+    }
+
+    public void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
+        DeadBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
+        BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
+        birPackage.functions.removeAll(invocationData.deadFunctions);
+        birPackage.typeDefs.removeAll(invocationData.deadTypeDefs);
+
+        // TODO Remove the following code block. They are needed for external functions
+//        HashSet<BIRNode.BIRFunction> deadButNotDeletedFunctions = new HashSet<>();
+//        HashSet<BIRNode.BIRTypeDefinition> deadButNotDeletedTypedefs = new HashSet<>();
+//        birPackage.functions.forEach(birFunction -> {
+//            if (birFunction.usedState == UsedState.UNUSED) {
+//                deadButNotDeletedFunctions.add(birFunction);
+//            }
+//        });
+//
+//        birPackage.typeDefs.forEach(birTypeDefinition -> {
+//            if (birTypeDefinition.usedState == UsedState.UNUSED) {
+//                deadButNotDeletedTypedefs.add(birTypeDefinition);
+//            }
+//        });
+//
+//        birPackage.functions.removeAll(deadButNotDeletedFunctions);
+//        birPackage.typeDefs.removeAll(deadButNotDeletedTypedefs);
+    }
+
     @Override
     public String libraryFileExtension() {
         return JAR_FILE_EXTENSION;
@@ -444,6 +505,44 @@ public class JBallerinaBackend extends CompilerBackend {
         return manifest;
     }
 
+    private Manifest createOptimizedFileManifest() {
+        // TODO Find a way to get the stream without rootModuleJarFile
+        PlatformLibrary rootModuleJarFile = codeGeneratedLibrary(packageContext.packageId(),
+                packageContext.defaultModuleContext().moduleName());
+
+        String mainClassName;
+        try (JarInputStream jarStream = getOptimizedJarInputStream(rootModuleJarFile.path().toString())) {
+            Manifest mf = jarStream.getManifest();
+            mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
+        } catch (IOException e) {
+            throw new RuntimeException("Generated jar file cannot be found for the module: " +
+                    packageContext.defaultModuleContext().moduleName());
+        }
+
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        return manifest;
+    }
+
+    // TODO Optimize the condition to lookup the byte byteArrayOutputStream
+    private JarInputStream getOptimizedJarInputStream(String jarPath) {
+        AtomicReference<JarInputStream> jarInputStream = new AtomicReference<>();
+        optimizedJarStreams.forEach((key, value) -> {
+            if (jarPath.contains(key)) {
+                ByteArrayInputStream tempInStream = new ByteArrayInputStream(value.toByteArray());
+                try {
+                    jarInputStream.set(new JarInputStream(tempInStream));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        return jarInputStream.get();
+    }
+
     /**
      * Copies a given jar file into the executable fat jar.
      *
@@ -456,16 +555,19 @@ public class JBallerinaBackend extends CompilerBackend {
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
                          HashMap<String, JarLibrary> copiedEntries, HashMap<String, StringBuilder> services)
             throws IOException {
-
-        HashMap<String, HashSet<String>> classWiseDeadFunctionMap =
-                getDeadFunctionList(jarLibrary.packageName().get(), this.compilerContext);
-
-        HashSet<String> deadTypeDefSet = getDeadTypeDefList(jarLibrary.packageName().get(), this.compilerContext);
         HashSet<String> currentEntry = new HashSet<>();
         pkgWiseDeletedEntries.putIfAbsent(jarLibrary.packageName().get(), currentEntry);
 
-        OptimisedZipFile zipFile =
-                new OptimisedZipFile(jarLibrary.path().toFile(), classWiseDeadFunctionMap, currentEntry);
+        ZipFile dynamicZipFile;
+        ByteArrayOutputStream optimizedStream = getOptimizedStream(jarLibrary.path().toString());
+        if (optimizedStream == null) {
+            dynamicZipFile = new ZipFile(jarLibrary.path().toFile());
+        }else {
+        SeekableByteChannel seekableByteChannel = new SeekableInMemoryByteChannel(optimizedStream.toByteArray());
+            dynamicZipFile = new ZipFile(seekableByteChannel);
+        }
+
+        ZipFile zipFile = dynamicZipFile;
         ZipArchiveEntryPredicate predicate = entry -> {
             String entryName = entry.getName();
             if (entryName.equals("META-INF/MANIFEST.MF")) {
@@ -506,11 +608,6 @@ public class JBallerinaBackend extends CompilerBackend {
             if (isExcludedEntry(entryName)) {
                 return false;
             }
-            if (deadTypeDefSet.contains(entryName)) {
-                pkgWiseDeletedEntries.putIfAbsent(jarLibrary.packageName().get(), new HashSet<>());
-                pkgWiseDeletedEntries.get(jarLibrary.packageName().get()).add("TYPEDEF     "+ entryName);
-                return false;
-            }
             // SPIs will be merged first and then put into jar separately.
             copiedEntries.put(entryName, jarLibrary);
             return true;
@@ -518,9 +615,19 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // Transfers selected entries from this zip file to the output stream, while preserving its compression and
         // all the other original attributes.
-        zipFile.copyOptimisedRawEntries(outStream, predicate);
-//        zipFile.copyRawEntries(outStream, predicate);
+        zipFile.copyRawEntries(outStream, predicate);
         zipFile.close();
+        dynamicZipFile.close();
+    }
+
+    private ByteArrayOutputStream getOptimizedStream(String pathName) {
+        ByteArrayOutputStream optimizedStream = null;
+        for (String entryName : this.optimizedJarStreams.keySet()) {
+            if (pathName.contains(entryName)) {
+                optimizedStream = this.optimizedJarStreams.get(entryName);
+            }
+        }
+        return optimizedStream;
     }
 
     private static HashMap<String, HashSet<String>> getDeadFunctionListOLD(String pkgName,
@@ -556,7 +663,7 @@ public class JBallerinaBackend extends CompilerBackend {
         org.wso2.ballerinalang.compiler.PackageCache packageCache =
                 org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
 
-        BIRDeadNodeAnalyzer.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData;
+        BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData_OLD;
         HashMap<String, HashSet<String>> classWiseDeadFunctionMap = invocationData.deadFunctionJarPathMap;
         return classWiseDeadFunctionMap;
     }
@@ -570,7 +677,7 @@ public class JBallerinaBackend extends CompilerBackend {
         org.wso2.ballerinalang.compiler.PackageCache packageCache =
                 org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
 
-        BIRDeadNodeAnalyzer.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData;
+        BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData_OLD;
         HashSet<String> classWiseDeadFunctionMap = invocationData.deadTypeDefJarPathMap;
         return new HashSet<>(classWiseDeadFunctionMap);
     }
@@ -599,7 +706,8 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Path emitExecutable(Path executableFilePath) {
-        Manifest manifest = createManifest();
+//        Manifest manifest = createManifest();
+        Manifest manifest = createOptimizedFileManifest();
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
 
         try {
