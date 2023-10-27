@@ -101,6 +101,7 @@ public class TransactionResourceManager {
     private static final PrintStream stderr = System.err;
 
     private FileRecoveryLog fileRecoveryLog;
+    private InMemoryRecoveryLog inMemoryRecoveryLog;
 
     Map<ByteBuffer, Object> transactionInfoMap;
 
@@ -116,12 +117,11 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
-            fileRecoveryLog = new FileRecoveryLog("recoverylog");
-            String str = "testlog|testlog|testlog|testlog\n";
-            fileRecoveryLog.put(str);
+            String logFileName = getRecoveryLogBaseName();
+            fileRecoveryLog = new FileRecoveryLog(logFileName);
+            inMemoryRecoveryLog = new InMemoryRecoveryLog();
         }
     }
-
     public static TransactionResourceManager getInstance() {
         if (transactionResourceManager == null) {
             synchronized (TransactionResourceManager.class) {
@@ -131,6 +131,14 @@ public class TransactionResourceManager {
             }
         }
         return transactionResourceManager;
+    }
+
+    public static FileRecoveryLog getFileRecoveryLog(){
+        return transactionResourceManager.fileRecoveryLog;
+    }
+
+    public static InMemoryRecoveryLog getInMemoryLog(){
+        return transactionResourceManager.inMemoryRecoveryLog;
     }
 
     /**
@@ -188,6 +196,17 @@ public class TransactionResourceManager {
             return "transaction_log_dir";
         } else {
             return ((BString) ConfigMap.get(logKey)).getValue();
+        }
+    }
+
+    // DOESN'T WORK
+    // TODO: Fix this
+    private String getRecoveryLogBaseName() {
+        VariableKey recoveryLogNameKey = new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogName", PredefinedTypes.TYPE_STRING, false);
+        if (!ConfigMap.containsKey(recoveryLogNameKey)) {
+            return "recoveryLog";
+        } else {
+            return ((BString) ConfigMap.get(recoveryLogNameKey)).getValue();
         }
     }
 
