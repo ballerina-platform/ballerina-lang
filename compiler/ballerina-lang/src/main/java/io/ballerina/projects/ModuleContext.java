@@ -306,9 +306,9 @@ class ModuleContext {
                 && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         }
-//        else if (!this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/lang") && !this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina")) {
-//            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
-//        }
+        else if (!this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/lang") && !this.moduleDescriptor.moduleCompilationId().toString().contains("ballerina/jballerina")) {
+            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+        }
         else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
         }
@@ -489,7 +489,7 @@ class ModuleContext {
         }
 
         // Generate and write the thin JAR to the file system
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+//        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
 
         // Skip bir caching if jar generation is not successful
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
