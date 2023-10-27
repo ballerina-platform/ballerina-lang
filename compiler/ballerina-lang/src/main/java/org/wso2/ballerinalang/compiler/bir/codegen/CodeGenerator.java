@@ -103,6 +103,38 @@ public class CodeGenerator {
         for (BIRNode.BIRFunction function : bir.functions) {
             cleanUpBirFunction(function);
         }
+        // FIXME: common code
+        bir.annotations.clear();
+        bir.constants.clear();
+        bir.serviceDecls.clear();
+    }
+    public CompiledJarFile generateOptimized(BPackageSymbol packageSymbol) {
+        dlog.setCurrentPackageId(packageSymbol.pkgID);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
+
+        populateExternalMap(jvmPackageGen);
+
+        //Rewrite identifier names with encoding special characters
+        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
+
+        // TODO Get-rid of the following assignment
+        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+
+        //Revert encoding identifier names
+        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
+        return packageSymbol.compiledJarFile;
+}
+
+private void populateExternalMap(JvmPackageGen jvmPackageGen) {
+
+        String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
+        if (nativeMap == null) {
+            return;
+        }
+        bir.importedGlobalVarsDummyVarDcls.clear();
+        for (BIRNode.BIRFunction function : bir.functions) {
+            cleanUpBirFunction(function);
+        }
         bir.annotations.clear();
         bir.constants.clear();
         bir.serviceDecls.clear();

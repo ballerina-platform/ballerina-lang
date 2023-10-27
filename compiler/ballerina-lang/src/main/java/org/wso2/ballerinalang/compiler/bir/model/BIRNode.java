@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
@@ -397,7 +398,7 @@ public abstract class BIRNode {
                            ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
                            List<BIRAnnotationAttachment> returnTypeAnnots,
-                           Set<BIRGlobalVariableDcl> dependentGlobalVars) {
+                           Set<BIRGlobalVariableDcl> dependentGlobalVars, UsedState usedState, HashSet<BIRDocumentableNode> childNodes ) {
             super(pos);
             this.name = name;
             this.originalName = originalName;
@@ -418,6 +419,8 @@ public abstract class BIRNode {
             this.annotAttachments = annotAttachments;
             this.returnTypeAnnots = returnTypeAnnots;
             this.dependentGlobalVars = dependentGlobalVars;
+            this.usedState = usedState;
+            this.childNodes = childNodes;
         }
 
         public BIRFunction(Location pos, Name name, Name originalName, long flags, BInvokableType type, Name workerName,
@@ -826,6 +829,8 @@ public abstract class BIRNode {
      */
     public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
+        public HashSet<BIRDocumentableNode> childNodes = new HashSet<>();
+        public UsedState usedState = UsedState.UNEXPOLORED;
 
         protected BIRDocumentableNode(Location pos) {
             super(pos);
@@ -833,6 +838,23 @@ public abstract class BIRNode {
 
         public void setMarkdownDocAttachment(MarkdownDocAttachment markdownDocAttachment) {
             this.markdownDocAttachment = markdownDocAttachment;
+        }
+
+        public void addChildNode(BIRDocumentableNode childNode) {
+            if (childNode == null) {
+                return;
+            }
+            childNodes.add(childNode);
+            if (this.usedState == UsedState.USED) {
+                childNode.markSelfAndChildrenAsUsed();
+            }
+        }
+
+        public void markSelfAndChildrenAsUsed() {
+            if (usedState == UsedState.UNUSED) {
+                usedState = UsedState.USED;
+                this.childNodes.forEach(BIRDocumentableNode::markSelfAndChildrenAsUsed);
+            }
         }
     }
 

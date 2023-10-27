@@ -65,12 +65,13 @@ public class BPackageSymbol extends BTypeSymbol {
     public HashMap<BInvokableSymbol, HashSet<BInvokableSymbol>> invocationMap = new HashMap<>();     // Key = Start Function // Value = End Function
     public HashSet<BInvokableSymbol> usedFunctions = new HashSet<>();
     public HashSet<BInvokableSymbol> deadFunctions = new HashSet<>();
-    public BIRDeadNodeAnalyzer.InvocationData invocationData;
+    public BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData_OLD;
+    public DeadBIRNodeAnalyzer.InvocationData invocationData = new DeadBIRNodeAnalyzer.InvocationData();
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
         this.type = new BPackageType(this);
-        this.invocationData = new BIRDeadNodeAnalyzer.InvocationData(pkgID);
+        this.invocationData_OLD = new BIRDeadNodeAnalyzer_ASM_Approach.InvocationData(pkgID);
     }
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, long flags, Location pos, SymbolOrigin origin) {

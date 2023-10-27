@@ -900,6 +900,9 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private Name getFuncOriginalName(BInvokableSymbol symbol) {
+        if (symbol.originalName.value == null) {
+            return getFuncName(symbol);
+        }
         return names.fromString(symbol.originalName.value);
     }
 

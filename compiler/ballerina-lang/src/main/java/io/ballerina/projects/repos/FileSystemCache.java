@@ -96,7 +96,8 @@ public class FileSystemCache extends CompilationCache {
         String libraryFileName = libraryName + compilerBackend.libraryFileExtension();
         Path targetPlatformCacheDirPath = getTargetPlatformCacheDirPath(compilerBackend);
         Path jarFilePath = targetPlatformCacheDirPath.resolve(libraryFileName);
-        return Files.exists(jarFilePath) ? Optional.of(jarFilePath) : Optional.empty();
+        return Optional.of(jarFilePath);
+//        return Files.exists(jarFilePath) ? Optional.of(jarFilePath) : Optional.empty();
     }
 
     @Override
