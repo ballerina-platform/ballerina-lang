@@ -134,6 +134,9 @@ public class CentralAPIClient {
     private final boolean verboseEnabled;
     private final String proxyUsername;
     private final String proxyPassword;
+    private final int connectTimeout;
+    private final int readTimeout;
+    private final int writeTimeout;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -143,9 +146,12 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = "";
         this.proxyPassword = "";
+        this.connectTimeout = 60;
+        this.readTimeout = 60;
+        this.writeTimeout = 60;
     }
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
-                            String accessToken) {
+                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -153,6 +159,9 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
+        this.connectTimeout = connectionTimeout;
+        this.readTimeout = readTimeout;
+        this.writeTimeout = writeTimeout;
     }
 
     /**
@@ -1137,8 +1146,9 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/connectors API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1280,6 +1290,9 @@ public class CentralAPIClient {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1395,8 +1408,9 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/triggers API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
