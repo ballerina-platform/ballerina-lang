@@ -171,7 +171,8 @@ public class DeprecateCommand implements BLauncherCmd {
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
-                    getAccessTokenOfCLI(settings));
+                    getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
             client.deprecatePackage(packageValue, deprecationMsg,
                     JvmTarget.JAVA_11.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
