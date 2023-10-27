@@ -45,7 +45,10 @@ import java.util.List;
  * @since 0.964
  */
 public class SettingsBuilder {
-
+    private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+    private static final int DEFAULT_READ_TIMEOUT = 60;
+    private static final int DEFAULT_WRITE_TIMEOUT = 60;
+    private static final int DEFAULT_CALL_TIMEOUT = 0;
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -107,10 +110,10 @@ public class SettingsBuilder {
         String username = "";
         String password = "";
         String accessToken = "";
-        int connectTimeout = 60;
-        int readTimeout = 60;
-        int writeTimeout = 60;
-        int callTimeout = 0;
+        int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        int readTimeout = DEFAULT_READ_TIMEOUT;
+        int writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        int callTimeout = DEFAULT_CALL_TIMEOUT;
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode proxyNode = (TomlTableNode) tomlAstNode.entries().get(PROXY);
@@ -124,10 +127,10 @@ public class SettingsBuilder {
             TomlTableNode centralNode = (TomlTableNode) tomlAstNode.entries().get(CENTRAL);
             if (centralNode != null && centralNode.kind() != TomlType.NONE && centralNode.kind() == TomlType.TABLE) {
                 accessToken = getStringValueFromProxyNode(centralNode, ACCESS_TOKEN, "");
-                connectTimeout = getIntValueFromProxyNode(centralNode, CONNECT_TIMEOUT, 60);
-                readTimeout = getIntValueFromProxyNode(centralNode, READ_TIMEOUT, 60);
-                writeTimeout = getIntValueFromProxyNode(centralNode, WRITE_TIMEOUT, 60);
-                callTimeout = getIntValueFromProxyNode(centralNode, CALL_TIMEOUT, 0);
+                connectTimeout = getIntValueFromProxyNode(centralNode, CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                readTimeout = getIntValueFromProxyNode(centralNode, READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                writeTimeout = getIntValueFromProxyNode(centralNode, WRITE_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                callTimeout = getIntValueFromProxyNode(centralNode, CALL_TIMEOUT, DEFAULT_CALL_TIMEOUT);
             }
         }
 
