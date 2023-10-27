@@ -65,6 +65,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.parser.ParserConstants;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.snippet.types.ExpressionSnippet;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
@@ -164,18 +165,19 @@ public class BasicSnippetFactory extends SnippetFactory {
                     return null;
                 }
 
-                boolean hasCheck = ((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.CHECK_ACTION;
+                boolean hasCheck =
+                        ((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.CHECK_ACTION;
                 String functionBody = varNode.initializer().get().toString();
                 String functionDefinition = (hasCheck ? "function() returns error|" :
                         "function() returns ") + typeDescriptorNode;
-                String functionString =
-                        functionDefinition + "f_" + varFunctionCount + " = " + functionDefinition + "{" +
-                                typeDescriptorNode + bindingPatternNode.toString() + " = " + functionBody + ";" +
-                                "return " + bindingPatternNode + ";};";
+                String functionName = ParserConstants.WRAPPER_PREFIX + varFunctionCount;
+                String functionString = String.format("%s %s = %s {%s %s = %s; return %s;};", functionDefinition,
+                        functionName, functionDefinition, typeDescriptorNode, bindingPatternNode, functionBody,
+                        bindingPatternNode);
                 varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionString);
-                newNode = (VariableDeclarationNode) NodeParser
-                        .parseStatement(typeDescriptorNode + " " + bindingPatternNode + " = " +
-                                (hasCheck ? "check " : "") + " f_" + varFunctionCount + "();");
+                newNode = (VariableDeclarationNode) NodeParser.parseStatement(
+                        String.format("%s %s = %s %s();", typeDescriptorNode, bindingPatternNode,
+                                (hasCheck ? "check " : ""), functionName));
             }
 
             varFunctionCount += 1;

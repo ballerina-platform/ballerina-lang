@@ -26,6 +26,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class ParserConstants {
+    public static final String WRAPPER_PREFIX = "__shell_wrapper__";
 
     public static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init", "__java_recall",
             "__java_memorize", "__recall_any", "__recall_any_error", "__memorize", "__stmts", "__run");
