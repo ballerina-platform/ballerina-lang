@@ -126,6 +126,10 @@ public class CentralAPIClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     // System property name for enabling central verbose
     public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
+    private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+    private static final int DEFAULT_READ_TIMEOUT = 60;
+    private static final int DEFAULT_WRITE_TIMEOUT = 60;
+    private static final int DEFAULT_CALL_TIMEOUT = 0;
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -147,10 +151,10 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = "";
         this.proxyPassword = "";
-        this.connectTimeout = 60;
-        this.readTimeout = 60;
-        this.writeTimeout = 60;
-        this.callTimeout = 0;
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        this.callTimeout = DEFAULT_CALL_TIMEOUT;
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
