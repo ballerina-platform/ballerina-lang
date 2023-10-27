@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Initialize the function",
+    "code": "function name() returns int { int x = 3; x += 3 * 2; return x; }"
+  },
+  {
+    "description": "Execute the function with start with a variable assignment",
+    "code": "var futureResult = start name()",
+    "stderr": [
+      "Actions not allowed with a 'var' TypeDescriptor.",
+      "Compilation aborted due to invalid input."
+    ]
+  }
+]

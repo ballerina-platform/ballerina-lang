@@ -153,19 +153,29 @@ public class BasicSnippetFactory extends SnippetFactory {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
 
-            if (((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.QUERY_ACTION) {
+            if (((VariableDeclarationNode) node).initializer().get().kind().toString().endsWith("_ACTION")) {
                 TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
                 TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
                 BindingPatternNode bindingPatternNode = typedBindingPatternNode.bindingPattern();
-                String functionPart = "function() returns ";
+
+                // Check if the type descriptor of the variable is 'var' as it is not yet supported.
+                if (typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC) {
+                    addErrorDiagnostic("Actions not allowed with a 'var' TypeDescriptor.");
+                    return null;
+                }
+
+                boolean hasCheck = ((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.CHECK_ACTION;
                 String functionBody = varNode.initializer().get().toString();
-                String functionString = "var " + "f_" + varFunctionCount + " = " + functionPart
-                        + typeDescriptorNode.toString() + "{" + typeDescriptorNode + bindingPatternNode.toString()
-                        + " = " + functionBody + ";" + "return " + bindingPatternNode + ";};";
+                String functionDefinition = (hasCheck ? "function() returns error|" :
+                        "function() returns ") + typeDescriptorNode;
+                String functionString =
+                        functionDefinition + "f_" + varFunctionCount + " = " + functionDefinition + "{" +
+                                typeDescriptorNode + bindingPatternNode.toString() + " = " + functionBody + ";" +
+                                "return " + bindingPatternNode + ";};";
                 varNode = (VariableDeclarationNode) NodeParser.parseStatement(functionString);
                 newNode = (VariableDeclarationNode) NodeParser
-                        .parseStatement(typeDescriptorNode + " " + bindingPatternNode
-                                         + " = f_" + varFunctionCount + "();");
+                        .parseStatement(typeDescriptorNode + " " + bindingPatternNode + " = " +
+                                (hasCheck ? "check " : "") + " f_" + varFunctionCount + "();");
             }
 
             varFunctionCount += 1;
