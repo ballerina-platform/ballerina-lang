@@ -51,6 +51,9 @@ public class SettingsBuilder {
 
     public static final String NAME = "name";
     public static final String MAVEN = "maven";
+    private static final String CONNECT_TIMEOUT = "connectTimeout";
+    private static final String READ_TIMEOUT = "readTimeout";
+    private static final String WRITE_TIMEOUT = "writeTimeout";
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -111,6 +114,9 @@ public class SettingsBuilder {
         String proxyUsername = "";
         String proxyPassword = "";
         String accessToken = "";
+        int connectTimeout = 60;
+        int readTimeout = 60;
+        int writeTimeout = 60;
         String url = "";
         String id = "";
         String repoName = "";
@@ -130,6 +136,9 @@ public class SettingsBuilder {
             TomlTableNode centralNode = (TomlTableNode) tomlAstNode.entries().get(CENTRAL);
             if (centralNode != null && centralNode.kind() != TomlType.NONE && centralNode.kind() == TomlType.TABLE) {
                 accessToken = getStringOrDefaultFromTomlTableNode(centralNode, ACCESS_TOKEN, "");
+                connectTimeout = getIntValueFromProxyNode(centralNode, CONNECT_TIMEOUT, 60);
+                readTimeout = getIntValueFromProxyNode(centralNode, READ_TIMEOUT, 60);
+                writeTimeout = getIntValueFromProxyNode(centralNode, WRITE_TIMEOUT, 60);
             }
 
             TomlTableNode repository = (TomlTableNode) tomlAstNode.entries().get(REPOSITORY);
@@ -153,8 +162,8 @@ public class SettingsBuilder {
             }
         }
 
-        return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken),
-                diagnostics(), repositories.toArray(new Repository[0]));
+        return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken,
+                connectTimeout, readTimeout, writeTimeout), diagnostics(), repositories.toArray(new Repository[0]));
     }
 
     private String getStringOrDefaultFromTomlTableNode(TomlTableNode pkgNode, String key, String defaultValue) {
