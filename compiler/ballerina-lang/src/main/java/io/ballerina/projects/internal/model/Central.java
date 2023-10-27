@@ -91,7 +91,6 @@ public class Central {
         return callTimeout;
     }
 
-
     /**
      * Sets the value of the access token.
      *
