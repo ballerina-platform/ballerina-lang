@@ -6000,6 +6000,10 @@ public class Types {
             return true;
         }
 
+        return hasImplicitDefaultValue(t) || Core.singleShape(t).isPresent();
+    }
+
+    private boolean hasImplicitDefaultValue(SemType t) {
         UniformTypeBitSet bitSet = Core.widenToBasicTypes(t);
         Object value = null;
         if (bitSet.equals(PredefinedType.BOOLEAN)) {
@@ -6014,11 +6018,7 @@ public class Types {
             value = "";
         }
 
-        if (value != null && (t instanceof UniformTypeBitSet || Core.containsConst(t, value))) {
-            return true;
-        }
-
-        return Core.singleShape(t).isPresent();
+        return value != null && (t instanceof UniformTypeBitSet || Core.containsConst(t, value));
     }
 
     private boolean checkFillerValue(BUnionType type) {
@@ -6037,7 +6037,7 @@ public class Types {
             if (member.tag == TypeTags.FINITE) {
                 Set<BType> broadTypes = singletonBroadTypes(member.getSemType(), symTable);
                 memberTypes.addAll(broadTypes);
-                if (!hasFillerValue && hasFiller(member.getSemType())) {
+                if (!hasFillerValue && hasImplicitDefaultValue(member.getSemType())) {
                     hasFillerValue = true;
                 }
             } else {
