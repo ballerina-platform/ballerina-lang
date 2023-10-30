@@ -25,6 +25,8 @@ package io.ballerina.projects.util;
  */
 public class ProjectConstants {
 
+    private ProjectConstants() {}
+
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BALA_EXTENSION = ".bala";
     public static final String PLATFORM = "platform";
