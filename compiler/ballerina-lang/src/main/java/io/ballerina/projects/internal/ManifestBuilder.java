@@ -251,9 +251,11 @@ public class ManifestBuilder {
                         TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
                         for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
                             if (!dependencyNode.entries().isEmpty()) {
-                                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id");
-                                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath");
-                                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode, "targetModule");
+                                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id", toolCode);
+                                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath",
+                                    toolCode);
+                                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode,
+                                    "targetModule", toolCode);
                                 Toml optionsToml = getToml(dependencyNode, "options");
                                 TopLevelNode topLevelNode = dependencyNode.entries().get("options");
                                 TomlTableNode optionsNode = null;
@@ -763,9 +765,9 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key) {
+    private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key, String toolCode) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
-        String errorMessage = "missing the key '[" + key + "]' in tools 'Ballerina.toml'.";
+        String errorMessage = "missing key '[" + key + "]' in table  '[tool." + toolCode +"]' in 'Ballerina.toml'.";
         if (topLevelNode == null) {
             reportDiagnostic(toolNode, errorMessage,
                     ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
