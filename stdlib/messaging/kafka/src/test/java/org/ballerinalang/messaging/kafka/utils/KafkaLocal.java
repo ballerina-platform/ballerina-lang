@@ -34,13 +34,11 @@ import java.util.Properties;
  */
 public class KafkaLocal {
     private static final String prefix = "kafka-thread";
-    private KafkaServer kafkaServer;
-    private Seq<KafkaMetricsReporter> reporters;
+    private final KafkaServer kafkaServer;
 
     public KafkaLocal(Properties properties) {
         KafkaConfig kafkaConfig = KafkaConfig.fromProps(properties);
-        reporters = KafkaMetricsReporter$.MODULE$.startReporters(new VerifiableProperties(properties));
-        this.kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(prefix), reporters);
+        this.kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(prefix),false);
     }
 
     public void start() {
