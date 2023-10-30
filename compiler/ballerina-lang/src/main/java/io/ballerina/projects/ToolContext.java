@@ -90,6 +90,8 @@ public class ToolContext {
         return outputPath;
     }
 
-    public Package packageInstance() { return packageInstance; }
+    public Package packageInstance() {
+        return packageInstance;
+    }
 }
 
