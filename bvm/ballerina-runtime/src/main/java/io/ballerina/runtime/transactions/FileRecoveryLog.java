@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
@@ -19,7 +18,7 @@ public class FileRecoveryLog implements RecoveryLog{
     private String baseFileName;
     private File file;
     private FileChannel appendChannel = null;
-    private Map<String, TransactionRecord> existingLogs;
+    private Map<String, TransactionLogRecord> existingLogs;
 
     /**
      * Initializes a new FileRecoveryLog instance with the given base file name.
@@ -58,8 +57,8 @@ public class FileRecoveryLog implements RecoveryLog{
             if (!existingLogs.isEmpty()){
                 // TODO: call cleanUpFinishedLogs() here and write only the unfinished logs to the new file
                 cleanUpFinishedLogs();
-                for (Map.Entry<String, TransactionRecord> entry : existingLogs.entrySet()) {
-                    put(entry.getKey(), entry.getValue());
+                for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
+                    put(entry.getValue());
                 }
             }
         } catch (IOException e) {
@@ -105,17 +104,17 @@ public class FileRecoveryLog implements RecoveryLog{
     }
 
     @Override
-    public void put(String trxId, TransactionRecord trxRecord) {
+    public void put(TransactionLogRecord trxRecord) {
         writeToFile(trxRecord.getLogRecord());
     }
 
-    public Map<String, TransactionRecord> getPendingLogs() {
-        Map<String, TransactionRecord> pendingTransactions = new HashMap<>();
-        Map<String, TransactionRecord> transactionLogs = readLogsFromFile(file);
+    public Map<String, TransactionLogRecord> getPendingLogs() {
+        Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
+        Map<String, TransactionLogRecord> transactionLogs = readLogsFromFile(file);
 
-        for (Map.Entry<String, TransactionRecord> entry : transactionLogs.entrySet()) {
+        for (Map.Entry<String, TransactionLogRecord> entry : transactionLogs.entrySet()) {
             String trxId = entry.getKey();
-            TransactionRecord trxRecord = entry.getValue();
+            TransactionLogRecord trxRecord = entry.getValue();
 
             if (!trxRecord.isCompleted()) {
                 pendingTransactions.put(trxId, trxRecord);
@@ -139,8 +138,8 @@ public class FileRecoveryLog implements RecoveryLog{
         }
     }
 
-    public Map<String, TransactionRecord> readLogsFromFile(File file) {
-        Map<String, TransactionRecord> logMap = new HashMap<>();
+    public Map<String, TransactionLogRecord> readLogsFromFile(File file) {
+        Map<String, TransactionLogRecord> logMap = new HashMap<>();
         if (!file.exists() || file.length() == 0) {
             return null;
         }
@@ -152,9 +151,9 @@ public class FileRecoveryLog implements RecoveryLog{
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                TransactionRecord transactionRecord = parseTransactionRecord(line);
-                if (transactionRecord != null) {
-                    logMap.put(transactionRecord.transactionId, transactionRecord);
+                TransactionLogRecord transactionLogRecord = parseTransactionRecord(line);
+                if (transactionLogRecord != null) {
+                    logMap.put(transactionLogRecord.transactionId, transactionLogRecord);
                 }
             }
         } catch (IOException e) {
@@ -162,18 +161,19 @@ public class FileRecoveryLog implements RecoveryLog{
         }
         return logMap;
     }
-    private TransactionRecord parseTransactionRecord(String logLine) {
-        String[] parts = logLine.split(":");
-        if (parts.length == 3) {
-            String transactionId = parts[0];
-            String[] blockStatus = parts[1].split("\\|");
-            if (blockStatus.length == 2) {
-                String transactionBlockId = blockStatus[0];
-                String transactionStatus = blockStatus[1];
-                return new TransactionRecord(transactionId, transactionBlockId, transactionStatus);
-            }
+    private TransactionLogRecord parseTransactionRecord(String logLine) {
+        String[] logBlocks = logLine.split("\\|");
+        if (logBlocks.length == 2) {
+            String[] combinedId = logBlocks[0].split(":");
+            String transactionStatusString = logBlocks[1];
+            String transactionId = combinedId[0];
+            String transactionBlockId = combinedId[1];
+            // match with RecoveryStatus enum
+            RecoveryStatus transactionStatus = RecoveryStatus.getRecoveryStatus(transactionStatusString);
+            return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus);
         }
-        // If parsing fails, you can handle it according to your needs, such as logging an error.
+        // If parsing fails.. TODO: handle parsing fail properly
+        log.error("Error while parsing transaction log record: " + logLine + "\nLog file may be corrupted.");
         return null;
     }
 
@@ -183,7 +183,7 @@ public class FileRecoveryLog implements RecoveryLog{
         // go through the existingLogs map and see the finished and unfinished logs
         // if a log is finished, remove it from the map
         // if a log is unfinished, write it to the new log file
-        for (Map.Entry<String, TransactionRecord> entry : existingLogs.entrySet()) {
+        for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
             if (entry.getValue().isCompleted()) {
                 existingLogs.remove(entry.getKey());
             }

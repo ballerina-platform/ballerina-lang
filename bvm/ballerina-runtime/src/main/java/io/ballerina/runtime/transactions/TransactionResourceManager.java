@@ -199,8 +199,7 @@ public class TransactionResourceManager {
         }
     }
 
-    // DOESN'T WORK
-    // TODO: Fix this
+    // TODO: DOESN'T WORK, Fix this
     private String getRecoveryLogBaseName() {
         VariableKey recoveryLogNameKey = new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogName", PredefinedTypes.TYPE_STRING, false);
         if (!ConfigMap.containsKey(recoveryLogNameKey)) {

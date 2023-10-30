@@ -8,16 +8,11 @@ import java.util.Map;
 
 public class InMemoryRecoveryLog implements RecoveryLog{
     private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);
-    private Map<String, TransactionRecord> transactionLogs;
+    private Map<String, TransactionLogRecord> transactionLogs;
 
     public InMemoryRecoveryLog() {
         this.transactionLogs = new HashMap<>();
     }
-
-    public void put(String trxId, TransactionRecord trxRecord){
-        transactionLogs.put(trxId, trxRecord);
-    }
-
 
 
 
@@ -26,7 +21,7 @@ public class InMemoryRecoveryLog implements RecoveryLog{
      *
      * @return Map of transaction logs
      */
-    public Map<String, TransactionRecord> getAllLogs() {
+    public Map<String, TransactionLogRecord> getAllLogs() {
         return transactionLogs;
     }
 
@@ -37,24 +32,29 @@ public class InMemoryRecoveryLog implements RecoveryLog{
         transactionLogs.clear();
     }
 
+    @Override
+    public void put(TransactionLogRecord trxRecord) {
+        transactionLogs.put(trxRecord.transactionId, trxRecord);
+    }
+
     /**
      * Write a checkpoint to the in-memory log (not needed if you don't need checkpoints).
      */
     public void writeCheckpoint() {
         // TODO: Implement a better checkpoint logic.
         if (transactionLogs.size() >= 25) {
-            Map<String, TransactionRecord> pendingTransactions = getPendingTransactions();
+            Map<String, TransactionLogRecord> pendingTransactions = getPendingTransactions();
             transactionLogs.clear();
             transactionLogs.putAll(pendingTransactions);
         }
     }
 
-    private Map<String, TransactionRecord> getPendingTransactions() {
-        Map<String, TransactionRecord> pendingTransactions = new HashMap<>();
+    private Map<String, TransactionLogRecord> getPendingTransactions() {
+        Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
 
-        for (Map.Entry<String, TransactionRecord> entry : transactionLogs.entrySet()) {
+        for (Map.Entry<String, TransactionLogRecord> entry : transactionLogs.entrySet()) {
             String trxId = entry.getKey();
-            TransactionRecord trxRecord = entry.getValue();
+            TransactionLogRecord trxRecord = entry.getValue();
 
             if (!trxRecord.isCompleted()) {
                 pendingTransactions.put(trxId, trxRecord);

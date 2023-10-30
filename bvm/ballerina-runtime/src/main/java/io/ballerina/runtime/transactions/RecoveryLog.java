@@ -1,17 +1,21 @@
 package io.ballerina.runtime.transactions;
 
-import java.util.HashMap;
-
 public interface RecoveryLog {
+
     /**
      * Write a log entry to the recovery log file.
      *
-     * @param trxId the transaction id
-     * @param trxRecord the transaction record
+     * @param trxRecord the transaction log record
      */
-    void put(String trxId, TransactionRecord trxRecord);
+    void put(TransactionLogRecord trxRecord);
 
+    /**
+     * Write a checkpoint to the recovery log file (not needed if checkpoint are not needed)
+     */
     void writeCheckpoint();
 
+    /**
+     * Close the recovery log file.
+     */
     void close();
 }
