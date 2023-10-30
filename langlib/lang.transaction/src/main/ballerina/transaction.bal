@@ -20,6 +20,8 @@ import ballerina/jballerina.java;
 configurable boolean managerEnabled = false;
 # Config to specify transaction log directory.
 configurable string logBase = "transaction_log_dir";
+# Config to recovery log directory.
+configurable string recoveryLogName = "recoveryLog";
 
 //TODO: remove this in Beta2 and use an anonymous record instead
 # Internally used record to hold information about a transaction.
