@@ -1,6 +1,6 @@
 [package]
 org = "testorg"
-name = "largefiletest"
+name = "large_file_test"
 version = "0.1.0"
 
 [build-options]
