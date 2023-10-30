@@ -126,6 +126,10 @@ public class CentralAPIClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     // System property name for enabling central verbose
     public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
+    private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+    private static final int DEFAULT_READ_TIMEOUT = 60;
+    private static final int DEFAULT_WRITE_TIMEOUT = 60;
+    private static final int DEFAULT_CALL_TIMEOUT = 0;
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -134,6 +138,10 @@ public class CentralAPIClient {
     private final boolean verboseEnabled;
     private final String proxyUsername;
     private final String proxyPassword;
+    private final int connectTimeout;
+    private final int readTimeout;
+    private final int writeTimeout;
+    private final int callTimeout;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -143,9 +151,14 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = "";
         this.proxyPassword = "";
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        this.callTimeout = DEFAULT_CALL_TIMEOUT;
     }
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
-                            String accessToken) {
+                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
+                            int callTimeout) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -153,6 +166,10 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
+        this.connectTimeout = connectionTimeout;
+        this.readTimeout = readTimeout;
+        this.writeTimeout = writeTimeout;
+        this.callTimeout = callTimeout;
     }
 
     /**
@@ -1137,8 +1154,10 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/connectors API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1280,6 +1299,10 @@ public class CentralAPIClient {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1395,8 +1418,10 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/triggers API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 

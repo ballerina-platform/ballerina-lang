@@ -341,8 +341,11 @@ public class ToolCommand implements BLauncherCmd {
             settings = Settings.from();
         }
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()),
-                getAccessTokenOfCLI(settings));
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         org = toolInfo[0];
