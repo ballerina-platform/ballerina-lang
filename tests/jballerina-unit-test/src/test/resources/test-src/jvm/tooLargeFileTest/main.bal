@@ -57,6 +57,8 @@ public function main() {
     test:assertEquals(myclass4.largeMethod2("string2", 2), 7);
     test:assertEquals(myclass4.largeMethod3("string3", 3), "myclass4string1string2string3");
     test:assertEquals(myclass4.largeMethod4("string4", 4), 14);
+
+    test:assertEquals(myclass4.getFloat(3, "bal"), 66.0);
 }
 
 class MyClass {
@@ -74,6 +76,28 @@ class MyClass {
 
     function getAge() returns int {
         return self.age;
+    }
+
+    function getByte(int int1, string string1) returns byte {
+        self.name = self.getName() + string1;
+        self.age = self.getAge() + int1;
+        if (self.getBoolean(int1, string1)) {
+            return <byte>(self.age - 10);
+        } else {
+            return <byte>(self.age + 10);
+        }
+    }
+
+    function getBoolean(int int1, string string1) returns boolean {
+        self.name = self.getName() + string1;
+        self.age = self.getAge() + int1;
+        return self.age > 100;
+    }
+
+    function getFloat(int int1, string string1) returns float {
+        self.name = self.getName() + string1;
+        self.age = self.getAge() + int1;
+        return <float>self.getByte(int1, string1) * 2.0;
     }
 
     function largeMethod1(string string1, int int1) returns string {
