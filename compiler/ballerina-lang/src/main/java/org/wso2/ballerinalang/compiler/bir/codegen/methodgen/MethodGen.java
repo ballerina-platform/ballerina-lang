@@ -230,12 +230,7 @@ public class MethodGen {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LRETURN);
             return;
-        } else if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)
-                || TypeTags.REGEXP == bType.tag) {
-            mv.visitInsn(ARETURN);
-            return;
         }
-
         switch (bType.tag) {
             case TypeTags.BYTE, TypeTags.BOOLEAN -> mv.visitInsn(IRETURN);
             case TypeTags.FLOAT -> mv.visitInsn(DRETURN);
