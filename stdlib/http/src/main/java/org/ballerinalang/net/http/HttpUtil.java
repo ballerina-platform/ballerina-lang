@@ -443,6 +443,9 @@ public class HttpUtil {
         if (payload != null) {
             payload = lowerCaseTheFirstLetter(payload);
             response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+            // This header is added to block content sniffing in the old browsers where
+            // the response payload may contain executable scripts
+            // Related issue: ballerina-platform/ballerina-standard-library/issues/5088
             response.setHeader(X_CONTENT_TYPE_OPTIONS, NO_SNIFF);
         } else {
             response.addHttpContent(new DefaultLastHttpContent());
