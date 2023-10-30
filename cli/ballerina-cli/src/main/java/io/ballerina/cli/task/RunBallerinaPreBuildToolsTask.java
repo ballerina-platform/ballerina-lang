@@ -52,7 +52,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         boolean hasTomlErrors = false;
         for (Diagnostic d: toolDiagnostics) {
             if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                System.out.println(d);
+                outStream.println(d);
                 hasTomlErrors = true;
             }
         }
@@ -74,7 +74,15 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 if (targetTool != null) {
                     try {
                         if (tool.getOptionsToml() != null) {
-                            boolean hasErrors = FileUtils.validateToml(tool.getOptionsToml(), tool.getType());
+                            boolean hasErrors = false;
+                            List<Diagnostic> optionsDiagnostics = FileUtils.validateToml(tool.getOptionsToml(),
+                                tool.getType());
+                            for (Diagnostic d : optionsDiagnostics) {
+                                outStream.println(d);
+                                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                                    hasErrors = true;
+                                }
+                            }
                             if (hasErrors) {
                                 throw new ProjectException(
                                     "Ballerina toml validation for pre build tool execution contains errors");

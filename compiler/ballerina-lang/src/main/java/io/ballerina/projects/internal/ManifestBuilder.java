@@ -262,8 +262,8 @@ public class ManifestBuilder {
                                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
                                     optionsNode = (TomlTableNode) topLevelNode;
                                 }
-                                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath, targetModule,
-                                        optionsToml, optionsNode);
+                                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
+                                    targetModule, optionsToml, optionsNode);
                                 tools.add(tool);
                             }
                         }
@@ -767,7 +767,7 @@ public class ManifestBuilder {
 
     private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key, String toolCode) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
-        String errorMessage = "missing key '[" + key + "]' in table  '[tool." + toolCode +"]' in 'Ballerina.toml'.";
+        String errorMessage = "missing key '[" + key + "]' in table  '[tool." + toolCode + "]' in 'Ballerina.toml'.";
         if (topLevelNode == null) {
             reportDiagnostic(toolNode, errorMessage,
                     ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),

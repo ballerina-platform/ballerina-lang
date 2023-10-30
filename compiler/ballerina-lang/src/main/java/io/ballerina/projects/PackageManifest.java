@@ -176,15 +176,16 @@ public class PackageManifest {
     }
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
-                                   Collections.emptyMap(), Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
+                                   Collections.emptyMap(), Collections.emptyList(),
+                                    new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(), Collections.emptyList(),
-                new DefaultDiagnosticResult(Collections.emptyList()));
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
+                                    Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -205,7 +206,8 @@ public class PackageManifest {
                                        String icon,
                                        List<Tool> tools) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, include, repository, ballerinaVersion, visibility, template, icon, tools);
+                license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
+                template, icon, tools);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,

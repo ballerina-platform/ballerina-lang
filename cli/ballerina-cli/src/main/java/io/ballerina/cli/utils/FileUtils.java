@@ -22,7 +22,6 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -31,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -103,7 +103,8 @@ public class FileUtils {
 
     public static String readSchema(String toolName) throws IOException {
         String schemaFilePath = toolName + "-options-schema.json";
-        InputStream inputStream = io.ballerina.projects.util.FileUtils.class.getClassLoader().getResourceAsStream(schemaFilePath);
+        InputStream inputStream = io.ballerina.projects.util.FileUtils.class.getClassLoader()
+            .getResourceAsStream(schemaFilePath);
 
         if (inputStream == null) {
             throw new FileNotFoundException("Schema file for tool options inputStream not found: " + schemaFilePath);
@@ -125,18 +126,10 @@ public class FileUtils {
         return sb.toString();
     }
 
-    public static boolean validateToml(Toml optionsToml, String toolName) throws IOException {
-        boolean hasErrors = false;
+    public static List<Diagnostic> validateToml(Toml optionsToml, String toolName) throws IOException {
         Schema schema = Schema.from(FileUtils.readSchema(toolName));
         TomlValidator tomlValidator = new TomlValidator(schema);
         tomlValidator.validate(optionsToml);
-        for (Diagnostic d : optionsToml.diagnostics()) {
-            System.out.println(d);
-            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                hasErrors = true;
-            }
-        }
-        return hasErrors;
+        return optionsToml.diagnostics();
     }
-
 }
