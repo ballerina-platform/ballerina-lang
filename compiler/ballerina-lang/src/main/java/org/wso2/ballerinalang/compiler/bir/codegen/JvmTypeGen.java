@@ -18,16 +18,15 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.Core;
 import io.ballerina.types.EnumerableCharString;
 import io.ballerina.types.EnumerableDecimal;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.EnumerableType;
-import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
-import io.ballerina.types.UniformTypeBitSet;
-import io.ballerina.types.UniformTypeCode;
+import io.ballerina.types.SubtypeData;
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.CharStringSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
@@ -1137,58 +1136,63 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
-        SemType semType = SemTypeResolver.getSemTypeComponent(finiteType);
-        if (semType instanceof UniformTypeBitSet uniformTypeBitSet) {
-            if ((uniformTypeBitSet.bitset & (1 << UniformTypeCode.UT_NIL.code)) != 0) {
-                loadNilValue(mv);
-            } else if ((uniformTypeBitSet.bitset & (1 << UniformTypeCode.UT_BOOLEAN.code)) != 0) {
+        SemType semType = finiteType.getSemType();
+        if (Core.containsNil(semType)) {
+            loadNilValue(mv);
+        }
+
+        SubtypeData subtypeData = Core.booleanSubtype(semType);
+        if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+            if (allOrNothing.isAllSubtype()) {
                 loadBooleanValue(mv, true);
                 loadBooleanValue(mv, false);
             }
         } else {
-            ComplexSemType complexSemType = (ComplexSemType) semType;
-            for (ProperSubtypeData psd : complexSemType.subtypeDataList) {
-                if (psd instanceof IntSubtype intSubtype) {
-                    for (Range range : intSubtype.ranges) {
-                        for (long i = range.min; i <= range.max; i++) {
-                            if (0 <= i && i <= 255) {
-                                loadByteValue(mv, (int) i);
-                            } else {
-                                loadIntValue(mv, i);
-                            }
-                            if (i == Long.MAX_VALUE) {
-                                // To avoid overflow
-                                break;
-                            }
-                        }
-                    }
-                } else if (psd instanceof BooleanSubtype booleanSubtype) {
-                    loadBooleanValue(mv, booleanSubtype.value);
-                } else if (psd instanceof StringSubtype stringSubtype) {
-                    CharStringSubtype charStringSubtype = stringSubtype.getChar();
-                    assert charStringSubtype.allowed;
-                    for (EnumerableType enumerableType : charStringSubtype.values()) {
-                        loadStringValue(mv, enumerableType);
-                    }
+            BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
+            loadBooleanValue(mv, booleanSubtype.value);
+        }
 
-                    NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
-                    assert nonCharStringSubtype.allowed;
-                    for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                        loadStringValue(mv, enumerableType);
+        subtypeData = Core.intSubtype(semType);
+        if (subtypeData instanceof IntSubtype intSubtype) {
+            for (Range range : intSubtype.ranges) {
+                for (long i = range.min; i <= range.max; i++) {
+                    if (0 <= i && i <= 255) {
+                        loadByteValue(mv, (int) i);
+                    } else {
+                        loadIntValue(mv, i);
                     }
-                } else if (psd instanceof DecimalSubtype decimalSubtype) {
-                    assert decimalSubtype.allowed;
-                    for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
-                        loadDecimalValue(mv, (EnumerableDecimal) enumerableDecimal);
+                    if (i == Long.MAX_VALUE) {
+                        // To avoid overflow
+                        break;
                     }
-                } else if (psd instanceof FloatSubtype floatSubtype) {
-                    assert floatSubtype.allowed;
-                    for (EnumerableType enumerableFloat : floatSubtype.values()) {
-                        loadFloatValue(mv, (EnumerableFloat) enumerableFloat);
-                    }
-                } else {
-                    throw new BLangCompilerException("JVM generation unsupported type");
                 }
+            }
+        }
+
+        subtypeData = Core.floatSubtype(semType);
+        if (subtypeData instanceof FloatSubtype floatSubtype) {
+            for (EnumerableType enumerableFloat : floatSubtype.values()) {
+                loadFloatValue(mv, (EnumerableFloat) enumerableFloat);
+            }
+        }
+
+        subtypeData = Core.decimalSubtype(semType);
+        if (subtypeData instanceof DecimalSubtype decimalSubtype) {
+            for (EnumerableType enumerableDecimal : decimalSubtype.values()) {
+                loadDecimalValue(mv, (EnumerableDecimal) enumerableDecimal);
+            }
+        }
+
+        subtypeData = Core.stringSubtype(semType);
+        if (subtypeData instanceof StringSubtype stringSubtype) {
+            CharStringSubtype charStringSubtype = stringSubtype.getChar();
+            for (EnumerableType enumerableType : charStringSubtype.values()) {
+                loadStringValue(mv, enumerableType);
+            }
+
+            NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
+            for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
+                loadStringValue(mv, enumerableType);
             }
         }
 
