@@ -22,7 +22,6 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
