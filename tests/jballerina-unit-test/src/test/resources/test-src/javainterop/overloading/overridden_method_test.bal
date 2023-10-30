@@ -44,6 +44,10 @@ function getCarMaxSpeed(handle model) returns handle = @java:Method {
     'class: "org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
+function getMillage(int val) returns handle = @java:Method {
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;
+
 public function testOverriddenMethods() {
     handle strName1 = java:fromString("Generic vehicle");
     handle vehicle = newVehicle(strName1);
@@ -68,4 +72,5 @@ public function testOverriddenMethods() {
     test:assertEquals(getSeatCountWithModel(java:fromString("Mazda MX-5")), 2);
     test:assertEquals(java:toString(sportsCarMaxSpeed), "250MPH");
     test:assertEquals(java:toString(carMaxSpeed), "200MPH");
+    test:assertEquals(java:toString(getMillage(40)), "40MPG");
 }

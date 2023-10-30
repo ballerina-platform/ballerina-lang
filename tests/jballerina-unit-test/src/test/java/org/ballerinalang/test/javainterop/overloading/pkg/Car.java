@@ -52,4 +52,16 @@ public class Car extends Vehicle {
         }
         return "160MPH";
     }
+
+    public Object[] getCategorization(int num, String category) {
+        return new Object[] {num, category};
+    }
+
+    public Object getBatteryType(long prefix) {
+        return prefix + " EVL-HP-LiPo powered";
+    }
+
+    public static String getMillage(long val) {
+        return val + "MPG";
+    }
 }

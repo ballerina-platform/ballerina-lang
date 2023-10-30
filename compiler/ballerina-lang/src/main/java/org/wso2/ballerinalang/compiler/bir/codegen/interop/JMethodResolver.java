@@ -275,7 +275,7 @@ class JMethodResolver {
             // instance methods of which one accepting self and another that doesn't.
             throw new JInteropException(
                     OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
-                    "parameterTypes for each parameter in 'paramTypes' field in the annotation");
+                    "parameter types for each parameter in 'paramTypes' field in the annotation");
         }
         // Return false if returns types are not covariant
         Method currentMethod;

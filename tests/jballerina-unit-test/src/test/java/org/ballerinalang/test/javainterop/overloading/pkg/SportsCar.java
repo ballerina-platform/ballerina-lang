@@ -54,4 +54,16 @@ public class SportsCar extends Car {
         }
         return "250MPH";
     }
+
+    public char[] getCategorization(char category, char type) {
+        return new char[] {category, type};
+    }
+
+    public String[] getCategorization(String category, String type) {
+        return new String[] {category, type};
+    }
+
+    public String getBatteryType(String prefix) {
+        return prefix + " EV-HY3-Lithium-ion power";
+    }
 }
