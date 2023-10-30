@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -47,6 +48,17 @@ public class RunBallerinaPreBuildToolsTask implements Task {
 
     @Override
     public void execute(Project project) {
+        Collection<Diagnostic> toolDiagnostics = project.currentPackage().manifest().diagnostics().diagnostics();
+        boolean hasTomlErrors = false;
+        for (Diagnostic d: toolDiagnostics) {
+            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                System.out.println(d);
+                hasTomlErrors = true;
+            }
+        }
+        if (hasTomlErrors) {
+            throw createLauncherException("Ballerina toml validation for pre build tool execution contains errors");
+        }
         List<Tool> tools = project.currentPackage().manifest().tools();
         ServiceLoader<BuildToolRunner> buildRunners = ServiceLoader.load(BuildToolRunner.class);
         for (Tool tool : tools) {
@@ -64,11 +76,13 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         if (tool.getOptionsToml() != null) {
                             boolean hasErrors = FileUtils.validateToml(tool.getOptionsToml(), tool.getType());
                             if (hasErrors) {
-                                throw new ProjectException("Ballerina toml validation contains errors");
+                                throw new ProjectException(
+                                    "Ballerina toml validation for pre build tool execution contains errors");
                             }
                         }
                     } catch (IOException e) {
-                        outStream.println("WARNING: Skipping the validation of tool options due to : " + e.getMessage());
+                        outStream.println("WARNING: Skipping the validation of tool options due to : " +
+                            e.getMessage());
                     }
                     ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
                     targetTool.executeTool(toolContext);
@@ -87,7 +101,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                     outStream.println("Command not found: " + commandName);
                 }
             } catch (ProjectException e) {
-                throw createLauncherException("compilation failed: " + e.getMessage());
+                throw createLauncherException(e.getMessage());
             }
         }
 
