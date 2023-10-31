@@ -11,9 +11,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-public class FileRecoveryLog implements RecoveryLog{
+public class FileRecoveryLog implements RecoveryLog {
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
     private String baseFileName;
     private File file;
@@ -54,12 +55,18 @@ public class FileRecoveryLog implements RecoveryLog{
             newFile.createNewFile();
             initAppendChannel(newFile);
             // write exisiting unfinished logs to the new file
-            if (!existingLogs.isEmpty()){
+            if (existingLogs == null) {
+                return newFile;
+            }
+            if (!existingLogs.isEmpty() ) {
                 // TODO: call cleanUpFinishedLogs() here and write only the unfinished logs to the new file
                 cleanUpFinishedLogs();
-                for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
-                    put(entry.getValue());
+                if (!existingLogs.isEmpty()) {
+                    for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
+                        put(entry.getValue());
+                    }
                 }
+
             }
         } catch (IOException e) {
             log.error("An error occurred while creating the new recovery log file.");
@@ -138,13 +145,13 @@ public class FileRecoveryLog implements RecoveryLog{
         }
     }
 
-    public Map<String, TransactionLogRecord> readLogsFromFile(File file) {
+    private Map<String, TransactionLogRecord> readLogsFromFile(File file) {
         Map<String, TransactionLogRecord> logMap = new HashMap<>();
         if (!file.exists() || file.length() == 0) {
             return null;
         }
 
-        if (appendChannel != null){
+        if (appendChannel != null) {
             closeEverything();
         }
 
@@ -161,6 +168,7 @@ public class FileRecoveryLog implements RecoveryLog{
         }
         return logMap;
     }
+
     private TransactionLogRecord parseTransactionRecord(String logLine) {
         String[] logBlocks = logLine.split("\\|");
         if (logBlocks.length == 2) {
@@ -178,14 +186,22 @@ public class FileRecoveryLog implements RecoveryLog{
     }
 
 
-    private void cleanUpFinishedLogs(){
+    private void cleanUpFinishedLogs() {
         // TODO: logic to clean up completed transaction logs (replace with proper logic)
         // go through the existingLogs map and see the finished and unfinished logs
         // if a log is finished, remove it from the map
         // if a log is unfinished, write it to the new log file
-        for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
+        if (existingLogs.isEmpty()) {
+            return;
+        }
+
+        Iterator<Map.Entry<String, TransactionLogRecord>> iterator = existingLogs.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<String, TransactionLogRecord> entry = iterator.next();
+
             if (entry.getValue().isCompleted()) {
-                existingLogs.remove(entry.getKey());
+                iterator.remove(); // Safely remove the entry
             }
         }
     }
