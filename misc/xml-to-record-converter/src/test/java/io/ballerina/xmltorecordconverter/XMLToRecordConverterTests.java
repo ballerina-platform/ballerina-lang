@@ -114,6 +114,16 @@ public class XMLToRecordConverterTests {
     private final Path sample14Bal = RES_DIR.resolve(BAL_DIR)
             .resolve("sample_14.bal");
 
+    private final Path sample15XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_15.xml");
+    private final Path sample15Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_15.bal");
+
+    private final Path sample16XML = RES_DIR.resolve(XML_DIR)
+            .resolve("sample_16.xml");
+    private final Path sample16Bal = RES_DIR.resolve(BAL_DIR)
+            .resolve("sample_16.bal");
+
     private static final String XMLToRecordServiceEP = "xmlToRecord/convert";
 
 
@@ -249,6 +259,24 @@ public class XMLToRecordConverterTests {
         String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample14Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testComplexXMLWithMultipleNamespaces")
+    public void testComplexXMLWithMultipleNamespaces() throws IOException {
+        String xmlFileContent = Files.readString(sample15XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample15Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "testComplexXMLWithMultipleNamespacesAndRecurringNodes")
+    public void testComplexXMLWithMultipleNamespacesAndRecurringNodes() throws IOException {
+        String xmlFileContent = Files.readString(sample16XML);
+        String generatedCodeBlock = XMLToRecordConverter.convert(xmlFileContent, false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample16Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
