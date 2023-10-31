@@ -69,7 +69,7 @@
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
          if (isDone) {
-             sj.add("result:" + StringUtils.getExpressionStringVal(result, parent));
+             sj.add("result:" + StringUtils.getStringVal(result, parent));
          }
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());

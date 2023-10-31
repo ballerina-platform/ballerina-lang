@@ -93,7 +93,7 @@ function testFutureValueToStringWithNilReturn() {
     future<()> f = start addName();
     runtime:sleep(1);
     string s = f.toString();
-    test:assertEquals(s, "future {isDone:true,result:()}");
+    test:assertEquals(s, "future {isDone:true,result:}");
 }
 
 function addName() {}
