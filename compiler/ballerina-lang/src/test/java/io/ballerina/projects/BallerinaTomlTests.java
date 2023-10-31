@@ -139,6 +139,18 @@ public class BallerinaTomlTests {
         }
     }
 
+    @Test(description = "Test a valid Ballerina.toml file with tool id, filePath and targetModule")
+    public void testBallerinaTomlWithTool() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("tool-entries.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+
+        PackageManifest.Tool tool = packageManifest.tools().get(0);
+        Assert.assertEquals(tool.getType(), "openapi");
+        Assert.assertEquals(tool.getId(), "generate-delivery-client");
+        Assert.assertEquals(tool.getFilePath(), "delivery.json");
+        Assert.assertEquals(tool.getTargetModule(), "delivery");
+    }
+
     // Negative tests
 
     @Test
@@ -195,6 +207,32 @@ public class BallerinaTomlTests {
         BuildOptions buildOptions =
                 getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
         Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
+    }
+
+    @Test(description = "Test Ballerina.toml file with some tool properties missing")
+    public void testBallerinaTomlWithMissingToolEntries() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("missing-tool-entries.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+            "missing key '[filePath]' in table '[tool.openapi]' in 'Ballerina.toml'.");
+        Assert.assertEquals(iterator.next().message(),
+            "missing key '[targetModule]' in table '[tool.openapi]' in 'Ballerina.toml'.");
+    }
+
+    @Test(description = "Test Ballerina.toml file with invalid tool properties")
+    public void testBallerinaTomlWithInvalidToolEntries() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-tool-entries.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "empty string found for key '[filePath]'");
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type found for key '[targetModule]': expected 'STRING'");
     }
 
     @Test(description = "Platform libs should be given as [[platform.java17.dependency]], " +
