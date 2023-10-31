@@ -199,7 +199,11 @@ public class TransactionResourceManager {
         }
     }
 
-    // TODO: DOESN'T WORK, Fix this
+    /**
+     * This method gets the user specified config for ballerina recovery log name.
+     *
+     * @return string recovery log file name
+     */
     private String getRecoveryLogBaseName() {
         VariableKey recoveryLogNameKey = new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogName", PredefinedTypes.TYPE_STRING, false);
         if (!ConfigMap.containsKey(recoveryLogNameKey)) {

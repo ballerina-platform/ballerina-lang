@@ -7,7 +7,7 @@ public class TransactionLogRecord {
     // TODO: add the following fields to the TransactionRecord
     //         expirationTime;
     //         parentTransactionId;
-    //         RecoveryManagerId;
+    //         RecoveryDomain;
 
     public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryStatus transactionStatus) {
         this.transactionId = transactionId;
