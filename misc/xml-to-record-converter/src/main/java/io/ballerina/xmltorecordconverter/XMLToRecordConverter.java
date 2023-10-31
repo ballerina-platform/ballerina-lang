@@ -53,6 +53,7 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormattingOptions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
@@ -179,9 +180,10 @@ public class XMLToRecordConverter {
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
 
-        List<Node> recordFields;
-
         String xmlNodeName = xmlElement.getNodeName();
+
+        List<Node> recordFields = getRecordFieldsForXMLElement(xmlElement, isClosed, recordToTypeDescNodes,
+                recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages);
         if (recordToTypeDescNodes.containsKey(xmlNodeName)) {
             RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
                     (RecordTypeDescriptorNode) recordToTypeDescNodes.get(xmlNodeName);
@@ -191,17 +193,12 @@ public class XMLToRecordConverter {
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
                             (val1, val2) -> val1, LinkedHashMap::new));
 
-            List<Node> newRecordFields = getRecordFieldsForXMLElement(xmlElement, isClosed, recordToTypeDescNodes,
-                    recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages);
-            Map<String, RecordFieldNode> newRecordFieldToNodes = newRecordFields.stream()
+            Map<String, RecordFieldNode> newRecordFieldToNodes = recordFields.stream()
                     .collect(Collectors.toMap(node -> ((RecordFieldNode) node).fieldName().text(),
                             node -> (RecordFieldNode) node, (e1, e2) -> e1, LinkedHashMap::new));
 
+            recordFields.clear();
             recordFields = updateRecordFields(previousRecordFieldToNodes, newRecordFieldToNodes);
-
-        } else {
-            recordFields = getRecordFieldsForXMLElement(xmlElement, isClosed, recordToTypeDescNodes,
-                    recordToAnnotationsNodes, recordToElementNodes, diagnosticMessages);
         }
         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFields);
         Token bodyEndDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.CLOSE_BRACE_PIPE_TOKEN :
@@ -210,9 +207,7 @@ public class XMLToRecordConverter {
                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                         fieldNodes, null, bodyEndDelimiter);
 
-        if (!recordToTypeDescNodes.containsKey(xmlNodeName)) {
-            recordToElementNodes.put(xmlNodeName, xmlElement);
-        }
+        recordToElementNodes.put(xmlNodeName, xmlElement);
         recordToTypeDescNodes.put(xmlNodeName, recordTypeDescriptorNode);
     }
 
@@ -254,7 +249,7 @@ public class XMLToRecordConverter {
                 }
             }
         }
-        org.w3c.dom.NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
+        NamedNodeMap xmlAttributesMap = xmlElement.getAttributes();
         for (int i = 0; i < xmlAttributesMap.getLength(); i++) {
             org.w3c.dom.Node xmlNode = xmlAttributesMap.item(i);
             if (xmlNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE) {
@@ -274,6 +269,13 @@ public class XMLToRecordConverter {
         return recordFields;
     }
 
+    /**
+     * This method returns a List of RecordFieldNodes that are updated if already a Record with same name exists.
+     *
+     * @param previousRecordFieldToNodes    RecordFieldNodes of already existing Record of the same name
+     * @param newRecordFieldToNodes         RecordFieldNodes of the current Record of the same name
+     * @return {@link List<Node>} List of updated RecordFieldNodes.
+     */
     private static List<Node> updateRecordFields(Map<String, RecordFieldNode> previousRecordFieldToNodes,
                                                  Map<String, RecordFieldNode> newRecordFieldToNodes) {
         List<Node> updatedRecordFields = new ArrayList<>();
