@@ -49,14 +49,11 @@ public class RunBallerinaPreBuildToolsTask implements Task {
     @Override
     public void execute(Project project) {
         Collection<Diagnostic> toolDiagnostics = project.currentPackage().manifest().diagnostics().diagnostics();
-        boolean hasTomlErrors = false;
-        for (Diagnostic d: toolDiagnostics) {
-            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                outStream.println(d);
-                hasTomlErrors = true;
-            }
-        }
+        boolean hasTomlErrors = project.currentPackage().manifest().diagnostics().hasErrors();
         if (hasTomlErrors) {
+            for (Diagnostic d: toolDiagnostics) {
+                outStream.println(d);
+            }
             throw createLauncherException("Ballerina toml validation for pre build tool execution contains errors");
         }
         List<Tool> tools = project.currentPackage().manifest().tools();

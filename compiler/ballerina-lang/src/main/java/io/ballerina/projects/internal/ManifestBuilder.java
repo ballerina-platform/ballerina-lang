@@ -63,7 +63,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
+import static io.ballerina.projects.internal.ManifestUtils.getBuildToolTomlValueType;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
+import static io.ballerina.projects.internal.ManifestUtils.ToolNodeValueType;
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
@@ -767,14 +769,35 @@ public class ManifestBuilder {
 
     private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key, String toolCode) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
-        String errorMessage = "missing key '[" + key + "]' in table  '[tool." + toolCode + "]' in 'Ballerina.toml'.";
+        String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]' in 'Ballerina.toml'.";
         if (topLevelNode == null) {
             reportDiagnostic(toolNode, errorMessage,
-                    ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
-                    DiagnosticSeverity.ERROR);
+                ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                DiagnosticSeverity.ERROR);
             return null;
         }
-        return getStringFromTomlTableNode(topLevelNode);
+        ToolNodeValueType toolNodeValueType = getBuildToolTomlValueType(topLevelNode);
+        if (toolNodeValueType.equals(ToolNodeValueType.STRING)) {
+            return getStringFromTomlTableNode(topLevelNode);
+        } else if (toolNodeValueType.equals(ToolNodeValueType.EMPTY)) {
+            if (!key.equals("targetModule")) {
+                reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'",
+                    ProjectDiagnosticErrorCode.EMPTY_STRING_FOR_TOOL_PROPERTY.diagnosticId(),
+                    DiagnosticSeverity.ERROR);
+                return null;
+            }
+            reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'. " +
+                            "Default module will be taken as the target module",
+                    ProjectDiagnosticErrorCode.EMPTY_STRING_FOR_TOOL_PROPERTY.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
+            return getStringFromTomlTableNode(topLevelNode);
+        } else if (toolNodeValueType.equals(ToolNodeValueType.NON_STRING)){
+            reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
+                ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY.diagnosticId(),
+                DiagnosticSeverity.ERROR);
+            return null;
+        }
+        return null;
     }
 
     private Toml getToml(TomlTableNode toolNode, String key) {
