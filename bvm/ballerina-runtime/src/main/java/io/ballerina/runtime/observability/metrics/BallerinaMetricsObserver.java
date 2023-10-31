@@ -127,7 +127,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
                     "Total response response time for all requests", tags)).increment(duration);
             metricRegistry.counter(new MetricId("requests_total",
                     "Total number of requests", tags)).increment();
-            if (statusCode != null & ((statusCode / 100) == 4 || (statusCode / 100) == 5)) {
+            if (statusCode != null && 400 <= statusCode && statusCode < 600) {
                 metricRegistry.counter(new MetricId("response_errors_total",
                         "Total number of response errors", tags)).increment();
             }
