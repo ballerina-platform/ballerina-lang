@@ -272,7 +272,8 @@ public class PullCommand implements BLauncherCmd {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(), getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout());
             client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);
             if (version.equals(Names.EMPTY.getValue())) {

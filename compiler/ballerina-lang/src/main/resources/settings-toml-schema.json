@@ -38,6 +38,9 @@
         },
         "writeTimeout": {
           "type": "integer"
+        },
+        "callTimeout": {
+          "type": "integer"
         }
       }
     },

@@ -27,21 +27,25 @@ public class Central {
     private int connectTimeout = 60;
     private int readTimeout = 60;
     private int writeTimeout = 60;
+    private int callTimeout = 60;
 
 
-    private Central(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout) {
+    private Central(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout,
+                    int callTimeout) {
         this.accesstoken = accesstoken;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
         this.writeTimeout = writeTimeout;
+        this.callTimeout = callTimeout;
     }
 
-    public static Central from(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout) {
-        return new Central(accesstoken, connectTimeout, readTimeout, writeTimeout);
+    public static Central from(String accesstoken, int connectTimeout, int readTimeout, int writeTimeout,
+                               int callTimeout) {
+        return new Central(accesstoken, connectTimeout, readTimeout, writeTimeout, callTimeout);
     }
 
     public static Central from() {
-        return new Central("", 60, 60, 60);
+        return new Central("", 60, 60, 60, 0);
     }
 
     /**
@@ -78,6 +82,15 @@ public class Central {
      */
     public int getWriteTimeout() {
         return writeTimeout;
+    }
+
+    /**
+     * Get the call timeout.
+     *
+     * @return call timeout
+     */
+    public int getCallTimeout() {
+        return callTimeout;
     }
 
     /**

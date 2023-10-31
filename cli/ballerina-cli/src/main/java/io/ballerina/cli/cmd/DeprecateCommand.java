@@ -172,7 +172,8 @@ public class DeprecateCommand implements BLauncherCmd {
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout());
             client.deprecatePackage(packageValue, deprecationMsg,
                     JvmTarget.JAVA_17.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
