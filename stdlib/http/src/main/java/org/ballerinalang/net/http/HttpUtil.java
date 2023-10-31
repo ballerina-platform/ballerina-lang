@@ -156,6 +156,7 @@ import static org.ballerinalang.net.http.HttpConstants.MODULE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.NO_SNIFF;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
@@ -177,6 +178,7 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.X_CONTENT_TYPE_OPTIONS;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
@@ -441,6 +443,10 @@ public class HttpUtil {
         if (payload != null) {
             payload = lowerCaseTheFirstLetter(payload);
             response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+            // This header is added to block content sniffing in the old browsers where
+            // the response payload may contain executable scripts
+            // Related issue: ballerina-platform/ballerina-standard-library/issues/5088
+            response.setHeader(X_CONTENT_TYPE_OPTIONS, NO_SNIFF);
         } else {
             response.addHttpContent(new DefaultLastHttpContent());
         }
