@@ -111,7 +111,8 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
                         settings.getProxy().password(), getAccessTokenOfCLI(settings),
                         settings.getCentral().getConnectTimeout(),
-                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
+                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                        settings.getCentral().getCallTimeout());
 
                 JsonElement connectorSearchResult = client.getConnectors(request.getQueryMap(),
                         "any", RepoUtils.getBallerinaVersion());
@@ -198,7 +199,8 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                     settings.getProxy().password(),
                     getAccessTokenOfCLI(settings),
                     settings.getCentral().getConnectTimeout(),
-                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout());
             if (request.getConnectorId() != null) {
                 // Fetch connector by connector Id.
                 connector = client.getConnector(request.getConnectorId(), "any", RepoUtils.getBallerinaVersion());

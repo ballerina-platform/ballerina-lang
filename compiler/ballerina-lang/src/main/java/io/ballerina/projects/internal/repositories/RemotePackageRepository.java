@@ -77,7 +77,8 @@ public class RemotePackageRepository implements PackageRepository {
         CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, settings.getProxy().username(),
                 settings.getProxy().password(), getAccessTokenOfCLI(settings),
                 settings.getCentral().getConnectTimeout(),
-                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout());
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         return new RemotePackageRepository(fileSystemRepository, client);
     }
 
