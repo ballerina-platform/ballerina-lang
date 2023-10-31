@@ -448,12 +448,12 @@ public class NegativeValidationTest {
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
-                        "cannot be differentiated. Please specify the parameterTypes for each " +
+                        "cannot be differentiated. Please specify the parameter types for each " +
                         "parameter in 'paramTypes' field in the annotation'",
                 "overloaded_methods.bal", 24, 5);
         BAssertUtil.validateError(compileResult, 1,
                 "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
-                "cannot be differentiated. Please specify the parameterTypes for each parameter in " +
+                "cannot be differentiated. Please specify the parameter types for each parameter in " +
                 "'paramTypes' field in the annotation'", "overloaded_methods.bal", 30, 1);
     }
 
