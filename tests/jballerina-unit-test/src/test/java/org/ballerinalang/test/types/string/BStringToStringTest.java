@@ -19,8 +19,10 @@
 package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -76,6 +78,16 @@ public class BStringToStringTest extends BStringTestCommons {
     @Test
     public void testArrayValueToString() {
         testAndAssert("testArrayValueToString", 30);
+    }
+
+    @Test(dataProvider = "functionsToTestToString")
+    public void testFutureValueToString(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "functionsToTestToString")
+    public String[] toStringTestFunctions() {
+        return new String[]{"testFutureValueToString", "testFutureValueToStringWithNilReturn"};
     }
 
     @AfterClass
