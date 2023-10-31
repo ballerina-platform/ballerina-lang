@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -32,6 +33,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**
+ * Detect the unused BIRFunctions, BIRTypeDefs and BIRConstants
+ *
+ */
 public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
     private static final CompilerContext.Key<DeadBIRNodeAnalyzer> DEAD_BIR_NODE_ANALYZER_KEY =
@@ -39,6 +44,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     private static final HashSet<String> USED_FUNCTION_NAMES =
             new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>"));
     public PackageCache pkgCache;
+    public TypeDefAnalyzer typeDefAnalyzer;
     public BIRNode.BIRFunction currentParentFunction;
     public InvocationData currentInvocationData;
     public final HashMap<PackageID, InvocationData> pkgWiseInvocationData = new HashMap<>();
@@ -46,6 +52,8 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     private DeadBIRNodeAnalyzer(CompilerContext context) {
         context.put(DEAD_BIR_NODE_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
+        // TODO check why we need to pass context to get a singleton object
+        this.typeDefAnalyzer = TypeDefAnalyzer.getInstance();
     }
 
     public static DeadBIRNodeAnalyzer getInstance(CompilerContext context) {
@@ -60,6 +68,8 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         currentInvocationData = pkgNode.symbol.invocationData;
         pkgWiseInvocationData.putIfAbsent(pkgNode.packageID, currentInvocationData);
         currentInvocationData.registerNodes(pkgNode.symbol.bir);
+        typeDefAnalyzer.analyze(pkgNode.symbol.bir);
+
         visit(pkgNode.symbol.bir);
 
         // TODO Make this happen only once after all the modules are analyzed
@@ -75,6 +85,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRTypeDefinition typeDef) {
+        // TODO Check whether we need these. If a type def is not used its attached funcs are also not used
         typeDef.attachedFuncs.forEach(func -> func.accept(this));
     }
 
@@ -121,7 +132,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
     public BIRNode.BIRTypeDefinition lookupBIRTypeDef(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         InvocationData invocationData = pkgCache.getInvocationData(newTypeDesc.type.tsymbol.pkgID);
-        return invocationData.typeDefPool.get(newTypeDesc.type.tsymbol.toString());
+        return invocationData.typeDefPool.get(newTypeDesc.type.tsymbol.originalName.toString());
     }
 
     public BIRNode.BIRTypeDefinition lookupBIRTypeDef(BIRNonTerminator.NewInstance newInstance) {
@@ -167,7 +178,9 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         public void registerNodes(BIRNode.BIRPackage birPackage) {
             birPackage.functions.forEach(this::initializeFunction);
             birPackage.typeDefs.forEach(typeDef -> {
-                typeDef.usedState = UsedState.UNUSED;
+                if (typeDef.type.getKind() != TypeKind.FINITE) {
+                    typeDef.usedState = UsedState.UNUSED;
+                }
                 typeDefPool.putIfAbsent(typeDef.internalName.value, typeDef);
                 typeDef.attachedFuncs.forEach(this::initializeFunction);
             });
