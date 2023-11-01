@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -48,28 +49,32 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
 
 /**
  * Analyzes the BIRTypeDefinition nodes and generate the dependency graph for type definitions
  *
+ * TODO optimize the algorithm to only traverse one type dependency chain once. Right now it traverses the same chain multiple times
+ *
  */
 public class TypeDefAnalyzer implements TypeVisitor {
 
-    private static TypeDefAnalyzer typeDefAnalyzerInstance;
-    private BIRNode.BIRTypeDefinition currentParentTypeDef;
+    private static final CompilerContext.Key<TypeDefAnalyzer> BIR_TYPE_DEF_ANALYZER_KEY = new CompilerContext.Key<>();
     public final HashMap<BType, BIRNode.BIRTypeDefinition> typeDefPool = new HashMap<>();
+    private BIRNode.BIRTypeDefinition currentParentTypeDef;
 
-    private TypeDefAnalyzer() {
-
+    private TypeDefAnalyzer(CompilerContext context) {
+        context.put(BIR_TYPE_DEF_ANALYZER_KEY, this);
     }
 
-    public static TypeDefAnalyzer getInstance() {
-        if (typeDefAnalyzerInstance == null) {
-            typeDefAnalyzerInstance = new TypeDefAnalyzer();
+    public static TypeDefAnalyzer getInstance(CompilerContext context) {
+        TypeDefAnalyzer typeDefAnalyzer = context.get(BIR_TYPE_DEF_ANALYZER_KEY);
+        if (typeDefAnalyzer == null) {
+            typeDefAnalyzer = new TypeDefAnalyzer(context);
         }
-        return typeDefAnalyzerInstance;
+        return typeDefAnalyzer;
     }
 
     public void analyze(BIRNode.BIRPackage birPackage) {
@@ -77,13 +82,20 @@ public class TypeDefAnalyzer implements TypeVisitor {
         birPackage.typeDefs.forEach(typeDef -> {
             currentParentTypeDef = typeDef;
             typeDef.type.accept(this);
+            if (typeDef.usedState == UsedState.UNEXPOLORED) {
+                typeDef.usedState = UsedState.UNUSED;
+            }
         });
     }
 
     private void addDependency(BType bType) {
         BIRNode.BIRTypeDefinition childNode = getBIRTypeDef(bType);
+        // TODO Check recursive self calls in typeDefs
         if (childNode == null || currentParentTypeDef == childNode) {
             return;
+        }
+        if (childNode.usedState == UsedState.UNEXPOLORED) {
+            childNode.usedState = UsedState.UNUSED;
         }
         currentParentTypeDef.addChildNode(childNode);
         currentParentTypeDef = childNode;
@@ -162,8 +174,12 @@ public class TypeDefAnalyzer implements TypeVisitor {
 
     @Override
     public void visit(BTypeReferenceType bTypeReferenceType) {
-        addDependency(bTypeReferenceType);
-        bTypeReferenceType.referredType.accept(this);
+        UsedState originalUsedState = getBIRTypeDef(bTypeReferenceType.referredType).usedState;
+        addDependency(bTypeReferenceType.referredType);
+
+        if (originalUsedState == UsedState.UNEXPOLORED) {
+            bTypeReferenceType.referredType.accept(this);
+        }
     }
 
     @Override
@@ -206,7 +222,7 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BUnionType bUnionType) {
         addDependency(bUnionType);
-        bUnionType.getMemberTypes().forEach(member -> member.accept(this));
+        bUnionType.getOriginalMemberTypes().forEach(member -> member.accept(this));
     }
 
     @Override
