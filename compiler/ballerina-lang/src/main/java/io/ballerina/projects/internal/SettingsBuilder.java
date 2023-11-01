@@ -45,7 +45,10 @@ import java.util.List;
  * @since 0.964
  */
 public class SettingsBuilder {
-
+    private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+    private static final int DEFAULT_READ_TIMEOUT = 60;
+    private static final int DEFAULT_WRITE_TIMEOUT = 60;
+    private static final int DEFAULT_CALL_TIMEOUT = 0;
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -58,6 +61,10 @@ public class SettingsBuilder {
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
     private static final String ACCESS_TOKEN = "accesstoken";
+    private static final String CONNECT_TIMEOUT = "connectTimeout";
+    private static final String READ_TIMEOUT = "readTimeout";
+    private static final String WRITE_TIMEOUT = "writeTimeout";
+    private static final String CALL_TIMEOUT = "callTimeout";
 
     private SettingsBuilder(TomlDocument settingsToml) {
         this.diagnosticList = new ArrayList<>();
@@ -103,6 +110,10 @@ public class SettingsBuilder {
         String username = "";
         String password = "";
         String accessToken = "";
+        int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        int readTimeout = DEFAULT_READ_TIMEOUT;
+        int writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        int callTimeout = DEFAULT_CALL_TIMEOUT;
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode proxyNode = (TomlTableNode) tomlAstNode.entries().get(PROXY);
@@ -116,10 +127,15 @@ public class SettingsBuilder {
             TomlTableNode centralNode = (TomlTableNode) tomlAstNode.entries().get(CENTRAL);
             if (centralNode != null && centralNode.kind() != TomlType.NONE && centralNode.kind() == TomlType.TABLE) {
                 accessToken = getStringValueFromProxyNode(centralNode, ACCESS_TOKEN, "");
+                connectTimeout = getIntValueFromProxyNode(centralNode, CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                readTimeout = getIntValueFromProxyNode(centralNode, READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                writeTimeout = getIntValueFromProxyNode(centralNode, WRITE_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                callTimeout = getIntValueFromProxyNode(centralNode, CALL_TIMEOUT, DEFAULT_CALL_TIMEOUT);
             }
         }
 
-        return Settings.from(Proxy.from(host, port, username, password), Central.from(accessToken), diagnostics());
+        return Settings.from(Proxy.from(host, port, username, password), Central.from(accessToken,
+                connectTimeout, readTimeout, writeTimeout, callTimeout), diagnostics());
     }
 
     private String getStringValueFromProxyNode(TomlTableNode pkgNode, String key, String defaultValue) {
