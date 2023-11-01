@@ -3,14 +3,14 @@ import ballerina/lang.'int; // Ballerina lang library import of int
 import ballerina/log as logger;
 import ballerina/math;
 import ballerina/io as console;
-import google/gmail;
+import ballerinax/kafka;
+import ballerinax/transformer as _;
 
 // Third-party library imports
 import greeter.util;
 import greeter.email;
 import apache/kafka as apache_kafka;
-import ballerinax/kafka;
-import ballerinax/transformer as _;
+import google/gmail;
 
 function foo() {
     int v = 8;
