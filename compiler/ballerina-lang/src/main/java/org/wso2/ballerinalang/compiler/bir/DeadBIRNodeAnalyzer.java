@@ -52,8 +52,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     private DeadBIRNodeAnalyzer(CompilerContext context) {
         context.put(DEAD_BIR_NODE_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
-        // TODO check why we need to pass context to get a singleton object
-        this.typeDefAnalyzer = TypeDefAnalyzer.getInstance();
+        this.typeDefAnalyzer = TypeDefAnalyzer.getInstance(context);
     }
 
     public static DeadBIRNodeAnalyzer getInstance(CompilerContext context) {
@@ -85,8 +84,14 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRTypeDefinition typeDef) {
-        // TODO Check whether we need these. If a type def is not used its attached funcs are also not used
         typeDef.attachedFuncs.forEach(func -> func.accept(this));
+        // TODO find a way to move this code to someplace else. It is used to track function invocations inside typeDefs
+        typeDef.attachedFuncs.forEach(func -> {
+            //TODO use a constant for finding the init function of the type def
+            if (func.name.toString().equals(".<init>")) {
+                func.childNodes.forEach(typeDef::addChildNode);
+            }
+        });
     }
 
     @Override
@@ -107,7 +112,8 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
         birBasicBlock.instructions.forEach(instruction -> {
             if (instruction.getKind() == InstructionKind.NEW_TYPEDESC ||
-                    instruction.getKind() == InstructionKind.NEW_INSTANCE) {
+                    instruction.getKind() == InstructionKind.NEW_INSTANCE ||
+                    instruction.getKind() == InstructionKind.TYPE_CAST) {
                 instruction.accept(this);
             }
         });
@@ -115,14 +121,20 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNonTerminator.NewTypeDesc newTypeDesc) {
-        if (newTypeDesc.type.tsymbol != null) {
-            currentParentFunction.addChildNode(lookupBIRTypeDef(newTypeDesc));
+        if (newTypeDesc.type.tsymbol == null) {
+            return;
         }
+        currentParentFunction.addChildNode(lookupBIRTypeDef(newTypeDesc));
     }
 
     @Override
     public void visit(BIRNonTerminator.NewInstance newInstance) {
         currentParentFunction.addChildNode(lookupBIRTypeDef(newInstance));
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.TypeCast typeCast) {
+        currentParentFunction.addChildNode(lookupBIRTypeDef(typeCast));
     }
 
     public BIRNode.BIRFunction lookupBirFunction(BIRTerminator.Call terminatorCall) {
@@ -142,8 +154,17 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         InvocationData invocationData = pkgCache.getInvocationData(newInstance.expectedType.tsymbol.pkgID);
         return invocationData.typeDefPool.get(newInstance.expectedType.tsymbol.originalName.toString());
     }
+
+    public BIRNode.BIRTypeDefinition lookupBIRTypeDef(BIRNonTerminator.TypeCast typeCast) {
+        if (typeCast.type.tsymbol == null) {
+            return null;
+        }
+        InvocationData invocationData = pkgCache.getInvocationData(typeCast.type.tsymbol.pkgID);
+        return invocationData.typeDefPool.get(typeCast.type.tsymbol.originalName.value);
+    }
     public static class InvocationData {
 
+        // TODO Change the nodePool structure to HashMap<BType, BIRNode>
         public final HashMap<String, BIRNode.BIRFunction> functionPool = new HashMap<>();
         public final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
         public final HashSet<BIRNode.BIRFunction> deadFunctions = new HashSet<>();
@@ -177,10 +198,12 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         // TODO Find a better way register the BIR Nodes
         public void registerNodes(BIRNode.BIRPackage birPackage) {
             birPackage.functions.forEach(this::initializeFunction);
+            // TODO check why we omitted the FINITE typeDefs
+            // TODO migrating the typeDef UsedState initialization to TypeDefAnalyzer. Clean up here if its permanent
             birPackage.typeDefs.forEach(typeDef -> {
-                if (typeDef.type.getKind() != TypeKind.FINITE) {
-                    typeDef.usedState = UsedState.UNUSED;
-                }
+//                if (typeDef.type.getKind() != TypeKind.FINITE) {
+//                    typeDef.usedState = UsedState.UNUSED;
+//                }
                 typeDefPool.putIfAbsent(typeDef.internalName.value, typeDef);
                 typeDef.attachedFuncs.forEach(this::initializeFunction);
             });
