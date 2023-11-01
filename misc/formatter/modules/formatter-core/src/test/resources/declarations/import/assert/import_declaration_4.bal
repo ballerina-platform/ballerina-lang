@@ -6,7 +6,7 @@ import ballerina/io as console;
 import ballerinax/kafka;
 import ballerinax/transformer as _;
 
-// Third-Party library imports
+// Third-party library imports
 import google/gmail;
 import apache/kafka as apache_kafka;
 import greeter.email;
