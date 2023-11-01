@@ -129,6 +129,10 @@ public class CentralAPIClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     // System property name for enabling central verbose
     public static final String SYS_PROP_CENTRAL_VERBOSE_ENABLED = "CENTRAL_VERBOSE_ENABLED";
+    private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+    private static final int DEFAULT_READ_TIMEOUT = 60;
+    private static final int DEFAULT_WRITE_TIMEOUT = 60;
+    private static final int DEFAULT_CALL_TIMEOUT = 0;
 
     private final String baseUrl;
     private final Proxy proxy;
@@ -137,6 +141,10 @@ public class CentralAPIClient {
     private final boolean verboseEnabled;
     private final String proxyUsername;
     private final String proxyPassword;
+    private final int connectTimeout;
+    private final int readTimeout;
+    private final int writeTimeout;
+    private final int callTimeout;
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String accessToken) {
         this.outStream = System.out;
@@ -146,10 +154,15 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = "";
         this.proxyPassword = "";
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        this.callTimeout = DEFAULT_CALL_TIMEOUT;
     }
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
-                            String accessToken) {
+                            String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
+                            int callTimeout) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -157,6 +170,10 @@ public class CentralAPIClient {
         this.verboseEnabled = Boolean.parseBoolean(System.getenv(SYS_PROP_CENTRAL_VERBOSE_ENABLED));
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
+        this.connectTimeout = connectionTimeout;
+        this.readTimeout = readTimeout;
+        this.writeTimeout = writeTimeout;
+        this.callTimeout = callTimeout;
     }
 
     /**
@@ -776,17 +793,24 @@ public class CentralAPIClient {
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
                     .addHeader(ACCEPT, APPLICATION_JSON)
                     .build();
+            logRequestInitVerbose(resolutionReq);
 
             Call resolutionReqCall = client.newCall(resolutionReq);
             Response packageResolutionResponse = resolutionReqCall.execute();
+            logRequestConnectVerbose(resolutionReq, "/" + PACKAGES + "/" + RESOLVE_MODULES);
 
             body = Optional.ofNullable(packageResolutionResponse.body());
+            String resolvePackageNamesBody = null;
+            if (body.isPresent()) {
+                resolvePackageNamesBody = body.get().string();
+            }
+            logResponseVerbose(packageResolutionResponse, resolvePackageNamesBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (packageResolutionResponse.code() == HTTP_OK) {
-                        return new Gson().fromJson(body.get().string(), PackageNameResolutionResponse.class);
+                        return new Gson().fromJson(resolvePackageNamesBody, PackageNameResolutionResponse.class);
                     }
 
                     // Unauthorized access token
@@ -796,7 +820,7 @@ public class CentralAPIClient {
 
                     // If search request was sent wrongly
                     if (packageResolutionResponse.code() == HTTP_BAD_REQUEST) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(resolvePackageNamesBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new ConnectionErrorException(error.getMessage());
                         }
@@ -805,7 +829,7 @@ public class CentralAPIClient {
                     // If error occurred at remote repository
                     if (packageResolutionResponse.code() == HTTP_INTERNAL_ERROR ||
                             packageResolutionResponse.code() == HTTP_UNAVAILABLE) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(resolvePackageNamesBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + " reason:" +
                                     error.getMessage());
@@ -847,17 +871,23 @@ public class CentralAPIClient {
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
                     .addHeader(ACCEPT, APPLICATION_JSON)
                     .build();
-
+            logRequestInitVerbose(packageResolutionReq);
             Call packageResolutionReqCall = client.newCall(packageResolutionReq);
             Response packageResolutionResponse = packageResolutionReqCall.execute();
+            logRequestConnectVerbose(packageResolutionReq, "/" + PACKAGES + "/" + RESOLVE_DEPENDENCIES);
 
             body = Optional.ofNullable(packageResolutionResponse.body());
+            String packageResolutionResponseBody = null;
+            if (body.isPresent()) {
+                packageResolutionResponseBody = body.get().string();
+            }
+            logResponseVerbose(packageResolutionResponse, packageResolutionResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (packageResolutionResponse.code() == HTTP_OK) {
-                        return new Gson().fromJson(body.get().string(), PackageResolutionResponse.class);
+                        return new Gson().fromJson(packageResolutionResponseBody, PackageResolutionResponse.class);
                     }
 
                     // Unauthorized access token
@@ -867,7 +897,7 @@ public class CentralAPIClient {
 
                     // If search request was sent wrongly
                     if (packageResolutionResponse.code() == HTTP_BAD_REQUEST) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(packageResolutionResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new ConnectionErrorException(error.getMessage());
                         }
@@ -876,7 +906,7 @@ public class CentralAPIClient {
                     // If error occurred at remote repository
                     if (packageResolutionResponse.code() == HTTP_INTERNAL_ERROR ||
                             packageResolutionResponse.code() == HTTP_UNAVAILABLE) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(packageResolutionResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new ConnectionErrorException(ERR_PACKAGE_RESOLUTION + " reason:" +
                                     error.getMessage());
@@ -909,17 +939,23 @@ public class CentralAPIClient {
                     .get()
                     .url(this.baseUrl + "/" + PACKAGES + "/?q=" + query)
                     .build();
-
+            logRequestInitVerbose(searchReq);
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + PACKAGES + "/?q=" + query);
 
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
+            if (body.isPresent()) {
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (searchResponse.code() == HTTP_OK) {
-                        return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
+                        return new Gson().fromJson(searchResponseBody, PackageSearchResult.class);
                     }
 
                     // Unauthorized access token
@@ -929,7 +965,7 @@ public class CentralAPIClient {
 
                     // If search request was sent wrongly
                     if (searchResponse.code() == HTTP_BAD_REQUEST) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(searchResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
                         }
@@ -938,7 +974,7 @@ public class CentralAPIClient {
                     // If error occurred at remote repository
                     if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
                         searchResponse.code() == HTTP_UNAVAILABLE) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(searchResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
                                     error.getMessage());
@@ -973,16 +1009,23 @@ public class CentralAPIClient {
                     .url(this.baseUrl + "/" + TOOLS + SEARCH_QUERY + keyword)
                     .build();
 
+            logRequestInitVerbose(searchReq);
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + TOOLS + "/" + SEARCH_QUERY + "/" + keyword);
 
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
+            if (body.isPresent()) {
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (searchResponse.code() == HTTP_OK) {
-                        return new Gson().fromJson(body.get().string(), ToolSearchResult.class);
+                        return new Gson().fromJson(searchResponseBody, ToolSearchResult.class);
                     }
 
                     // Unauthorized access token
@@ -992,7 +1035,7 @@ public class CentralAPIClient {
 
                     // If search request was sent wrongly
                     if (searchResponse.code() == HTTP_BAD_REQUEST) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(searchResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
                         }
@@ -1001,7 +1044,7 @@ public class CentralAPIClient {
                     // If error occurred at remote repository
                     if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
                             searchResponse.code() == HTTP_UNAVAILABLE) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(searchResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "' reason:" +
                                     error.getMessage());
@@ -1061,17 +1104,24 @@ public class CentralAPIClient {
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
                     .addHeader(ACCEPT, APPLICATION_JSON)
                     .build();
+            logRequestInitVerbose(deprecationReq);
 
             Call httpRequestCall = client.newCall(deprecationReq);
             Response deprecationResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(deprecationReq, requestURL.replace(this.baseUrl, ""));
 
             body = Optional.ofNullable(deprecationResponse.body());
+            String deprecationResponseBody = null;
+            if (body.isPresent()) {
+                deprecationResponseBody = body.get().string();
+            }
+            logResponseVerbose(deprecationResponse, deprecationResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If deprecation was successful
                     if (deprecationResponse.code() == HTTP_OK) {
-                        Package packageResponse = new Gson().fromJson(body.get().string(), Package.class);
+                        Package packageResponse = new Gson().fromJson(deprecationResponseBody, Package.class);
                         if (packageResponse.getDeprecated()) {
                             if (existingPackage.getDeprecated()) {
                                 this.outStream.println("deprecation message is successfully updated for the package "
@@ -1093,7 +1143,7 @@ public class CentralAPIClient {
 
                     // If deprecation request was sent wrongly
                     if (deprecationResponse.code() == HTTP_BAD_REQUEST) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(deprecationResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
                         }
@@ -1101,7 +1151,7 @@ public class CentralAPIClient {
 
                     // If deprecation request was sent wrongly
                     if (deprecationResponse.code() == HTTP_NOT_FOUND) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(deprecationResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
                         }
@@ -1110,7 +1160,7 @@ public class CentralAPIClient {
                     // If error occurred at remote repository
                     if (deprecationResponse.code() == HTTP_INTERNAL_ERROR ||
                             deprecationResponse.code() == HTTP_UNAVAILABLE) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        Error error = new Gson().fromJson(deprecationResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
                             throw new CentralClientException(errorMsg + "'" + packageValue +
@@ -1146,8 +1196,10 @@ public class CentralAPIClient {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1204,8 +1256,10 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/connectors API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1219,16 +1273,23 @@ public class CentralAPIClient {
                     .get()
                     .url(httpBuilder.build())
                     .build();
+            logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + CONNECTORS);
 
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
+            if (body.isPresent()) {
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().toJsonTree(body.get().string());
+                    return new Gson().toJsonTree(searchResponseBody);
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_CONNECTOR);
@@ -1263,13 +1324,20 @@ public class CentralAPIClient {
                     .get()
                     .url(this.baseUrl + "/" + CONNECTORS + "/" + id)
                     .build();
+            logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + CONNECTORS + "/" + id);
 
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
             if (body.isPresent()) {
-                String responseStr = body.get().string();
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
+            if (body.isPresent()) {
+                String responseStr = searchResponseBody;
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
@@ -1310,13 +1378,22 @@ public class CentralAPIClient {
                             "/" + connector.getPackageName() + "/" + connector.getVersion() +
                             "/" + connector.getModuleName() + "/" + connector.getName())
                     .build();
+            logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + CONNECTORS + "/" + connector.getOrgName() +
+                    "/" + connector.getPackageName() + "/" + connector.getVersion() +
+                    "/" + connector.getModuleName() + "/" + connector.getName());
 
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
             if (body.isPresent()) {
-                String responseStr = body.get().string();
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
+            if (body.isPresent()) {
+                String responseStr = searchResponseBody;
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
@@ -1345,8 +1422,10 @@ public class CentralAPIClient {
      */
     protected OkHttpClient getClient() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)
@@ -1464,8 +1543,10 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/triggers API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .readTimeout(readTimeout, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                .callTimeout(callTimeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -1479,16 +1560,23 @@ public class CentralAPIClient {
                     .get()
                     .url(httpBuilder.build())
                     .build();
+            logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + TRIGGERS);
 
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
+            if (body.isPresent()) {
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().toJsonTree(body.get().string());
+                    return new Gson().toJsonTree(searchResponseBody);
                 }
             }
             handleResponseErrors(searchResponse, ERR_CANNOT_GET_TRIGGERS);
@@ -1523,15 +1611,23 @@ public class CentralAPIClient {
                     .get()
                     .url(this.baseUrl + "/" + TRIGGERS + "/" + id)
                     .build();
+            logRequestInitVerbose(searchReq);
 
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
+            logRequestConnectVerbose(searchReq, "/" + TRIGGERS + "/" + id);
+
             body = Optional.ofNullable(searchResponse.body());
+            String searchResponseBody = null;
+            if (body.isPresent()) {
+                searchResponseBody = body.get().string();
+            }
+            logResponseVerbose(searchResponse, searchResponseBody);
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    String responseStr = body.get().string();
+                    String responseStr = searchResponseBody;
                     return new Gson().fromJson(responseStr, JsonObject.class);
                 }
             }
