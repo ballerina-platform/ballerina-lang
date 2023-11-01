@@ -1,3 +1,6 @@
+import greeter.email;
+import greeter.util;
+
 // Ballerina library imports
 import ballerina/io as console;
 // Ballerina lang library import of int
@@ -11,8 +14,6 @@ import ballerinax/transformer as _;
 // Third-party library imports
 import apache/kafka as apache_kafka;
 import google/gmail;
-import greeter.email;
-import greeter.util;
 
 function foo() {
     int v = 8;
