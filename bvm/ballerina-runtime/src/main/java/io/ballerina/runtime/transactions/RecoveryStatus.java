@@ -1,4 +1,5 @@
 package io.ballerina.runtime.transactions;
+
     public enum RecoveryStatus {
         PREPARING("PREPARING"),
         COMMITTING("COMMITTING"),
@@ -7,10 +8,10 @@ package io.ballerina.runtime.transactions;
         IN_DOUBT("IN-DOUBT"),
         COMMITTED("COMMITTED"),
         ABORTED("ABORTED"),
+        HAZARD("HAZARD"),
         TERMINATED("TERMINATED");
 
         // TODO: add heuristic states
-
 
         private final String state;
 
