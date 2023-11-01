@@ -1,7 +1,7 @@
 import greeter.email;
-import ballerina/io as console;
-// Ballerina lang library import of int
+// Ballerina library imports
 // Second line of comments
+import ballerina/io as console;
 import ballerina/lang.'int;
 
 import greeter.util;
@@ -15,9 +15,8 @@ import ballerina/math;
 
 
 import google/gmail;
-// Third-Party library imports
+// Third-party package imports
 import apache/kafka as apache_kafka;
-// Ballerina extended library imports
 import ballerinax/kafka;
 import ballerinax/transformer as _;
 
