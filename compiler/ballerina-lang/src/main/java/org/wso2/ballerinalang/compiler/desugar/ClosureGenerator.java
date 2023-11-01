@@ -25,7 +25,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -62,10 +61,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
@@ -226,7 +223,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private BLangNode result;
     private SymbolResolver symResolver;
     private AnnotationDesugar annotationDesugar;
-    private Desugar desugar;
     private Types types;
 
     public static ClosureGenerator getInstance(CompilerContext context) {
@@ -246,7 +242,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
-        this.desugar = Desugar.getInstance(context);
     }
 
     @Override
@@ -717,8 +712,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
                 return generateName(((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case TYPE_DEFINITION:
                 return generateName(((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name, parent.parent);
-            case SERVICE:
-                return generateName(((BLangService) parent).name.getValue() + UNDERSCORE + name, parent.parent);
             case RECORD_TYPE:
                 name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER
                         + name;
@@ -1664,17 +1657,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDoClause doClause) {
-        rewrite(doClause.body, env);
-        result = doClause;
-    }
-
-    @Override
     public void visit(BLangOnFailClause onFailClause) {
-        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
-        if (onFailVarDefNode != null) {
-            rewrite((BLangVariable) onFailVarDefNode.getVariable(), env);
-        }
         rewrite(onFailClause.body, env);
         result = onFailClause;
     }
