@@ -1,3 +1,4 @@
+// Ballerina module imports
 import greeter.email;
 import greeter.util;
 
