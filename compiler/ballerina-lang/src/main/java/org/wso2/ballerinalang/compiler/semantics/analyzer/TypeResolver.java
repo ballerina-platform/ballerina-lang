@@ -1678,7 +1678,9 @@ public class TypeResolver {
 
         SemType semType = PredefinedType.NEVER;
         StringJoiner stringJoiner = new StringJoiner("|");
-        for (BLangExpression exprOrLiteral : td.valueSpace) {
+        List<BLangExpression> valueSpace = td.valueSpace;
+        for (int i = 0; i < valueSpace.size(); i++) {
+            BLangExpression exprOrLiteral = valueSpace.get(i);
             BType type = blangTypeUpdate(exprOrLiteral);
             if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
@@ -1690,6 +1692,8 @@ public class TypeResolver {
             if (semTypeSupported(exprOrLiteral.getBType().getKind())) {
                 if (exprOrLiteral.getKind() == NodeKind.UNARY_EXPR) {
                     exprOrLiteral = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) exprOrLiteral);
+                    // Replacing here as Semantic Analyzer BLangFiniteTypeNode visit may not invoke for all finite nodes
+                    td.valueSpace.set(i, exprOrLiteral);
                 }
 
                 stringJoiner.add(getToString(exprOrLiteral));
