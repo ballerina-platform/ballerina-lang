@@ -151,7 +151,8 @@ public class DefinitionTest {
                 {"def_annotation_on_obj_func_config1.json", "project"},
                 {"def_typereference.json", "project"},
                 {"def_typereference2.json", "project"},
-                {"def_typereference3.json", "project"}
+                {"def_typereference3.json", "project"},
+                {"defProject15.json", "project"},
         };
     }
 
