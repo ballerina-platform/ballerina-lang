@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -277,8 +278,9 @@ public class TestCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
-                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml")).trim());
+        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
+                        .trim().replace("INSERT_VERSION_HERE", RepoUtils.getBallerinaShortVersion()));
 
         // remove build file
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -294,8 +296,9 @@ public class TestCommandTest extends BaseCommandTest {
         String secondBuildLog = readOutput(true);
         Assert.assertEquals(secondBuildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
-                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml")).trim());
+        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(),
+                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml"))
+                        .trim().replace("INSERT_VERSION_HERE", RepoUtils.getBallerinaShortVersion()));
     }
 
     @Test(description = "Test a ballerina project with the flag dump-graph")
