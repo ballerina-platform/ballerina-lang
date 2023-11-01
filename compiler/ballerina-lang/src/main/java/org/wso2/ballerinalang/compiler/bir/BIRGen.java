@@ -210,7 +210,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
@@ -844,8 +843,9 @@ public class BIRGen extends BLangNodeVisitor {
                 targetType.tag == TypeTags.RECORD) {
             // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
-            fpLoad.enclosedType = targetType;
-            fpLoad.fieldName = getFieldName(funcName.value, targetType.tsymbol.name.value);
+            setScopeAndEmit(
+                    new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
+                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
         }
         this.env.targetOperand = lhsOp;
     }

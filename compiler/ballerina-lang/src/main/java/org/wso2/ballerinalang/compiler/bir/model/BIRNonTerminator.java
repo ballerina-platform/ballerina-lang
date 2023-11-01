@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.RECORD_DEFAULT_FP_LOAD;
+
 /**
  * A non-terminating instruction.
  * <p>
@@ -872,8 +874,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public List<BIROperand> closureMaps;
         public BType type;
         public boolean isWorker;
-        public BType enclosedType = null;
-        public String fieldName;
 
         public FPLoad(Location location, PackageID pkgId, Name funcName, BIROperand lhsOp,
                       List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType type, String strandName,
@@ -1431,4 +1431,34 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.nonGreedyChar = operands[1];
         }
     }
+
+
+    public static class RecordDefaultFPLoad extends BIRNonTerminator {
+        public BType enclosedType;
+        public String fieldName;
+
+        public RecordDefaultFPLoad(Location pos, BIROperand lhsOp, BType enclosedType, String fieldName) {
+            super(pos, RECORD_DEFAULT_FP_LOAD);
+            this.enclosedType = enclosedType;
+            this.fieldName = fieldName;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // Do nothing
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+    }
+
 }

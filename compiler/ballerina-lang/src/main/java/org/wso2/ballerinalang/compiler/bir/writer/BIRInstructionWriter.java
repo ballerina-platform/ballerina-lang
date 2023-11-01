@@ -489,12 +489,13 @@ public class BIRInstructionWriter extends BIRVisitor {
             writeType(param.type);
             buf.writeInt(addStringCPEntry(param.name.value));
         });
-        boolean enclosedTypeExist = fpLoad.enclosedType != null;
-        buf.writeBoolean(enclosedTypeExist);
-        if (enclosedTypeExist) {
-            writeType(fpLoad.enclosedType);
-            buf.writeInt(addStringCPEntry(fpLoad.fieldName));
-        }
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+        recordDefaultFPLoad.lhsOp.accept(this);
+        writeType(recordDefaultFPLoad.enclosedType);
+        buf.writeInt(addStringCPEntry(recordDefaultFPLoad.fieldName));
     }
 
     public void visit(BIRTerminator.Panic birPanic) {

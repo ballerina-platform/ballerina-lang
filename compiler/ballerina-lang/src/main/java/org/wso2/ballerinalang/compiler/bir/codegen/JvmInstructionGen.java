@@ -1847,9 +1847,9 @@ public class JvmInstructionGen {
 
         this.storeToVar(inst.lhsOp.variableDcl);
         asyncDataCollector.add(lambdaName, inst);
-        if (inst.enclosedType == null) {
-            return;
-        }
+    }
+
+    private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
         jvmTypeGen.loadType(this.mv, inst.enclosedType);
         this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
         this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
@@ -2429,6 +2429,9 @@ public class JvmInstructionGen {
                     break;
                 case PLATFORM:
                     generatePlatformIns((JInstruction) inst, localVarOffset);
+                    break;
+                case RECORD_DEFAULT_FP_LOAD:
+                    generateRecordDefaultFPLoadIns((BIRNonTerminator.RecordDefaultFPLoad) inst);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for operation " + inst);
