@@ -1,13 +1,11 @@
 import greeter.email;
 import greeter.util;
 
+// Ballerina library imports
 import ballerina/io as console;
-// Ballerina lang library import of int
-// Second line of comments
-import ballerina/lang.'int;
+import ballerina/lang.'int; // Ballerina lang library import of int
 import ballerina/log as logger;
 import ballerina/math;
-// Ballerina library imports
 import ballerinax/kafka;
 import ballerinax/transformer as _;
 
