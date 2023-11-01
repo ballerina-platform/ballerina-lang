@@ -182,6 +182,16 @@ function testDefaultVal() {
     assert("bal", gVal4.x[0]);
     record {string[] x = ["foo", "bar"];} n = {readonly x: ["bal"]};
     assert("bal", n.x[0]);
+    
+    function() returns record {| int x = 2; |} fn = function() returns record {| int x = 2; |} {
+        return {};
+    };
+    assert(2, fn().x);
+
+    var fn1 = function() returns record {| int x = 2; |} {
+        return {};
+    };
+    assert(2, fn1().x);
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {
