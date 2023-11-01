@@ -1,14 +1,13 @@
-// Second line of comments
+// Ballerina library imports
 import ballerina/lang.'int; // Ballerina lang library import of int
 import ballerina/log as logger;
 import ballerina/math;
 import ballerina/io as console;
-// Ballerina library imports
 import ballerinax/kafka;
 import ballerinax/transformer as _;
 
-import google/gmail;
 // Third-Party library imports
+import google/gmail;
 import apache/kafka as apache_kafka;
 import greeter.email;
 import greeter.util;
