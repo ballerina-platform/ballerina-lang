@@ -1,6 +1,8 @@
 // Ballerina library imports
 import ballerina/io as console;
-import ballerina/lang.'int; // Ballerina lang library import of int
+// Ballerina lang library import of int
+// Second line of comments
+import ballerina/lang.'int;
 import ballerina/log as logger;
 import ballerina/math;
 import ballerinax/kafka;
