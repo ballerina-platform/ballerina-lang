@@ -22,6 +22,8 @@ configurable boolean managerEnabled = false;
 configurable string logBase = "transaction_log_dir";
 # Config to recovery log directory.
 configurable string recoveryLogName = "recoveryLog";
+# Config to specify the checkpoint interval.
+configurable int checkpointInterval = 25;
 
 //TODO: remove this in Beta2 and use an anonymous record instead
 # Internally used record to hold information about a transaction.

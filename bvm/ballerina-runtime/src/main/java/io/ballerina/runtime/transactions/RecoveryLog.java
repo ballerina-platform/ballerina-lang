@@ -12,7 +12,7 @@ public interface RecoveryLog {
     /**
      * Write a checkpoint to the recovery log file (not needed if checkpoint are not needed)
      */
-    void writeCheckpoint();
+    void ifNeedWriteCheckpoint();
 
     /**
      * Close the recovery log file.

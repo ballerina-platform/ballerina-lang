@@ -16,7 +16,9 @@ import java.util.Map;
 
 public class FileRecoveryLog implements RecoveryLog {
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
+    private int checkpointInterval;
     private String baseFileName;
+    private int numOfPutsSinceLastCheckpoint;
     private File file;
     private FileChannel appendChannel = null;
     private Map<String, TransactionLogRecord> existingLogs;
@@ -26,9 +28,11 @@ public class FileRecoveryLog implements RecoveryLog {
      *
      * @param baseFileName The base name for the recovery log files.
      */
-    public FileRecoveryLog(String baseFileName) {
-        this.existingLogs = new HashMap<>();
+    public FileRecoveryLog(String baseFileName, int checkpointInterval) {
         this.baseFileName = baseFileName;
+        this.checkpointInterval = checkpointInterval;
+        numOfPutsSinceLastCheckpoint = 0;
+        this.existingLogs = new HashMap<>();
         this.file = createNextVersion();
     }
 
@@ -65,6 +69,7 @@ public class FileRecoveryLog implements RecoveryLog {
                     for (Map.Entry<String, TransactionLogRecord> entry : existingLogs.entrySet()) {
                         put(entry.getValue());
                     }
+                    existingLogs.clear();
                 }
 
             }
@@ -106,6 +111,7 @@ public class FileRecoveryLog implements RecoveryLog {
                 log.error("Could not acquire lock on recovery log file.");
             }
         } catch (IOException e) {
+            log.error("An error occurred while opening the recovery log file.");
             e.printStackTrace();
         }
     }
@@ -113,6 +119,14 @@ public class FileRecoveryLog implements RecoveryLog {
     @Override
     public void put(TransactionLogRecord trxRecord) {
         writeToFile(trxRecord.getLogRecord());
+//        if (trxRecord.isCompleted()) {
+//            writeCheckpoint(); // if needed checkpoint cleanup logs
+//        }
+        if (checkpointInterval != -1) {
+            ifNeedWriteCheckpoint();
+            numOfPutsSinceLastCheckpoint++;
+        }
+
     }
 
     public Map<String, TransactionLogRecord> getPendingLogs() {
@@ -160,6 +174,8 @@ public class FileRecoveryLog implements RecoveryLog {
             while ((line = reader.readLine()) != null) {
                 TransactionLogRecord transactionLogRecord = parseTransactionRecord(line);
                 if (transactionLogRecord != null) {
+                    // TODO: add a check here to check whether the record exists in the logMap and new state is a valid
+                    //  state from the current state
                     logMap.put(transactionLogRecord.transactionId, transactionLogRecord);
                 }
             }
@@ -207,12 +223,21 @@ public class FileRecoveryLog implements RecoveryLog {
     }
 
 
-    public void writeCheckpoint() {
-        // TODO:  write checkpoint of the log file
+    public void ifNeedWriteCheckpoint() {
+        // TODO:  write a better logic checkpoint of the log file
         // get a copy of current log file
         // cleanup finished logs. call cleanUpFinishedLogs() method.
         // discard the existing log file and create a new one with same name
-        if (file.length() > 1000){
+
+//        if (file.length() > 10000){
+//            log.info("Checkpoint needed. Cleaning up finished logs.");
+//            File newFile = createNextVersion();
+//            file = newFile;
+//        }
+
+        if (numOfPutsSinceLastCheckpoint >= checkpointInterval) {
+            log.info("Checkpoint needed. Cleaning up finished logs.");
+            numOfPutsSinceLastCheckpoint = 0; // needs to set here otherwise it will just keep creating new files
             File newFile = createNextVersion();
             file = newFile;
         }

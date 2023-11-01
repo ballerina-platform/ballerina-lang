@@ -117,8 +117,8 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
-            String logFileName = getRecoveryLogBaseName();
-            fileRecoveryLog = new FileRecoveryLog(logFileName);
+            int checkpointInterval = getCheckpointInterval();
+            fileRecoveryLog = new FileRecoveryLog(getRecoveryLogBaseName(), checkpointInterval);
             inMemoryRecoveryLog = new InMemoryRecoveryLog();
         }
     }
@@ -210,6 +210,30 @@ public class TransactionResourceManager {
             return "recoveryLog";
         } else {
             return ((BString) ConfigMap.get(recoveryLogNameKey)).getValue();
+        }
+    }
+
+    private Integer getCheckpointInterval() {
+        VariableKey recoveryLogNameKey = new VariableKey(TRANSACTION_PACKAGE_ID, "checkpointInterval", PredefinedTypes.TYPE_INT, false);
+        if (!ConfigMap.containsKey(recoveryLogNameKey)) {
+            return 25;
+        } else {
+            int checkpointInterval;
+            Object value = ConfigMap.get(recoveryLogNameKey);
+            if (value instanceof Long) {
+                checkpointInterval = ((Long) value).intValue();
+            } else if (value instanceof Integer) {
+                checkpointInterval = (Integer) value;
+            } else {
+                log.warn("Invalid value provided for checkpointInterval. Using default value 25.");
+                return 25;
+            }
+            if (checkpointInterval < 0 && checkpointInterval != -1) {
+                log.warn("Invalid value provided for checkpointInterval. Using default value 25.");
+                return 25;
+            } else {
+                return checkpointInterval;
+            }
         }
     }
 
