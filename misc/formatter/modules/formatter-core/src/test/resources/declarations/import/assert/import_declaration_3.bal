@@ -5,7 +5,7 @@ import greeter.util;
 import ballerina/io as console;
 // Ballerina lang library import of int
 // Second line of comments
-import ballerina/lang.'int; 
+import ballerina/lang.'int;
 import ballerina/log as logger;
 import ballerina/math;
 import ballerinax/kafka;
