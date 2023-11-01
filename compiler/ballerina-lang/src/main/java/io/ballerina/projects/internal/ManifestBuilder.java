@@ -782,16 +782,16 @@ public class ManifestBuilder {
         } else if (toolNodeValueType.equals(ToolNodeValueType.EMPTY)) {
             if (!key.equals("targetModule")) {
                 reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'",
-                    ProjectDiagnosticErrorCode.EMPTY_STRING_FOR_TOOL_PROPERTY.diagnosticId(),
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
                     DiagnosticSeverity.ERROR);
                 return null;
             }
             reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'. " +
                             "Default module will be taken as the target module",
-                    ProjectDiagnosticErrorCode.EMPTY_STRING_FOR_TOOL_PROPERTY.diagnosticId(),
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
                     DiagnosticSeverity.WARNING);
             return getStringFromTomlTableNode(topLevelNode);
-        } else if (toolNodeValueType.equals(ToolNodeValueType.NON_STRING)){
+        } else if (toolNodeValueType.equals(ToolNodeValueType.NON_STRING)) {
             reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
                 ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY.diagnosticId(),
                 DiagnosticSeverity.ERROR);
