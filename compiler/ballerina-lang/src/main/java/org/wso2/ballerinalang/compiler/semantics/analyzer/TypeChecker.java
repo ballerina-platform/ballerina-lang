@@ -2734,24 +2734,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                        Map<String, BType> typesOfDefaultValues) {
         for (BLangTypeDefinition typeDefinition : typeDefinitions) {
             BType type = typeDefinition.getBType();
-            if (type != null && type.tag != TypeTags.RECORD) {
+
+            if ((type != null && type.tag != TypeTags.RECORD) || type != mutableType) {
                 continue;
             }
-            if (type == mutableType) {
-                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
-                for (BLangSimpleVariable simpleVariable : recordTypeNode.fields) {
-                    if (simpleVariable.symbol.isDefaultable) {
-                        typesOfDefaultValues.put(simpleVariable.name.value, simpleVariable.expr.getBType());
-                    }
-                }
 
-                List<BType> typeInclusions = mutableType.typeInclusions;
-                for (BType typeInclusion : typeInclusions) {
-                    determineDefaultValues(typesOfDefaultValues, (BRecordType) types.getImpliedType(typeInclusion),
-                                            data);
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
+            for (BLangSimpleVariable simpleVariable : recordTypeNode.fields) {
+                if (simpleVariable.symbol.isDefaultable) {
+                    typesOfDefaultValues.put(simpleVariable.name.value, simpleVariable.expr.getBType());
                 }
-                break;
             }
+
+            List<BType> typeInclusions = mutableType.typeInclusions;
+            for (BType typeInclusion : typeInclusions) {
+                determineDefaultValues(typesOfDefaultValues, (BRecordType) types.getImpliedType(typeInclusion),
+                                        data);
+            }
+            break;
         }
     }
 
