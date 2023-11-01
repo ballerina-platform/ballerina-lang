@@ -45,7 +45,6 @@ import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
@@ -173,14 +172,6 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        if (node.name().text().startsWith("f") &&
-                (node.parent().kind() == SyntaxKind.POSITIONAL_ARG || node.parent().kind() == SyntaxKind.NAMED_ARG)) {
-            Optional<TypeSymbol> expectedType = node.parent().apply(this);
-            if (expectedType.isPresent()) {
-                return expectedType;
-            }
-        }
-
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
         // TODO remove this after fix #38522
         if (bLangNode == null) {
@@ -190,6 +181,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             }
 
             return SymbolUtils.getTypeDescriptor(symbol.get());
+        }
+
+        if (node.parent().kind() == SyntaxKind.POSITIONAL_ARG || node.parent().kind() == SyntaxKind.NAMED_ARG) {
+            Optional<TypeSymbol> expectedType = node.parent().apply(this);
+            if (expectedType.isPresent()) {
+                return expectedType;
+            }
         }
 
         return getExpectedType(bLangNode);
@@ -347,13 +345,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        ExpressionNode functionCallExpressionNode = node.expression();
-        if (functionCallExpressionNode == null) {
-            return getExpectedTypeFromFunction(bLangNode, node.openParenToken(), node.closeParenToken());
-        }
-
         BLangNode bLangFunctionCall = nodeFinder.lookup(this.bLangCompilationUnit,
-                functionCallExpressionNode.lineRange());
+                node.expression().lineRange());
         BInvokableSymbol bLangOriginalLangLib =
                 this.langLibrary.getLangLibMethod(bLangFunctionCall.getBType(),
                         SymbolUtils.unescapeUnicode(node.methodName().toString()));
@@ -1237,16 +1230,17 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 isPosWithinOpenCloseLineRanges(linePosition, openParen.lineRange(), closeParen.lineRange());
     }
 
-    private Optional<TypeSymbol> transformFunctionOrMethod(BLangNode bLangNode, BType variableType,
-                                                           BInvokableSymbol bLangOriginalLangLib,
+    private Optional<TypeSymbol> transformFunctionOrMethod(BLangNode bLangNode, BType parameterType,
+                                                           BInvokableSymbol originalInvokable,
                                                            SeparatedNodeList<FunctionArgumentNode> arguments,
                                                            Token openParenToken, Token closeParenToken,
                                                            boolean hasFirstArg) {
-        if (bLangOriginalLangLib == null || bLangOriginalLangLib.params.size() == 0) {
+        if (originalInvokable == null || originalInvokable.params.size() == 0) {
             return getExpectedTypeFromFunction(bLangNode, openParenToken, closeParenToken);
         }
 
-        BVarSymbol firstParam = bLangOriginalLangLib.params.get(0);
+        // The first parameter is always the value of the type.
+        BVarSymbol firstParam = originalInvokable.params.get(0);
         BType typeParam = new TypeParamFinder().find(firstParam.getType());
 
         if (typeParam == null) {
@@ -1254,9 +1248,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BInvokableSymbol langLibMethod =
-                this.langLibFunctionBinder.cloneAndBind(bLangOriginalLangLib, variableType,
-                        SymbolUtils.getTypeParamBoundType(variableType));
+                this.langLibFunctionBinder.cloneAndBind(originalInvokable, parameterType,
+                        SymbolUtils.getTypeParamBoundType(parameterType));
 
+        // Since the first parameter is always the value, the function should have at least two arguments for it to
+        // possibly contain a function. For instance, In the langlib method, `array:map(arr, mappingFunction)`, the
+        // first argument is always arr which is the value.
         if (langLibMethod.getParameters().size() < 2) {
             return getExpectedTypeFromFunction(bLangNode, openParenToken, closeParenToken);
         }
