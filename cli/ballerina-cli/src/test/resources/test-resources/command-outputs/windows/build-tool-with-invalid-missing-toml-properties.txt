@@ -1,0 +1,2 @@
+ERROR [Ballerina.toml:(6:1,9:24)] empty string found for key '[filePath]'
+ERROR [Ballerina.toml:(6:1,9:24)] missing key '[targetModule]' in table '[tool.openapi]' in 'Ballerina.toml'.
