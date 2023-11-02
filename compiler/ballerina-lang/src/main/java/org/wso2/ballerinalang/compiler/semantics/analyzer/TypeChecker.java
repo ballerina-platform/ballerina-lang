@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -2990,7 +2989,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else {
                 varRefExpr.symbol = symbol; // Set notFoundSymbol
-                logUndefinedSymbolError(varRefExpr.pos, varName.value);
+                logUndefinedSymbolError(varRefExpr.pos, names.originalNameFromIdNode(identifier).value);
             }
         }
 
@@ -8901,7 +8900,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
                 if (isConstExpr(indexExpr)) {
-                    String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
+                    String fieldName = getConstFieldName(indexExpr);
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record, data);
                     if (actualType != symTable.semanticError) {
                         return actualType;

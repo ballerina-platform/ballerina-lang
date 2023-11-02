@@ -98,7 +98,7 @@ public class IdentifierLiteralTest {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
                 "/identifier-literal-undefined-variable-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global\\ v\\ \\\"\\ ar'", 5, 12);
+        BAssertUtil.validateError(resultNeg, 0, "undefined symbol '\'global\\ v\\ \\\"\\ ar'", 5, 12);
     }
 
     @Test(description = "Test wrong character in identifier literal")
@@ -116,7 +116,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, i++, "invalid escape sequence '\\'", 4, 9);
         BAssertUtil.validateError(resultNeg, i++, "invalid escape sequence '\\'", 6, 12);
         BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 7, 1);
-        BAssertUtil.validateError(resultNeg, i++, "undefined symbol 'global\\ v\\ ar'", 7, 12);
+        BAssertUtil.validateError(resultNeg, i++, "undefined symbol '\'global\\ v\\ ar'", 7, 12);
         Assert.assertEquals(resultNeg.getErrorCount(), i);
     }
 
