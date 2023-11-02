@@ -17,12 +17,6 @@
  */
 package org.ballerinalang.observability.anaylze.model;
 
-import com.google.gson.JsonElement;
-import io.ballerina.projects.ModuleDescriptor;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Hold data related to a package.
@@ -34,16 +28,10 @@ public class PackageHolder {
     private String org;
     private String name;
     private String version;
-    private final Map<String, ModuleHolder> modulesMap = new ConcurrentHashMap<>();
+    private String syntaxTreeDataString;
 
-    public void addSyntaxTree(ModuleDescriptor moduleDescriptor, String documentName, JsonElement syntaxTreeJson) {
-        String moduleName = moduleDescriptor.name().toString();
-        ModuleHolder moduleHolder = this.modulesMap.computeIfAbsent(moduleName, k -> new ModuleHolder(moduleName));
-        moduleHolder.addSyntaxTree(documentName, syntaxTreeJson);
-    }
-
-    public Map<String, ModuleHolder> getModules() {
-        return Collections.unmodifiableMap(modulesMap);
+    public void setSyntaxTreeDataString(String syntaxTreeDataString) {
+        this.syntaxTreeDataString = syntaxTreeDataString;
     }
 
     public String getOrg() {
@@ -68,5 +56,9 @@ public class PackageHolder {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getSyntaxTreeDataString() {
+        return syntaxTreeDataString;
     }
 }
