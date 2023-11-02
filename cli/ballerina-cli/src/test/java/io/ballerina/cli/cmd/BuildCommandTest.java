@@ -1162,6 +1162,70 @@ public class BuildCommandTest extends BaseCommandTest {
         deleteDirectory(projectPath.resolve("target"));
     }
 
+    @Test(description = "Build a project with invalid and missing toml entries for build tools")
+    public void testBuildProjectWithInvalidAndMissingBuildToolTomlProperties() throws IOException {
+        Path projectPath = this.testResources.resolve("build-tool-with-invalid-missing-toml-properties");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-tool-with-invalid-missing-toml-properties.txt"));
+            Assert.assertTrue(e.getDetailedMessages().get(0)
+                .equals("error: Ballerina toml validation for pre build tool execution contains errors"));
+
+        }
+    }
+
+    @Test(description = "Build a project with invalid and missing optional toml entries for build tools")
+    public void testBuildProjectWithInvalidAndMissingBuildToolOptionalTomlProperties() throws IOException {
+        Path projectPath = this.testResources.resolve("build-tool-with-invalid-missing-optional-toml-properties");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-tool-with-invalid-missing-optional.txt"));
+            Assert.assertTrue(e.getDetailedMessages().get(0)
+                .equals("error: Ballerina toml validation for pre build tool execution contains errors"));
+        }
+    }
+
+    @Test(description = "Build a project with build tool diagnostics")
+    public void testBuildProjectWithBuildToolDiagnostics() throws IOException {
+        Path projectPath = this.testResources.resolve("build-tool-with-diagnostics");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-tool-with-diagnostics.txt"));
+            Assert.assertTrue(e.getDetailedMessages().get(0)
+                .equals("error: Pre build tool openapi execution contains errors"));
+        }
+    }
+
+    @Test(description = "Build a project with a build tool execution")
+    public void testBuildProjectWithBuildTool() throws IOException {
+        Path projectPath = this.testResources.resolve("proper-build-tool");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+            getOutput("build-bal-project.txt"));
+    }
+
     private String getNewVersionForOldDistWarning() {
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
         String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
