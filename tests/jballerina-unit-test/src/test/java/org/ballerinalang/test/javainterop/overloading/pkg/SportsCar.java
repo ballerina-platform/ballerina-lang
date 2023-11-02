@@ -66,4 +66,18 @@ public class SportsCar extends Car {
     public String getBatteryType(String prefix) {
         return prefix + " EV-HY3-Lithium-ion power";
     }
+
+    public static String getPrice(String model) {
+        if (model.equals("Nissan-GTR")) {
+            return "USD 100,000";
+        }
+        return "USD 50,000";
+    }
+
+    public static Object getPrice(Object type) {
+        if (type.equals("BMW-S6")) {
+            return " 120,000";
+        }
+        return " 60,000";
+    }
 }

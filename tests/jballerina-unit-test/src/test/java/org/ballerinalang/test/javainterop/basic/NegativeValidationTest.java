@@ -445,7 +445,7 @@ public class NegativeValidationTest {
     public void testOverloadedMethods() {
         String path = "test-src/javainterop/negative/overloaded_methods.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
         BAssertUtil.validateError(compileResult, 0,
                 "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
                         "cannot be differentiated. Please specify the parameter types for each " +
@@ -455,6 +455,11 @@ public class NegativeValidationTest {
                 "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods " +
                 "cannot be differentiated. Please specify the parameter types for each parameter in " +
                 "'paramTypes' field in the annotation'", "overloaded_methods.bal", 30, 1);
+        BAssertUtil.validateError(compileResult, 2,
+                "{ballerina/jballerina.java}OVERLOADED_METHODS 'Overloaded methods 'getPrice' with '1' " +
+                        "parameter(s) in class 'class org.ballerinalang.test.javainterop.overloading.pkg.SportsCar', " +
+                        "please specify class names for each parameter with 'paramTypes' field in the annotation'",
+                "overloaded_methods.bal", 35, 1);
     }
 
     @Test
