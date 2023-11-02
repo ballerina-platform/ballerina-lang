@@ -117,11 +117,11 @@ class JMethodResolver {
         if (jMethods.isEmpty()) {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
                 throw new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
-                        "No such public constructor found in class '" + jMethodRequest.declaringClass + "'");
+                        "No such public constructor found in class '" + jMethodRequest.declaringClass.getName() + "'");
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' found in class '" +
-                                jMethodRequest.declaringClass + "'");
+                                jMethodRequest.declaringClass.getName() + "'");
             }
         }
 
@@ -399,15 +399,8 @@ class JMethodResolver {
                 receiverIndex = jMethodRequest.pathParamCount;
             }
             BType receiverType = bParamTypes[receiverIndex];
-            boolean isLastParam = (bParamTypes.length - jMethodRequest.pathParamCount) == 1;
-            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
-                    jMethodRequest.restParamExist)) {
-                if (jParamTypes.length == 0 || bParamTypes[0].tag != TypeTags.HANDLE) {
-                    throwMethodNotFoundError(jMethodRequest);
-                } else {
-                    throwNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
-                            jMethodRequest.declaringClass);
-                }
+            if (receiverType.tag != TypeTags.HANDLE) {
+                throwMethodNotFoundError(jMethodRequest);
             }
             for (int k = receiverIndex; k < bParamTypes.length - 1; k++) {
                 bParamTypes[k] = bParamTypes[k + 1];
@@ -854,12 +847,12 @@ class JMethodResolver {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
                 throw new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                         "No such public constructor that matches with parameter types '" + paramTypesSig +
-                                "' found in class '" + jMethodRequest.declaringClass + "'");
+                                "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' that matches with parameter types " +
-                                "'" +
-                                paramTypesSig + "' found in class '" + jMethodRequest.declaringClass + "'");
+                                "'" + paramTypesSig + "' found in class '" + jMethodRequest.declaringClass.getName() +
+                                "'");
             }
         } else if (resolvedJMethods.size() > 1) {
             if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
@@ -983,18 +976,18 @@ class JMethodResolver {
         if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
             throw new JInteropException(DiagnosticErrorCode.CONSTRUCTOR_NOT_FOUND,
                     "No such public constructor with '" + jMethodRequest.bFuncParamCount +
-                            "' parameter(s) found in class '" + jMethodRequest.declaringClass + "'");
+                            "' parameter(s) found in class '" + jMethodRequest.declaringClass.getName() + "'");
         } else {
             if (jMethodRequest.bFuncParamCount == 0 || jMethodRequest.bParamTypes[0].tag != TypeTags.HANDLE) {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public static method '" + jMethodRequest.methodName + "' with '" +
                                 jMethodRequest.bFuncParamCount +
-                                "' parameter(s) found in class '" + jMethodRequest.declaringClass + "'");
+                                "' parameter(s) found in class '" + jMethodRequest.declaringClass.getName() + "'");
             } else {
                 throw new JInteropException(DiagnosticErrorCode.METHOD_NOT_FOUND,
                         "No such public method '" + jMethodRequest.methodName + "' with '" +
                                 jMethodRequest.bFuncParamCount +
-                                "' parameter(s) found in class '" + jMethodRequest.declaringClass + "'");
+                                "' parameter(s) found in class '" + jMethodRequest.declaringClass.getName() + "'");
             }
         }
     }
