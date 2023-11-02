@@ -1,6 +1,4 @@
 import greeter.email;
-
-// Ballerina library imports
 import ballerina/io as console;
 // First line of comments
 // Second line of comments
