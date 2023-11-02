@@ -3823,6 +3823,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (resourceFunctions.size() == 0) {
+            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, data);
             dlog.error(resourceAccessInvocation.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE,
                     lhsExprType);
             data.resultType = symTable.semanticError;
@@ -3833,10 +3834,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
         int targetResourceFuncCount = resourceFunctions.size();
         if (targetResourceFuncCount == 0) {
+            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, data);
             dlog.error(resourceAccessInvocation.name.pos,
                     DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name, lhsExprType);
             data.resultType = symTable.semanticError;
         } else if (targetResourceFuncCount > 1) {
+            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, data);
             dlog.error(resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
             data.resultType = symTable.semanticError;
         } else {
