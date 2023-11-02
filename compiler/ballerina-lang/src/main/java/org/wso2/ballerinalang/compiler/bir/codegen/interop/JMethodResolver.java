@@ -255,10 +255,10 @@ class JMethodResolver {
             return false;
         }
         for (int i = 0; i < jMethods.size(); i++) {
+            Method method1 = (Method) jMethods.get(i).getMethod();
             for (int k = i + 1; k < jMethods.size(); k++) {
-                Method ithMethod = (Method) jMethods.get(i).getMethod();
-                Method kthMethod = (Method) jMethods.get(k).getMethod();
-                if (!isOverridden(ithMethod, kthMethod, declaringClass)) {
+                Method method2 = (Method) jMethods.get(k).getMethod();
+                if (!isOverridden(method1, method2, declaringClass)) {
                     return false;
                 }
             }
