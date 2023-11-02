@@ -1725,7 +1725,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
                     !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)
                     && typeResolver.isNotUnknownTypeRef(userDefinedTypeNode)) {
-                dlog.error(userDefinedTypeNode.pos, data.diagCode, typeName);
+                dlog.error(userDefinedTypeNode.pos, data.diagCode, names.originalNameFromIdNode(typeNameIdentifier));
             }
             return symTable.semanticError;
         }

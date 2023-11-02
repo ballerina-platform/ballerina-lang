@@ -603,7 +603,7 @@ public class JvmTypeGen {
                 mv.visitInsn(DUP);
                 mv.visitLdcInsn((long) i);
                 mv.visitInsn(L2I);
-                mv.visitLdcInsn(Utils.unescapeJava(fieldName));
+                mv.visitLdcInsn(fieldName);
                 mv.visitInsn(AASTORE);
                 i += 1;
             }

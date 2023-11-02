@@ -913,7 +913,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         // Create a new anonymous type definition.
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        this.anonTypeNameSuffixes.push(constantNode.name.value);
+        this.anonTypeNameSuffixes.push(constantNode.name.originalValue);
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
         this.anonTypeNameSuffixes.pop();
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName, constantNode.name.value);
@@ -979,7 +979,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         typeDef.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(typeDefNode.metadata()));
 
-        this.anonTypeNameSuffixes.push(typeDef.name.value);
+        this.anonTypeNameSuffixes.push(typeDef.name.originalValue);
         typeDef.typeNode = createTypeNode(typeDefNode.typeDescriptor());
         this.anonTypeNameSuffixes.pop();
 
@@ -1577,7 +1577,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
-        this.anonTypeNameSuffixes.push(name.value);
+        this.anonTypeNameSuffixes.push(name.originalValue);
         populateFuncSignature(bLFunction, functionSignature);
         this.anonTypeNameSuffixes.pop();
 
@@ -1782,10 +1782,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.setOriginalValue(workerName);
-            workerName = Utils.unescapeUnicodeCodepoints(workerName.substring(1));
+            workerName = workerName.substring(1);
         }
 
-        bLFunction.defaultWorkerName.value = workerName;
+        bLFunction.defaultWorkerName.value = Utils.unescapeBallerina(workerName);
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
 
         NodeList<AnnotationNode> annotations = namedWorkerDeclNode.annotations();
@@ -3881,7 +3881,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         BLangIdentifier memberName = (BLangIdentifier) transform(member.identifier());
         bLangConstant.setName(memberName);
-        this.anonTypeNameSuffixes.push(memberName.value);
+        this.anonTypeNameSuffixes.push(memberName.originalValue);
 
         BLangExpression deepLiteral;
         if (member.constExprNode().isPresent()) {
@@ -3905,7 +3905,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 literal.originalValue = null;
                 typeNodeAssociated.addValue(deepLiteral);
                 bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated,
-                        memberName.value);
+                        memberName.originalValue);
             } else {
                 bLangConstant.associatedTypeDefinition = null;
             }

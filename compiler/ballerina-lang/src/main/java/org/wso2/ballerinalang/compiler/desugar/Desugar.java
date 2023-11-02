@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -1770,8 +1769,8 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangRecordVariableKeyValue> variableList = parentRecordVariable.variableList;
         for (BLangRecordVariableKeyValue recordFieldKeyValue : variableList) {
             BLangVariable variable = recordFieldKeyValue.valueBindingPattern;
-            BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.stringType,
-                                                                  Utils.unescapeJava(recordFieldKeyValue.key.value));
+            BLangLiteral indexExpr =
+                    ASTBuilderUtil.createLiteral(variable.pos, symTable.stringType, recordFieldKeyValue.key.value);
 
             if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.VARIABLE) {
                 createSimpleVarDefStmt((BLangSimpleVariable) recordFieldKeyValue.valueBindingPattern, parentBlockStmt,
@@ -2826,7 +2825,7 @@ public class Desugar extends BLangNodeVisitor {
         for (BLangRecordVarRefKeyValue varRefKeyValue : variableRefList) {
             BLangExpression expression = varRefKeyValue.variableReference;
             BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(expression.pos, symTable.stringType,
-                    Utils.unescapeJava(varRefKeyValue.variableName.getValue()));
+                    varRefKeyValue.variableName.getValue());
 
             if (NodeKind.SIMPLE_VARIABLE_REF == expression.getKind() ||
                     NodeKind.FIELD_BASED_ACCESS_EXPR == expression.getKind() ||
@@ -6118,12 +6117,12 @@ public class Desugar extends BLangNodeVisitor {
             if (field.isKeyValueField()) {
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
-                    fieldNames.add(Utils.unescapeBallerina(((BLangLiteral) key).value.toString()));
+                    fieldNames.add(((BLangLiteral) key).value.toString());
                 } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    fieldNames.add(Utils.unescapeBallerina(((BLangSimpleVarRef) key).variableName.value));
+                    fieldNames.add(((BLangSimpleVarRef) key).variableName.value);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                fieldNames.add(Utils.unescapeBallerina(((BLangSimpleVarRef) field).variableName.value));
+                fieldNames.add(((BLangSimpleVarRef) field).variableName.value);
             } else {
                 addRequiredFieldsFromSpreadOperator(field, fieldNames);
             }
@@ -6140,7 +6139,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         for (BField bField : ((BRecordType) type).fields.values()) {
-            fieldNames.add(Utils.unescapeBallerina(bField.name.value));
+            fieldNames.add(bField.name.value);
         }
     }
 
@@ -6179,7 +6178,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                                   BLangExpression expression) {
         BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
         member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                    Utils.unescapeJava(fieldName)));
+                    fieldName));
         member.valueExpr = types.addConversionExprIfRequired(expression, expression.getBType());
         return member;
     }
@@ -6349,8 +6348,7 @@ public class Desugar extends BLangNodeVisitor {
             fieldAccessExpr.expr = types.addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
         }
 
-        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos,
-                Utils.unescapeJava(fieldAccessExpr.field.value));
+        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos, fieldAccessExpr.field.value);
         BType refType = Types.getImpliedType(varRefType);
         int varRefTypeTag = refType.tag;
         if (varRefTypeTag == TypeTags.OBJECT ||
@@ -6780,7 +6778,7 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            BInvokableSymbol invokableSymbol = defaultValues.get(Utils.unescapeBallerina(paramName));
+            BInvokableSymbol invokableSymbol = defaultValues.get(paramName);
             BLangInvocation closureInvocation = getFunctionPointerInvocation(invokableSymbol);
             for (int m = 0; m < invokableSymbol.params.size(); m++) {
                 String langLibFuncParam = invokableSymbol.params.get(m).name.value;
@@ -6829,8 +6827,8 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
                 BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
-                member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
-                        symTable.stringType, Utils.unescapeJava(namedArg.name.value)));
+                member.key = new BLangRecordLiteral.BLangRecordKey(
+                        ASTBuilderUtil.createLiteral(namedArg.name.pos, symTable.stringType, namedArg.name.value));
 
                 if (Types.getImpliedType(recordLiteral.getBType()).tag == TypeTags.RECORD) {
                     member.valueExpr = types.addConversionExprIfRequired(namedArg.expr, symTable.anyType);
@@ -10573,8 +10571,8 @@ public class Desugar extends BLangNodeVisitor {
                 if (key.computedKey) {
                     keyExpr = origKey;
                 } else {
-                    keyExpr = origKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF ? createStringLiteral(pos,
-                            Utils.unescapeJava(((BLangSimpleVarRef) origKey).variableName.value)) :
+                    keyExpr = origKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
+                            createStringLiteral(pos, ((BLangSimpleVarRef) origKey).variableName.value) :
                             ((BLangLiteral) origKey);
                 }
 
@@ -10587,7 +10585,7 @@ public class Desugar extends BLangNodeVisitor {
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
                 rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(
-                        rewriteExpr(createStringLiteral(pos, Utils.unescapeJava(varRefField.variableName.value))),
+                        rewriteExpr(createStringLiteral(pos, varRefField.variableName.value)),
                         rewriteExpr(varRefField)));
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =

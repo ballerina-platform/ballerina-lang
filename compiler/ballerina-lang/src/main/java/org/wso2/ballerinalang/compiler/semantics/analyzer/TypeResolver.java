@@ -1817,10 +1817,15 @@ public class TypeResolver {
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
                 names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, resolvedType, env.scope.owner,
                 typeDefinition.name.pos, symEnter.getOrigin(typeDefinition.name.value));
+        if (!PackageID.isLangLibPackageID(env.enclPkg.packageID)) {
+            typeDefSymbol.originalName = names.originalNameFromIdNode(typeDefinition.name);
+        }
         typeDefSymbol.markdownDocumentation =
                 symEnter.getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
-        BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, typeDefSymbol.flags, typeDefSymbol.name,
-                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
+        BTypeSymbol typeSymbol =
+                new BTypeSymbol(SymTag.TYPE_REF, typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.originalName,
+                        typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos,
+                        typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(resolvedType, typeSymbol,
                 typeDefSymbol.type.flags);

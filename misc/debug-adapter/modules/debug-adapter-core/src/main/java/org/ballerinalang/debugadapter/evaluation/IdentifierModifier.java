@@ -22,8 +22,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
 import io.ballerina.identifier.Utils;
 
-import static io.ballerina.identifier.Utils.unescapeUnicodeCodepoints;
-
 /**
  * Identifier specific expression modifier implementation.
  */
@@ -39,7 +37,7 @@ public class IdentifierModifier extends TreeModifier {
             identifierText = identifierText.substring(1);
         }
         // Processes escaped unicode codepoints.
-        String unescapedIdentifier = unescapeUnicodeCodepoints(identifierText);
+        String unescapedIdentifier = Utils.unescapeBallerina(identifierText);
 
         // Encodes the user provided identifier in order to be aligned with JVM runtime identifiers.
         NonTerminalNode parent = identifier.parent();
@@ -58,7 +56,7 @@ public class IdentifierModifier extends TreeModifier {
         if (identifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
             identifier = identifier.substring(1);
         }
-        identifier = Utils.unescapeUnicodeCodepoints(identifier);
+        identifier = Utils.unescapeBallerina(identifier);
         return type == IdentifierType.METHOD_NAME ? Utils.encodeFunctionIdentifier(identifier) :
                 Utils.encodeNonFunctionIdentifier(identifier);
     }

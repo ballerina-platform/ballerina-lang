@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -2424,8 +2423,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                 }
 
-                LinkedHashMap<String, BField> fieldsInRecordType = getUnescapedFieldList(spreadExprRecordType.fields);
-
+                LinkedHashMap<String, BField> fieldsInRecordType = spreadExprRecordType.fields;
                 for (Object fieldName : names) {
                     if (!fieldsInRecordType.containsKey(fieldName) && !isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
@@ -2476,24 +2474,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
                 if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
-                    String unescapedName = Utils.unescapeJava(name);
-                    if (names.contains(unescapedName)) {
+                    if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR,
-                                        Types.getImpliedType(recordLiteral.expectedType).getKind().typeName(),
-                                        unescapedName);
-                    } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(unescapedName)) {
+                                Types.getImpliedType(recordLiteral.expectedType).getKind().typeName(), name);
+                    } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
                         this.dlog.error(keyExpr.pos,
-                                        DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
-                                unescapedName, inclusiveTypeSpreadField);
+                                DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP, name,
+                                inclusiveTypeSpreadField);
                     }
 
                     if (!isInferredRecordForMapCET && isOpenRecord
                             && !((BRecordType) referredType).fields.containsKey(name)) {
-                        dlog.error(keyExpr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY,
-                                unescapedName);
+                        dlog.error(keyExpr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
                     }
 
-                    names.add(unescapedName);
+                    names.add(name);
                 } else if (keyExpr.getKind() == NodeKind.LITERAL || keyExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
@@ -2519,16 +2514,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRecordLiteral.BLangRecordVarNameField node, AnalyzerData data) {
         visit((BLangSimpleVarRef) node, data);
     }
-
-    private LinkedHashMap<String, BField> getUnescapedFieldList(LinkedHashMap<String, BField> fieldMap) {
-        LinkedHashMap<String, BField> newMap = new LinkedHashMap<>();
-        for (String key : fieldMap.keySet()) {
-            newMap.put(Utils.unescapeJava(key), fieldMap.get(key));
-        }
-
-        return newMap;
-    }
-
+    
     @Override
     public void visit(BLangSimpleVarRef varRefExpr, AnalyzerData data) {
         switch (varRefExpr.parent.getKind()) {

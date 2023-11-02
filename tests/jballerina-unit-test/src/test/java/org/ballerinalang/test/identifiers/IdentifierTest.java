@@ -78,9 +78,9 @@ public class IdentifierTest {
     public void testEscapedIdentifier() {
         CompileResult result = BCompileUtil.compile("test-src/identifiers/identifier_with_escape_char.bal");
         int index = 0;
-        validateError(result, index++, "redeclared symbol 'a3'", 20, 9);
-        validateError(result, index++, "redeclared symbol 'student-performance'", 22, 9);
-        validateError(result, index++, "redeclared symbol 'resource\\1path'", 24, 12);
+        validateError(result, index++, "redeclared symbol 'a3'", 23, 9);
+        validateError(result, index++, "redeclared symbol 'student-performance'", 25, 9);
+        validateError(result, index++, "redeclared symbol 'resource\\1path'", 27, 12);
         assertEquals(result.getErrorCount(), index);
     }
 

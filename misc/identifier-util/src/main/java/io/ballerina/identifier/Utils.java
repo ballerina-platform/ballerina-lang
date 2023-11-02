@@ -44,17 +44,14 @@ public final class Utils {
 
     private static String encodeSpecialCharacters(String identifier) {
         StringBuilder sb = new StringBuilder();
-        int index = 0;
-        while (index < identifier.length()) {
+        char[] characters = identifier.toCharArray();
+        for (char character: characters) {
             String formattedString;
-            if (identifier.charAt(index) == '\\' && (index + 1 < identifier.length()) &&
-                    (formattedString = getFormattedStringForQuotedIdentifiers(identifier.charAt(index + 1))) != null)  {
+            if ((formattedString = getFormattedStringForQuotedIdentifiers(character)) != null)  {
                 String unicodePoint = CHAR_PREFIX + formattedString;
                 sb.append(unicodePoint);
-                index += 2;
             } else {
-                sb.append(identifier.charAt(index));
-                index++;
+                sb.append(character);
             }
         }
         return sb.toString();
@@ -72,8 +69,7 @@ public final class Utils {
 
     private static String encodeIdentifier(String identifier) {
         if (identifier.contains(ESCAPE_PREFIX)) {
-            identifier = encodeSpecialCharacters(identifier);
-            return unescapeJava(identifier);
+            return encodeSpecialCharacters(identifier);
         }
         return identifier;
     }
