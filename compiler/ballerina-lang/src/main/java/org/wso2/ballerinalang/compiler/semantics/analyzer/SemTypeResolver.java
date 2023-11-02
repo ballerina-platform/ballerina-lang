@@ -838,6 +838,11 @@ public class SemTypeResolver {
         return PredefinedType.NEVER;
     }
 
+    /**
+     * This method returns the same instance if the given type is not fully sem-type supported.
+     * Hence, should be called very carefully.
+     */
+    @Deprecated
     public static BType getBTypeComponent(BType t) {
         if (t.tag == TypeTags.TYPEREFDESC) {
             return getBTypeComponent(((BTypeReferenceType) t).referredType);

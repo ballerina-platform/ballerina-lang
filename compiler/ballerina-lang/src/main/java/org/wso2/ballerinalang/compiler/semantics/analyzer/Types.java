@@ -846,6 +846,10 @@ public class Types {
         return result;
     }
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        if (source.tag == TypeTags.PARAMETERIZED_TYPE) {
+            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
+        }
+
         if (source.isBTypeComponent || target.isBTypeComponent) {
             return isAssignableInternal(SemTypeResolver.getBTypeComponent(source),
                     SemTypeResolver.getBTypeComponent(target), unresolvedTypes);
@@ -901,10 +905,6 @@ public class Types {
 
         if (targetTag == TypeTags.INTERSECTION) {
             return isAssignable(source, ((BIntersectionType) target).getEffectiveType(), unresolvedTypes);
-        }
-
-        if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
-            return isParameterizedTypeAssignable(source, target, unresolvedTypes);
         }
 
         if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
