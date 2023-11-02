@@ -78,7 +78,6 @@ public class ModuleResolver {
         for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
             resolveModuleLoadRequest(moduleLoadRequest, pkgContainer, unresolvedModuleRequests);
         }
-
         if (unresolvedModuleRequests.isEmpty()) {
             return pkgContainer;
         }
