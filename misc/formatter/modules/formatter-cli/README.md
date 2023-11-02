@@ -8,11 +8,11 @@ according to the default [Ballerina style guide](https://github.com/ballerina-pl
 The Ballerina format command can be used to format Ballerina source files.
 
 ```sh
-$ ballerina format --help
+$ bal format --help
 Prints the help guide for the Ballerina format tool.
 
 Usage:
-ballerina format [<ballerinaFile> | <moduleName>] [-d | --dry-run]
+bal format [<ballerinaFile> | <moduleName>] [-d | --dry-run]
   ballerinaFile:
       Path of a single Ballerina source file, which needs to be formatted.
   moduleName:
@@ -29,26 +29,26 @@ Flags:
 
 **Example 1:** Formats all the Ballerina source files in a Ballerina project.
 ```sh
-$ ballerina format
+$ bal format
 ```
 
 This command should be executed from the root of the Ballerina project.
 
 **Example 2:** Formats all the Ballerina source files in a Ballerina module.
 ```sh
-$ ballerina format module1
+$ bal format module1
 ```
 This command should be executed from the root of the Ballerina project.
 
 **Example 3:** Formats a single Ballerina source file.
 ```sh
-$ ballerina format hello.bal
+$ bal format hello.bal
 ```
 
 **Example 4:** Performs a dry run of the formatter to see which files will be formatted
 if executed.
 ```sh
-$ ballerina format -d
-$ ballerina format module1 -d
-$ ballerina format hello.bal -d
+$ bal format -d
+$ bal format module1 -d
+$ bal format hello.bal -d
 ```
