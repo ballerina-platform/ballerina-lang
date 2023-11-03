@@ -118,8 +118,12 @@ public class TransactionResourceManager {
             userTransactionManager = new UserTransactionManager();
         } else {
             xidRegistry = new HashMap<>();
-            int checkpointInterval = getCheckpointInterval();
-            fileRecoveryLog = new FileRecoveryLog(getRecoveryLogBaseName(), checkpointInterval, getRecoveryLogDir(), getDeleteOldLogs());
+            fileRecoveryLog = new FileRecoveryLog(
+                    getRecoveryLogBaseName(),
+                    getCheckpointInterval(),
+                    getRecoveryLogDir(),
+                    getDeleteOldLogs()
+            );
             inMemoryRecoveryLog = new InMemoryRecoveryLog();
         }
     }

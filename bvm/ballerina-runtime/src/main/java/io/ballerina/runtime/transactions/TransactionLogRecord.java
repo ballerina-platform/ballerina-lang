@@ -4,11 +4,19 @@ public class TransactionLogRecord {
     public String transactionId;
     private String transactionBlockId;
     private RecoveryStatus transactionStatus;
-    // TODO: add the following fields to the TransactionRecord
-    //         expirationTime;
-    //         parentTransactionId;
-    //         RecoveryDomain;
 
+
+    /**
+     * Create a transaction log record.
+     *
+     * @param transactionId      the transaction id
+     * @param transactionBlockId the transaction block id
+     * @param transactionStatus  the current status of the transaction
+     * TODO: add the following fields to the TransactionRecord
+     *          expirationTime;
+     *          parentTransactionId;
+     *          RecoveryDomain;
+     */
     public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryStatus transactionStatus) {
         this.transactionId = transactionId;
         this.transactionBlockId = transactionBlockId;
@@ -19,6 +27,14 @@ public class TransactionLogRecord {
         return transactionId + ":" + transactionBlockId + "|" + transactionStatus + System.getProperty("line.separator");
     }
 
+    /**
+     * Parse a transaction log record from a log line.
+     *
+     * @param logLine the log as a string
+     * @return the transaction log record
+     *
+     * TODO: change as required, after adding more information to the log record
+     */
     public static TransactionLogRecord parseTransactionLogRecord(String logLine) {
         String[] logBlocks = logLine.split("\\|");
         if (logBlocks.length == 2) {
@@ -26,15 +42,18 @@ public class TransactionLogRecord {
             String transactionStatusString = logBlocks[1];
             String transactionId = combinedId[0];
             String transactionBlockId = combinedId[1];
-            // match with RecoveryStatus enum
             RecoveryStatus transactionStatus = RecoveryStatus.getRecoveryStatus(transactionStatusString);
             return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus);
         }
         // If parsing fails.. TODO: handle parsing fail properly
-//        log.error("Error while parsing transaction log record: " + logLine + "\nLog file may be corrupted.");
         return null;
     }
 
+    /**
+     * Check whether the transaction is in a final state.
+     *
+     * @return true if the transaction is completed
+     */
     public boolean isCompleted() {
         return transactionStatus.equals(RecoveryStatus.TERMINATED);
     }

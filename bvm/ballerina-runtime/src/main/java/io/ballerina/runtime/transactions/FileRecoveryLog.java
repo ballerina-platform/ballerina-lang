@@ -18,10 +18,10 @@ import java.util.Map;
 
 public class FileRecoveryLog implements RecoveryLog {
     private static final Logger log = LoggerFactory.getLogger(FileRecoveryLog.class);
-    private final boolean deleteOldLogs;
-    private int checkpointInterval;
     private String baseFileName;
     private Path recoveryLogDir;
+    private int checkpointInterval;
+    private final boolean deleteOldLogs;
     private int numOfPutsSinceLastCheckpoint;
     private File file;
     private FileChannel appendChannel = null;
@@ -31,16 +31,18 @@ public class FileRecoveryLog implements RecoveryLog {
      * Initializes a new FileRecoveryLog instance with the given base file name.
      *
      * @param baseFileName  The base name for the recovery log files.
-     * @param deleteOldLogs
+     * @param checkpointInterval The interval at which to write checkpoints to the log file.
+     * @param recoveryLogDir The directory to store the recovery log files in.
+     * @param deleteOldLogs Whether to delete old log files when creating a new one.
      */
     public FileRecoveryLog(String baseFileName, int checkpointInterval, Path recoveryLogDir, boolean deleteOldLogs) {
         this.baseFileName = baseFileName;
         this.recoveryLogDir = recoveryLogDir;
         this.deleteOldLogs = deleteOldLogs;
         this.checkpointInterval = checkpointInterval;
-        numOfPutsSinceLastCheckpoint = 0;
         this.existingLogs = new HashMap<>();
         this.file = createNextVersion();
+        this.numOfPutsSinceLastCheckpoint = 0;
     }
 
     /**
@@ -49,44 +51,28 @@ public class FileRecoveryLog implements RecoveryLog {
      * @return The newly created log file.
      */
     private File createNextVersion() {
-        // Ensure the directory exists, create it if it doesn't
-        try {
-            Files.createDirectories(recoveryLogDir);
-        } catch (IOException e) {
-            log.error("Failed to create directories for newFilePath: " + e.getMessage());
-        }
         int latestVersion = findLatestVersion();
-        Path newFilePath = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + ".log");
-
-
-        Path oldFilePath = recoveryLogDir.resolve(baseFileName + latestVersion + ".log");
-        File oldFile = oldFilePath.toFile();
-        // Delete the old version, if it exists and if deleteOldLogs is true
+        File oldFile = recoveryLogDir.resolve(baseFileName + latestVersion + ".log").toFile();
         if (oldFile.exists()) {
-            // Get the existing logs from the old file
             existingLogs = readLogsFromFile(oldFile);
             if (deleteOldLogs) {
-                File[] files = recoveryLogDir.toFile().listFiles((dir, name) -> name.matches(baseFileName + "(\\d+)\\.log"));
+                File[] files = recoveryLogDir.toFile().listFiles(
+                        (dir, name) -> name.matches(baseFileName + "(\\d+)\\.log")
+                );
                 for (File file: files) {
-                    if (file.getName().startsWith(baseFileName) && file.getName().endsWith(".log")) {
                         file.delete();
                     }
                 }
-
             }
-        }
-
-        // Create the new version
-//        File newFile = new File(newFileName);
-        File newFile = newFilePath.toFile();
-
+        File newFile = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + ".log").toFile();
         try {
+            Files.createDirectories(recoveryLogDir); // create directory if not exists
             newFile.createNewFile();
             initAppendChannel(newFile);
-            // write existing unfinished logs to the new file
             if (existingLogs == null) {
                 return newFile;
             }
+            // write existing unfinished logs to the new file
             if (!existingLogs.isEmpty()) {
                 cleanUpFinishedLogs();
                 if (!existingLogs.isEmpty()) {
@@ -95,7 +81,6 @@ public class FileRecoveryLog implements RecoveryLog {
                     }
                     existingLogs.clear();
                 }
-
             }
         } catch (IOException e) {
             log.error("An error occurred while creating the new recovery log file.");
@@ -117,7 +102,9 @@ public class FileRecoveryLog implements RecoveryLog {
         }
         for (File file : files) {
             String fileName = file.getName();
-            int version = Integer.parseInt(fileName.replaceAll(baseFileName, "").replaceAll(".log", ""));
+            int version = Integer.parseInt(fileName.replaceAll(
+                    baseFileName, "").replaceAll(".log", "")
+            );
             if (version > latestVersion) {
                 latestVersion = version;
             }
@@ -139,7 +126,6 @@ public class FileRecoveryLog implements RecoveryLog {
             }
         } catch (IOException e) {
             log.error("An error occurred while opening the recovery log file.");
-            e.printStackTrace();
         }
     }
 
@@ -150,7 +136,6 @@ public class FileRecoveryLog implements RecoveryLog {
             ifNeedWriteCheckpoint();
             numOfPutsSinceLastCheckpoint++;
         }
-
     }
 
     public Map<String, TransactionLogRecord> getPendingLogs() {
@@ -185,6 +170,7 @@ public class FileRecoveryLog implements RecoveryLog {
         }
     }
 
+
     private Map<String, TransactionLogRecord> readLogsFromFile(File file) {
         Map<String, TransactionLogRecord> logMap = new HashMap<>();
         if (!file.exists() || file.length() == 0) {
@@ -209,35 +195,21 @@ public class FileRecoveryLog implements RecoveryLog {
         return logMap;
     }
 
-    
-
 
     private void cleanUpFinishedLogs() {
-        // TODO: logic to clean up completed transaction logs (replace with proper logic)
-        // go through the existingLogs map and see the finished and unfinished logs
-        // if a log is finished, remove it from the map
-        // if a log is unfinished, write it to the new log file
         if (existingLogs.isEmpty()) {
             return;
         }
-
         Iterator<Map.Entry<String, TransactionLogRecord>> iterator = existingLogs.entrySet().iterator();
-
         while (iterator.hasNext()) {
             Map.Entry<String, TransactionLogRecord> entry = iterator.next();
-
             if (entry.getValue().isCompleted()) {
                 iterator.remove(); // Safely remove the entry
             }
         }
     }
 
-
     public void ifNeedWriteCheckpoint() {
-        // TODO:  write a better logic checkpoint of the log file
-        // get a copy of current log file
-        // cleanup finished logs. call cleanUpFinishedLogs() method.
-        // discard the existing log file and create a new one with same name
         if (numOfPutsSinceLastCheckpoint >= checkpointInterval) {
             log.info("Checkpoint needed. Cleaning up finished logs.");
             numOfPutsSinceLastCheckpoint = 0; // need to set here otherwise it will just keep creating new files
@@ -248,9 +220,7 @@ public class FileRecoveryLog implements RecoveryLog {
 
     @Override
     public void close() {
-
     }
-
 
     private void closeEverything() {
         try {
