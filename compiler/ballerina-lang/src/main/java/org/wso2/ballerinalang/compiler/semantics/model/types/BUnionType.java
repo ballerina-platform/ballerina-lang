@@ -52,7 +52,6 @@ public class BUnionType extends BType implements UnionType {
 
     private BIntersectionType intersectionType = null;
 
-    private boolean nullable;
     private String cachedToString;
 
     protected LinkedHashSet<BType> memberTypes;
@@ -97,7 +96,6 @@ public class BUnionType extends BType implements UnionType {
 
         this.originalMemberTypes = originalMemberTypes;
         this.memberTypes = memberTypes;
-        this.nullable = nullable;
         this.isCyclic = isCyclic;
         SemTypeResolver.resolveBUnionSemTypeComponent(this);
     }
@@ -147,10 +145,6 @@ public class BUnionType extends BType implements UnionType {
         computeStringRepresentation();
         resolvingToString = false;
         return cachedToString;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
     }
 
     /**
@@ -266,8 +260,6 @@ public class BUnionType extends BType implements UnionType {
         }
 
         setCyclicFlag(type);
-
-        this.nullable = this.nullable || type.isNullable();
         SemTypeResolver.resolveBUnionSemTypeComponent(this); // TODO: Optimize
     }
 
@@ -322,10 +314,6 @@ public class BUnionType extends BType implements UnionType {
             this.memberTypes.remove(type);
         }
         this.originalMemberTypes.remove(type);
-
-        if (type.isNullable()) {
-            this.nullable = false;
-        }
 
         if (Symbols.isFlagOn(this.flags, Flags.READONLY)) {
             return;
@@ -488,7 +476,7 @@ public class BUnionType extends BType implements UnionType {
 
         String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner + ")" : joiner.toString();
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
-        cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
+        cachedToString = (this.isNullable() && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
                 typeStr;
     }
 

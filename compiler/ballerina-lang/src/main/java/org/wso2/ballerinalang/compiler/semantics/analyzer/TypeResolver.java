@@ -1334,9 +1334,6 @@ public class TypeResolver {
                 continue;
             }
 
-            if (resolvedType.isNullable()) {
-                unionType.setNullable(true);
-            }
             memberTypes.add(resolvedType);
         }
 
@@ -1386,11 +1383,6 @@ public class TypeResolver {
             flattenMemberTypes = bTypes;
         }
 
-        for (BType memberType : flattenMemberTypes) {
-            if (memberType.isNullable()) {
-                type.setNullable(true);
-            }
-        }
         type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);

@@ -673,9 +673,7 @@ public class SymbolTable {
     }
 
     private BUnionType getNilableBType(BType type) {
-        BUnionType nilableType = BUnionType.create(null, type, nilType);
-        nilableType.setNullable(true);
-        return nilableType;
+        return BUnionType.create(null, type, nilType);
     }
 
     private void defineNilableIntegerUnaryOperations() {
