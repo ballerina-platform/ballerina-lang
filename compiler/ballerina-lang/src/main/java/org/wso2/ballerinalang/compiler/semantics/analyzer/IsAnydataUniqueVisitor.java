@@ -209,7 +209,7 @@ public class IsAnydataUniqueVisitor extends UniqueTypeVisitor<Boolean> {
             }
         }
         type.isAnyData = (type.restType == null) || visit(type.restType);
-        return isAnydata;
+        return type.isAnyData;
     }
 
     @Override
