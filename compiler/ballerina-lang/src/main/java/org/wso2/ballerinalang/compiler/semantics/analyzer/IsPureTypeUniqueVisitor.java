@@ -36,9 +36,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.HashSet;
 
 /**
- * IsPureTypeUniqueVisitor to check if a type is pure data.
- *
+ * IsPureTypeUniqueVisitor to check if a type is pure data (i.e. check if a type is a subtype of anydata|error).
  * This is introduced to handle cyclic unions.
+ *
  * @since slp4
  */
 public class IsPureTypeUniqueVisitor extends UniqueTypeVisitor<Boolean> {
