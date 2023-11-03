@@ -17,7 +17,6 @@ public class SampleToolRunner implements BuildToolRunner {
     @Override
     public void executeTool(ToolContext toolContext) {
         Path absFilePath = toolContext.packageInstance().project().sourceRoot().resolve(toolContext.filePath());
-        System.out.println(absFilePath.toFile().exists());
         if (!absFilePath.toFile().exists()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo("001", "The provided filePath does not exist", DiagnosticSeverity.ERROR);
             diagnostics.add(new ToolDiagnostic(diagnosticInfo, diagnosticInfo.messageFormat()));
