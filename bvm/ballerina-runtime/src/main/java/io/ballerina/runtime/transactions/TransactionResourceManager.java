@@ -119,7 +119,7 @@ public class TransactionResourceManager {
         } else {
             xidRegistry = new HashMap<>();
             int checkpointInterval = getCheckpointInterval();
-            fileRecoveryLog = new FileRecoveryLog(getRecoveryLogBaseName(), checkpointInterval);
+            fileRecoveryLog = new FileRecoveryLog(getRecoveryLogBaseName(), checkpointInterval, getRecoveryLogDir(), getDeleteOldLogs());
             inMemoryRecoveryLog = new InMemoryRecoveryLog();
         }
     }
@@ -214,6 +214,35 @@ public class TransactionResourceManager {
         }
     }
 
+    /**
+     * This method gets the user specified config for ballerina recovery log directory.
+     *
+     * @return string recovery log directory
+     */
+    private Path getRecoveryLogDir(){
+        final Path projectRoot = Paths.get(RuntimeUtils.USER_DIR);
+        VariableKey recoveryLogDirKey = new VariableKey(TRANSACTION_PACKAGE_ID, "recoveryLogDir", PredefinedTypes.TYPE_STRING, false);
+        if (!ConfigMap.containsKey(recoveryLogDirKey)) {
+            return projectRoot;
+        } else {
+            String logDir = ((BString) ConfigMap.get(recoveryLogDirKey)).getValue();
+            Path logDirPath = Paths.get(logDir);
+            Path recoveryLogDirectory;
+            if (!logDirPath.isAbsolute()) {
+                logDir = projectRoot.toAbsolutePath().toString() + File.separatorChar + logDir;
+                recoveryLogDirectory = Paths.get(logDir);
+            } else {
+                recoveryLogDirectory = logDirPath;
+            }
+            return recoveryLogDirectory;
+        }
+    }
+
+    /**
+     * This method gets the user specified config for checkpoint interval.
+     *
+     * @return int checkpoint interval
+     */
     private Integer getCheckpointInterval() {
         VariableKey recoveryLogNameKey = new VariableKey(TRANSACTION_PACKAGE_ID, "checkpointInterval", PredefinedTypes.TYPE_INT, false);
         if (!ConfigMap.containsKey(recoveryLogNameKey)) {
@@ -235,6 +264,21 @@ public class TransactionResourceManager {
             } else {
                 return checkpointInterval;
             }
+        }
+    }
+
+    /**
+     * This method gets the user specified config for whether to delete old logs or not.
+     *
+     * @return boolean whether to delete old logs or not
+     */
+    public boolean getDeleteOldLogs() {
+        VariableKey deleteOldLogsKey = new VariableKey(TRANSACTION_PACKAGE_ID, "deleteOldLogs",
+                PredefinedTypes.TYPE_BOOLEAN, false);
+        if (!ConfigMap.containsKey(deleteOldLogsKey)) {
+            return true;
+        } else {
+            return (boolean) ConfigMap.get(deleteOldLogsKey);
         }
     }
 
