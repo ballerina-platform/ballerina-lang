@@ -28,10 +28,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.ballerinalang:ballerina-cli:2201.8.0-SNAPSHOT'
-    implementation 'org.ballerinalang:toml-parser:2201.8.0-SNAPSHOT'
-    implementation 'org.ballerinalang:ballerina-lang:2201.8.0-SNAPSHOT'
-    implementation 'org.ballerinalang:ballerina-tools-api:2201.8.0-SNAPSHOT'
+    implementation project(':ballerina-cli')
+    implementation project(':toml-parser')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-tools-api')
 
     implementation 'info.picocli:picocli:4.0.1'
     implementation group: 'org.talend.sdk.component', name: 'sample', version: '10.57.0'
