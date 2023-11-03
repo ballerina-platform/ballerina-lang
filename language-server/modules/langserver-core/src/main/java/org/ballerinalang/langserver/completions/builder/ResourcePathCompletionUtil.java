@@ -216,7 +216,8 @@ public class ResourcePathCompletionUtil {
                 new ResourceAccessPathPart(computedInsertText, computedSignature);
         if (context.currentSemanticModel().isPresent() &&
                 context.currentSemanticModel().get().types().STRING.subtypeOf(typeSymbol)) {
-            resourceAccessPathPart.namedPathSignature = "<path>";
+            resourceAccessPathPart.namedPathSignature =  pathParameterSymbol.getName().isPresent() ?
+                    "<" + pathParameterSymbol.getName().get() + ">" : "<path>";;
             resourceAccessPathPart.namedPathInsertText = "${" + placeHolderIndex + ":" + "path" + "}";
             resourceAccessPathPart.computedPathInsertText = "[${" + placeHolderIndex + ":" + "\"path\"" + "}]";
             resourceAccessPathPart.isStringPathPram = true;
