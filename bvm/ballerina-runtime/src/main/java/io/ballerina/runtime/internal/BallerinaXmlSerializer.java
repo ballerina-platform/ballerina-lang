@@ -287,7 +287,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     private void writeAttributes(HashSet<String> curNSSet, Map<String, String> attributeMap) throws XMLStreamException {
-        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI(XMLNS);
+        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("");
         for (Map.Entry<String, String> attributeEntry : attributeMap.entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.lastIndexOf('}');

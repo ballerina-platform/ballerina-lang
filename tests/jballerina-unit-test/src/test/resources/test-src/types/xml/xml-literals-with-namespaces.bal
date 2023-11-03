@@ -1,3 +1,5 @@
+import ballerina/test;
+
 xmlns "http://ballerina.com/b" as ns1; 
 
 function testElementLiteralWithNamespaces() returns [xml, xml] {
@@ -147,7 +149,7 @@ function getXML() returns xml {
 }
 
 function XMLWithDefaultNamespaceToString() returns string {
-    xml x = xml `<Order xmlns="http://acme.company" xmlns:acme="http://acme.company">
+    xml x = xml `<Order xmlns="http://acme.company" xmlns:acme="http://acme.company.nondefault">
         <OrderLines>
             <OrderLine acme:lineNo="334" itemCode="334-2"></OrderLine>
         </OrderLines>
@@ -162,9 +164,7 @@ function testXmlLiteralUsingXmlNamespacePrefix() {
     xml x1 = xml `<entry xml:base="https://namespace.servicebus.windows.net/$Resources/Eventhubs"></entry>`;
     string s = x1.toString();
     string expectedStr = "<entry xml:base=\"https://namespace.servicebus.windows.net/$Resources/Eventhubs\"/>";
-    if (s != expectedStr) {
-        panic error("Assertion error", expected = expectedStr, found=s);
-    }
+    test:assertEquals(s, expectedStr, "XML literal with xml namespace prefix failed");
 }
 
 xmlns "http://www.so2w.org" as globalNS;
@@ -177,9 +177,7 @@ function testXmlInterpolationWithQuery() returns error? {
     xml x2 = x1/<empRecord>[0];
     string s1 = x2.toString();
     string expectedStr1 = "<empRecord employeeId=\"1\"><inlineNS:id xmlns:inlineNS=\"http://www.so2w.org\">1</inlineNS:id></empRecord>";
-    if (s1 != expectedStr1) {
-        panic error("Assertion error", expected = expectedStr1, found = s1);
-    }
+    test:assertEquals(s1, expectedStr1, "XML interpolation with query failed");
 
     xmlns "http://www.so2w.org" as localNS;
     xml x3 = xml `<empRecords>
@@ -189,17 +187,13 @@ function testXmlInterpolationWithQuery() returns error? {
     xml x4 = x3/<empRecord>[0]/<localNS:id>;
     string s2 = x4.toString();
     string expectedStr2 = "<localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id>";
-    if (s2 != expectedStr2) {
-        panic error("Assertion error", expected = expectedStr2, found = s2);
-    }
+    test:assertEquals(s2, expectedStr2, "XML interpolation with query failed");
 
     xml x5 = from int i in [1]
         select xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
     string s3 = x5.toString();
     string expectedStr3 = "<empRecord employeeId=\"1\"><localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id></empRecord>";
-    if (s3 != expectedStr3) {
-        panic error("Assertion error", expected = expectedStr3, found = s3);
-    }
+    test:assertEquals(s3, expectedStr3, "XML interpolation with query failed");
 
     xml x6 = xml `<empRecords>
          ${from int i in 1 ... 3
@@ -208,9 +202,7 @@ function testXmlInterpolationWithQuery() returns error? {
     xml x7 = x6/<empRecord>[0]/<globalNS:id>;
     string s4 = x7.toString();
     string expectedStr4 = "<globalNS:id xmlns:globalNS=\"http://www.so2w.org\">1</globalNS:id>";
-    if (s4 != expectedStr4) {
-        panic error("Assertion error", expected = expectedStr4, found = s4);
-    }
+    test:assertEquals(s4, expectedStr4, "XML interpolation with query failed");
 
     xml x8 = xml ``;
     from int i in [1]
@@ -218,9 +210,7 @@ function testXmlInterpolationWithQuery() returns error? {
         x8 = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
     };
     string s5 = x8.toString();
-    if (s5 != expectedStr3) {
-        panic error("Assertion error", expected = expectedStr3, found = s5);
-    }
+    test:assertEquals(s5, expectedStr3, "XML interpolation with query failed");
 
     xml x9 = xml ``;
     from int i in [1]
@@ -231,26 +221,20 @@ function testXmlInterpolationWithQuery() returns error? {
         };
     };
     string s6 = x9.toString();
-    if (s6 != expectedStr3) {
-        panic error("Assertion error", expected = expectedStr3, found = s6);
-    }
+    test:assertEquals(s6, expectedStr3, "XML interpolation with query failed");
 
     xml x10 = from int i in [1]
         let xml y = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`
         select xml `<record>${y}</record>`;
     string s7 = x10.toString();
     string expectedStr5 = "<record><empRecord employeeId=\"1\"><localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id></empRecord></record>";
-    if (s7 != expectedStr5) {
-        panic error("Assertion error", expected = expectedStr3, found = s7);
-    }
+    test:assertEquals(s7, expectedStr5, "XML interpolation with query failed");
 
     xml x11 = from xml x in (from int j in [1]
             select xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`)
         select xml `<record>${x}</record>`;
     string s8 = x11.toString();
-    if (s8 != expectedStr5) {
-        panic error("Assertion error", expected = expectedStr3, found = s7);
-    }
+    test:assertEquals(s8, expectedStr5, "XML interpolation with query failed");
 
     xml x12 = from int i in [1]
         join int j in [1]
@@ -259,18 +243,14 @@ function testXmlInterpolationWithQuery() returns error? {
         select xml `<record>${i}</record>`;
     string s9 = x12.toString();
     string expectedStr6 = "<record>1</record>";
-    if (s9 != expectedStr6) {
-        panic error("Assertion error", expected = expectedStr3, found = s7);
-    }
+    test:assertEquals(s9, expectedStr6, "XML interpolation with query failed");
 
     xml expectedXml = xml `<empRecord employeeId="1"><localNS:id>1</localNS:id></empRecord>`;
     xml x13 = from int i in [1]
         where xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>` == expectedXml
         select xml `<record>${expectedXml}</record>`;
     string s10 = x13.toString();
-    if (s10 != expectedStr5) {
-        panic error("Assertion error", expected = expectedStr5, found = s10);
-    }
+    test:assertEquals(s10, expectedStr5, "XML interpolation with query failed");
 
     do {
         xmlns "http://www.so2w1.org" as doNS;
@@ -278,9 +258,7 @@ function testXmlInterpolationWithQuery() returns error? {
             select xml `<localNS:empRecord employeeId="${i}"><doNS:id>${i}</doNS:id></localNS:empRecord>`;
         string s11 = x14.toString();
         string expectedStr7 = "<localNS:empRecord xmlns:localNS=\"http://www.so2w.org\" employeeId=\"1\"><doNS:id xmlns:doNS=\"http://www.so2w1.org\">1</doNS:id></localNS:empRecord>";
-        if (s11 != expectedStr7) {
-            panic error("Assertion error", expected = expectedStr7, found = s11);
-        }
+        test:assertEquals(s11, expectedStr7, "XML interpolation with query failed");
     }
 
     do {
@@ -289,8 +267,20 @@ function testXmlInterpolationWithQuery() returns error? {
             select xml `<localNS:empRecord employeeId="${i}"><doNS:id>${i}</doNS:id></localNS:empRecord>`;
         string s12 = x15.toString();
         string expectedStr8 = "<localNS:empRecord xmlns:localNS=\"http://www.so2w.org\" employeeId=\"1\"><doNS:id xmlns:doNS=\"http://www.so2w2.org\">1</doNS:id></localNS:empRecord>";
-        if (s12 != expectedStr8) {
-            panic error("Assertion error", expected = expectedStr8, found = s12);
-        }
+        test:assertEquals(s12, expectedStr8, "XML interpolation with query failed");
     }
+}
+
+function testAddAttributeToDefaultNS() {
+    xml x1 = xml `<root xmlns="http://sample.com/wso2/c1" xmlns:ns3="http://sample.com/wso2/f"></root>`;
+    var xAttr = let var x2 = <'xml:Element>x1 in x2.getAttributes();
+    //adding attribute with default namespace
+    xAttr["{http://sample.com/wso2/c1}foo1"] = "bar1";
+    string s = x1.toString();
+    string expectedStr = string `<root xmlns="http://sample.com/wso2/c1" xmlns:ns3="http://sample.com/wso2/f" foo1="bar1"/>`;
+    test:assertEquals(s, expectedStr, "XML add attribute with default namespace failed");
+    
+    s = xAttr.toString();
+    expectedStr = string `{"{http://www.w3.org/2000/xmlns/}xmlns":"http://sample.com/wso2/c1","{http://www.w3.org/2000/xmlns/}ns3":"http://sample.com/wso2/f","{http://sample.com/wso2/c1}foo1":"bar1"}`;
+    test:assertEquals(s, expectedStr, "XML add attribute with default namespace failed");
 }
