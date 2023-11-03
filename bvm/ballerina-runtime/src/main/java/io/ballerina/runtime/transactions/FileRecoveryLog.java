@@ -118,10 +118,7 @@ public class FileRecoveryLog implements RecoveryLog {
 
     @Override
     public void put(TransactionLogRecord trxRecord) {
-        writeToFile(trxRecord.getLogRecord());
-//        if (trxRecord.isCompleted()) {
-//            writeCheckpoint(); // if needed checkpoint cleanup logs
-//        }
+        writeToFile(trxRecord.getTransactionLogRecord());
         if (checkpointInterval != -1) {
             ifNeedWriteCheckpoint();
             numOfPutsSinceLastCheckpoint++;
@@ -132,7 +129,9 @@ public class FileRecoveryLog implements RecoveryLog {
     public Map<String, TransactionLogRecord> getPendingLogs() {
         Map<String, TransactionLogRecord> pendingTransactions = new HashMap<>();
         Map<String, TransactionLogRecord> transactionLogs = readLogsFromFile(file);
-
+        if (transactionLogs == null) {
+            return null;
+        }
         for (Map.Entry<String, TransactionLogRecord> entry : transactionLogs.entrySet()) {
             String trxId = entry.getKey();
             TransactionLogRecord trxRecord = entry.getValue();
@@ -164,15 +163,13 @@ public class FileRecoveryLog implements RecoveryLog {
         if (!file.exists() || file.length() == 0) {
             return null;
         }
-
         if (appendChannel != null) {
             closeEverything();
         }
-
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                TransactionLogRecord transactionLogRecord = parseTransactionRecord(line);
+                TransactionLogRecord transactionLogRecord = TransactionLogRecord.parseTransactionLogRecord(line);
                 if (transactionLogRecord != null) {
                     // TODO: add a check here to check whether the record exists in the logMap and new state is a valid
                     //  state from the current state
@@ -185,21 +182,7 @@ public class FileRecoveryLog implements RecoveryLog {
         return logMap;
     }
 
-    private TransactionLogRecord parseTransactionRecord(String logLine) {
-        String[] logBlocks = logLine.split("\\|");
-        if (logBlocks.length == 2) {
-            String[] combinedId = logBlocks[0].split(":");
-            String transactionStatusString = logBlocks[1];
-            String transactionId = combinedId[0];
-            String transactionBlockId = combinedId[1];
-            // match with RecoveryStatus enum
-            RecoveryStatus transactionStatus = RecoveryStatus.getRecoveryStatus(transactionStatusString);
-            return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus);
-        }
-        // If parsing fails.. TODO: handle parsing fail properly
-        log.error("Error while parsing transaction log record: " + logLine + "\nLog file may be corrupted.");
-        return null;
-    }
+    
 
 
     private void cleanUpFinishedLogs() {
