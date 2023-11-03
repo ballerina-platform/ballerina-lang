@@ -64,6 +64,7 @@ import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
+import static io.ballerina.runtime.transactions.TransactionConstants.DEFAULT_CHECKPOINT_INTERVAL;
 
 /**
  * {@code TransactionResourceManager} registry for transaction contexts.
@@ -216,7 +217,7 @@ public class TransactionResourceManager {
     private Integer getCheckpointInterval() {
         VariableKey recoveryLogNameKey = new VariableKey(TRANSACTION_PACKAGE_ID, "checkpointInterval", PredefinedTypes.TYPE_INT, false);
         if (!ConfigMap.containsKey(recoveryLogNameKey)) {
-            return 25;
+            return DEFAULT_CHECKPOINT_INTERVAL;
         } else {
             int checkpointInterval;
             Object value = ConfigMap.get(recoveryLogNameKey);
@@ -225,12 +226,12 @@ public class TransactionResourceManager {
             } else if (value instanceof Integer) {
                 checkpointInterval = (Integer) value;
             } else {
-                log.warn("Invalid value provided for checkpointInterval. Using default value 25.");
-                return 25;
+                log.warn("Invalid value provided for checkpointInterval. Using default value " + DEFAULT_CHECKPOINT_INTERVAL + ".");
+                return DEFAULT_CHECKPOINT_INTERVAL;
             }
             if (checkpointInterval < 0 && checkpointInterval != -1) {
-                log.warn("Invalid value provided for checkpointInterval. Using default value 25.");
-                return 25;
+                log.warn("Invalid value provided for checkpointInterval. Using default value " + DEFAULT_CHECKPOINT_INTERVAL + ".");
+                return DEFAULT_CHECKPOINT_INTERVAL;
             } else {
                 return checkpointInterval;
             }
