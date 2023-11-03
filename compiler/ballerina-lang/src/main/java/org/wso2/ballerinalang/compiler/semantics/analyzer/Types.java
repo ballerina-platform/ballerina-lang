@@ -181,7 +181,6 @@ public class Types {
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
     private final BLangAnonymousModelHelper anonymousModelHelper;
-    private int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
     protected final Context semTypeCtx;
@@ -3913,6 +3912,9 @@ public class Types {
         switch (targetTypeTag) {
             case TypeTags.INT:
                 if (literalTypeTag == TypeTags.INT) {
+                    if (value instanceof String) {
+                        return false;
+                    }
                     return Core.containsConstInt(t, ((Number) value).longValue());
                 }
                 break;
@@ -3927,8 +3929,12 @@ public class Types {
                     }
                     return Core.containsConstFloat(t, doubleValue);
                 } else if (literalTypeTag == TypeTags.FLOAT) {
-                    doubleValue = Double.parseDouble(String.valueOf(value));
-                    return Core.containsConstFloat(t, doubleValue);
+                    try {
+                        doubleValue = Double.parseDouble(String.valueOf(value));
+                        return Core.containsConstFloat(t, doubleValue);
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
                 }
                 break;
             case TypeTags.DECIMAL:
@@ -3949,8 +3955,12 @@ public class Types {
                     if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(value))) {
                         return false;
                     }
-                    decimalValue = NumericLiteralSupport.parseBigDecimal(value);
-                    return Core.containsConstDecimal(t, decimalValue);
+                    try {
+                        decimalValue = NumericLiteralSupport.parseBigDecimal(value);
+                        return Core.containsConstDecimal(t, decimalValue);
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
                 }
                 break;
             default:

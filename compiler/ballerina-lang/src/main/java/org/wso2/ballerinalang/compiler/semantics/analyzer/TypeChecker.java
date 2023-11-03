@@ -603,27 +603,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return exprCompatibleType;
     }
 
-    private BType silentCompatibleLiteralTypeCheck(BFiniteType finiteType, BLangNumericLiteral literalExpr,
-                                                   Object literalValue, AnalyzerData data) {
-        BType resIntType = symTable.semanticError;
-        Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(finiteType.getSemType(), symTable);
-        for (BType broadType : broadTypes) {
-            resIntType = silentIntTypeCheck(literalExpr, literalValue, broadType, data);
-            if (resIntType != symTable.semanticError) {
-                return resIntType;
-            }
-        }
-        return resIntType;
-    }
-
     private BType checkIfOutOfRangeAndReturnType(BFiniteType finiteType, BLangNumericLiteral literalExpr,
                                                  Object literalValue, AnalyzerData data) {
-        BType compatibleType = silentCompatibleLiteralTypeCheck(finiteType, literalExpr, literalValue, data);
-        if (compatibleType == symTable.semanticError) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
-                    literalExpr.getBType());
+        Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(finiteType.getSemType(), symTable);
+        for (BType broadType : broadTypes) {
+            BType compatibleType = silentIntTypeCheck(literalExpr, literalValue, broadType, data);
+            if (compatibleType != symTable.semanticError) {
+                return compatibleType;
+            }
         }
-        return compatibleType;
+
+        dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
+                literalExpr.getBType());
+        return symTable.semanticError;
     }
 
     public BType getIntegerLiteralType(BLangNumericLiteral literalExpr, Object literalValue, BType expType,

@@ -394,7 +394,12 @@ public class SemTypeResolver {
                 } else {
                     // literal value will be a string if it wasn't within the bounds of what is supported by Java Long
                     // or Double when it was parsed in BLangNodeBuilder.
-                    doubleVal = Double.parseDouble((String) value);
+                    try {
+                        doubleVal = Double.parseDouble((String) value);
+                    } catch (NumberFormatException e) {
+                        // We reach here when there is a syntax error. Mock the flow with default float value.
+                        return FloatSubtype.floatConst(0);
+                    }
                 }
                 return SemTypes.floatConst(doubleVal);
             case INT:
@@ -408,6 +413,9 @@ public class SemTypeResolver {
                 return SemTypes.decimalConst((String) value);
             case NIL:
                 return PredefinedType.NIL;
+            case OTHER:
+                // We reach here when there is a semantic error
+                return PredefinedType.NEVER;
             default:
                 throw new UnsupportedOperationException("Finite type not implemented for: " + targetTypeKind);
         }
