@@ -649,8 +649,8 @@ public class DependencyGraphTests extends BaseTest {
             put("F", new LinkedHashSet<>());
         }});
 
-        Collection<String> allDependents = dependencyGraph.getAllDependents("A");
-        Set<String> expectedDependents = new HashSet<>(Arrays.asList("B", "C", "D"));
+        Collection<String> allDependents = dependencyGraph.getAllDependents("D");
+        Set<String> expectedDependents = new HashSet<>(Arrays.asList("A", "B"));
 
         Assert.assertEquals(expectedDependents, allDependents);
     }
@@ -674,8 +674,8 @@ public class DependencyGraphTests extends BaseTest {
             put("F", new LinkedHashSet<>());
         }});
 
-        Collection<String> allDependencies = dependencyGraph.getAllDependencies("D");
-        Set<String> expectedDependencies = new HashSet<>(Arrays.asList("A", "B"));
+        Collection<String> allDependencies = dependencyGraph.getAllDependencies("A");
+        Set<String> expectedDependencies = new HashSet<>(Arrays.asList("B", "C", "D"));
 
         Assert.assertEquals(expectedDependencies, allDependencies);
     }
