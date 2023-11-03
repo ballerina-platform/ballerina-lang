@@ -45,6 +45,7 @@ public class Constants {
     public static final String WORKING_DIRECTORY = "user.dir";
     public static final String PROFILE_DATA = "${profile_data}";
     public static final String HTML_TEMPLATE_FILE = "profiler_output.html";
+    public static final String HTML_PROFILER_REPORT = "ProfilerReport.html";
 
     private Constants() {
     }

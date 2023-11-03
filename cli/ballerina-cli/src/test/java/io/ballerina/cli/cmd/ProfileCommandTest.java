@@ -44,8 +44,8 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 public class ProfileCommandTest extends BaseCommandTest {
     private Path testResources;
 
-    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
-            "log_creator_combined_plugin/compiler-plugin.txt");
+    static Path logFile = Paths.get(".", "src", "test", "resources", "compiler_plugin_tests",
+            "log_creator_combined_plugin", "compiler-plugin.txt");
 
     @BeforeSuite
     public void setupSuite() throws IOException {

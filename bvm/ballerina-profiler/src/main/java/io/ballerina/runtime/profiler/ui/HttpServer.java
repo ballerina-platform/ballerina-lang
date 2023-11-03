@@ -19,6 +19,7 @@
 package io.ballerina.runtime.profiler.ui;
 
 import io.ballerina.runtime.profiler.util.Constants;
+import io.ballerina.runtime.profiler.util.ProfilerException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 
 import static io.ballerina.runtime.profiler.util.Constants.BALLERINA_HOME;
+import static io.ballerina.runtime.profiler.util.Constants.HTML_PROFILER_REPORT;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 import static io.ballerina.runtime.profiler.util.Constants.WORKING_DIRECTORY;
 
@@ -47,28 +49,27 @@ public class HttpServer {
     public void initializeHTMLExport() throws IOException {
         String profilerOutputDir = System.getProperty(WORKING_DIRECTORY);
         OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
-                "%s/ProfilerReport.html" + Constants.ANSI_RESET + "%n", profilerOutputDir);
+                "%s/" + HTML_PROFILER_REPORT + Constants.ANSI_RESET + "%n", profilerOutputDir);
         Path resourcePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
                 .resolve("profiler");
 
         try {
             copyFolder(resourcePath, Path.of(profilerOutputDir));
         } catch (IOException e) {
-            OUT_STREAM.printf("%s%n", e);
+            throw new ProfilerException("Error occurred while copying the resources", e);
         }
 
         String content = FileUtils.readFileAsString("performance_report.json");
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);
-        String fileName = "ProfilerReport.html";
-        try (FileWriter writer = new FileWriter(fileName, StandardCharsets.UTF_8)) {
+        try (FileWriter writer = new FileWriter(HTML_PROFILER_REPORT, StandardCharsets.UTF_8)) {
             writer.write(htmlData);
         } catch (IOException e) {
             OUT_STREAM.printf("%s%n", e);
         }
     }
 
-    public static void copyFolder(Path source, Path target) throws IOException {
+    private static void copyFolder(Path source, Path target) throws IOException {
         EnumSet<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
         Files.walkFileTree(source, options, Integer.MAX_VALUE, new SimpleFileVisitor<>() {
             @Override
