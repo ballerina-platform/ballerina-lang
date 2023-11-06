@@ -39,6 +39,7 @@ public class Constants {
     public static final String OPEN_SEALED_ARRAY = "*";
 
     public static final int INIT_METHOD_SPLIT_SIZE = 50;
+    public static final int INIT_FUNC_COUNT_PER_CLASS = 100;
 
     public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
 
