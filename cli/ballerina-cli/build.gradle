@@ -58,6 +58,7 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
+    implementation 'commons-io:commons-io'
 
     testImplementation "org.testng:testng:${project.testngVersion}"
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
@@ -72,6 +73,7 @@ dependencies {
 
     testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
+    testRt project(':ballerina-profiler')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
     testRuntimeOnly project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')

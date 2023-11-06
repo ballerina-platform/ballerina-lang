@@ -45,7 +45,7 @@ type Baz record {
     Qux q?;
 };
 
-class Qux {
+readonly class Qux {
 
 }
 

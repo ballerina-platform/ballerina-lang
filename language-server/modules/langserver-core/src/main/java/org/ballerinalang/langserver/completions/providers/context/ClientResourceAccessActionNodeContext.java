@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -319,9 +318,7 @@ public class ClientResourceAccessActionNodeContext
                 return Pair.of(Collections.emptyList(), false);
             } else if (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER
                     || segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
-                TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
-                        ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
-                                .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
+                TypeSymbol typeSymbol = ((PathParameterSymbol) segment).typeDescriptor();
                 Optional<SemanticModel> semanticModel = context.currentSemanticModel();
                 if (semanticModel.isEmpty()) {
                     return Pair.of(Collections.emptyList(), false);

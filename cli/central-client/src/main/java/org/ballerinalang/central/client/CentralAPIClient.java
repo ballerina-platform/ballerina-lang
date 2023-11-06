@@ -37,6 +37,7 @@ import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.central.client.model.ConnectorInfo;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
@@ -73,6 +74,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.ANY_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
@@ -86,6 +88,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECA
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
+import static org.ballerinalang.central.client.CentralClientConstants.PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -600,7 +603,7 @@ public class CentralAPIClient {
      * @param supportedPlatform         The supported platform.
      * @param ballerinaVersion          The ballerina version.
      * @param isBuild                   If build option is enabled or not.
-     * @return An array containing the organization, package name and version.
+     * @return An array containing isPulled, organization, package name and version.
      * @throws CentralClientException   Central Client exception.
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
@@ -648,6 +651,7 @@ public class CentralAPIClient {
                 Optional<String> pkgName = Optional.empty();
                 Optional<String> latestVersion = Optional.empty();
                 Optional<String> balaUrl = Optional.empty();
+                Optional<String> platform = Optional.empty();
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -656,13 +660,14 @@ public class CentralAPIClient {
                         pkgName = Optional.ofNullable(jsonContent.get(PKG_NAME).getAsString());
                         latestVersion = Optional.ofNullable(jsonContent.get(VERSION).getAsString());
                         balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
+                        platform = Optional.of(jsonContent.get(PLATFORM).getAsString())
+                                .or(() -> Optional.of(ANY_PLATFORM));
                     }
                 }
 
-                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
-                        && pkgName.isPresent()) {
-                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
-                            + latestVersion.get() + ".bala";
+                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent() && pkgName.isPresent()) {
+                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get()
+                            + "-" + platform.get() + "-" + latestVersion.get() + ".bala";
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                             .get()
                             .url(balaUrl.get())
@@ -679,10 +684,15 @@ public class CentralAPIClient {
 
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
-                                isNightlyBuild, null, balaUrl.get(), balaFileName,
-                                enableOutputStream ? outStream : null, logFormatter);
-                        return new String[]{org.get(), pkgName.get(), latestVersion.get()};
+                        try {
+                            createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
+                                    isNightlyBuild, null, balaUrl.get(), balaFileName,
+                                    enableOutputStream ? outStream : null, logFormatter);
+                            return new String[]{String.valueOf(true), org.get(), pkgName.get(), latestVersion.get()};
+                        } catch (PackageAlreadyExistsException ignore) {
+                            // package already exists. setting org, name and version fields is enough
+                            return new String[]{String.valueOf(false), org.get(), pkgName.get(), latestVersion.get()};
+                        }
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
                                 "'. BALA content download from '" + balaUrl.get() + "' failed.");

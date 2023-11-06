@@ -58,7 +58,6 @@ import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -83,7 +82,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
@@ -161,7 +160,7 @@ public class JvmValueGen {
                                                        JvmPackageGen jvmPackageGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
@@ -252,7 +251,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
         FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
         fv.visitEnd();
@@ -288,7 +287,7 @@ public class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = JvmCodeGenUtil.getReferredType(bType);
+            BType typeRef = JvmCodeGenUtil.getImpliedType(bType);
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
@@ -369,9 +368,7 @@ public class JvmValueGen {
                                                jvmPackageGen.symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
-                RECORD_VALUE_CLASS,
-                MAP_VALUE_IMPL, new String[]{MAP_VALUE});
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, RECORD_VALUE_CLASS, MAP_VALUE_IMPL, new String[]{MAP_VALUE});
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
@@ -491,7 +488,7 @@ public class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = JvmCodeGenUtil.getReferredType(bType);
+            BType typeRef = JvmCodeGenUtil.getImpliedType(bType);
             if (typeRef.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -513,7 +510,7 @@ public class JvmValueGen {
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
-            BRecordType recordType = (BRecordType) JvmCodeGenUtil.getReferredType(typeDef.type);
+            BRecordType recordType = (BRecordType) JvmCodeGenUtil.getImpliedType(typeDef.type);
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
             initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
@@ -603,7 +600,7 @@ public class JvmValueGen {
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
         this.createObjectFields(cw, fields);
@@ -636,7 +633,7 @@ public class JvmValueGen {
             FieldVisitor fvb = cw.visitField(0, field.name.value, getTypeDesc(field.type), null, null);
             fvb.visitEnd();
             String lockClass = "L" + LOCK_VALUE + ";";
-            FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value),
+            FieldVisitor fv = cw.visitField(ACC_PUBLIC, computeLockNameFromString(field.name.value),
                     lockClass, null, null);
             fv.visitEnd();
         }
