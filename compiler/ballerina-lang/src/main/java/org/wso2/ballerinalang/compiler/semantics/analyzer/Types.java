@@ -5995,7 +5995,7 @@ public class Types {
     /**
      * Checks whether a SemType has a filler value.
      * <p>
-     * <i>Note: this is similar to <code>computeFiller()</code> in nBallerina<i/>
+     * <i>Note: this is similar to <code>computeFiller()</code> in nBallerina</i>
      * </p><p>
      * 1. if type contains nil, nil is the filler value.<br/>
      * 2. if all values belong to a single basic type B, and the filler value for B also included in the values.<br/>
@@ -6220,7 +6220,7 @@ public class Types {
      * <br/>
      * A type is an ordered type if all values belong to one of (), int?, boolean?, decimal?, float?, string? types.
      * <p>
-     * <i>Note: this is kind of similar to <code>comparable()</code> in nBallerina<i/>
+     * <i>Note: this is kind of similar to <code>comparable()</code> in nBallerina</i>
      * </p>
      *
      * @param t SemType to be checked

@@ -24,7 +24,6 @@ import io.ballerina.types.EnumerableDecimal;
 import io.ballerina.types.EnumerableFloat;
 import io.ballerina.types.EnumerableString;
 import io.ballerina.types.EnumerableType;
-import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.subtypedata.AllOrNothingSubtype;

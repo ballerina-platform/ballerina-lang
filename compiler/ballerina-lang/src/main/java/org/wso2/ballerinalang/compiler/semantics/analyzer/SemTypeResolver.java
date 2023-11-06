@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -800,7 +799,7 @@ public class SemTypeResolver {
             semType = SemTypes.union(semType, getSemTypeComponent(memberType));
 
             if (memberType.tag == TypeTags.UNION) {
-                nonSemMemberTypes.addAll(((BUnionType)memberType).nonSemMemberTypes);
+                nonSemMemberTypes.addAll(((BUnionType) memberType).nonSemMemberTypes);
             } else if (getBTypeComponent(memberType).tag != TypeTags.NEVER) {
                 nonSemMemberTypes.add(memberType);
             }
@@ -987,7 +986,7 @@ public class SemTypeResolver {
     /**
      * Counts number of bits set in bitset.
      * <p>
-     * <i>Note: this is similar to <code>lib:bitCount()</code> in nBallerina<i/>
+     * <i>Note: this is similar to <code>lib:bitCount()</code> in nBallerina</i>
      * </p><p>
      * This is the Brian Kernighan algorithm.
      * This won't work if bits is < 0.

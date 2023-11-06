@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.util.HashSet;
 import java.util.Optional;
 
 /**
