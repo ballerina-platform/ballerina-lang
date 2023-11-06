@@ -91,3 +91,27 @@ public function testPathSegmentOfAmbiguousResourceFunction() {
    Bam bam = new;
    bam->/path1/path2.post();
 }
+
+client class Resc {
+    resource function post user() {}
+
+    resource function post [string name]() {}
+
+    resource function get sports/[string name]() {}
+
+    resource function get pets/[int id]() {}
+
+    resource function get sports/[string name]/info () {}
+}
+
+function testTypeOfResourceSegments() {
+    Resc cl = new;
+    string myString = "";
+    int myInt = 0;
+    cl->/user.post();
+    cl->/sports/[myString]();
+    cl->/sports/["A"]();
+    cl->/pets/[myInt]();
+    cl->/pets/[1]();
+    cl->/sports/[myString]/
+}
