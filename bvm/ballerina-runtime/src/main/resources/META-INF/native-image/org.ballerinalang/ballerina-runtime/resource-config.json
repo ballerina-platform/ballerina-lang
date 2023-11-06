@@ -13,6 +13,12 @@
                 "",
                 "en-US"
             ]
+        },
+        {
+            "name": "toml_diagnostic_message",
+            "locales": [
+                ""
+            ]
         }
     ]
 }
