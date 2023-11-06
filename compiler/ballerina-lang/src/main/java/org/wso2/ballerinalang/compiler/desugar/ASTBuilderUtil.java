@@ -665,7 +665,7 @@ public class ASTBuilderUtil {
 
     static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
         if (type.tag == TypeTags.INTERSECTION) {
-            type = ((BIntersectionType) type).getEffectiveType();
+            type = ((BIntersectionType) type).effectiveType;
         }
 
         if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {

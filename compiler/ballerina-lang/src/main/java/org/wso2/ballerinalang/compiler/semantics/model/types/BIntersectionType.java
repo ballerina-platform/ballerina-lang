@@ -42,7 +42,7 @@ import java.util.StringJoiner;
  */
 public class BIntersectionType extends BType implements IntersectionType {
 
-    private BType effectiveType;
+    public BType effectiveType;
 
     private LinkedHashSet<BType> constituentTypes;
     private BIntersectionType intersectionType;
@@ -60,7 +60,7 @@ public class BIntersectionType extends BType implements IntersectionType {
             }
         }
         SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
-        this.setEffectiveType((BType) effectiveType);
+        this.effectiveType = (BType) effectiveType;
         effectiveType.setIntersectionType(this);
     }
 
@@ -73,7 +73,7 @@ public class BIntersectionType extends BType implements IntersectionType {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
         SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
-        this.setEffectiveType((BType) effectiveType);
+        this.effectiveType = (BType) effectiveType;
         effectiveType.setIntersectionType(this);
     }
 
@@ -138,10 +138,6 @@ public class BIntersectionType extends BType implements IntersectionType {
         return flatSet;
     }
 
-    public BType getEffectiveType() {
-        return this.effectiveType;
-    }
-
     @Override
     public Optional<BIntersectionType> getIntersectionType() {
         return Optional.ofNullable(this.intersectionType);
@@ -150,10 +146,6 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public void setIntersectionType(BIntersectionType intersectionType) {
         this.intersectionType = intersectionType;
-    }
-
-    public void setEffectiveType(BType effectiveType) {
-        this.effectiveType = effectiveType;
     }
 
     public SemType getSemTypeComponent() {

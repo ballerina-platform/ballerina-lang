@@ -411,7 +411,7 @@ public class BIRTypeWriter extends TypeVisitor {
     @Override
     public void visit(BIntersectionType bIntersectionType) {
         writeMembers(bIntersectionType.getConstituentTypes());
-        writeTypeCpIndex(bIntersectionType.getEffectiveType());
+        writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 
     @Override

@@ -472,10 +472,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     public BType visit(BIntersectionType originalType, BType expType) {
         BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expEffectiveType = matchingType == null ?
-                null : ((BIntersectionType) matchingType).getEffectiveType();
-        BType newEffectiveType = originalType.getEffectiveType().accept(this, expEffectiveType);
+                null : ((BIntersectionType) matchingType).effectiveType;
+        BType newEffectiveType = originalType.effectiveType.accept(this, expEffectiveType);
 
-        if (isSameType(newEffectiveType, originalType.getEffectiveType())) {
+        if (isSameType(newEffectiveType, originalType.effectiveType)) {
             return originalType;
         }
 

@@ -416,7 +416,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (expType.tag == TypeTags.INTERSECTION) {
-            expType = ((BIntersectionType) expType).getEffectiveType();
+            expType = ((BIntersectionType) expType).effectiveType;
         }
 
         SymbolEnv prevEnv = data.env;
@@ -433,7 +433,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BType resultRefType = Types.getReferredType(data.resultType);
         if (resultRefType.tag == TypeTags.INTERSECTION) {
-            data.resultType = ((BIntersectionType) resultRefType).getEffectiveType();
+            data.resultType = ((BIntersectionType) resultRefType).effectiveType;
         }
 
         expr.setTypeCheckedType(data.resultType);
@@ -1112,7 +1112,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType applicableExpType = Types.getReferredType(expType);
 
         applicableExpType = applicableExpType.tag == TypeTags.INTERSECTION ?
-                ((BIntersectionType) applicableExpType).getEffectiveType() : applicableExpType;
+                ((BIntersectionType) applicableExpType).effectiveType : applicableExpType;
 
         if (applicableExpType.tag == TypeTags.TABLE) {
             List<BType> memTypes = new ArrayList<>();
@@ -1582,7 +1582,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (tableType.fieldNameList.isEmpty() && validateKeySpecifier(fieldNameList,
                     constraintType.tag != TypeTags.INTERSECTION ? constraintType :
-                            ((BIntersectionType) constraintType).getEffectiveType(),
+                            ((BIntersectionType) constraintType).effectiveType,
                     tableConstructorExpr.tableKeySpecifier.pos)) {
                 data.resultType = symTable.semanticError;
                 return false;
@@ -1773,7 +1773,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (tag == TypeTags.INTERSECTION) {
-            return checkListConstructorCompatibility(((BIntersectionType) bType).getEffectiveType(), listConstructor, data);
+            return checkListConstructorCompatibility(((BIntersectionType) bType).effectiveType, listConstructor, data);
         }
 
         BType possibleType = getListConstructorCompatibleNonUnionType(bType, data);
@@ -1906,7 +1906,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
                                                                       symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
-                return ((BIntersectionType) type).getEffectiveType();
+                return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
                 return type;
         }
@@ -2520,7 +2520,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (tag == TypeTags.INTERSECTION) {
-            return checkMappingConstructorCompatibility(((BIntersectionType) bType).getEffectiveType(), mappingConstructor,
+            return checkMappingConstructorCompatibility(((BIntersectionType) bType).effectiveType, mappingConstructor,
                                                         data);
         }
 
@@ -2594,7 +2594,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAllType, data.env,
                                                                       symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
-                return ((BIntersectionType) type).getEffectiveType();
+                return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
                 BType refType = Types.getReferredType(type);
                 BType compatibleType = getMappingConstructorCompatibleNonUnionType(refType, data);
@@ -3464,7 +3464,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 visitInvocation(iExpr, Types.getReferredType(varRefType), data);
                 break;
             case TypeTags.INTERSECTION:
-                visitInvocation(iExpr, ((BIntersectionType) varRefType).getEffectiveType(), data);
+                visitInvocation(iExpr, ((BIntersectionType) varRefType).effectiveType, data);
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 break;
@@ -3690,7 +3690,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 memberType = Types.getReferredType(memberType);
                 if (types.isAssignable(memberType, symTable.errorType)) {
                     if (memberType.tag == TypeTags.INTERSECTION) {
-                        expandedCandidates.add(((BIntersectionType) memberType).getEffectiveType());
+                        expandedCandidates.add(((BIntersectionType) memberType).effectiveType);
                     } else {
                         expandedCandidates.add(memberType);
                     }
@@ -3698,7 +3698,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         } else if (types.isAssignable(candidateType, symTable.errorType)) {
             if (referredType.tag == TypeTags.INTERSECTION) {
-                expandedCandidates.add(((BIntersectionType) referredType).getEffectiveType());
+                expandedCandidates.add(((BIntersectionType) referredType).effectiveType);
             } else {
                 expandedCandidates.add(candidateType);
             }
@@ -4349,7 +4349,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType compatibleType = checkObjectType(refType, cIExpr, data);
                 return compatibleType == refType ? actualType : compatibleType;
             case TypeTags.INTERSECTION:
-                return checkObjectType(((BIntersectionType) actualType).getEffectiveType(), cIExpr, data);
+                return checkObjectType(((BIntersectionType) actualType).effectiveType, cIExpr, data);
             default:
                 dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
                 return symTable.semanticError;
@@ -4436,7 +4436,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 continue;
             }
 
-            if (((BIntersectionType) memberType).getEffectiveType().tag == TypeTags.OBJECT) {
+            if (((BIntersectionType) memberType).effectiveType.tag == TypeTags.OBJECT) {
                 objectCount++;
             }
         }
@@ -5912,7 +5912,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType listType = Types.getReferredType(fieldType);
 
         listType = listType.tag != TypeTags.INTERSECTION ? listType :
-                ((BIntersectionType) listType).getEffectiveType();
+                ((BIntersectionType) listType).effectiveType;
 
         boolean errored = false;
 

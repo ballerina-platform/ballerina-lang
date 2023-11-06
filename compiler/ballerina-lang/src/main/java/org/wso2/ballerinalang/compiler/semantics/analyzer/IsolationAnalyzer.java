@@ -4334,7 +4334,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BType constituentType : bIntersectionType.getConstituentTypes()) {
                 visitType(constituentType);
             }
-            visitType(bIntersectionType.getEffectiveType());
+            visitType(bIntersectionType.effectiveType);
         }
 
         @Override

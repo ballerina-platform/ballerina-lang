@@ -774,7 +774,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 } else if (TypeTags.isStringTypeTag(member.tag)) {
                     member = symTable.stringType;
                 } else if (member.tag == TypeTags.INTERSECTION) {
-                    member = ((BIntersectionType) member).getEffectiveType();
+                    member = ((BIntersectionType) member).effectiveType;
                 }
 
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
@@ -810,7 +810,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 bSymbol = symTable.notFoundSymbol;
                 break;
             case TypeTags.INTERSECTION:
-                return lookupLangLibMethod(((BIntersectionType) type).getEffectiveType(), name, env);
+                return lookupLangLibMethod(((BIntersectionType) type).effectiveType, name, env);
             case TypeTags.REGEXP:
                 bSymbol = lookupMethodInModule(symTable.langRegexpModuleSymbol, name, env);
                 break;
@@ -1560,7 +1560,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         int constrainedTag = constraintType.tag;
 
         if (constrainedTag == TypeTags.INTERSECTION) {
-            constraintType = ((BIntersectionType) constraintType).getEffectiveType();
+            constraintType = ((BIntersectionType) constraintType).effectiveType;
             constrainedTag = constraintType.tag;
         }
 
@@ -1578,7 +1578,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         for (BType memberType : constraintUnionType.getMemberTypes()) {
             memberType = Types.getReferredType(memberType);
             if (memberType.tag == TypeTags.INTERSECTION) {
-                memberType = ((BIntersectionType) memberType).getEffectiveType();
+                memberType = ((BIntersectionType) memberType).effectiveType;
             }
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
@@ -2056,7 +2056,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                             return getBinaryBitwiseOpsForTypeSets(opKind,
                                     Types.getReferredType(lhsType), rhsType);
                         case TypeTags.INTERSECTION:
-                            return getBinaryBitwiseOpsForTypeSets(opKind, ((BIntersectionType) lhsType).getEffectiveType(),
+                            return getBinaryBitwiseOpsForTypeSets(opKind, ((BIntersectionType) lhsType).effectiveType,
                                     rhsType);
                     }
                     switch (rhsType.tag) {
@@ -2070,7 +2070,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                     Types.getReferredType(rhsType));
                         case TypeTags.INTERSECTION:
                             return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
-                                    ((BIntersectionType) rhsType).getEffectiveType());
+                                    ((BIntersectionType) rhsType).effectiveType);
                     }
                     if (lhsType.isNullable() || rhsType.isNullable()) {
                         BType intOptional = BUnionType.create(null, symTable.intType, symTable.nilType);

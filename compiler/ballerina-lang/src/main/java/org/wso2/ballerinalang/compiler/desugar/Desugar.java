@@ -5893,7 +5893,7 @@ public class Desugar extends BLangNodeVisitor {
                     }
                 } else {
                     BTupleType spreadOpTuple = spreadOpType.tag == TypeTags.INTERSECTION ?
-                            (BTupleType) ((BIntersectionType) spreadOpType).getEffectiveType() : (BTupleType) spreadOpType;
+                            (BTupleType) ((BIntersectionType) spreadOpType).effectiveType : (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         i += spreadOpTuple.getMembers().size();
                         continue;

@@ -844,7 +844,7 @@ public class BIRPackageSymbolEnter {
                 }
                 return new BLangConstantValue(members, valueType);
             case TypeTags.INTERSECTION:
-                return readConstLiteralValue(((BIntersectionType) valueType).getEffectiveType(), dataInStream);
+                return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
                 return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
             default:

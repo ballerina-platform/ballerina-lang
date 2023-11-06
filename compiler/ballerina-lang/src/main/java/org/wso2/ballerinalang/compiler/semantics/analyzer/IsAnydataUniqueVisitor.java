@@ -214,7 +214,7 @@ public class IsAnydataUniqueVisitor extends UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BIntersectionType type) {
-        return visit(type.getEffectiveType());
+        return visit(type.effectiveType);
     }
 
     @Override

@@ -290,7 +290,7 @@ public class EffectiveTypePopulator extends TypeVisitor {
 
     @Override
     public void visit(BIntersectionType bIntersectionType) {
-        updateType(bIntersectionType.getEffectiveType(), loc, pkgID, typeNode, env);
+        updateType(bIntersectionType.effectiveType, loc, pkgID, typeNode, env);
     }
 
     @Override

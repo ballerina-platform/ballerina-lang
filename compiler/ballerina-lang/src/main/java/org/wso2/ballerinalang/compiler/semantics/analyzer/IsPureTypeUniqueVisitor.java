@@ -226,7 +226,7 @@ public class IsPureTypeUniqueVisitor extends UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BIntersectionType type) {
-        return visit(type.getEffectiveType());
+        return visit(type.effectiveType);
     }
 
     public Boolean visit(BTypeReferenceType type) {

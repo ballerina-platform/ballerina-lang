@@ -313,7 +313,7 @@ public class SymbolTable {
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,
                                                                  rootPkgSymbol.pkgID);
-        initializeType(this.anyAndReadonly, this.anyAndReadonly.getEffectiveType().name.getValue(), BUILTIN);
+        initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
 
         // Initialize the invokable type
         this.invokableType.flags = Flags.ANY_FUNCTION;

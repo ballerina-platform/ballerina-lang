@@ -651,7 +651,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (resolvedType.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) resolvedType;
 
-            if (intersectionType.getEffectiveType().tag == TypeTags.RECORD) {
+            if (intersectionType.effectiveType.tag == TypeTags.RECORD) {
                 addAssociatedTypeDefinition(constant, intersectionType);
             }
         }
@@ -811,7 +811,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private void addAssociatedTypeDefinition(BLangConstant constant, BIntersectionType immutableType) {
         BLangTypeDefinition typeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
-                immutableType.getEffectiveType().tsymbol.name.value);
+                immutableType.effectiveType.tsymbol.name.value);
 
         constant.associatedTypeDefinition = typeDefinition;
     }
@@ -896,7 +896,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                         if (resolvedType.getKind() != TypeKind.FINITE) {
                             constValueMap.get(key).type = resolvedType;
                             if (resolvedType.getKind() == TypeKind.INTERSECTION) {
-                                simpleVarRefExpr.setBType(((BIntersectionType) resolvedType).getEffectiveType());
+                                simpleVarRefExpr.setBType(((BIntersectionType) resolvedType).effectiveType);
                             }
                         }
                         continue;
@@ -917,7 +917,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 if (newType.getKind() != TypeKind.FINITE) {
                     constValueMap.get(key).type = newType;
                     if (newType.getKind() == TypeKind.INTERSECTION) {
-                        exprValueField.setBType(((BIntersectionType) newType).getEffectiveType());
+                        exprValueField.setBType(((BIntersectionType) newType).effectiveType);
                     }
                 }
 
@@ -940,7 +940,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                             simpleVarRefExpr.symbol.type.getKind() == TypeKind.INTERSECTION) {
                         // Already type resolved constant.
                         BRecordType resolvedType = (BRecordType) ((BIntersectionType)
-                                simpleVarRefExpr.symbol.type).getEffectiveType();
+                                simpleVarRefExpr.symbol.type).effectiveType;
                         exprSpreadField.setBType(resolvedType);
 
                         for (String spreadFieldKeys : ((HashMap<String, BField>) resolvedType.fields).keySet()) {
@@ -1010,7 +1010,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 // https://github.com/ballerina-platform/ballerina-lang/issues/35127
                 memberConstValue.type = newType;
                 memberExpr.setBType(newType.tag == TypeTags.INTERSECTION ?
-                        ((BIntersectionType) newType).getEffectiveType() : newType);
+                        ((BIntersectionType) newType).effectiveType : newType);
             }
         }
 

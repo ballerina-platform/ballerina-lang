@@ -522,8 +522,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         if (tag == TypeTags.INTERSECTION) {
-            return checkMappingConstructorCompatibility(((BIntersectionType) expType).getEffectiveType(),
-                    mappingConstructor, data);
+            return checkMappingConstructorCompatibility(((BIntersectionType) expType).effectiveType, mappingConstructor,
+                    data);
         }
 
         BType possibleType = getMappingConstructorCompatibleNonUnionType(expType, data);
@@ -639,7 +639,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAllType, data.env,
                                 symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
-                return ((BIntersectionType) type).getEffectiveType();
+                return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
                 BType refType = Types.getReferredType(type);
                 BType compatibleType = getMappingConstructorCompatibleNonUnionType(refType, data);
@@ -1094,8 +1094,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         if (tag == TypeTags.INTERSECTION) {
-            return checkListConstructorCompatibility(((BIntersectionType) expType).getEffectiveType(),
-                    listConstructor, data);
+            return checkListConstructorCompatibility(((BIntersectionType) expType).effectiveType, listConstructor,
+                    data);
         }
 
         BType possibleType = getListConstructorCompatibleNonUnionType(expType, data);
@@ -1391,7 +1391,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
                                 symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
-                return ((BIntersectionType) type).getEffectiveType();
+                return ((BIntersectionType) type).effectiveType;
             default:
                 return symTable.semanticError;
         }
@@ -2378,7 +2378,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         @Override
         public void visit(BIntersectionType intersectionType) {
-            data.resultType = getFillMembers(intersectionType.getEffectiveType(), data);
+            data.resultType = getFillMembers(intersectionType.effectiveType, data);
         }
 
         @Override
@@ -2471,7 +2471,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 // TODO: 12/9/23 merge t and v to a single object
                 return new BLangConstantValue (v.value, t);
             case TypeTags.INTERSECTION:
-                return getConstantValue(((BIntersectionType) type).getEffectiveType());
+                return getConstantValue(((BIntersectionType) type).effectiveType);
             case TypeTags.RECORD:
                 Map<String, BLangConstantValue> fields = new HashMap<>();
                 LinkedHashMap<String, BField> recordFields = ((BRecordType) type).fields;
@@ -2541,7 +2541,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             data.env = env;
             data.diagCode = diagCode;
             if (expType.tag == TypeTags.INTERSECTION) {
-                data.expType = ((BIntersectionType) expType).getEffectiveType();
+                data.expType = ((BIntersectionType) expType).effectiveType;
             } else {
                 data.expType = expType;
             }
@@ -2612,7 +2612,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         public void visit(BLangListConstructorExpr listConstructor, AnalyzerData data) {
             BType resolvedType = data.expType;
             BTupleType tupleType = (BTupleType) ((resolvedType.tag == TypeTags.INTERSECTION) ?
-                    ((BIntersectionType) resolvedType).getEffectiveType() : resolvedType);
+                    ((BIntersectionType) resolvedType).effectiveType : resolvedType);
             List<BType> resolvedMemberType = tupleType.getTupleTypes();
             listConstructor.setBType(data.expType);
             int currentListIndex = 0;
@@ -2672,7 +2672,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         private BType getResolvedFieldType(Object targetKey, BType resolvedType) {
             BRecordType recordType = (BRecordType) ((resolvedType.tag == TypeTags.INTERSECTION) ?
-                    ((BIntersectionType) resolvedType).getEffectiveType() : resolvedType);
+                    ((BIntersectionType) resolvedType).effectiveType : resolvedType);
             for (String key : recordType.getFields().keySet()) {
                 if (key.equals(targetKey)) {
                     return recordType.getFields().get(key).type;

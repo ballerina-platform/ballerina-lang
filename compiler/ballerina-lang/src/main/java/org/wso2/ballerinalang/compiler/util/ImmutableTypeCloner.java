@@ -97,7 +97,7 @@ public class ImmutableTypeCloner {
                                                   Names names) {
         return getImmutableIntersectionType(pos, types, type, env, env.enclPkg.packageID, env.scope.owner,
                 symTable, anonymousModelHelper, names, new HashSet<>(),
-                new HashSet<>()).getEffectiveType();
+                new HashSet<>()).effectiveType;
     }
 
     public static BType getEffectiveImmutableType(Location pos, Types types,
@@ -106,7 +106,7 @@ public class ImmutableTypeCloner {
                                                   BLangAnonymousModelHelper anonymousModelHelper, Names names) {
         return getImmutableIntersectionType(pos, types, type, null, pkgId, owner,
                 symTable, anonymousModelHelper, names, new HashSet<>(),
-                new HashSet<>()).getEffectiveType();
+                new HashSet<>()).effectiveType;
     }
 
     public static BIntersectionType getImmutableIntersectionType(Location pos, Types types,
@@ -303,7 +303,7 @@ public class ImmutableTypeCloner {
         }
 
         BIntersectionType immutableTableType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
-        BTableType tableEffectiveImmutableType = (BTableType) immutableTableType.getEffectiveType();
+        BTableType tableEffectiveImmutableType = (BTableType) immutableTableType.effectiveType;
         tableEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
                 symTable, anonymousModelHelper, names, unresolvedTypes);
 
@@ -344,7 +344,7 @@ public class ImmutableTypeCloner {
         }
 
         BIntersectionType immutableXMLType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
-        BXMLType xmlEffectiveImmutableType = (BXMLType) immutableXMLType.getEffectiveType();
+        BXMLType xmlEffectiveImmutableType = (BXMLType) immutableXMLType.effectiveType;
         xmlEffectiveImmutableType.mutableType = type;
         xmlEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
                 symTable, anonymousModelHelper, names, unresolvedTypes);
@@ -367,7 +367,7 @@ public class ImmutableTypeCloner {
         }
 
         BIntersectionType immutableArrayType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
-        BArrayType arrayEffectiveImmutableType = (BArrayType) immutableArrayType.getEffectiveType();
+        BArrayType arrayEffectiveImmutableType = (BArrayType) immutableArrayType.effectiveType;
         arrayEffectiveImmutableType.mutableType = type;
         arrayEffectiveImmutableType.eType = getImmutableType(pos, types, type.eType, env, pkgId, owner,
                 symTable, anonymousModelHelper, names, unresolvedTypes);
@@ -391,7 +391,7 @@ public class ImmutableTypeCloner {
 
         BIntersectionType immutableMapType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
 
-        BMapType mapEffectiveImmutableType = (BMapType) immutableMapType.getEffectiveType();
+        BMapType mapEffectiveImmutableType = (BMapType) immutableMapType.effectiveType;
         mapEffectiveImmutableType.mutableType = type;
         mapEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
                                                                  symTable, anonymousModelHelper, names,
@@ -417,7 +417,7 @@ public class ImmutableTypeCloner {
 
         List<BTupleMember> immutableMemTypes = new ArrayList<>(origTupleMembers.size());
         BTupleType tupleEffectiveImmutableType =
-                (BTupleType) Types.getImmutableType(symTable, pkgId, type).get().getEffectiveType();
+                (BTupleType) Types.getImmutableType(symTable, pkgId, type).get().effectiveType;
         tupleEffectiveImmutableType.mutableType = type;
         tupleEffectiveImmutableType.isCyclic = type.isCyclic;
         tupleEffectiveImmutableType.setMembers(immutableMemTypes);
@@ -451,7 +451,7 @@ public class ImmutableTypeCloner {
         }
 
         BIntersectionType immutableTupleIntersectionType = Types.getImmutableType(symTable, pkgId, type).get();
-        BType effectiveTypeFromType = immutableTupleIntersectionType.getEffectiveType();
+        BType effectiveTypeFromType = immutableTupleIntersectionType.effectiveType;
 
         if (origTupleTypeSymbol != null) {
             BTypeSymbol immutableTupleTSymbol =
@@ -466,8 +466,8 @@ public class ImmutableTypeCloner {
             effectiveTypeFromType.flags |= (type.flags | Flags.READONLY);
         }
 
-        BType effectiveType = immutableTupleIntersectionType.getEffectiveType();
-        BTypeSymbol tsymbol = immutableTupleIntersectionType.getEffectiveType().tsymbol;
+        BType effectiveType = immutableTupleIntersectionType.effectiveType;
+        BTypeSymbol tsymbol = immutableTupleIntersectionType.effectiveType.tsymbol;
         if (effectiveType.tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
             return immutableTupleIntersectionType;
@@ -715,7 +715,7 @@ public class ImmutableTypeCloner {
                                                                    anonymousModelHelper, names,
                                                                    unresolvedTypes, type, origUnionTypeSymbol,
                                                                    originalMemberList);
-        BType effectiveType = immutableType.getEffectiveType();
+        BType effectiveType = immutableType.effectiveType;
         BTypeSymbol tsymbol = effectiveType.tsymbol;
         if (effectiveType.tag != TypeTags.UNION || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
@@ -797,7 +797,7 @@ public class ImmutableTypeCloner {
         BIntersectionType immutableType = Types.getImmutableType(symTable, pkgId, type).get();
 
         LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
-        BUnionType unionEffectiveImmutableType = (BUnionType) immutableType.getEffectiveType();
+        BUnionType unionEffectiveImmutableType = (BUnionType) immutableType.effectiveType;
         unionEffectiveImmutableType.isCyclic = type.isCyclic;
         unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
 
@@ -823,20 +823,20 @@ public class ImmutableTypeCloner {
         }
 
         if (readOnlyMemTypes.size() == 1) {
-            immutableType.setEffectiveType(readOnlyMemTypes.iterator().next());
+            immutableType.effectiveType = readOnlyMemTypes.iterator().next();
         } else if (origUnionTypeSymbol != null) {
             BTypeSymbol immutableUnionTSymbol =
                     getReadonlyTSymbol(origUnionTypeSymbol, env, pkgId, owner,
                                        origUnionTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
                                                getImmutableTypeName(names, getSymbolFQN(origUnionTypeSymbol)));
-            immutableType.getEffectiveType().tsymbol = immutableUnionTSymbol;
-            immutableType.getEffectiveType().flags |= (type.flags | Flags.READONLY);
+            immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
+            immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
 
             if (immutableUnionTSymbol != null) {
-                immutableUnionTSymbol.type = immutableType.getEffectiveType();
+                immutableUnionTSymbol.type = immutableType.effectiveType;
             }
         } else {
-            immutableType.getEffectiveType().flags |= (type.flags | Flags.READONLY);
+            immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
         }
 
         return immutableType;

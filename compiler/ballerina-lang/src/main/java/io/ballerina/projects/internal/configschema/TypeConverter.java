@@ -87,7 +87,7 @@ public class TypeConverter {
             typeNode.addProperty(TYPE, typeVal);
         } else {
             if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
-                BType effectiveType = ((BIntersectionType) type).getEffectiveType();
+                BType effectiveType = ((BIntersectionType) type).effectiveType;
                 VisitedType visitedType = getVisitedType(effectiveType.toString());
                 if (visitedType != null) {
                     if (visitedType.isCompleted()) {

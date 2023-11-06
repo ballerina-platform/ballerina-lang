@@ -455,7 +455,7 @@ public class TypeResolver {
         BType referenceConstraintType = Types.getReferredType(definedType);
 
         if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
-                ((BIntersectionType) referenceConstraintType).getEffectiveType().getKind() == TypeKind.ERROR) {
+                ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
             boolean distinctFlagPresentInTypeDef = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
 
             BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
@@ -475,7 +475,7 @@ public class TypeResolver {
                 }
             }
 
-            BErrorType effectiveType = (BErrorType) ((BIntersectionType) referenceConstraintType).getEffectiveType();
+            BErrorType effectiveType = (BErrorType) ((BIntersectionType) referenceConstraintType).effectiveType;
 
             // if the distinct keyword is part of a distinct-type-descriptor that is the
             // only distinct-type-descriptor occurring within a module-type-defn,
@@ -582,7 +582,7 @@ public class TypeResolver {
                 ((BUnionType) type).isCyclic = true;
                 break;
             case INTERSECTION:
-                updateIsCyclicFlag(((BIntersectionType) type).getEffectiveType());
+                updateIsCyclicFlag(((BIntersectionType) type).effectiveType);
                 break;
         }
     }
@@ -1457,7 +1457,7 @@ public class TypeResolver {
         }
 
         fillEffectiveType(typeDefinition.name, intersectionType, td, symEnv);
-        BType effectiveType = intersectionType.getEffectiveType();
+        BType effectiveType = intersectionType.effectiveType;
         if (!isErrorIntersection && types.isInherentlyImmutableType(effectiveType)) {
             return effectiveType;
         }
@@ -1487,11 +1487,11 @@ public class TypeResolver {
 
             effectiveType = calculateEffectiveType(name, td, bLangEffectiveType, bLangType, effectiveType, type);
             if (effectiveType.tag == TypeTags.SEMANTIC_ERROR) {
-                intersectionType.setEffectiveType(symTable.semanticError);
+                intersectionType.effectiveType = symTable.semanticError;
                 return;
             }
         }
-        intersectionType.setEffectiveType(effectiveType);
+        intersectionType.effectiveType = effectiveType;
 
         if ((intersectionType.flags & Flags.READONLY) == Flags.READONLY) {
             if (types.isInherentlyImmutableType(effectiveType)) {
@@ -1503,15 +1503,15 @@ public class TypeResolver {
             }
 
             if (!(Types.getReferredType(effectiveType) instanceof SelectivelyImmutableReferenceType)) {
-                intersectionType.setEffectiveType(symTable.semanticError);
+                intersectionType.effectiveType = symTable.semanticError;
                 return;
             }
 
             BIntersectionType immutableIntersectionType =
                     ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                            intersectionType.getEffectiveType(), env, symTable, anonymousModelHelper, names,
+                            intersectionType.effectiveType, env, symTable, anonymousModelHelper, names,
                             new HashSet<>());
-            intersectionType.setEffectiveType(immutableIntersectionType.getEffectiveType());
+            intersectionType.effectiveType = immutableIntersectionType.effectiveType;
         }
     }
 
@@ -1901,7 +1901,7 @@ public class TypeResolver {
         BType referenceConstraintType = Types.getReferredType(resolvedType);
         boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
 
-        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).getEffectiveType() :
+        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
 
         boolean isErrorIntersection = isErrorIntersection(resolvedType);
@@ -1973,10 +1973,10 @@ public class TypeResolver {
     private boolean isErrorIntersection(BType definedType) {
         BType type = Types.getReferredType(definedType);
         if (type.tag == TypeTags.INTERSECTION) {
-            if (((BIntersectionType) type).getEffectiveType() != null
-                    && ((BIntersectionType) type).getEffectiveType() != symTable.semanticError) {
+            if (((BIntersectionType) type).effectiveType != null
+                    && ((BIntersectionType) type).effectiveType != symTable.semanticError) {
                 BIntersectionType intersectionType = (BIntersectionType) type;
-                return intersectionType.getEffectiveType().tag == TypeTags.ERROR;
+                return intersectionType.effectiveType.tag == TypeTags.ERROR;
             } else {
                 return ((BIntersectionType) type).getConstituentTypes().stream()
                         .anyMatch(t -> Types.getReferredType(t).tag == TypeTags.ERROR);
@@ -2164,9 +2164,9 @@ public class TypeResolver {
         if (type.tag == TypeTags.INTERSECTION) {
             BIntersectionType immutableType = (BIntersectionType) type;
 
-            if (immutableType.getEffectiveType().tag == TypeTags.RECORD) {
+            if (immutableType.effectiveType.tag == TypeTags.RECORD) {
                 constant.associatedTypeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
-                        immutableType.getEffectiveType().tsymbol.name.value);
+                        immutableType.effectiveType.tsymbol.name.value);
             }
         }
     }
