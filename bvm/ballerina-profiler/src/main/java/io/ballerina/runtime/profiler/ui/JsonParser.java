@@ -44,10 +44,10 @@ public class JsonParser {
     public void initializeCPUParser(String cpuFilePath) {
         try {
             String jsonInput = FileUtils.readFileAsString(cpuFilePath);
-            List<StackTrace> input = populateStackTraceItems(jsonInput);
+            List<StackTraceItem> input = populateStackTraceItems(jsonInput);
             // Create a Data object to store the output
             Data output = new Data("Root", input.get(0).time, new ArrayList<>());
-            for (StackTrace stackTraceItem : input) {
+            for (StackTraceItem stackTraceItem : input) {
                 analyseStackTraceItems(stackTraceItem, output);
             }
             writeToValueJson(output);
@@ -79,7 +79,7 @@ public class JsonParser {
         }
     }
 
-    private void analyseStackTraceItems(StackTrace stackTraceItem, Data output) {
+    private void analyseStackTraceItems(StackTraceItem stackTraceItem, Data output) {
         Data current = output;
         for (int i = 1; i < stackTraceItem.stackTrace.size(); i++) {
             current = populateChildNodes(stackTraceItem, current, stackTraceItem.stackTrace.get(i));
@@ -97,7 +97,7 @@ public class JsonParser {
         writePerformanceJson(jsonObject.toString());
     }
 
-    private Data populateChildNodes(StackTrace stackTraceItem, Data current, String stackTrace) {
+    private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String stackTrace) {
         for (Data child : current.children) {
             if (child.name.equals(stackTrace)) {
                 return child;
@@ -108,12 +108,12 @@ public class JsonParser {
         return newChild;
     }
 
-    private List<StackTrace> populateStackTraceItems(String jsonInput) {
+    private List<StackTraceItem> populateStackTraceItems(String jsonInput) {
         Gson gson = new Gson();
         JsonArray jsonArr = gson.fromJson(jsonInput, JsonArray.class);
-        List<StackTrace> stackTraceItems = new ArrayList<>();
+        List<StackTraceItem> stackTraceItems = new ArrayList<>();
         for (JsonElement jsonElement : jsonArr) {
-            StackTrace person = gson.fromJson(jsonElement, StackTrace.class);
+            StackTraceItem person = gson.fromJson(jsonElement, StackTraceItem.class);
             stackTraceItems.add(person);
         }
         return stackTraceItems;
@@ -124,12 +124,12 @@ public class JsonParser {
      *
      * @since 2201.8.0
      */
-    private static class StackTrace {
+    private static class StackTraceItem {
 
         int time;
         List<String> stackTrace;
 
-        public StackTrace(int time, List<String> stackTrace) {
+        public StackTraceItem(int time, List<String> stackTrace) {
             this.time = time;
             this.stackTrace = new ArrayList<>(stackTrace);
         }

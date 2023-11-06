@@ -77,10 +77,10 @@ public class RunProfilerTask implements Task {
             commands.add(getPackageJarName(project, projectKind));
             commands.add("--target");
             commands.add(targetPath.toString());
-            commands.add("--sourceroot");
+            commands.add("--source-root");
             commands.add(getProjectPath(project).toString());
             if (isInProfileDebugMode()) {
-                commands.add("--profilerDebug");
+                commands.add("--profiler-debug");
                 commands.add(getProfileDebugArg(err));
             }
             ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();

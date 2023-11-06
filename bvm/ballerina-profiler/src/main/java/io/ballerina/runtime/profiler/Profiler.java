@@ -144,11 +144,11 @@ public class Profiler {
                     this.targetDir = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
-                case "--sourceroot" -> {
+                case "--source-root" -> {
                     this.sourceRoot = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
-                case "--profilerDebug" -> {
+                case "--profiler-debug" -> {
                     this.profilerDebugArg = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
