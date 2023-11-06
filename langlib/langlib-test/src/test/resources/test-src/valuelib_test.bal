@@ -4646,6 +4646,40 @@ function testLast() {
     assertTrue([] == value:last(ar1, ar));
 }
 
+
+public type Copybook record {
+    DFHCOMMAREA DFHCOMMAREA?;
+};
+
+public type DFHCOMMAREA record {
+    record {
+        string MI\-HDR\-VERSION?;
+        string MI\-HDR\-MSGID?;
+        string MI\-HDR\-LOGGINGID?;
+        record {
+            string MI\-HDR\-REPLYQMGR?;
+        }[2] MI\-HDR\-REPLYSTACK?;
+    } BROKER\-MESSAGE\-AREA?;
+};
+
+function testCloneWithTypeToRecordWithSpecialChars() {
+    string s = string `{
+    "DFHCOMMAREA": {
+        "BROKER-MESSAGE-AREA": {
+            "MI-HDR-VERSION": "2",
+            "MI-HDR-MSGID":"3238763233323598798798712321187612",
+            "MI-HDR-LOGGINGID": "Z5118761-Z"
+        }
+    }
+    }`;
+    json rec = checkpanic value:fromJsonString(s);
+    map<json> mapJson = checkpanic rec.ensureType();
+    Copybook|error dfhcommarea = mapJson.cloneWithType();
+    assertTrue(dfhcommarea is Copybook);
+    Copybook cb =  checkpanic dfhcommarea.ensureType();
+    assertEquality(cb.DFHCOMMAREA?.BROKER\-MESSAGE\-AREA.toString(), string `{"MI-HDR-VERSION":"2","MI-HDR-MSGID":"3238763233323598798798712321187612","MI-HDR-LOGGINGID":"Z5118761-Z"}`);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
