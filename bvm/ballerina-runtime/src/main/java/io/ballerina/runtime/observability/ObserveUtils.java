@@ -187,7 +187,14 @@ public class ObserveUtils {
                 observerContext.setEntrypointResourceAccessor(resourceAccessor.getValue());
             }
         }
-        observerContext.setServiceName(serviceName.getValue());
+
+        String serviceNameValue = serviceName.getValue();
+        String serviceNameSuffix = System.getenv("SERVICE_NAME_SUFFIX");
+        if (serviceNameSuffix != null && !serviceNameSuffix.isEmpty()) {
+            observerContext.setServiceName(serviceNameValue + "-" + serviceNameSuffix);
+        }
+
+        observerContext.setServiceName(serviceNameValue);
 
         if (isResource) {
             observerContext.setOperationName(resourceAccessor.getValue() + " " + resourcePathOrFunction.getValue());
