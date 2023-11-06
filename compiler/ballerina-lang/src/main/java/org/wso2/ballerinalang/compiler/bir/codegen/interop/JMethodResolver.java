@@ -223,22 +223,10 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            if (areAllMethodsOverridden(jMethods, jMethodRequest.declaringClass)) {
+            if (areAllMethodsOverridden(jMethods, jMethodRequest)) {
                 return jMethods.get(0);
-            }
-
-            int paramCount = jMethods.get(0).getParamTypes().length;
-            if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
-                throw new JInteropException(OVERLOADED_METHODS,
-                        "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
-                                jMethodRequest.declaringClass + "', please specify class names for each parameter " +
-                                "in 'paramTypes' field in the annotation");
             } else {
-                throw new JInteropException(OVERLOADED_METHODS,
-                        "Overloaded methods '" + jMethodRequest.methodName + "' with '" + paramCount +
-                                "' parameter(s) in class '" + jMethodRequest.declaringClass +
-                                "', please specify class names for each parameter " +
-                                "with 'paramTypes' field in the annotation");
+                throwOverloadedMethodError(jMethodRequest, jMethods.get(0).getParamTypes().length);
             }
         }
 
@@ -250,7 +238,7 @@ class JMethodResolver {
         return jMethod;
     }
 
-    private boolean areAllMethodsOverridden(List<JMethod> jMethods, Class<?> declaringClass) {
+    private boolean areAllMethodsOverridden(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
         if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
             return false;
         }
@@ -258,7 +246,7 @@ class JMethodResolver {
             Method method1 = (Method) jMethods.get(i).getMethod();
             for (int k = i + 1; k < jMethods.size(); k++) {
                 Method method2 = (Method) jMethods.get(k).getMethod();
-                if (!isOverridden(method1, method2, declaringClass)) {
+                if (!isOverridden(method1, method2, jMethodRequest)) {
                     return false;
                 }
             }
@@ -266,16 +254,13 @@ class JMethodResolver {
         return true;
     }
 
-    private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
+    private boolean isOverridden(Method method1, Method method2, JMethodRequest jMethodRequest) {
         // Static methods cannot be overridden
-        if ((Modifier.isStatic(method1.getModifiers()) ^ Modifier.isStatic(method2.getModifiers())) ||
-                method1.getParameterCount() != method2.getParameterCount()) {
+        if (method1.getParameterCount() != method2.getParameterCount()) {
             // This occurs when there are static methods and instance methods and the static method has one more
             // parameter than the instance method. Also, this occurs when an interop method in an object maps to
             // instance methods of which one accepting self and another that doesn't.
-            throw new JInteropException(
-                    OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
-                    "parameter types for each parameter in 'paramTypes' field in the annotation");
+            throwOverloadedMethodError(jMethodRequest, method1.getParameterCount());
         }
         // Return false if returns types are not covariant
         Method currentMethod;
@@ -291,11 +276,8 @@ class JMethodResolver {
         }
 
         try {
-            Method superMethod = clazz.getSuperclass().getDeclaredMethod(currentMethod.getName(),
-                    currentMethod.getParameterTypes());
-            if (Modifier.isStatic(currentMethod.getModifiers())) {
-                return superMethod.equals(otherMethod);
-            }
+            Method superMethod = jMethodRequest.declaringClass.getSuperclass()
+                    .getDeclaredMethod(currentMethod.getName(), currentMethod.getParameterTypes());
             return Arrays.equals(superMethod.getParameterTypes(), otherMethod.getParameterTypes()) &&
                     superMethod.getReturnType().equals(otherMethod.getReturnType());
         } catch (NoSuchMethodException e) {
@@ -1033,5 +1015,17 @@ class JMethodResolver {
         throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                 "Parameter count does not match with Java method '" + jMethodRequest.methodName +
                         "' found in class '" + jMethodRequest.declaringClass.getName() + "'");
+    }
+
+    private void throwOverloadedMethodError(JMethodRequest jMethodRequest, int paramCount) throws JInteropException {
+        if (jMethodRequest.kind == JMethodKind.CONSTRUCTOR) {
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded constructors with '" + paramCount +
+                    "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                    "', please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        } else {
+            throw new JInteropException(OVERLOADED_METHODS, "Overloaded methods '" + jMethodRequest.methodName +
+                    "' with '" + paramCount + "' parameter(s) in class '" + jMethodRequest.declaringClass.getName() +
+                    "', please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
+        }
     }
 }
