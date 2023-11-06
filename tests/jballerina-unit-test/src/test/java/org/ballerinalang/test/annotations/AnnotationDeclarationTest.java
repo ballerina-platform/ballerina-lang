@@ -62,13 +62,18 @@ public class AnnotationDeclarationTest {
     @Test
     public void testInvalidAnnotType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
-        BAssertUtil.validateError(compileResult, 0, "annotation declaration requires " +
-                "a subtype of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'int'", 17, 12);
-        BAssertUtil.validateError(compileResult, 1,
-                                  "annotation declaration requires a subtype of 'true', " +
-                                          "'map<value:Cloneable>' or 'map<value:Cloneable>[]', " +
-                                          "but found 'trueArray'", 22, 12);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype " +
+                "of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'int'", 17, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype " +
+                "of 'true', 'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'trueArray'", 22, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype of 'true', " +
+                "'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'record {| Foo f; |}'", 24, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype of 'true', " +
+                "'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'map<object { }>'", 30, 12);
+        BAssertUtil.validateError(compileResult, index++, "annotation declaration requires a subtype of 'true', " +
+                "'map<value:Cloneable>' or 'map<value:Cloneable>[]', but found 'record {| Foo...; |}'", 32, 12);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test

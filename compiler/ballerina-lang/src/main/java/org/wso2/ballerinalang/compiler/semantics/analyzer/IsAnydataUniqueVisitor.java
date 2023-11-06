@@ -58,7 +58,7 @@ public class IsAnydataUniqueVisitor extends UniqueTypeVisitor<Boolean> {
     }
 
     private boolean isAnydata(BType type) {
-        switch (type.tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
@@ -83,8 +83,6 @@ public class IsAnydataUniqueVisitor extends UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.REGEXP:
                 return true;
-            case TypeTags.TYPEREFDESC:
-                return isAnydata(((BTypeReferenceType) type).referredType);
             default:
                 return false;
         }

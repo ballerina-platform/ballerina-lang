@@ -55,7 +55,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -132,7 +131,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
@@ -403,6 +402,7 @@ public class MethodGen {
     }
 
     private void genDefaultValue(MethodVisitor mv, BType bType, int index) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
@@ -436,7 +436,6 @@ public class MethodGen {
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.RECORD:
             case TypeTags.TUPLE:
             case TypeTags.FUTURE:
@@ -452,9 +451,6 @@ public class MethodGen {
                 break;
             case JTypeTags.JTYPE:
                 genJDefaultValue(mv, (JType) bType, index);
-                break;
-            case TypeTags.TYPEREFDESC:
-                genDefaultValue(mv, ((BTypeReferenceType) bType).referredType, index);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -678,7 +674,7 @@ public class MethodGen {
             if (localVar.onlyUsedInSingleBB) {
                 continue;
             }
-            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -706,6 +702,7 @@ public class MethodGen {
 
     private void generateFrameClassFieldLoadByTypeTag(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
                                                       int index, BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "I");
@@ -716,8 +713,7 @@ public class MethodGen {
                 mv.visitVarInsn(DSTORE, index);
                 break;
             case TypeTags.DECIMAL:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_BDECIMAL);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_BDECIMAL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.BOOLEAN:
@@ -726,49 +722,40 @@ public class MethodGen {
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_MAP_VALUE);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_MAP_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.STREAM:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_STREAM_VALUE);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_STREAM_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.TABLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_TABLE_VALUE_IMPL);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_TABLE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_ARRAY_VALUE);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_ARRAY_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.OBJECT:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_BOBJECT);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_BOBJECT);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ERROR:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_ERROR_VALUE);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_ERROR_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.FUTURE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_FUTURE_VALUE);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_FUTURE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.INVOKABLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_FUNCTION_POINTER);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_FUNCTION_POINTER);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.TYPEDESC:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_TYPEDESC);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_TYPEDESC);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.NIL:
@@ -776,25 +763,18 @@ public class MethodGen {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_OBJECT);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_OBJECT);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.HANDLE:
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                        GET_HANDLE_VALUE);
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, GET_HANDLE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldLoad(localVar, mv, index, frameName);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index,
-                        ((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -803,7 +783,7 @@ public class MethodGen {
 
     private void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                               int index, String frameName) {
-        JType jType = (JType) JvmCodeGenUtil.getReferredType(localVar.type);
+        JType jType = (JType) JvmCodeGenUtil.getImpliedType(localVar.type);
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -847,7 +827,7 @@ public class MethodGen {
             if (localVar.onlyUsedInSingleBB) {
                 continue;
             }
-            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(localVar.type);
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -856,16 +836,13 @@ public class MethodGen {
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "J");
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_BSTRING);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_BSTRING);
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_XML);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_XML);
             } else if (TypeTags.REGEXP == bType.tag) {
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_REGEXP);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_REGEXP);
             } else {
                 generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, bType);
             }
@@ -874,6 +851,7 @@ public class MethodGen {
 
     private void generateFrameClassFieldUpdateByTypeTag(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
                                                         int index, BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitVarInsn(ILOAD, index);
@@ -895,79 +873,62 @@ public class MethodGen {
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_MAP_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_MAP_VALUE);
                 break;
             case TypeTags.STREAM:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_STREAM_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_STREAM_VALUE);
                 break;
             case TypeTags.TABLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_TABLE_VALUE_IMPL);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_TABLE_VALUE);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_ARRAY_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_ARRAY_VALUE);
                 break;
             case TypeTags.ERROR:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_ERROR_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_ERROR_VALUE);
                 break;
             case TypeTags.FUTURE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_FUTURE_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_FUTURE_VALUE);
                 break;
             case TypeTags.TYPEDESC:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_TYPEDESC);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_TYPEDESC);
                 break;
             case TypeTags.OBJECT:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_BOBJECT);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_BOBJECT);
                 break;
             case TypeTags.INVOKABLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_FUNCTION_POINTER);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_FUNCTION_POINTER);
                 break;
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_OBJECT);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_OBJECT);
                 break;
             case TypeTags.HANDLE:
                 mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                        GET_HANDLE_VALUE);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_HANDLE_VALUE);
                 break;
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
                 break;
-            case TypeTags.TYPEREFDESC:
-                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index,
-                        ((BTypeReferenceType) bType).referredType);
-                break;
             default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                        bType);
+                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
     }
 
@@ -1075,7 +1036,8 @@ public class MethodGen {
 
     private boolean isValidArg(BIRVariableDcl localVar) {
         boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG;
-        boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
+        boolean synArg = JvmCodeGenUtil.getImpliedType(localVar.type).tag == TypeTags.BOOLEAN &&
+                localVar.name.value.startsWith("%syn");
         boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
                 localVar.kind == VarKind.SYNTHETIC;
         return (localArg && !synArg) || lambdaMapArg;
@@ -1090,6 +1052,7 @@ public class MethodGen {
     }
 
     private String getJVMTypeSign(BType bType) {
+        bType = JvmCodeGenUtil.getImpliedType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -1122,7 +1085,7 @@ public class MethodGen {
                 jvmType = GET_STREAM_VALUE;
                 break;
             case TypeTags.TABLE:
-                jvmType = GET_TABLE_VALUE_IMPL;
+                jvmType = GET_TABLE_VALUE;
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
@@ -1151,7 +1114,6 @@ public class MethodGen {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
@@ -1159,9 +1121,6 @@ public class MethodGen {
                 break;
             case JTypeTags.JTYPE:
                 jvmType = InteropMethodGen.getJTypeSignature((JType) bType);
-                break;
-            case TypeTags.TYPEREFDESC:
-                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException("JVM code generation is not supported for type " +

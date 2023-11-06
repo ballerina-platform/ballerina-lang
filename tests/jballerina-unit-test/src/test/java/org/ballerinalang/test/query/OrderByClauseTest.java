@@ -35,7 +35,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  *
  * @since Swan Lake
  */
-@Test(groups = {"disableOnOldParser"})
+@Test()
 public class OrderByClauseTest {
 
     private CompileResult result;

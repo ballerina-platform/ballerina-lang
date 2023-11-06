@@ -825,3 +825,62 @@ isolated class IsolatedClassWithInvalidQueryExpTransfer {
         }
     }
 }
+
+isolated class IsolatedClassWithInvalidAccessOutsideLockInInitMethod {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = []; // OK
+
+        self.arr.push(node);
+        self.arr[0] = node;
+    }
+}
+
+int[] mutableIntArr = [1, 2];
+
+function getMutableIntArray() returns int[] => mutableIntArr;
+
+var isolatedObjectConstructorWithInvalidAccessOutsideLockInInitMethod = isolated object {
+    private int[][] arr;
+
+    function init() {
+        self.arr = []; // OK
+
+        int[] node = getMutableIntArray();
+
+        self.arr.push(node);
+        self.arr[0] = node;
+    }
+};
+
+isolated class IsolatedClassWithInvalidInitMethod {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = []; // OK
+
+        lock {
+            self.arr[0] = node;
+            self.arr.push(getMutableIntArray());
+        }
+    }
+}
+
+function testIsolatedObjectConstructorWithInvalidInitMethod() {
+    var _ = isolated object {
+        private int[][] arr;
+
+        function init() {
+            self.arr = []; // OK
+
+            int[] node = getMutableIntArray();
+
+            lock {
+                self.arr.push(node);
+                int[] mutArr = getMutableIntArray();
+                self.arr[0] = mutArr;
+            }
+        }
+    };
+}

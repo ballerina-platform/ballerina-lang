@@ -844,6 +844,53 @@ isolated class IsolatedClassWithQueryExpTransfer {
     }
 }
 
+isolated class IsolatedClassWithValidAccessInInitMethodAfterInitialization {
+    private int[][] arr;
+
+    function init(int[] node) {
+        self.arr = [];
+
+        lock {
+            self.arr[0] = node.cloneReadOnly();
+            self.arr.push(node.clone());
+        }
+    }
+}
+
+isolated function getIntArray() returns int[] => [1, 2];
+
+var isolatedObjectConstructorWithValidAccessInInitMethodAfterInitialization = isolated object {
+    private int[][] arr;
+
+    function init() {
+        self.arr = [];
+
+        lock {
+            int[] node = getIntArray();
+
+            self.arr.push(node);
+            self.arr[1] = node;
+        }
+    }
+};
+
+function testLocalObjectConstructorWithValidAccessInInitMethodAfterInitialization() {
+    var _ = isolated object {
+        private int[][] arr;
+
+        function init() {
+            self.arr = [];
+
+            int[] node = getIntArray();
+
+            lock {
+                self.arr.push(node.clone());
+                self.arr[1] = node.cloneReadOnly();
+            }
+        }
+    };
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

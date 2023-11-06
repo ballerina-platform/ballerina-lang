@@ -212,6 +212,7 @@ public class JvmConstants {
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
     public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
     public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
+    public static final String LARGE_STRUCTURE_UTILS = "io/ballerina/runtime/internal/util/LargeStructureUtils";
     public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
     public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
     public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
@@ -381,7 +382,7 @@ public class JvmConstants {
     public static final String LAMBDA_PREFIX = "$lambda$";
     public static final String POPULATE_METHOD_PREFIX = "$populate";
     public static final String ADD_METHOD = "add";
-    public static final String TEST_EXECUTION_STATE = "$testExecutionState";
+    public static final String TEST_EXECUTION_STATE = "__gH7W16nQmp0TestExecState__";
     public static final String GET_TEST_EXECUTION_STATE = "$getTestExecutionState";
 
     // scheduler related constants

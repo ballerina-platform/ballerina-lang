@@ -119,7 +119,7 @@ public class ConditionResolver {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) condition;
                 BType type = (simpleVarRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ?
                         simpleVarRef.symbol.type : condition.getBType();
-                BType baseType = Types.getReferredType(type);
+                BType baseType = Types.getImpliedType(type);
 
                 if (baseType.tag != TypeTags.FINITE) {
                     return symTable.semanticError;

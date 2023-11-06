@@ -137,7 +137,7 @@ public class TypeDefBuilderHelper {
 
     public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
                                                                 Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
+        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.symbol, env,
                                                                         names, Names.INIT_FUNCTION_SUFFIX, symTable,
                                                                         recordTypeNode.getBType());
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.getBType().tsymbol);
@@ -150,33 +150,30 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(Location location,
-                                                                   BSymbol symbol,
+    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
                                                                    Name suffix,
                                                                    SymbolTable symTable,
                                                                    BType type) {
-        return createInitFunctionForStructureType(location, symbol, env, names, suffix, type, symTable.nilType);
+        return createInitFunctionForStructureType(symbol, env, names, suffix, type, symTable.nilType);
     }
 
-    public static BLangFunction createInitFunctionForStructureType(Location location,
-                                                                   BSymbol symbol,
+    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
                                                                    Name suffix,
                                                                    BType type,
                                                                    BType returnType) {
         String structTypeName = type.tsymbol.name.value;
-        BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(location, structTypeName, suffix);
+        BLangFunction initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(null, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(null, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
                                                    names.originalNameFromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
+                                                   env.enclPkg.symbol.pkgID, type, null, null, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -193,7 +190,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = createIdentifier(location, funcSymbolName.value);
+        initFunction.name = createIdentifier(null, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -271,7 +268,7 @@ public class TypeDefBuilderHelper {
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        BType detailType = Types.getReferredType(type.detailType);
+        BType detailType = Types.getImpliedType(type.detailType);
 
         if (detailType.tag == TypeTags.MAP) {
             BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
@@ -331,12 +328,13 @@ public class TypeDefBuilderHelper {
                 fieldType = origField.type;
             }
 
-            Name origFieldName = origField.name;
+            Name origFieldName = origField.symbol.originalName;
+            Name fieldName = origField.name;
             BVarSymbol fieldSymbol;
-            BType referredType = Types.getReferredType(fieldType);
+            BType referredType = Types.getImpliedType(fieldType);
             if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
                 fieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
-                        origFieldName, pkgID, fieldType,
+                        fieldName, origFieldName, pkgID, fieldType,
                         structureSymbol, origField.symbol.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) referredType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) fieldSymbol;
@@ -347,16 +345,16 @@ public class TypeDefBuilderHelper {
             } else if (fieldType == symTable.semanticError) {
                 // Can only happen for records.
                 fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
-                        origFieldName, pkgID, symTable.neverType,
+                        fieldName, origFieldName, pkgID, symTable.neverType,
                         structureSymbol, origField.symbol.pos, SOURCE);
             } else {
-                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
+                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag, fieldName, origFieldName, pkgID,
                         fieldType, structureSymbol,
                         origField.symbol.pos, SOURCE);
             }
-            String nameString = origFieldName.value;
-            fields.put(nameString, new BField(origFieldName, null, fieldSymbol));
-            structureSymbol.scope.define(origFieldName, fieldSymbol);
+            String nameString = fieldName.value;
+            fields.put(nameString, new BField(fieldName, null, fieldSymbol));
+            structureSymbol.scope.define(fieldName, fieldSymbol);
         }
         structureType.fields = fields;
 

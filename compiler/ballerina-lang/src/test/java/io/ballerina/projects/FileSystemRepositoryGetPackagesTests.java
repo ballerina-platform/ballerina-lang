@@ -69,6 +69,8 @@ public class FileSystemRepositoryGetPackagesTests {
     public void testGetPackagesForCorrectPackages() {
         Assert.assertTrue(nonEmptyRepoPackages.containsKey("foo"));
         Assert.assertTrue(nonEmptyRepoPackages.get("foo").contains("package_a:1.1.0"));
+        Assert.assertTrue(nonEmptyRepoPackages.get("foo").contains("package_a:1.2.0"));
+        Assert.assertTrue(nonEmptyRepoPackages.get("foo").contains("package_b:0.7.8"));
         Assert.assertTrue(nonEmptyRepoPackages.get("foo").contains("package_b:6.7.8"));
 
         Assert.assertTrue(nonEmptyRepoPackages.containsKey("bar"));

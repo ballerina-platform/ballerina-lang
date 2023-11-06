@@ -81,7 +81,6 @@ import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -94,7 +93,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
@@ -118,7 +117,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
@@ -237,7 +235,7 @@ public class JvmPackageGen {
     private static void generateLockForVariable(ClassWriter cw) {
         String lockStoreClass = "L" + LOCK_STORE + ";";
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, LOCK_STORE_VAR_NAME, lockStoreClass, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, LOCK_STORE_VAR_NAME, lockStoreClass, null, null);
         fv.visitEnd();
     }
 
@@ -255,9 +253,6 @@ public class JvmPackageGen {
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
             setCurrentModuleField(cw, mv, jvmConstantsGen, birPackage.packageID, className);
-            if (isTestablePackage) {
-                setInitialTestExecutionState(mv, className);
-            }
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
@@ -391,7 +386,7 @@ public class JvmPackageGen {
             boolean isTestable = testExecuteFunc != null;
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
-                cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
+                cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
                 jvmTypeGen.generateGetAnonTypeMethod(cw, moduleClass);
@@ -401,10 +396,6 @@ public class JvmPackageGen {
                     if (globalVar != null) {
                         generatePackageVariable(globalVar, cw);
                     }
-                }
-
-                if (isTestable) {
-                    generateTestExecutionStateField(cw);
                 }
 
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
@@ -423,7 +414,7 @@ public class JvmPackageGen {
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
                                                                 asyncDataCollector);
             } else {
-                cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+                cw.visit(V17, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
             }
             cw.visitSource(javaClass.sourceFileName, null);
@@ -509,7 +500,7 @@ public class JvmPackageGen {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
 
             if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
@@ -854,16 +845,5 @@ public class JvmPackageGen {
             }
         }
         return false;
-    }
-
-    private static void generateTestExecutionStateField(ClassWriter cw) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC | ACC_STATIC, TEST_EXECUTION_STATE, "I",
-                null, null);
-        fv.visitEnd();
-    }
-
-    private static void setInitialTestExecutionState(MethodVisitor mv, String initClass) {
-        mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "I");
     }
 }

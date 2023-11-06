@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+
 /**
  * This class is used for Java interoperability tests.
  *
  * @since 1.0.0
  */
-public class ClassWithDefaultConstructor {
+public class ClassWithDefaultConstructor extends AbstractClass {
     private int a;
 
     public ClassWithDefaultConstructor() {
@@ -31,5 +34,10 @@ public class ClassWithDefaultConstructor {
 
     public Integer getValue() {
         return a;
+    }
+
+    @Override
+    public BString getMessage() {
+        return StringUtils.fromString("Hello from Java!");
     }
 }

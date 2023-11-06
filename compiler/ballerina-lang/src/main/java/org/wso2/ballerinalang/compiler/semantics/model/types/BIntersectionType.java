@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -41,15 +40,13 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class BIntersectionType extends BType implements IntersectionType {
-
     public BType effectiveType;
 
     private LinkedHashSet<BType> constituentTypes;
-    private BIntersectionType intersectionType;
     private SemType semTypeComponent;
 
     public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types,
-                             IntersectableReferenceType effectiveType) {
+                             BType effectiveType) {
         super(TypeTags.INTERSECTION, tsymbol);
         this.constituentTypes = toFlatTypeSet(types);
 
@@ -61,20 +58,18 @@ public class BIntersectionType extends BType implements IntersectionType {
         }
         SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
         this.effectiveType = (BType) effectiveType;
-        effectiveType.setIntersectionType(this);
     }
 
     public BIntersectionType(BTypeSymbol tsymbol) {
         super(TypeTags.INTERSECTION, tsymbol);
     }
 
-    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, IntersectableReferenceType effectiveType,
+    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType,
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
         SemTypeResolver.resolveBIntersectionSemTypeComponent(this);
-        this.effectiveType = (BType) effectiveType;
-        effectiveType.setIntersectionType(this);
+        this.effectiveType = effectiveType;
     }
 
     @Override
@@ -138,14 +133,8 @@ public class BIntersectionType extends BType implements IntersectionType {
         return flatSet;
     }
 
-    @Override
-    public Optional<BIntersectionType> getIntersectionType() {
-        return Optional.ofNullable(this.intersectionType);
-    }
-
-    @Override
-    public void setIntersectionType(BIntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
+    public BType getEffectiveType() {
+        return this.effectiveType;
     }
 
     public SemType getSemTypeComponent() {

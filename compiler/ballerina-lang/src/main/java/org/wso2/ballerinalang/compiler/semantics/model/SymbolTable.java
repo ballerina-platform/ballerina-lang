@@ -128,6 +128,7 @@ public class SymbolTable {
 
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
+    public final BArrayType byteArrayType = new BArrayType(byteType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     BVarSymbol varSymbol = new BVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
@@ -382,6 +383,8 @@ public class SymbolTable {
                 return charStringType;
             case TypeTags.REGEXP:
                 return regExpType;
+            case TypeTags.BYTE_ARRAY:
+                return byteArrayType;
             default:
                 return semanticError;
         }
