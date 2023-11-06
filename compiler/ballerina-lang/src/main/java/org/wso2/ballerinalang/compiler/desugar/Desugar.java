@@ -260,6 +260,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiter
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
+import static org.wso2.ballerinalang.compiler.util.Constants.INIT_FUNC_COUNT_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -6311,7 +6312,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * Split packahe init function into several smaller functions.
+     * Split package init function into several smaller functions and put them into multiple classes
+     * if the function count is very high.
      *
      * @param packageNode package node
      * @param env symbol environment
@@ -6322,9 +6324,8 @@ public class Desugar extends BLangNodeVisitor {
         int splitFuncCount = 0;
         DiagnosticPos packageNodePos = packageNode.pos;
         String packageCUnitName = packageNodePos.src.cUnitName;
-        DiagnosticPos newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
-                packageCUnitName + "$" + splitInitFuncClassCount), packageNodePos.sLine,
-                packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+        DiagnosticPos newFuncPos = getNewFuncPos(packageNodePos, packageCUnitName, splitInitFuncClassCount);
+        splitInitFuncClassCount++;
         int methodSize = INIT_METHOD_SPLIT_SIZE;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
         if (!isJvmTarget) {
@@ -6350,10 +6351,9 @@ public class Desugar extends BLangNodeVisitor {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
                 splitFuncCount++;
-                if (splitFuncCount % INIT_METHOD_SPLIT_SIZE == 0) {
-                    newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
-                            packageCUnitName + "$" + splitInitFuncClassCount++), packageNodePos.sLine,
-                            packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+                if (splitFuncCount % INIT_FUNC_COUNT_PER_CLASS == 0) {
+                    newFuncPos = getNewFuncPos(packageNodePos, packageCUnitName, splitInitFuncClassCount);
+                    splitInitFuncClassCount++;
                 }
                 newFunc.pos = newFuncPos;
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -6377,10 +6377,9 @@ public class Desugar extends BLangNodeVisitor {
                     generatedFunctions.add(newFunc);
                     newFunc = createIntermediateInitFunction(packageNode, env);
                     splitFuncCount++;
-                    if (splitFuncCount % INIT_METHOD_SPLIT_SIZE == 0) {
-                        newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
-                                packageCUnitName + "$" + splitInitFuncClassCount++), packageNodePos.sLine,
-                                packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+                    if (splitFuncCount % INIT_FUNC_COUNT_PER_CLASS == 0) {
+                        newFuncPos = getNewFuncPos(packageNodePos, packageCUnitName, splitInitFuncClassCount);
+                        splitInitFuncClassCount++;
                     }
                     newFunc.pos = newFuncPos;
                     newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -6405,10 +6404,9 @@ public class Desugar extends BLangNodeVisitor {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
                 splitFuncCount++;
-                if (splitFuncCount % INIT_METHOD_SPLIT_SIZE == 0) {
-                    newFuncPos = new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
-                            packageCUnitName + "$" + splitInitFuncClassCount++), packageNodePos.sLine,
-                            packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
+                if (splitFuncCount % INIT_FUNC_COUNT_PER_CLASS == 0) {
+                    newFuncPos = getNewFuncPos(packageNodePos, packageCUnitName, splitInitFuncClassCount);
+                    splitInitFuncClassCount++;
                 }
                 newFunc.pos = newFuncPos;
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -6450,6 +6448,13 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return generatedFunctions.get(0);
+    }
+
+    private static DiagnosticPos getNewFuncPos(DiagnosticPos packageNodePos, String packageCUnitName,
+                                               int splitInitFuncClassCount) {
+        return new DiagnosticPos(new BDiagnosticSource(packageNodePos.src.pkgID,
+                packageCUnitName + "$" + splitInitFuncClassCount), packageNodePos.sLine,
+                packageNodePos.eLine, packageNodePos.sCol, packageNodePos.eCol);
     }
 
     private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
