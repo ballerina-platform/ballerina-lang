@@ -28,7 +28,7 @@ public class ObservabilityConstants {
 
     private ObservabilityConstants() {
     }
-    public static final String BAL_OBSERVE_SERVICE_NAME_SUFFIX = "BAL_OBSERVE_SERVICE_NAME_SUFFIX";
+    static final String BAL_OBSERVE_SERVICE_NAME_SUFFIX = "BAL_OBSERVE_SERVICE_NAME_SUFFIX";
 
     public static final String KEY_OBSERVER_CONTEXT = "__observer_context__";
     public static final String DEFAULT_SERVICE_NAME = "Ballerina";
