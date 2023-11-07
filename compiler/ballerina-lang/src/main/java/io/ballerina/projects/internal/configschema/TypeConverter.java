@@ -19,6 +19,21 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.types.Core;
+import io.ballerina.types.EnumerableCharString;
+import io.ballerina.types.EnumerableFloat;
+import io.ballerina.types.EnumerableString;
+import io.ballerina.types.EnumerableType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SubtypeData;
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
+import io.ballerina.types.subtypedata.Range;
+import io.ballerina.types.subtypedata.StringSubtype;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -258,23 +273,52 @@ public class TypeConverter {
      * @param finiteType BFiniteType to retrieve enum values from
      */
     private static void getEnumArray(JsonArray enumArray, BFiniteType finiteType) {
-        Object[] values = finiteType.getValueSpace().toArray();
-        for (Object finiteValue : values) {
-            if (finiteValue instanceof BLangNumericLiteral) {
-                BType bType = ((BLangNumericLiteral) finiteValue).getBType();
-                // In the BLangNumericLiteral the integer typed values are represented as numeric values
-                // while the decimal values are represented as String
-                Object value = ((BLangNumericLiteral) finiteValue).getValue();
-                if (TypeTags.isIntegerTypeTag(bType.tag)) {
-                    // Any integer can be considered as a long and added as a numeric value to the enum array
-                    if (value instanceof Long) {
-                        enumArray.add((Long) value);
+        SemType t = finiteType.getSemType();
+        if (Core.containsNil(t)) {
+            enumArray.add("()");
+        }
+
+        SubtypeData subtypeData = Core.booleanSubtype(t);
+        if (subtypeData instanceof AllOrNothingSubtype allOrNothing) {
+            if (allOrNothing.isAllSubtype()) {
+                enumArray.add("true");
+                enumArray.add("false");
+            }
+        } else {
+            BooleanSubtype booleanSubtype = (BooleanSubtype) subtypeData;
+            enumArray.add(booleanSubtype.value ? "true" : "false");
+        }
+
+        subtypeData = Core.intSubtype(t);
+        if (subtypeData instanceof IntSubtype intSubtype) {
+            for (Range range : intSubtype.ranges) {
+                for (long i = range.min; i <= range.max; i++) {
+                    enumArray.add(i);
+                    if (i == Long.MAX_VALUE) {
+                        // To avoid overflow
+                        break;
                     }
-                } else {
-                    enumArray.add(Double.parseDouble(value.toString()));
                 }
-            } else if (finiteValue instanceof BLangLiteral) {
-                enumArray.add(((BLangLiteral) finiteValue).getValue().toString());
+            }
+        }
+
+        subtypeData = Core.floatSubtype(t);
+        if (subtypeData instanceof FloatSubtype floatSubtype) {
+            for (EnumerableType enumerableFloat : floatSubtype.values()) {
+                enumArray.add(((EnumerableFloat) enumerableFloat).value);
+            }
+        }
+
+        subtypeData = Core.stringSubtype(t);
+        if (subtypeData instanceof StringSubtype stringSubtype) {
+            CharStringSubtype charStringSubtype = stringSubtype.getChar();
+            for (EnumerableType enumerableType : charStringSubtype.values()) {
+                enumArray.add("\"" + ((EnumerableCharString) enumerableType).value + "\"");
+            }
+
+            NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
+            for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
+                enumArray.add("\"" + ((EnumerableString) enumerableType).value + "\"");
             }
         }
     }

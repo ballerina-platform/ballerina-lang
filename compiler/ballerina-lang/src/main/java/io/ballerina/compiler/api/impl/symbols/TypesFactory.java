@@ -243,7 +243,6 @@ public class TypesFactory {
                 if (value.isPresent()) {
                     return new BallerinaSingletonTypeSymbol(this.context, broadType, value.get().toString(), bType);
                 }
-
                 return new BallerinaUnionTypeSymbol(this.context, finiteType);
             case FUNCTION:
                 return new BallerinaFunctionTypeSymbol(this.context, (BInvokableTypeSymbol) tSymbol, bType);

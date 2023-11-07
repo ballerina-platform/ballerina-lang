@@ -453,18 +453,8 @@ public class TypeHashVisitor extends UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        List<String> toSort = new ArrayList<>();
-        for (BLangExpression bLangExpression : type.getValueSpace()) {
-            String toString = bLangExpression.toString();
-            toSort.add(toString);
-        }
-        toSort.sort(null);
-        List<Integer> valueSpaceHashes = new ArrayList<>();
-        for (String toString : toSort) {
-            Integer hashCode = toString.hashCode();
-            valueSpaceHashes.add(hashCode);
-        }
-        Integer hash = hash(baseHash(type), valueSpaceHashes);
+
+        Integer hash = hash(baseHash(type), type.toString().hashCode());
         return addToVisited(type, hash);
     }
 
