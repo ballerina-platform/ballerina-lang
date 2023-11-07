@@ -818,6 +818,10 @@ public class SemTypeResolver {
     }
 
     public static SemType getSemTypeComponent(BType t) {
+        if (t == null) {
+            return PredefinedType.NEVER;
+        }
+
         if (t.tag == TypeTags.TYPEREFDESC) {
             return getSemTypeComponent(((BTypeReferenceType) t).referredType);
         }
@@ -851,6 +855,12 @@ public class SemTypeResolver {
      */
     @Deprecated
     public static BType getBTypeComponent(BType t) {
+        if (t == null) {
+            BType neverType = BType.createNeverType();
+            neverType.isBTypeComponent = true;
+            return neverType;
+        }
+
         if (t.tag == TypeTags.TYPEREFDESC) {
             return getBTypeComponent(((BTypeReferenceType) t).referredType);
         }
