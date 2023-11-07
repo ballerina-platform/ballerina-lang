@@ -50,7 +50,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,8 +81,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_VOI
  */
 class JMethodResolver {
 
-    private ClassLoader classLoader;
-    private SymbolTable symbolTable;
+    private final ClassLoader classLoader;
+    private final SymbolTable symbolTable;
     private final BType[] definedReadOnlyMemberTypes;
 
     JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
@@ -223,11 +222,10 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            if (areAllMethodsOverridden(jMethods, jMethodRequest)) {
+            if (areAllMethodsOverridden(jMethods, jMethodRequest.declaringClass)) {
                 return jMethods.get(0);
-            } else {
-                throwOverloadedMethodError(jMethodRequest, jMethods.get(0).getParamTypes().length);
             }
+            throwOverloadedMethodError(jMethodRequest, jMethods.get(0).getParamTypes().length);
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
@@ -238,7 +236,7 @@ class JMethodResolver {
         return jMethod;
     }
 
-    private boolean areAllMethodsOverridden(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
+    private boolean areAllMethodsOverridden(List<JMethod> jMethods, Class<?> clazz) {
         if (jMethods.get(0).getKind() == JMethodKind.CONSTRUCTOR) {
             return false;
         }
@@ -246,7 +244,7 @@ class JMethodResolver {
             Method method1 = (Method) jMethods.get(i).getMethod();
             for (int k = i + 1; k < jMethods.size(); k++) {
                 Method method2 = (Method) jMethods.get(k).getMethod();
-                if (!isOverridden(method1, method2, jMethodRequest)) {
+                if (!isOverridden(method1, method2, clazz)) {
                     return false;
                 }
             }
@@ -254,13 +252,14 @@ class JMethodResolver {
         return true;
     }
 
-    private boolean isOverridden(Method method1, Method method2, JMethodRequest jMethodRequest) {
-        // Static methods cannot be overridden
+    private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
         if (method1.getParameterCount() != method2.getParameterCount()) {
             // This occurs when there are static methods and instance methods and the static method has one more
             // parameter than the instance method. Also, this occurs when an interop method in an object maps to
             // instance methods of which one accepting self and another that doesn't.
-            throwOverloadedMethodError(jMethodRequest, method1.getParameterCount());
+            throw new JInteropException(
+                    OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. Please specify the " +
+                    "parameter types for each parameter in 'paramTypes' field in the annotation");
         }
         // Return false if returns types are not covariant
         Method currentMethod;
@@ -276,7 +275,7 @@ class JMethodResolver {
         }
 
         try {
-            Method superMethod = jMethodRequest.declaringClass.getSuperclass()
+            Method superMethod = clazz.getSuperclass()
                     .getDeclaredMethod(currentMethod.getName(), currentMethod.getParameterTypes());
             return Arrays.equals(superMethod.getParameterTypes(), otherMethod.getParameterTypes()) &&
                     superMethod.getReturnType().equals(otherMethod.getReturnType());
@@ -326,8 +325,7 @@ class JMethodResolver {
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
         } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
             String errorMsgPart;
-            if (returnType instanceof BUnionType) {
-                BUnionType bUnionReturnType = (BUnionType) returnType;
+            if (returnType instanceof BUnionType bUnionReturnType) {
                 BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
                 errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
             } else {
@@ -344,8 +342,7 @@ class JMethodResolver {
         if (retType.tag == TypeTags.NIL || (retType instanceof BTypeReferenceType &&
                 ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
             return "error";
-        } else if (retType instanceof BUnionType) {
-            BUnionType bUnionReturnType = (BUnionType) retType;
+        } else if (retType instanceof BUnionType bUnionReturnType) {
             BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
             return modifiedRetType + "|error";
         } else {
@@ -528,7 +525,7 @@ class JMethodResolver {
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
                     return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.JSON:
+                case TypeTags.JSON, TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
@@ -556,16 +553,13 @@ class JMethodResolver {
                         }
                     }
                     return true;
-                case TypeTags.READONLY:
-                    return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
-                    for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
-                        BLangExpression value = iterator.next();
+                    for (BLangExpression value : valueSpace) {
                         if (!isValidParamBType(jType, value.getBType(), isLastParam, restParamExist)) {
                             return false;
                         }
@@ -678,11 +672,7 @@ class JMethodResolver {
                         return true;
                     }
 
-                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet)) {
-                        return true;
-                    }
-
-                    return false;
+                    return isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest, visitedSet);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
