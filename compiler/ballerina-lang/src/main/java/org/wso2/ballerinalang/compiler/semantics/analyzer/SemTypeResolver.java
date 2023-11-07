@@ -79,7 +79,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -964,10 +963,14 @@ public class SemTypeResolver {
      * @param t SemType component of BFiniteType
      */
     public static Set<BType> singletonBroadTypes(SemType t, SymbolTable symTable) { // Equivalent to getValueTypes()
-        Set<BType> types = new HashSet<>(7);
+        Set<BType> types = new LinkedHashSet<>(7);
         UniformTypeBitSet uniformTypeBitSet = widenToBasicTypes(t);
         if ((uniformTypeBitSet.bitset & PredefinedType.NIL.bitset) != 0) {
             types.add(symTable.nilType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.BOOLEAN.bitset) != 0) {
+            types.add(symTable.booleanType);
         }
 
         if ((uniformTypeBitSet.bitset & PredefinedType.INT.bitset) != 0) {
@@ -978,16 +981,12 @@ public class SemTypeResolver {
             types.add(symTable.floatType);
         }
 
-        if ((uniformTypeBitSet.bitset & PredefinedType.STRING.bitset) != 0) {
-            types.add(symTable.stringType);
-        }
-
-        if ((uniformTypeBitSet.bitset & PredefinedType.BOOLEAN.bitset) != 0) {
-            types.add(symTable.booleanType);
-        }
-
         if ((uniformTypeBitSet.bitset & PredefinedType.DECIMAL.bitset) != 0) {
             types.add(symTable.decimalType);
+        }
+
+        if ((uniformTypeBitSet.bitset & PredefinedType.STRING.bitset) != 0) {
+            types.add(symTable.stringType);
         }
 
         return types;
