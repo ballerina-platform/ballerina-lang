@@ -42,7 +42,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Sort {
 
     public static BArray sort(BArray arr, Object direction, Object func) {
-        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "sort()");
+        checkIsArrayOnlyOperation(TypeUtils.getImpliedType(arr.getType()), "sort()");
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
 
         Object[][] sortArr = new Object[arr.size()][2];

@@ -41,6 +41,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.symbols.resourcepath.util.BallerinaNamedPathSegment;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -74,6 +75,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -187,10 +189,10 @@ public class SymbolFactory {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
             }
             if (symbol.kind == SymbolKind.PATH_PARAMETER) {
-                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
+                return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_PARAMETER);
             }
             if (symbol.kind == SymbolKind.PATH_REST_PARAMETER) {
-                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+                return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_REST_PARAMETER);
             }
 
             // If the symbol is a wildcard('_'), a variable symbol will not be created.
@@ -231,6 +233,18 @@ public class SymbolFactory {
 
         if (symbol.kind == SymbolKind.XMLNS) {
             return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+            return createPathNameSymbol((BResourcePathSegmentSymbol) symbol);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
+            return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_PARAMETER);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            return createPathParamSymbol(name, symbol, PathSegment.Kind.PATH_REST_PARAMETER);
         }
 
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
@@ -375,9 +389,21 @@ public class SymbolFactory {
         return new BallerinaMemberTypeSymbol(context, symbol, type);
     }
 
+    /**
+     * Create a named path segment symbol.
+     *
+     * @param symbol {@link BResourcePathSegmentSymbol} to convert
+     * @return {@link BallerinaNamedPathSegment} generated
+     */
+    public BallerinaNamedPathSegment createPathNameSymbol(BResourcePathSegmentSymbol symbol) {
+        return new BallerinaNamedPathSegment(symbol, context);
+    }
+
     private boolean isReadonlyIntersectionArrayType(BType type) {
-        if (type.tag == TypeTags.INTERSECTION 
-                && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+        type = Types.getReferredType(type);
+        if (type.tag == TypeTags.INTERSECTION
+                && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL &&
+                (type.flags & Flags.READONLY) ==  Flags.READONLY) {
             return true;
         }
         if (type.tag == TypeTags.ARRAY) {
@@ -447,15 +473,16 @@ public class SymbolFactory {
                                             kind, symbol, this.context);
     }
 
-    public PathParameterSymbol createPathParamSymbol(BVarSymbol symbol, PathSegment.Kind kind) {
-        if (symbol == null) {
-            return null;
-        }
-        return new BallerinaPathParameterSymbol(kind, symbol, this.context, false);
-    }
-
-    public PathParameterSymbol createPathParamSymbol(BTypeSymbol tsymbol, PathSegment.Kind kind) {
-        return new BallerinaPathParameterSymbol(kind, tsymbol, this.context, true);
+    /**
+     * Create a ballerina path parameter symbol.
+     *
+     * @param name  name of the parameter
+     * @param symbol {@link BSymbol} symbol of the parameter
+     * @param pathKind {@link PathSegment.Kind} path-kind of the path parameter
+     * @return  {@link PathParameterSymbol} generated path parameter
+     */
+    public PathParameterSymbol createPathParamSymbol(String name, BSymbol symbol, PathSegment.Kind pathKind) {
+        return new BallerinaPathParameterSymbol(name, pathKind, symbol, this.context);
     }
 
     /**

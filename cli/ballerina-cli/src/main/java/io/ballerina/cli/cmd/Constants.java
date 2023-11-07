@@ -50,6 +50,7 @@ public class Constants {
     public static final String SEMVER_COMMAND = "semver";
     public static final String DIST_COMMAND = "dist";
     public static final String UPDATE_COMMAND = "update";
+    public static final String PROFILE_COMMAND = "profile";
     public static final String START_LANG_SERVER_COMMAND = "start-language-server";
     public static final String START_DEBUG_ADAPTER_COMMAND =  "start-debugger-adapter";
     public static final String HELP_COMMAND = "help";
@@ -60,7 +61,4 @@ public class Constants {
     public static final String DEBUG_OPTION = "--debug";
     public static final String VERSION_SHORT_OPTION = "-v";
     public static final String HELP_SHORT_OPTION = "-h";
-
-    public static final String TOML_EXT = ".toml";
-    public static final String DIST_TOOL_TOML_PREFIX = "dist-";
 }

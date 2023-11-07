@@ -71,8 +71,7 @@ public class OpenRecordNegativeTest {
                 " anydata...; |} j; anydata...; |}', found 'int'", 4, 9);
     }
 
-    @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
-            groups = {"disableOnOldParser"})
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
         assertEquals(result.getErrorCount(), 0);
