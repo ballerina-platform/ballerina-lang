@@ -524,21 +524,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private int getPreferredMemberTypeTag(BFiniteType finiteType) {
         SemType t = finiteType.getSemType();
-        if (t instanceof UniformTypeBitSet) {
-            return TypeTags.NONE;
+        Set<BType> broadTypes = SemTypeResolver.singletonBroadTypes(t, symTable);
+
+        for (BType broadType : broadTypes) {
+            if (broadType.tag <= TypeTags.DECIMAL) {
+                return broadType.tag;
+            }
         }
 
-        int bitset = ((ComplexSemType) t).some.bitset;
-
-        if ((bitset & PredefinedType.INT.bitset) != 0) {
-            return TypeTags.INT;
-        } else if ((bitset & PredefinedType.FLOAT.bitset) != 0) {
-            return TypeTags.FLOAT;
-        } else if ((bitset & PredefinedType.DECIMAL.bitset) != 0) {
-            return TypeTags.DECIMAL;
-        } else {
-            return TypeTags.NONE;
-        }
+        return TypeTags.NONE;
     }
 
     private BType getFiniteTypeMatchWithIntType(BLangNumericLiteral literalExpr, BFiniteType finiteType,
@@ -764,29 +758,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if (expectedType.tag == TypeTags.FINITE) { // TODO:
                 BFiniteType finiteType = (BFiniteType) expectedType;
                 for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
-                    BType literalValueType = null;
-                    for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-                        if (valueExpr.getBType().tag == tag) {
-                            if (types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr)) {
-                                BType valueType = setLiteralValueAndGetType(literalExpr,
-                                        symTable.getTypeFromTag(tag), data);
-                                setLiteralValueForFiniteType(literalExpr, valueType, data);
-                                return valueType;
-                            }
-                            literalValueType = valueExpr.getBType();
-                        }
-                    }
-                    if (literalValueType != null) {
-                        return literalValueType;
+                    if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
+                        BType valueType = setLiteralValueAndGetType(literalExpr, symTable.getTypeFromTag(tag), data);
+                        setLiteralValueForFiniteType(literalExpr, valueType, data);
+                        return valueType;
                     }
                 }
-                return literalExpr.getBType();
-            } else if (expectedType.tag == TypeTags.FLOAT) {
-                if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-                    data.resultType = symTable.semanticError;
-                    return symTable.semanticError;
-                }
-                return symTable.floatType;
             } else if (expectedType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) expectedType;
                 for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
@@ -946,7 +923,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
         if (finiteType.tag == TypeTags.FINITE) {
-            return checkIfOutOfRangeAndReturnType((BFiniteType) finiteType, literalExpr, literalExpr.value, data);
+            return checkIfOutOfRangeAndReturnType((BFiniteType) finiteType, (BLangNumericLiteral) literalExpr,
+                    literalExpr.value, data);
         }
         return symTable.intType;
     }
@@ -8688,7 +8666,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         t = Core.union(t, referredType.getSemType());
                     }
                 }
-
+                BFiniteType finiteType = new BFiniteType(null, t);
                 BType elementType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
                 if (elementType == symTable.semanticError) {
                     return symTable.semanticError;

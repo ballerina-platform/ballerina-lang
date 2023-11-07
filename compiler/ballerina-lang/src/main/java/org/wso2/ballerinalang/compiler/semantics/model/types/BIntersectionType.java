@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import io.ballerina.types.SemType;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemTypeResolver;

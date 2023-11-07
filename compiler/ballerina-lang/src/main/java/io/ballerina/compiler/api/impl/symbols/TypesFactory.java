@@ -62,8 +62,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Set;
-
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANYDATA;

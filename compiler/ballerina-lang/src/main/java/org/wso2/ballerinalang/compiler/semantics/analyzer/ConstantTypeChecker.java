@@ -116,6 +116,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiFunction;
@@ -284,8 +285,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         List<BType> memberTypes = new ArrayList<>();
         for (byte b : values) {
-            memberTypes.add(getFiniteType(Byte.toUnsignedLong(b), data.constantSymbol, literalExpr.pos,
-                    symTable.intType));
+            memberTypes.add(getFiniteType(Byte.toUnsignedLong(b), data.constantSymbol, symTable.intType));
         }
 
         BType expType = Types.getImpliedType(data.expType);
