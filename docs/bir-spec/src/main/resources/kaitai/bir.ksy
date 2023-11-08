@@ -91,6 +91,8 @@ types:
     seq:
       - id: semtype
         type: semtype_info
+      - id: user_str_representation
+        type: user_str_info
       - id: type_tag
         type: s1
         enum: type_tag_enum
@@ -98,8 +100,6 @@ types:
         type: s4
       - id: type_flag
         type: s8
-      - id: type_special_flag
-        type: s4
       - id: type_structure
         type:
           switch-on: type_tag
@@ -336,6 +336,13 @@ types:
         type: s4
       - id: sequence
         type: semtype_bdd
+  user_str_info:
+    seq:
+      - id: has_user_string
+        type: u1
+      - id: user_str_cp_index
+        type: s4
+        if: has_user_string == 1
   type_array:
     seq:
       - id: state
@@ -382,12 +389,6 @@ types:
         type: s4
       - id: flags
         type: s8
-      - id: value_space_size
-        type: s4
-      - id: finite_values
-        type: finite_value
-        repeat: expr
-        repeat-expr: value_space_size
   finite_value:
     seq:
       - id : type_cp_index
