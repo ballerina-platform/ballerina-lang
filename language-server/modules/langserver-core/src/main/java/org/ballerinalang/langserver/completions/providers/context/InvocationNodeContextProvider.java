@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -40,6 +41,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -89,6 +91,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                             context.getCursorPosition().getCharacter()));
         }
 
+        int rankOffset = 1;
         for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 NamedArgCompletionItem argCompletionItem = (NamedArgCompletionItem) completionItem;
@@ -111,10 +114,21 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             } else if (parameterSymbol.isEmpty()) {
                 completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
                         SortingUtil.toRank(context, completionItem)));
+            } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+                if (symbolCompletionItem.getSymbol().isPresent() &&
+                        symbolCompletionItem.getSymbol().get().kind() == SymbolKind.RESOURCE_METHOD) {
+                    completionItem.getCompletionItem().setSortText(
+                            SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()) +
+                                    SortingUtil.genSortText(rankOffset));
+                }
+                completionItem.getCompletionItem().setSortText(
+                        SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));
             } else {
                 completionItem.getCompletionItem().setSortText(
                         SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));
             }
+            rankOffset++;
         }
 
     }
