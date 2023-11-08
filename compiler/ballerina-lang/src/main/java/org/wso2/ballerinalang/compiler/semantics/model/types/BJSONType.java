@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
  * @since 0.94
  */
 public class BJSONType extends BUnionType {
-
+    private boolean nullable;
     private static final int INITIAL_CAPACITY = 8;
 
     public BJSONType(BJSONType type, boolean nullable) {
@@ -39,6 +39,7 @@ public class BJSONType extends BUnionType {
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
+        this.nullable = nullable;
     }
 
     public BJSONType(BUnionType type) {
@@ -46,6 +47,7 @@ public class BJSONType extends BUnionType {
                 Flags.READONLY));
         mergeUnionType(type);
         this.tag = TypeTags.JSON;
+        this.nullable = type.isNullable();
     }
 
     public BJSONType(BTypeSymbol typeSymbol, boolean nullable, long flags) {
@@ -53,12 +55,18 @@ public class BJSONType extends BUnionType {
         this.flags = flags;
         this.tag = TypeTags.JSON;
         this.isCyclic = true;
+        this.nullable = nullable;
     }
 
     @Override
     public String toString() {
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
                 getKind().typeName().concat(" & readonly");
+    }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override

@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.util.Flags;
 public class BReadonlyType extends BBuiltInRefType {
 
     private boolean nullable = true;
-    private HybridType hybridType;
     private SemType semTypeComponent = SemTypeResolver.READONLY_SEM_COMPONENT;
 
     public BReadonlyType(BTypeSymbol tsymbol) {
@@ -59,6 +58,7 @@ public class BReadonlyType extends BBuiltInRefType {
         return visitor.visit(this, t);
     }
 
+    @Override
     public boolean isNullable() {
         return nullable;
     }
