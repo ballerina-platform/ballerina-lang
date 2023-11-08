@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - query-grouping-aggregation
+      - identifier_unescaping
   workflow_dispatch:
 
 jobs:
