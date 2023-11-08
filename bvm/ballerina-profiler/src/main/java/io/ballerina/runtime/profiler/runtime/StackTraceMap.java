@@ -31,12 +31,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StackTraceMap {
 
     private static final AtomicInteger localVarIndex = new AtomicInteger(0);
+    private static final ConcurrentHashMap<String, Integer> stackTraceIndexMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, String> indexStackTraceMap = new ConcurrentHashMap<>();
 
     private StackTraceMap() {
     }
-
-    private static final ConcurrentHashMap<String, Integer> stackTraceIndexMap = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, String> indexStackTraceMap = new ConcurrentHashMap<>();
 
     static String getStackIndex(String stackElement) {
         Integer stackIndex = stackTraceIndexMap.get(stackElement);

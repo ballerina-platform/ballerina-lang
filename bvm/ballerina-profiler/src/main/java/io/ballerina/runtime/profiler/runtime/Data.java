@@ -27,10 +27,10 @@ import java.util.concurrent.TimeUnit;
  * @since 2201.8.0
  */
 public class Data {
-    public final String stackKey;
-    public final String stackIndex;
-    public String stackTrace = null;
-    public long totalTime;
+    protected final String stackKey;
+    protected final String stackIndex;
+    protected String stackTrace = null;
+    protected long totalTime;
     private final ConcurrentHashMap<String, Long> startTimes = new ConcurrentHashMap<>();
 
     public Data(String stackIndex, String stackKey) {
