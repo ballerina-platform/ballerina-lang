@@ -27,10 +27,11 @@ import java.nio.file.Paths;
 
 public class FileUtils {
 
-    /**
-     * Maximum wait time for the file to be created. This will wait 600*100ms = 60s.
-     */
+    // Maximum wait time for the file to be created. This will wait 600*100 ms = 60 s.
     private static final int MAX_WAIT_TIME_FOR_FILE = 600;
+
+    private FileUtils() {
+    }
 
     static String readFileAsString(String file) throws IOException {
         Path path = Paths.get(file);
