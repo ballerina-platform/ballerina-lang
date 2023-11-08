@@ -1098,7 +1098,7 @@ public class TypedescriptorTest {
     public Object[][] getUnionTypeSymbolPos() {
         return new Object[][]{
                 {280, 0, "\"foo1\"|\"foo2\""},
-                {282, 0, "\"parent\"|\"any\""},
+                {282, 0, "\"any\"|\"parent\""},
         };
     }
 
@@ -1108,8 +1108,8 @@ public class TypedescriptorTest {
         assertTrue(symbol.isPresent());
         List<TypeSymbol> memberSymbols = ((BallerinaUnionTypeSymbol) ((BallerinaTypeReferenceTypeSymbol)
                 ((VariableSymbol) symbol.get()).typeDescriptor()).typeDescriptor()).memberTypeDescriptors();
-        assertEquals(memberSymbols.get(0).signature(), "\"parent\"");
-        assertEquals(memberSymbols.get(1).signature(), "\"any\"");
+        assertEquals(memberSymbols.get(0).signature(), "\"any\"");
+        assertEquals(memberSymbols.get(1).signature(), "\"parent\"");
     }
 
     @Test(dataProvider = "SingletonTypePos")
@@ -1130,10 +1130,10 @@ public class TypedescriptorTest {
                 {353, 10, STRING, "\"abc\""},
                 {354, 8, FLOAT, "1.2"},
                 {355, 9, FLOAT, "3.4"},
-                {356, 8, BYTE, "10"},
+                {356, 8, INT, "10"},
                 {357, 11, INT, "46575"},
-                {358, 12, FLOAT, "0xA1.B5p0"},
-                {359, 14, FLOAT, "0xB2.8Fp1"},
+                {358, 12, FLOAT, "161.70703125"},
+                {359, 14, FLOAT, "357.1171875"},
                 {360, 8, STRING, "\"a\""},
                 {361, 8, STRING, "\"RED\""},
         };

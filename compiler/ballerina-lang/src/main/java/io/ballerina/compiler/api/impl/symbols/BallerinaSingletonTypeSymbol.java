@@ -42,9 +42,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
 
     public BallerinaSingletonTypeSymbol(CompilerContext context, BType broadType, String value, BType bFiniteType) {
         super(context, TypeDescKind.SINGLETON, bFiniteType);
-        if (TypeTags.NIL == broadType.tag) {
-            this.typeName = "()";
-        } else if (TypeTags.STRING == broadType.tag) {
+        if (TypeTags.STRING == broadType.tag) {
             this.typeName = "\"" + value + "\"";
         } else {
             this.typeName = value;

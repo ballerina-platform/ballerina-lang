@@ -402,7 +402,7 @@ public class SemTypeResolver {
                 return SemTypes.floatConst(doubleVal);
             case INT:
             case BYTE:
-                return SemTypes.intConst((Long) value);
+                return SemTypes.intConst(((Number) value).longValue());
             case STRING:
                 return SemTypes.stringConst((String) value);
             case BOOLEAN:

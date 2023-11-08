@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
@@ -238,10 +239,11 @@ public class TypesFactory {
             case FINITE:
                 BFiniteType finiteType = (BFiniteType) bType;
                 Optional<Value> value = Core.singleShape(finiteType.getSemType());
-                BType broadType = SemTypeResolver.singletonBroadTypes(finiteType.getSemType(), symTable)
-                        .iterator().next();
                 if (value.isPresent()) {
-                    return new BallerinaSingletonTypeSymbol(this.context, broadType, value.get().toString(), bType);
+                    BType broadType = SemTypeResolver.singletonBroadTypes(finiteType.getSemType(), symTable).iterator()
+                            .next();
+                    String valueString = Objects.toString(value.get().value, "()");
+                    return new BallerinaSingletonTypeSymbol(this.context, broadType, valueString, bType);
                 }
                 return new BallerinaUnionTypeSymbol(this.context, finiteType);
             case FUNCTION:
