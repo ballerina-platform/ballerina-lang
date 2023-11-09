@@ -84,7 +84,6 @@ public class JsonParser {
         for (int i = 1; i < stackTraceItem.stackTrace.size(); i++) {
             current = populateChildNodes(stackTraceItem, current, stackTraceItem.stackTrace.get(i));
         }
-        current.value = stackTraceItem.time;
     }
 
     private void writeToValueJson(Data output) {
@@ -100,6 +99,7 @@ public class JsonParser {
     private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String stackTrace) {
         for (Data child : current.children) {
             if (child.name.equals(stackTrace)) {
+                child.value = Math.max(child.value, stackTraceItem.time);
                 return child;
             }
         }
