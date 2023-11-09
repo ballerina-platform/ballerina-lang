@@ -30,7 +30,7 @@ public class Data {
     protected final String stackKey;
     protected final String stackIndex;
     protected String stackTrace = null;
-    protected long totalTime;
+    public long totalTime;
     private final ConcurrentHashMap<String, Long> startTimes = new ConcurrentHashMap<>();
 
     public Data(String stackIndex, String stackKey) {
