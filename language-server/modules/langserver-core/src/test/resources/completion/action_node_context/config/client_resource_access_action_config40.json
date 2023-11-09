@@ -16,13 +16,13 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int|string:Char` a"
         }
       },
-      "sortText": "CC",
+      "sortText": "CD",
       "filterText": "|accessor",
       "insertText": "/[${1:\"path\"}].accessor;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "/<path>.accessor",
+      "label": "/<a>.accessor",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -31,7 +31,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int|string:Char` a"
         }
       },
-      "sortText": "CC",
+      "sortText": "CE",
       "filterText": "|accessor",
       "insertText": "/${1:path}.accessor;",
       "insertTextFormat": "Snippet"

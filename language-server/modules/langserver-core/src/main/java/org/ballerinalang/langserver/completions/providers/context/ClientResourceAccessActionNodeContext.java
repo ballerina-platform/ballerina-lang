@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
@@ -347,7 +346,8 @@ public class ClientResourceAccessActionNodeContext
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
                     ExpressionNode exprNode = ((ComputedResourceAccessSegmentNode) node).expression();
                     Optional<TypeSymbol> exprType = semanticModel.get().typeOf(exprNode);
-                    if (exprType.isEmpty() || !checkSubtype(typeSymbol, exprType.get(), exprNode.toString())) {
+                    if (exprType.isEmpty() || !ResourcePathCompletionUtil.checkSubtype(typeSymbol, exprType.get(),
+                            exprNode.toString())) {
                         return Pair.of(Collections.emptyList(), false);
                     }
                     if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
@@ -356,7 +356,8 @@ public class ClientResourceAccessActionNodeContext
                     }
                     continue;
                 } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN &&
-                        checkSubtype(typeSymbol, semanticModel.get().types().STRING, "\"" + node + "\"")) {
+                        ResourcePathCompletionUtil.checkSubtype(typeSymbol, semanticModel.get().types().STRING,
+                                "\"" + ((IdentifierToken) node).text() + "\"")) {
                     if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
                             && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;
@@ -371,27 +372,6 @@ public class ClientResourceAccessActionNodeContext
                 completableSegmentStartIndex <= segments.size() ?
                         segments.subList(completableSegmentStartIndex, segments.size()) : Collections.emptyList();
         return Pair.of(completableSegments, true);
-    }
-
-    private boolean checkSubtype(TypeSymbol paramType, TypeSymbol exprType, String exprValue) {
-        if (exprType.subtypeOf(paramType)) {
-            return true;
-        }
-        switch (paramType.typeKind()) {
-            case UNION:
-                for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
-                    if (checkSubtype(childSymbol, exprType, exprValue)) {
-                        return true;
-                    }
-                }
-                return false;
-            case SINGLETON:
-                return paramType.subtypeOf(exprType) && exprValue.equals(paramType.signature());
-            case TYPE_REFERENCE:
-                return paramType.subtypeOf(exprType);
-            default:
-                return false;
-        }
     }
 
     private boolean onSuggestClients(ClientResourceAccessActionNode node, BallerinaCompletionContext context) {

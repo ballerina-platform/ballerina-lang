@@ -192,6 +192,36 @@ public class ResourcePathCompletionUtil {
                 + "|" + resourceMethodSymbol.getName().orElse("");
     }
 
+    /**
+     * Check if the given expression node is a valid type for the given parameter node.
+     *
+     * @param paramType Type of the parameter
+     * @param exprType  Type of the expression
+     * @param exprValue Value of the expression
+     * @return Returns true if the expression is a valid type for the parameter
+     */
+    public static boolean checkSubtype(TypeSymbol paramType, TypeSymbol exprType, String exprValue) {
+        if (exprType.subtypeOf(paramType)) {
+            return true;
+        }
+        switch (paramType.typeKind()) {
+            case UNION:
+                for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
+                    if (checkSubtype(childSymbol, exprType, exprValue)) {
+                        return true;
+                    }
+                }
+                return false;
+            case SINGLETON:
+                return paramType.subtypeOf(exprType) && exprValue.equals(paramType.signature());
+            case TYPE_REFERENCE:
+                return paramType.subtypeOf(exprType);
+            default:
+                return false;
+        }
+    }
+
+
     private static ResourceAccessPathPart getResourceAccessPartForSegment(PathSegment segment, int placeHolderIndex,
                                                                           BallerinaCompletionContext context) {
 
@@ -217,15 +247,19 @@ public class ResourcePathCompletionUtil {
                         "[${" + placeHolderIndex + ":" + defaultValue.orElse("") + "}]";
         ResourceAccessPathPart resourceAccessPathPart =
                 new ResourceAccessPathPart(computedInsertText, computedSignature);
+
+        //  A resource method parameter can be a singleton or a union with a `string`. As the node "text" is always
+        //  resolved to `string`, we need to check if typeSymbol is either a supertype or a subtype  of `string`.
         if (context.currentSemanticModel().isPresent() &&
-                checkSubtype(typeSymbol, context.currentSemanticModel().get().types().STRING)) {
+                isStringSubtype(typeSymbol, context.currentSemanticModel().get().types().STRING)) {
             if (typeSymbol.typeKind().equals(TypeDescKind.SINGLETON)) {
                 resourceAccessPathPart.namedPathSignature =
                         typeSymbol.signature().substring(1, typeSymbol.signature().length() - 1);
                 resourceAccessPathPart.namedPathInsertText = resourceAccessPathPart.namedPathSignature;
             } else {
-                resourceAccessPathPart.namedPathSignature =  "<" +
-                        (pathParameterSymbol.getName().isPresent() ? pathParameterSymbol.getName().get() : "path") + ">";
+                resourceAccessPathPart.namedPathSignature = "<" +
+                        (pathParameterSymbol.getName().isPresent() ? pathParameterSymbol.getName().get() : "path") +
+                        ">";
                 resourceAccessPathPart.namedPathInsertText = "${" + placeHolderIndex + ":" + "path" + "}";
                 resourceAccessPathPart.computedPathInsertText = "[${" + placeHolderIndex + ":" + "\"path\"" + "}]";
             }
@@ -234,14 +268,14 @@ public class ResourcePathCompletionUtil {
         return resourceAccessPathPart;
     }
 
-    private static boolean checkSubtype(TypeSymbol paramType, TypeSymbol stringType) {
+    private static boolean isStringSubtype(TypeSymbol paramType, TypeSymbol stringType) {
         if (stringType.subtypeOf(paramType)) {
             return true;
         }
         switch (paramType.typeKind()) {
             case UNION:
                 for (TypeSymbol childSymbol : ((UnionTypeSymbol) paramType).memberTypeDescriptors()) {
-                    if (checkSubtype(childSymbol, stringType)) {
+                    if (isStringSubtype(childSymbol, stringType)) {
                         return true;
                     }
                 }
