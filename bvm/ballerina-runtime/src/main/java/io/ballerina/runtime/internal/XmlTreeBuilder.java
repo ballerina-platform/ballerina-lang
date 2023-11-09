@@ -128,6 +128,8 @@ public class XmlTreeBuilder {
                         readComment(xmlStreamReader);
                         break;
                     case CDATA:
+                        readCData(xmlStreamReader);
+                        break;
                     case CHARACTERS:
                         readText(xmlStreamReader);
                         readNext = true;
@@ -156,6 +158,10 @@ public class XmlTreeBuilder {
         XmlPi xmlItem = (XmlPi) XmlFactory.createXMLProcessingInstruction(xmlStreamReader.getPITarget(),
                                                                           xmlStreamReader.getPIData());
         siblingDeque.peek().add(xmlItem);
+    }
+
+    private void readCData(XMLStreamReader xmlStreamReader) {
+        siblingDeque.peek().add(new XmlText(xmlStreamReader.getText()));
     }
 
     private void readText(XMLStreamReader xmlStreamReader) throws XMLStreamException {
