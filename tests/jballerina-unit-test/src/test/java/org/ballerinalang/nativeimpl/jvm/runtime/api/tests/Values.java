@@ -63,6 +63,7 @@ import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.jetbrains.annotations.Nullable;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,7 +187,7 @@ public class Values {
 
     public static BArray getConstituentTypes(BArray array) {
         Optional<IntersectionType> arrayType = ((IntersectableReferenceType) array.getType()).getIntersectionType();
-        assert arrayType.isPresent();
+        Assert.assertTrue(arrayType.isPresent());
         List<Type> constituentTypes = arrayType.get().getConstituentTypes();
         int size = constituentTypes.size();
         BArray arrayValue =
@@ -396,12 +397,12 @@ public class Values {
     @Nullable
     private static BError validateFunctionType(FunctionType functionType) {
         Parameter[] parameters = functionType.getParameters();
-        assert parameters[0].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;
+        Assert.assertEquals(parameters[0].type.getTag(), TypeTags.TYPE_REFERENCED_TYPE_TAG);
         AnnotatableType annotatableType = (AnnotatableType) parameters[0].type;
         if (annotatableType.getAnnotation(intAnnotation) == null) {
             return constraintError;
         }
-        assert parameters[1].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;
+        Assert.assertEquals(parameters[1].type.getTag(), TypeTags.TYPE_REFERENCED_TYPE_TAG);
         annotatableType = (AnnotatableType) parameters[1].type;
         if (annotatableType.getAnnotation(intAnnotation) == null) {
             return constraintError;
@@ -500,10 +501,7 @@ public class Values {
         BString errorMsg = StringUtils.fromString("error message!");
         BError bError = ErrorCreator.createError(errorModule, errorTypeName.getValue(), errorTypeName,
                 ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
-        // TODO: fix https://github.com/ballerina-platform/ballerina-lang/issues/41025
-        String typeName = errorTypeName.getValue().equals("ResourceDispatchingError") ?
-                "RequestDispatchingError" : errorTypeName.getValue();
-        assert bError.getType().getName().equals(typeName);
+        Assert.assertEquals(bError.getType().getName(), errorTypeName.getValue());
         return bError;
     }
 }

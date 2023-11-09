@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.testng.Assert;
 
 /**
  * This class is used for Java interoperability tests.
@@ -47,7 +48,7 @@ public class Timer {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 }
