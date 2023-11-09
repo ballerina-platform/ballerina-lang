@@ -50,6 +50,7 @@ import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_FUNCTION_CALL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -78,7 +79,7 @@ public class JvmFunctionCallsCreatorsGen {
         createAndSplitFunctionCallMethod(cw, module.packageID, sortedFunctions, jvmPackageGen, jvmCastGen);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(functionCallsClass + ".class", bytes);
+        jarEntries.put(functionCallsClass + CLASS_FILE_SUFFIX, bytes);
     }
 
     public void createAndSplitFunctionCallMethod(ClassWriter cw, PackageID packageID,

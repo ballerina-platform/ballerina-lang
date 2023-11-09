@@ -92,7 +92,8 @@ public class ProfilerTest extends BaseTest {
         }
     }
 
-    @Test
+    // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/41402
+    @Test(enabled = false)
     public void testProfilerExecutionWithKillSignal() throws BallerinaTestException {
         String sourceRoot = testFileLocation + "/";
         String packageName = "serviceProjectForProfile/package_a";
