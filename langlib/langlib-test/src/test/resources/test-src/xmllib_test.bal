@@ -943,6 +943,10 @@ function fromStringTest() {
     if !(d[3] is xml:Comment) {
         panic error("Assertion error: not a comment");
     }
+
+    string xmlString = string `<Description><![CDATA[OK]]></Description>`;
+    xml xmlWithCData = checkpanic xml:fromString(xmlString);
+    assertEquals(xmlWithCData, xml `<Description>OK</Description>`);
 }
 
 function testXmlIteratorNextInvocations() {
