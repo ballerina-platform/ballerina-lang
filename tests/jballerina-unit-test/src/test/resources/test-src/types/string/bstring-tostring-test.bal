@@ -13,7 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/lang.runtime;
 import ballerina/lang.value;
+import ballerina/test;
 
 function testDecimalToString() returns int {
     decimal res3 = 8;
@@ -74,3 +77,23 @@ function testArrayValueToString() returns int {
     string[][] arr2 = [["h🤷llo", "h🤷llo", "h🤷llo"], ["h🤷llo", "h🤷llo", "h🤷llo"]];
     return arr2[0].toString().length() + arr2[0][1].toString().length();
 }
+
+function testFutureValueToString() {
+    future<boolean> f = start isEven(2);
+    runtime:sleep(1);
+    string s = f.toString();
+    test:assertEquals(s, "future {isDone:true,result:true}");
+}
+
+function isEven(int n) returns boolean {
+   return n % 2 == 0;
+}
+
+function testFutureValueToStringWithNilReturn() {
+    future<()> f = start addName();
+    runtime:sleep(1);
+    string s = f.toString();
+    test:assertEquals(s, "future {isDone:true,result:}");
+}
+
+function addName() {}
