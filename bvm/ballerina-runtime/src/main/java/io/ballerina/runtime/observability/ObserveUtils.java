@@ -38,6 +38,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.observability.ObservabilityConstants.BAL_OBSERVE_SERVICE_NAME_SUFFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
@@ -187,7 +188,14 @@ public class ObserveUtils {
                 observerContext.setEntrypointResourceAccessor(resourceAccessor.getValue());
             }
         }
-        observerContext.setServiceName(serviceName.getValue());
+
+        String serviceNameValue = serviceName.getValue();
+        String serviceNameSuffix = System.getenv(BAL_OBSERVE_SERVICE_NAME_SUFFIX);
+        if (serviceNameSuffix != null && !serviceNameSuffix.isEmpty()) {
+            observerContext.setServiceName(serviceNameValue + "-" + serviceNameSuffix);
+        }
+
+        observerContext.setServiceName(serviceNameValue);
 
         if (isResource) {
             observerContext.setOperationName(resourceAccessor.getValue() + " " + resourcePathOrFunction.getValue());
