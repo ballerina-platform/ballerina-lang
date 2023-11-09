@@ -240,7 +240,7 @@ public class ExternalMethodGen {
                                                                            isEntry, jvmPackageGen.symbolTable);
                 }
             } else {
-                throw new BLangCompilerException("cannot find full qualified class name for external function : " +
+                throw new BLangCompilerException("cannot find fully qualified class name for external function : " +
                                                          pkgName + birFunc.name.value);
             }
         }

@@ -19,6 +19,7 @@ package org.ballerinalang.test.javainterop.basic;
 
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BTypedesc;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -557,5 +558,12 @@ public class NegativeValidationTest {
         BAssertUtil.validateError(compileResult, 1, "{ballerina/jballerina.java}INSTANTIATION_ERROR" +
                         " ''org.ballerinalang.nativeimpl.jvm.tests.Interface' is abstract, and cannot be instantiated'",
                 23, 1);
+    }
+
+    @Test(expectedExceptionsMessageRegExp = ".*cannot find fully qualified class name for external function : .*",
+            expectedExceptions = BLangCompilerException.class)
+    public void testClassNameForExternalFunctionNotFound() {
+        String path = "test-src/javainterop/negative/external_function_class_name_not_found.bal";
+        BCompileUtil.compile(path);
     }
 }
