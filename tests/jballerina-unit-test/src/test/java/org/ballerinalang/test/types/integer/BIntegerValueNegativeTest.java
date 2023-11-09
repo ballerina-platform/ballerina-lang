@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for negative integer tests.
  */
-@Test(groups = { "disableOnOldParser" })
+@Test()
 public class BIntegerValueNegativeTest {
 
     @Test
