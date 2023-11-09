@@ -35,7 +35,7 @@
       "kind": "Field",
       "detail": "StrandData.thread",
       "sortText": "K",
-      "insertText": "thread: ${1:\"parent\"}",
+      "insertText": "thread: ${1:\"any\"}",
       "insertTextFormat": "Snippet"
     }
   ]
