@@ -313,12 +313,12 @@ public class TypeConverter {
         if (subtypeData instanceof StringSubtype stringSubtype) {
             CharStringSubtype charStringSubtype = stringSubtype.getChar();
             for (EnumerableType enumerableType : charStringSubtype.values()) {
-                enumArray.add("\"" + ((EnumerableCharString) enumerableType).value + "\"");
+                enumArray.add(((EnumerableCharString) enumerableType).value);
             }
 
             NonCharStringSubtype nonCharStringSubtype = stringSubtype.getNonChar();
             for (EnumerableType enumerableType : nonCharStringSubtype.values()) {
-                enumArray.add("\"" + ((EnumerableString) enumerableType).value + "\"");
+                enumArray.add(((EnumerableString) enumerableType).value);
             }
         }
     }
