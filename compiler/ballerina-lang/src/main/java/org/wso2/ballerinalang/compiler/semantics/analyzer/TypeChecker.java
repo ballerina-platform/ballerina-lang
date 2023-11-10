@@ -3823,10 +3823,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (resourceFunctions.size() == 0) {
-            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, data);
-            dlog.error(resourceAccessInvocation.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE,
-                    lhsExprType);
-            data.resultType = symTable.semanticError;
+            handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments,
+                    resourceAccessInvocation.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE,
+                    data, lhsExprType);
             return;
         }
 
@@ -3834,14 +3833,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
         int targetResourceFuncCount = resourceFunctions.size();
         if (targetResourceFuncCount == 0) {
-            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, data);
-            dlog.error(resourceAccessInvocation.name.pos,
-                    DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name, lhsExprType);
-            data.resultType = symTable.semanticError;
+            handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments,
+                    resourceAccessInvocation.name.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, data,
+                    resourceAccessInvocation.name, lhsExprType);
         } else if (targetResourceFuncCount > 1) {
-            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, data);
-            dlog.error(resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
-            data.resultType = symTable.semanticError;
+            handleResourceAccessError(resourceAccessInvocation.resourceAccessPathSegments, resourceAccessInvocation.pos,
+                    DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED, data, lhsExprType);
         } else {
             BResourceFunction targetResourceFunc = resourceFunctions.get(0);
             checkExpr(resourceAccessInvocation.resourceAccessPathSegments,
@@ -3850,6 +3847,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
+    }
+
+    private void handleResourceAccessError(BLangListConstructorExpr resourceAccessPathSegments,
+                                           Location diagnosticLocation, DiagnosticErrorCode errorCode,
+                                           AnalyzerData data, Object... dlogArgs) {
+        checkExpr(resourceAccessPathSegments, data);
+        dlog.error(diagnosticLocation, errorCode, dlogArgs);
+        data.resultType = symTable.semanticError;
     }
 
     private BTupleType getResourcePathType(List<BResourcePathSegmentSymbol> pathSegmentSymbols) {
