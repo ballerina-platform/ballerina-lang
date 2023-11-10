@@ -72,7 +72,7 @@ public class ExternalMethodGen {
                     jvmCastGen, jvmConstantsGen, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                    moduleClassName, attachedType, lambdaGenMetadata);
+                    moduleClassName, attachedType, lambdaGenMetadata, false);
         }
     }
 
@@ -200,13 +200,13 @@ public class ExternalMethodGen {
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType) {
-        return INITIAL_METHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
+        return INITIAL_METHOD_DESC + JvmCodeGenUtil.getMethodDescParams(paramTypes) +
                 generateExternReturnType(retType);
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
         return INITIAL_METHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
-                JvmCodeGenUtil.populateMethodDesc(paramTypes) + generateExternReturnType(retType);
+                JvmCodeGenUtil.getMethodDescParams(paramTypes) + generateExternReturnType(retType);
     }
 
     static String generateExternReturnType(BType bType) {

@@ -100,6 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
@@ -243,7 +244,7 @@ public class JvmPackageGen {
     private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
                                                   boolean isInitClass, boolean serviceEPAvailable,
                                                   AsyncDataCollector asyncDataCollector,
-                                                  JvmConstantsGen jvmConstantsGen, boolean isTestablePackage) {
+                                                  JvmConstantsGen jvmConstantsGen) {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
@@ -432,11 +433,11 @@ public class JvmPackageGen {
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
-                    asyncDataCollector, jvmConstantsGen, isTestable);
+                    asyncDataCollector, jvmConstantsGen);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
-            jarEntries.put(moduleClass + ".class", bytes);
+            jarEntries.put(moduleClass + CLASS_FILE_SUFFIX, bytes);
         });
     }
 
