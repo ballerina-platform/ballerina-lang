@@ -308,7 +308,7 @@ public class MethodGen {
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
+        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex, localVarOffset);
 
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
@@ -570,7 +570,7 @@ public class MethodGen {
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
-            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, invocationVarIndex);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, invocationVarIndex, localVarOffset);
 
             String yieldStatus = getYieldStatusByTerminator(terminator);
 
