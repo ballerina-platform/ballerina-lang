@@ -43,4 +43,9 @@ public class EnumerableString implements EnumerableType {
         }
         return (e.value.equals(this.value));
     }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

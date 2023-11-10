@@ -41,6 +41,14 @@ public class EnumerableFloat implements EnumerableType {
         if (!(o instanceof EnumerableFloat e)) {
             return false;
         }
-        return (e.value == this.value);
+
+        Double v1 = e.value;
+        Double v2 = this.value;
+        return (v1.compareTo(v2) == 0);
+    }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(value);
     }
 }

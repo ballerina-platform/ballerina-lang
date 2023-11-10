@@ -45,4 +45,9 @@ public class EnumerableDecimal implements EnumerableType {
         }
         return (e.value.compareTo(this.value) == 0);
     }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }
