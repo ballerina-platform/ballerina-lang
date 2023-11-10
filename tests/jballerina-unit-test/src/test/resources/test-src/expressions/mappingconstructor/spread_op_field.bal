@@ -159,6 +159,9 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     Grades grades = { physics: 75 };
     Address address= { street: "Main Street" };
 
+    record {| string street; |} addressInline = {...address};
+    assertEquality("Main Street", addressInline.street);
+
     Student john = { name: "John Doe", ...grades };
     assertEquality("John Doe", john.name);
     assertEquality(75, john["physics"]);
