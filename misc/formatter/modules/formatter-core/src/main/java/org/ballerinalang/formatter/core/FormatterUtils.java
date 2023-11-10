@@ -100,7 +100,6 @@ class FormatterUtils {
                 prevFirstIndex = i;
                 break;
             }
-
         }
         if (prevFirstIndex > 0) {
             // remove comments from the previous first import
@@ -119,9 +118,19 @@ class FormatterUtils {
 
             // add leading comments from the previous first import
             ImportDeclarationNode sortedFirstImportNode = importNodes.get(0);
-            for (Minutiae minutiae : sortedFirstImportNode.importKeyword().leadingMinutiae()) {
+            if (hasEmptyLine(firstImportNode.leadingMinutiae()) && !hasEmptyLine(prevLeadingMinutiae)) {
+                prevLeadingMinutiae =
+                        prevLeadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(System.lineSeparator()));
+            }
+            MinutiaeList sortedLeadingMinutiae = sortedFirstImportNode.importKeyword().leadingMinutiae();
+            for (int i = 0; i < sortedLeadingMinutiae.size(); i++) {
+                Minutiae minutiae = sortedLeadingMinutiae.get(i);
+                if (i == 0 && minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                    continue;
+                }
                 prevLeadingMinutiae = prevLeadingMinutiae.add(minutiae);
             }
+
             Token sortedFirstImportToken = sortedFirstImportNode.importKeyword()
                     .modify(prevLeadingMinutiae, sortedFirstImportNode.importKeyword().trailingMinutiae());
             sortedFirstImportNode = sortedFirstImportNode.modify().withImportKeyword(sortedFirstImportToken).apply();
@@ -135,5 +144,14 @@ class FormatterUtils {
                 .map(n -> n.toSourceCode())
                 .collect(Collectors.joining("."));
         return orgName + moduleName;
+    }
+
+    private static boolean hasEmptyLine(MinutiaeList minutiaeList) {
+        int size = minutiaeList.size();
+        if (size < 2) {
+            return false;
+        }
+        return minutiaeList.get(size - 1).kind() == SyntaxKind.END_OF_LINE_MINUTIAE &&
+                minutiaeList.get(size - 2).kind() == SyntaxKind.END_OF_LINE_MINUTIAE;
     }
 }
