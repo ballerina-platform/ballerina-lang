@@ -20,6 +20,8 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -31,7 +33,12 @@ import static org.testng.Assert.assertEquals;
  */
 public class RecordAssignabilityTest {
 
-    private final CompileResult result = BCompileUtil.compile("test-src/record/record_assignability.bal");
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/record/record_assignability.bal");
+    }
 
     @DataProvider
     public static Object[] recordAssignabilityTestFunctions() {
@@ -94,5 +101,10 @@ public class RecordAssignabilityTest {
         validateError(negativeResult, i++, "incompatible types: expected 'record {| int a?; int b; anydata...; |}', " +
                 "found 'record {| readonly int? b; int...; |}'", 70, 33);
         assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -9,8 +9,7 @@
 
 # The Ballerina programming language
 
-[Ballerina](https://ballerina.io/) is a statically typed, open-source cloud-native programming language developed
-and supported by [WSO2](https://wso2.com/).
+[Ballerina](https://ballerina.io/) is an open-source cloud-native programming language optimized for integration. It is developed and supported by [WSO2](https://wso2.com/).
 
 With Ballerina, you could easily develop microservices, API endpoints and integrations,
 and any other application for the cloud. Additionally, Ballerina has all the general-purpose
@@ -34,18 +33,6 @@ Extensible metadata enables easy integration of Ballerina programs with cloud pl
 You could directly generate Docker and Kubernetes artifacts straight away from
 the source code.
 
-## Get started
-
-You can use one of the following options to try out Ballerina.
-
-* [Set up Ballerina](https://ballerina.io/learn/get-started/)
-* [Ballerina Playground](https://play.ballerina.io/)
-
-You can use following resources to learn Ballerina.
-
-* [Ballerina by Example](https://ballerina.io/learn/by-example/)
-* [Ballerina learn pages and guides](https://ballerina.io/learn/)
-
 ## Download and install
 
 For instructions on downloading and installing, see [Ballerina Downloads](https://ballerina.io/downloads/).
@@ -58,18 +45,24 @@ For more installation options, see [Installation options](https://ballerina.io/d
 
 Try out Ballerina's development capabilities using the [Ballerina extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
 
+## Get started
+
+You can use the following resources to learn Ballerina.
+
+* [Ballerina by Example](https://ballerina.io/learn/by-example/)
+* [Ballerina learn pages and guides](https://ballerina.io/learn/)
+
 ## Report issues and security flaws
 
 >**Tip:** If you are unsure whether you have found a bug, search the existing issues in the GitHub repo and raise it in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2) or [Stack Overflow](https://stackoverflow.com/questions/tagged/ballerina).
 
-  - Language, Tooling, Standard Library, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
-  - Extended library: <a href="https://github.com/ballerina-platform/ballerina-extended-library/issues">ballerina-extended-library</a> repo
-  - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
-
+  - Language, Tooling, Website: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
+  - Ballerina library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-library</a> repo
+  - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security-policy/">security policy</a>.
 
 ## Contribute to Ballerina
 
-As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
+As an open-source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
 
 We look forward to receiving your contributions.
 
@@ -79,7 +72,6 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 
 ## Useful links
 
-* Join [Ballerina-Dev](https://groups.google.com/g/ballerina-dev) group for technical discussions related to the Ballerina project.
 * Chat live with us on our [Discord community](https://discord.com/invite/wAJYFbMrG2).
 * Post technical questions on the Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 * For more details on how to engage with the community, see [Community](https://ballerina.io/community/).

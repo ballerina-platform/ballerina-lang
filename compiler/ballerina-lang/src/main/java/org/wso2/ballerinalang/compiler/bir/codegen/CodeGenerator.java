@@ -98,11 +98,11 @@ public class CodeGenerator {
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
 
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
-        return packageSymbol.compiledJarFile;
+        return compiledJarFile;
     }
 
     private void populateExternalMap(JvmPackageGen jvmPackageGen) {

@@ -54,6 +54,7 @@ public class ProjectRenameTest extends AbstractRenameTest {
                 // Negative/invalid cases
                 {"rename_keyword_result1.json", "kw"},
                 {"rename_invalid_token_result1.json", "token"},
+                {"rename_table_row_type_and_stream_type.json", "Student"},
         };
     }
 

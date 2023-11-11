@@ -6222,7 +6222,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = func;
-        lambdaFunction.capturedClosureEnv = env.createClone();
+        lambdaFunction.capturedClosureEnv = env;
         env.enclPkg.functions.add(func);
         env.enclPkg.topLevelNodes.add(func);
         //env.enclPkg.lambdaFunctions.add(lambdaFunction);
@@ -7809,6 +7809,7 @@ public class Desugar extends BLangNodeVisitor {
             funcSymbol.addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
             funcSymbol.schedulerPolicy = SchedulerPolicy.ANY;
         }
+        bLangLambdaFunction.capturedClosureEnv = null;
         result = bLangLambdaFunction;
     }
 

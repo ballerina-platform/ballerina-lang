@@ -24,6 +24,7 @@
  import io.ballerina.runtime.api.values.BTypedesc;
  import io.ballerina.runtime.internal.scheduling.Strand;
  import io.ballerina.runtime.internal.types.BFutureType;
+ import io.ballerina.runtime.internal.util.StringUtils;
 
  import java.util.Map;
  import java.util.StringJoiner;
@@ -68,7 +69,7 @@
          StringJoiner sj = new StringJoiner(",", "{", "}");
          sj.add("isDone:" + isDone);
          if (isDone) {
-             sj.add("result:" + result.toString());
+             sj.add("result:" + StringUtils.getStringVal(result, parent));
          }
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());

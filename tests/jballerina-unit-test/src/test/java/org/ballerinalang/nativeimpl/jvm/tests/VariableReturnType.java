@@ -52,6 +52,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,7 +153,7 @@ public class VariableReturnType {
 
     public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
         RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
-        assert streamConstraint == TypeUtils.getImpliedType(strm.getConstraintType());
+        Assert.assertSame(streamConstraint, TypeUtils.getImpliedType(strm.getConstraintType()));
         return strm;
     }
 
@@ -242,7 +243,7 @@ public class VariableReturnType {
             return val;
         }
 
-        assert describingType.getTag() == XML_COMMENT_TAG : describingType;
+        Assert.assertEquals(describingType.getTag(), XML_COMMENT_TAG, describingType.toString());
         return val;
     }
 
@@ -253,7 +254,7 @@ public class VariableReturnType {
             return getRecord(td2);
         }
 
-        assert tag == RECORD_TYPE_TAG;
+        Assert.assertEquals(tag, RECORD_TYPE_TAG);
         return 200;
     }
 
@@ -428,8 +429,8 @@ public class VariableReturnType {
         if (targetTypeTag == STRING_TAG) {
             return StringUtils.fromString(path.toString());
         }
-        
-        assert targetTypeTag == INT_TAG;
+
+        Assert.assertEquals(targetTypeTag, INT_TAG);
         return 0;
     }
 
@@ -477,7 +478,7 @@ public class VariableReturnType {
             return arr;
         }
 
-        assert td.getDescribingType().getTag() == INT_TAG;
+        Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return ValueCreator.createArrayValue(new long[]{arr.getLength(), i});
     }
 
@@ -488,7 +489,7 @@ public class VariableReturnType {
             return strm;
         }
 
-        assert tag == BYTE_TAG;
+        Assert.assertEquals(tag, BYTE_TAG);
         if (strm == null) {
             return 100L;
         }
@@ -501,22 +502,22 @@ public class VariableReturnType {
 
         Type describingType = td.getDescribingType();
         if (tag == RECORD_TYPE_TAG) {
-            assert describingType.getTag() == INT_TAG;
+            Assert.assertEquals(describingType.getTag(), INT_TAG);
             return 101L;
         }
 
         if (tag == OBJECT_TYPE_TAG) {
-            assert describingType.getTag() == ARRAY_TAG &&
-                    ((BArrayType) describingType).getElementType().getTag() == STRING_TAG;
+            Assert.assertEquals(describingType.getTag(), ARRAY_TAG);
+            Assert.assertEquals(((BArrayType) describingType).getElementType().getTag(), STRING_TAG);
             return val;
         }
 
-        assert describingType.getTag() == BOOLEAN_TAG;
+        Assert.assertEquals(describingType.getTag(), BOOLEAN_TAG);
         return !((boolean) val);
     }
 
     public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
-        assert td.getDescribingType().getTag() == INT_TAG;
+        Assert.assertEquals(td.getDescribingType().getTag(), INT_TAG);
         return x;
     }
 
@@ -529,7 +530,7 @@ public class VariableReturnType {
             return 9876L;
         }
 
-        assert tag == STRING_TAG;
+        Assert.assertEquals(tag, STRING_TAG);
         return StringUtils.fromString("hello!");
     }
 }

@@ -1514,6 +1514,53 @@ function testQueryExpressionIteratingOverStreamReturningXMLWithReadonly() {
     assertEquality(res.toString(), (xml `<person country="Russia">John</person><person country="Germany">Mike</person>`).toString());
 }
 
+function testQueryExpressionXmlStartWithWhiteSpace() {
+    Person[] personList = [{name: "John", country: "Australia"}, {name: "Mike", country : "Canada"}];
+    xml xmlValue = xml `
+        <html>
+            <head>
+                <title>Dynamic Table</title>
+            </head>
+            <body>
+                <table border="1">
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                    </tr>
+                    ${from var {name, country} in personList
+    select xml ` <tr>
+                     <th>${name}</th>
+                     <th>${country}</th>
+                </tr>`}
+                </table>
+            </body>
+        </html>
+    `;
+    xml expected = xml `
+        <html>
+            <head>
+                <title>Dynamic Table</title>
+            </head>
+            <body>
+                <table border="1">
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                    </tr>
+                     <tr>
+                     <th>John</th>
+                     <th>Australia</th>
+                </tr> <tr>
+                     <th>Mike</th>
+                     <th>Canada</th>
+                </tr>
+                </table>
+            </body>
+        </html>
+    `;
+    assertEquality(xmlValue, expected);
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
