@@ -22,9 +22,13 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BUnionType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -34,6 +38,7 @@ public class MockListener {
 
     private static BObject service;
     private static BError err;
+    private static BFuture result;
 
     public static Object attach(BObject servObj) {
         service = servObj;
@@ -60,5 +65,15 @@ public class MockListener {
             latch.await();
         }
         return err;
+    }
+
+    public static BFuture invokeResourceWithUnionReturn(Environment env, BString name) {
+        if (service != null) {
+            Runtime runtime = env.getRuntime();
+            result = runtime.invokeMethodAsyncConcurrently(service, name.getValue(), null, null, null, null,
+                                               new BUnionType(new ArrayList<>(List.of(PredefinedTypes.TYPE_INT,
+                                                                                      PredefinedTypes.TYPE_ERROR))));
+        }
+        return result;
     }
 }
