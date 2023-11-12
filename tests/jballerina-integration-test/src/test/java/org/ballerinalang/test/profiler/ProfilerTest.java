@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +53,29 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithBalPackage() throws BallerinaTestException {
-        String sourceRoot = testFileLocation + "/";
         String packageName = "projectForProfile/package_a";
+        String sourceRoot = testFileLocation + "/";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
         LogLeecher[] leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
-        bMainInstance.runMain("profile", new String[]{packageName}, envProperties,
-                null, leechers, sourceRoot);
+        bMainInstance.runMain("profile", new String[]{packageName}, envProperties,  null,
+                leechers, sourceRoot);
+        for (LogLeecher leecher : leechers) {
+            leecher.waitForText(5000);
+        }
+    }
+
+    @Test
+    public void testProfilerExecutionWithConfigurableVars() throws BallerinaTestException {
+        String packageName = "projectForProfile/package_b";
+        String sourceRoot = testFileLocation + "/" + packageName;
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        List<LogLeecher> leechers = new ArrayList<>(Arrays.asList(
+                getProfilerLogLeechers(packageName + "/target/bin/" + outputFile)));
+        leechers.add(new LogLeecher("Tests passed"));
+        bMainInstance.runMain("profile", new String[]{}, envProperties, null,
+                leechers.toArray(new LogLeecher[0]), sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
         }
