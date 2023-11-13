@@ -1,31 +1,31 @@
-type CCourse record {
+type C_Course record {
     string u\:name;
     int c\:intake?;
     string p\:professor?;
 };
 
-type DSubDepartment record {
+type D_SubDepartment record {
     string d\:name;
-    CCourse[] c\:course?;
-    DSubDepartment[] d\:subDepartment?;
+    C_Course[] c\:course?;
+    D_SubDepartment[] d\:subDepartment?;
 };
 
-type DDepartment record {
+type D_Department record {
     string u\:name;
-    CCourse[] c\:course;
-    DSubDepartment d\:subDepartment?;
+    C_Course[] c\:course;
+    D_SubDepartment d\:subDepartment?;
 };
 
-type FFaculty record {
+type F_Faculty record {
     string u\:name;
-    DDepartment[] d\:department;
+    D_Department[] d\:department;
 };
 
 @xmldata:Name {
     value: "university"
 }
 type University record {
-    FFaculty[] f\:faculty;
+    F_Faculty[] f\:faculty;
     @xmldata:Attribute
     string xmlns\:c = "http://example.com/course";
     @xmldata:Attribute

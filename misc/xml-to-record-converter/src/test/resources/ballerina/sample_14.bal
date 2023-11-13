@@ -1,4 +1,4 @@
-type MainMainElement record {
+type Main_MainElement record {
     string[] child\:childElement;
 };
 
@@ -9,8 +9,8 @@ type MainMainElement record {
 prefix: "root",
     uri: "http://example.com/root"
 }
-type RootRoot record {
-    MainMainElement main\:mainElement;
+type Root_Root record {
+    Main_MainElement main\:mainElement;
     @xmldata:Attribute
     string xmlns\:child = "http://example.com/child";
     @xmldata:Attribute
