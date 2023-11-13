@@ -1,11 +1,11 @@
-type MainLocation record {
+type Main_Location record {
     string main\:city;
     string main\:state;
 };
 
-type MainCompanyInfo record {
+type Main_CompanyInfo record {
     string main\:name;
-    MainLocation main\:location;
+    Main_Location main\:location;
 };
 
 type Project record {
@@ -46,8 +46,8 @@ type Mixed record {
     prefix: "root",
     uri: "http://example.com/root"
 }
-type RootRoot record {
-    MainCompanyInfo main\:companyInfo;
+type Root_Root record {
+    Main_CompanyInfo main\:companyInfo;
     Employees employees;
     Mixed mixed;
     @xmldata:Attribute

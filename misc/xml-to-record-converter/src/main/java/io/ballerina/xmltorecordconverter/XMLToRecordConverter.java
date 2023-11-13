@@ -478,7 +478,7 @@ public class XMLToRecordConverter {
     private static String getRecordName(String xmlElementNodeName) {
         if (xmlElementNodeName.contains(COLON)) {
             return Arrays.stream(xmlElementNodeName.split(COLON))
-                    .map(val -> escapeIdentifier(StringUtils.capitalize(val))).collect(Collectors.joining());
+                    .map(val -> escapeIdentifier(StringUtils.capitalize(val))).collect(Collectors.joining("_"));
         }
         return escapeIdentifier(StringUtils.capitalize(xmlElementNodeName));
     }
