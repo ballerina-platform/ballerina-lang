@@ -4824,10 +4824,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                                 case CLOSE_BRACE_TOKEN:
                                     return ParserRuleContext.CLOSE_BRACE;
                                 default:
-                                    return ParserRuleContext.STATEMENT;
+                                    return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
                             }
                         } else {
-                            return ParserRuleContext.STATEMENT;
+                            return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
                         }
                     case MATCH_BODY:
                         return ParserRuleContext.MATCH_PATTERN;

@@ -9978,9 +9978,9 @@ public class BallerinaParser extends AbstractParser {
      * Parse named worker declaration.
      * <p>
      * <code>named-worker-decl := [annots] [transactional] worker worker-name return-type-descriptor { sequence-stmt }
-     * </code>
+     * [on-fail-clause]</code>
      *
-     * @param annots Annotations attached to the worker decl
+     * @param annots     Annotations attached to the worker decl
      * @param qualifiers Preceding transactional keyword in a list
      * @return Parsed node
      */
@@ -9992,8 +9992,9 @@ public class BallerinaParser extends AbstractParser {
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode workerBody = parseBlockNode();
         endContext();
+        STNode onFailClause = parseOptionalOnFailClause();
         return STNodeFactory.createNamedWorkerDeclarationNode(annots, transactionalKeyword, workerKeyword, workerName,
-                returnTypeDesc, workerBody);
+                returnTypeDesc, workerBody, onFailClause);
     }
 
     private STNode getTransactionalKeyword(List<STNode> qualifierList) {

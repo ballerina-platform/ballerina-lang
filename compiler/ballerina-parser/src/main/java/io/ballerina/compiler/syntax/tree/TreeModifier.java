@@ -1335,13 +1335,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
         BlockStatementNode workerBody =
                 modifyNode(namedWorkerDeclarationNode.workerBody());
+        OnFailClauseNode onFailClause =
+                modifyNode(namedWorkerDeclarationNode.onFailClause().orElse(null));
         return namedWorkerDeclarationNode.modify(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     @Override

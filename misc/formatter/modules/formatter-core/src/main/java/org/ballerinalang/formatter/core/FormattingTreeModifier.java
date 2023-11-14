@@ -3501,8 +3501,17 @@ public class FormattingTreeModifier extends TreeModifier {
         Token workerKeyword = formatToken(namedWorkerDeclarationNode.workerKeyword(), 1, 0);
         IdentifierToken workerName = formatToken(namedWorkerDeclarationNode.workerName(), 1, 0);
         Node returnTypeDesc = formatNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null), 1, 0);
-        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), env.trailingWS,
-                env.trailingNL);
+
+        BlockStatementNode workerBody;
+        OnFailClauseNode onFailClause;
+        Optional<OnFailClauseNode> onFailClauseNode = namedWorkerDeclarationNode.onFailClause();
+        if (onFailClauseNode.isPresent()) {
+            workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 1, 0);
+            onFailClause = formatNode(onFailClauseNode.get(), env.trailingWS, env.trailingNL);
+        } else {
+            workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), env.trailingWS, env.trailingNL);
+            onFailClause = null;
+        }
 
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
@@ -3511,6 +3520,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withWorkerName(workerName)
                 .withReturnTypeDesc(returnTypeDesc)
                 .withWorkerBody(workerBody)
+                .withOnFailClause(onFailClause)
                 .apply();
     }
 
