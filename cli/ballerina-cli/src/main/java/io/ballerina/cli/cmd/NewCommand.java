@@ -258,7 +258,7 @@ public class NewCommand implements BLauncherCmd {
 
         if (!ProjectUtils.validatePackageName(packageName)) {
             packageName = ProjectUtils.guessPkgName(packageName, template);
-            errStream.println("package name is derived as '" + packageName
+            errStream.println("Package name is derived as '" + packageName
                     + "'. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
@@ -313,7 +313,7 @@ public class NewCommand implements BLauncherCmd {
         }
         if (Files.exists(packagePath)) {
             errStream.println("Created new package '" + guessPkgName(packageName, template)
-                    + "' at " + packagePath + ".");
+                    + "' at " + guessPkgName(packageName, template) + ".");
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
