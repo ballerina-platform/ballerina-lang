@@ -211,7 +211,8 @@ public class XMLLiteralTest {
                 "'(xml<xml:Element>|xml:Text)', found 'xml'", 149, 39);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml<xml:Text>>|xml<xml<xml:Comment>>)', found 'xml'", 150, 54);
-
+        BAssertUtil.validateError(negativeResult, index++, "missing gt token", 154, 23);
+        BAssertUtil.validateError(negativeResult, index++, "missing gt token", 155, 29);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
