@@ -480,9 +480,8 @@ public class XMLParser extends AbstractParser {
         STToken token = consume();
         if (token.kind != SyntaxKind.XML_TEXT_CONTENT) {
             return STNodeFactory.createLiteralValueToken(SyntaxKind.XML_TEXT_CONTENT, token.text(),
-                    token.leadingMinutiae(), token.trailingMinutiae());
+                    token.leadingMinutiae(), token.trailingMinutiae(), token.diagnostics());
         }
-
         return token;
     }
 
