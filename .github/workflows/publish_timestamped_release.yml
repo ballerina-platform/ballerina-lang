@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - query-grouping-aggregation
+      - worker_change
   workflow_dispatch:
 
 jobs:
