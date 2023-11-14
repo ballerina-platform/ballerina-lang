@@ -211,7 +211,27 @@ public class ClientResourceAccessActionNodeContext
             return;
         }
 
-        super.sort(context, node, completionItems);
+        Optional<TypeSymbol> parameterSymbol = getParameterTypeSymbol(context);
+        int rankOffset = 1;
+        for (LSCompletionItem completionItem : completionItems) {
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
+                sortNamedArgCompletionItem(context, completionItem);
+            } else if (parameterSymbol.isEmpty()) {
+                sortParameterlessCompletionItem(context, completionItem);
+            } else if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+                if (symbolCompletionItem.getSymbol().isPresent() &&
+                        symbolCompletionItem.getSymbol().get().kind() == SymbolKind.RESOURCE_METHOD) {
+                    completionItem.getCompletionItem().setSortText(
+                            SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()) +
+                                    SortingUtil.genSortText(rankOffset));
+                }
+                sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
+                rankOffset++;
+            } else {
+                sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
+            }
+        }
     }
 
     private List<LSCompletionItem> getPathSegmentCompletionItems(ClientResourceAccessActionNode node,
