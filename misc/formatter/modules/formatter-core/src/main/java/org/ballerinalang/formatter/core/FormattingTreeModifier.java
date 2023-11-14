@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.AlternateReceiveWorkerNode;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
@@ -3017,6 +3018,15 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBrace(openBrace)
                 .withReceiveFields(receiveFields)
                 .withCloseBrace(closeBrace)
+                .apply();
+    }
+
+    @Override
+    public AlternateReceiveWorkerNode transform(AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        SeparatedNodeList<SimpleNameReferenceNode> workers =
+                formatSeparatedNodeList(alternateReceiveWorkerNode.workers(), 1, 0, env.trailingWS, env.trailingNL);
+        return alternateReceiveWorkerNode.modify()
+                .withWorkers(workers)
                 .apply();
     }
 

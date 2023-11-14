@@ -3342,6 +3342,18 @@
       ]
     },
     {
+      "name": "AlternateReceiveWorkerNode",
+      "base": "Node",
+      "kind": "ALTERNATE_RECEIVE_WORKER",
+      "attributes": [
+        {
+          "name": "workers",
+          "type": "SimpleNameReferenceNode",
+          "occurrences": "MULTIPLE_SEPARATED"
+        }
+      ]
+    },
+    {
       "name": "RestDescriptorNode",
       "base": "Node",
       "kind": "REST_TYPE",

@@ -522,7 +522,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] RECEIVE_WORKERS =
-            { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.MULTI_RECEIVE_WORKERS };
+            { ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER, ParserRuleContext.MULTI_RECEIVE_WORKERS };
+
+    private static final ParserRuleContext[] SINGLE_OR_ALTERNATE_WORKER_SEPARATOR =
+            { ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER_END, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] RECEIVE_FIELD =
             { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.RECEIVE_FIELD_NAME };
@@ -1607,6 +1610,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case GROUPING_KEY_LIST_ELEMENT:
             case GROUPING_KEY_LIST_ELEMENT_END:
             case RESULT_CLAUSE:
+            case SINGLE_OR_ALTERNATE_WORKER_SEPARATOR:
                 return true;
             default:
                 return false;
@@ -2075,6 +2079,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
             case RESULT_CLAUSE:
                 return ParserRuleContext.SELECT_CLAUSE;
+            case SINGLE_OR_ALTERNATE_WORKER_SEPARATOR:
+                return ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER_END;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
@@ -2845,6 +2851,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_CONSTRUCTOR_RHS:
                 alternativeRules = ERROR_CONSTRUCTOR_RHS;
                 break;
+            case SINGLE_OR_ALTERNATE_WORKER_SEPARATOR:
+                alternativeRules = SINGLE_OR_ALTERNATE_WORKER_SEPARATOR;
+                break;
             default:
                 throw new IllegalStateException("seekMatchInExprRelatedAlternativePaths found: " + currentCtx);
         }
@@ -3481,6 +3490,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForBindingPattern();
             case TUPLE_MEMBERS:
                 return ParserRuleContext.TUPLE_MEMBER;
+            case SINGLE_OR_ALTERNATE_WORKER:
+                return ParserRuleContext.PEER_WORKER_NAME;
+            case SINGLE_OR_ALTERNATE_WORKER_END:
+                endContext(); // end single-or-alternate-worker
+                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -3504,6 +3518,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.XML_ATOMIC_NAME_PATTERN;
                 } else if (parentCtx == ParserRuleContext.MATCH_PATTERN) {
                     return ParserRuleContext.MATCH_PATTERN_START;
+                } else if (parentCtx == ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER) {
+                    return ParserRuleContext.PEER_WORKER_NAME;
                 }
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case TABLE_CONSTRUCTOR:
@@ -4091,8 +4107,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FLUSH_KEYWORD:
                 return ParserRuleContext.OPTIONAL_PEER_WORKER;
             case PEER_WORKER_NAME:
-                if (getParentContext() == ParserRuleContext.MULTI_RECEIVE_WORKERS) {
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.MULTI_RECEIVE_WORKERS) {
                     return ParserRuleContext.RECEIVE_FIELD_END;
+                } else if (parentCtx == ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER) {
+                    return ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER_SEPARATOR;
                 }
                 return ParserRuleContext.EXPRESSION_RHS;
             case WAIT_KEYWORD:
@@ -4269,6 +4288,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BRACED_EXPRESSION:
             case CLIENT_RESOURCE_ACCESS_ACTION:
             case TUPLE_MEMBERS:
+            case SINGLE_OR_ALTERNATE_WORKER:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:

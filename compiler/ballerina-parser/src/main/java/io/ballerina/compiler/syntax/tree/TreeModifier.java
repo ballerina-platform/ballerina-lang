@@ -2475,6 +2475,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public AlternateReceiveWorkerNode transform(
+            AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        SeparatedNodeList<SimpleNameReferenceNode> workers =
+                modifySeparatedNodeList(alternateReceiveWorkerNode.workers());
+        return alternateReceiveWorkerNode.modify(
+                workers);
+    }
+
+    @Override
     public RestDescriptorNode transform(
             RestDescriptorNode restDescriptorNode) {
         TypeDescriptorNode typeDescriptor =

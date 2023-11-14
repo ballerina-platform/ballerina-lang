@@ -13069,7 +13069,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse receive action.
      * <p>
-     * <code>receive-action := single-receive-action | multiple-receive-action</code>
+     * <code>receive-action := single-receive-action | multiple-receive-action | alternate-receive-action</code>
+     * <p><code>
+     * single-receive-action := <- peer-worker
+     * <br></br>
+     * multiple-receive-action := <-  { receive-field (, receive-field)* }
+     * <br></br>
+     * alternate-receive-action := <- peer-worker (| peer-worker)*
+     * </code>
      *
      * @return Receive action
      */
@@ -13083,13 +13090,39 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case FUNCTION_KEYWORD:
             case IDENTIFIER_TOKEN:
-                return parsePeerWorkerName();
+                return parseSingleOrAlternateReceiveWorkers();
             case OPEN_BRACE_TOKEN:
                 return parseMultipleReceiveWorkers();
             default:
                 recover(peek(), ParserRuleContext.RECEIVE_WORKERS);
                 return parseReceiveWorkers();
         }
+    }
+
+    private STNode parseSingleOrAlternateReceiveWorkers() {
+        startContext(ParserRuleContext.SINGLE_OR_ALTERNATE_WORKER);
+        List<STNode> workers = new ArrayList<>();
+        // Parse first peer worker name, that has no leading comma
+        STNode peerWorker = parsePeerWorkerName();
+        workers.add(peerWorker);
+
+        STToken nextToken = peek();
+        if (nextToken.kind != SyntaxKind.PIPE_TOKEN) {
+            endContext();
+            return peerWorker;
+        }
+
+        // Parse the remaining peer worker names
+        while (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
+            STNode pipeToken = consume();
+            workers.add(pipeToken);
+            peerWorker = parsePeerWorkerName();
+            workers.add(peerWorker);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createAlternateReceiveWorkerNode(STNodeFactory.createNodeList(workers));
     }
 
     /**

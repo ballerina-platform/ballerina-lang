@@ -631,6 +631,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
+    public void visit(AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        visitSyntaxNode(alternateReceiveWorkerNode);
+    }
+
     public void visit(RestDescriptorNode restDescriptorNode) {
         visitSyntaxNode(restDescriptorNode);
     }

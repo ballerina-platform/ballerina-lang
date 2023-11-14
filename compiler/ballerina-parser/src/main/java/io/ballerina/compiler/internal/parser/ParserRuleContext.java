@@ -733,6 +733,9 @@ public enum ParserRuleContext {
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     TUPLE_MEMBERS("tuple-members"),
     TUPLE_MEMBER("tuple-member"),
+    SINGLE_OR_ALTERNATE_WORKER("single-or-alternate-worker"),
+    SINGLE_OR_ALTERNATE_WORKER_SEPARATOR("single-or-alternate-worker-separator"),
+    SINGLE_OR_ALTERNATE_WORKER_END("single-or-alternate-worker-end"),
     ;
 
     private String value;

@@ -2430,6 +2430,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stReceiveFieldsNode.createUnlinkedFacade();
     }
 
+    public static AlternateReceiveWorkerNode createAlternateReceiveWorkerNode(
+            SeparatedNodeList<SimpleNameReferenceNode> workers) {
+        Objects.requireNonNull(workers, "workers must not be null");
+
+        STNode stAlternateReceiveWorkerNode = STNodeFactory.createAlternateReceiveWorkerNode(
+                workers.underlyingListNode().internalNode());
+        return stAlternateReceiveWorkerNode.createUnlinkedFacade();
+    }
+
     public static RestDescriptorNode createRestDescriptorNode(
             TypeDescriptorNode typeDescriptor,
             Token ellipsisToken) {

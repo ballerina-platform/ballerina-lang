@@ -1826,6 +1826,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
+    public static STNode createAlternateReceiveWorkerNode(
+            STNode workers) {
+
+        return new STAlternateReceiveWorkerNode(
+                workers);
+    }
+
     public static STNode createRestDescriptorNode(
             STNode typeDescriptor,
             STNode ellipsisToken) {
