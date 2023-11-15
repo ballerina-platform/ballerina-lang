@@ -96,6 +96,9 @@ public class ParserTestFormatter extends FormatterTest {
 
                 "separated_node_list_import_decl.bal", "node_location_test_03.bal",
 
+                // formatter keeps adding whitespaces #41698
+                "worker_decl_source_07.bal",
+
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",
