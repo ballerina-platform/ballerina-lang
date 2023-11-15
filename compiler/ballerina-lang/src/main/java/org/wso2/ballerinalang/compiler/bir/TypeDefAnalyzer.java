@@ -52,10 +52,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Analyzes the BIRTypeDefinition nodes and generate the dependency graph for type definitions
- *
  * TODO optimize the algorithm to only traverse one type dependency chain once. Right now it traverses the same chain multiple times
  *
  */
@@ -63,7 +63,10 @@ public class TypeDefAnalyzer implements TypeVisitor {
 
     private static final CompilerContext.Key<TypeDefAnalyzer> BIR_TYPE_DEF_ANALYZER_KEY = new CompilerContext.Key<>();
     public final HashMap<BType, BIRNode.BIRTypeDefinition> typeDefPool = new HashMap<>();
-    private BIRNode.BIRTypeDefinition currentParentTypeDef;
+    // The parent node could be either a function or a typeDef
+    private BIRNode.BIRDocumentableNode currentParentNode;
+    private static boolean currentTypeIsNotVisited = true;
+    public final HashSet<BType> visitedTypes = new HashSet<>();
 
     private TypeDefAnalyzer(CompilerContext context) {
         context.put(BIR_TYPE_DEF_ANALYZER_KEY, this);
@@ -77,28 +80,67 @@ public class TypeDefAnalyzer implements TypeVisitor {
         return typeDefAnalyzer;
     }
 
-    public void analyze(BIRNode.BIRPackage birPackage) {
-        populateTypeDefPool(birPackage);
-        birPackage.typeDefs.forEach(typeDef -> {
-            currentParentTypeDef = typeDef;
-            typeDef.type.accept(this);
-            if (typeDef.usedState == UsedState.UNEXPOLORED) {
-                typeDef.usedState = UsedState.UNUSED;
-            }
+//    //TODO make this analyze only one typeDef at a time
+//    public void analyze(BIRNode.BIRPackage birPackage) {
+//        populateTypeDefPool(birPackage);
+//        birPackage.typeDefs.forEach(typeDef -> {
+//            currentParentNode = typeDef;
+//            typeDef.type.accept(this);
+//            if (typeDef.usedState == UsedState.UNEXPOLORED) {
+//                typeDef.usedState = UsedState.UNUSED;
+//            }
+//        });
+//    }
+
+    public void populateTypeDefPool(BIRNode.BIRPackage birPackage) {
+        birPackage.typeDefs.forEach(typeDef -> typeDefPool.putIfAbsent(typeDef.type, typeDef));
+    }
+
+    public void analyzeTypeDef(BIRNode.BIRTypeDefinition typeDef) {
+        typeDefPool.putIfAbsent(typeDef.type, typeDef);
+        currentParentNode = typeDef;
+        typeDef.type.accept(this);
+        if (typeDef.referencedTypes != null) {
+            typeDef.referencedTypes.forEach(this::accept);
+        }
+
+        if (typeDef.usedState == UsedState.UNEXPOLORED) {
+            typeDef.usedState = UsedState.UNUSED;
+        }
+    }
+
+    public void analyzeFunctionLevelTypeDef(BType bType, BIRNode.BIRFunction parentFunction) {
+        currentParentNode = parentFunction;
+        bType.accept(this);
+    }
+
+    public void addParamTypeDefsAsChildren(BIRNode.BIRFunction externalFunction) {
+        currentParentNode = externalFunction;
+        externalFunction.parameters.forEach(birFunctionParameter -> {
+            birFunctionParameter.type.accept(this);
         });
     }
 
+    public void analyzeServiceDecl(BIRNode.BIRServiceDeclaration serviceDecl) {
+        currentParentNode = serviceDecl;
+        serviceDecl.listenerTypes.forEach(type -> type.accept(this));
+    }
+
     private void addDependency(BType bType) {
+        currentTypeIsNotVisited = visitedTypes.add(bType);
         BIRNode.BIRTypeDefinition childNode = getBIRTypeDef(bType);
         // TODO Check recursive self calls in typeDefs
-        if (childNode == null || currentParentTypeDef == childNode) {
+        if (childNode == null) {
             return;
         }
         if (childNode.usedState == UsedState.UNEXPOLORED) {
             childNode.usedState = UsedState.UNUSED;
         }
-        currentParentTypeDef.addChildNode(childNode);
-        currentParentTypeDef = childNode;
+        if (currentParentNode == childNode) {
+            return;
+        }
+        currentParentNode.addChildNode(childNode);
+        currentParentNode = childNode;
     }
 
     private BIRNode.BIRTypeDefinition getBIRTypeDef(BType bType) {
@@ -108,18 +150,17 @@ public class TypeDefAnalyzer implements TypeVisitor {
         return null;
     }
 
-    private void populateTypeDefPool(BIRNode.BIRPackage birPackage) {
-        birPackage.typeDefs.forEach(typeDef -> typeDefPool.putIfAbsent(typeDef.type, typeDef));
+    private boolean isAlreadyTraversed(BType bType) {
+        BIRNode.BIRTypeDefinition birTypeDef = getBIRTypeDef(bType);
+        if (birTypeDef == null) {
+            return false;
+        }
+        return birTypeDef.usedState != UsedState.UNEXPOLORED;
     }
 
     @Override
     public void visit(BAnnotationType bAnnotationType) {
         addDependency(bAnnotationType);
-    }
-
-    @Override
-    public void visit(BArrayType bArrayType) {
-        addDependency(bArrayType);
     }
 
     @Override
@@ -139,6 +180,7 @@ public class TypeDefAnalyzer implements TypeVisitor {
 
     @Override
     public void visit(BErrorType bErrorType) {
+        bErrorType.detailType.accept(this);
         addDependency(bErrorType);
     }
 
@@ -159,6 +201,12 @@ public class TypeDefAnalyzer implements TypeVisitor {
 
     @Override
     public void visit(BMapType bMapType) {
+        if (bMapType.mutableType != null) {
+            bMapType.mutableType.accept(this);
+        }
+        if (bMapType.constraint != null) {
+            bMapType.constraint.accept(this);
+        }
         addDependency(bMapType);
     }
 
@@ -170,16 +218,6 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BTypedescType bTypedescType) {
         addDependency(bTypedescType);
-    }
-
-    @Override
-    public void visit(BTypeReferenceType bTypeReferenceType) {
-        UsedState originalUsedState = getBIRTypeDef(bTypeReferenceType.referredType).usedState;
-        addDependency(bTypeReferenceType.referredType);
-
-        if (originalUsedState == UsedState.UNEXPOLORED) {
-            bTypeReferenceType.referredType.accept(this);
-        }
     }
 
     @Override
@@ -208,29 +246,6 @@ public class TypeDefAnalyzer implements TypeVisitor {
     }
 
     @Override
-    public void visit(BStructureType bStructureType) {
-        addDependency(bStructureType);
-        bStructureType.fields.values().forEach(bType -> bType.type.accept(this));
-    }
-
-    @Override
-    public void visit(BTupleType bTupleType) {
-        addDependency(bTupleType);
-        bTupleType.getMembers().forEach(bTupleMember -> bTupleMember.type.accept(this));
-    }
-
-    @Override
-    public void visit(BUnionType bUnionType) {
-        addDependency(bUnionType);
-        bUnionType.getOriginalMemberTypes().forEach(member -> member.accept(this));
-    }
-
-    @Override
-    public void visit(BIntersectionType bIntersectionType) {
-        addDependency(bIntersectionType);
-    }
-
-    @Override
     public void visit(BXMLType bxmlType) {
         addDependency(bxmlType);
     }
@@ -238,22 +253,6 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BTableType bTableType) {
         addDependency(bTableType);
-    }
-
-    @Override
-    public void visit(BRecordType bRecordType) {
-        addDependency(bRecordType);
-        // TODO check whether the following foreach is correct
-        bRecordType.fields.values().forEach(bType -> {
-            bType.type.accept(this);
-        });
-
-    }
-
-    @Override
-    public void visit(BObjectType bObjectType) {
-        addDependency(bObjectType);
-        bObjectType.fields.values().forEach(bType -> bType.type.accept(this));
     }
 
     @Override
@@ -269,5 +268,92 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BHandleType bHandleType) {
         addDependency(bHandleType);
+    }
+
+    @Override
+    public void visit(BTypeReferenceType bTypeReferenceType) {
+        addDependency(bTypeReferenceType);
+        // Eliminating infinite loops caused by cyclic types
+        BIRNode.BIRTypeDefinition referredTypeDef = getBIRTypeDef(bTypeReferenceType.referredType);
+        if (referredTypeDef != null) {
+            currentParentNode.addChildNode(referredTypeDef);
+            if (referredTypeDef.usedState != UsedState.UNEXPOLORED) {
+                return;
+            }
+        }
+        bTypeReferenceType.referredType.accept(this);
+    }
+
+    @Override
+    public void visit(BStructureType bStructureType) {
+        addDependency(bStructureType);
+        if (currentTypeIsNotVisited) {
+            bStructureType.fields.values().forEach(bType -> bType.type.accept(this));
+        }
+    }
+
+    @Override
+    public void visit(BTupleType bTupleType) {
+        addDependency(bTupleType);
+        if (currentTypeIsNotVisited) {
+            bTupleType.getMembers().forEach(bTupleMember -> bTupleMember.type.accept(this));
+        }
+    }
+
+    @Override
+    public void visit(BUnionType bUnionType) {
+        addDependency(bUnionType);
+        if (currentTypeIsNotVisited) {
+            bUnionType.getOriginalMemberTypes().forEach(member -> member.accept(this));
+        }
+//        bUnionType.getMemberTypes().forEach(member -> member.accept(this));
+    }
+
+    @Override
+    public void visit(BIntersectionType bIntersectionType) {
+        addDependency(bIntersectionType);
+        bIntersectionType.getEffectiveType().accept(this);
+        bIntersectionType.getConstituentTypes().forEach(member -> member.accept(this));
+//        if (currentTypeIsNotVisited) {
+//        }
+
+    }
+
+    @Override
+    public void visit(BArrayType bArrayType) {
+        addDependency(bArrayType);
+        if (currentTypeIsNotVisited) {
+            bArrayType.eType.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BRecordType bRecordType) {
+        addDependency(bRecordType);
+        // TODO check whether the following foreach is correct
+        if (currentTypeIsNotVisited) {
+            if (bRecordType.mutableType != null) {
+                bRecordType.mutableType.accept(this);
+            }
+            if (bRecordType.restFieldType != null) {
+                bRecordType.restFieldType.accept(this);
+            }
+            bRecordType.fields.values().forEach(bType -> bType.type.accept(this));
+        }
+    }
+
+    @Override
+    public void visit(BObjectType bObjectType) {
+        addDependency(bObjectType);
+        if (currentTypeIsNotVisited) {
+            if (bObjectType.mutableType != null) {
+                bObjectType.mutableType.accept(this);
+            }
+            bObjectType.fields.values().forEach(bType -> bType.type.accept(this));
+        }
+    }
+
+    private void accept(BType type) {
+        type.accept(this);
     }
 }
