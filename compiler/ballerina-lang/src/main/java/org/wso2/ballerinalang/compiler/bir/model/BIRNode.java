@@ -830,6 +830,8 @@ public abstract class BIRNode {
     public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
         public HashSet<BIRDocumentableNode> childNodes = new HashSet<>();
+        // Used for debugging purposes
+        public HashSet<BIRDocumentableNode> parentNodes = new HashSet<>();
         public UsedState usedState = UsedState.UNEXPOLORED;
 
         protected BIRDocumentableNode(Location pos) {
@@ -845,13 +847,20 @@ public abstract class BIRNode {
                 return;
             }
             childNodes.add(childNode);
+
+            addParent(childNode, this);
+
             if (this.usedState == UsedState.USED) {
                 childNode.markSelfAndChildrenAsUsed();
             }
         }
 
+        private void addParent(BIRDocumentableNode childNode, BIRDocumentableNode parentNode) {
+            childNode.parentNodes.add(parentNode);
+        }
+
         public void markSelfAndChildrenAsUsed() {
-            if (usedState == UsedState.UNUSED) {
+            if (usedState != UsedState.USED) {
                 usedState = UsedState.USED;
                 this.childNodes.forEach(BIRDocumentableNode::markSelfAndChildrenAsUsed);
             }
@@ -997,6 +1006,7 @@ public abstract class BIRNode {
             this.type = type;
             this.origin = origin;
             this.flags = flags;
+            this.usedState = UsedState.USED;
         }
 
         @Override
