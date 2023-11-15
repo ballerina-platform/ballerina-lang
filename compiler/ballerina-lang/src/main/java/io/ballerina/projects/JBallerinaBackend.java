@@ -38,6 +38,10 @@ import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer_ASM_Approach;
 import org.wso2.ballerinalang.compiler.bir.DeadBIRNodeAnalyzer;
@@ -46,11 +50,20 @@ import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
@@ -73,6 +86,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -122,6 +136,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final List<JarConflict> conflictedJars;
     List<Diagnostic> conflictedResourcesDiagnostics = new ArrayList<>();
     private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
+    private final SymbolTable symbolTable;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -153,6 +168,7 @@ public class JBallerinaBackend extends CompilerBackend {
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
         this.conflictedJars = new ArrayList<>();
+        this.symbolTable = SymbolTable.getInstance(compilerContext);
         performCodeGen(shrink);
     }
 
@@ -450,24 +466,97 @@ public class JBallerinaBackend extends CompilerBackend {
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
         birPackage.functions.removeAll(invocationData.deadFunctions);
         birPackage.typeDefs.removeAll(invocationData.deadTypeDefs);
+        optimizeImmutableTypeDefs(invocationData, bPackageSymbol);
 
-        // TODO Remove the following code block. They are needed for external functions
-//        HashSet<BIRNode.BIRFunction> deadButNotDeletedFunctions = new HashSet<>();
-//        HashSet<BIRNode.BIRTypeDefinition> deadButNotDeletedTypedefs = new HashSet<>();
-//        birPackage.functions.forEach(birFunction -> {
-//            if (birFunction.usedState == UsedState.UNUSED) {
-//                deadButNotDeletedFunctions.add(birFunction);
-//            }
-//        });
-//
-//        birPackage.typeDefs.forEach(birTypeDefinition -> {
-//            if (birTypeDefinition.usedState == UsedState.UNUSED) {
-//                deadButNotDeletedTypedefs.add(birTypeDefinition);
-//            }
-//        });
-//
-//        birPackage.functions.removeAll(deadButNotDeletedFunctions);
-//        birPackage.typeDefs.removeAll(deadButNotDeletedTypedefs);
+        HashSet<BIRNode.BIRGlobalVariableDcl> deadGlobalVars = new HashSet<>();
+        birPackage.globalVars.forEach(gVar-> {
+            if (gVar.usedState == UsedState.UNUSED) {
+                deadGlobalVars.add(gVar);
+            }
+        });
+        birPackage.globalVars.removeAll(deadGlobalVars);
+
+        birPackage.functions.forEach(birFunction -> {
+            HashSet<BIRNode.BIRVariableDcl> deadLocalVars = new HashSet<>();
+            birFunction.localVars.forEach(lVar -> {
+                if (lVar.usedState == UsedState.UNUSED) {
+                    deadLocalVars.add(lVar);
+                }
+            });
+            birFunction.localVars.removeAll(deadLocalVars);
+        });
+
+        optimizeAttachedFuncs(birPackage);
+
+        invocationData.fpDataPool.forEach(DeadBIRNodeAnalyzer.LambdaPointerData::deleteIfUnused);
+    }
+
+    // Have to remove the immutableTypes from the SymbolTable because they are used in codeGen
+    private void optimizeImmutableTypeDefs(DeadBIRNodeAnalyzer.InvocationData invocationData, BPackageSymbol bPackageSymbol) {
+        invocationData.deadTypeDefs.forEach(deadTypeDef -> {
+            if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
+                Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
+                        symbolTable.immutableTypeMaps.get(getPackageIdString(deadTypeDef.type.tsymbol.pkgID));
+                if (immutableTypeMap != null) {
+//                    immutableTypeMap.values().remove(deadTypeDef.type);
+                    deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
+                }
+            }
+        });
+    }
+
+    private void optimizeAttachedFuncs(BIRNode.BIRPackage birPackage) {
+        for (BIRNode.BIRTypeDefinition typeDef : birPackage.typeDefs) {
+            HashSet<BIRNode.BIRFunction> deadAttachedFunc = new HashSet<>();
+            HashSet<BInvokableType> deadAttachedFuncTypes = new HashSet<>();
+            typeDef.attachedFuncs.forEach(attachFunc -> {
+                if (attachFunc.usedState == UsedState.UNUSED) {
+                    deadAttachedFunc.add(attachFunc);
+                    deadAttachedFuncTypes.add(attachFunc.type);
+                }
+            });
+            typeDef.attachedFuncs.removeAll(deadAttachedFunc);
+
+            // Have to remove the BAttachedFunction Types from the ClassSymbol because they are used in codeGen
+            // Check line 173 of ObjectTypeGen Class
+            if (Flags.unMask(typeDef.type.tsymbol.flags).contains(Flag.CLASS)) {
+                HashSet<BAttachedFunction> deadBAttFuncs = new HashSet<>();
+                ((BClassSymbol) typeDef.type.tsymbol).attachedFuncs.forEach(bAttFunc->{
+                    if (deadAttachedFuncTypes.contains(bAttFunc.type)) {
+                        deadBAttFuncs.add(bAttFunc);
+                    }
+                });
+                ((BClassSymbol) typeDef.type.tsymbol).attachedFuncs.removeAll(deadBAttFuncs);
+            }
+
+        }
+    }
+
+    // Used to remove the UNUSED readonly types from SymbolTable
+    // Have to do this because in JvmCreateTypeGen these Symbols are used to generate ImmutableTypes for TypeDefs
+    public static Optional<BIntersectionType> getImmutableType(SymbolTable symTable, PackageID packageId,
+                                                               SelectivelyImmutableReferenceType type) {
+        Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps =
+                symTable.immutableTypeMaps;
+
+        String packageIdString = getPackageIdString(packageId);
+
+        Map<SelectivelyImmutableReferenceType, BIntersectionType> moduleImmutableTypeMap =
+                immutableTypeMaps.get(packageIdString);
+
+        if (moduleImmutableTypeMap == null) {
+            return Optional.empty();
+        }
+
+        if (moduleImmutableTypeMap.containsKey(type)) {
+            return Optional.of(moduleImmutableTypeMap.get(type));
+        }
+
+        return Optional.empty();
+    }
+
+    public static String getPackageIdString(PackageID packageID) {
+        return packageID.isTestPkg ? packageID.toString() + "_testable" : packageID.toString();
     }
 
     @Override
