@@ -382,8 +382,8 @@ public class PushCommand implements BLauncherCmd {
         Path balaCachesPath = repoPath.resolve(ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion)
                 .resolve(org).resolve(packageName).resolve(version);
         try {
-            if (Files.exists(balaDestPath)) {
-                ProjectUtils.deleteDirectory(balaDestPath);
+            if (Files.exists(balaDestPath.getParent())) {
+                ProjectUtils.deleteDirectory(balaDestPath.getParent());
             }
             if (Files.exists(balaCachesPath)) {
                 ProjectUtils.deleteDirectory(balaCachesPath);
