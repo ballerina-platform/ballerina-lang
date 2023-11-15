@@ -77,7 +77,7 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 22, msg4, 40, 87);
     }
 
-    @Test(description = "Test byte shift operators negative", groups = { "disableOnOldParser" })
+    @Test(description = "Test byte shift operators negative")
     public void invalidByteShiftOperators() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-shift-operators-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 13);
