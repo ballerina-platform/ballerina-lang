@@ -86,7 +86,7 @@ dependencies {
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.apache.kafka:kafka-clients'
-    implementation 'org.apache.kafka:kafka_2.11'
+    implementation 'org.apache.kafka:kafka_2.13'
     implementation 'io.netty:netty-tcnative-classes'
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'io.netty:netty-tcnative-boringssl-static::windows-x86_64'

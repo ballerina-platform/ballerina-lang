@@ -18,14 +18,10 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import kafka.metrics.KafkaMetricsReporter;
-import kafka.metrics.KafkaMetricsReporter$;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
-import kafka.utils.VerifiableProperties;
 import org.apache.kafka.common.utils.Time;
 import scala.Option;
-import scala.collection.Seq;
 
 import java.util.Properties;
 
@@ -35,12 +31,10 @@ import java.util.Properties;
 public class KafkaLocal {
     private static final String prefix = "kafka-thread";
     private KafkaServer kafkaServer;
-    private Seq<KafkaMetricsReporter> reporters;
 
     public KafkaLocal(Properties properties) {
         KafkaConfig kafkaConfig = KafkaConfig.fromProps(properties);
-        reporters = KafkaMetricsReporter$.MODULE$.startReporters(new VerifiableProperties(properties));
-        this.kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(prefix), reporters);
+        this.kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(prefix), false);
     }
 
     public void start() {
