@@ -155,12 +155,54 @@ type Address record {
     never country?;
 };
 
+type Employee record {|
+    int id;
+    string name;
+    string dept;
+|};
+
+
 function testSpreadFieldWithRecordTypeHavingNeverField() {
     Grades grades = { physics: 75 };
     Address address= { street: "Main Street" };
 
     record {| string street; |} addressInline = {...address};
     assertEquality("Main Street", addressInline.street);
+
+    record {|
+        int i;
+        string s;
+        never n?;
+    |} bar1InLine = {
+        i: 1,
+        s: "s"
+    };
+    Bar bar1 = {...bar1InLine};
+    assertEquality("s", bar1.s);
+
+    record {|
+        int i;
+        string s;
+        never n?;
+    |} bar2InLine = {
+        i: 2,
+        s: "S",
+        n: ()
+    };
+    Bar bar2 = {...bar2InLine};
+    assertEquality("S", bar2.s);
+
+    record {|
+        int id;
+        string name;
+        never dept?;
+    |} empInLine = {
+        id: 1023,
+        name: "Joy",
+        dept: ()
+    };
+    Employee emp = {dept:"a", ...empInLine};
+    assertEquality("Joy", emp.name);
 
     Student john = { name: "John Doe", ...grades };
     assertEquality("John Doe", john.name);
