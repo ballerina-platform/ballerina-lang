@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -367,7 +368,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (referredType.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) referredType;
             if (recordType.shouldPrintShape()) {
-                displayName = new Name(recordType.toString());
+                displayName = new Name(Utils.unescapeBallerina(recordType.toString()));
             }
         }
 
