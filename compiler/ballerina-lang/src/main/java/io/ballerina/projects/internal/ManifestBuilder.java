@@ -260,6 +260,16 @@ public class ManifestBuilder {
                                     "targetModule", toolCode);
                                 Toml optionsToml = getToml(dependencyNode, "options");
                                 TopLevelNode topLevelNode = dependencyNode.entries().get("options");
+                                if (topLevelNode == null) {
+                                    try {
+                                        validateEmptyOptionsToml(dependencyNode, toolCode);
+                                    } catch (IOException e) {
+                                        reportDiagnostic(dependencyNode,
+                                            "tool options validation skipped due to: " + e.getMessage(),
+                                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_SKIPPED.diagnosticId(),
+                                            DiagnosticSeverity.WARNING);
+                                    }
+                                }
                                 TomlTableNode optionsNode = null;
                                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
                                     optionsNode = (TomlTableNode) topLevelNode;
@@ -274,6 +284,17 @@ public class ManifestBuilder {
             }
         }
         return tools;
+    }
+
+    public void validateEmptyOptionsToml(TomlTableNode toolNode, String toolName) throws IOException {
+        Schema schema = Schema.from(FileUtils.readFileAsString(toolName + "-options-schema.json"));
+        List<String> requiredFields = schema.required();
+        if (!requiredFields.isEmpty()) {
+            for (String field: requiredFields) {
+                reportDiagnostic(toolNode, "missing required field '" + field + "'",
+                    ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(), DiagnosticSeverity.ERROR);
+            }
+        }
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -777,9 +798,9 @@ public class ManifestBuilder {
             return null;
         }
         ToolNodeValueType toolNodeValueType = getBuildToolTomlValueType(topLevelNode);
-        if (toolNodeValueType.equals(ToolNodeValueType.STRING)) {
+        if (ToolNodeValueType.STRING.equals(toolNodeValueType)) {
             return getStringFromTomlTableNode(topLevelNode);
-        } else if (toolNodeValueType.equals(ToolNodeValueType.EMPTY)) {
+        } else if (ToolNodeValueType.EMPTY.equals(toolNodeValueType)) {
             if (!key.equals("targetModule")) {
                 reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'",
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
@@ -791,7 +812,7 @@ public class ManifestBuilder {
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
                     DiagnosticSeverity.WARNING);
             return getStringFromTomlTableNode(topLevelNode);
-        } else if (toolNodeValueType.equals(ToolNodeValueType.NON_STRING)) {
+        } else if (ToolNodeValueType.NON_STRING.equals(toolNodeValueType)) {
             reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
                 ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY.diagnosticId(),
                 DiagnosticSeverity.ERROR);

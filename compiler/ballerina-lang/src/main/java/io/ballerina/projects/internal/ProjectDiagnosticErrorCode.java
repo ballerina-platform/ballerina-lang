@@ -40,6 +40,7 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML("BCE5010", "missing.tool.properties"),
     INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY("BCE5011", "incompatible.tool.properties"),
     EMPTY_TOOL_PROPERTY("BCE5012", "empty.tool.properties"),
+    TOOL_OPTIONS_VALIDATION_SKIPPED("BCE5013", "tool.options.validation.skipped"),
     MODULE_NOT_FOUND("BCE5100", "module.not.found"),
     UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type"),
     CONFLICTING_PLATFORM_JAR_FILES("BCE5300", "conflicting.platform.jars.type"),
