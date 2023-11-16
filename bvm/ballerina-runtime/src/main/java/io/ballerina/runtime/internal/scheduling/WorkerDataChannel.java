@@ -56,6 +56,7 @@ public class WorkerDataChannel {
         this.receiverCounter = 0;
     }
     public WorkerDataChannel(String channelName) {
+//        System.out.println("Channel name: " + channelName);
         this.channelLock = new ReentrantLock();
         this.senderCounter = 0;
         this.receiverCounter = 0;
