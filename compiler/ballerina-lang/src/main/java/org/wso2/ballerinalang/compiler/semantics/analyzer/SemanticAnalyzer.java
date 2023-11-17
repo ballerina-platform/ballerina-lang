@@ -2103,7 +2103,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
                 errorVariable.setBType(rhsType);
                 if (TypeTags.ERROR != referredRhsType.tag) {
-                    dlog.error(variable.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                    if (referredRhsType != symTable.semanticError) {
+                        dlog.error(variable.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                    }
                     recursivelyDefineVariables(errorVariable, blockEnv);
                     return;
                 }
@@ -3883,9 +3885,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                                              onFailEnv);
             BLangVariable onFailVarNode = (BLangVariable) onFailVarDefNode.getVariable();
 
-            if (onFailVarNode.getBType() != null && !types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
+            BType onFailVarNodeBType = onFailVarNode.getBType();
+            if (onFailVarNodeBType != null &&
+                    onFailVarNodeBType != symTable.semanticError &&
+                    !types.isAssignable(onFailVarNodeBType, symTable.errorType)) {
                 dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
-                        onFailVarNode.getBType());
+                           onFailVarNodeBType);
             }
 
             if (kind == NodeKind.ERROR_VARIABLE) {
@@ -3975,9 +3980,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType errorExpressionType = typeChecker.checkExpr(errorExpression, data.env, data.prevEnvs,
                 data.commonAnalyzerData);
         if (!data.commonAnalyzerData.errorTypes.empty()) {
-            data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(failNode.expr.getBType()));
+            BType failExprType = failNode.expr.getBType();
+            if (failExprType != symTable.semanticError) {
+                data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(failExprType));
+            }
         }
-        if (errorExpressionType == symTable.semanticError ||
+        if (errorExpressionType != symTable.semanticError &&
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
             dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpressionType);
         }

@@ -98,6 +98,13 @@ public class OnFailClauseTest {
                 "type but found '(SampleComplexError|SampleError)' in type definition", 117, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(Error2|error)', found " +
                 "'Error1'", 132, 15);
+        BAssertUtil.validateError(negativeResult, i++, "type 'int?' not allowed here; expected an 'error' or a " +
+                "subtype of 'error'", 141, 14);
+        BAssertUtil.validateError(negativeResult, i++, "type 'int?' not allowed here; expected an 'error' or a " +
+                "subtype of 'error'", 150, 14);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'e'", 158, 14);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'e'", 166, 14);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'm'", 176, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

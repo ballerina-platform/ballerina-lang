@@ -75,7 +75,7 @@ public class DoStmtsTest {
     public void testNegative2() {
         int index = 0;
         BAssertUtil.validateError(negativeFile2, index++, "type 'string' not allowed here; " +
-                "expected an 'error' or a subtype of 'error'.", 6, 11);
+                "expected an 'error' or a subtype of 'error'", 6, 11);
         BAssertUtil.validateError(negativeFile2, index++, "incompatible types: expected " +
                 "'other', found 'string'", 8, 12);
         BAssertUtil.validateError(negativeFile2, index++, "invalid error variable; expecting " +

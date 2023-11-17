@@ -134,3 +134,46 @@ function functionWithCheckpanicInDoClauseNegative() {
 }
 
 function fn() returns int|Error1 => 1;
+
+function f1() {
+    int? e = 10;
+    do {
+        fail e;
+    } on fail var m {
+
+    }
+}
+
+function f2() {
+    int? e = 10;
+    do {
+        fail e;
+    } on fail var error(m) {
+
+    }
+}
+
+function f3() {
+    do {
+        fail e;
+    } on fail var m {
+
+    }
+}
+
+function f4() {
+    do {
+        fail e;
+    } on fail error error(m) {
+
+    }
+}
+
+function f5() {
+    string m = "str";
+    do {
+        fail error(m);
+    } on fail var error(m) {
+
+    }
+}
