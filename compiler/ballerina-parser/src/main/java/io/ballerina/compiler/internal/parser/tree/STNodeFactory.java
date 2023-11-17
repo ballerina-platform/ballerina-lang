@@ -979,7 +979,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
-            STNode workerBody) {
+            STNode workerBody,
+            STNode onFailClause) {
 
         return new STNamedWorkerDeclarationNode(
                 annotations,
@@ -987,7 +988,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     public static STNode createNamedWorkerDeclarator(
@@ -1822,6 +1824,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    public static STNode createAlternateReceiveWorkerNode(
+            STNode workers) {
+
+        return new STAlternateReceiveWorkerNode(
+                workers);
     }
 
     public static STNode createRestDescriptorNode(

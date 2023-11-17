@@ -1335,13 +1335,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
         BlockStatementNode workerBody =
                 modifyNode(namedWorkerDeclarationNode.workerBody());
+        OnFailClauseNode onFailClause =
+                modifyNode(namedWorkerDeclarationNode.onFailClause().orElse(null));
         return namedWorkerDeclarationNode.modify(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     @Override
@@ -2469,6 +2472,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    @Override
+    public AlternateReceiveWorkerNode transform(
+            AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        SeparatedNodeList<SimpleNameReferenceNode> workers =
+                modifySeparatedNodeList(alternateReceiveWorkerNode.workers());
+        return alternateReceiveWorkerNode.modify(
+                workers);
     }
 
     @Override

@@ -633,6 +633,8 @@ public class ParserTestUtils {
                 return SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT;
             case "RESOURCE_ACCESS_REST_SEGMENT":
                 return SyntaxKind.RESOURCE_ACCESS_REST_SEGMENT;
+            case "ALTERNATE_RECEIVE_WORKER":
+                return SyntaxKind.ALTERNATE_RECEIVE_WORKER;
 
             // Trivia
             case "EOF_TOKEN":

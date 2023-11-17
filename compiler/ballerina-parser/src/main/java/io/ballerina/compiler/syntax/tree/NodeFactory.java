@@ -1270,6 +1270,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionBodyBlockNode.createUnlinkedFacade();
     }
 
+    /**
+     * @deprecated Use {@link #createNamedWorkerDeclarationNode(NodeList, Token, Token, IdentifierToken, Node,
+     * BlockStatementNode, OnFailClauseNode)} instead.
+     */
+    @Deprecated
     public static NamedWorkerDeclarationNode createNamedWorkerDeclarationNode(
             NodeList<AnnotationNode> annotations,
             Token transactionalKeyword,
@@ -1277,6 +1282,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             IdentifierToken workerName,
             Node returnTypeDesc,
             BlockStatementNode workerBody) {
+        return createNamedWorkerDeclarationNode(
+                annotations,
+                transactionalKeyword,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody,
+                null);
+    }
+
+    public static NamedWorkerDeclarationNode createNamedWorkerDeclarationNode(
+            NodeList<AnnotationNode> annotations,
+            Token transactionalKeyword,
+            Token workerKeyword,
+            IdentifierToken workerName,
+            Node returnTypeDesc,
+            BlockStatementNode workerBody,
+            OnFailClauseNode onFailClause) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(workerKeyword, "workerKeyword must not be null");
         Objects.requireNonNull(workerName, "workerName must not be null");
@@ -1288,7 +1311,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 workerKeyword.internalNode(),
                 workerName.internalNode(),
                 getOptionalSTNode(returnTypeDesc),
-                workerBody.internalNode());
+                workerBody.internalNode(),
+                getOptionalSTNode(onFailClause));
         return stNamedWorkerDeclarationNode.createUnlinkedFacade();
     }
 
@@ -2404,6 +2428,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 receiveFields.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stReceiveFieldsNode.createUnlinkedFacade();
+    }
+
+    public static AlternateReceiveWorkerNode createAlternateReceiveWorkerNode(
+            SeparatedNodeList<SimpleNameReferenceNode> workers) {
+        Objects.requireNonNull(workers, "workers must not be null");
+
+        STNode stAlternateReceiveWorkerNode = STNodeFactory.createAlternateReceiveWorkerNode(
+                workers.underlyingListNode().internalNode());
+        return stAlternateReceiveWorkerNode.createUnlinkedFacade();
     }
 
     public static RestDescriptorNode createRestDescriptorNode(

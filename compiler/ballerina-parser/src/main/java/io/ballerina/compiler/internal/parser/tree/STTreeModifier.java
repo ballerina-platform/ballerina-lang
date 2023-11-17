@@ -1039,13 +1039,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode workerName = modifyNode(namedWorkerDeclarationNode.workerName);
         STNode returnTypeDesc = modifyNode(namedWorkerDeclarationNode.returnTypeDesc);
         STNode workerBody = modifyNode(namedWorkerDeclarationNode.workerBody);
+        STNode onFailClause = modifyNode(namedWorkerDeclarationNode.onFailClause);
         return namedWorkerDeclarationNode.modify(
                 annotations,
                 transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
-                workerBody);
+                workerBody,
+                onFailClause);
     }
 
     @Override
@@ -1951,6 +1953,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 openBrace,
                 receiveFields,
                 closeBrace);
+    }
+
+    @Override
+    public STAlternateReceiveWorkerNode transform(
+            STAlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+        STNode workers = modifyNode(alternateReceiveWorkerNode.workers);
+        return alternateReceiveWorkerNode.modify(
+                workers);
     }
 
     @Override
