@@ -1395,6 +1395,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
             boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
             bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
+            enclInvokable.encloseFunction(bLangLambdaFunction);
         }
         bLangLambdaFunction.capturedClosureEnv = null;
         result = bLangLambdaFunction;

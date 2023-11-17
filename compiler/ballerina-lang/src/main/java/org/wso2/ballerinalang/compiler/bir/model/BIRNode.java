@@ -372,6 +372,8 @@ public abstract class BIRNode {
         
         public List<BType> pathSegmentTypeList;
 
+        public List<BIRFunction> enclosedFunctions = new ArrayList<>();
+
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
                            BIRParameter restParam, int argsCount, List<BIRVariableDcl> localVars,

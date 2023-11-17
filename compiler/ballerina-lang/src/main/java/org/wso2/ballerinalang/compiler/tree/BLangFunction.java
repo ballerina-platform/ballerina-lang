@@ -20,14 +20,18 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.expressions.EnclosingFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -35,7 +39,7 @@ import java.util.TreeMap;
 /**
  * @since 0.94
  */
-public class BLangFunction extends BLangInvokableNode implements FunctionNode {
+public class BLangFunction extends BLangInvokableNode implements FunctionNode, EnclosingFunction {
 
     // Parser Flags and Data
     //TODO remove this and use ATTACHED flag instead
@@ -62,6 +66,8 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     // This only set when we encounter worker inside a fork statement.
     public String anonForkName;
     public boolean mapSymbolUpdated;
+
+    public List<BLangLambdaFunction> enclosedFunctions = new ArrayList<>();
 
     public SimpleVariableNode getReceiver() {
         return receiver;
@@ -94,5 +100,19 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     @Override
     public String toString() {
         return "BLangFunction: " + super.toString();
+    }
+
+    @Override
+    public void encloseFunction(BLangLambdaFunction lambdaFunction) {
+        // pr: this is not a good way to check for duplicates
+        if (this.enclosedFunctions.contains(lambdaFunction)) {
+            return;
+        }
+        this.enclosedFunctions.add(lambdaFunction);
+    }
+
+    @Override
+    public List<BLangLambdaFunction> getEnclosingFunctions() {
+        return this.enclosedFunctions;
     }
 }

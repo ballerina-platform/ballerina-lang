@@ -58,6 +58,7 @@ class BIRGenEnv {
     BIRBasicBlock enclLoopEndBB;
     BIRBasicBlock enclOnFailEndBB;
     BIRBasicBlock enclInnerOnFailEndBB;
+    BIRGenEnv parentEnv = null;
 
     Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
 
@@ -104,5 +105,11 @@ class BIRGenEnv {
         this.enclFunc = null;
         this.varDclsByBlock.clear();
         this.unlockVars.clear();
+    }
+
+    BIRGenEnv createNestedEnv() {
+        BIRGenEnv env = new BIRGenEnv(this.enclPkg);
+        env.parentEnv = this;
+        return env;
     }
 }

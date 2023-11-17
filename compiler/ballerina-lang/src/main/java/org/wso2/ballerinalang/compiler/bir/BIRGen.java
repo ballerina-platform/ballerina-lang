@@ -570,6 +570,15 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction astFunc) {
+        this.currentScope = new BirScope(0, null);
+        BIRFunction birFunc = createBIRFunction(astFunc, false);
+        // TODO: add to package
+        birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
+                .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
+    }
+
+    private BIRFunction createBIRFunction(BLangFunction astFunc, boolean isClosure) {
+        this.env.unlockVars.push(new BIRLockDetailsHolder());
         BInvokableType type = astFunc.symbol.getType();
 
         boolean isTypeAttachedFunction = astFunc.flagSet.contains(Flag.ATTACHED) &&
@@ -577,17 +586,15 @@ public class BIRGen extends BLangNodeVisitor {
 
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
 
-        this.env.unlockVars.push(new BIRLockDetailsHolder());
         Name funcName;
         if (isTypeAttachedFunction) {
-            funcName = names.fromString(astFunc.symbol.name.value);
+            funcName = Names.fromString(astFunc.symbol.name.value);
         } else {
             funcName = getFuncName(astFunc.symbol);
         }
         BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName,
-                names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
+                Names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
                 astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
-        this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
             BIRFunctionParameter birVarDcl = new BIRFunctionParameter(astFunc.pos, astFunc.receiver.getBType(),
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, astFunc.receiver.name.value,
@@ -624,7 +631,8 @@ public class BIRGen extends BLangNodeVisitor {
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.getBType().tsymbol)) {
             typeDefs.get(astFunc.receiver.getBType().tsymbol).attachedFuncs.add(birFunc);
-        } else {
+        } else if (!isClosure) {
+            // NOTE: if closures we need to get the enclFunction from the parent env not this!
             this.env.enclPkg.functions.add(birFunc);
         }
 
@@ -634,7 +642,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Special %0 location for storing return values
         BType retType = unifier.build(astFunc.symbol.type.getReturnType());
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, retType, this.env.nextLocalVarId(names),
-                                                    VarScope.FUNCTION, VarKind.RETURN, null);
+                VarScope.FUNCTION, VarKind.RETURN, null);
         birFunc.localVars.add(0, birFunc.returnVariable);
 
         //add closure vars
@@ -645,7 +653,6 @@ public class BIRGen extends BLangNodeVisitor {
         if (astFunc.restParam != null) {
             addRestParam(birFunc, astFunc.restParam.symbol, astFunc.restParam.pos);
         }
-
         if (astFunc.flagSet.contains(Flag.RESOURCE)) {
             BTypeSymbol parentTSymbol = astFunc.parent.getBType().tsymbol;
             // Parent symbol will always be BObjectTypeSymbol for resource functions
@@ -653,14 +660,14 @@ public class BIRGen extends BLangNodeVisitor {
             for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
                 if (func.funcName.value.equals(funcName.value)) {
                     BResourceFunction resourceFunction = (BResourceFunction) func;
-                    
+
                     List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams;
                     List<BIRVariableDcl> pathParams = new ArrayList<>(pathParamSymbols.size());
                     for (BVarSymbol pathParamSym : pathParamSymbols) {
                         pathParams.add(createBIRVarDeclForPathParam(pathParamSym));
                     }
                     birFunc.pathParams = pathParams;
-                            
+
                     BVarSymbol restPathParamSym = resourceFunction.restPathParam;
                     if (restPathParamSym != null) {
                         birFunc.restPathParam = createBIRVarDeclForPathParam(restPathParamSym);
@@ -688,7 +695,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (astFunc.interfaceFunction || Symbols.isNative(astFunc.symbol)) {
             this.env.clear();
-            return;
+            return birFunc;
         }
 
         // Create the entry basic block
@@ -707,10 +714,8 @@ public class BIRGen extends BLangNodeVisitor {
         if (enclBB.terminator == null && this.env.returnBB != null) {
             enclBB.terminator = new BIRTerminator.GOTO(null, this.env.returnBB, this.currentScope);
         }
-
         this.env.clear();
-        birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
-                .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
+        return birFunc;
     }
     
     private BIRVariableDcl createBIRVarDeclForPathParam(BVarSymbol pathParamSym) {
@@ -810,7 +815,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVariableDcl tempVarLambda = new BIRVariableDcl(lambdaExpr.pos, lambdaExpr.getBType(),
                                                           this.env.nextLocalVarId(names), VarScope.FUNCTION,
                                                           VarKind.TEMP, null);
-        this.env.enclFunc.localVars.add(tempVarLambda);
+        BIRFunction enclFunc = this.env.enclFunc;
+        enclFunc.localVars.add(tempVarLambda);
         BIROperand lhsOp = new BIROperand(tempVarLambda);
         Name funcName = getFuncName(lambdaExpr.function.symbol);
 
@@ -850,6 +856,11 @@ public class BIRGen extends BLangNodeVisitor {
                             getFieldName(funcName.value, targetType.tsymbol.name.value)));
         }
         this.env.targetOperand = lhsOp;
+        this.env = this.env.createNestedEnv();
+        this.currentScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+        enclFunc.enclosedFunctions.add(createBIRFunction(lambdaExpr.function, this.env.parentEnv.enclFunc != null));
+        this.currentScope = this.currentScope.parent;
+        this.env = this.env.parentEnv;
     }
 
     private String getFieldName(String funcName, String typeName) {
