@@ -762,10 +762,12 @@ public class SymbolFactory {
 
     private String getMethodName(BInvokableSymbol method, BObjectTypeSymbol owner) {
         List<BAttachedFunction> methods = new ArrayList<>(owner.attachedFuncs);
-        methods.add(owner.initializerFunc);
+        if (owner.initializerFunc != null) {
+            methods.add(owner.initializerFunc);
+        }
 
         for (BAttachedFunction mthd : methods) {
-            if (method == mthd.symbol) {
+            if (method.name.equals(mthd.symbol.name)) {
                 if (mthd instanceof BResourceFunction) {
                     return ((BResourceFunction) mthd).accessor.value;
                 }
