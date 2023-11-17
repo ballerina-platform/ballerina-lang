@@ -123,6 +123,11 @@ public class LangLibTableTest {
     }
 
     @Test
+    public void testHashCollisionInQuery() {
+        BRunUtil.invoke(compileResult, "testHashCollisionInQuery");
+    }
+
+    @Test
     public void testGetKeyList() {
         Object result = BRunUtil.invoke(compileResult, "testGetKeyList");
         BArray returns = (BArray) result;
