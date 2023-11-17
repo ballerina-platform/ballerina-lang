@@ -365,10 +365,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
         // Start a new indentation of two tabs for the parameters.
-        indent(options.getContinuationIndent());
+        indent(2);
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0, 0, 0, true);
-        unindent(options.getContinuationIndent());
+        unindent(2);
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -1062,15 +1062,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public FunctionCallExpressionNode transform(FunctionCallExpressionNode functionCallExpressionNode) {
         NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 0, 0);
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0, 0);
-        int prevIndentation = env.currentIndentation;
-        if (functionCallExpressionNode.arguments().size() > 0) {
-            if (!isScopedFunctionArgument(functionCallExpressionNode.arguments().get(0))) {
-                indent(options.getContinuationIndent());
-            }
-        }
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
-                .arguments(), 0, 0, 0, 0, true);
-        env.currentIndentation = prevIndentation;
+                .arguments(), 0, 0, 0, 0);
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
                 env.trailingWS, env.trailingNL);
 
@@ -1843,9 +1836,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
-        if (env.lineLength != 0 && isScopedFunctionArgument(positionalArgumentNode)) {
-            env.currentIndentation = env.lineLength;
-        }
         ExpressionNode expression = formatNode(positionalArgumentNode.expression(), env.trailingWS, env.trailingNL);
         return positionalArgumentNode.modify()
                 .withExpression(expression)
@@ -4482,14 +4472,10 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private int getPreservedIndentation(Token token) {
         int position = token.lineRange().startLine().offset();
-        int tabSize = options.getTabSize();
-        int offset = position % tabSize;
-        if (env.currentIndentation % tabSize == 0 && env.currentIndentation > position) {
-            return env.currentIndentation;
-        }
+        int offset = position % 4;
         if (offset != 0) {
             if (offset > 2) {
-                position = position + tabSize - offset;
+                position = position + 4 - offset;
             } else {
                 position = position - offset;
             }
@@ -4726,16 +4712,5 @@ public class FormattingTreeModifier extends TreeModifier {
         imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
         return NodeFactory.createNodeList(imports);
-    }
-
-    private boolean isScopedFunctionArgument(FunctionArgumentNode functionArgumentNode) {
-        if (functionArgumentNode.parent().kind() == SyntaxKind.FUNCTION_CALL &&
-                functionArgumentNode.children().size() > 0) {
-            SyntaxKind kind = functionArgumentNode.children().get(0).kind();
-            if (kind == SyntaxKind.OBJECT_CONSTRUCTOR || kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
-                return true;
-            }
-        }
-        return false;
     }
 }

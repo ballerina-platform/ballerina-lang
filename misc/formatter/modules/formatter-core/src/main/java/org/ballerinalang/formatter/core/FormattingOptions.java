@@ -30,20 +30,17 @@ public class FormattingOptions {
 
     private boolean lineWrapping;
 
-    private int continuationIndent;
-
     private ForceFormattingOptions forceFormattingOptions;
 
     private ImportFormattingOptions importFormattingOptions;
 
     private FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
-                              int continuationIndent, ForceFormattingOptions forceFormattingOptions,
+                              ForceFormattingOptions forceFormattingOptions,
                               ImportFormattingOptions importFormattingOptions) {
         this.tabSize = tabSize;
         this.wsCharacter = wsCharacter;
         this.columnLimit = columnLimit;
         this.lineWrapping = lineWrapping;
-        this.continuationIndent = continuationIndent;
         this.forceFormattingOptions = forceFormattingOptions;
         this.importFormattingOptions = importFormattingOptions;
     }
@@ -143,10 +140,6 @@ public class FormattingOptions {
         this.lineWrapping = lineWrapping;
     }
 
-    public int getContinuationIndent() {
-        return continuationIndent;
-    }
-
     public ForceFormattingOptions getForceFormattingOptions() {
         return forceFormattingOptions;
     }
@@ -169,7 +162,6 @@ public class FormattingOptions {
         private String wsCharacter = " ";
         private int columnLimit = 120;
         private boolean lineWrapping = false;
-        private int continuationIndent = 2;
         private ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder().build();
         private ImportFormattingOptions importFormattingOptions = ImportFormattingOptions.builder().build();
 
@@ -206,8 +198,8 @@ public class FormattingOptions {
         }
 
         public FormattingOptions build() {
-            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, continuationIndent,
-                    forceFormattingOptions, importFormattingOptions);
+            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions,
+                    importFormattingOptions);
         }
     }
 }
