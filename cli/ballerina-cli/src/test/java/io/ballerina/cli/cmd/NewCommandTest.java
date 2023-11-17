@@ -115,7 +115,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -158,7 +167,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -201,7 +219,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -332,7 +359,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -382,7 +418,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));

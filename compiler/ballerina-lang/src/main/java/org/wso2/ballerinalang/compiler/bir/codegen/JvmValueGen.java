@@ -24,12 +24,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodBIRFunction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
@@ -122,7 +118,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PAR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_CLASS_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 
 /**
@@ -132,7 +127,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmValueGen {
 
-    static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final String ENCODED_RECORD_INIT =
             Utils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
@@ -163,14 +157,13 @@ public class JvmValueGen {
             BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
+                desugarObjectMethods(optionalTypeDef.attachedFuncs, initMethodGen,
                                      jvmPackageGen);
             }
         }
     }
 
-    private static void desugarObjectMethods(PackageID module, BType bType,
-                                             List<BIRNode.BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
+    private static void desugarObjectMethods(List<BIRFunction> attachedFuncs, InitMethodGen initMethodGen,
                                              JvmPackageGen jvmPackageGen) {
         if (attachedFuncs == null) {
             return;
@@ -180,11 +173,7 @@ public class JvmValueGen {
                 continue;
             }
             if (JvmCodeGenUtil.isExternFunc(birFunc)) {
-                BIRFunctionWrapper extFuncWrapper = ExternalMethodGen.lookupBIRFunctionWrapper(module, birFunc, bType,
-                                                                                               jvmPackageGen);
-                if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, initMethodGen);
-                } else if (birFunc instanceof JMethodBIRFunction) {
+                if (birFunc instanceof JMethodBIRFunction) {
                     desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
                     enrichWithDefaultableParamInits(birFunc, initMethodGen);
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
@@ -210,7 +199,6 @@ public class JvmValueGen {
     }
 
     public static boolean isOptionalRecordField(BField field) {
-
         return (field.symbol.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
     }
 
@@ -283,7 +271,6 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(SWAP);
 
-
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
@@ -295,7 +282,6 @@ public class JvmValueGen {
                                    RECORD_INIT_WRAPPER, false);
             }
         }
-
 
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, TYPEDESC_VALUE_IMPL, TYPEDESC_VALUE_IMPL_CLOSURES,
@@ -309,14 +295,13 @@ public class JvmValueGen {
         }
         mv.visitInsn(POP);
 
-
         // Invoke the init-function of this type.
         String initFuncName;
         String valueClassName;
         List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
         // Attached functions are empty for type-labeling. In such cases, call the init() of
-        // the original type value;
+        // the original type value
         if (!attachedFuncs.isEmpty()) {
             initFuncName = attachedFuncs.get(0).name.value;
             valueClassName = className;
@@ -345,7 +330,6 @@ public class JvmValueGen {
     public static String getTypeValueClassName(PackageID packageID, String typeName) {
         return getTypeValueClassName(JvmCodeGenUtil.getPackageName(packageID), typeName);
     }
-
 
     private StringBuilder calcClosureMapSignature(int size) {
         StringBuilder closureParamSignature = new StringBuilder();
@@ -403,7 +387,6 @@ public class JvmValueGen {
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
                                      JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                      JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
-
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
