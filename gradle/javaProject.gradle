@@ -133,7 +133,6 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
-    jvmArgs = [ '-Xmx2048m' ]
     it.effort = "max"
     it.reportLevel = "low"
     it.reports {
