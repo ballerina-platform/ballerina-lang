@@ -430,6 +430,7 @@ class ModuleContext {
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
         try {
+            // pr: we are moving top level nodes to correct array here
             symbolEnter.definePackage(pkgNode);
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
             compilerPhaseRunner.performTypeCheckPhases(pkgNode);

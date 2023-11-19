@@ -295,6 +295,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean inLockStatement = false;
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
+    private final List<BLangFunction> nestedFunctions = new ArrayList<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
     private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
 
@@ -334,6 +335,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
+        this.nestedFunctions.clear();
         if (pkgNode.completedPhases.contains(CompilerPhase.ISOLATION_ANALYZE)) {
             return;
         }
@@ -363,10 +365,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangFunction function : pkgNode.functions) {
+            if (function.nestedFn) {
+                throw new AssertionError("nested functions should not be lifted");
+            }
             // Skip visiting worker lambdas here. They will be visited when enclosing function is visited.
             if (!isWorkerLambda(function)) {
                 analyzeNode(function, pkgEnv);
             }
+        }
+        // pr: concurrent modification here
+        for (int i = 0; i < nestedFunctions.size(); i++) {
+            analyzeNode(nestedFunctions.get(i), pkgEnv);
         }
 
         for (BLangVariable globalVar : moduleLevelVariables) {
@@ -1719,6 +1728,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         // Visit worker lambdas.
         BLangFunction function = bLangLambdaFunction.function;
+        if (function.nestedFn) {
+            nestedFunctions.add(function);
+        }
         if (isWorkerLambda(function)) {
             visit(function);
         }

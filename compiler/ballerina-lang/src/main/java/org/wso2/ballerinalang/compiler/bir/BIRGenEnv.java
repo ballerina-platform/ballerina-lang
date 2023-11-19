@@ -110,6 +110,7 @@ class BIRGenEnv {
     BIRGenEnv createNestedEnv() {
         BIRGenEnv env = new BIRGenEnv(this.enclPkg);
         env.parentEnv = this;
+        env.enclPkg = this.enclPkg;
         return env;
     }
 }

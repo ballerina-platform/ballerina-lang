@@ -482,6 +482,10 @@ public class AnnotationDesugar {
 
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
+
+        if (pkgNode.functions.stream().anyMatch(fn -> fn.nestedFn)) {
+            throw new AssertionError("nested functions should not be lifted");
+        }
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
@@ -842,6 +846,7 @@ public class AnnotationDesugar {
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(function, lambdaFunctionSymbol, env);
         lambdaFunction.capturedClosureEnv = env;
 
+        // TODO: FIX
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);
         pkgNode.lambdaFunctions.add(lambdaFunction);

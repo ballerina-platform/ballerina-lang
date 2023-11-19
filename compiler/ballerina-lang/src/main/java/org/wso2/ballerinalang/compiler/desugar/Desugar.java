@@ -817,9 +817,13 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
 
+        // pr: This is modifying the array as we iterate over it
         for (int i = 0; i < pkgNode.functions.size(); i++) {
             BLangFunction function = pkgNode.functions.get(i);
             if (!function.flagSet.contains(Flag.LAMBDA) || function.name.value.contains(MockDesugar.MOCK_FUNCTION)) {
+                if (function.nestedFn) {
+                    throw new AssertionError("unexpected");
+                }
                 pkgNode.functions.set(i, rewrite(pkgNode.functions.get(i), env));
             }
         }

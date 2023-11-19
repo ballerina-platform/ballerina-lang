@@ -49,6 +49,9 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
 
     public boolean interfaceFunction;
 
+    // pr: we didn't add this function to the top in ast
+    public boolean nestedFn = false;
+
     // Semantic Data
     public BLangSimpleVariable receiver;
 

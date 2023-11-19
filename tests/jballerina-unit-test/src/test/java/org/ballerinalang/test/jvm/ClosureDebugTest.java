@@ -22,15 +22,39 @@
 package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class ClosureDebugTest {
 
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/jvm/closure-debug.bal");
+    }
+
     @Test()
     public void testClosureDebug() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/closure-debug.bal");
-        Assert.assertFalse(result.getDiagnosticResult().hasErrors());
+        Assert.assertFalse(compileResult.getDiagnosticResult().hasErrors());
+        Object returns = BRunUtil.invoke(compileResult, "test1");
+        Assert.assertEquals(returns, 50L);
+    }
+
+    @Test()
+    public void testClosureDebug1() {
+        Assert.assertFalse(compileResult.getDiagnosticResult().hasErrors());
+        Object returns = BRunUtil.invoke(compileResult, "test2");
+        Assert.assertEquals(returns, 250L);
+    }
+
+    @Test()
+    public void testClosureDebug2() {
+        Assert.assertFalse(compileResult.getDiagnosticResult().hasErrors());
+        Object returns = BRunUtil.invoke(compileResult, "test3");
+        Assert.assertEquals(returns, 65L);
     }
 }

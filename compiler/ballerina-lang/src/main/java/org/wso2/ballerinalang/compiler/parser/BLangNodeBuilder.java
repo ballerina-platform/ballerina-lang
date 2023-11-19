@@ -1624,6 +1624,21 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return externFunctionBodyNode;
     }
 
+    private boolean isNestedInFunction(Node node) {
+        List<Node> parents = new ArrayList<>();
+        NonTerminalNode parent = node.parent();
+        while (parent != null) {
+            if (parent instanceof FunctionDefinitionNode) {
+                return true;
+            }
+            if (parents.contains(parent)) {
+                throw new AssertionError("Cycle detected");
+            }
+            parents.add(parent);
+            parent = parent.parent();
+        }
+        return false;
+    }
     @Override
     public BLangNode transform(ExplicitAnonymousFunctionExpressionNode anonFuncExprNode) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
@@ -1644,10 +1659,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
+        bLFunction.nestedFn = isNestedInFunction(anonFuncExprNode);
 
         setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
 
-        addToTop(bLFunction);
+        // pr: TODO: figure out what is depending on this (HERE -> BIRGen)
+        if (!isNestedInFunction(anonFuncExprNode)) {
+            // pr: this could happen when we assign a lambda to a module level const
+            addToTop(bLFunction);
+        }
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
