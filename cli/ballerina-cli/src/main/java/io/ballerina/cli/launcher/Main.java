@@ -89,7 +89,6 @@ public class Main {
 
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
-//                cmdParser.setDefaultValueProvider(new SimpleDefaultProvider());
                 bCmd.setParentCmdParser(cmdParser);
             }
 

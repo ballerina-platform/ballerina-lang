@@ -23,6 +23,7 @@ import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ToolContext;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
@@ -51,9 +52,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         Collection<Diagnostic> toolDiagnostics = project.currentPackage().manifest().diagnostics().diagnostics();
         boolean hasTomlErrors = project.currentPackage().manifest().diagnostics().hasErrors();
         if (hasTomlErrors) {
-            for (Diagnostic d: toolDiagnostics) {
-                outStream.println(d);
-            }
+            toolDiagnostics.forEach(outStream::println);
             throw createLauncherException("Ballerina toml validation for pre build tool execution contains errors");
         }
         List<Tool> tools = project.currentPackage().manifest().tools();
@@ -61,55 +60,52 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         for (Tool tool : tools) {
             try {
                 String commandName = tool.getType();
-                BuildToolRunner targetTool = null;
-                for (BuildToolRunner buildRunner : buildRunners) {
-                    if (buildRunner.getToolName().equals(commandName)) {
-                        targetTool = buildRunner;
-                        break;
-                    }
-                }
-                if (targetTool != null) {
-                    try {
-                        if (tool.getOptionsToml() != null) {
-                            boolean hasErrors = false;
-                            List<Diagnostic> optionsDiagnostics = FileUtils.validateToml(tool.getOptionsToml(),
-                                tool.getType());
-                            for (Diagnostic d : optionsDiagnostics) {
-                                outStream.println(d);
-                                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                                    hasErrors = true;
-                                }
-                            }
-                            if (hasErrors) {
-                                throw new ProjectException(
-                                    "Ballerina toml validation for pre build tool execution contains errors");
-                            }
-                        }
-                    } catch (IOException e) {
-                        outStream.println("WARNING: Skipping the validation of tool options due to : " +
-                            e.getMessage());
-                    }
-                    ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
-                    targetTool.executeTool(toolContext);
-                    boolean hasToolErrors = false;
-                    for (Diagnostic d : targetTool.diagnostics()) {
-                        outStream.println(d);
-                        if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                            hasToolErrors = true;
-                        }
-                    }
-                    if (hasToolErrors) {
-                        throw new ProjectException("Pre build tool " + tool.getType() + " execution contains errors");
-                    }
-                } else {
+                BuildToolRunner targetTool = getTargetTool(commandName, buildRunners);
+                if (targetTool == null) {
                     // TODO: Install tool if not found
                     outStream.println("Command not found: " + commandName);
+                    return;
+                }
+                try {
+                    validateOptionsToml(tool.getOptionsToml(), commandName);
+                } catch (IOException e) {
+                    outStream.println("WARNING: Skipping the validation of tool options due to : " +
+                        e.getMessage());
+                }
+                ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
+                targetTool.executeTool(toolContext);
+                targetTool.diagnostics().forEach(outStream::println);
+                for (Diagnostic d : targetTool.diagnostics()) {
+                    if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                        throw new ProjectException("Pre build tool " + tool.getType() + " execution contains errors");
+                    }
                 }
             } catch (ProjectException e) {
                 throw createLauncherException(e.getMessage());
             }
         }
+    }
 
+    private BuildToolRunner getTargetTool(String commandName, ServiceLoader<BuildToolRunner> buildRunners) {
+        for (BuildToolRunner buildRunner : buildRunners) {
+            if (buildRunner.getToolName().equals(commandName)) {
+                return buildRunner;
+            }
+        }
+        return null;
+    }
+
+    private void validateOptionsToml(Toml optionsToml, String toolName) throws IOException {
+        if (optionsToml == null) {
+            throw new IOException("No tool options found");
+        }
+        FileUtils.validateToml(optionsToml, toolName);
+        optionsToml.diagnostics().forEach(outStream::println);
+        for (Diagnostic d : optionsToml.diagnostics()) {
+            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                throw new ProjectException("Ballerina toml validation for build tool execution contains errors");
+            }
+        }
     }
 
 }

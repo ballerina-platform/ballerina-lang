@@ -67,7 +67,7 @@ public class ManifestUtils {
         NON_STRING,
         EMPTY,
         INVALID
-    };
+    }
 
     public static ToolNodeValueType getBuildToolTomlValueType(TopLevelNode topLevelNode) {
         if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {

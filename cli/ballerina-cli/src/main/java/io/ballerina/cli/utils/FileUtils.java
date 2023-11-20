@@ -126,10 +126,9 @@ public class FileUtils {
         return sb.toString();
     }
 
-    public static List<Diagnostic> validateToml(Toml optionsToml, String toolName) throws IOException {
+    public static void validateToml(Toml optionsToml, String toolName) throws IOException {
         Schema schema = Schema.from(FileUtils.readSchema(toolName));
         TomlValidator tomlValidator = new TomlValidator(schema);
         tomlValidator.validate(optionsToml);
-        return optionsToml.diagnostics();
     }
 }
