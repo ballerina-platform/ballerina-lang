@@ -92,59 +92,16 @@ public class CodeGenerator {
         dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
 
-        populateExternalMap(jvmPackageGen);
-
         //Rewrite identifier names with encoding special characters
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        CompiledJarFile compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
 
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
-        return packageSymbol.compiledJarFile;
+        return compiledJarFile;
     }
 
-    public CompiledJarFile generateOptimized(BPackageSymbol packageSymbol) {
-        dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
 
-        populateExternalMap(jvmPackageGen);
-
-        //Rewrite identifier names with encoding special characters
-        HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
-
-        // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
-
-        //Revert encoding identifier names
-        JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
-        return packageSymbol.compiledJarFile;
-}
-
-private void populateExternalMap(JvmPackageGen jvmPackageGen) {
-
-        String nativeMap = System.getenv("BALLERINA_NATIVE_MAP");
-        if (nativeMap == null) {
-            return;
-        }
-        File mapFile = new File(nativeMap);
-        if (!mapFile.exists()) {
-            return;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(mapFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith("\"")) {
-                    int firstQuote = line.indexOf('"', 1);
-                    String key = line.substring(1, firstQuote);
-                    String value = line.substring(line.indexOf('"', firstQuote + 1) + 1, line.lastIndexOf('"'));
-                    jvmPackageGen.addExternClassMapping(key, value);
-                }
-            }
-        } catch (IOException e) {
-            //ignore because this is only important in langlibs users shouldn't see this error
-        }
-    }
 }

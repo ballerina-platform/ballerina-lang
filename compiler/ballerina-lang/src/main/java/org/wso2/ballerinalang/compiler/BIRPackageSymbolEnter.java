@@ -266,7 +266,9 @@ public class BIRPackageSymbolEnter {
 
         populateReferencedFunctions();
 
-        resolveRemainingChildSymbols(this.env.pkgSymbol);
+//        resolveRemainingChildSymbols(this.env.pkgSymbol);
+
+
         this.typeReader = null;
         return this.env.pkgSymbol;
     }
@@ -288,6 +290,17 @@ public class BIRPackageSymbolEnter {
                 }
             });
         });
+    }
+
+    private void readInvocationGraph(DataInputStream dataInStream) throws IOException {
+        int numOfGraphNodes = dataInStream.readInt();
+        for (int i = 0; i < numOfGraphNodes; i++) {
+
+        }
+    }
+
+    private void addGraphNode() {
+
     }
 
     private void populateReferencedFunctions() {
@@ -443,30 +456,30 @@ public class BIRPackageSymbolEnter {
         }
         this.env.pkgSymbol.invocationMap.putIfAbsent(invokableSymbol, new HashSet<>());
 
-        // Reading the children(Invocations inside the parent's body)
-        int numOfChildren = dataInStream.readInt();
-        for (int i = 0; i < numOfChildren; i++) {
-            String childPkgName = getStringCPEntryValue(dataInStream);
-            String childName = getStringCPEntryValue(dataInStream);
-
-            if (pkgIsDefined(childPkgName)) {
-                BPackageSymbol childPkgSymbol = getPkgSymbol(childPkgName);
-                BInvokableSymbol childSymbol = getInvokableSymbol(childPkgSymbol, childName);
-                if (childSymbol != null) {
-                    addInvocation(invokableSymbol, childSymbol);
-                } else {
-                    // Child symbols that does not exist in the pkgCache are disregarded
-                    // Adding them to map for debugging purposes
-                    failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
-                    failedSymbolsMap.get(invokableSymbol).add(childName);
-                }
-            } else {
-                // Undefined child symbols will be resolved later
-                unresolvedInvocations.putIfAbsent(childPkgName, new HashMap<>());
-                unresolvedInvocations.get(childPkgName).putIfAbsent(childName, new HashSet<>());
-                unresolvedInvocations.get(childPkgName).get(childName).add(invokableSymbol);
-            }
-        }
+//        // Reading the children(Invocations inside the parent's body)
+//        int numOfChildren = dataInStream.readInt();
+//        for (int i = 0; i < numOfChildren; i++) {
+//            String childPkgName = getStringCPEntryValue(dataInStream);
+//            String childName = getStringCPEntryValue(dataInStream);
+//
+//            if (pkgIsDefined(childPkgName)) {
+//                BPackageSymbol childPkgSymbol = getPkgSymbol(childPkgName);
+//                BInvokableSymbol childSymbol = getInvokableSymbol(childPkgSymbol, childName);
+//                if (childSymbol != null) {
+//                    addInvocation(invokableSymbol, childSymbol);
+//                } else {
+//                    // Child symbols that does not exist in the pkgCache are disregarded
+//                    // Adding them to map for debugging purposes
+//                    failedSymbolsMap.putIfAbsent(invokableSymbol, new HashSet<>());
+//                    failedSymbolsMap.get(invokableSymbol).add(childName);
+//                }
+//            } else {
+//                // Undefined child symbols will be resolved later
+//                unresolvedInvocations.putIfAbsent(childPkgName, new HashMap<>());
+//                unresolvedInvocations.get(childPkgName).putIfAbsent(childName, new HashSet<>());
+//                unresolvedInvocations.get(childPkgName).get(childName).add(invokableSymbol);
+//            }
+//        }
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
@@ -602,6 +615,9 @@ public class BIRPackageSymbolEnter {
         } else {
             String[] classAndChild = functionName.split("\\.");
             BSymbol bSymbol = pkgSymbol.scope.lookup(new Name(classAndChild[0])).symbol;
+            if (bSymbol == null) {
+                return null;
+            }
             if (bSymbol.getKind() == SymbolKind.TYPE_DEF) {
                 return null;
             }

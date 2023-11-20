@@ -36,7 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -70,7 +70,6 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-
         visitNode(pkgNode, data);
         return pkgNode;
     }
@@ -106,6 +105,10 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         if (pkgNode.completedPhases.contains(CompilerPhase.DEAD_CODE_ANALYZE)) {
             return;
         }
+        data.markAsUsed(pkgNode.initFunction.symbol);
+        data.markAsUsed(pkgNode.startFunction.symbol);
+        data.markAsUsed(pkgNode.stopFunction.symbol);
+
         analyzeTopLevelNodes(pkgNode, data);
     }
 
@@ -120,7 +123,7 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
             return; // todo handle these separately
         }
 
-        BInvokableSymbol parentFunctionSymbol = function.symbol;
+        BInvokableSymbol parentFunctionSymbol = function.originalFuncSymbol;
         // if the parent function is a lambda, it's function pointer is taken for ease of debugging
         if (isLambda(function)) {
             parentFunctionSymbol = (BInvokableSymbol) ((BLangSimpleVariable) ((function).parent).parent).symbol;
@@ -161,15 +164,21 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     }
 
     @Override
-    public void visit(BLangSimpleVarRef node, AnalyzerData data) {
-        if (node.symbol == null) {
-            return;
-        }
-        if (node.symbol.getKind() != SymbolKind.FUNCTION) {
-            return;
-        }
-        data.addInvocation(data.currentParentFunction, ((BInvokableSymbol) node.symbol));
+    public void visit(BLangTypeInit typeInit, AnalyzerData data) {
+//        if (typeInit.getKind() == NodeKind.TYPE_INIT_EXPR) {
+//            BClassSymbol classSymbol = (BClassSymbol) ((BLangUserDefinedType) typeInit.getType()).symbol;
+////            BClassSymbol classSymbol = (BClassSymbol) typeInit.type.tsymbol;
+//            classSymbol.usedState = UsedState.USED;
+//            data.addInvocation(data.currentParentFunction, classSymbol.generatedInitializerFunc.symbol);
+//        }
+
+        super.visit(typeInit, data);
     }
+
+//    @Override
+//    public void visit(BLangClassDefinition classDefNode, AnalyzerData data) {
+//        classDefNode.
+//    }
 
     private void registerTopLevelFunction(TopLevelNode topLevelNode) {
         BLangFunction topLevelFunction = (BLangFunction) topLevelNode;
@@ -191,36 +200,37 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
     }
 
     private boolean isLambda(BLangFunction function) {
-        return function.symbol.getFlags().contains(Flag.LAMBDA) &&
-                function.parent.parent.getKind() == NodeKind.VARIABLE;
+        return function.symbol.getFlags().contains(Flag.LAMBDA);
+//               && function.parent.parent.getKind() == NodeKind.VARIABLE;
+        // TODO check whether we need the above condition
     }
 
     private void addLambdaFunctionToMap(BLangFunction topLevelFunction) {
         BInvokableSymbol functionPointer =
                 (BInvokableSymbol) ((BLangSimpleVariable) ((topLevelFunction).parent).parent).symbol;
-        BInvokableSymbol function = topLevelFunction.symbol;
+        BInvokableSymbol invokableSymbol = topLevelFunction.originalFuncSymbol;
 
         // Add the Lambda functions and their var pointers to a HashMap for future use
-        data.lambdaPointers.put(functionPointer, function);
-        function.usedState = UsedState.UNUSED;
-        data.getPackageSymbol(function).deadFunctions.add(function);
+        data.lambdaPointers.put(functionPointer, invokableSymbol);
+        invokableSymbol.usedState = UsedState.UNUSED;
+        data.getPackageSymbol(invokableSymbol).deadFunctions.add(invokableSymbol);
         // Only add the function pointer to the map for readability
         data.addParentFunctionToPkgSymbol(functionPointer);
     }
 
     private void addFunctionToMap(BLangFunction function) {
-        data.addParentFunctionToPkgSymbol(function.symbol);
+        BInvokableSymbol invokableSymbol = function.originalFuncSymbol;
+
+        data.addParentFunctionToPkgSymbol(invokableSymbol);
 
         // "main" and "init" functions are the roots of USED function chains
-        if (function.symbol.originalName.value.equals(MAIN_FUNCTION_NAME) ||
-                function.symbol.originalName.value.equals(INIT_FUNCTION_NAME)) {
-            data.addToUsedListInPkgSym(function.symbol);
-            function.symbol.usedState = UsedState.USED;
+        if (invokableSymbol.name.value.equals(MAIN_FUNCTION_NAME) ||
+                invokableSymbol.name.value.equals(INIT_FUNCTION_NAME)) {
+            data.markAsUsed(invokableSymbol);
         }
         // Resource functions should be USED by default
         if (function.flagSet.contains(Flag.RESOURCE)) {
-            function.symbol.usedState = UsedState.USED;
-            data.addToUsedListInPkgSym(function.symbol);
+            data.markAsUsed(invokableSymbol);
         }
     }
 
@@ -262,13 +272,11 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
         }
 
         private void markSelfAndChildrenAsUsed(BInvokableSymbol parentSymbol) {
-            parentSymbol.usedState = UsedState.USED;
-            // Populating the "USED" graph for PackageSymbol
-            addToUsedListInPkgSym(parentSymbol);
+            markAsUsed(parentSymbol);
 
             // updating the origin lambda function if the parentSymbol is a function pointer
             if (isLambdaFunctionPointer(parentSymbol)) {
-                addToUsedListInPkgSym(lambdaPointers.get(parentSymbol));
+                markAsUsed(lambdaPointers.get(parentSymbol));
             }
 
             // Recursively mark all the children as used
@@ -280,7 +288,8 @@ public class DeadCodeAnalyzer extends SimpleBLangNodeAnalyzer<DeadCodeAnalyzer.A
             }
         }
 
-        private void addToUsedListInPkgSym(BInvokableSymbol symbol) {
+        private void markAsUsed(BInvokableSymbol symbol) {
+            symbol.usedState = UsedState.USED;
             getPackageSymbol(symbol).deadFunctions.remove(symbol);
             getPackageSymbol(symbol).usedFunctions.add(symbol);
         }

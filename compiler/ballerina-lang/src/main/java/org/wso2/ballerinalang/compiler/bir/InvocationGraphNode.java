@@ -50,13 +50,13 @@ public abstract class InvocationGraphNode {
         return nodeName;
     }
 
-    private BIRDeadNodeAnalyzer.InvocationData getInvocationData(
-            HashMap<PackageID, BIRDeadNodeAnalyzer.InvocationData> pkgWiseInvocationData) {
+    private BIRDeadNodeAnalyzer_ASM_Approach.InvocationData getInvocationData(
+            HashMap<PackageID, BIRDeadNodeAnalyzer_ASM_Approach.InvocationData> pkgWiseInvocationData) {
         return pkgWiseInvocationData.get(pkgID);
     }
 
     public abstract void markSelfAndChildrenAsUsed(
-            HashMap<PackageID, BIRDeadNodeAnalyzer.InvocationData> pkgWiseInvocationData);
+            HashMap<PackageID, BIRDeadNodeAnalyzer_ASM_Approach.InvocationData> pkgWiseInvocationData);
 
     public static class FunctionNode extends InvocationGraphNode {
 
@@ -78,9 +78,9 @@ public abstract class InvocationGraphNode {
 
         @Override
         public void markSelfAndChildrenAsUsed(
-                HashMap<PackageID, BIRDeadNodeAnalyzer.InvocationData> pkgWiseInvocationData) {
+                HashMap<PackageID, BIRDeadNodeAnalyzer_ASM_Approach.InvocationData> pkgWiseInvocationData) {
             if (this.usedState == UsedState.UNUSED) {
-                BIRDeadNodeAnalyzer.InvocationData invocationData = pkgWiseInvocationData.get(this.pkgID);
+                BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = pkgWiseInvocationData.get(this.pkgID);
 
                 // TODO Remove the null check after partial graph persistence
                 if (invocationData == null) {
@@ -124,14 +124,14 @@ public abstract class InvocationGraphNode {
 
         @Override
         public void markSelfAndChildrenAsUsed(
-                HashMap<PackageID, BIRDeadNodeAnalyzer.InvocationData> pkgWiseInvocationData) {
+                HashMap<PackageID, BIRDeadNodeAnalyzer_ASM_Approach.InvocationData> pkgWiseInvocationData) {
             // TODO Remove the null check after partial graph persistence
             if (this.nodeName == null) {
                 return;
             }
 
             if (this.usedState == UsedState.UNUSED) {
-                BIRDeadNodeAnalyzer.InvocationData invocationData = pkgWiseInvocationData.get(this.pkgID);
+                BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = pkgWiseInvocationData.get(this.pkgID);
                 invocationData.deadTypeDefs.remove(this);
                 invocationData.usedTypeDefs.add(this);
                 invocationData.deadTypeDefJarPathMap.remove(this.jarClassFilePath);

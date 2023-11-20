@@ -66,12 +66,15 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -203,6 +206,9 @@ public class JBallerinaBackend extends CompilerBackend {
                 moduleDiagnostics.add(
                         new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
+
+            //TODO: remove this once ballerina-lang#41407 is fixed
+            ModuleContext.shrinkDocuments(moduleContext);
         }
 
         // Generate optimized thin JAR byte streams
@@ -719,56 +725,42 @@ public class JBallerinaBackend extends CompilerBackend {
         return optimizedStream;
     }
 
-    private static HashMap<String, HashSet<String>> getDeadFunctionListOLD(String pkgName,
-                                                                        CompilerContext compilerContext) {
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
+    public void emitCodeGenOptimizationReport(Path reportFilePath) {
+        DeadBIRNodeAnalyzer deadBIRNodeAnalyzer = DeadBIRNodeAnalyzer.getInstance(compilerContext);
+        deadBIRNodeAnalyzer.pkgWiseInvocationData.values().forEach(JBallerinaBackend::emitModuleInvocationData);
+    }
 
-        BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgName);
-        int majorVersion = packageCache.getSymbol(pkgName).descriptor.version().value().major();
+    private static void emitModuleInvocationData(DeadBIRNodeAnalyzer.InvocationData invocationData) {
 
-        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = new HashMap<>();
-        if (pkgName.equals("ballerina/observe") || pkgName.equals("ballerina/os")) {
-            return classWiseDeadFunctionMap;
+    }
+
+    private void writeDot(BIRNode.BIRDocumentableNode initNode){
+        try(BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream("path")))){
+            out.write("digraph {");
+            out.newLine();
+//            for (BIRNode.BIRDocumentableNode child : initNode.childNodes) {
+//                out.write(initNode + " -> " + child);
+//                out.newLine();
+//            }
+            writeSubtreeEdges(initNode, out);
+            out.write("}");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
 
-        for (BInvokableSymbol deadFunction : pkgSymbol.deadFunctions) {
-            if (deadFunction.source != null) {
-                String className = deadFunction.source.replace(".bal", ".class");
-                String classLocationName = pkgName + "/" + majorVersion + "/" + className;
-                classWiseDeadFunctionMap.putIfAbsent(classLocationName, new HashSet<>());
-                classWiseDeadFunctionMap.get(classLocationName).add(deadFunction.originalName.value);
+    private void writeSubtreeEdges(BIRNode.BIRDocumentableNode rootNode, BufferedWriter out) {
+        rootNode.childNodes.forEach(child -> {
+            try {
+                out.write(rootNode + " -> " + child);
+                out.newLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
-        return classWiseDeadFunctionMap;
-    }
-
-    private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName,
-                                                                           CompilerContext compilerContext) {
-        if (pkgName.equals("ballerina/observe")) {
-            return new HashMap<>();
-        }
-
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
-
-        BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData_OLD;
-        HashMap<String, HashSet<String>> classWiseDeadFunctionMap = invocationData.deadFunctionJarPathMap;
-        return classWiseDeadFunctionMap;
-    }
-
-    private static HashSet<String> getDeadTypeDefList(String pkgName,
-                                                                        CompilerContext compilerContext) {
-        if (pkgName.equals("ballerina/observe")) {
-            return new HashSet<>();
-        }
-
-        org.wso2.ballerinalang.compiler.PackageCache packageCache =
-                org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
-
-        BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData_OLD;
-        HashSet<String> classWiseDeadFunctionMap = invocationData.deadTypeDefJarPathMap;
-        return new HashSet<>(classWiseDeadFunctionMap);
+            writeSubtreeEdges(child, out);
+        });
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
@@ -820,15 +812,15 @@ public class JBallerinaBackend extends CompilerBackend {
         if (nativeImageCommand == null) {
             throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
                     "environment variable\nHINT: To install GraalVM, follow the link: " +
-                    "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
+                    "https://ballerina.io/learn/build-the-executable-locally/#configure-graalvm");
         }
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
         File commandExecutable = Paths.get(nativeImageCommand).toFile();
         if (!commandExecutable.exists()) {
-            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
-                    "Install it using: gu install native-image");
+            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin " +
+                    "directory. Install it using: gu install native-image");
         }
 
         String graalVMBuildOptions = project.buildOptions().graalVMBuildOptions();

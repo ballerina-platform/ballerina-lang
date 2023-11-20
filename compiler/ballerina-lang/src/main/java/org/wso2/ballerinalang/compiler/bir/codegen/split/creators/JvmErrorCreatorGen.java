@@ -145,7 +145,7 @@ public class JvmErrorCreatorGen {
             mv.visitLabel(targetLabel);
             mv.visitTypeInsn(NEW, ERROR_VALUE);
             mv.visitInsn(DUP);
-            this.jvmTypeGen.loadType(mv, errorDefinition.type);
+            this.jvmTypeGen.loadType(mv, errorDefinition.referenceType);
             mv.visitVarInsn(ALOAD, messageIndex);
             mv.visitVarInsn(ALOAD, causeIndex);
             mv.visitVarInsn(ALOAD, detailsIndex);

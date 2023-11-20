@@ -88,7 +88,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this.paramDefaultValTypes = new HashMap<>();
         this.kind = SymbolKind.FUNCTION;
         this.childrenFunctions = new HashSet<>();
-        this.usedState = UsedState.UNEXPOLORED;
+        this.usedState = UsedState.UNUSED;
     }
 
     @Override

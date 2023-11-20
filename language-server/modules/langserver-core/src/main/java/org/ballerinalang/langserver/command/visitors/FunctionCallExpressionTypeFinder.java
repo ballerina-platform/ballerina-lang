@@ -50,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -496,6 +497,17 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
                 checkAndSetTypeResult(((ArrayTypeSymbol) returnTypeSymbol).memberTypeDescriptor());
             } else if (kind == TypeDescKind.STREAM) {
                 checkAndSetTypeResult(((StreamTypeSymbol) returnTypeSymbol).typeParameter());
+            }
+        }
+    }
+    
+    @Override
+    public void visit(ImplicitAnonymousFunctionExpressionNode expr) {
+        Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expr);
+        if (typeSymbol.isPresent()) {
+            TypeSymbol ts = typeSymbol.get();
+            if (ts.typeKind() == TypeDescKind.FUNCTION) {
+                ((FunctionTypeSymbol) ts).returnTypeDescriptor().ifPresent(this::checkAndSetTypeResult);
             }
         }
     }
