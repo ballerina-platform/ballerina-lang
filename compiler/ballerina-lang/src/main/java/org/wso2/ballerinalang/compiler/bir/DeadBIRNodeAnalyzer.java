@@ -34,10 +34,14 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 /**
  * Detect the unused BIRFunctions, BIRTypeDefs and BIRConstants
@@ -49,6 +53,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
             new CompilerContext.Key<>();
     private static final HashSet<String> USED_FUNCTION_NAMES =
             new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>"));
+    private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
 
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE,
@@ -69,6 +74,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         context.put(DEAD_BIR_NODE_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
         this.typeDefAnalyzer = TypeDefAnalyzer.getInstance(context);
+        initInteropDependencies();
     }
 
     public static DeadBIRNodeAnalyzer getInstance(CompilerContext context) {
@@ -123,10 +129,10 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         // Function parameters and return types are required for the function to run
         typeDefAnalyzer.addParamTypeDefsAsChildren(birFunction);
         typeDefAnalyzer.analyzeFunctionLevelTypeDef(birFunction.returnVariable.type, birFunction);
-//            typeDefAnalyzer.addParamTypeDefsAsChildren(birFunction);
 
         // When there is external code callings, the compiler is blind to which functions will be invoked from the parameters
         // Therefore it is safer to connect all the attached functions of parameters to the parent external function
+
         if (Flags.unMask(birFunction.flags).contains(Flag.NATIVE)) {
             HashSet<BIRNode.BIRFunction> allAttachedFuncs = new HashSet<>();
             birFunction.childNodes.forEach(childNode ->{
@@ -144,21 +150,23 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
             if (func.name.toString().contains("init")) {
                 typeDef.addChildNode(func);
             }
+
             func.accept(this);
         });
-        // TODO find a way to move this code to someplace else. It is used to track function invocations inside typeDefs
+
+        HashSet<String> interopDependencies = INTEROP_DEPENDENCIES.get(typeDef.type.tsymbol.pkgID.toString());
+        if (interopDependencies == null) {
+            return;
+        }
+
+        if (interopDependencies.contains(typeDef.internalName.toString())) {
+            typeDef.attachedFuncs.forEach(typeDef::addChildNode);
+            typeDef.markSelfAndChildrenAsUsed();
+        }
     }
 
     @Override
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
-        // TODO Merge the following two iterations if possible
-        if (birBasicBlock.terminator.getKind() == InstructionKind.CALL) {
-            currentParentFunction.addChildNode(lookupBirFunction((BIRTerminator.Call) birBasicBlock.terminator));
-        }
-
-        if (birBasicBlock.terminator.getKind() == InstructionKind.FP_CALL) {
-            currentParentFunction.addChildNode(((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl);
-        }
         currentInstructionArr = birBasicBlock.instructions;
 
         birBasicBlock.instructions.forEach(instruction -> {
@@ -166,7 +174,9 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
                 instruction.accept(this);
             }
 
-            // Checking for FP assignment
+            // The current algorithm does not track all FP assignments. It binds all the FP to their parent function,
+            // if the FP is assigned to another Variable.
+            // TODO change this logic to use Operands instead of VariableDeclarations
             HashSet<BIROperand> rhsOperands = new HashSet<>(Arrays.asList(instruction.getRhsOperands()));
             HashSet<BIRNode.BIRVariableDcl> rhsVars = new HashSet<>();
             rhsOperands.forEach(birOperand -> rhsVars.add(birOperand.variableDcl));
@@ -176,13 +186,36 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
                 rhsVars.forEach(var -> currentParentFunction.addChildNode(var));
             }
         });
+
+        // TODO Merge the following two iterations if possible
+        // TODO Use terminator.accept(this) instead for following code
+        if (birBasicBlock.terminator.getKind() == InstructionKind.CALL) {
+            birBasicBlock.terminator.accept(this);
+//            currentParentFunction.addChildNode(lookupBirFunction((BIRTerminator.Call) birBasicBlock.terminator));
+        }
+
+        if (birBasicBlock.terminator.getKind() == InstructionKind.FP_CALL) {
+            currentParentFunction.addChildNode(((BIRTerminator.FPCall) birBasicBlock.terminator).fp.variableDcl);
+        }
+    }
+
+    @Override
+    public void visit(BIRTerminator.Call call) {
+        currentParentFunction.addChildNode(lookupBirFunction(call));
+        HashSet<BIROperand> argOperands = new HashSet<>(call.args);
+        HashSet<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
+        argOperands.forEach(birOperand -> argVars.add(birOperand.variableDcl));
+        argVars.retainAll(localFpHolders);
+
+        if (!argVars.isEmpty()) {
+            argVars.forEach(var -> currentParentFunction.addChildNode(var));
+        }
     }
 
     public void visit(BIRNonTerminator.FPLoad fpLoadInstruction) {
         LambdaPointerData fpData = new LambdaPointerData(fpLoadInstruction, currentInstructionArr);
 
-        InvocationData invocationData = pkgCache.getInvocationData(fpLoadInstruction.pkgId);
-        invocationData.fpDataPool.add(fpData);
+        pkgCache.getInvocationData(fpLoadInstruction.pkgId).fpDataPool.add(fpData);
     }
 
     @Override
@@ -213,6 +246,23 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     public BIRNode.BIRFunction lookupBirFunction(BIRTerminator.Call terminatorCall) {
         InvocationData invocationData = pkgCache.getInvocationData(terminatorCall.calleePkg);
         return invocationData.functionPool.get(terminatorCall.originalName.value);
+    }
+
+    private void initInteropDependencies() {
+        Properties prop = new Properties();
+
+        try {
+            InputStream stream = getClass().getClassLoader().getResourceAsStream("interop-dependencies.properties");
+            prop.load(stream);
+            for (Entry<Object, Object> entry : prop.entrySet()) {
+                HashSet<String> usedRecordNames =
+                        new HashSet<>(Arrays.asList(entry.getValue().toString().split(",")));
+                INTEROP_DEPENDENCIES.putIfAbsent(entry.getKey().toString(), usedRecordNames);
+            }
+
+        } catch (IOException  e) {
+            System.out.println("Failed to load interop-dependencies : " + e);
+        }
     }
 
 
