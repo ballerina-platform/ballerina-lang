@@ -21,7 +21,6 @@ package io.ballerina.cli.utils;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -30,7 +29,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 
 /**
