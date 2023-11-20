@@ -241,46 +241,45 @@ public class ManifestBuilder {
         TopLevelNode toolEntries = rootNode.entries().get("tool");
 
         List<PackageManifest.Tool> tools = new ArrayList<>();
-        if (toolEntries == null || toolEntries.kind() == TomlType.NONE) {
-            tools = Collections.emptyList();
-        } else {
-            if (toolEntries.kind() == TomlType.TABLE) {
-                TomlTableNode toolTable = (TomlTableNode) toolEntries;
-                Set<String> toolCodes = toolTable.entries().keySet();
-                for (String toolCode : toolCodes) {
-                    TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
-                    if (toolCodeNode.kind() == TomlType.TABLE_ARRAY) {
-                        TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
-                        for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
-                            if (!dependencyNode.entries().isEmpty()) {
-                                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id", toolCode);
-                                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath",
-                                    toolCode);
-                                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode,
-                                    "targetModule", toolCode);
-                                Toml optionsToml = getToml(dependencyNode, "options");
-                                TopLevelNode topLevelNode = dependencyNode.entries().get("options");
-                                if (topLevelNode == null) {
-                                    try {
-                                        validateEmptyOptionsToml(dependencyNode, toolCode);
-                                    } catch (IOException e) {
-                                        reportDiagnostic(dependencyNode,
-                                            "tool options validation skipped due to: " + e.getMessage(),
-                                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_SKIPPED.diagnosticId(),
-                                            DiagnosticSeverity.WARNING);
-                                    }
-                                }
-                                TomlTableNode optionsNode = null;
-                                if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
-                                    optionsNode = (TomlTableNode) topLevelNode;
-                                }
-                                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
-                                    targetModule, optionsToml, optionsNode);
-                                tools.add(tool);
-                            }
-                        }
+        if (toolEntries == null || toolEntries.kind() != TomlType.TABLE) {
+            return Collections.emptyList();
+        }
+        TomlTableNode toolTable = (TomlTableNode) toolEntries;
+        Set<String> toolCodes = toolTable.entries().keySet();
+        for (String toolCode : toolCodes) {
+            TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
+            if (toolCodeNode.kind() != TomlType.TABLE_ARRAY) {
+                break;
+            }
+            TomlTableArrayNode toolEntriesArray = (TomlTableArrayNode) toolCodeNode;
+            for (TomlTableNode dependencyNode : toolEntriesArray.children()) {
+                if (dependencyNode.entries().isEmpty()) {
+                    break;
+                }
+                String id = getStringValueFromPreBuildToolNode(dependencyNode, "id", toolCode);
+                String filePath = getStringValueFromPreBuildToolNode(dependencyNode, "filePath",
+                    toolCode);
+                String targetModule = getStringValueFromPreBuildToolNode(dependencyNode,
+                    "targetModule", toolCode);
+                Toml optionsToml = getToml(dependencyNode, "options");
+                TopLevelNode topLevelNode = dependencyNode.entries().get("options");
+                if (topLevelNode == null) {
+                    try {
+                        validateEmptyOptionsToml(dependencyNode, toolCode);
+                    } catch (IOException e) {
+                        reportDiagnostic(dependencyNode,
+                            "tool options validation skipped due to: " + e.getMessage(),
+                            ProjectDiagnosticErrorCode.TOOL_OPTIONS_VALIDATION_SKIPPED.diagnosticId(),
+                            DiagnosticSeverity.WARNING);
                     }
                 }
+                TomlTableNode optionsNode = null;
+                if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
+                    optionsNode = (TomlTableNode) topLevelNode;
+                }
+                PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
+                    targetModule, optionsToml, optionsNode);
+                tools.add(tool);
             }
         }
         return tools;
