@@ -150,13 +150,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "a",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "a"
                                 }
                               ]
                             },
@@ -346,13 +340,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "DOUBLE_QUOTE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "DOUBLE_QUOTE_TOKEN"
                                         }
                                       ]
                                     }
