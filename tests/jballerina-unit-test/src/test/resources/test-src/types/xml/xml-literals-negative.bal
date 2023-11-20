@@ -151,6 +151,6 @@ function textInvalidXmlSequence() {
 }
 
 function testMissingClosingGTToken() {
-    xml x1 = xml `<a /a>`;
-    xml x2 = xml `<a n="a" /a>`;
+    xml x1 = xml `<a/a>`;
+    xml x2 = xml `<a n="a"/a>`;
 }
