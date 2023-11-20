@@ -42,7 +42,6 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
-    private Path generatedDir;
     private boolean exitWhenFinish;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
@@ -104,30 +103,31 @@ public class CleanCommand implements BLauncherCmd {
         }
 
         //delete the generated directory
+        Path generatedDir;
         try {
             Project project = BuildProject.load(this.projectPath);
-            this.generatedDir = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+            generatedDir = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         } catch (ProjectException e) {
             CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        if (Files.notExists(this.generatedDir)) {
+        if (Files.notExists(generatedDir)) {
             CommandUtil.printError(this.outStream,
-                    "generated directory '" + this.generatedDir + "' does not exist.",
+                    "generated directory '" + generatedDir + "' does not exist.",
                     null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        if (!Files.isDirectory(this.generatedDir)) {
+        if (!Files.isDirectory(generatedDir)) {
             CommandUtil.printError(this.outStream,
                     "generated path is not a directory.",
                     null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        ProjectUtils.deleteDirectory(this.generatedDir);
-        this.outStream.println("Successfully deleted '" + this.generatedDir + "'.");
+        ProjectUtils.deleteDirectory(generatedDir);
+        this.outStream.println("Successfully deleted '" + generatedDir + "'.");
     }
     
     @Override

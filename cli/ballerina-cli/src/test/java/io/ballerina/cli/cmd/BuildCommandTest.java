@@ -1162,27 +1162,32 @@ public class BuildCommandTest extends BaseCommandTest {
         deleteDirectory(projectPath.resolve("target"));
     }
 
-    @Test(description = "Build a project with invalid and missing toml entries for build tools")
-    public void testBuildProjectWithInvalidAndMissingBuildToolTomlProperties() throws IOException {
-        Path projectPath = this.testResources.resolve("build-tool-with-invalid-missing-toml-properties");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs();
-        try {
-            buildCommand.execute();
-        } catch (BLauncherException e) {
-            String buildLog = readOutput(true);
-            Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-tool-with-invalid-missing-toml-properties.txt"));
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                .equals("error: Ballerina toml validation for pre build tool execution contains errors"));
-
-        }
+    @DataProvider(name = "toolPropertiesDiagnostics")
+    public Object[][] provideToolPropertiesDiagnostics() {
+        return new Object[][] {
+                {
+                        "build-tool-with-invalid-missing-toml-properties",
+                        "build-tool-with-invalid-missing-toml-properties.txt",
+                        "error: Ballerina toml validation for pre build tool execution contains errors"
+                },
+                {
+                        "build-tool-with-invalid-missing-optional-toml-properties",
+                        "build-tool-with-invalid-missing-optional.txt",
+                        "error: Ballerina toml validation for build tool execution contains errors",
+                },
+                {
+                        "build-tool-with-diagnostics",
+                        "build-tool-with-diagnostics.txt",
+                        "error: Pre build tool openapi execution contains errors"
+                }
+        };
     }
 
-    @Test(description = "Build a project with invalid and missing optional toml entries for build tools")
-    public void testBuildProjectWithInvalidAndMissingBuildToolOptionalTomlProperties() throws IOException {
-        Path projectPath = this.testResources.resolve("build-tool-with-invalid-missing-optional-toml-properties");
+    @Test(description = "Build a project with invalid or missing toml entries for build tools",
+        dataProvider = "toolPropertiesDiagnostics")
+    public void testBuildProjectWithBuildToolTomlPropertyDiagnostics(String projectName, String outputFile,
+        String error) throws IOException {
+        Path projectPath = this.testResources.resolve(projectName);
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
@@ -1191,26 +1196,10 @@ public class BuildCommandTest extends BaseCommandTest {
         } catch (BLauncherException e) {
             String buildLog = readOutput(true);
             Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-tool-with-invalid-missing-optional.txt"));
+                getOutput(outputFile));
             Assert.assertTrue(e.getDetailedMessages().get(0)
-                .equals("error: Ballerina toml validation for pre build tool execution contains errors"));
-        }
-    }
+                .equals(error));
 
-    @Test(description = "Build a project with build tool diagnostics")
-    public void testBuildProjectWithBuildToolDiagnostics() throws IOException {
-        Path projectPath = this.testResources.resolve("build-tool-with-diagnostics");
-        System.setProperty("user.dir", projectPath.toString());
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        new CommandLine(buildCommand).parseArgs();
-        try {
-            buildCommand.execute();
-        } catch (BLauncherException e) {
-            String buildLog = readOutput(true);
-            Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-tool-with-diagnostics.txt"));
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                .equals("error: Pre build tool openapi execution contains errors"));
         }
     }
 
