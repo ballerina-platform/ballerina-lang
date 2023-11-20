@@ -74,6 +74,7 @@ processResources {
     include 'ballerina-toml-schema.json'
     include 'compiler.properties'
     include 'dependencies-toml-schema.json'
+    include 'interop-dependencies.properties'
     include 'old-dependencies-toml-schema.json'
     include 'settings-toml-schema.json'
     include 'bal-tools-toml-schema.json'
