@@ -131,6 +131,16 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr with map construction variable references in  on conflict clause")
+    public void testQueryConstructingMapWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingMapWithOnConflictsWithVarRef");
+    }
+
+    @Test(description = "Test query expr with table construction variable references in  on conflict clause")
+    public void testQueryConstructingTableWithOnConflictsWithVarRef() {
+        BRunUtil.invoke(result, "testQueryConstructingTableWithOnConflictsWithVarRef");
+    }
+
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
         int index = 0;

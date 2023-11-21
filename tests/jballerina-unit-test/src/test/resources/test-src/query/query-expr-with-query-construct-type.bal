@@ -979,6 +979,30 @@ function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInWher
     }
 }
 
+function testQueryConstructingTableWithOnConflictsWithVarRef() {
+     TokenTable|error tbl1 = table key(idx) from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select {
+            idx: i,
+            value
+        }
+        on conflict error(string `Duplicate Key: ${i} Value: ${value}`);
+
+    assertEqual(true, tbl1 is error);
+    assertEqual("Duplicate Key: 1 Value: A1", (<error>tbl1).message());
+
+    int duplicateKey = 1;
+    TokenTable|error tbl2 = table key(idx) from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select {
+            idx: i,
+            value
+        }
+        on conflict error(string `Duplicate Key: ${duplicateKey} Value: ${value}`);
+    assertEqual(true, tbl2 is error);
+    assertEqual("Duplicate Key: 1 Value: A1", (<error>tbl2).message());
+}
+
 function testMapConstructingQueryExpr() {
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
     Customer c2 = {id: 2, name: "James", noOfItems: 5};
@@ -1607,6 +1631,24 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
     table<NumberRecord> key(id)|error table6 = table key(id) from var firstNo in [1, 4, 4, 10]
                             select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error");
     assertEqual(table6, error("Error"));
+}
+
+function testQueryConstructingMapWithOnConflictsWithVarRef() {
+     map<string>|error mp1 = map from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select [i.toString(), value]
+        on conflict error(string `Duplicate Key: ${i} Value: ${value}`);
+
+    assertEqual(true, mp1 is error);
+    assertEqual("Duplicate Key: 1 Value: A1", (<error>mp1).message());
+
+    int duplicateKey = 1;
+    map<string>|error mp2 = map from int i in [1, 2, 3, 1, 2, 3]
+        let string value = "A" + i.toString()
+        select [i.toString(), value]
+        on conflict error(string `Duplicate Key: ${duplicateKey} Value: ${value}`);
+    assertEqual(true, mp2 is error);
+    assertEqual("Duplicate Key: 1 Value: A1", (<error>mp2).message());
 }
 
 function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
