@@ -3982,7 +3982,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (!data.commonAnalyzerData.errorTypes.empty()) {
             BType failExprType = failNode.expr.getBType();
             if (failExprType != symTable.semanticError) {
-                data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(failExprType));
+                BType errorTypes = types.getErrorTypes(failExprType);
+                if (errorTypes != symTable.semanticError) {
+                    data.commonAnalyzerData.errorTypes.peek().add(errorTypes);
+                }
             }
         }
         if (errorExpressionType != symTable.semanticError &&

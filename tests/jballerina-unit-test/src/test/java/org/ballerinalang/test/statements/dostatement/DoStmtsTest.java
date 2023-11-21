@@ -76,8 +76,6 @@ public class DoStmtsTest {
         int index = 0;
         BAssertUtil.validateError(negativeFile2, index++, "type 'string' not allowed here; " +
                 "expected an 'error' or a subtype of 'error'", 6, 11);
-        BAssertUtil.validateError(negativeFile2, index++, "incompatible types: expected " +
-                "'other', found 'string'", 8, 12);
         BAssertUtil.validateError(negativeFile2, index++, "invalid error variable; expecting " +
                 "an error type but found 'string' in type definition", 8, 12);
         BAssertUtil.validateError(negativeFile2, index++, "undefined symbol 'd'", 26, 12);
