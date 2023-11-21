@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
+import java.util.Set;
+
 /**
  * <p>
  * Represents a capturing group, "(" ["?" ReFlagsOnOff ":"] ReDisjunction ")" in a regular expression.
@@ -47,5 +49,15 @@ public class RegExpCapturingGroup extends RegExpCommonValue implements RegExpAto
     public String stringValue(BLink parent) {
         return this.openParen + this.flagExpr.stringValue(parent) + this.reDisjunction.stringValue(parent)
                 + this.closeParen;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

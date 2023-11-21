@@ -64,6 +64,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
@@ -469,6 +471,51 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return iteratorNextReturnType;
     }
 
+    /**
+     * Check whether the given table value is equal to the current value.
+     *
+     * @param o the value to check equality with
+     * @param visitedValues the values that have already been visited
+     * @return true if the current value is equal to the given value
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ValuePair compValuePair = new ValuePair(this, o);
+        if (visitedValues.contains(compValuePair)) {
+            return true;
+        }
+        visitedValues.add(compValuePair);
+
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof TableValueImpl<?, ?> table)) {
+            return false;
+        }
+        if (this.size() != table.size()) {
+            return false;
+        }
+        if (this.getType().getTag() != table.getType().getTag()) {
+            return false;
+        }
+
+        boolean isLhsKeyedTable =
+                ((BTableType) getImpliedType(this.getType())).getFieldNames().length > 0;
+        boolean isRhsKeyedTable =
+                ((BTableType) getImpliedType(table.getType())).getFieldNames().length > 0;
+        Object[] lhsTableValues = this.values().toArray();
+        Object[] rhsTableValues = table.values().toArray();
+        if (isLhsKeyedTable == isRhsKeyedTable) {
+            for (int i = 0; i < lhsTableValues.length; i++) {
+                if (!isEqual(lhsTableValues[i], rhsTableValues[i], visitedValues)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     private class TableIterator<K, V> implements IteratorValue {
         private long cursor;
 
@@ -501,6 +548,30 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         @Override
         public boolean hasNext() {
            return cursor < noOfAddedEntries && values.size() != 0;
+        }
+
+        /**
+         * Check whether the given value is equal to the current value.
+         *
+         * @param o the value to check equality with
+         * @param visitedValues the values that have already been visited
+         * @return true if the current value is equal to the given value
+         */
+        @Override
+        public boolean equals(Object o, Set<ValuePair> visitedValues) {
+            if (o == this) {
+                return true;
+            }
+
+            if (o instanceof RefValue refValue) {
+                ValuePair valuePair = new ValuePair(this, refValue);
+                if (visitedValues.contains(valuePair)) {
+                    return true;
+                }
+                visitedValues.add(valuePair);
+                return refValue.equals(this, visitedValues);
+            }
+            return o.equals(this);
         }
     }
 
@@ -605,7 +676,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 return null;
             }
             for (Map.Entry<K, V> entry: entryList) {
-                if (TypeChecker.isEqual(key, entry.getKey())) {
+                if (isEqual(key, entry.getKey())) {
                     return entry.getValue();
                 }
             }
@@ -660,7 +731,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             List<Map.Entry<K, V>> entryList = entries.get(hash);
             if (entryList != null && entryList.size() > 1) {
                 for (Map.Entry<K, V> entry: entryList) {
-                    if (TypeChecker.isEqual(key, entry.getKey())) {
+                    if (isEqual(key, entry.getKey())) {
                         List<V> valueList = values.get(hash);
                         valueList.remove(entry.getValue());
                         entryList.remove(entry);
@@ -691,7 +762,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (keys.containsKey(TableUtils.hash(key, null))) {
                 List<Map.Entry<K, V>> entryList = entries.get(TableUtils.hash(key, null));
                 for (Map.Entry<K, V> entry: entryList) {
-                    if (TypeChecker.isEqual(entry.getKey(), key)) {
+                    if (isEqual(entry.getKey(), key)) {
                         return true;
                     }
                 }

@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
+import java.util.Set;
+
 /**
  * <p>
  * Represents a character class, "[" ["^"] [ReCharSet] "]" in a regular expression.
@@ -62,5 +64,15 @@ public class RegExpCharacterClass extends RegExpCommonValue implements RegExpAto
     @Override
     public String stringValue(BLink parent) {
         return this.characterClassStart + this.negation + this.reCharSet.stringValue(parent) + this.characterClassEnd;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

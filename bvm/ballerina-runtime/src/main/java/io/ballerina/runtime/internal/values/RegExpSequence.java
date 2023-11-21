@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -62,5 +63,15 @@ public class RegExpSequence extends RegExpCommonValue {
             terms.add(t.stringValue(parent));
         }
         return terms.toString();
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

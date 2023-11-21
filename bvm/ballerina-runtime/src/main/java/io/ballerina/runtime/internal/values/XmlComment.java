@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * XML nodes containing comment data.
@@ -63,6 +64,11 @@ public class XmlComment extends XmlNonElementItem {
                 } else {
                     throw new NoSuchElementException();
                 }
+            }
+
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                return o.equals(this);
             }
         };
     }
@@ -118,5 +124,18 @@ public class XmlComment extends XmlNonElementItem {
     @Override
     public boolean equals(Object obj) {
         return this == obj;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (this == o) {
+            return true;
+        }
+        return o.equals(this);
     }
 }

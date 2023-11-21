@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -660,6 +661,26 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     public IteratorValue getIterator() {
         XmlItem that = this;
         return new IteratorValue() {
+            /**
+             * @param o
+             * @param visitedValues
+             * @return
+             */
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                if (o == this) {
+                    return true;
+                }
+                if (o instanceof RefValue refValue) {
+                    if (visitedValues.contains(new ValuePair(this, refValue))) {
+                        return true;
+                    }
+                    visitedValues.add(new ValuePair(this, refValue));
+                    return refValue.equals(this, visitedValues);
+                }
+                return o.equals(this);
+            }
+
             boolean read = false;
 
             @Override
@@ -681,6 +702,26 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     @Override
     public int hashCode() {
         return Objects.hash(name, children, attributes, probableParents);
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof RefValue refValue) {
+            if (visitedValues.contains(new ValuePair(this, refValue))) {
+                return true;
+            }
+            visitedValues.add(new ValuePair(this, refValue));
+            return this.equals(o, visitedValues);
+        }
+        return o.equals(this);
     }
 
     private interface SetAttributeFunction {

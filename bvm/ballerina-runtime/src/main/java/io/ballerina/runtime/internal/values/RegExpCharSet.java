@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -78,5 +79,15 @@ public class RegExpCharSet extends RegExpCommonValue {
             atoms.add((String) atom);
         }
         return atoms.toString();
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
+import java.util.Set;
+
 /**
  * <p>
  * Represents an ReQuantifier in regular expression.
@@ -41,5 +43,15 @@ public class RegExpQuantifier extends RegExpCommonValue {
     @Override
     public String stringValue(BLink parent) {
         return this.quantifier + this.nonGreedyChar;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

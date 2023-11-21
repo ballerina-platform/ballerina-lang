@@ -35,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
 
@@ -178,6 +179,19 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+            /**
+             * @param o The reference value to be compared
+             * @param visitedValues Temporary set to keep already visited values
+             * @return boolean value indicating whether the given value is equal to this value
+             */
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                if (o == this) {
+                    return true;
+                }
+                return o.equals(this);
+            }
+
             @Override
             public boolean hasNext() {
                 return false;

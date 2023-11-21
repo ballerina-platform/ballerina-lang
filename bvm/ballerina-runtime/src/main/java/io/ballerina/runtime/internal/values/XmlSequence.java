@@ -611,6 +611,22 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                if (o == this) {
+                    return true;
+                }
+                if (o instanceof RefValue refValue) {
+                    if (visitedValues.contains(new ValuePair(this, refValue))) {
+                        return true;
+                    }
+                    visitedValues.add(new ValuePair(this, refValue));
+                    return this.equals(refValue, visitedValues);
+                }
+                return o.equals(this);
+            }
+
             Iterator<BXml> iterator = children.iterator();
 
             @Override
@@ -659,5 +675,25 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             initializeIteratorNextReturnType();
         }
         return iteratorNextReturnType;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof XmlSequence) {
+            if (visitedValues.contains(new ValuePair(this, o))) {
+                return true;
+            }
+            visitedValues.add(new ValuePair(this, o));
+            return ((XmlSequence) o).equals(o, visitedValues);
+        }
+        return false;
     }
 }

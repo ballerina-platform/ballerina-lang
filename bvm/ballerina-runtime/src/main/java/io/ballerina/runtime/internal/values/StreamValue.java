@@ -27,6 +27,7 @@ import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BStreamType;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -139,5 +140,15 @@ public class StreamValue implements RefValue, BStream {
     @Override
     public String toString() {
         return stringValue(null);
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

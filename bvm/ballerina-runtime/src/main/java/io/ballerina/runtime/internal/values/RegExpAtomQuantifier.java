@@ -21,6 +21,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 
+import java.util.Set;
+
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
@@ -74,5 +76,15 @@ public class RegExpAtomQuantifier extends RegExpCommonValue implements RegExpTer
     @Override
     public String stringValue(BLink parent) {
         return getStringVal(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

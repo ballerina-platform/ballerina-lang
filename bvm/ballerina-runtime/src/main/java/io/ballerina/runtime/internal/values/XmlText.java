@@ -26,6 +26,7 @@ import org.apache.axiom.om.OMNode;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.
@@ -94,6 +95,16 @@ public class XmlText extends XmlNonElementItem {
     public IteratorValue getIterator() {
         XmlText that = this;
         return new IteratorValue() {
+            /**
+             * @param o
+             * @param visitedValues
+             * @return
+             */
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                return o.equals(this);
+            }
+
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -125,5 +136,15 @@ public class XmlText extends XmlNonElementItem {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

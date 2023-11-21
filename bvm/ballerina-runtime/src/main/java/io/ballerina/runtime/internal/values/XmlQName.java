@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BXmlQName;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
@@ -184,5 +185,15 @@ public final class XmlQName implements RefValue, BXmlQName {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

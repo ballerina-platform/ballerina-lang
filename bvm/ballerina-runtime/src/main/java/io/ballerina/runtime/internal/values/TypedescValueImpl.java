@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 
@@ -151,5 +152,20 @@ public class TypedescValueImpl implements TypedescValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         return this;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o == this) {
+            return true;
+        }
+        TypedescValueImpl other = (TypedescValueImpl) o;
+//        return other.describingType == this.describingType;
+        return other.equals(this);
     }
 }

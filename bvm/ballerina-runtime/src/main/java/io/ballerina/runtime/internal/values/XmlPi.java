@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMNode;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * XML nodes containing processing instructions.
@@ -53,6 +54,16 @@ public class XmlPi extends XmlNonElementItem {
     public IteratorValue getIterator() {
         XmlPi that = this;
         return new IteratorValue() {
+            /**
+             * @param o
+             * @param visitedValues
+             * @return
+             */
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                return o.equals(that);
+            }
+
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -126,5 +137,25 @@ public class XmlPi extends XmlNonElementItem {
     @Override
     public String stringValue(BLink parent) {
         return "<?" + target + " " + data + "?>";
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof XmlPi) {
+            if (visitedValues.contains(new ValuePair(o, this))) {
+                return true;
+            }
+            visitedValues.add(new ValuePair(o, this));
+            return ((XmlPi) o).equals(o, visitedValues);
+        }
+        return false;
     }
 }

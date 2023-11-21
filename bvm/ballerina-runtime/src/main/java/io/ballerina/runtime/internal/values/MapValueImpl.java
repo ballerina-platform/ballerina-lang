@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -337,17 +338,24 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ValuePair compValuePair = new ValuePair(this, o);
+        for (ValuePair valuePair : visitedValues) {
+            if (valuePair.equals(compValuePair, visitedValues)) {
+                return true;
+            }
+        }
+        visitedValues.add(compValuePair);
+
         if (this == o) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
-           return false;
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
         }
 
         MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
-
         if (mapValue.type.getTag() != this.type.getTag()) {
             return false;
         }
@@ -360,29 +368,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return false;
         }
 
-        if (hasCyclicReference(this, mapValue, new LinkedHashSet<>())) {
+        if (!this.keySet().containsAll(mapValue.keySet())) {
             return false;
         }
 
-        return entrySet().equals(mapValue.entrySet());
-    }
-
-    private boolean hasCyclicReference(MapValueImpl<?, ?> obj1, MapValueImpl<?, ?> obj2,
-                                       Set<Map.Entry<MapValueImpl<?, ?>, MapValueImpl<?, ?>>> visited) {
-        if (visited.contains(Map.entry(obj1, obj2))) {
-            return true; // Cyclic reference detected.
-        }
-        visited.add(Map.entry(obj1, obj2)); // Mark this object pair as visited.
-
-        for (Map.Entry<?, ?> entry : obj1.entrySet()) {
-            Object value = entry.getValue();
-            if (value instanceof MapValueImpl<?, ?>) {
-                if (hasCyclicReference((MapValueImpl<?, ?>) value, obj2, visited)) {
-                    return true;
-                }
+        Iterator<Map.Entry<K, V>> mapIterator = this.entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<K, V> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), mapValue.get(lhsMapEntry.getKey()), visitedValues)) {
+                return false;
             }
         }
-        return false; // No cyclic references detected.
+        return true;
     }
 
     /**
@@ -609,6 +606,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         @Override
         public boolean hasNext() {
             return iterator.hasNext();
+        }
+
+        /**
+         * Check the equality of two iterators.
+         *
+         * @param o Object to be compared for equality
+         * @param visitedValues Visited values in recursive calls
+         * @return Boolean value indicating whether the given value is equal to this value
+         */
+        @Override
+        public boolean equals(Object o, Set<ValuePair> visitedValues) {
+            return o.equals(this);
         }
     }
 

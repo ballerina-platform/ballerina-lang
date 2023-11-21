@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -98,5 +99,15 @@ public class HandleValue implements BHandle, RefValue {
 
     public static HandleValue valueOfJ(Object value) {
         return new HandleValue(value);
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

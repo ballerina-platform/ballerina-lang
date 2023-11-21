@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
@@ -105,5 +106,15 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public String toString() {
         return this.stringValue(null);
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

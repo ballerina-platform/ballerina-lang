@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
@@ -446,5 +447,15 @@ public class ErrorValue extends BError implements RefValue {
 
     private boolean isCompilerAddedName(String name) {
         return name != null && name.startsWith("$") && name.endsWith("$");
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

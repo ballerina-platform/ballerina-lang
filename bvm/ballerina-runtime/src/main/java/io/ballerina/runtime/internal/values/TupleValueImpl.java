@@ -69,8 +69,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected TupleType tupleType;
     protected Type type;
     Object[] refValues;
-    private int minSize;
-    private boolean hasRestElement; // cached value for ease of access
+    private final int minSize;
+    private final boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
     private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------

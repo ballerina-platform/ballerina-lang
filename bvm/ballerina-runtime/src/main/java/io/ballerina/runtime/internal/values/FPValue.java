@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -124,5 +125,15 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     @Override
     public String toString() {
         return RuntimeConstants.EMPTY;
+    }
+
+    /**
+     * @param o
+     * @param visitedValues
+     * @return
+     */
+    @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
     }
 }

@@ -75,6 +75,7 @@ import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.ValuePair;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
@@ -88,6 +89,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -376,7 +378,7 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean isEqual(Object lhsValue, Object rhsValue) {
-        return isEqual(lhsValue, rhsValue, new ArrayList<>());
+        return isEqual(lhsValue, rhsValue, new LinkedHashSet<>());
     }
 
     /**
@@ -416,7 +418,7 @@ public class TypeChecker {
 
     /**
      * Reference equality check for values. If both the values are simple basic types, returns the same
-     * result as {@link #isEqual(Object, Object, List)}
+     * result as {@link #isEqual(Object, Object, Set)}
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
@@ -2932,7 +2934,7 @@ public class TypeChecker {
      * @param checkedValues Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
-    private static boolean isEqual(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues) {
+    public static boolean isEqual(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues) {
         if (lhsValue == rhsValue) {
             return true;
         }
@@ -2944,7 +2946,7 @@ public class TypeChecker {
         return checkValueEquals(lhsValue, rhsValue, checkedValues, getType(lhsValue), getType(rhsValue));
     }
 
-    private static boolean checkValueEquals(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues,
+    private static boolean checkValueEquals(Object lhsValue, Object rhsValue, Set<ValuePair> checkedValues,
                                             Type lhsValType, Type rhsValType) {
         lhsValType = getImpliedType(lhsValType);
         rhsValType = getImpliedType(rhsValType);
@@ -2995,18 +2997,16 @@ public class TypeChecker {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((MapValueImpl) lhsValue, (MapValueImpl) rhsValue,
-                        checkedValues);
+                return isMappingType(rhsValTypeTag) && ((MapValueImpl) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) &&
-                        isEqual((ArrayValue) lhsValue, (ArrayValue) rhsValue, checkedValues);
+                return isListType(rhsValTypeTag) && ((ArrayValue) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.ERROR_TAG:
                 return rhsValTypeTag == TypeTags.ERROR_TAG &&
                         isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
-                        isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
+                        ((TableValueImpl) lhsValue).equals(rhsValue, checkedValues);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return checkValueEquals(lhsValue, rhsValue, checkedValues,
                         ((BTypeReferenceType) lhsValType).getReferredType(), rhsValType);
@@ -3028,105 +3028,6 @@ public class TypeChecker {
     }
 
     /**
-     * Deep equality check for an array/tuple.
-     *
-     * @param lhsList The array/tuple on the left hand side
-     * @param rhsList The array/tuple on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
-     * @return True if the array/tuple values are equal, else false.
-     */
-    private static boolean isEqual(ArrayValue lhsList, ArrayValue rhsList, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsList, rhsList);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        if (lhsList.size() != rhsList.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.get(i), rhsList.get(i), checkedValues)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Deep equality check for a map.
-     *
-     * @param lhsMap Map on the left hand side
-     * @param rhsMap Map on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
-     * @return True if the map values are equal, else false.
-     */
-    private static boolean isEqual(MapValueImpl lhsMap, MapValueImpl rhsMap, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsMap, rhsMap);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        if (lhsMap.size() != rhsMap.size()) {
-            return false;
-        }
-
-        if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
-            return false;
-        }
-
-        Iterator<Map.Entry<BString, Object>> mapIterator = lhsMap.entrySet().iterator();
-        while (mapIterator.hasNext()) {
-            Map.Entry<BString, Object> lhsMapEntry = mapIterator.next();
-            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()), checkedValues)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Deep equality check for a table.
-     *
-     * @param lhsTable      Table on the left hand side
-     * @param rhsTable      Table on the right hand side
-     * @param checkedValues Structured value pairs already compared or being compared
-     * @return True if the table values are equal, else false.
-     */
-    private static boolean isEqual(TableValueImpl lhsTable, TableValueImpl rhsTable, List<ValuePair> checkedValues) {
-        ValuePair compValuePair = new ValuePair(lhsTable, rhsTable);
-        if (checkedValues.contains(compValuePair)) {
-            return true;
-        }
-        checkedValues.add(compValuePair);
-
-        if (lhsTable.size() != rhsTable.size()) {
-            return false;
-        }
-
-        boolean isLhsKeyedTable =
-                ((BTableType) getImpliedType(lhsTable.getType())).getFieldNames().length > 0;
-        boolean isRhsKeyedTable =
-                ((BTableType) getImpliedType(rhsTable.getType())).getFieldNames().length > 0;
-
-        Object[] lhsTableValues = lhsTable.values().toArray();
-        Object[] rhsTableValues = rhsTable.values().toArray();
-
-        if (isLhsKeyedTable == isRhsKeyedTable) {
-            for (int i = 0; i < lhsTableValues.length; i++) {
-                if (!isEqual(lhsTableValues[i], rhsTableValues[i], checkedValues)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Deep equality check for regular expressions.
      *
      * @param lhsRegExp Regular expression on the left hand side
@@ -3145,7 +3046,7 @@ public class TypeChecker {
      * @param checkedValues Errors already compared or being compared
      * @return True if the error values are equal, else false.
      */
-    private static boolean isEqual(ErrorValue lhsError, ErrorValue rhsError, List<ValuePair> checkedValues) {
+    private static boolean isEqual(ErrorValue lhsError, ErrorValue rhsError, Set<ValuePair> checkedValues) {
         ValuePair compValuePair = new ValuePair(lhsError, rhsError);
         if (checkedValues.contains(compValuePair)) {
             return true;
@@ -3153,7 +3054,7 @@ public class TypeChecker {
         checkedValues.add(compValuePair);
 
         return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
+                ((MapValueImpl) lhsError.getDetails()).equals(rhsError.getDetails(), checkedValues) &&
                 isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
     }
 
@@ -3326,42 +3227,6 @@ public class TypeChecker {
         HandleValue lhsHandle = (HandleValue) lhsValue;
         HandleValue rhsHandle = (HandleValue) rhsValue;
         return lhsHandle.getValue() == rhsHandle.getValue();
-    }
-
-    /**
-     * Unordered value vector of size two, to hold two values being compared.
-     *
-     * @since 0.995.0
-     */
-    private static class ValuePair {
-        ArrayList<Object> valueList = new ArrayList<>(2);
-
-        ValuePair(Object valueOne, Object valueTwo) {
-            valueList.add(valueOne);
-            valueList.add(valueTwo);
-        }
-
-        @Override
-        public boolean equals(Object otherPair) {
-            if (!(otherPair instanceof ValuePair)) {
-                return false;
-            }
-
-            ArrayList otherList = ((ValuePair) otherPair).valueList;
-            ArrayList currentList = valueList;
-
-            if (otherList.size() != currentList.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < otherList.size(); i++) {
-                if (!otherList.get(i).equals(currentList.get(i))) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 
     /**
