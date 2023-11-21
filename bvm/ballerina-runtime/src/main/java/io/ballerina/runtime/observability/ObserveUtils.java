@@ -192,7 +192,7 @@ public class ObserveUtils {
         String serviceNameValue = serviceName.getValue();
         String serviceNameSuffix = System.getenv(BAL_OBSERVE_SERVICE_NAME_SUFFIX);
         if (serviceNameSuffix != null && !serviceNameSuffix.isEmpty()) {
-            serviceNameValue = serviceNameValue + "-" + serviceNameSuffix;
+            serviceNameValue += "-" + serviceNameSuffix;
         }
 
         observerContext.setServiceName(serviceNameValue);
