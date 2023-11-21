@@ -78,7 +78,6 @@ public class Class {
     public function getId() returns int|error {
         worker w1 returns error? {
             self.id -> function;
-
         }
         return <- w1;
     }
