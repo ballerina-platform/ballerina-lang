@@ -3665,7 +3665,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 } else {
                     this.validateWorkerActionParameters((BLangWorkerAsyncSendExpr) currentAction, receive);
                 }
-                String channelName = generateChannelName(workerActionSystem, (WorkerSendExpressionNode) currentAction, receive);
+                String channelName = generateChannelName(workerActionSystem, (WorkerSendExpressionNode) currentAction,
+                        receive);
                 receive.channel = channelName;
                 if (currentAction.getKind() == NodeKind.WORKER_SYNC_SEND) {
                     ((BLangWorkerSyncSendExpr) currentAction).channel = channelName;
