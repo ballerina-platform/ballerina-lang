@@ -44,6 +44,7 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     public SymbolEnv env;
     public BType workerType;
     public BType matchingSendsError;
+    public String channel;
 
     @Override
     public BLangIdentifier getWorkerName() {

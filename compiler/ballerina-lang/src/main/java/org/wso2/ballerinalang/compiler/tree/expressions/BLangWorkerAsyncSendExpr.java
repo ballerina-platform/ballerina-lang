@@ -45,6 +45,7 @@ public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerS
     public BSymbol workerSymbol;
     public BType workerType;
     public BType sendType;
+    public String channel;
 
     @Override
     public BLangExpression getExpression() {

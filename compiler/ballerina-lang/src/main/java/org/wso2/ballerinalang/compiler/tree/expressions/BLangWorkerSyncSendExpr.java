@@ -46,6 +46,7 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     public SymbolEnv env;
     public BType workerType;
     public BType sendType;
+    public String channel;
 
     @Override
     public NodeKind getKind() {

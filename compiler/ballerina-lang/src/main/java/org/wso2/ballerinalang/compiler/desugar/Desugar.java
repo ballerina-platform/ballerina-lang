@@ -8151,7 +8151,14 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
                 .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
+        populateWorkerChannelList(workerFlushExpr);
         result = workerFlushExpr;
+    }
+
+    private void populateWorkerChannelList(BLangWorkerFlushExpr workerFlushExpr) {
+        for (BLangWorkerAsyncSendExpr sendStmt : workerFlushExpr.cachedWorkerSendStmts) {
+            workerFlushExpr.workerChannels.add(sendStmt.channel);
+        }
     }
 
     @Override

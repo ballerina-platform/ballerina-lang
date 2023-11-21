@@ -43,6 +43,7 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
     public BSymbol workerSymbol;
     public List<BLangIdentifier> workerIdentifierList = new ArrayList<>();
     public List<BLangWorkerAsyncSendExpr> cachedWorkerSendStmts = new ArrayList<>();
+    public List<String> workerChannels = new ArrayList<>();
 
     @Override
     public NodeKind getKind() {

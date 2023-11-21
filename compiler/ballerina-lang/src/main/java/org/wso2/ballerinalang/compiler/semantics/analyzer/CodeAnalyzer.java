@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -3664,6 +3665,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 } else {
                     this.validateWorkerActionParameters((BLangWorkerAsyncSendExpr) currentAction, receive);
                 }
+                String channelName = generateChannelName(workerActionSystem, (WorkerSendExpressionNode) currentAction, receive);
+                receive.channel = channelName;
+                if (currentAction.getKind() == NodeKind.WORKER_SYNC_SEND) {
+                    ((BLangWorkerSyncSendExpr) currentAction).channel = channelName;
+                } else {
+                    ((BLangWorkerAsyncSendExpr) currentAction).channel = channelName;
+                }
                 otherSM.next();
                 data.workerSystemMovementSequence++;
                 worker.next();
@@ -3671,7 +3679,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
 
                 systemRunning = true;
-                String channelName = generateChannelName(worker.workerId, otherSM.workerId);
                 otherSM.node.sendsToThis.add(channelName);
 
                 worker.node.sendsToThis.add(channelName);
@@ -3691,6 +3698,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
+    }
+
+    private String generateChannelName(WorkerActionSystem workerActionSystem, WorkerSendExpressionNode sendExpr,
+                                       BLangWorkerReceive receive) {
+        String channel = workerActionSystem.createChannel(receive.workerIdentifier.value,
+                sendExpr.getWorkerName().getValue());
+        workerActionSystem.addWorkerChannel(sendExpr, receive, channel);
+        return channel;
     }
 
     private boolean validateWorkerInteractionsAfterWaitAction(WorkerActionSystem workerActionSystem) {
@@ -4043,6 +4058,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
         private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
         private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
+        private Map<String, Integer> channelCounts = new HashMap<>();
+        private Map<WorkerChannel, String> workerChannels = new HashMap<>();
         private boolean hasErrors = false;
 
 
@@ -4075,6 +4092,17 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return this.finshedWorkers.iterator().next().pos;
         }
 
+        public String createChannel(String sender, String receiver) {
+            String key = sender + "->" + receiver;
+            int count = channelCounts.getOrDefault(key, 0);
+            channelCounts.put(key, ++count);
+            return key + "-" + count;
+        }
+
+        public void addWorkerChannel(WorkerSendExpressionNode sendExpr, BLangWorkerReceive receive, String key) {
+            this.workerChannels.put(new WorkerChannel(sendExpr, receive), key);
+        }
+
         @Override
         public String toString() {
             return this.finshedWorkers.toString();
@@ -4092,6 +4120,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         private SymbolEnv getActionEnvironment(BLangNode currentAction) {
             return workerInteractionEnvironments.get(currentAction);
         }
+    }
+
+    /**
+     * This class represents a worker channel which contains a send and receive action.
+     */
+    private static class WorkerChannel {
+
+            public WorkerSendExpressionNode sendAction;
+            public BLangWorkerReceive receiveAction;
+
+            public WorkerChannel(WorkerSendExpressionNode sendAction, BLangWorkerReceive receiveAction) {
+                this.sendAction = sendAction;
+                this.receiveAction = receiveAction;
+            }
     }
 
     /**
