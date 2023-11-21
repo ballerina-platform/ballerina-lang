@@ -52,6 +52,7 @@ import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_CLASS_NAME;
@@ -90,7 +91,7 @@ public class JvmTupleTypeGen {
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
         tupleTypesCw.visitEnd();
-        jarEntries.put(tupleTypesClass + ".class", jvmPackageGen.getBytes(tupleTypesCw, module));
+        jarEntries.put(tupleTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(tupleTypesCw, module));
     }
 
     /**
