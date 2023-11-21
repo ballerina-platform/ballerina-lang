@@ -377,15 +377,20 @@ public class JvmCodeGenUtil {
     }
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType) {
-        return INITIAL_METHOD_DESC + populateMethodDesc(paramTypes) + generateReturnType(retType);
+        return INITIAL_METHOD_DESC + getMethodDescParams(paramTypes) + generateReturnType(retType);
     }
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
-        return INITIAL_METHOD_DESC + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
+        return INITIAL_METHOD_DESC + getArgTypeSignature(attachedType) + getMethodDescParams(paramTypes) +
                 generateReturnType(retType);
     }
 
-    public static String populateMethodDesc(List<BType> paramTypes) {
+    public static String getMethodDesc(List<BType> paramTypes, BType retType, String attachedTypeClassName) {
+        return INITIAL_METHOD_DESC + "L" + attachedTypeClassName + ";" + getMethodDescParams(paramTypes) +
+                generateReturnType(retType);
+    }
+
+    public static String getMethodDescParams(List<BType> paramTypes) {
         StringBuilder descBuilder = new StringBuilder();
         for (BType type : paramTypes) {
             descBuilder.append(getArgTypeSignature(type));

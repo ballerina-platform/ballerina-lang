@@ -1305,7 +1305,6 @@ public class JvmTerminatorGen {
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {
-
         BType futureType = JvmCodeGenUtil.getImpliedType(lhsOp.variableDcl.type);
         BType returnType = symbolTable.anyType;
         if (futureType.tag == TypeTags.FUTURE) {
@@ -1320,12 +1319,10 @@ public class JvmTerminatorGen {
     }
 
     private void loadVar(BIRNode.BIRVariableDcl varDcl) {
-
         jvmInstructionGen.generateVarLoad(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 
     private void storeToVar(BIRNode.BIRVariableDcl varDcl) {
-
         jvmInstructionGen.generateVarStore(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 

@@ -102,6 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_CONSTANTS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
@@ -181,7 +182,7 @@ public class JvmCreateTypeGen {
         jvmErrorTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
         jvmUnionTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
         jvmTupleTypeGen.visitEnd(jvmPackageGen, module, jarEntries);
-        jarEntries.put(typesClass + ".class", jvmPackageGen.getBytes(typesCw, module));
+        jarEntries.put(typesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(typesCw, module));
     }
 
     void createTypeConstants(ClassWriter cw, String moduleInitClass) {
@@ -499,7 +500,7 @@ public class JvmCreateTypeGen {
         generateGetAnonTypeMainMethod(cw, module.typeDefs, moduleInitClass);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(anonTypesClass + ".class", bytes);
+        jarEntries.put(anonTypesClass + CLASS_FILE_SUFFIX, bytes);
     }
 
     private void generateGetAnonTypeMainMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions,
