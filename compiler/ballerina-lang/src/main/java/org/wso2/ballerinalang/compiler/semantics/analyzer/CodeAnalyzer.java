@@ -1510,12 +1510,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangDo doNode, AnalyzerData data) {
         boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
+        boolean previousWithinDoBlock = data.withinDoBlock;
+        data.withinDoBlock = true;
         if (onFailExists) {
             data.failureHandled = true;
         }
         analyzeNode(doNode.body, data);
         data.failureHandled = failureHandled;
         analyseOnFailClause(onFailExists, doNode.onFailClause, data);
+        data.withinDoBlock = previousWithinDoBlock;
     }
 
 
@@ -2002,7 +2005,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
-        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (!data.withinDoBlock && (data.withinQuery  ||
+                (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2061,7 +2065,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (!data.withinDoBlock && (data.withinQuery ||
+                (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -4256,6 +4261,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean loopAlterNotAllowed;
         // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
+        boolean withinDoBlock;
         int workerSystemMovementSequence;
         Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();

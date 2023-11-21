@@ -1743,7 +1743,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         // Set the function body
         BLangBlockStmt blockStmt = (BLangBlockStmt) namedWorkerDeclNode.workerBody().apply(this);
         BLangBlockFunctionBody bodyNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
-        bodyNode.stmts = blockStmt.stmts;
+        if (namedWorkerDeclNode.onFailClause().isPresent()) {
+            BLangDo bLDo = (BLangDo) TreeBuilder.createDoNode();
+            bLDo.pos = workerBodyPos;
+            bLDo.setBody(blockStmt);
+            OnFailClauseNode onFailClauseNode = namedWorkerDeclNode.onFailClause().get();
+            bLDo.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+            bodyNode.addStatement(bLDo);
+        } else {
+            bodyNode.stmts = blockStmt.stmts;
+        }
+
         bodyNode.pos = workerBodyPos;
         bLFunction.body = bodyNode;
         bLFunction.internal = true;
