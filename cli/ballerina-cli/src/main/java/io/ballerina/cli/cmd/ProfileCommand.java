@@ -46,6 +46,7 @@ import java.util.List;
 import static io.ballerina.cli.cmd.Constants.PROFILE_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_PROFILE_DEBUG;
 
 /**
  * This class represents the "profile" command, and it holds arguments and flags specified by the user.
@@ -54,7 +55,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  */
 @CommandLine.Command(name = PROFILE_COMMAND, description = "Compile and profile the current package")
 public class ProfileCommand implements BLauncherCmd {
-
+    private static final String ENV_OPTION_BAL_PROFILE_DEBUG = "BAL_PROFILE_JAVA_DEBUG";
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
@@ -68,7 +69,7 @@ public class ProfileCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
             "then run.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
@@ -108,6 +109,7 @@ public class ProfileCommand implements BLauncherCmd {
             return;
         }
         setupDebugPort();
+        setupProfileDebugPort();
         String[] args = getArgumentsFromArgList();
         BuildOptions buildOptions = constructBuildOptions();
         Project project = loadProject(buildOptions);
@@ -127,14 +129,21 @@ public class ProfileCommand implements BLauncherCmd {
         taskExecutor.executeTasks(project);
     }
 
+    private void setupProfileDebugPort() {
+        if (this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_PROFILE_DEBUG, this.debugPort);
+        }
+    }
+
     private void printCommandUsageInfo() {
         String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PROFILE_COMMAND);
         this.errStream.println(commandUsageInfo);
     }
 
     private void setupDebugPort() {
-        if (this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
+        String port = System.getenv(ENV_OPTION_BAL_PROFILE_DEBUG);
+        if (port != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, port);
         }
     }
 
@@ -190,7 +199,7 @@ public class ProfileCommand implements BLauncherCmd {
                         buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, null), false)
                 .addTask(new DumpBuildTimeTask(outStream), false)
-                .addTask(new RunProfilerTask(errStream, args), false).build();
+                .addTask(new RunProfilerTask(errStream), false).build();
     }
 
     @Override

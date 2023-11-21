@@ -190,6 +190,14 @@ function testIsolatedFunctionReadonlyIntersection() {
     assertEquality(myClient.runReadByKeyQuery("1"), "1");
 }
 
+function testIntersectionWithUnionEffectiveTypeAsAMemberOfAUnion() {
+    (readonly & ([string]|int))? a = ["Ballerina"];
+    assertEquality(<[string]>["Ballerina"], a);
+
+    (readonly & ([string]|[int])|int)? b = ["Ballerina"];
+    assertEquality(<[string]>["Ballerina"], b);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

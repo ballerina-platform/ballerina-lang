@@ -64,6 +64,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +90,6 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.lang.Runtime.getRuntime;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 import static org.wso2.ballerinalang.util.RepoUtils.readSettings;
 
 /**
@@ -433,7 +433,6 @@ public class CommandUtil {
                 version = latest.toString();
             }
         }
-
         if (version == null) {
             List<PackageVersion> packageVersions = getPackageVersions(pkgCacheParent);
             PackageVersion latest = findLatest(packageVersions);
@@ -444,29 +443,28 @@ public class CommandUtil {
 
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)
             throws CentralClientException {
-        for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
-            String supportedPlatform = SUPPORTED_PLATFORMS[i];
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(target -> target.code())
+                .collect(Collectors.joining(","));
             Settings settings;
-            try {
-                settings = readSettings();
-                // Ignore Settings.toml diagnostics in the pull command
-            } catch (SettingsTomlException e) {
-                // Ignore 'Settings.toml' parsing errors and return empty Settings object
-                settings = Settings.from();
-            }
-            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                    settings.getProxy().password(),
-                    getAccessTokenOfCLI(settings));
-            try {
-                client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
-                        RepoUtils.getBallerinaVersion(), false);
-            } catch (CentralClientException e) {
-                if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
-                    continue;
-                }
-                throw e;
-            }
+        try {
+            settings = readSettings();
+            // Ignore Settings.toml diagnostics in the pull command
+        } catch (SettingsTomlException e) {
+            // Ignore 'Settings.toml' parsing errors and return empty Settings object
+            settings = Settings.from();
+        }
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(),
+                getAccessTokenOfCLI(settings), settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
+        try {
+            client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
+                    RepoUtils.getBallerinaVersion(), false);
+        } catch (CentralClientException e) {
+            throw e;
         }
     }
 

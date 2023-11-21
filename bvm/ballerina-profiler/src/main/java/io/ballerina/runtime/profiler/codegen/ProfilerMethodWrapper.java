@@ -34,7 +34,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -48,14 +49,19 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
  */
 public class ProfilerMethodWrapper extends ClassLoader {
 
-    public void invokeMethods() throws IOException, InterruptedException {
+    public void invokeMethods(String debugArg) throws IOException, InterruptedException {
         String balJarArgs = Main.getBalJarArgs();
-        String[] command = {"java", "-jar", Constants.TEMP_JAR_FILE_NAME};
-        if (balJarArgs != null) {
-            command = Arrays.copyOf(command, command.length + 1);
-            command[3] = balJarArgs;
+        List<String> commands = new ArrayList<>();
+        commands.add("java");
+        commands.add("-jar");
+        if (debugArg != null) {
+            commands.add(debugArg);
         }
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        commands.add(Constants.TEMP_JAR_FILE_NAME);
+        if (balJarArgs != null) {
+            commands.add(balJarArgs);
+        }
+        ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         OUT_STREAM.printf(Constants.ANSI_CYAN + "[5/6] Running executable..." + Constants.ANSI_RESET + "%n");

@@ -28,4 +28,8 @@ public class ProfilerRuntimeException extends RuntimeException {
     public ProfilerRuntimeException(String message) {
         super(message);
     }
+
+    public ProfilerRuntimeException(String message, Throwable e) {
+        super(message, e);
+    }
 }

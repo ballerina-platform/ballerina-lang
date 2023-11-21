@@ -29,7 +29,7 @@ dependencies {
 
     implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:"${project.jacksonCoreVersion}"'
+    implementation "com.fasterxml.jackson.core:jackson-databind:${project.jacksonCoreVersion}"
 
     testImplementation 'org.testng:testng'
 

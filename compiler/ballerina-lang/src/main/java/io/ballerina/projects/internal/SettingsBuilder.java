@@ -50,11 +50,11 @@ import java.util.Map;
 public class SettingsBuilder {
 
     public static final String NAME = "name";
-    public static final String ACCESSTOKEN = "accesstoken";
-    public static final String NEXUS = "nexus";
-    public static final String ARTIFACTORY = "artifactory";
-    public static final String FILE_SYSTEM = "file-system";
-    public static final String GITHUB = "github";
+    public static final String MAVEN = "maven";
+    private static final String CONNECT_TIMEOUT = "connectTimeout";
+    private static final String READ_TIMEOUT = "readTimeout";
+    private static final String WRITE_TIMEOUT = "writeTimeout";
+    private static final String CALL_TIMEOUT = "callTimeout";
     private TomlDocument settingsToml;
     private Settings settings;
     private DiagnosticResult diagnostics;
@@ -70,6 +70,10 @@ public class SettingsBuilder {
     private static final String REPOSITORY = "repository";
     private static final String ID = "id";
     private static final String URL = "url";
+    private static final int DEFAULT_CONNECT_TIMEOUT = 60;
+    private static final int DEFAULT_READ_TIMEOUT = 60;
+    private static final int DEFAULT_WRITE_TIMEOUT = 60;
+    private static final int DEFAULT_CALL_TIMEOUT = 0;
 
     private SettingsBuilder(TomlDocument settingsToml) {
         this.diagnosticList = new ArrayList<>();
@@ -115,6 +119,10 @@ public class SettingsBuilder {
         String proxyUsername = "";
         String proxyPassword = "";
         String accessToken = "";
+        int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        int readTimeout = DEFAULT_READ_TIMEOUT;
+        int writeTimeout = DEFAULT_WRITE_TIMEOUT;
+        int callTimeout = DEFAULT_CALL_TIMEOUT;
         String url = "";
         String id = "";
         String repoName = "";
@@ -134,6 +142,10 @@ public class SettingsBuilder {
             TomlTableNode centralNode = (TomlTableNode) tomlAstNode.entries().get(CENTRAL);
             if (centralNode != null && centralNode.kind() != TomlType.NONE && centralNode.kind() == TomlType.TABLE) {
                 accessToken = getStringOrDefaultFromTomlTableNode(centralNode, ACCESS_TOKEN, "");
+                connectTimeout = getIntValueFromProxyNode(centralNode, CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+                readTimeout = getIntValueFromProxyNode(centralNode, READ_TIMEOUT, DEFAULT_READ_TIMEOUT);
+                writeTimeout = getIntValueFromProxyNode(centralNode, WRITE_TIMEOUT, DEFAULT_WRITE_TIMEOUT);
+                callTimeout = getIntValueFromProxyNode(centralNode, CALL_TIMEOUT, DEFAULT_CALL_TIMEOUT);
             }
 
             TomlTableNode repository = (TomlTableNode) tomlAstNode.entries().get(REPOSITORY);
@@ -142,8 +154,7 @@ public class SettingsBuilder {
                 for (Map.Entry<String, TopLevelNode> entry : repoEntries.entrySet()) {
                     String repoKey = entry.getKey();
                     TopLevelNode repoValue = entry.getValue();
-                    if (!NEXUS.equals(repoKey) && !ARTIFACTORY.equals(repoKey) && !FILE_SYSTEM.equals(repoKey) &&
-                            !GITHUB.equals(repoKey)) {
+                    if (!MAVEN.equals(repoKey)) {
                         continue;
                     }
                     List<TomlTableNode> repositoryNodes = ((TomlTableArrayNode) (repoValue)).children();
@@ -151,15 +162,16 @@ public class SettingsBuilder {
                         url = getStringOrDefaultFromTomlTableNode(repositoryNode, URL, "");
                         id = getStringOrDefaultFromTomlTableNode(repositoryNode, ID, "");
                         repositoryUsername = getStringOrDefaultFromTomlTableNode(repositoryNode, USERNAME, "");
-                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESSTOKEN, "");
+                        repositoryPassword = getStringOrDefaultFromTomlTableNode(repositoryNode, ACCESS_TOKEN, "");
                         repositories.add(Repository.from(id, url, repositoryUsername, repositoryPassword));
                     }
                 }
             }
         }
 
-        return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken),
-                diagnostics(), repositories.toArray(new Repository[0]));
+        return Settings.from(Proxy.from(host, port, proxyUsername, proxyPassword), Central.from(accessToken,
+                connectTimeout, readTimeout, writeTimeout, callTimeout), diagnostics(),
+                repositories.toArray(new Repository[0]));
     }
 
     private String getStringOrDefaultFromTomlTableNode(TomlTableNode pkgNode, String key, String defaultValue) {

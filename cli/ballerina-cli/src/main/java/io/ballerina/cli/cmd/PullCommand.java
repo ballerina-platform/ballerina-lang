@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
@@ -45,7 +46,9 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -57,7 +60,6 @@ import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static java.nio.file.Files.createDirectories;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
  * This class represents the "bal pull" command.
@@ -262,35 +264,35 @@ public class PullCommand implements BLauncherCmd {
         }
 
         CommandUtil.setPrintStream(errStream);
-        for (int i = 0; i < SUPPORTED_PLATFORMS.length; i++) {
-            String supportedPlatform = SUPPORTED_PLATFORMS[i];
-            try {
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
-                client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                        RepoUtils.getBallerinaVersion(), false);
-                if (version.equals(Names.EMPTY.getValue())) {
-                    List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
-                            RepoUtils.getBallerinaVersion());
-                    version = CommandUtil.getLatestVersion(versions);
-                }
-                boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
-                if (hasCompilationErrors) {
-                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-            } catch (PackageAlreadyExistsException e) {
-                errStream.println(e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
-            } catch (CentralClientException e) {
-                if (e.getMessage().contains("package not found") && i < SUPPORTED_PLATFORMS.length - 1) {
-                    continue;
-                }
-                errStream.println("package not found: " + orgName + "/" + packageName);
-                CommandUtil.exitError(this.exitWhenFinish);
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(target -> target.code())
+                .collect(Collectors.joining(","));
+        try {
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout());
+            client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
+                    RepoUtils.getBallerinaVersion(), false);
+            if (version.equals(Names.EMPTY.getValue())) {
+                List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
+                        RepoUtils.getBallerinaVersion());
+                version = CommandUtil.getLatestVersion(versions);
             }
+            boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
+            if (hasCompilationErrors) {
+                CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        } catch (PackageAlreadyExistsException e) {
+            errStream.println(e.getMessage());
+            CommandUtil.exitError(this.exitWhenFinish);
+        } catch (CentralClientException e) {
+            errStream.println("package not found: " + orgName + "/" + packageName);
+            CommandUtil.exitError(this.exitWhenFinish);
         }
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);

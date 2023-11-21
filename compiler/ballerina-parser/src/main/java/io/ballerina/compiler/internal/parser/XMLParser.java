@@ -477,7 +477,12 @@ public class XMLParser extends AbstractParser {
      * @return XML char-data token
      */
     private STNode parseCharData() {
-        return consume();
+        STToken token = consume();
+        if (token.kind != SyntaxKind.XML_TEXT_CONTENT) {
+            return STNodeFactory.createLiteralValueToken(SyntaxKind.XML_TEXT_CONTENT, token.text(),
+                    token.leadingMinutiae(), token.trailingMinutiae(), token.diagnostics());
+        }
+        return token;
     }
 
     /**

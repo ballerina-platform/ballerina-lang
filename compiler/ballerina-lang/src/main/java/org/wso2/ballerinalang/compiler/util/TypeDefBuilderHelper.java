@@ -137,7 +137,7 @@ public class TypeDefBuilderHelper {
 
     public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
                                                                 Names names, SymbolTable symTable) {
-        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.pos, recordTypeNode.symbol, env,
+        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode.symbol, env,
                                                                         names, Names.INIT_FUNCTION_SUFFIX, symTable,
                                                                         recordTypeNode.getBType());
         BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.getBType().tsymbol);
@@ -150,33 +150,30 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(Location location,
-                                                                   BSymbol symbol,
+    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
                                                                    Name suffix,
                                                                    SymbolTable symTable,
                                                                    BType type) {
-        return createInitFunctionForStructureType(location, symbol, env, names, suffix, type, symTable.nilType);
+        return createInitFunctionForStructureType(symbol, env, names, suffix, type, symTable.nilType);
     }
 
-    public static BLangFunction createInitFunctionForStructureType(Location location,
-                                                                   BSymbol symbol,
+    public static BLangFunction createInitFunctionForStructureType(BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
                                                                    Name suffix,
                                                                    BType type,
                                                                    BType returnType) {
         String structTypeName = type.tsymbol.name.value;
-        BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(location, structTypeName, suffix);
+        BLangFunction initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(null, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(null, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
                                                    names.originalNameFromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
+                                                   env.enclPkg.symbol.pkgID, type, null, null, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -193,7 +190,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = createIdentifier(location, funcSymbolName.value);
+        initFunction.name = createIdentifier(null, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,

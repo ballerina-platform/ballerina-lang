@@ -59,7 +59,6 @@ public class Data {
         int time = (int) this.totalTime;
         String[] stackTrace = new String[]{this.name};
 
-        // create the string representation of the output
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("\"time\": \"").append(time).append("\", ");

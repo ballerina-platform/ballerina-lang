@@ -402,7 +402,7 @@ public class BUnionType extends BType implements UnionType {
     public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
-                    BType refType = getReferredType(type);
+                    BType refType = getImpliedType(type);
                     if (refType.tag == TypeTags.UNION && !isTypeParamAvailable(type)) {
                         return ((BUnionType) refType).memberTypes.stream();
                     }

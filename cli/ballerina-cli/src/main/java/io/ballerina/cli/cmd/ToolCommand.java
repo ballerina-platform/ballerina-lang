@@ -61,7 +61,6 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
-import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static io.ballerina.projects.util.ProjectConstants.REPOSITORIES_DIR;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -94,8 +93,7 @@ public class ToolCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
 
-    Path balToolsTomlPath = Path.of(
-            System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
+    Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
 
     @CommandLine.Parameters(description = "Manage ballerina tools")
     private List<String> argList;
@@ -417,7 +415,7 @@ public class ToolCommand implements BLauncherCmd {
                 .collect(Collectors.joining(","));
         try {
             if (isToolAvailableLocally(toolId, version)) {
-                outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+                outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
             } else {
                 pullToolFromCentral(supportedPlatform, balaCacheDirPath);
             }
@@ -444,7 +442,10 @@ public class ToolCommand implements BLauncherCmd {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         boolean isPulled = Boolean.parseBoolean(toolInfo[0]);
@@ -498,7 +499,7 @@ public class ToolCommand implements BLauncherCmd {
         Optional<Map<String, BalToolsManifest.Tool>> toolVersions =
                 Optional.ofNullable(balToolsManifest.tools().get(toolId));
         if (toolVersions.isEmpty() || toolVersions.get().isEmpty()) {
-            CommandUtil.printError(errStream, "tool " + toolId + " not found.", null, false);
+            CommandUtil.printError(errStream, "tool '" + toolId + "' not found.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -516,12 +517,21 @@ public class ToolCommand implements BLauncherCmd {
 
         Optional<BalToolsManifest.Tool> tool = balToolsManifest.getTool(toolId, version);
         if (tool.isEmpty()) {
-            CommandUtil.printError(errStream, "tool " + toolId + ":" + version + " not found.", null, false);
+            CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' not found.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (tool.get().active()) {
-            CommandUtil.printError(errStream, "cannot remove active tool " + toolId + ":" + version + ".", null, false);
+            CommandUtil.printError(errStream, "cannot remove active tool '" + toolId + ":" + version + "'.",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        org = tool.get().org();
+        name = tool.get().name();
+        boolean isDistsCompatible = checkToolDistCompatibility();
+        if (!isDistsCompatible) {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -533,8 +543,8 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void deleteAllCachedToolVersions(String org, String name) {
-        Path toolPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
-                CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, org, name);
+        Path toolPath = RepoUtils.createAndGetHomeReposPath().resolve(Path.of(REPOSITORIES_DIR,
+                CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, org, name));
         if (!Files.isDirectory(toolPath)) {
             return;
         }
@@ -542,8 +552,8 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void deleteCachedToolVersion(String org, String name, String version) {
-        Path toolPath = Path.of(System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
-                CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, org, name, version);
+        Path toolPath = RepoUtils.createAndGetHomeReposPath().resolve(Path.of(REPOSITORIES_DIR,
+                CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, org, name, version));
         if (!Files.isDirectory(toolPath)) {
             return;
         }
@@ -567,7 +577,10 @@ public class ToolCommand implements BLauncherCmd {
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                    settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                    settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                    settings.getCentral().getConnectTimeout(),
+                    settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                    settings.getCentral().getCallTimeout());
             boolean foundTools = false;
             String supportedPlatform = Arrays.stream(JvmTarget.values())
                     .map(JvmTarget::code)
@@ -691,7 +704,7 @@ public class ToolCommand implements BLauncherCmd {
                 return;
             }
             if (isToolAvailableLocally(toolId, version)) {
-                outStream.println("tool " + toolId + ":" + version + " is already available locally.");
+                outStream.println("tool '" + toolId + ":" + version + "' is already available locally.");
             } else {
                 pullToolFromCentral(supportedPlatform, balaCacheDirPath);
             }
@@ -719,7 +732,10 @@ public class ToolCommand implements BLauncherCmd {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                 initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         List<String> versions = client.getPackageVersions(tool.org(), tool.name(), supportedPlatforms,
                 RepoUtils.getBallerinaVersion());
         return getLatestVersion(versions, tool.version());

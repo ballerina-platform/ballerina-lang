@@ -75,8 +75,10 @@ public class RemotePackageRepository implements PackageRepository {
                 environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
         CentralAPIClient client = new CentralAPIClient(repoUrl, proxy, settings.getProxy().username(),
-                settings.getProxy().password(), getAccessTokenOfCLI(settings));
-
+                settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                settings.getCentral().getConnectTimeout(),
+                settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                settings.getCentral().getCallTimeout());
         return new RemotePackageRepository(fileSystemRepository, client);
     }
 
@@ -144,12 +146,14 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (JvmTarget jvmTarget : JvmTarget.values()) {
-                for (String version : this.client.getPackageVersions(orgName, packageName, jvmTarget.code(),
-                        RepoUtils.getBallerinaVersion())) {
-                    packageVersions.add(PackageVersion.from(version));
-                }
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            for (String version : this.client.getPackageVersions(orgName, packageName, supportedPlatform,
+                    RepoUtils.getBallerinaVersion())) {
+                packageVersions.add(PackageVersion.from(version));
             }
+
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
             return new ArrayList<>(packageVersions);
@@ -176,11 +180,13 @@ public class RemotePackageRepository implements PackageRepository {
         try {
             List<ImportModuleResponse> remote = new ArrayList<>();
             PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
-            for (JvmTarget jvmTarget : JvmTarget.values()) {
-                PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
-                        jvmTarget.code(), RepoUtils.getBallerinaVersion());
-                remote.addAll(toImportModuleResponses(requests, response));
-            }
+            String supportedPlatform = Arrays.stream(JvmTarget.values())
+                    .map(target -> target.code())
+                    .collect(Collectors.joining(","));
+            PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
+                    supportedPlatform, RepoUtils.getBallerinaVersion());
+            remote.addAll(toImportModuleResponses(requests, response));
+
             return mergeNameResolution(filesystem, remote);
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
@@ -352,38 +358,38 @@ public class RemotePackageRepository implements PackageRepository {
             throws CentralClientException {
         List<PackageMetadataResponse> response = new ArrayList<>();
         Set<ResolutionRequest> resolvedRequests = new HashSet<>();
-        JvmTarget[] values = JvmTarget.values();
-        for (int i = 0; i < values.length; i++) {
-            JvmTarget jvmTarget = values[i];
-            PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
-                    packageResolutionRequest, jvmTarget.code(), RepoUtils.getBallerinaVersion());
-            for (ResolutionRequest resolutionRequest : packageLoadRequests) {
-                if (resolvedRequests.contains(resolutionRequest)) {
-                    continue;
-                }
-                // find response from server
-                // checked in resolved group
-                Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
-                        .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
-                                p.org().equals(resolutionRequest.orgName().value())).findFirst();
-                // If we found a match we will add it to response
-                if (match.isPresent()) {
-                    PackageVersion version = PackageVersion.from(match.get().version());
-                    DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
-                    PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
-                            resolutionRequest.packageName(),
-                            version, match.get().getDeprecated(), match.get().getDeprecateMessage());
-                    PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
-                            packageDescriptor,
-                            dependencies);
-                    response.add(responseDescriptor);
-                    resolvedRequests.add(resolutionRequest);
-                } else if (i == values.length - 1) {
-                    // If the package is not in resolved for all jvm platforms we assume the package is unresolved
-                    response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
-                }
+        String supportedPlatform = Arrays.stream(JvmTarget.values())
+                .map(target -> target.code())
+                .collect(Collectors.joining(","));
+        PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+                packageResolutionRequest, supportedPlatform, RepoUtils.getBallerinaVersion());
+        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+            if (resolvedRequests.contains(resolutionRequest)) {
+                continue;
+            }
+            // find response from server
+            // checked in resolved group
+            Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
+                    .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
+                            p.org().equals(resolutionRequest.orgName().value())).findFirst();
+            // If we found a match we will add it to response
+            if (match.isPresent()) {
+                PackageVersion version = PackageVersion.from(match.get().version());
+                DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
+                PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
+                        resolutionRequest.packageName(),
+                        version, match.get().getDeprecated(), match.get().getDeprecateMessage());
+                PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
+                        packageDescriptor,
+                        dependencies);
+                response.add(responseDescriptor);
+                resolvedRequests.add(resolutionRequest);
+            } else {
+                // If the package is not in resolved for all jvm platforms we assume the package is unresolved
+                response.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
             }
         }
+
         return response;
     }
 

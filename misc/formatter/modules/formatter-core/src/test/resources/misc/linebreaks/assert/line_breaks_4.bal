@@ -1,7 +1,7 @@
 public function foo() {
     foreach string animal in animals {
         match
-    animal
+        animal
             {
             "Mouse" =>
             {

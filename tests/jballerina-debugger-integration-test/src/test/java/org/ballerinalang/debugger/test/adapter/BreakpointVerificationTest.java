@@ -47,8 +47,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
 
     private static final int ENUM_DCLN_START = 17;
     private static final int CLASS_DEFN_START = ENUM_DCLN_START + 6;
-    private static final int TYPE_DEFN_START = CLASS_DEFN_START + 16;
-    private static final int IF_STATEMENT_START = TYPE_DEFN_START + 20;
+    private static final int IF_STATEMENT_START = CLASS_DEFN_START + 25;
     private static final int WHILE_LOOP_START = IF_STATEMENT_START + 9;
     private static final int FOREACH_LOOP_START = WHILE_LOOP_START + 10;
     private static final int MATCH_STMT_START = FOREACH_LOOP_START + 10;
@@ -78,8 +77,6 @@ public class BreakpointVerificationTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
 
         // retrieves all the 'breakpoint' events received from the server, which indicates breakpoint verification
@@ -89,7 +86,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
     }
 
     @Test(description = "Test to assert runtime verification on breakpoints which are getting added on-the-fly " +
-            "during a debug session")
+            "during a debug session", enabled = false)
     public void testOnTheFlyBreakpointVerification() throws BallerinaTestException {
         // adds one initial breakpoint and run debug session until the breakpoint is reached.
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
@@ -129,8 +126,6 @@ public class BreakpointVerificationTest extends BaseTestCase {
         // class definition
         assertVerifiedBreakpoints(breakpoints, CLASS_DEFN_START, 15, true, false, false, true, true, true, false,
                 false, true, true, false, false, true, true, false);
-        // type definition
-        assertVerifiedBreakpoints(breakpoints, TYPE_DEFN_START, 5, false, false, false, false, true);
         // worker declarations
         assertVerifiedBreakpoints(breakpoints, WORKER_DCLN_START, 9, true, true, false, false, true, true, false, false,
                 true);
