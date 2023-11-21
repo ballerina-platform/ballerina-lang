@@ -32,9 +32,11 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -852,6 +854,16 @@ public class ASTBuilderUtil {
         dupFuncSymbol.type = dupInvokableType;
         dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
 
+        if (!Symbols.isFlagOn(invokableSymbol.flags, Flags.ATTACHED)) {
+            return dupFuncSymbol;
+        }
+        List<BAttachedFunction> attachedFuncs = ((BStructureTypeSymbol) invokableSymbol.owner).attachedFuncs;
+        for (BAttachedFunction attachedFunc : attachedFuncs) {
+            if (attachedFunc.symbol == invokableSymbol) {
+                attachedFunc.symbol = dupFuncSymbol;
+                break;
+            }
+        }
         return dupFuncSymbol;
     }
 
