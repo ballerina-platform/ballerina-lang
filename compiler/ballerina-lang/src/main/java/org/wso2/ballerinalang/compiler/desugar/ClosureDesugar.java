@@ -212,7 +212,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
-    private List<BLangFunction> nestedFunctions = new ArrayList<>();
+    private List<BLangFunction> enclosedFunctions = new ArrayList<>();
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -252,7 +252,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, pkgEnv);
 
         for (BLangFunction bLangFunction : pkgNode.functions) {
-            // pr: we are already ignoring top level closure here
             if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 rewrite(bLangFunction, pkgEnv);
             }
@@ -265,11 +264,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
         }
 
         // Update function parameters.
-        if (pkgNode.functions.stream().anyMatch(fn -> fn.nestedFn)) {
-            throw new AssertionError("nested functions should not be lifted");
-        }
         pkgNode.functions.forEach(ClosureDesugar::updateFunctionParams);
-        nestedFunctions.forEach(ClosureDesugar::updateFunctionParams);
+        enclosedFunctions.forEach(ClosureDesugar::updateFunctionParams);
         result = pkgNode;
     }
 
@@ -1401,11 +1397,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
             bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
             enclInvokable.encloseFunction(bLangLambdaFunction);
         }
+        // TODO: remove this when all the lambda liftings are removed
+        if (bLangLambdaFunction.function.enclosed) {
+            enclosedFunctions.add(bLangLambdaFunction.function);
+        }
         bLangLambdaFunction.capturedClosureEnv = null;
         result = bLangLambdaFunction;
-        if (bLangLambdaFunction.function.nestedFn) {
-            nestedFunctions.add(bLangLambdaFunction.function);
-        }
     }
 
     private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv, BLangInvokableNode enclInvokable,

@@ -67,9 +67,9 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRPackage birPackage) {
-        moduleFunctions = birPackage.functions;
+        moduleFunctions = birPackage.getFunctions();
         birPackage.typeDefs.forEach(tDef -> tDef.accept(this));
-        birPackage.functions.forEach(func -> func.accept(this));
+        birPackage.getFunctions().forEach(func -> func.accept(this));
     }
 
     @Override
@@ -84,6 +84,7 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
         birFunction.basicBlocks = newBBs;
         newBBs = new ArrayList<>();
         typecastVars.clear();
+        birFunction.getEnclosedFunctions().forEach(enclFunc -> enclFunc.accept(this));
     }
 
     @Override

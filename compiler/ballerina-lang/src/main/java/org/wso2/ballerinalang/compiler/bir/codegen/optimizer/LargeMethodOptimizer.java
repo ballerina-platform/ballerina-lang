@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -47,10 +46,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -100,24 +102,20 @@ public class LargeMethodOptimizer {
         splitFuncNum = 0;
         splitTempVarNum = 0;
 
+        Deque<BIRFunction> functions = new ArrayDeque<>(birPkg.getFunctions());
+        birPkg.typeDefs.forEach(td -> functions.addAll(td.attachedFuncs));
         List<BIRFunction> newlyAddedBIRFunctions = new ArrayList<>();
-        for (BIRFunction function : birPkg.functions) {
+        while (!functions.isEmpty()) {
+            BIRFunction function = functions.pop();
+            functions.addAll(function.getEnclosedFunctions());
             if (hasLessInstructionCount(function)) {
                 continue;
             }
-            List<BIRFunction> newBIRFunctions = splitBIRFunction(function, false, false, false);
+            boolean isAttached = (function.flags & Flags.ATTACHED) == Flags.ATTACHED;
+            List<BIRFunction> newBIRFunctions = splitBIRFunction(function, isAttached, false, false);
             newlyAddedBIRFunctions.addAll(newBIRFunctions);
         }
-        for (BIRTypeDefinition birTypeDef : birPkg.typeDefs) {
-            for (BIRFunction function : birTypeDef.attachedFuncs) {
-                if (hasLessInstructionCount(function)) {
-                    continue;
-                }
-                List<BIRFunction> newBIRFunctions = splitBIRFunction(function, true, false, false);
-                newlyAddedBIRFunctions.addAll(newBIRFunctions);
-            }
-        }
-        birPkg.functions.addAll(newlyAddedBIRFunctions);
+        birPkg.addFunctions(newlyAddedBIRFunctions);
     }
 
     private boolean hasLessInstructionCount(BIRFunction birFunction) {
@@ -1077,7 +1075,7 @@ public class LargeMethodOptimizer {
                     tempVars);
             BIRVariableDcl valueVarDcl = valueOperand.variableDcl;
             addToSplitFuncArgsIfVarDclIsArg(splitFuncEnv, valueVarDcl);
-            BIRVariableDcl keyVarDcl = keyValueEntry.keyOp.variableDcl;;
+            BIRVariableDcl keyVarDcl = keyValueEntry.keyOp.variableDcl;
             addToSplitFuncArgsIfVarDclIsArg(splitFuncEnv, keyVarDcl);
         }
         return splitPointsContainCurrIns || globalAndArgVarKeyInsContainsCurrIns;

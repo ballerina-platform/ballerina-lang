@@ -142,7 +142,7 @@ public class InteropValidator {
 
     private void validateModuleFunctions(BIRNode.BIRPackage module, ClassLoader classLoader) {
         // filter out functions.
-        List<BIRNode.BIRFunction> functions = module.functions;
+        List<BIRNode.BIRFunction> functions = module.getFunctions();
         List<BIRNode.BIRFunction> jBirFunctions = new ArrayList<>(functions.size());
         for (BIRNode.BIRFunction func : functions) {
             try {
@@ -151,8 +151,7 @@ public class InteropValidator {
                 dlog.error(func.pos, e.getCode(), e.getMessage());
             }
         }
-        module.functions.clear();
-        module.functions.addAll(jBirFunctions);
+        module.setFunctions(jBirFunctions);
     }
 
     private void validateTypeAttachedFunctions(BIRNode.BIRPackage module, ClassLoader classLoader) {
@@ -166,8 +165,8 @@ public class InteropValidator {
                 } catch (JInteropException e) {
                     dlog.error(func.pos, e.getCode(), e.getMessage());
                 }
-                optionalTypeDef.attachedFuncs = jAttachedFuncs;
             }
+            optionalTypeDef.attachedFuncs = jAttachedFuncs;
         }
     }
 
@@ -207,7 +206,11 @@ public class InteropValidator {
         if (isExternFunc(birFunc)) {
             InteropValidationRequest jInteropValidationReq = getInteropAnnotValue(birFunc);
             if (jInteropValidationReq != null) {
-                return createJInteropFunction(jInteropValidationReq, birFunc, classLoader);
+                BIRNode.BIRFunction newFunc = createJInteropFunction(jInteropValidationReq, birFunc, classLoader);
+                birFunc.getEnclosedFunctions().forEach(func -> {
+                    newFunc.encloseFunction(getBirFunction(func, classLoader));
+                });
+                return newFunc;
             }
         }
         return birFunc;

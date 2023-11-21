@@ -456,6 +456,7 @@ class TypeEmitter {
         }
         if (bType.tag == TypeTags.ERROR) {
             B_TYPES.put(bType.tsymbol.toString(), bType);
+            return bType.tsymbol.toString();
         }
         if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT) {
             return bType.tsymbol.toString();

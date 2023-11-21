@@ -344,7 +344,7 @@ public class JvmPackageGen {
             func = findFunction(typeDef.attachedFuncs, funcName);
         } else if (parentNode instanceof BIRPackage) {
             BIRPackage pkg = (BIRPackage) parentNode;
-            func = findFunction(pkg.functions, funcName);
+            func = findFunction(pkg.getFunctions(), funcName);
         } else {
             // some generated functions will not have bir function
             return null;
@@ -450,7 +450,6 @@ public class JvmPackageGen {
         linkGlobalVars(module, initClass, isEntry);
 
         // link module functions with class names
-
         linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
 
         // link module stop function that will be generated
@@ -460,7 +459,7 @@ public class JvmPackageGen {
         linkModuleFunction(module.packageID, initClass, MODULE_EXECUTE_METHOD);
 
         // link typedef - object attached native functions
-        linkTypeDefinitions(module, isEntry);
+        linkTypeDefinitions(module, jvmClassMap, isEntry);
 
         return jvmClassMap;
     }
@@ -484,8 +483,7 @@ public class JvmPackageGen {
         globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
-
-    private void linkTypeDefinitions(BIRPackage module, boolean isEntry) {
+    private void linkTypeDefinitions(BIRPackage module, Map<String, JavaClass> jvmClassMap, boolean isEntry) {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
@@ -511,6 +509,9 @@ public class JvmPackageGen {
                 } catch (JInteropException e) {
                     dlog.error(func.pos, e.getCode(), e.getMessage());
                 }
+
+                func.getEnclosedFunctions().forEach(
+                        enclFunc -> linkFunction(enclFunc, module.packageID, pkgName, jvmClassMap, isEntry));
             }
         }
     }
@@ -525,8 +526,7 @@ public class JvmPackageGen {
 
     private void linkModuleFunctions(BIRPackage birPackage, String initClass, boolean isEntry,
                                      Map<String, JavaClass> jvmClassMap) {
-        // filter out functions.
-        List<BIRFunction> functions = birPackage.functions;
+        List<BIRFunction> functions = birPackage.getFunctions();
         if (functions.isEmpty()) {
             return;
         }
@@ -564,40 +564,40 @@ public class JvmPackageGen {
             BIRFunction birFunc = functions.get(count);
             count = count + 1;
             // link the bir function for lookup
-            String birFuncName = birFunc.name.value;
-            String balFileName;
-            if (birFunc.pos == null) {
-                balFileName = MODULE_INIT_CLASS_NAME;
+            linkFunction(birFunc, packageID, pkgName, jvmClassMap, isEntry);
+        }
+    }
+
+    private void linkFunction(BIRNode.BIRFunction birFunc, PackageID packageID, String pkgName,
+                              Map<String, JavaClass> jvmClassMap, boolean isEntry) {
+
+        String balFileName = birFunc.pos == null ? MODULE_INIT_CLASS_NAME : birFunc.pos.lineRange().fileName();
+        String cleanedBalFileName = balFileName;
+        if (!birFunc.name.value.startsWith(MethodGenUtils.encodeModuleSpecialFuncName(".<test"))) {
+            // skip removing `.bal` from generated file names. otherwise `.<testinit>` brakes because,
+            // it's "file name" may end in `.bal` due to module. see #27201
+            cleanedBalFileName = JvmCodeGenUtil.cleanupPathSeparators(balFileName);
+        }
+        String className = getModuleLevelClassName(packageID, cleanedBalFileName);
+        if (!JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.value, packageID.name.value)) {
+            JavaClass javaClass = jvmClassMap.get(className);
+            if (javaClass != null) {
+                javaClass.functions.add(birFunc);
             } else {
-                balFileName = birFunc.pos.lineRange().fileName();
-            }
-
-            String cleanedBalFileName = balFileName;
-            if (!birFunc.name.value.startsWith(MethodGenUtils.encodeModuleSpecialFuncName(".<test"))) {
-                // skip removing `.bal` from generated file names. otherwise `.<testinit>` brakes because,
-                // it's "file name" may end in `.bal` due to module. see #27201
-                cleanedBalFileName = JvmCodeGenUtil.cleanupPathSeparators(balFileName);
-            }
-            String birModuleClassName = getModuleLevelClassName(packageID, cleanedBalFileName);
-
-            if (!JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.value, packageID.name.value)) {
-                JavaClass javaClass = jvmClassMap.get(birModuleClassName);
-                if (javaClass != null) {
-                    javaClass.functions.add(birFunc);
-                } else {
-                    klass = new JavaClass(balFileName);
-                    klass.functions.add(0, birFunc);
-                    jvmClassMap.put(birModuleClassName, klass);
-                }
-            }
-            try {
-                BIRFunctionWrapper birFuncWrapperOrError = getBirFunctionWrapper(isEntry, packageID, birFunc,
-                                                                                 birModuleClassName);
-                birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
-            } catch (JInteropException e) {
-                dlog.error(birFunc.pos, e.getCode(), e.getMessage());
+                JavaClass klass = new JavaClass(balFileName);
+                klass.functions.add(0, birFunc);
+                jvmClassMap.put(className, klass);
             }
         }
+        try {
+            BIRFunctionWrapper birFuncWrapperOrError = getBirFunctionWrapper(isEntry, packageID, birFunc,
+                    className);
+            birFunctionMap.put(pkgName + birFunc.name.value, birFuncWrapperOrError);
+        } catch (JInteropException e) {
+            dlog.error(birFunc.pos, e.getCode(), e.getMessage());
+        }
+        birFunc.getEnclosedFunctions()
+                .forEach(enclFunc -> linkFunction(enclFunc, packageID, pkgName, jvmClassMap, isEntry));
     }
 
     private BIRFunctionWrapper getBirFunctionWrapper(boolean isEntry, PackageID packageID,
@@ -767,7 +767,7 @@ public class JvmPackageGen {
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
 
-        List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
+        List<BIRFunction> sortedFunctions = new ArrayList<>(module.getFunctions());
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
         jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
         jvmConstantsGen.generateConstants(jarEntries);
@@ -800,7 +800,7 @@ public class JvmPackageGen {
 
     private BIRFunction getFunction(BIRPackage module, String funcName) {
         BIRFunction function = null;
-        for (BIRFunction birFunc : module.functions) {
+        for (BIRFunction birFunc : module.getFunctions()) {
             if (birFunc.name.value.equals(funcName)) {
                 function = birFunc;
                 break;

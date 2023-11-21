@@ -1006,6 +1006,12 @@ types:
         type: error_table
       - id: worker_channel_info
         type: worker_channel
+      - id: enclosed_function_count
+        type: s4
+      - id: enclosed_functions
+        type: function
+        repeat: expr
+        repeat-expr: enclosed_function_count
   return_var:
     seq:
       - id: kind

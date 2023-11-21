@@ -59,7 +59,7 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
     @Override
     public void visit(BIRNode.BIRPackage birPackage) {
         birPackage.typeDefs.forEach(tDef -> tDef.accept(this));
-        birPackage.functions.forEach(func -> func.accept(this));
+        birPackage.getFunctions().forEach(func -> func.accept(this));
     }
 
     @Override
@@ -69,6 +69,7 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRFunction birFunction) {
+        birFunction.getEnclosedFunctions().forEach(func -> func.accept(this));
         BIRGenUtils.rearrangeBasicBlocks(birFunction);
         BIROptimizer.OptimizerEnv funcEnv = new BIROptimizer.OptimizerEnv();
 

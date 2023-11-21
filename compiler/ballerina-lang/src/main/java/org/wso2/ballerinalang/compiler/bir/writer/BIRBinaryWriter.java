@@ -75,7 +75,7 @@ public class BIRBinaryWriter {
         // Write type def bodies
         writeTypeDefBodies(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
-        writeFunctions(birbuf, typeWriter, birPackage.functions);
+        writeFunctions(birbuf, typeWriter, birPackage.getFunctions());
         // Write annotations
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
         // Write service declarations
@@ -306,10 +306,17 @@ public class BIRBinaryWriter {
         // Write the instruction vs scope table
         writeScopes(buf, scopebuf, funcInsWriter.getScopeCount());
 
+        List<BIRNode.BIRFunction> enclosedFunctions = birFunction.getEnclosedFunctions();
+        birbuf.writeInt(enclosedFunctions.size());
+        for (BIRNode.BIRFunction enclosedFunc : enclosedFunctions) {
+            writeFunction(birbuf, typeWriter, enclosedFunc);
+        }
+
         // Write length of the function body so that it can be skipped easily.
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+
     }
     
     private void writePathParameters(ByteBuf buf, BIRNode.BIRFunction birFunction) {

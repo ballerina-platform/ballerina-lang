@@ -221,12 +221,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
         }
 
         for (TopLevelNode topLevelNode : pkgNode.topLevelNodes) {
-            if (topLevelNode instanceof BLangFunction) {
-                BLangFunction blf = (BLangFunction) topLevelNode;
-                if (blf.nestedFn) {
-                    throw new AssertionError("nested functions should not be lifted");
-                }
-            }
             rewrite((BLangNode) topLevelNode);
         }
 

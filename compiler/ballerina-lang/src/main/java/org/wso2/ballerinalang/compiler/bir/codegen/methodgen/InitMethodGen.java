@@ -248,21 +248,21 @@ public class InitMethodGen {
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
                 MethodGenUtils.INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
-        pkg.functions.add(initFunc);
+        pkg.addFunction(initFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
                 JvmPackageGen.getFunctionWrapper(initFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction startFunc = generateDefaultFunction(moduleImports, pkg, MODULE_START_METHOD,
                                                                 MethodGenUtils.START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
-        pkg.functions.add(startFunc);
+        pkg.addFunction(startFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
                 JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc, testExecuteFunc,
                 typeOwnerClass);
         javaClass.functions.add(execFunc);
-        pkg.functions.add(execFunc);
+        pkg.addFunction(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
                 JvmPackageGen.getFunctionWrapper(execFunc, pkg.packageID, typeOwnerClass));
     }

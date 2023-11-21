@@ -160,7 +160,7 @@ public class BIRLockOptimizer extends BIRVisitor {
     @Override
     public void visit(BIRNode.BIRPackage birPackage) {
         birPackage.typeDefs.forEach(tDef -> tDef.accept(this));
-        birPackage.functions.forEach(func -> func.accept(this));
+        birPackage.getFunctions().forEach(func -> func.accept(this));
     }
 
     @Override
@@ -171,6 +171,7 @@ public class BIRLockOptimizer extends BIRVisitor {
     @Override
     public void visit(BIRNode.BIRFunction birFunction) {
         birFunction.basicBlocks.forEach(bb -> bb.accept(this));
+        birFunction.getEnclosedFunctions().forEach(func -> func.accept(this));
     }
 
     @Override

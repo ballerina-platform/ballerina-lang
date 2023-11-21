@@ -32,8 +32,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
-import java.util.List;
-
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
@@ -62,22 +60,17 @@ public class ExternalMethodGen {
 
     public static void injectDefaultParamInits(BIRPackage module, InitMethodGen initMethodGen) {
         // filter out functions.
-        List<BIRFunction> functions = module.functions;
-        if (!functions.isEmpty()) {
-            int funcSize = functions.size();
-            int count = 3;
-            // Generate classes for other functions.
-            while (count < funcSize) {
-                BIRFunction birFunc = functions.get(count);
-                count = count + 1;
-                if (birFunc instanceof JMethodBIRFunction) {
-                    desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
-                    initMethodGen.resetIds();
-                } else if (!(birFunc instanceof JFieldBIRFunction)) {
-                    initMethodGen.resetIds();
-                }
-            }
+        module.getFunctions().stream().skip(3).forEach(fn -> injectDefaultParamInit(fn, initMethodGen));
+    }
+
+    private static void injectDefaultParamInit(BIRFunction birFunc, InitMethodGen initMethodGen) {
+        if (birFunc instanceof JMethodBIRFunction) {
+            desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
+            initMethodGen.resetIds();
+        } else if (!(birFunc instanceof JFieldBIRFunction)) {
+            initMethodGen.resetIds();
         }
+        birFunc.getEnclosedFunctions().forEach(fn -> injectDefaultParamInit(fn, initMethodGen));
     }
 
     public static BIRFunctionWrapper createExternalFunctionWrapper(boolean isEntry, BIRFunction birFunc,

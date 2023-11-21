@@ -264,7 +264,6 @@ public class ReferenceFinder extends BaseVisitor {
         find(pkgNode.classDefinitions.stream()
                      .filter(c -> !isGeneratedClassDefForService(c))
                      .collect(Collectors.toList()));
-        // pr: we may be able to remove this
         find(pkgNode.functions.stream()
                      .filter(f -> !f.flagSet.contains(Flag.LAMBDA))
                      .collect(Collectors.toList()));

@@ -150,22 +150,10 @@ class JvmObservabilityGen {
      */
     public void instrumentPackage(BIRPackage pkg) {
         initializeTempLocalVariables();
-        for (int i = 0; i < pkg.functions.size(); i++) {
-            localVarIndex = 0;
-            BIRFunction func = pkg.functions.get(i);
-
-            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.getValue())) {
-                rewriteControlFlowInvocation(func, pkg);
-            }
-            rewriteAsyncInvocations(func, null, pkg);
-            rewriteObservableFunctionInvocations(func, pkg);
-            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.getValue())) {
-                rewriteObservableFunctionBody(func, pkg, null, func.name.getValue(), null, false, false, true,
-                        false);
-            } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, pkg, null, func.workerName.getValue(), null, false, false, false,
-                        true);
-            }
+        List<BIRFunction> functions =
+                new ArrayList<>(pkg.getFunctions()); // We are adding functions to package while instrumenting
+        for (BIRFunction func : functions) {
+            instrumentFunction(func, pkg);
         }
         for (BIRNode.BIRServiceDeclaration serviceDecl : pkg.serviceDecls) {
             List<String> attachPoint = serviceDecl.attachPoint;
@@ -219,10 +207,11 @@ class JvmObservabilityGen {
                                                       false, true, false, false);
                     }
                 }
+                func.getEnclosedFunctions().forEach(enclFunc -> instrumentFunction(enclFunc, pkg));
             }
         }
         // Adding initializing instructions for all compile time known constants
-        BIRFunction initFunc = pkg.functions.get(0);
+        BIRFunction initFunc = pkg.getFunctions().get(0);
         BIRBasicBlock constInitBB = initFunc.basicBlocks.get(0);
         for (Map.Entry<Object, BIROperand> entry : compileTimeConstants.entrySet()) {
             BIROperand operand = entry.getValue();
@@ -230,6 +219,23 @@ class JvmObservabilityGen {
                     operand.variableDcl.type, operand);
             constInitBB.instructions.add(constLoadIns);
         }
+    }
+
+    private void instrumentFunction(BIRFunction func, BIRPackage pkg) {
+        localVarIndex = 0;
+        if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.getValue())) {
+            rewriteControlFlowInvocation(func, pkg);
+        }
+        rewriteAsyncInvocations(func, null, pkg);
+        rewriteObservableFunctionInvocations(func, pkg);
+        if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.getValue())) {
+            rewriteObservableFunctionBody(func, pkg, null, func.name.getValue(), null, false, false, true,
+                    false);
+        } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
+            rewriteObservableFunctionBody(func, pkg, null, func.workerName.getValue(), null, false, false, false,
+                    true);
+        }
+        func.getEnclosedFunctions().forEach(enclFunc -> instrumentFunction(enclFunc, pkg));
     }
 
     /**
@@ -330,13 +336,10 @@ class JvmObservabilityGen {
         PackageID currentPkgId = new PackageID(org, module, module, packageID.version, packageID.sourceFileName,
                 packageID.sourceRoot, packageID.isTestPkg, packageID.skipTests);
         BSymbol functionOwner;
-        List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {
             functionOwner = packageCache.getSymbol(currentPkgId);
-            scopeFunctionsList = pkg.functions;
         } else {
             functionOwner = attachedTypeDef.type.tsymbol;
-            scopeFunctionsList = attachedTypeDef.attachedFuncs;
         }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
             if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL
@@ -365,7 +368,11 @@ class JvmObservabilityGen {
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
                     func.workerName, 0, VIRTUAL);
             desugaredFunc.receiver = func.receiver;
-            scopeFunctionsList.add(desugaredFunc);
+            if (attachedTypeDef == null) {
+                pkg.addFunction(desugaredFunc);
+            } else {
+                attachedTypeDef.attachedFuncs.add(desugaredFunc);
+            }
 
             // Creating the return variable
             BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,

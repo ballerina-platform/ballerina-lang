@@ -148,7 +148,7 @@ public class JvmDesugarPhase {
         encodePackageIdentifiers(module.packageID, encodedVsInitialIds);
         encodeGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
         encodeImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
-        encodeFunctionIdentifiers(module.functions, encodedVsInitialIds);
+        encodeFunctionIdentifiers(module.getFunctions(), encodedVsInitialIds);
         encodeTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
         return encodedVsInitialIds;
     }
@@ -193,29 +193,34 @@ public class JvmDesugarPhase {
         }
     }
 
+
     private static void encodeFunctionIdentifiers(List<BIRFunction> functions,
                                                   HashMap<String, String> encodedVsInitialIds) {
-        for (BIRFunction function : functions) {
-            function.name = Names.fromString(encodeFunctionIdentifier(function.name.value, encodedVsInitialIds));
-            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
-                if (localVar.metaVarName == null) {
-                    continue;
-                }
-                localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, encodedVsInitialIds);
+        functions.forEach(function -> encodeFunctionIdentifier(function, encodedVsInitialIds));
+    }
+
+    private static void encodeFunctionIdentifier(BIRFunction function,
+                                                 HashMap<String, String> encodedVsInitialIds) {
+        function.name = Names.fromString(encodeFunctionIdentifier(function.name.value, encodedVsInitialIds));
+        for (BIRNode.BIRVariableDcl localVar : function.localVars) {
+            if (localVar.metaVarName == null) {
+                continue;
             }
-            for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
-                                                                              encodedVsInitialIds));
-            }
-            if (function.type.tsymbol != null) {
-                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
-                    parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
-                            encodedVsInitialIds));
-                }
-            }
-            encodeDefaultFunctionName(function.type, encodedVsInitialIds);
-            encodeWorkerName(function, encodedVsInitialIds);
+            localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, encodedVsInitialIds);
         }
+        for (BIRNode.BIRParameter parameter : function.requiredParams) {
+            parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
+                    encodedVsInitialIds));
+        }
+        if (function.type.tsymbol != null) {
+            for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
+                        encodedVsInitialIds));
+            }
+        }
+        encodeDefaultFunctionName(function.type, encodedVsInitialIds);
+        encodeWorkerName(function, encodedVsInitialIds);
+        encodeFunctionIdentifiers(function.getEnclosedFunctions(), encodedVsInitialIds);
     }
 
     private static void encodeDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
@@ -264,7 +269,7 @@ public class JvmDesugarPhase {
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
-        replaceEncodedFunctionIdentifiers(module.functions, encodedVsInitialIds);
+        replaceEncodedFunctionIdentifiers(module.getFunctions(), encodedVsInitialIds);
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
 
@@ -303,19 +308,16 @@ public class JvmDesugarPhase {
 
     private static void replaceEncodedFunctionIdentifiers(List<BIRFunction> functions,
                                                           HashMap<String, String> encodedVsInitialIds) {
-        for (BIRFunction function : functions) {
-            function.name = getInitialIdString(function.name, encodedVsInitialIds);
-            for (BIRNode.BIRParameter parameter : function.requiredParams) {
+        functions.forEach(function -> replaceEncodedFunctionIdentifier(function, encodedVsInitialIds));
+    }
+
+    private static void replaceEncodedFunctionIdentifier(BIRFunction function,
+                                                         HashMap<String, String> encodedVsInitialIds) {
+        function.name = getInitialIdString(function.name, encodedVsInitialIds);
+        for (BIRNode.BIRParameter parameter : function.requiredParams) {
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
-            }
-            if (function.type.tsymbol != null) {
-                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
-                    parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
-                }
-            }
-            replaceEncodedDefaultFunctionName(function.type, encodedVsInitialIds);
-            replaceEncodedWorkerName(function, encodedVsInitialIds);
         }
+        replaceEncodedFunctionIdentifiers(function.getEnclosedFunctions(), encodedVsInitialIds);
     }
 
     private static void replaceEncodedDefaultFunctionName(BInvokableType type,

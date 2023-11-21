@@ -47,7 +47,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.ST
 public class FrameClassGen {
 
     public void generateFrameClasses(BIRNode.BIRPackage pkg, Map<String, byte[]> pkgEntries) {
-        pkg.functions.forEach(
+        pkg.getFunctions().forEach(
                 func -> generateFrameClassForFunction(pkg.packageID, func, pkgEntries, null));
 
         for (BIRNode.BIRTypeDefinition typeDef : pkg.typeDefs) {
@@ -72,6 +72,9 @@ public class FrameClassGen {
     private void generateFrameClassForFunction(PackageID packageID, BIRNode.BIRFunction func,
                                                Map<String, byte[]> pkgEntries,
                                                BType attachedType) {
+        // enclosed functions are not attached to a type
+        func.getEnclosedFunctions().forEach(
+                enclosedFunc -> generateFrameClassForFunction(packageID, enclosedFunc, pkgEntries, null));
         String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
                                                                  func.name.value, attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);

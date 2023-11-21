@@ -61,12 +61,7 @@ public class MethodGenUtils {
     static final String START_FUNCTION_SUFFIX = ".<start>";
 
     static boolean hasInitFunction(BIRNode.BIRPackage pkg) {
-        for (BIRNode.BIRFunction func : pkg.functions) {
-            if (func != null && isModuleInitFunction(func)) {
-                return true;
-            }
-        }
-        return false;
+        return pkg.getFunctions().stream().anyMatch(MethodGenUtils::isModuleInitFunction);
     }
 
     static boolean isModuleInitFunction(BIRNode.BIRFunction func) {

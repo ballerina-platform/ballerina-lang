@@ -49,9 +49,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
 
     public boolean interfaceFunction;
 
-    // pr: we didn't add this function to the top in ast
-    public boolean nestedFn = false;
-
     // Semantic Data
     public BLangSimpleVariable receiver;
 
@@ -70,6 +67,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
     public String anonForkName;
     public boolean mapSymbolUpdated;
 
+    public boolean enclosed = false;
     public List<BLangLambdaFunction> enclosedFunctions = new ArrayList<>();
 
     public SimpleVariableNode getReceiver() {
@@ -107,10 +105,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
 
     @Override
     public void encloseFunction(BLangLambdaFunction lambdaFunction) {
-        // pr: this is not a good way to check for duplicates
-        if (this.enclosedFunctions.contains(lambdaFunction)) {
-            return;
-        }
         this.enclosedFunctions.add(lambdaFunction);
     }
 

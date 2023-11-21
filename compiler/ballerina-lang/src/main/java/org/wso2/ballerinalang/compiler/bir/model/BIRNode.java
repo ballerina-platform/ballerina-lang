@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,12 +60,12 @@ public abstract class BIRNode {
         public final List<BIRTypeDefinition> typeDefs;
         public final List<BIRGlobalVariableDcl> globalVars;
         public final Set<BIRGlobalVariableDcl> importedGlobalVarsDummyVarDcls;
-        public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
         public final List<BIRConstant> constants;
         public final List<BIRServiceDeclaration> serviceDecls;
         public boolean isListenerAvailable;
 
+        private final List<BIRFunction> functions;
         public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version,
                           Name sourceFileName, String sourceRoot, boolean skipTest) {
             this(pos, org, pkgName, name, version, sourceFileName, sourceRoot, skipTest, false);
@@ -87,6 +88,23 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        public List<BIRFunction> getFunctions() {
+            return Collections.unmodifiableList(this.functions);
+        }
+
+        public void addFunction(BIRFunction function) {
+            this.functions.add(function);
+        }
+
+        public void addFunctions(List<BIRFunction> functions) {
+            functions.forEach(this::addFunction);
+        }
+
+        public void setFunctions(List<BIRFunction> functions) {
+            this.functions.clear();
+            this.addFunctions(functions);
         }
     }
 
@@ -372,7 +390,7 @@ public abstract class BIRNode {
         
         public List<BType> pathSegmentTypeList;
 
-        public List<BIRFunction> enclosedFunctions = new ArrayList<>();
+        private final List<BIRFunction> enclosedFunctions = new ArrayList<>();
 
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
@@ -451,6 +469,14 @@ public abstract class BIRNode {
         @Override
         public Name getName() {
             return name;
+        }
+
+        public void encloseFunction(BIRFunction function) {
+            this.enclosedFunctions.add(function);
+        }
+
+        public List<BIRFunction> getEnclosedFunctions() {
+            return Collections.unmodifiableList(this.enclosedFunctions);
         }
     }
 
