@@ -176,6 +176,7 @@ public class BalToolsUtil {
         if (HELP_COMMAND.equals(commandName)) {
             return balToolsManifest.tools().values().stream()
                     .flatMap(map -> map.values().stream())
+                    .flatMap(map -> map.values().stream())
                     .filter(BalToolsManifest.Tool::active)
                     .map(tool1 -> findJarFiles(CommandUtil.getPlatformSpecificBalaPath(
                             tool1.org(), tool1.name(), tool1.version(), centralBalaDirPath).resolve(TOOL).resolve(LIBS)
@@ -271,8 +272,8 @@ public class BalToolsUtil {
                     boolean isActive = balToolsManifest.getActiveTool(tool.id()).isEmpty()
                             && latestVersion.isPresent()
                             && latestVersion.get().equals(version);
-                    if (balToolsManifest.getTool(tool.id(), version).isEmpty()) {
-                        balToolsManifest.addTool(tool.id(), tool.org(), tool.name(), version, isActive);
+                    if (balToolsManifest.getTool(tool.id(), version, null).isEmpty()) {
+                        balToolsManifest.addTool(tool.id(), tool.org(), tool.name(), version, isActive, null);
                     }
                 });
             }

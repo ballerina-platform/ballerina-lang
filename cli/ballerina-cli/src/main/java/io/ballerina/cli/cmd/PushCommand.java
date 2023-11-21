@@ -17,6 +17,9 @@
 */
 package io.ballerina.cli.cmd;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.DependencyManifest;
@@ -44,9 +47,12 @@ import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -387,6 +393,7 @@ public class PushCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(balaCachesPath);
             }
             ProjectUtils.extractBala(balaFilePath, balaDestPath);
+            handleLocalTools(balaDestPath, org, packageName, repoPath.resolve(ProjectConstants.BALA_DIR_NAME));
         } catch (IOException e) {
             throw new ProjectException("error while pushing bala file '" + balaFilePath + "' to '"
                     + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository. " + e.getMessage());
@@ -400,6 +407,53 @@ public class PushCommand implements BLauncherCmd {
         }
         outStream.println("Successfully pushed " + relativePathToBalaFile
                 + " to '" + repositoryName + "' repository.");
+    }
+
+    private void handleLocalTools(Path balaDestPath, String org, String packageName, Path localRepoBalaPath) {
+        Path balToolJsonPath = balaDestPath.resolve("tool").resolve("bal-tool.json");
+        String toolId = null;
+        JsonObject balToolJson;
+        JsonObject localToolJson;
+        Gson gson = new Gson();
+        if (!balToolJsonPath.toFile().exists()) {
+            return;
+        }
+        try (BufferedReader bufferedReader = Files.newBufferedReader(balToolJsonPath, StandardCharsets.UTF_8)) {
+            balToolJson = gson.fromJson(bufferedReader, JsonObject.class);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read bal-tools.json file: " + e.getMessage());
+        }
+        toolId = balToolJson.get("tool_id").getAsString();
+
+        if (toolId ==  null) {
+            return;
+        }
+
+        JsonObject packageDesc = new JsonObject();
+        packageDesc.addProperty("org", org);
+        packageDesc.addProperty("name", packageName);
+        Path localToolJsonPath = localRepoBalaPath.resolve("local-tools.json");
+        if (localToolJsonPath.toFile().exists()) {
+            try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath,
+                    StandardCharsets.UTF_8)) {
+                localToolJson = gson.fromJson(bufferedReader, JsonObject.class);
+                if (localToolJson.has(toolId)) {
+                    localToolJson.remove(toolId);
+                }
+                localToolJson.add(toolId, packageDesc);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read local-tools.json file: " + e.getMessage());
+            }
+        } else {
+            localToolJson = new JsonObject();
+            localToolJson.add(toolId, packageDesc);
+        }
+
+        try (FileWriter writer = new FileWriter(localToolJsonPath.toFile())) {
+            writer.write(gson.toJson(localToolJson));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write local-tools.json file: " + e.getMessage());
+        }
     }
 
     /**
