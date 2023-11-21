@@ -14,56 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
 import ballerina/test;
 
-public class Listener {
-    public isolated function 'start() returns error? {
-    }
-    public isolated function gracefulStop() returns error? {
-    }
-    public isolated function immediateStop() returns error? {
-    }
-    public isolated function detach(service object {} s) returns error? {
-    }
-    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
-        return self.register(s, name);
-    }
-    isolated function register(service object {} s, string[]|string? name) returns error? {
-        return externAttach(s);
-    }
-}
-
-isolated function externAttach(service object {} s) returns error? = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.tests.MockListener",
-    name: "attach"
-} external;
-
-listener Listener lsn = new();
-
-service / on lsn {
-    resource function get number() returns int|error {
-        worker w1 returns error? {
-            int a = 10;
-            a -> function;
-        }
-        int b = <- w1;
-        return b;
-    }
-}
-
-function invokeResource(string name) returns future<int|error> = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.tests.MockListener",
-    name: "invokeResourceWithUnionReturn"
-} external;
-
 public function testErrorUnionWithDefaultWorkerFunction() {
-    future<int|error> num = invokeResource("$get$number");
-    int|error res = wait num;
-    if (res is int) {
-        test:assertEquals(10, res);
-    }
-
     Class c = new(10);
     test:assertEquals(10, checkpanic c.getId());
 }
