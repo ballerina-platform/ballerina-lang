@@ -218,6 +218,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
     private static final Name QUERY_CREATE_COLLECT_FUNCTION = new Name("createCollectFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
+    private static final Name QUERY_CREATE_ON_CONFLICT_FUNCTION = new Name("createOnConflictFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
@@ -227,8 +228,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
+    private static final Name QUERY_ADD_TO_TABLE_FOR_ON_CONFLICT_FUNCTION = new Name("addToTableForOnConflict");
     private static final Name QUERY_ADD_TO_MAP_FUNCTION = new Name("addToMap");
+    private static final Name QUERY_ADD_TO_MAP_FOR_ON_CONFLICT_FUNCTION = new Name("addToMapForOnConflict");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
+    private static final Name QUERY_GET_STREAM_FOR_ON_CONFLICT_FROM_PIPELINE_FUNCTION = 
+            new Name("getStreamForOnConflictFromPipeline");
     private static final Name QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION = new Name("getQueryErrorRootCause");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final Name QUERY_BODY_DISTINCT_ERROR_NAME = new Name("Error");
@@ -296,23 +301,27 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (queryExpr.isStream) {
             resultType = streamRef.getBType();
         } else if (queryExpr.isTable) {
-            onConflictExpr = (onConflictExpr == null)
-                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
-                    : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
-            result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
+            if (onConflictExpr == null) {
+                result = getStreamFunctionVariableRef(queryBlock,
+                        QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, isReadonly), pos);
+            } else {
+                result = getStreamFunctionVariableRef(queryBlock,
+                        QUERY_ADD_TO_TABLE_FOR_ON_CONFLICT_FUNCTION, Lists.of(streamRef, tableRef, isReadonly), pos);
+            }
             resultType = tableRef.getBType();
             onConflictExpr = null;
         } else if (queryExpr.isMap) {
-            onConflictExpr = (onConflictExpr == null)
-                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
-                    : onConflictExpr;
             BMapType mapType = getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
-            result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
+            if (onConflictExpr == null) {
+                result = getStreamFunctionVariableRef(queryBlock,
+                        QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, isReadonly), pos);
+            } else {
+                result = getStreamFunctionVariableRef(queryBlock,
+                        QUERY_ADD_TO_MAP_FOR_ON_CONFLICT_FUNCTION, Lists.of(streamRef, mapLiteral, isReadonly), pos);
+            }
             onConflictExpr = null;
         } else if (queryExpr.getFinalClause().getKind() == NodeKind.COLLECT) {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
@@ -560,6 +569,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                 case ON_CONFLICT:
                     final BLangOnConflictClause onConflict = (BLangOnConflictClause) clause;
                     onConflictExpr = onConflict.expression;
+                    BLangVariableReference onConflictRef = addOnConflictFunction(block, onConflict, 
+                            stmtsToBePropagated);
+                    addStreamFunction(block, initPipeline, onConflictRef);
                     break;
             }
         }
@@ -926,6 +938,28 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
+     * Desugar onConflictClause to below and return a reference to created onConflict _StreamFunction.
+     * _StreamFunction onConflictFunc = createOnConflictFunction
+     * @param blockStmt
+     * @param onConflictClause
+     * @param stmtsToBePropagated
+     * @return
+     */
+    BLangVariableReference addOnConflictFunction(BLangBlockStmt blockStmt, BLangOnConflictClause onConflictClause,
+                                                 List<BLangStatement> stmtsToBePropagated) {
+        Location pos = onConflictClause.pos;
+        BLangLambdaFunction lambda = createPassthroughLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
+        BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
+        // $frame#[$error$] = on-conflict-expr;
+        BLangStatement assignment = getAddToFrameStmt(pos, frame, "$error$", onConflictClause.expression);
+        body.stmts.add(body.stmts.size() - 1, assignment);
+        lambda = rewrite(lambda);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ON_CONFLICT_FUNCTION, Lists.of(lambda), pos);
+    }
+    /**
      * Desugar doClause to below and return a reference to created do _StreamFunction.
      * _StreamFunction doFunc = createDoFunction(function(_Frame frame) {
      * int x2 = <int> frame["x2"];
@@ -994,8 +1028,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
         Location pos = pipelineRef.pos;
+        if (onConflictExpr == null) {
+            return getStreamFunctionVariableRef(blockStmt,
+                    QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
+        }
         return getStreamFunctionVariableRef(blockStmt,
-                QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
+                QUERY_GET_STREAM_FOR_ON_CONFLICT_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
     }
 
     /**
@@ -2063,6 +2101,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.acceptNode(errorConstructorExpr.errorTypeRef);
         if (errorConstructorExpr.namedArgs != null) {
             rewrite(errorConstructorExpr.namedArgs);
+        }
+        if (errorConstructorExpr.positionalArgs != null) {
+            rewrite(errorConstructorExpr.positionalArgs);
         }
         errorConstructorExpr.errorDetail = rewrite(errorConstructorExpr.errorDetail);
         result = errorConstructorExpr;
