@@ -38,7 +38,6 @@ public class MockListener {
 
     private static BObject service;
     private static BError err;
-    private static BFuture result;
 
     public static Object attach(BObject servObj) {
         service = servObj;
@@ -68,12 +67,9 @@ public class MockListener {
     }
 
     public static BFuture invokeResourceWithUnionReturn(Environment env, BString name) {
-        if (service != null) {
-            Runtime runtime = env.getRuntime();
-            result = runtime.invokeMethodAsyncConcurrently(service, name.getValue(), null, null, null, null,
-                                               new BUnionType(new ArrayList<>(List.of(PredefinedTypes.TYPE_INT,
-                                                                                      PredefinedTypes.TYPE_ERROR))));
-        }
-        return result;
+        Runtime runtime = env.getRuntime();
+        return runtime.invokeMethodAsyncConcurrently(service, name.getValue(), null, null, null, null,
+                                           new BUnionType(new ArrayList<>(List.of(PredefinedTypes.TYPE_INT,
+                                                                                  PredefinedTypes.TYPE_ERROR))));
     }
 }

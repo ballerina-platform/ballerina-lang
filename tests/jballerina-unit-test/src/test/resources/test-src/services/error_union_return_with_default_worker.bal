@@ -63,4 +63,23 @@ public function testErrorUnionWithDefaultWorkerFunction() {
     if (res is int) {
         test:assertEquals(10, res);
     }
+
+    Class c = new(10);
+    test:assertEquals(10, checkpanic c.getId());
+}
+
+public class Class {
+    private int id;
+
+    public function init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int|error {
+        worker w1 returns error? {
+            self.id -> function;
+
+        }
+        return <- w1;
+    }
 }
