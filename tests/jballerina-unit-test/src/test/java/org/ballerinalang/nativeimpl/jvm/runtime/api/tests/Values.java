@@ -83,6 +83,7 @@ public class Values {
 
     private static final Module objectModule = new Module("testorg", "values.objects", "1");
     private static final Module recordModule = new Module("testorg", "values.records", "1");
+    private static final Module errorModule = new Module("testorg", "values.errors", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
     private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
