@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.tree.NodeKind;
@@ -93,17 +94,13 @@ public class LargeMethodSplitter {
     }
 
     private static BLangDiagnosticLocation getNewFuncPos(Location packageNodePos, String packageFileName,
-                                               int splitInitFuncClassCount) {
+                                                         int splitInitFuncClassCount) {
         LineRange lineRange = packageNodePos.lineRange();
         TextRange textRange = packageNodePos.textRange();
-        int startLine = lineRange.startLine().line();
-        int startColumn = lineRange.startLine().offset();
-        int endLine = lineRange.endLine().line();
-        int endColumn = lineRange.endLine().offset();
-        int startOffset = textRange.startOffset();
-        int length = textRange.length();
-        return new BLangDiagnosticLocation(packageFileName + "$" + splitInitFuncClassCount, startLine,
-                endLine, startColumn, endColumn, startOffset, length);
+        LinePosition startLine = lineRange.startLine();
+        LinePosition endLine = lineRange.endLine();
+        return new BLangDiagnosticLocation(packageFileName + "$" + splitInitFuncClassCount, startLine.line(),
+                endLine.line(), startLine.offset(), endLine.offset(), textRange.startOffset(), textRange.length());
     }
 
     /**
