@@ -169,6 +169,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -3659,22 +3660,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     continue;
                 }
                 BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
-                if (isWorkerSyncSend(currentAction)) {
-                    this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
-                } else {
-                    this.validateWorkerActionParameters((BLangWorkerAsyncSendExpr) currentAction, receive);
-                }
+                BLangWorkerSendReceiveExpr send = (BLangWorkerSendReceiveExpr) currentAction;
+                validateWorkerActionParameters(send, receive);
+
+                BLangWorkerSendReceiveExpr.Channel channel = createChannel(workerActionSystem, worker, otherSM);
+                receive.setChannel(channel);
+                send.setChannel(channel);
+
                 otherSM.next();
                 data.workerSystemMovementSequence++;
                 worker.next();
                 data.workerSystemMovementSequence++;
 
-
                 systemRunning = true;
-                String channelName = generateChannelName(worker.workerId, otherSM.workerId);
-                otherSM.node.sendsToThis.add(channelName);
-
-                worker.node.sendsToThis.add(channelName);
+                otherSM.node.sendsToThis.add(channel);
+                worker.node.sendsToThis.add(channel);
             }
 
             // If we iterated move than the number of workers in the system and did not progress,
@@ -3691,6 +3691,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
+    }
+
+    private static BLangWorkerSendReceiveExpr.Channel createChannel(WorkerActionSystem workerActionSystem,
+                                                                    WorkerActionStateMachine worker,
+                                                                    WorkerActionStateMachine otherSM) {
+        String workerPairId = BLangWorkerSendReceiveExpr.Channel.workerPairId(worker.workerId, otherSM.workerId);
+        Integer eventIndex = workerActionSystem.workerEventIndexMap.getOrDefault(workerPairId, 0);
+        workerActionSystem.workerEventIndexMap.put(workerPairId, ++eventIndex);
+        return new BLangWorkerSendReceiveExpr.Channel(worker.workerId, otherSM.workerId, eventIndex);
     }
 
     private boolean validateWorkerInteractionsAfterWaitAction(WorkerActionSystem workerActionSystem) {
@@ -3832,6 +3841,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void reportInvalidWorkerInteractionDiagnostics(WorkerActionSystem workerActionSystem) {
         this.dlog.error(workerActionSystem.getRootPosition(), DiagnosticErrorCode.INVALID_WORKER_INTERACTION,
                 workerActionSystem.toString());
+    }
+
+    private void validateWorkerActionParameters(BLangWorkerSendReceiveExpr send, BLangWorkerReceive receive) {
+        if (isWorkerSyncSend(send)) {
+            validateWorkerActionParameters((BLangWorkerSyncSendExpr) send, receive);
+        } else if (isWorkerSend(send)) {
+            validateWorkerActionParameters((BLangWorkerAsyncSendExpr) send, receive);
+        }
     }
 
     private void validateWorkerActionParameters(BLangWorkerAsyncSendExpr send, BLangWorkerReceive receive) {
@@ -4043,6 +4060,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
         private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
         private Map<BLangNode, SymbolEnv> workerInteractionEnvironments = new IdentityHashMap<>();
+        private Map<String, Integer> workerEventIndexMap = new HashMap<>();
         private boolean hasErrors = false;
 
 
@@ -4154,11 +4172,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 }
             }
         }
-    }
-
-    public static String generateChannelName(String source, String target) {
-
-        return source + "->" + target;
     }
 
     private BLangNode getEnclosingClass(SymbolEnv env) {
