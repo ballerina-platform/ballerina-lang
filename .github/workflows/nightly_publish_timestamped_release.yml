@@ -44,6 +44,7 @@ jobs:
           env:
             publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
             publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+            LS_PERFORMANCE_TESTS_IN_GITHUB_WORKFLOW: true
           run: |
             ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
             ./gradlew publish

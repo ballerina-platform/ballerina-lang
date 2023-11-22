@@ -37,7 +37,7 @@ import java.nio.file.Path;
  */
 public class CompletionPerformanceTest extends CompletionTest {
 
-    @Test(dataProvider = "completion-data-provider", enabled = false)
+    @Test(dataProvider = "completion-data-provider")
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);

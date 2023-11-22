@@ -35,6 +35,8 @@ jobs:
           echo "::set-output name=version::$VERSION"
 
       - name: Build ballerina-lang
+        env:
+          LS_PERFORMANCE_TESTS_IN_GITHUB_WORKFLOW: true
         run: |
           ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
 

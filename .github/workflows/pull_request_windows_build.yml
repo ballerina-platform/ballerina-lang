@@ -55,5 +55,6 @@ jobs:
         env:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
+          LS_PERFORMANCE_TESTS_IN_GITHUB_WORKFLOW: true
         run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :ballerina-cli:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 
