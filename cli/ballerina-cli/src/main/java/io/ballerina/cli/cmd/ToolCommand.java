@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -304,7 +305,8 @@ public class ToolCommand implements BLauncherCmd {
         this.name = tool.get().name();
 
         Optional<BalToolsManifest.Tool> currentActiveTool = balToolsManifest.getActiveTool(toolId);
-        if (currentActiveTool.isPresent() && currentActiveTool.get().version().equals(tool.get().version())) {
+        if (currentActiveTool.isPresent() && currentActiveTool.get().version().equals(tool.get().version()) &&
+                Objects.equals(currentActiveTool.get().repository(), tool.get().repository())) {
             outStream.println("tool '" + toolId + ":" + version + "' is the current active version.");
             return;
         }
@@ -563,6 +565,10 @@ public class ToolCommand implements BLauncherCmd {
 
         balToolsManifest.removeTool(toolId);
         balToolsToml.modify(balToolsManifest);
+        if (repositoryName != null) {
+            outStream.println("tool '" + toolId + "' successfully removed.");
+            return;
+        }
         Optional<BalToolsManifest.Tool> tool = toolVersions.get().values().stream().findAny()
                 .flatMap(value -> value.values().stream().findAny());
         tool.ifPresent(value -> deleteAllCachedToolVersions(value.org(), value.name()));
@@ -596,6 +602,10 @@ public class ToolCommand implements BLauncherCmd {
 
         balToolsManifest.removeToolVersion(toolId, version, repositoryName);
         balToolsToml.modify(balToolsManifest);
+        if (repositoryName != null) {
+            outStream.println("tool '" + toolId + ":" + version + "' successfully removed.");
+            return;
+        }
         deleteCachedToolVersion(tool.get().org(), tool.get().name(), version);
         outStream.println("tool '" + toolId + ":" + version + "' successfully removed.");
     }
