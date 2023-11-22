@@ -71,7 +71,7 @@ public class BalToolsManifest {
 
     public Optional<Tool> getActiveTool(String id) {
         if (tools.containsKey(id)) {
-            tools.get(id).values().stream().flatMap(v -> v.values().stream()).filter(Tool::active).findFirst();
+            return tools.get(id).values().stream().flatMap(v -> v.values().stream()).filter(Tool::active).findFirst();
         }
         return Optional.empty();
     }
