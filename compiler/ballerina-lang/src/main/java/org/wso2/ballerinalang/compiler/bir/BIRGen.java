@@ -364,11 +364,11 @@ public class BIRGen extends BLangNodeVisitor {
         BType type = getDefinedType(astTypeDefinition);
         BType referredType = Types.getImpliedType(type);
         BSymbol symbol = astTypeDefinition.symbol;
-        Name displayName = symbol.name;
+        String displayName = symbol.name.value;
         if (referredType.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) referredType;
             if (recordType.shouldPrintShape()) {
-                displayName = new Name(Utils.unescapeBallerina(recordType.toString()));
+                displayName = recordType.toString();
             }
         }
 
@@ -379,7 +379,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                           type,
                                                           new ArrayList<>(),
                                                           symbol.origin.toBIROrigin(),
-                                                          displayName,
+                                                          new Name(Utils.unescapeBallerina(displayName)),
                                                           symbol.originalName);
         if (symbol.tag == SymTag.TYPE_DEF) {
             BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
