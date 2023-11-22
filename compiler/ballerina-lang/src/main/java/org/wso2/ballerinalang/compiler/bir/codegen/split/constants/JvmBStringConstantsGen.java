@@ -52,6 +52,7 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_SURROGATE_ARRAY_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
@@ -121,7 +122,7 @@ public class JvmBStringConstantsGen {
         highSurrogatesMap.forEach((key, value) -> generateGetHighSurrogateArrayMethod(cw, key, value));
 
         cw.visitEnd();
-        jarEntries.put(surrogatesMethodsClass + ".class", cw.toByteArray());
+        jarEntries.put(surrogatesMethodsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void generateGetHighSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
@@ -271,7 +272,7 @@ public class JvmBStringConstantsGen {
                 genMethodReturn(mv);
                 generateStaticClassInitializer(cw, constantClassName);
                 cw.visitEnd();
-                jarEntries.put(constantClassName + ".class", cw.toByteArray());
+                jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
             }
         }
 
@@ -279,7 +280,7 @@ public class JvmBStringConstantsGen {
             genMethodReturn(mv);
             generateStaticClassInitializer(cw, constantClassName);
             cw.visitEnd();
-            jarEntries.put(constantClassName + ".class", cw.toByteArray());
+            jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
         }
     }
 
