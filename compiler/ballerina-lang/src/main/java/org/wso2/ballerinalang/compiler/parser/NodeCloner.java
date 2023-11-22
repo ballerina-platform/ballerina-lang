@@ -91,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1026,6 +1027,19 @@ public class NodeCloner extends BLangNodeVisitor {
         asyncSendExpr.cloneRef = clone;
         clone.expr = clone(asyncSendExpr.expr);
         clone.workerIdentifier = asyncSendExpr.workerIdentifier;
+    }
+
+    @Override
+    public void visit(BLangCombinedWorkerReceive source) {
+        BLangCombinedWorkerReceive clone = new BLangCombinedWorkerReceive(source.getKind());
+        source.cloneRef = clone;
+
+        List<BLangWorkerReceive> workerReceives = new ArrayList<>(source.getWorkerReceives().size());
+        for (BLangWorkerReceive workerReceive : source.getWorkerReceives()) {
+            workerReceives.add(clone(workerReceive));
+        }
+
+        clone.setWorkerReceives(workerReceives);
     }
 
     @Override

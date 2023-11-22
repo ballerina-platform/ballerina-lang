@@ -248,6 +248,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -912,6 +913,14 @@ public class TreeBuilder {
 
     public static WorkerReceiveNode createWorkerReceiveNode() {
         return new BLangWorkerReceive();
+    }
+
+    public static BLangCombinedWorkerReceive createAlternateWorkerReceiveNode() {
+        return new BLangCombinedWorkerReceive(NodeKind.ALTERNATE_WORKER_RECEIVE);
+    }
+
+    public static BLangCombinedWorkerReceive createMultipleWorkerReceiveNode() {
+        return new BLangCombinedWorkerReceive(NodeKind.MULTIPLE_WORKER_RECEIVE);
     }
 
     public static WorkerSendExpressionNode createWorkerSendNode() {

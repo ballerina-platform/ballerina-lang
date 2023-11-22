@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1187,6 +1188,11 @@ public class ClosureGenerator extends BLangNodeVisitor {
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         syncSendExpr.expr = rewriteExpr(syncSendExpr.expr);
         result = syncSendExpr;
+    }
+
+    @Override
+    public void visit(BLangCombinedWorkerReceive combinedWorkerReceive) {
+        result = combinedWorkerReceive;
     }
 
     @Override

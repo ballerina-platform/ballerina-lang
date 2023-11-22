@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerina.compiler.syntax.tree.AlternateReceiveWorkerNode;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
@@ -347,6 +348,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -2508,20 +2510,44 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReceiveActionNode receiveActionNode) {
-        BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        Location receiveActionPos = getPosition(receiveActionNode);
         Node receiveWorkers = receiveActionNode.receiveWorkers();
-        Token workerName;
+
         if (receiveWorkers.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            workerName = ((SimpleNameReferenceNode) receiveWorkers).name();
-        } else {
-            // TODO: implement multiple-receive-action support
-            Location receiveFieldsPos = getPosition(receiveWorkers);
-            dlog.error(receiveFieldsPos, DiagnosticErrorCode.MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED);
-            workerName = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
-                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+            BLangWorkerReceive singleWorkerRecv = createSimpleWorkerReceive((SimpleNameReferenceNode) receiveWorkers);
+            singleWorkerRecv.pos = receiveActionPos;
+            return singleWorkerRecv;
         }
-        workerReceiveExpr.setWorkerName(createIdentifier(workerName));
-        workerReceiveExpr.pos = getPosition(receiveActionNode);
+
+        if (receiveWorkers.kind() == SyntaxKind.ALTERNATE_RECEIVE_WORKER) {
+            SeparatedNodeList<SimpleNameReferenceNode> alternateWorkers =
+                    ((AlternateReceiveWorkerNode) receiveWorkers).workers();
+            List<BLangWorkerReceive> workerReceives = new ArrayList<>(alternateWorkers.size());
+            for (SimpleNameReferenceNode w : alternateWorkers) {
+                workerReceives.add(createSimpleWorkerReceive(w));
+            }
+
+            BLangCombinedWorkerReceive alternateWorkerRecv = TreeBuilder.createAlternateWorkerReceiveNode();
+            alternateWorkerRecv.setWorkerReceives(workerReceives);
+            alternateWorkerRecv.pos = receiveActionPos;
+            return alternateWorkerRecv;
+        }
+
+
+        // TODO: implement multiple-receive-action support
+        dlog.error(getPosition(receiveWorkers), DiagnosticErrorCode.MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED);
+        Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+        SimpleNameReferenceNode simpleNameRef = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+        BLangWorkerReceive singleWorkerRecv = createSimpleWorkerReceive(simpleNameRef);
+        singleWorkerRecv.pos = receiveActionPos;
+        return singleWorkerRecv;
+    }
+
+    private BLangWorkerReceive createSimpleWorkerReceive(SimpleNameReferenceNode simpleNameRef) {
+        BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        workerReceiveExpr.setWorkerName(createIdentifier(simpleNameRef.name()));
+        workerReceiveExpr.pos = getPosition(simpleNameRef);
         return workerReceiveExpr;
     }
 

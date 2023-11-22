@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 /**
- * Represents commons in worker async-send, sync-send and receive.
+ * Represents commons in worker async-send, sync-send and single-receive.
  *
  * @since 2201.9.0
  */
