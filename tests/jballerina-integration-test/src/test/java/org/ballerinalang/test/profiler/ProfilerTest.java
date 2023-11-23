@@ -25,6 +25,7 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerLogReader;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -57,9 +58,10 @@ public class ProfilerTest extends BaseTest {
         String sourceRoot = testFileLocation + "/";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
+        List<LogLeecher> leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
+        leechers.add(new LogLeecher("Is the array sorted? true"));
         bMainInstance.runMain("profile", new String[]{packageName}, envProperties,  null,
-                leechers, sourceRoot);
+                leechers.toArray(new LogLeecher[0]), sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
         }
@@ -71,8 +73,7 @@ public class ProfilerTest extends BaseTest {
         String sourceRoot = testFileLocation + "/" + packageName;
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        List<LogLeecher> leechers = new ArrayList<>(Arrays.asList(
-                getProfilerLogLeechers(packageName + "/target/bin/" + outputFile)));
+        List<LogLeecher> leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
         leechers.add(new LogLeecher("Tests passed"));
         bMainInstance.runMain("profile", new String[]{}, envProperties, null,
                 leechers.toArray(new LogLeecher[0]), sourceRoot);
@@ -81,8 +82,8 @@ public class ProfilerTest extends BaseTest {
         }
     }
 
-    private LogLeecher[] getProfilerLogLeechers(String htmlFilePath) {
-        return new LogLeecher[]{
+    private List<LogLeecher> getProfilerLogLeechers(String htmlFilePath) {
+        return Lists.of(
                 new LogLeecher("[1/6] Initializing..."),
                 new LogLeecher("[2/6] Copying executable..."),
                 new LogLeecher("[3/6] Performing analysis..."),
@@ -91,9 +92,9 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("○ Instrumented function count: "),
                 new LogLeecher("[5/6] Running executable..."),
                 new LogLeecher("[6/6] Generating output..."),
-                new LogLeecher("○ Execution time:"),
+                new LogLeecher(" ○ Execution time: [1-5] seconds ", true, LogLeecher.LeecherType.INFO),
                 new LogLeecher("○ Output: "),
-                new LogLeecher(htmlFilePath)};
+                new LogLeecher(htmlFilePath));
     }
 
     @Test
@@ -102,9 +103,9 @@ public class ProfilerTest extends BaseTest {
         String fileName = "profiler_single_file.bal";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        LogLeecher[] leechers = getProfilerLogLeechers(sourceRoot + outputFile);
+        List<LogLeecher> leechers = getProfilerLogLeechers(sourceRoot + outputFile);
         bMainInstance.runMain("profile", new String[]{fileName}, envProperties,
-                null, leechers, sourceRoot);
+                null, leechers.toArray(new LogLeecher[0]), sourceRoot);
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(5000);
         }
