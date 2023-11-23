@@ -130,4 +130,10 @@ public class CodegenErrorsTest {
         CompileResult result = BCompileUtil.compile("test-src/jvm/tooLargeStringConstantClass");
         BRunUtil.invoke(result, "main");
     }
+
+    @Test
+    public void testTooLargeFiles() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/tooLargeFileTest");
+        BRunUtil.invoke(result, "main");
+    }
 }

@@ -69,7 +69,7 @@ public class ProfileCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies and " +
             "then run.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
