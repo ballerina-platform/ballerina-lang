@@ -507,7 +507,6 @@ public class Values {
         return bError;
     }
 
-
     public static BXml getXMLValueFromString1() {
         return ValueCreator.createXmlValue("<book>The Lost World</book>");
     }
