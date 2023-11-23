@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -2713,6 +2714,14 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
         this.acceptNode(asyncSendExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangCombinedWorkerReceive combinedWorkerReceive) {
+        for (BLangWorkerReceive bLangWorkerReceive : combinedWorkerReceive.getWorkerReceives()) {
+            acceptNode(bLangWorkerReceive);
+        }
+        result = combinedWorkerReceive;
     }
 
     @Override

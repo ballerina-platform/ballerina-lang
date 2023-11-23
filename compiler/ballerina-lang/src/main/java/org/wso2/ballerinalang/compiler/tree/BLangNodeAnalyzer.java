@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -516,6 +517,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangWorkerFlushExpr node, T data);
 
     public abstract void visit(BLangWorkerReceive node, T data);
+
+    public abstract void visit(BLangCombinedWorkerReceive node, T data);
 
     public abstract void visit(BLangWorkerSyncSendExpr node, T data);
 

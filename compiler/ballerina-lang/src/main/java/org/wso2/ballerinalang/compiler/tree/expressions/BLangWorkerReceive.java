@@ -33,14 +33,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.94
  */
-public class BLangWorkerReceive extends BLangExpression implements WorkerReceiveNode {
+public class BLangWorkerReceive extends BLangWorkerSendReceiveExpr implements WorkerReceiveNode {
 
     // BLangNodes
     public BLangIdentifier workerIdentifier;
 
     // Semantic Data
     public BLangExpression sendExpression; // TODO: #AST_CLEAN - No Transformer ?
-    public BSymbol workerSymbol;
+    public BSymbol workerSymbol; // TODO: 22/11/23 Seems no usage. Clean.
     public SymbolEnv env;
     public BType workerType;
     public BType matchingSendsError;
