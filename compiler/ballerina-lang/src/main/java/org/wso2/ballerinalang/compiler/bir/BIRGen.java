@@ -1185,8 +1185,8 @@ public class BIRGen extends BLangNodeVisitor {
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
-                asyncSendExpr.pos, names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand, false, lhsOp,
-                thenBB, this.currentScope);
+                asyncSendExpr.pos, names.fromString(asyncSendExpr.getChannel().channelId()), dataOp, isOnSameStrand,
+                false, lhsOp, thenBB, this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
