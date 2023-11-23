@@ -29,9 +29,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -42,7 +42,7 @@ public class BPackageSymbol extends BTypeSymbol {
 
     public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol, testInitFunctionSymbol,
             testStartFunctionSymbol, testStopFunctionSymbol;
-    public List<BPackageSymbol> imports = new ArrayList<>();
+    public Set<BPackageSymbol> imports = new HashSet<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
     public Name compUnit;

@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genJFieldForInteropField;
@@ -73,19 +72,18 @@ public class ExternalMethodGen {
                 count = count + 1;
                 if (birFunc instanceof JMethodBIRFunction) {
                     desugarInteropFuncs((JMethodBIRFunction) birFunc, initMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
+                    initMethodGen.resetIds();
                 } else if (!(birFunc instanceof JFieldBIRFunction)) {
-                    enrichWithDefaultableParamInits(birFunc, initMethodGen);
+                    initMethodGen.resetIds();
                 }
             }
         }
     }
 
     public static BIRFunctionWrapper createExternalFunctionWrapper(boolean isEntry, BIRFunction birFunc,
-                                                                   PackageID packageID, String birModuleClassName,
-                                                                   JvmPackageGen jvmPackageGen) {
+                                                                   PackageID packageID, String birModuleClassName) {
         if (isEntry) {
-            addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+            addDefaultableBooleanVarsToSignature(birFunc);
         }
         return getFunctionWrapper(birFunc, packageID, birModuleClassName);
     }
