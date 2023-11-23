@@ -604,11 +604,10 @@ public class JvmPackageGen {
                                                      BIRFunction birFunc, String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID,
-                                                                  birModuleClassName, this);
+            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID, birModuleClassName);
         } else {
             if (isEntry && birFunc.receiver == null) {
-                addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc);
             }
             birFuncWrapperOrError = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         }
@@ -813,12 +812,10 @@ public class JvmPackageGen {
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
         if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
             return true;
-        } else {
-            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
-                if (importPkgSymbol == null) {
-                    continue;
-                }
-                return listenerDeclarationFound(importPkgSymbol);
+        }
+        for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+            if (importPkgSymbol != null && listenerDeclarationFound(importPkgSymbol)) {
+                return true;
             }
         }
         return false;
