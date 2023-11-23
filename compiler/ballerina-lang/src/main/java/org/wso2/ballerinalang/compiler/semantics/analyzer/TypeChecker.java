@@ -6157,7 +6157,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     protected void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, AnalyzerData data) {
-        String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
+        OperatorKind operatorKind = checkedExpr.getKind() == NodeKind.CHECK_EXPR ?
+                                        OperatorKind.CHECK :
+                                        OperatorKind.CHECK_PANIC;
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
 
@@ -6201,7 +6203,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if (exprType != symTable.semanticError) {
                 dlog.warning(checkedExpr.expr.pos,
                         DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
-                        operatorType);
+                        operatorKind.value());
                 checkedExpr.isRedundantChecking = true;
                 data.resultType = checkedExpr.expr.getBType();
 
@@ -6232,12 +6234,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             errorTypes.add(exprType);
         }
 
+        if (operatorKind == OperatorKind.CHECK && !data.commonAnalyzerData.errorTypes.empty()) {
+            data.commonAnalyzerData.errorTypes.peek().add(types.getErrorTypes(checkedExpr.expr.getBType()));
+        }
+
         // This list will be used in the desugar phase
         checkedExpr.equivalentErrorTypeList = errorTypes;
         if (errorTypes.isEmpty()) {
             // No member types in this union is equivalent to the error type
             dlog.warning(checkedExpr.expr.pos,
-                    DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
+                    DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorKind.value());
             checkedExpr.isRedundantChecking = true;
 
             // Reset impConversionExpr as it was previously based on default error added union type
