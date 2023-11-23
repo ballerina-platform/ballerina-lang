@@ -212,8 +212,8 @@ public class ClientResourceAccessActionNodeContext
         }
 
         Optional<TypeSymbol> parameterSymbol = getParameterTypeSymbol(context);
-        int rankOffset = 1;
-        for (LSCompletionItem completionItem : completionItems) {
+        for (int i = 0; i < completionItems.size(); i++) {
+            LSCompletionItem completionItem = completionItems.get(i);
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 sortNamedArgCompletionItem(context, completionItem);
             } else if (parameterSymbol.isEmpty()) {
@@ -224,10 +224,9 @@ public class ClientResourceAccessActionNodeContext
                         symbolCompletionItem.getSymbol().get().kind() == SymbolKind.RESOURCE_METHOD) {
                     completionItem.getCompletionItem().setSortText(
                             SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()) +
-                                    SortingUtil.genSortText(rankOffset));
+                                    SortingUtil.genSortText(i + 1));
                 }
                 sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
-                rankOffset++;
             } else {
                 sortDefaultCompletionItem(context, parameterSymbol.get(), completionItem);
             }

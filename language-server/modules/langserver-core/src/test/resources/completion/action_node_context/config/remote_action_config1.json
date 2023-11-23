@@ -225,7 +225,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function to return a stream of objects\n  \n**Params**  \n- `module1:TargetType2` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `stream<targetType, module1:ClientError?>`   \n- A stream of targetType and/or ClientError  \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CO",
       "filterText": "responses|get",
       "insertText": "/responses(${1});",
       "insertTextFormat": "Snippet",
