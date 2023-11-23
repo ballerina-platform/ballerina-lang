@@ -1432,7 +1432,11 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
-
+    /**
+     * Function pointer load instruction for record default values.
+     *
+     * @since 2201.9.0
+     */
     public static class RecordDefaultFPLoad extends BIRNonTerminator {
         public BType enclosedType;
         public String fieldName;
