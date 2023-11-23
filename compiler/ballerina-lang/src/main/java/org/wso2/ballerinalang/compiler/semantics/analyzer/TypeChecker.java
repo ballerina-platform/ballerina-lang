@@ -7576,7 +7576,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     boolean errored = false;
                     for (BField bField : ((BRecordType) spreadExprType).fields.values()) {
                         BType specFieldType = bField.type;
-                        if (specFieldType.tag ==  TypeTags.NEVER) {
+                        if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(specFieldType)) {
                             continue;
                         }
                         BSymbol fieldSymbol = symResolver.resolveStructField(spreadExpr.pos, data.env, bField.name,

@@ -150,10 +150,10 @@ type Grades record {|
     int...;
 |};
 
-type Address record {
+type Address record {|
     string street;
     never country?;
-};
+|};
 
 type Employee record {|
     int id;
@@ -166,43 +166,67 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     Grades grades = { physics: 75 };
     Address address= { street: "Main Street" };
 
-    record {| string street; |} addressInline = {...address};
+    record {|string street;|} addressInline = {...address};
     assertEquality("Main Street", addressInline.street);
 
-    record {|
-        int i;
-        string s;
-        never n?;
-    |} bar1InLine = {
-        i: 1,
-        s: "s"
-    };
+    record {|int i; string s; never n?;|} bar1InLine = {i: 1, s: "s"};
     Bar bar1 = {...bar1InLine};
+    assertEquality(1, bar1.i);
     assertEquality("s", bar1.s);
 
+    record {|int i; string s; never n?;|} bar2InLine = {i: 2, s: "S", n: ()};
+    Bar bar2 = {...bar2InLine};
+    assertEquality(2, bar2.i);
+    assertEquality("S", bar2.s);
+
+    record {|int id; string name; never dept?;|} empInLine = {id: 1023, name: "Joy", dept: ()};
+    Employee emp1 = {dept: "a", ...empInLine};
+    assertEquality(1023, emp1.id);
+    assertEquality("Joy", emp1.name);
+
+    record {|int i; string s; [never, int] x?;|} bar3InLine = {i: 3, s: "b", x: ()};
+    Bar bar3 = {...bar3InLine};
+    assertEquality(3, bar3.i);
+    assertEquality("b", bar3.s);
+
+    record {|int i; string s; never|never x?;|} bar4InLine = {i: 4, s: "c"};
+    Bar bar4 = {...bar4InLine};
+    assertEquality(4, bar4.i);
+    assertEquality("c", bar4.s);
+
     record {|
         int i;
         string s;
-        never n?;
-    |} bar2InLine = {
-        i: 2,
-        s: "S",
-        n: ()
+        record {|
+            never x;
+            int z;
+        |} y?;
+    |} bar5InLine = {
+        i: 5,
+        s: "d"
     };
-    Bar bar2 = {...bar2InLine};
-    assertEquality("S", bar2.s);
+    Bar bar5 = {...bar5InLine};
+    assertEquality(5, bar5.i);
+    assertEquality("d", bar5.s);
 
-    record {|
-        int id;
-        string name;
-        never dept?;
-    |} empInLine = {
-        id: 1023,
-        name: "Joy",
-        dept: ()
-    };
-    Employee emp = {dept:"a", ...empInLine};
-    assertEquality("Joy", emp.name);
+    record {|string s; never x?;|} rec1 = {s: "e"};
+    record {|int i; never x?;|} rec2 = {i: 6};
+    Bar bar6 = {...rec1, ...rec2};
+    assertEquality(6, bar6.i);
+    assertEquality("e", bar6.s);
+
+    record {|string s; never x1?;|} rec3 = {s: "f"};
+    record {|int i; never x2?;|} rec4 = {i: 7};
+    Bar bar7 = {...rec3, ...rec4};
+    assertEquality(7, bar7.i);
+    assertEquality("f", bar7.s);
+
+    record {|string s; int i; never x?;|} rec5 = {s: "g", i: 8};
+    record {|never x?;|} rec6 = {x: ()};
+
+    Bar bar8 = {...rec5, ...rec6};
+    assertEquality("g", bar8.s);
+    assertEquality(8, bar8.i);
 
     Student john = { name: "John Doe", ...grades };
     assertEquality("John Doe", john.name);
