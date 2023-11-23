@@ -214,6 +214,25 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "/responses(mod:TargetType2 targetType)",
+      "kind": "Function",
+      "detail": "stream<targetType, mod:ClientError?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function to return a stream of objects\n  \n**Params**  \n- `mod:TargetType2` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `stream<targetType, mod:ClientError?>`   \n- A stream of targetType and/or ClientError  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "responses|get",
+      "insertText": "/responses(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
