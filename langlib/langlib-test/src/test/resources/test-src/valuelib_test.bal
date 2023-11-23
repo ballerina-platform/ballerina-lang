@@ -4646,12 +4646,11 @@ function testLast() {
     assertTrue([] == value:last(ar1, ar));
 }
 
-
 public type Copybook record {
-    DFHCOMMAREA DFHCOMMAREA?;
+    DFH\-COMMAREA DFH\-COMMAREA?;
 };
 
-public type DFHCOMMAREA record {
+public type DFH\-COMMAREA record {
     record {
         string MI\-HDR\-VERSION?;
         string MI\-HDR\-MSGID?;
@@ -4664,7 +4663,7 @@ public type DFHCOMMAREA record {
 
 function testCloneWithTypeToRecordWithSpecialChars() {
     string s = string `{
-    "DFHCOMMAREA": {
+    "DFH-COMMAREA": {
         "BROKER-MESSAGE-AREA": {
             "MI-HDR-VERSION": "2",
             "MI-HDR-MSGID":"3238763233323598798798712321187612",
@@ -4674,10 +4673,10 @@ function testCloneWithTypeToRecordWithSpecialChars() {
     }`;
     json rec = checkpanic value:fromJsonString(s);
     map<json> mapJson = checkpanic rec.ensureType();
-    Copybook|error dfhcommarea = mapJson.cloneWithType();
-    assertTrue(dfhcommarea is Copybook);
-    Copybook cb =  checkpanic dfhcommarea.ensureType();
-    assertEquality(cb.DFHCOMMAREA?.BROKER\-MESSAGE\-AREA.toString(), string `{"MI-HDR-VERSION":"2","MI-HDR-MSGID":"3238763233323598798798712321187612","MI-HDR-LOGGINGID":"Z5118761-Z"}`);
+    Copybook|error dfh\-commarea = mapJson.cloneWithType();
+    assertTrue(dfh\-commarea is Copybook);
+    Copybook cb =  checkpanic dfh\-commarea.ensureType();
+    assertEquality(cb.DFH\-COMMAREA?.BROKER\-MESSAGE\-AREA.toString(), string `{"MI-HDR-VERSION":"2","MI-HDR-MSGID":"3238763233323598798798712321187612","MI-HDR-LOGGINGID":"Z5118761-Z"}`);
 }
 
 type AssertionError distinct error;
