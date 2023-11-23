@@ -351,16 +351,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return true;
         }
 
-        if (o == null || this.getClass() != o.getClass()) {
-            return false;
-        }
-
-        MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
-        if (mapValue.type.getTag() != this.type.getTag()) {
-            return false;
-        }
-
-        if (mapValue.referredType.getTag() != this.referredType.getTag()) {
+        if (!(o instanceof MapValueImpl<?, ?> mapValue)) {
             return false;
         }
 
