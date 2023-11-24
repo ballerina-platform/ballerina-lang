@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 7,
+    "character": 25
+  },
+  "source": "action_node_context/source/client_resource_access_action_source37.bal",
+  "description": "Test completions after a variable resource path",
+  "items": [
+    {
+      "label": "/third",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` second"
+        }
+      },
+      "sortText": "C",
+      "filterText": "third|get",
+      "insertText": "/third;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 24
+            },
+            "end": {
+              "line": 7,
+              "character": 25
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}
