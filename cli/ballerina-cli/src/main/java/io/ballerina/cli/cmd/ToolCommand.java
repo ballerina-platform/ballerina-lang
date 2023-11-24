@@ -299,7 +299,8 @@ public class ToolCommand implements BLauncherCmd {
         if (tool.isEmpty()) {
             CommandUtil.printError(errStream, "tool '" + toolId + ":" + version + "' is not found. " +
                             "Run 'bal tool pull " + toolId + ":" + version
-                            + "' to fetch and set as the active version.", null, false);
+                            + "' or 'bal tool pull " + toolId + ":" + version
+                    + " --repository=local' to fetch and set as the active version.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -348,6 +349,12 @@ public class ToolCommand implements BLauncherCmd {
         if (argList.size() > 2) {
             CommandUtil.printError(
                     this.errStream, "too many arguments.", TOOL_SEARCH_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
+            CommandUtil.printError(errStream, "tool search command is not supported for local repository.",
+                    null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -419,6 +426,12 @@ public class ToolCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+        if (ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
+            CommandUtil.printError(errStream, "tool update command is not supported for local repository.",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
 
         toolId = argList.get(1);
 
@@ -433,7 +446,7 @@ public class ToolCommand implements BLauncherCmd {
     public void pullToolAndUpdateBalToolsToml(String toolIdArg, String versionArg) {
         toolId = toolIdArg;
         version = versionArg;
-        Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
+        Path balaCacheDirPath = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
@@ -442,8 +455,8 @@ public class ToolCommand implements BLauncherCmd {
                 .collect(Collectors.joining(","));
         if (ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repositoryName)) {
             if (!isToolAvailableInLocalRepo(toolId, version)) {
-                errStream.println("tool '" + toolId + ":" + version + "' is not available in local repository.\nPlease " +
-                        "publish it first with 'bal push --repository=local' command.");
+                errStream.println("tool '" + toolId + ":" + version + "' is not available in local repository." +
+                        "\nPlease publish it first with 'bal push --repository=local' command.");
                 CommandUtil.exitError(this.exitWhenFinish);
             }
             addToBalToolsToml();
@@ -686,7 +699,7 @@ public class ToolCommand implements BLauncherCmd {
         org = tool.org();
         name = tool.name();
 
-        Path toolCacheDir = ProjectUtils.createAndGetHomeReposPath()
+        Path toolCacheDir = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME).resolve(tool.org()).resolve(tool.name());
         if (toolCacheDir.toFile().isDirectory()) {
@@ -715,7 +728,7 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private SemanticVersion getToolDistVersionFromCentralCache() {
-        Path centralBalaDirPath = ProjectUtils.createAndGetHomeReposPath()
+        Path centralBalaDirPath = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
         Path balaPath = CommandUtil.getPlatformSpecificBalaPath(org, name, version, centralBalaDirPath);
@@ -724,7 +737,7 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private SemanticVersion getToolDistVersionFromLocalCache() {
-        Path localBalaDirPath = ProjectUtils.createAndGetHomeReposPath()
+        Path localBalaDirPath = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(ProjectConstants.LOCAL_REPOSITORY_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
         Path balaPath = CommandUtil.getPlatformSpecificBalaPath(org, name, version, localBalaDirPath);
@@ -762,7 +775,13 @@ public class ToolCommand implements BLauncherCmd {
             return;
         }
 
-        Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
+        if (ProjectConstants.LOCAL_REPOSITORY_NAME.equals(tool.get().repository())) {
+            CommandUtil.printError(errStream, "tools from local repository can not be updated. ",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+        }
+
+        Path balaCacheDirPath = RepoUtils.createAndGetHomeReposPath()
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 

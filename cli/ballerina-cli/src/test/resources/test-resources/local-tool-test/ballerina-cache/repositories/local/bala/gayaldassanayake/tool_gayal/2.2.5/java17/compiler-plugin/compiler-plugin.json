@@ -1,0 +1,6 @@
+{
+  "plugin_class": "io.gayal.combined.CombinedCompilerPlugin",
+  "dependency_paths": [
+    "compiler-plugin/libs/compiler-plugin-with-analyzer-generator-modifier-1.0.0.jar"
+  ]
+}

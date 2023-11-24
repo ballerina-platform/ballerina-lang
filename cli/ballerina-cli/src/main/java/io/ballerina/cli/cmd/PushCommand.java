@@ -18,7 +18,6 @@
 package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.FileUtils;
@@ -449,7 +448,7 @@ public class PushCommand implements BLauncherCmd {
             localToolJson.add(toolId, packageDesc);
         }
 
-        try (FileWriter writer = new FileWriter(localToolJsonPath.toFile())) {
+        try (FileWriter writer = new FileWriter(localToolJsonPath.toFile(), StandardCharsets.UTF_8)) {
             writer.write(gson.toJson(localToolJson));
         } catch (IOException e) {
             throw new ProjectException("Failed to write local-tools.json file: " + e.getMessage());

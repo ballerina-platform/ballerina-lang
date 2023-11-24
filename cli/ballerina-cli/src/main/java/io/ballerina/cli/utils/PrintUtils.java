@@ -67,7 +67,6 @@ public class PrintUtils {
 
         for (BalToolsManifest.Tool tool: tools) {
             String repository = ProjectConstants.LOCAL_REPOSITORY_NAME.equals(tool.repository()) ? "local" : "central";
-                    tool.repository();
             String activeIndicator = tool.active() ? "* " : "  ";
             printInCLI("|" + tool.id(), toolIdColWidth);
             printInCLI(activeIndicator + tool.version(), versionColWidth);

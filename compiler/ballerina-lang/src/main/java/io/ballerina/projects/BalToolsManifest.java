@@ -17,10 +17,7 @@
  */
 package io.ballerina.projects;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,7 +37,7 @@ public class BalToolsManifest {
         return new BalToolsManifest(new HashMap<>());
     }
 
-    public static BalToolsManifest from(Map<String, Map<String, Map<String, Tool>>>tools) {
+    public static BalToolsManifest from(Map<String, Map<String, Map<String, Tool>>> tools) {
         return new BalToolsManifest(tools);
     }
 
