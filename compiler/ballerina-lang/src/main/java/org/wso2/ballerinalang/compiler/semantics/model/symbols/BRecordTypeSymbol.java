@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * {@code BRecordTypeSymbol} represents a record type symbol in a scope.
  *
@@ -34,6 +35,7 @@ import java.util.Map;
 public class BRecordTypeSymbol extends BStructureTypeSymbol {
 
     public Map<String, BInvokableSymbol> defaultValues;
+
     public BRecordTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                              Location pos, SymbolOrigin origin) {
         super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner, pos, origin);

@@ -294,12 +294,14 @@ public class TypeDefBuilderHelper {
         return ""; // current module
     }
 
-    public static void populateStructureFields(Types types, SymbolTable symTable,
-                                               BLangAnonymousModelHelper anonymousModelHelper, Names names,
-                                               BLangStructureTypeNode structureTypeNode, BStructureType structureType,
-                                               BStructureType origStructureType, Location pos, SymbolEnv env,
-                                               PackageID pkgID, Set<BType> unresolvedTypes,
-                                               long flag, boolean isImmutable) {
+    public static void populateStructureFieldsAndTypeInclusions(Types types, SymbolTable symTable,
+                                                                BLangAnonymousModelHelper anonymousModelHelper,
+                                                                Names names, BLangStructureTypeNode structureTypeNode,
+                                                                BStructureType structureType,
+                                                                BStructureType origStructureType, Location pos,
+                                                                SymbolEnv env, PackageID pkgID,
+                                                                Set<BType> unresolvedTypes, long flag,
+                                                                boolean isImmutable) {
         BTypeSymbol structureSymbol = structureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         structureType.typeInclusions = origStructureType.typeInclusions;
@@ -381,8 +383,9 @@ public class TypeDefBuilderHelper {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
-                env, env.scope.owner.pkgID, null, Flags.REQUIRED, false);
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names, recordTypeNode,
+                                                                      type, type, pos, env, env.scope.owner.pkgID,
+                                                                      null, Flags.REQUIRED, false);
         recordTypeNode.sealed = true;
         recordTypeNode.analyzed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);

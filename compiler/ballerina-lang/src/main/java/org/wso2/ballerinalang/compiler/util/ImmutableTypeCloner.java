@@ -538,7 +538,7 @@ public class ImmutableTypeCloner {
         BObjectType origObjectType = immutableObjectType.mutableType;
         if (origObjectType.fields.size() != immutableObjectType.fields.size()) {
 
-            TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
+            TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, anonymousModelHelper, names,
                     (BLangObjectTypeNode) immutableTypeDefinition.typeNode, immutableObjectType, origObjectType,
                     location, env, pkgID, new HashSet<>(), Flags.FINAL, true);
         }
@@ -550,7 +550,7 @@ public class ImmutableTypeCloner {
                                                          BStructureType immutableStructureType,
                                                          BStructureType origStructureType, Location pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes) {
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, anonymousModelHelper, names,
                 immutableStructureTypeNode, immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
                 Flags.READONLY, true);
     }
@@ -656,8 +656,10 @@ public class ImmutableTypeCloner {
                                                                                        immutableObjectType, pos);
         objectTypeNode.flagSet.addAll(flagSet);
 
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,
-                immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes, Flags.FINAL, true);
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, anonymousModelHelper, names,
+                                                                      objectTypeNode, immutableObjectType,
+                                                                      origObjectType, pos, env, pkgID, unresolvedTypes,
+                                                                      Flags.FINAL, true);
 
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableObjectType, objectSymbol,
                                                                                     objectTypeNode, env);
