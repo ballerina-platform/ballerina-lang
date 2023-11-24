@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -814,6 +815,12 @@ public class JvmPackageGen {
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
         if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
             return true;
+        }
+        for (Scope.ScopeEntry entry : packageSymbol.scope.entries.values()) {
+            BSymbol symbol = entry.symbol;
+            if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+                return true;
+            }
         }
         for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
             if (importPkgSymbol != null && listenerDeclarationFound(importPkgSymbol)) {
