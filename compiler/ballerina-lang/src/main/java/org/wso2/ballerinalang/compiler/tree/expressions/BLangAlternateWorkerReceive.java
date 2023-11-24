@@ -26,28 +26,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.List;
 
 /**
- * Represents both alternate-receive and multiple-receive in worker communication.
+ * Represents alternate-receive in worker communication.
  *
  * @since 2201.9.0
  */
-public class BLangCombinedWorkerReceive extends BLangExpression implements ActionNode {
+public class BLangAlternateWorkerReceive extends BLangExpression implements ActionNode {
 
-    private final NodeKind nodeKind;
     private List<BLangWorkerReceive> workerReceives;
-
-    /**
-     * Constructs a BLangCombinedWorkerReceive with NodeKind.
-     *
-     * @param nodeKind Combined worker kind. Either {@link NodeKind#ALTERNATE_WORKER_RECEIVE} or
-     *                 {@link NodeKind#MULTIPLE_WORKER_RECEIVE}
-     */
-    public BLangCombinedWorkerReceive(NodeKind nodeKind) {
-        this.nodeKind = nodeKind;
-    }
 
     @Override
     public NodeKind getKind() {
-        return nodeKind;
+        return NodeKind.ALTERNATE_WORKER_RECEIVE;
     }
 
     @Override

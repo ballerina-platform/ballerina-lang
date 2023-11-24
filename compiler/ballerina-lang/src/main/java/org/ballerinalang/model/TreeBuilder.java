@@ -242,13 +242,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -272,6 +272,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -915,12 +916,12 @@ public class TreeBuilder {
         return new BLangWorkerReceive();
     }
 
-    public static BLangCombinedWorkerReceive createAlternateWorkerReceiveNode() {
-        return new BLangCombinedWorkerReceive(NodeKind.ALTERNATE_WORKER_RECEIVE);
+    public static BLangAlternateWorkerReceive createAlternateWorkerReceiveNode() {
+        return new BLangAlternateWorkerReceive();
     }
 
-    public static BLangCombinedWorkerReceive createMultipleWorkerReceiveNode() {
-        return new BLangCombinedWorkerReceive(NodeKind.MULTIPLE_WORKER_RECEIVE);
+    public static BLangMultipleWorkerReceive createMultipleWorkerReceiveNode() {
+        return new BLangMultipleWorkerReceive();
     }
 
     public static WorkerSendExpressionNode createWorkerSendNode() {

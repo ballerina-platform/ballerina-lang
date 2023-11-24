@@ -180,6 +180,7 @@ import io.ballerina.compiler.syntax.tree.ReUnicodeGeneralCategoryNode;
 import io.ballerina.compiler.syntax.tree.ReUnicodePropertyEscapeNode;
 import io.ballerina.compiler.syntax.tree.ReUnicodeScriptNode;
 import io.ballerina.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerina.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
@@ -342,13 +343,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -372,6 +373,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -2514,7 +2516,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Node receiveWorkers = receiveActionNode.receiveWorkers();
 
         if (receiveWorkers.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            BLangWorkerReceive singleWorkerRecv = createSimpleWorkerReceive((SimpleNameReferenceNode) receiveWorkers);
+            BLangWorkerReceive singleWorkerRecv =
+                    createSimpleWorkerReceive(((SimpleNameReferenceNode) receiveWorkers).name());
             singleWorkerRecv.pos = receiveActionPos;
             return singleWorkerRecv;
         }
@@ -2524,30 +2527,42 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     ((AlternateReceiveWorkerNode) receiveWorkers).workers();
             List<BLangWorkerReceive> workerReceives = new ArrayList<>(alternateWorkers.size());
             for (SimpleNameReferenceNode w : alternateWorkers) {
-                workerReceives.add(createSimpleWorkerReceive(w));
+                workerReceives.add(createSimpleWorkerReceive(w.name()));
             }
 
-            BLangCombinedWorkerReceive alternateWorkerRecv = TreeBuilder.createAlternateWorkerReceiveNode();
+            BLangAlternateWorkerReceive alternateWorkerRecv = TreeBuilder.createAlternateWorkerReceiveNode();
             alternateWorkerRecv.setWorkerReceives(workerReceives);
             alternateWorkerRecv.pos = receiveActionPos;
             return alternateWorkerRecv;
         }
 
+        ReceiveFieldsNode receiveFieldsNode = (ReceiveFieldsNode) receiveWorkers;
+        SeparatedNodeList<NameReferenceNode> receiveFields = receiveFieldsNode.receiveFields();
+        List<BLangMultipleWorkerReceive.BLangReceiveField> fields = new ArrayList<>(receiveFields.size());
+        for (NameReferenceNode nameRef : receiveFields) {
+            BLangMultipleWorkerReceive.BLangReceiveField rvField = new BLangMultipleWorkerReceive.BLangReceiveField();
+            if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                Token name = ((SimpleNameReferenceNode) nameRef).name();
+                rvField.setKey(createIdentifier(name));
+                rvField.setWorkerReceive(createSimpleWorkerReceive(name));
+            } else {
+                QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) nameRef;
+                rvField.setKey(createIdentifier(qualifiedNameRef.modulePrefix()));
+                rvField.setWorkerReceive(createSimpleWorkerReceive(qualifiedNameRef.identifier()));
+            }
+            fields.add(rvField);
+        }
 
-        // TODO: implement multiple-receive-action support
-        dlog.error(getPosition(receiveWorkers), DiagnosticErrorCode.MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED);
-        Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
-                NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
-        SimpleNameReferenceNode simpleNameRef = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
-        BLangWorkerReceive singleWorkerRecv = createSimpleWorkerReceive(simpleNameRef);
-        singleWorkerRecv.pos = receiveActionPos;
-        return singleWorkerRecv;
+        BLangMultipleWorkerReceive multipleWorkerRv = TreeBuilder.createMultipleWorkerReceiveNode();
+        multipleWorkerRv.setReceiveFields(fields);
+        multipleWorkerRv.pos = receiveActionPos;
+        return multipleWorkerRv;
     }
 
-    private BLangWorkerReceive createSimpleWorkerReceive(SimpleNameReferenceNode simpleNameRef) {
+    private BLangWorkerReceive createSimpleWorkerReceive(Token workerRef) {
         BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveExpr.setWorkerName(createIdentifier(simpleNameRef.name()));
-        workerReceiveExpr.pos = getPosition(simpleNameRef);
+        workerReceiveExpr.setWorkerName(createIdentifier(workerRef));
+        workerReceiveExpr.pos = getPosition(workerRef);
         return workerReceiveExpr;
     }
 
