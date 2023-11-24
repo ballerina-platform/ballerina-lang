@@ -150,10 +150,10 @@ type Grades record {|
     int...;
 |};
 
-type Address record {|
+type Address record {
     string street;
     never country?;
-|};
+};
 
 type Employee record {|
     int id;
@@ -161,13 +161,30 @@ type Employee record {|
     string dept;
 |};
 
+type Candidate record {
+    string name;
+    never university?;
+};
 
 function testSpreadFieldWithRecordTypeHavingNeverField() {
     Grades grades = { physics: 75 };
     Address address= { street: "Main Street" };
 
-    record {|string street;|} addressInline = {...address};
-    assertEquality("Main Street", addressInline.street);
+    Student john = { name: "John Doe", ...grades };
+    assertEquality("John Doe", john.name);
+    assertEquality(75, john["physics"]);
+
+    map<anydata> someMap = { name: "John Doe", ...grades };
+    assertEquality("John Doe", someMap["name"]);
+    assertEquality(75, someMap["physics"]);
+
+    map<anydata> location = { country: "SL", ...address};
+    assertEquality("SL", location["country"]);
+    assertEquality("Main Street", location["street"]);
+
+    Candidate candidate = {name: "Jack"};
+    record {|string name;|} candidateInLine = {...candidate};
+    assertEquality ("Jack", candidateInLine.name);
 
     record {|int i; string s; never n?;|} bar1InLine = {i: 1, s: "s"};
     Bar bar1 = {...bar1InLine};
@@ -227,18 +244,6 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     Bar bar8 = {...rec5, ...rec6};
     assertEquality("g", bar8.s);
     assertEquality(8, bar8.i);
-
-    Student john = { name: "John Doe", ...grades };
-    assertEquality("John Doe", john.name);
-    assertEquality(75, john["physics"]);
-
-    map<anydata> someMap = { name: "John Doe", ...grades };
-    assertEquality("John Doe", someMap["name"]);
-    assertEquality(75, someMap["physics"]);
-
-    map<anydata> location = { country: "SL", ...address};
-    assertEquality("SL", location["country"]);
-    assertEquality("Main Street", location["street"]);
 }
 
 function assertEquality(any|error expected, any|error actual) {

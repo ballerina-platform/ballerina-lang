@@ -142,33 +142,34 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldSemanticAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_semantic_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 26);
-        validateError(result, 0, "incompatible types: expected a map or a record, found 'string'", 33, 17);
-        validateError(result, 1, "incompatible types: expected a map or a record, found 'boolean'", 33, 32);
-        validateError(result, 2, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
-        validateError(result, 3, "incompatible types: expected 'string' for field 's', found 'int'", 41, 17);
-        validateError(result, 4, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
-        validateError(result, 5, "undefined field 'x' in record 'Foo'", 49, 29);
-        validateError(result, 6, "incompatible types: expected a map or a record, found 'other'", 53, 26);
-        validateError(result, 7, "undefined symbol 'b'", 53, 26);
-        validateError(result, 8, "incompatible types: expected 'int' for field 'i', found 'string'", 58, 20);
-        validateError(result, 9, "missing non-defaultable required record field 'i'", 61, 16);
-        validateError(result, 10, "missing non-defaultable required record field 'i'", 64, 16);
-        validateError(result, 11, "missing non-defaultable required record field 'i'", 67, 16);
-        validateError(result, 12, "missing non-defaultable required record field 'i'", 71, 16);
-        validateError(result, 13, "incompatible types: expected a map or a record, found 'int'", 78, 28);
-        validateError(result, 14, "incompatible types: expected 'string', found '(int|float)'", 86, 25);
-        validateError(result, 15, "incompatible types: expected 'string', found 'anydata'", 86, 39);
-        validateError(result, 16, "incompatible types: expected a map or a record, found 'other'", 90, 38);
-        validateError(result, 17, "undefined symbol 'b'", 90, 38);
-        validateError(result, 18, "incompatible types: expected a map or a record, found 'other'", 90, 44);
-        validateError(result, 19, "undefined function 'getFoo'", 90, 44);
-        validateError(result, 20, "incompatible types: expected 'json', found 'any'", 100, 18);
-        validateError(result, 21, "incompatible types: expected 'json', found 'anydata'", 100, 30);
-        validateError(result, 22, "incompatible types: expected 'json', found 'any'", 101, 30);
-        validateError(result, 23, "incompatible types: expected 'json', found 'anydata'", 101, 36);
-        validateError(result, 24, "incompatible types: expected 'int', found 'string'", 114, 18);
-        validateError(result, 25, "incompatible types: expected '(int|float)', found 'string'", 115, 32);
+        int i = 0;
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'string'", 33, 17);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'boolean'", 33, 32);
+        validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
+        validateError(result, i++, "incompatible types: expected 'string' for field 's', found 'int'", 41, 17);
+        validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
+        validateError(result, i++, "undefined field 'x' in record 'Foo'", 49, 29);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 53, 26);
+        validateError(result, i++, "undefined symbol 'b'", 53, 26);
+        validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'string'", 58, 17);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 61, 13);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 64, 13);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 67, 13);
+        validateError(result, i++, "missing non-defaultable required record field 'i'", 71, 13);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 78, 28);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 86, 25);
+        validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 86, 39);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 90, 38);
+        validateError(result, i++, "undefined symbol 'b'", 90, 38);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 90, 44);
+        validateError(result, i++, "undefined function 'getFoo'", 90, 44);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 100, 18);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 100, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 101, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 101, 36);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 114, 18);
+        validateError(result, i++, "incompatible types: expected '(int|float)', found 'string'", 115, 32);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
