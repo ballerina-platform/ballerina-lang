@@ -4284,13 +4284,8 @@
           "type": "Token"
         },
         {
-          "name": "typeDescriptor",
-          "type": "TypeDescriptorNode",
-          "isOptional": true
-        },
-        {
-          "name": "failErrorName",
-          "type": "IdentifierToken",
+          "name": "typedBindingPattern",
+          "type": "TypedBindingPatternNode",
           "isOptional": true
         },
         {

@@ -2345,15 +2345,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
 
         return new STOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
