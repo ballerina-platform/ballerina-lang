@@ -902,7 +902,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         // Create a new anonymous type definition.
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        this.anonTypeNameSuffixes.push(constantNode.name.value);
+        this.anonTypeNameSuffixes.push(constantNode.name.originalValue);
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
         this.anonTypeNameSuffixes.pop();
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName, constantNode.name.value);
@@ -967,7 +967,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         typeDef.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(typeDefNode.metadata()));
 
-        this.anonTypeNameSuffixes.push(typeDef.name.value);
+        this.anonTypeNameSuffixes.push(typeDef.name.originalValue);
         typeDef.typeNode = createTypeNode(typeDefNode.typeDescriptor());
         this.anonTypeNameSuffixes.pop();
 
@@ -1569,7 +1569,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
-        this.anonTypeNameSuffixes.push(name.value);
+        this.anonTypeNameSuffixes.push(name.originalValue);
         populateFuncSignature(bLFunction, functionSignature);
         this.anonTypeNameSuffixes.pop();
 
@@ -1765,10 +1765,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.setOriginalValue(workerName);
-            workerName = Utils.unescapeUnicodeCodepoints(workerName.substring(1));
+            workerName = workerName.substring(1);
         }
 
-        bLFunction.defaultWorkerName.value = workerName;
+        bLFunction.defaultWorkerName.value = Utils.unescapeBallerina(workerName);
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
 
         NodeList<AnnotationNode> annotations = namedWorkerDeclNode.annotations();
@@ -3843,7 +3843,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         BLangIdentifier memberName = (BLangIdentifier) transform(member.identifier());
         bLangConstant.setName(memberName);
-        this.anonTypeNameSuffixes.push(memberName.value);
+        this.anonTypeNameSuffixes.push(memberName.originalValue);
 
         BLangExpression deepLiteral;
         if (member.constExprNode().isPresent()) {
@@ -3868,7 +3868,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 literal.originalValue = null;
                 typeNodeAssociated.addValue(deepLiteral);
                 bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated,
-                        memberName.value);
+                        memberName.originalValue);
             } else {
                 bLangConstant.associatedTypeDefinition = null;
             }
@@ -5466,7 +5466,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             bLVarRef.pos = getPosition(actionOrExpression);
             bLVarRef.pkgAlias = this.createIdentifier(nameReference[0].getPosition(), nameReference[0].getValue());
-            bLVarRef.variableName = this.createIdentifier(nameReference[1].getPosition(), nameReference[1].getValue());
+            bLVarRef.variableName =
+                    this.createIdentifier(nameReference[1].getPosition(), nameReference[1].originalValue);
             return bLVarRef;
         } else if (actionOrExpression.kind() == SyntaxKind.BRACED_EXPRESSION) {
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
@@ -6037,10 +6038,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value.substring(1)));
+            bLIdentifer.setValue(Utils.unescapeBallerina(value.substring(1)));
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value));
+            bLIdentifer.setValue(Utils.unescapeBallerina(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.setOriginalValue(originalValue);

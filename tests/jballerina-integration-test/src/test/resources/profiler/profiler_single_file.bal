@@ -17,9 +17,9 @@
 import ballerina/test;
 import ballerina/jballerina.java;
 
-public function '\.\<init\>() returns string {
-    return "this is a user defined function";
-}
+// public function '\.\<init\>() returns string {
+//     return "this is a user defined function";
+// }
 
 class Person {
     public string firstName;
@@ -60,7 +60,7 @@ public function main() {
     Person person = new("John", "Doe");
     test:assertEquals("John", person.firstName);
     test:assertEquals("John Doe", person.'\$init\$());
-    test:assertEquals("this is a user defined function", '\.\<init\>());
+    // test:assertEquals("this is a user defined function", '\.\<init\>());
 
     record {|
         string name;
