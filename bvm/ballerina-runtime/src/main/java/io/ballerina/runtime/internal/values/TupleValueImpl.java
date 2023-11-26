@@ -43,12 +43,10 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -76,39 +74,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     private BTypedesc typedesc;
     private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        ValuePair compValuePair = new ValuePair(this, o);
-        if (visitedValues.contains(compValuePair)) {
-            return true;
-        }
-        visitedValues.add(compValuePair);
-
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof ArrayValue arrayValue)) {
-            return false;
-        }
-        if (arrayValue.size() != this.size()) {
-            return false;
-        }
-        for (int i = 0; i < this.size(); i++) {
-            if (!isEqual(this.get(i), arrayValue.get(i), visitedValues)) {
-                return false;
-            }
-        }
-
-        if (arrayValue instanceof TupleValueImpl that) {
-            return minSize == that.minSize &&
-                    hasRestElement == that.hasRestElement &&
-                    type.equals(that.type) &&
-                    Arrays.equals(refValues, that.refValues);
-        }
-        return true;
-    }
 
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;

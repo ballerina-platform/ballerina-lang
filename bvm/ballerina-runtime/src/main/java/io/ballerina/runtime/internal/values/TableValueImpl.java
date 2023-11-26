@@ -495,9 +495,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         if (this.size() != table.size()) {
             return false;
         }
-        if (this.getType().getTag() != table.getType().getTag()) {
-            return false;
-        }
 
         boolean isLhsKeyedTable =
                 ((BTableType) getImpliedType(this.getType())).getFieldNames().length > 0;
@@ -505,15 +502,15 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 ((BTableType) getImpliedType(table.getType())).getFieldNames().length > 0;
         Object[] lhsTableValues = this.values().toArray();
         Object[] rhsTableValues = table.values().toArray();
-        if (isLhsKeyedTable == isRhsKeyedTable) {
-            for (int i = 0; i < lhsTableValues.length; i++) {
-                if (!isEqual(lhsTableValues[i], rhsTableValues[i], visitedValues)) {
-                    return false;
-                }
-            }
-            return true;
+        if (isLhsKeyedTable != isRhsKeyedTable) {
+            return false;
         }
-        return false;
+        for (int i = 0; i < lhsTableValues.length; i++) {
+            if (!isEqual(lhsTableValues[i], rhsTableValues[i], visitedValues)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private class TableIterator<K, V> implements IteratorValue {

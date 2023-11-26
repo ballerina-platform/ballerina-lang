@@ -554,10 +554,10 @@ public class TypeChecker {
      *
      * @param sourceType type to check
      * @param targetType type to compare with
-     * @return flag indicating the the equivalence of the two types
+     * @return flag indicating the equivalence of the two types
      */
     public static boolean checkIsType(Type sourceType, Type targetType) {
-        return checkIsType(sourceType, targetType, (List<TypePair>) null);
+        return checkIsType(sourceType, targetType, null);
     }
 
     @Deprecated
@@ -2475,11 +2475,10 @@ public class TypeChecker {
 
     private static boolean checkIsLikeTupleType(Object sourceValue, BTupleType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (!(sourceValue instanceof ArrayValue)) {
+        if (!(sourceValue instanceof ArrayValue source)) {
             return false;
         }
 
-        ArrayValue source = (ArrayValue) sourceValue;
         List<Type> targetTypes = targetType.getTupleTypes();
         int sourceTypeSize = source.size();
         int targetTypeSize = targetTypes.size();
