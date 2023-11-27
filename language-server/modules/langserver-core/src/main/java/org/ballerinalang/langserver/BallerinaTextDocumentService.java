@@ -116,6 +116,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.loadFormatSection;
+
 /**
  * Text document service implementation for ballerina.
  */
@@ -444,12 +446,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     return Collections.emptyList();
                 }
                 String formattedSource;
-                if (context.currentModule().isPresent() &&
-                        !(context.currentModule().get().project().kind() == ProjectKind.SINGLE_FILE_PROJECT)) {
+                Optional<Module> currentModule = context.currentModule();
+                if (currentModule.isPresent() &&
+                        currentModule.get().project().kind() != ProjectKind.SINGLE_FILE_PROJECT) {
                     Path rootPath = context.workspace().projectRoot(context.filePath());
                     BuildProject project = BuildProject.load(rootPath, BuildOptions.builder().build());
                     FormattingOptions options = FormattingOptions.builder()
-                            .build(project.sourceRoot(), project.currentPackage().manifest().getValue("format"));
+                            .build(project.sourceRoot(),
+                                    loadFormatSection(project.currentPackage().manifest()));
                     formattedSource = Formatter.format(syntaxTree.get(), options).toSourceCode();
                 } else {
                     formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();

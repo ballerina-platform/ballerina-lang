@@ -19,7 +19,7 @@ public function main() {
     ];
 
     Employee[] top3 = from var e in employees
-                order by e.salary descending
+                order by e.score descending
                       limit 3
                  select e;
 
