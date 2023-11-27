@@ -90,6 +90,7 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+        // TODO: replace this with direct access when feature is fully implemented
         public List<BIRFunction> getFunctions() {
             return Collections.unmodifiableList(this.functions);
         }
@@ -472,9 +473,17 @@ public abstract class BIRNode {
         }
 
         public void encloseFunction(BIRFunction function) {
+            for (int i = 0; i < enclosedFunctions.size(); i++) {
+                BIRFunction enclosedFunction = enclosedFunctions.get(i);
+                if (enclosedFunction.name.equals(function.name)) {
+                    enclosedFunctions.set(i, function);
+                    return;
+                }
+            }
             this.enclosedFunctions.add(function);
         }
 
+        // TODO: replace this with direct access when feature is fully implemented
         public List<BIRFunction> getEnclosedFunctions() {
             return Collections.unmodifiableList(this.enclosedFunctions);
         }

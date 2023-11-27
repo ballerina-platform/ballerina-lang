@@ -325,7 +325,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BLangFunction getMainFunction(BLangPackage pkgNode) {
-        for (BLangFunction funcNode : pkgNode.functions) {
+        for (BLangFunction funcNode : pkgNode.getFunctions()) {
             if (CompilerUtils.isMainFunction(funcNode)) {
                 return funcNode;
             }
@@ -347,7 +347,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.initFunction.accept(this);
         astPkg.startFunction.accept(this);
         astPkg.stopFunction.accept(this);
-        astPkg.functions.forEach(func -> func.accept(this));
+        astPkg.getFunctions().forEach(func -> func.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
         astPkg.services.forEach(service -> service.accept(this));
     }

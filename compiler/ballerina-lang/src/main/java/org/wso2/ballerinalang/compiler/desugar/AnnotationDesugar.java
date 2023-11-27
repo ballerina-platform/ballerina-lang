@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -482,8 +483,9 @@ public class AnnotationDesugar {
 
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
-        BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
-        for (BLangFunction function : functions) {
+        List<BLangFunction> functions = new ArrayList<>(pkgNode.getFunctions());
+        for (int i = 0; i < functions.size(); i++) {
+            BLangFunction function = functions.get(i);
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
             if (function.symbol.name.getValue().equals("main")) {
@@ -516,6 +518,7 @@ public class AnnotationDesugar {
                     initFnBody.stmts.add(index++, stmt);
                 }
             }
+            function.getEnclosedFunctions().forEach(enclFunc -> functions.add(enclFunc.function));
         }
     }
 
@@ -842,7 +845,7 @@ public class AnnotationDesugar {
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(function, lambdaFunctionSymbol, env);
         lambdaFunction.capturedClosureEnv = env;
 
-        pkgNode.functions.add(function);
+        pkgNode.addFunction(function);
         pkgNode.topLevelNodes.add(function);
         pkgNode.lambdaFunctions.add(lambdaFunction);
         return lambdaFunction;

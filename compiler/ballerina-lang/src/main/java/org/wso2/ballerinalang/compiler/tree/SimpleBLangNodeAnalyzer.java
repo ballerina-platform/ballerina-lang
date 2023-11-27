@@ -290,6 +290,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangFunction node, T data) {
         analyzeNode(node, data);
         visitBLangInvokableNode(node, data);
+        node.getEnclosedFunctions().forEach(enclFunc -> visit(enclFunc.function, data));
     }
 
     public void visit(BLangIdentifier node, T data) {

@@ -453,7 +453,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
         // Define function nodes.
-        for (BLangFunction bLangFunction : pkgNode.functions) {
+        for (BLangFunction bLangFunction : pkgNode.getFunctions()) {
             // Define the lambda functions when visit lambda exprs because the lambda function is an expr.
             if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 defineNode(bLangFunction, pkgEnv);
@@ -3751,7 +3751,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.imports.add((BLangImportPackage) node);
                 break;
             case FUNCTION:
-                pkgNode.functions.add((BLangFunction) node);
+                pkgNode.addFunction((BLangFunction) node);
                 break;
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);

@@ -364,7 +364,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(classDefinition, pkgEnv);
         }
 
-        for (BLangFunction function : pkgNode.functions) {
+        for (BLangFunction function : pkgNode.getFunctions()) {
             // Skip visiting worker lambdas here. They will be visited when enclosing function is visited.
             if (!isWorkerLambda(function)) {
                 analyzeNode(function, pkgEnv);
@@ -3766,7 +3766,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             collector.visitType(classDefinition.getBType());
         }
 
-        for (BLangFunction function : bLangPackage.functions) {
+        for (BLangFunction function : bLangPackage.getFunctions()) {
             if (!function.flagSet.contains(Flag.PUBLIC) &&
                     (!function.attachedFunction || !function.receiver.flagSet.contains(Flag.PUBLIC))) {
                 continue;

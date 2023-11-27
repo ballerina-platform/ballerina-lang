@@ -484,7 +484,7 @@ public class Desugar extends BLangNodeVisitor {
 
                 objectTypeNode.functions.forEach(f -> {
                     if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
-                        pkgNode.functions.add(f);
+                        pkgNode.addFunction(f);
                         pkgNode.topLevelNodes.add(f);
                     }
                 });
@@ -504,7 +504,7 @@ public class Desugar extends BLangNodeVisitor {
                                                    BLangClassDefinition classDefinition) {
         for (BLangFunction function : classDefinition.functions) {
             if (!pkgNode.objAttachedFunctions.contains(function.symbol)) {
-                pkgNode.functions.add(function);
+                pkgNode.addFunction(function);
                 pkgNode.topLevelNodes.add(function);
             }
         }
@@ -516,12 +516,12 @@ public class Desugar extends BLangNodeVisitor {
         classDefinition.generatedInitFunction = tempGeneratedInitFunction;
 
         // Add generated init function to the attached function list
-        pkgNode.functions.add(classDefinition.generatedInitFunction);
+        pkgNode.addFunction(classDefinition.generatedInitFunction);
         pkgNode.topLevelNodes.add(classDefinition.generatedInitFunction);
 
         // Add init function to the attached function list
         if (classDefinition.initFunction != null) {
-            pkgNode.functions.add(classDefinition.initFunction);
+            pkgNode.addFunction(classDefinition.initFunction);
             pkgNode.topLevelNodes.add(classDefinition.initFunction);
         }
     }
@@ -659,7 +659,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addUserDefinedModuleInitInvocationAndReturn(BLangPackage pkgNode) {
-        Optional<BLangFunction> userDefInitOptional = pkgNode.functions.stream()
+        Optional<BLangFunction> userDefInitOptional = pkgNode.getFunctions().stream()
                 .filter(bLangFunction -> !bLangFunction.attachedFunction &&
                             bLangFunction.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value))
                 .findFirst();
@@ -817,10 +817,11 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
 
-        for (int i = 0; i < pkgNode.functions.size(); i++) {
-            BLangFunction function = pkgNode.functions.get(i);
+        List<BLangFunction> functions = pkgNode.getFunctions();
+        for (int i = 0; i < functions.size(); i++) {
+            BLangFunction function = functions.get(i);
             if (!function.flagSet.contains(Flag.LAMBDA) || function.name.value.contains(MockDesugar.MOCK_FUNCTION)) {
-                pkgNode.functions.set(i, rewrite(pkgNode.functions.get(i), env));
+                pkgNode.setFunction(i, rewrite(pkgNode.getFunctions().get(i), env));
             }
         }
 
@@ -5706,7 +5707,7 @@ public class Desugar extends BLangNodeVisitor {
         final BPackageSymbol packageSymbol = targetPkg.symbol;
         final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
-        packageEnv.enclPkg.functions.add(funcNode);
+        packageEnv.enclPkg.addFunction(funcNode);
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
     }
 
@@ -6271,7 +6272,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = func;
         lambdaFunction.capturedClosureEnv = env;
-        env.enclPkg.functions.add(func);
+        env.enclPkg.addFunction(func);
         env.enclPkg.topLevelNodes.add(func);
         //env.enclPkg.lambdaFunctions.add(lambdaFunction);
         lambdaFunction.parent = env.enclInvokable;
@@ -8113,7 +8114,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create the init() method
         BLangFunction userDefinedInitFunction = createUserDefinedObjectInitFn(classDef, env);
         classDef.initFunction = userDefinedInitFunction;
-        env.enclPkg.functions.add(userDefinedInitFunction);
+        env.enclPkg.addFunction(userDefinedInitFunction);
         env.enclPkg.topLevelNodes.add(userDefinedInitFunction);
 
         // Create the initializer method for initializing default values
@@ -8122,7 +8123,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                           tempGeneratedInitFunction.symbol.scope, env);
         this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDef.generatedInitFunction = tempGeneratedInitFunction;
-        env.enclPkg.functions.add(classDef.generatedInitFunction);
+        env.enclPkg.addFunction(classDef.generatedInitFunction);
         env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
 
         return rewrite(classDef, env);

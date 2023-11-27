@@ -201,6 +201,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         List<BLangAnnotationAttachment> attachmentList = funcNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(funcNode, list));
+        funcNode.getEnclosedFunctions().forEach(enclLambdaFunc -> enclLambdaFunc.function.accept(this));
     }
 
     public void visit(BLangImportPackage importPkgNode) {

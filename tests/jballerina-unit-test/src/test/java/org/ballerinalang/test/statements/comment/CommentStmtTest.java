@@ -47,14 +47,14 @@ public class CommentStmtTest {
     @Test
     public void commentsTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
-        List<BLangStatement> statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(0).body)
+        List<BLangStatement> statements = ((BLangBlockFunctionBody) compiledPackage.getFunctions().get(0).body)
                 .getStatements();
         Assert.assertNotNull(statements, "statements not found");
         // Return statement is added at desugar phase and an empty block statement is added internally
         // following the `if` without an `else`. Therefore the statement count is 9.
         Assert.assertEquals(statements.size(), 9, "statement count mismatched");
 
-        statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(1).body).getStatements();
+        statements = ((BLangBlockFunctionBody) compiledPackage.getFunctions().get(1).body).getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.size(), 3, "statement count mismatched");
     }

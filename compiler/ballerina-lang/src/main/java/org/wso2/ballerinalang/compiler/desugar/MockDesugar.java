@@ -144,7 +144,7 @@ public class MockDesugar {
             if (function.contains(pkgNode.packageID.toString()) ? !function.split(pkgNode.packageID.toString())[1].
                     startsWith(MOCK_LEGACY_DELIMITER) :
                     !startsWithMockLegacyDelimiterForImportedMockFunctions(function, importsList)) {
-                pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
+                pkgNode.getTestablePkg().addFunction(generateMockFunction(function));
             }
         }
     }

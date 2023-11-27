@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -67,6 +68,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
     public String anonForkName;
     public boolean mapSymbolUpdated;
 
+    // TODO: remove this field when all lambda liftings are removed (used to separate those which are fixed)
     public boolean enclosed = false;
     public List<BLangLambdaFunction> enclosedFunctions = new ArrayList<>();
 
@@ -105,11 +107,14 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
 
     @Override
     public void encloseFunction(BLangLambdaFunction lambdaFunction) {
-        this.enclosedFunctions.add(lambdaFunction);
+        if (enclosedFunctions.contains(lambdaFunction)) {
+            return;
+        }
+        enclosedFunctions.add(lambdaFunction);
     }
 
     @Override
-    public List<BLangLambdaFunction> getEnclosingFunctions() {
-        return this.enclosedFunctions;
+    public List<BLangLambdaFunction> getEnclosedFunctions() {
+        return Collections.unmodifiableList(enclosedFunctions);
     }
 }

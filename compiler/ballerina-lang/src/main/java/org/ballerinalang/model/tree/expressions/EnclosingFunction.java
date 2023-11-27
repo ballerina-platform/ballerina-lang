@@ -27,5 +27,5 @@ public interface EnclosingFunction {
 
     void encloseFunction(BLangLambdaFunction lambdaFunction);
 
-    List<BLangLambdaFunction> getEnclosingFunctions();
+    List<BLangLambdaFunction> getEnclosedFunctions();
 }

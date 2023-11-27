@@ -74,7 +74,10 @@ public class BIRRecordValueOptimizer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRTypeDefinition birTypeDefinition) {
-        birTypeDefinition.attachedFuncs.forEach(func -> func.accept(this));
+        for (BIRNode.BIRFunction attachedFunc : birTypeDefinition.attachedFuncs) {
+            attachedFunc.accept(this);
+            attachedFunc.getEnclosedFunctions().forEach(enclFunc -> enclFunc.accept(this));
+        }
     }
 
     @Override

@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangConstant> constants;
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
-    public List<BLangFunction> functions;
+    protected List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction, startFunction, stopFunction;
@@ -149,7 +150,19 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     @Override
     public List<BLangFunction> getFunctions() {
-        return functions;
+        return Collections.unmodifiableList(functions);
+    }
+
+    public void addFunction(BLangFunction function) {
+        // TODO: this should take care of adding to top level node
+        if (function.enclosed) {
+            throw new AssertionError("Cannot add an enclosed function to a package");
+        }
+        this.functions.add(function);
+    }
+
+    public void setFunction(int index, BLangFunction function) {
+        this.functions.set(index, function);
     }
 
     @Override

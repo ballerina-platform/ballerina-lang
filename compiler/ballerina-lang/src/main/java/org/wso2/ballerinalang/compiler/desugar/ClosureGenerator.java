@@ -248,8 +248,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        for (int i = 0; i < pkgNode.functions.size(); i++) {
-            BLangFunction bLangFunction = pkgNode.functions.get(i);
+        List<BLangFunction> functions = pkgNode.getFunctions();
+        for (int i = 0; i < functions.size(); i++) {
+            BLangFunction bLangFunction = functions.get(i);
             if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(bLangFunction, bLangFunction.symbol.scope, pkgEnv);
                 rewriteParamsAndReturnTypeOfFunction(bLangFunction, funcEnv);
@@ -264,8 +265,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         pkgNode.classDefinitions = rewrite(pkgNode.classDefinitions, pkgEnv);
         rewrite(pkgNode.globalVars, pkgEnv);
         addClosuresToGlobalVariableList(pkgEnv);
-        for (int i = 0; i < pkgNode.functions.size(); i++) {
-            BLangFunction bLangFunction = pkgNode.functions.get(i);
+        for (int i = 0; i < functions.size(); i++) {
+            BLangFunction bLangFunction = functions.get(i);
             if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 rewrite(bLangFunction, pkgEnv);
             }
@@ -587,7 +588,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             lambdaFunction.function.flagSet.add(Flag.RECORD);
         }
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
-        env.enclPkg.functions.add(function);
+        env.enclPkg.addFunction(function);
         env.enclPkg.topLevelNodes.add(function);
         rewrite(lambdaFunction, env);
     }

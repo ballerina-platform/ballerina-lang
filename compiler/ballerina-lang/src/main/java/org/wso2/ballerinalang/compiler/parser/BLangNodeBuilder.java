@@ -273,6 +273,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.EnclosingFunction;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
@@ -544,7 +545,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean isInCharacterClass = false;
     boolean inCollectContext = false;
 
-    private  HashSet<String> constantSet = new HashSet<String>();
+    private HashSet<String> constantSet = new HashSet<String>();
+    private Stack<EnclosingFunction> enclosingFunctionStack = new Stack<>();
 
     public BLangNodeBuilder(CompilerContext context,
                             PackageID packageID, String entryName) {
@@ -1556,9 +1558,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
 
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        enclosingFunctionStack.push(bLFunction);
 
         BLangIdentifier name = createIdentifier(getPosition(funcName), funcName);
         populateFunctionNode(name, qualifierList, functionSignature, functionBody, bLFunction);
+        enclosingFunctionStack.pop();
         return bLFunction;
     }
 
@@ -1624,16 +1628,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return externFunctionBodyNode;
     }
 
-    private boolean isEnclosed(Node node) {
-        NonTerminalNode parent = node.parent();
-        while (parent != null) {
-            if (parent instanceof FunctionDefinitionNode) {
-                return true;
-            }
-            parent = parent.parent();
-        }
-        return false;
-    }
     @Override
     public BLangNode transform(ExplicitAnonymousFunctionExpressionNode anonFuncExprNode) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
@@ -1654,17 +1648,19 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
-        bLFunction.enclosed = isEnclosed(anonFuncExprNode);
+        bLFunction.enclosed = !enclosingFunctionStack.isEmpty();
 
         setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
-
-        if (!bLFunction.enclosed) {
-            addToTop(bLFunction);
-        }
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
         lambdaExpr.pos = pos;
+        if (!bLFunction.enclosed) {
+            addToTop(bLFunction);
+        } else {
+            enclosingFunctionStack.peek().encloseFunction(lambdaExpr);
+        }
+
         return lambdaExpr;
     }
 
@@ -1765,6 +1761,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
         bLFunction.addFlag(Flag.WORKER);
+        bLFunction.enclosed = !enclosingFunctionStack.isEmpty();
 
         if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
             bLFunction.addFlag(Flag.TRANSACTIONAL);
@@ -1800,12 +1797,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             bLFunction.setReturnTypeNode(bLValueType);
         }
 
-        addToTop(bLFunction);
-
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
         lambdaExpr.pos = workerBodyPos;
         lambdaExpr.internal = true;
+
+        if (!bLFunction.enclosed) {
+            addToTop(bLFunction);
+        } else {
+            enclosingFunctionStack.peek().encloseFunction(lambdaExpr);
+        }
 
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
 

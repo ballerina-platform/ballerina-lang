@@ -167,7 +167,7 @@ public class LargeMethodSplitter {
 
             if (j > 0) { // skip init func
                 thisFunction = desugar.rewrite(thisFunction, env);
-                packageNode.functions.add(thisFunction);
+                packageNode.addFunction(thisFunction);
                 packageNode.topLevelNodes.add(thisFunction);
             }
         }
@@ -238,7 +238,7 @@ public class LargeMethodSplitter {
 
             if (j > 0) { // skip start func
                 thisFunction = desugar.rewrite(thisFunction, env);
-                packageNode.functions.add(thisFunction);
+                packageNode.addFunction(thisFunction);
                 packageNode.topLevelNodes.add(thisFunction);
             }
         }
@@ -297,7 +297,7 @@ public class LargeMethodSplitter {
 
             if (j > 0) { // skip start func
                 thisFunction = desugar.rewrite(thisFunction, env);
-                packageNode.functions.add(thisFunction);
+                packageNode.addFunction(thisFunction);
                 packageNode.topLevelNodes.add(thisFunction);
             }
         }
@@ -313,7 +313,7 @@ public class LargeMethodSplitter {
             // add last func
             BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
             lastFunc = desugar.rewrite(lastFunc, env);
-            packageNode.functions.add(lastFunc);
+            packageNode.addFunction(lastFunc);
             packageNode.topLevelNodes.add(lastFunc);
         }
     }

@@ -59,7 +59,7 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnFunction() {
-        BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
+        BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).getFunctions()).get(0);
         BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
                 " {iconPath: <string?> fooIconPath.icon,label: Foo function}");

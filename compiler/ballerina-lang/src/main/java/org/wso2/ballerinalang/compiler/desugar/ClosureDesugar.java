@@ -251,7 +251,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annotation -> rewrite(annotation, pkgEnv));
         pkgNode.initFunction = rewrite(pkgNode.initFunction, pkgEnv);
 
-        for (BLangFunction bLangFunction : pkgNode.functions) {
+        for (BLangFunction bLangFunction : pkgNode.getFunctions()) {
             if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 rewrite(bLangFunction, pkgEnv);
             }
@@ -264,7 +264,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         }
 
         // Update function parameters.
-        pkgNode.functions.forEach(ClosureDesugar::updateFunctionParams);
+        pkgNode.getFunctions().forEach(ClosureDesugar::updateFunctionParams);
         enclosedFunctions.forEach(ClosureDesugar::updateFunctionParams);
         result = pkgNode;
     }

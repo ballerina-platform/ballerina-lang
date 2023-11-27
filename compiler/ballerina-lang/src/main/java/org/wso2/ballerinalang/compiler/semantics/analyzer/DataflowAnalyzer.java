@@ -565,7 +565,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (classDef.initFunction.body == null) {
                 // if the init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
-                        objectEnv.enclPkg.functions.stream()
+                        objectEnv.enclPkg.getFunctions().stream()
                                 .filter(f -> f.symbol.name.equals((classDef.initFunction).symbol.name))
                                 .findFirst();
                 outerFuncDef.ifPresent(bLangFunction -> classDef.initFunction = bLangFunction);
