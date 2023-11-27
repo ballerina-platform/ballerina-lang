@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 package org.ballerinalang.formatter.core.options;
 
 import java.util.Map;
+
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting and optimizing imports by the API user, that could be passed onto the formatter.
@@ -55,9 +58,12 @@ public class ImportFormattingOptions {
      */
     public static class ImportFormattingOptionsBuilder {
 
-        private boolean groupImports = true;
-        private boolean sortImports = true;
-        private boolean removeUnusedImports = false;
+        private static final String GROUP_IMPORTS = "groupImports";
+        private static final  String SORT_IMPORTS = "sortImports";
+        private static final String REMOVE_UNUSED_IMPORTS = "removeUnusedImports";
+        private boolean groupImports = getDefaultBoolean(FormatSection.IMPORT, GROUP_IMPORTS);
+        private boolean sortImports = getDefaultBoolean(FormatSection.IMPORT, SORT_IMPORTS);
+        private boolean removeUnusedImports = getDefaultBoolean(FormatSection.IMPORT, REMOVE_UNUSED_IMPORTS);
 
         public ImportFormattingOptions.ImportFormattingOptionsBuilder setGroupImports(boolean groupImports) {
             this.groupImports = groupImports;
@@ -81,15 +87,16 @@ public class ImportFormattingOptions {
 
         public ImportFormattingOptions build(Map<String, Object> configs) {
             for (Map.Entry<String, Object> importEntry : configs.entrySet()) {
-                String ifStatementKey = importEntry.getKey();
-                switch (ifStatementKey) {
-                    case "sortImports":
+                String importKey = importEntry.getKey();
+                switch (importKey) {
+                    case SORT_IMPORTS:
                         setSortImports((Boolean) importEntry.getValue());
                         break;
-                    case "groupImports":
+                    case GROUP_IMPORTS:
                         setGroupImports((Boolean) importEntry.getValue());
                         break;
                     default:
+                        warning("Invalid import formatting option: " + importKey);
                         break;
                 }
             }

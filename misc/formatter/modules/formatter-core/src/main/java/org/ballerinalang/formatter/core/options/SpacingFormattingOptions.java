@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@ package org.ballerinalang.formatter.core.options;
 
 import java.util.Map;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
+
 /**
  * A model for formatting of spacing by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class SpacingFormattingOptions {
 
@@ -53,9 +56,13 @@ public class SpacingFormattingOptions {
 
     public static class SpacingFormattingOptionsBuilder {
 
-        private boolean afterTypeCast = false;
-        private boolean aroundRecordBraces = false;
-        private boolean alignConsecutiveDefinitions = false;
+        private static final String AFTER_TYPE_CAST = "afterTypeCast";
+        private static final String AROUND_RECORD_BRACES = "aroundRecordBraces";
+        private static final String ALIGN_CONSECUTIVE_DEFINITIONS = "alignConsecutiveDefinitions";
+        private boolean afterTypeCast = getDefaultBoolean(FormatSection.SPACING, AFTER_TYPE_CAST);
+        private boolean aroundRecordBraces = getDefaultBoolean(FormatSection.SPACING, AROUND_RECORD_BRACES);
+        private boolean alignConsecutiveDefinitions =
+                getDefaultBoolean(FormatSection.SPACING, ALIGN_CONSECUTIVE_DEFINITIONS);
 
         public SpacingFormattingOptionsBuilder setAfterTypeCast(boolean afterTypeCast) {
             this.afterTypeCast = afterTypeCast;
@@ -80,16 +87,17 @@ public class SpacingFormattingOptions {
             for (Map.Entry<String, Object> spacingEntry : configs.entrySet()) {
                 String spacingKey = spacingEntry.getKey();
                 switch (spacingKey) {
-                    case "afterTypeCast":
+                    case AFTER_TYPE_CAST:
                         setAfterTypeCast((Boolean) spacingEntry.getValue());
                         break;
-                    case "aroundRecordBraces":
+                    case AROUND_RECORD_BRACES:
                         setAroundRecordBraces((Boolean) spacingEntry.getValue());
                         break;
-                    case "alignConsecutiveDefinitions":
+                    case ALIGN_CONSECUTIVE_DEFINITIONS:
                         setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
                         break;
                     default:
+                        warning("Invalid spacing formatting option: " + spacingKey);
                         break;
                 }
             }

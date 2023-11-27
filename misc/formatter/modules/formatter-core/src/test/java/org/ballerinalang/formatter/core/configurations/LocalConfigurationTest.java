@@ -27,7 +27,7 @@ import java.nio.file.Paths;
 /**
  * Test formatting with a local configuration file.
  *
- * @since 2.0.0
+ * @since  2201.9.0
  */
 public class LocalConfigurationTest extends FormatterTest {
     @Test(dataProvider = "test-file-provider")
@@ -57,4 +57,3 @@ public class LocalConfigurationTest extends FormatterTest {
         return path.toString();
     }
 }
-

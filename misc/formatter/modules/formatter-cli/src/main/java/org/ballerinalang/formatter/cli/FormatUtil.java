@@ -27,6 +27,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormatterUtils;
 import org.ballerinalang.formatter.core.options.FormattingOptions;
 
 import java.io.File;
@@ -128,7 +129,8 @@ class FormatUtil {
                     try {
                         project = BuildProject.load(projectPath, constructBuildOptions());
                         options = FormattingOptions.builder()
-                                .build(project.sourceRoot(), project.currentPackage().manifest().getValue("format"));
+                                .build(project.sourceRoot(),
+                                        FormatterUtils.loadFormatSection(project.currentPackage().manifest()));
                     } catch (ProjectException e) {
                         throw LauncherUtils.createLauncherException(e.getMessage());
                     }
@@ -196,7 +198,8 @@ class FormatUtil {
                 try {
                     project = BuildProject.load(sourceRootPath, constructBuildOptions());
                     options = FormattingOptions.builder()
-                            .build(project.sourceRoot(), project.currentPackage().manifest().getValue("format"));
+                            .build(project.sourceRoot(),
+                                    FormatterUtils.loadFormatSection(project.currentPackage().manifest()));
                 } catch (ProjectException e) {
                     throw LauncherUtils.createLauncherException(e.getMessage());
                 }

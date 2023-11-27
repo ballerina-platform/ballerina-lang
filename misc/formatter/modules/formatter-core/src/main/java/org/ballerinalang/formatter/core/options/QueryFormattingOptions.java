@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@ package org.ballerinalang.formatter.core.options;
 
 import java.util.Map;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
+
 /**
  * A model for formatting of the queries by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class QueryFormattingOptions {
 
@@ -40,7 +43,8 @@ public class QueryFormattingOptions {
 
     public static class QueryFormattingOptionsBuilder {
 
-        private boolean alignMultiLineQueries = false;
+        private static final String ALIGN_MULTILINE_QUERIES = "alignMultiLineQueries";
+        private boolean alignMultiLineQueries = getDefaultBoolean(FormatSection.QUERY, ALIGN_MULTILINE_QUERIES);
 
         public QueryFormattingOptionsBuilder setAlignMultiLineQueries(boolean alignMultiLineQueries) {
             this.alignMultiLineQueries = alignMultiLineQueries;
@@ -55,10 +59,11 @@ public class QueryFormattingOptions {
             for (Map.Entry<String, Object> queryStatementEntry : configs.entrySet()) {
                 String queryStatementKey = queryStatementEntry.getKey();
                 switch (queryStatementKey) {
-                    case "alignMultiLineQueries":
+                    case ALIGN_MULTILINE_QUERIES:
                         setAlignMultiLineQueries((Boolean) queryStatementEntry.getValue());
                         break;
                     default:
+                        warning("Invalid query formatting option: " + queryStatementKey);
                         break;
                 }
             }

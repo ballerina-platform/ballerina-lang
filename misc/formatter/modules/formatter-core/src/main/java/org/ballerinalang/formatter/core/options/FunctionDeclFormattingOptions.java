@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,14 @@ import org.ballerinalang.formatter.core.FormatterException;
 
 import java.util.Map;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
+
 /**
  * A model for formatting of function declarations by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class FunctionDeclFormattingOptions {
 
@@ -61,10 +65,18 @@ public class FunctionDeclFormattingOptions {
 
     public static class FunctionDeclFormattingOptionsBuilder {
 
-        private WrappingMethod parametersWrap = WrappingMethod.Wrap;
-        private boolean alignMultilineParameters = false;
-        private boolean newLineAfterLeftParen = false;
-        private boolean rightParenOnNewLine = false;
+        private static final String PARAMETERS_WRAP = "parametersWrap";
+        private static final String ALIGN_MULTILINE_PARAMETERS = "alignMultilineParameters";
+        private static final String NEWLINE_AFTER_LEFT_PAREN = "newLineAfterLeftParen";
+        private static final String RIGHT_PAREN_ON_NEWLINE = "rightParenOnNewLine";
+        private WrappingMethod parametersWrap =
+                WrappingMethod.valueOf(getDefaultString(FormatSection.METHOD_DECLARATION, PARAMETERS_WRAP));
+        private boolean alignMultilineParameters =
+                getDefaultBoolean(FormatSection.METHOD_DECLARATION, ALIGN_MULTILINE_PARAMETERS);
+        private boolean newLineAfterLeftParen =
+                getDefaultBoolean(FormatSection.METHOD_DECLARATION, NEWLINE_AFTER_LEFT_PAREN);
+        private boolean rightParenOnNewLine =
+                getDefaultBoolean(FormatSection.METHOD_DECLARATION, RIGHT_PAREN_ON_NEWLINE);
 
         public FunctionDeclFormattingOptionsBuilder setParametersWrap(WrappingMethod parametersWrap) {
             this.parametersWrap = parametersWrap;
@@ -95,19 +107,20 @@ public class FunctionDeclFormattingOptions {
             for (Map.Entry<String, Object> methodDeclarationEntry : configs.entrySet()) {
                 String methodDeclarationKey = methodDeclarationEntry.getKey();
                 switch (methodDeclarationKey) {
-                    case "parametersWrap":
+                    case PARAMETERS_WRAP:
                         setParametersWrap(WrappingMethod.fromString((String) methodDeclarationEntry.getValue()));
                         break;
-                    case "alignMultilineParameters":
+                    case ALIGN_MULTILINE_PARAMETERS:
                         setAlignMultilineParameters((Boolean) methodDeclarationEntry.getValue());
                         break;
-                    case "newLineAfterLeftParen":
+                    case NEWLINE_AFTER_LEFT_PAREN:
                         setNewLineAfterLeftParen((Boolean) methodDeclarationEntry.getValue());
                         break;
-                    case "rightParenOnNewLine":
+                    case RIGHT_PAREN_ON_NEWLINE:
                         setRightParenOnNewLine((Boolean) methodDeclarationEntry.getValue());
                         break;
                     default:
+                        warning("Invalid function declaration formatting option: " + methodDeclarationKey);
                         break;
                 }
             }

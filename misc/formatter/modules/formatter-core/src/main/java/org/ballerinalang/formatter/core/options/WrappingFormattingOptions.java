@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.ballerinalang.formatter.core.options;
 
+import org.ballerinalang.formatter.core.FormatterUtils;
+
 import java.util.Map;
+
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting of wrapping settings by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class WrappingFormattingOptions {
 
@@ -59,10 +63,16 @@ public class WrappingFormattingOptions {
 
     public static class WrappingFormattingOptionsBuilder {
 
-        private int maxLineLength = 120;
-        private boolean simpleBlocksInOneLine = false;
-        private boolean simpleMethodsInOneLine = false;
-        private boolean lineWrap = false;
+        private static final String MAX_LINE_LENGTH = "maxLineLength";
+        private static final String SIMPLE_BLOCKS_IN_ONE_LINE = "simpleBlocksInOneLine";
+        private static final String SIMPLE_METHODS_IN_ONE_LINE = "simpleMethodsInOneLine";
+        private static final String LINE_WRAP = "lineWrap";
+        private int maxLineLength = FormatterUtils.getDefaultInt(FormatSection.WRAPPING, MAX_LINE_LENGTH);
+        private boolean simpleBlocksInOneLine =
+                FormatterUtils.getDefaultBoolean(FormatSection.WRAPPING, SIMPLE_BLOCKS_IN_ONE_LINE);
+        private boolean simpleMethodsInOneLine =
+                FormatterUtils.getDefaultBoolean(FormatSection.WRAPPING, SIMPLE_METHODS_IN_ONE_LINE);
+        private boolean lineWrap = FormatterUtils.getDefaultBoolean(FormatSection.WRAPPING, LINE_WRAP);
 
         public WrappingFormattingOptionsBuilder setMaxLineLength(int maxLineLength) {
             this.maxLineLength = maxLineLength;
@@ -93,17 +103,18 @@ public class WrappingFormattingOptions {
             for (Map.Entry<String, Object> wrappingEntry : configs.entrySet()) {
                 String wrappingKey = wrappingEntry.getKey();
                 switch (wrappingKey) {
-                    case "maxLineLength":
+                    case MAX_LINE_LENGTH:
                         setMaxLineLength(((Number) wrappingEntry.getValue()).intValue());
                         setLineWrap(true);
                         break;
-                    case "simpleBlocksInOneLine":
+                    case SIMPLE_BLOCKS_IN_ONE_LINE:
                         setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());
                         break;
-                    case "simpleMethodsInOneLine":
+                    case SIMPLE_METHODS_IN_ONE_LINE:
                         setSimpleMethodsInOneLine((Boolean) wrappingEntry.getValue());
                         break;
                     default:
+                        warning("Invalid wrapping formatting option: " + wrappingKey);
                         break;
                 }
             }

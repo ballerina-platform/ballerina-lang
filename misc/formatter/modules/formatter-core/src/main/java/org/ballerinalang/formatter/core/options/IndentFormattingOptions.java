@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@ package org.ballerinalang.formatter.core.options;
 
 import java.util.Map;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultInt;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
+
 /**
  * A model for formatting of indent settings by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class IndentFormattingOptions {
 
@@ -55,8 +58,10 @@ public class IndentFormattingOptions {
      */
     public static class IndentFormattingOptionsBuilder {
 
-        private int indentSize = 4;
-        private int continuationIndentSize = 2;
+        private static final String INDENT_SIZE = "indentSize";
+        private static final String CONTINUATION_INDENT_SIZE = "continuationIndentSize";
+        private int indentSize = getDefaultInt(FormatSection.INDENT, INDENT_SIZE);
+        private int continuationIndentSize = getDefaultInt(FormatSection.INDENT, CONTINUATION_INDENT_SIZE);
         private String wsCharacter = " ";
 
         public IndentFormattingOptionsBuilder setIndentSize(int indentSize) {
@@ -77,13 +82,14 @@ public class IndentFormattingOptions {
             for (Map.Entry<String, Object> indentEntry : configs.entrySet()) {
                 String indentKey = indentEntry.getKey();
                 switch (indentKey) {
-                    case "indentSize":
+                    case INDENT_SIZE:
                         setIndentSize(((Number) indentEntry.getValue()).intValue());
                         break;
-                    case "continuationIndentSize":
+                    case CONTINUATION_INDENT_SIZE:
                         setContinuationIndentSize(((Number) indentEntry.getValue()).intValue());
                         break;
                     default:
+                        warning("Invalid indent formatting option: " + indentKey);
                         break;
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@ package org.ballerinalang.formatter.core.options;
 
 import java.util.Map;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultBoolean;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
+
 /**
  * A model for formatting of indent settings by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class IfStatementFormattingOptions {
 
@@ -40,7 +43,8 @@ public class IfStatementFormattingOptions {
 
     public static class IfStatementFormattingOptionsBuilder {
 
-        private boolean elseOnNewLine = false;
+        private static final String ELSE_ON_NEW_LINE = "elseOnNewLine";
+        private boolean elseOnNewLine = getDefaultBoolean(FormatSection.IF_STATEMENT, ELSE_ON_NEW_LINE);
 
         public IfStatementFormattingOptionsBuilder setElseOnNewLine(boolean elseOnNewLine) {
             this.elseOnNewLine = elseOnNewLine;
@@ -55,10 +59,11 @@ public class IfStatementFormattingOptions {
             for (Map.Entry<String, Object> ifStatementEntry : configs.entrySet()) {
                 String ifStatementKey = ifStatementEntry.getKey();
                 switch (ifStatementKey) {
-                    case "elseOnNewLine":
+                    case ELSE_ON_NEW_LINE:
                         setElseOnNewLine((Boolean) ifStatementEntry.getValue());
                         break;
                     default:
+                        warning("Invalid if statement formatting option: " + ifStatementKey);
                         break;
                 }
             }
