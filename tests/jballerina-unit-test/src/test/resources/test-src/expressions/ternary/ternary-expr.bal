@@ -334,6 +334,56 @@ function testTernaryWithLangValueMethodCalls() {
     assertEquals("a", b48);
 }
 
+function testTernaryWithQueryWithLocalVariable() {
+    int? i = 3;
+
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+function testTernaryWithQueryWithFunctionParameter() {
+    int? x = 3;
+    ternaryWithQueryWithFunctionParameter(x);
+}
+
+function ternaryWithQueryWithFunctionParameter(int? i) {
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+int? i = 3;
+function testTernaryWithQueryWithModuleVariable() {
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
 boolean cond2 = true;
 int i1 =10;
 byte j1 = 100;

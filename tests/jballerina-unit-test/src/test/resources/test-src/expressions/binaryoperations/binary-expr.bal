@@ -37,3 +37,17 @@ function bitwiseAnd(int a, int b, byte c, byte d) returns [int, byte, byte, byte
     res [3] = b & d;
     return res;
 }
+
+function binaryANDWithQuery() returns boolean {
+    int? i = 3;
+    return i is int && (from var _ in [1, 2]
+        where i + 2 == 5
+        select 2) == [2, 2];
+}
+
+function binaryORWithQuery() returns boolean {
+    int? i = 3;
+    return i is () || (from var _ in [1, 2]
+        where i + 2 == 5
+        select 2) == [2, 2];
+}

@@ -350,6 +350,13 @@ public class WorkerTest {
         BAssertUtil.validateError(result, 0, "multiple receive action not yet supported", 23, 25);
     }
 
+    @Test
+    public void testWorkerWithQuery() {
+        Object returns = BRunUtil.invoke(result, "testWorkerWithQuery", new Object[0]);
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 4);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

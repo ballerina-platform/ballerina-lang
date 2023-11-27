@@ -143,6 +143,17 @@ public class BinaryExprTest {
         Assert.assertEquals(((Byte) returns.get(3)).longValue(), b & d);
     }
 
+    @Test(description = "Test binary expression with query")
+    public void binaryExpressionWithQuery() {
+        Object resultAnd = BRunUtil.invoke(result, "binaryANDWithQuery", new Object[]{});
+        Assert.assertSame(resultAnd.getClass(), Boolean.class);
+        Assert.assertTrue((boolean) resultAnd);
+
+        Object resultOr = BRunUtil.invoke(result, "binaryORWithQuery", new Object[]{});
+        Assert.assertSame(resultOr.getClass(), Boolean.class);
+        Assert.assertTrue((boolean) resultOr);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

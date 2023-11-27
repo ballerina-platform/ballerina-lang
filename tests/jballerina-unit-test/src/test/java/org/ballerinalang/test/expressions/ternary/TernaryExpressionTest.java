@@ -393,6 +393,21 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
     }
 
+    @Test
+    public void testTernaryWithQueryWithLocalVariable() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryWithLocalVariable");
+    }
+
+    @Test
+    public void testTernaryWithQueryWithFunctionParameter() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryWithFunctionParameter");
+    }
+
+    @Test
+    public void testTernaryWithQueryWithModuleVariable() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryWithModuleVariable");
+    }
+
     @Test(description = "Test type narrowing for ternary expression")
     public void testTernaryTypeNarrow() {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow.bal");

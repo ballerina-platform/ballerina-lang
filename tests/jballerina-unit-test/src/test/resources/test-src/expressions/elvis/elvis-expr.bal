@@ -537,6 +537,15 @@ function testElvisExprWithUnionWithFiniteTypeContainingNull() {
     assertEquals(23, f);
 }
 
+function testElvisExprWithQuery() {
+    int? i = ();
+    int|int[] res = i ?:
+        from var _ in [1, 2]
+        where i == ()
+        select 2;
+    assertEquals([2,2], res);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {

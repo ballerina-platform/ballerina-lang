@@ -652,6 +652,21 @@ function testWorkerInteractionsAfterCheck() {
     validateError(e, "Error");
 }
 
+public function testWorkerWithQuery() returns int {
+    worker A {
+        int? i = 3;
+        i is int ? from var _ in [1, 2]
+                where i + 2 == 5
+                select 2 : [2] -> function;
+    }
+    int[] x = <- A;
+    int sum = 0;
+    foreach var item in x {
+        sum += item;
+    }
+    return sum;
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
