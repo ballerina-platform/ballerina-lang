@@ -123,7 +123,7 @@ public class HoverUtil {
         NonTerminalNode cursor = context.getNodeAtCursor();
         if (cursor.kind() == SyntaxKind.LIST || cursor.kind() == SyntaxKind.PARENTHESIZED_ARG_LIST
                 || cursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
-                && cursor.parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION ) {
+                && cursor.parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             return semanticModel.symbol(cursor.parent());
         } else {
             return semanticModel.symbol(srcFile, linePosition);
