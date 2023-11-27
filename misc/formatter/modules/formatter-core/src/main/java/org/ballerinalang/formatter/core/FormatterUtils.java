@@ -19,11 +19,15 @@ import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.ballerinalang.formatter.core.options.FormatSection;
 import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,7 +42,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 /**
@@ -46,28 +52,55 @@ import java.util.stream.Collectors;
  */
 public class FormatterUtils {
 
-    private FormatterUtils() {
+    private static Logger logger = LoggerFactory.getLogger("Formatter");
+    static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
+    static final String FORMAT_FILE_FIELD = "configPath";
+    static final String FORMAT_OPTION_FILE_EXT = ".toml";
+    static final String DEFAULT_FORMAT_OPTION_FILE = "Format.toml";
+    static final String TARGET_DIR = "target";
+    static final String FORMAT = "format";
+    public static final ResourceBundle DEFAULTS = ResourceBundle.getBundle("formatter", Locale.getDefault());
 
+    private FormatterUtils() {
     }
 
-    static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
+    public static boolean getDefaultBoolean(FormatSection section, String key) {
+        return Boolean.parseBoolean(getDefaultString(section, key));
+    }
 
-    public static String getFormattingFilePath(Object data, String root) {
-        if (data instanceof Map) {
-            Object path = ((Map<String, Object>) data).get("configPath");
+    public static int getDefaultInt(FormatSection section, String key) {
+        return Integer.parseInt(getDefaultString(section, key));
+    }
+
+    public static String getDefaultString(FormatSection section, String key) {
+        return DEFAULTS.getString(section.getStringValue() + "." + key);
+    }
+
+    public static Object loadFormatSection(PackageManifest manifest) {
+        return manifest.getValue(FORMAT);
+    }
+
+    public static void warning(String message) {
+        logger.warn(message);
+    }
+
+    public static String getFormattingFilePath(Object formatSection, String root) {
+        if (formatSection != null) {
+            Object path = ((Map<String, Object>) formatSection).get(FORMAT_FILE_FIELD);
             if (path != null) {
                 String str = path.toString();
-                if (str.endsWith(".toml")) {
+                if (str.endsWith(FORMAT_OPTION_FILE_EXT)) {
                     return str;
                 }
-                return Path.of(str, "Format.toml").toString();
+                return Path.of(str, DEFAULT_FORMAT_OPTION_FILE).toString();
             }
         }
+
         File directory = new File(root);
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.isFile() && file.getName().equals("Format.toml")) {
+                if (file.isFile() && file.getName().equals(DEFAULT_FORMAT_OPTION_FILE)) {
                     return file.getAbsolutePath();
                 }
             }
@@ -95,9 +128,7 @@ public class FormatterUtils {
     }
 
     static String readRemoteFormatFile(Path root, String fileUrl) throws FormatterException {
-        StringBuilder fileContent = new StringBuilder();
-        Path cachePath = root.resolve("target").resolve("format").resolve("Format.toml");
-
+        Path cachePath = root.resolve(TARGET_DIR).resolve(FORMAT).resolve(DEFAULT_FORMAT_OPTION_FILE);
         if (Files.exists(cachePath)) {
             try {
                 return Files.readString(cachePath, StandardCharsets.UTF_8);
@@ -106,6 +137,7 @@ public class FormatterUtils {
             }
         }
 
+        StringBuilder fileContent = new StringBuilder();
         try {
             URL url = new URL(fileUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -125,7 +157,7 @@ public class FormatterUtils {
             }
             connection.disconnect();
         } catch (IOException e) {
-            throw new FormatterException("Failed to retrieve remote formatting configuration file");
+            throw new FormatterException("Failed to retrieve formatting configuration file");
         }
         cacheRemoteConfigurationFile(root, fileContent.toString());
 
@@ -133,15 +165,15 @@ public class FormatterUtils {
     }
 
     private static void cacheRemoteConfigurationFile(Path root, String content) throws FormatterException {
-        if (Files.exists(root.resolve("target"))) {
-            if (!Files.exists(root.resolve("target").resolve("format"))) {
+        if (Files.exists(root.resolve(TARGET_DIR))) {
+            if (!Files.exists(root.resolve(TARGET_DIR).resolve(FORMAT))) {
                 try {
-                    Files.createDirectories(root.resolve("target").resolve("format"));
+                    Files.createDirectories(root.resolve(TARGET_DIR).resolve(FORMAT));
                 } catch (IOException e) {
                     throw new FormatterException("Failed to create format configuration cache directory");
                 }
             }
-            String filePath = root.resolve("target").resolve("format").resolve("Format.toml")
+            String filePath = root.resolve(TARGET_DIR).resolve(FORMAT).resolve(DEFAULT_FORMAT_OPTION_FILE)
                     .toString();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
                 writer.write(content);
@@ -153,14 +185,10 @@ public class FormatterUtils {
 
     public static Map<String, Object> parseConfigurationToml(TomlDocument document) {
         TomlTableNode tomlAstNode = document.toml().rootNode();
-        Map<String, Object> formatConfigs = new HashMap<>();
         if (!tomlAstNode.entries().isEmpty()) {
-            Map<String, Object> tomlMap = document.toml().toMap();
-            for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
-                formatConfigs.put(entry.getKey(), entry.getValue());
-            }
+            return document.toml().toMap();
         }
-        return formatConfigs;
+        return new HashMap<>();
     }
 
     static boolean isInlineRange(Node node, LineRange lineRange) {

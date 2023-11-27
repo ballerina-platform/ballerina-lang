@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingConfigurations;
 import static org.ballerinalang.formatter.core.FormatterUtils.getFormattingFilePath;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
 
 /**
  * A model for formatting options that could be passed onto the formatter.
@@ -176,8 +177,8 @@ public class FormattingOptions {
                     spacingFormattingOptions, forceFormattingOptions, importFormattingOptions, queryFormattingOptions);
         }
 
-        public FormattingOptions build(Path root, Object data) throws FormatterException {
-            String path = getFormattingFilePath(data, root.toString());
+        public FormattingOptions build(Path root, Object formatSection) throws FormatterException {
+            String path = getFormattingFilePath(formatSection, root.toString());
             if (path == null) {
                 return build();
             }
@@ -189,35 +190,37 @@ public class FormattingOptions {
                     continue;
                 }
                 Map<String, Object> configs = (Map<String, Object>) value;
-                switch (key) {
-                    case "indent":
+                FormatSection section = FormatSection.fromString(key);
+                switch (section) {
+                    case INDENT:
                         indentFormattingOptions = IndentFormattingOptions.builder().build(configs);
                         break;
-                    case "wrapping":
+                    case WRAPPING:
                         wrappingFormattingOptions = WrappingFormattingOptions.builder().build(configs);
                         break;
-                    case "braces":
+                    case BRACES:
                         braceFormattingOptions = BraceFormattingOptions.builder().build(configs);
                         break;
-                    case "methodDeclaration":
+                    case METHOD_DECLARATION:
                         functionDeclFormattingOptions = FunctionDeclFormattingOptions.builder().build(configs);
                         break;
-                    case "methodCall":
+                    case METHOD_CALL:
                         functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(configs);
                         break;
-                    case "ifStatement":
+                    case IF_STATEMENT:
                         ifStatementFormattingOptions = IfStatementFormattingOptions.builder().build(configs);
                         break;
-                    case "query":
+                    case QUERY:
                         queryFormattingOptions = QueryFormattingOptions.builder().build(configs);
                         break;
-                    case "spacing":
+                    case SPACING:
                         spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
                         break;
-                    case "import":
+                    case IMPORT:
                         importFormattingOptions = ImportFormattingOptions.builder().build(configs);
                         break;
                     default:
+                        warning("Invalid formatting option section : " + section);
                         break;
                 }
             }

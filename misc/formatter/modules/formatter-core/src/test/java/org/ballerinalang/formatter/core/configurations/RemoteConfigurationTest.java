@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 /**
  * Test the formatting of additive expressions.
  *
- * @since 2.0.0
+ * @since 2201.9.0
  */
 public class RemoteConfigurationTest extends FormatterTest {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://wso2.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@ import org.ballerinalang.formatter.core.FormatterException;
 
 import java.util.Map;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getDefaultString;
+import static org.ballerinalang.formatter.core.FormatterUtils.warning;
+
 /**
  * A model for formatting of brace settings by the API user, that could be passed onto the formatter.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class BraceFormattingOptions {
 
@@ -48,8 +51,12 @@ public class BraceFormattingOptions {
 
     public static class BraceFormattingOptionsBuilder {
 
-        private BraceStyle classBraceStyle = BraceStyle.EndOfLine;
-        private BraceStyle methodBraceStyle = BraceStyle.EndOfLine;
+        private static final String CLASS_BRACE_STYLE = "classBraceStyle";
+        private static final String METHOD_BRACE_STYLE = "methodBraceStyle";
+        private BraceStyle classBraceStyle =
+                BraceStyle.valueOf(getDefaultString(FormatSection.BRACES, CLASS_BRACE_STYLE));
+        private BraceStyle methodBraceStyle =
+                BraceStyle.valueOf(getDefaultString(FormatSection.BRACES, METHOD_BRACE_STYLE));
 
         public BraceFormattingOptionsBuilder setClassBraceStyle(BraceStyle classBraceStyle) {
             this.classBraceStyle = classBraceStyle;
@@ -70,13 +77,14 @@ public class BraceFormattingOptions {
                 String bracesKey = bracesEntry.getKey();
                 BraceStyle style = BraceStyle.fromString((String) bracesEntry.getValue());
                 switch (bracesKey) {
-                    case "classBraceStyle":
+                    case CLASS_BRACE_STYLE:
                         setClassBraceStyle(style);
                         break;
-                    case "methodBraceStyle":
+                    case METHOD_BRACE_STYLE:
                         setMethodBraceStyle(style);
                         break;
                     default:
+                        warning("Invalid Brace Option: " + bracesKey);
                         break;
                 }
             }
