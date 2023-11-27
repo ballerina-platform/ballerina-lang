@@ -1905,17 +1905,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         BSymbol symbol = bLangSimpleVarRef.symbol;
         String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
                 String.valueOf(bLangSimpleVarRef.variableName);
-        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
-                Names.fromString(identifier), SymTag.VARIABLE);
+        if (symbol instanceof BVarSymbol) {
+            BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+            if (originalSymbol != null) {
+                symbol = originalSymbol;
+            }
+        }
+        BSymbol resolvedSymbol =
+                symResolver.lookupClosureVarSymbol(env, symbol, Names.fromString(identifier), SymTag.VARIABLE);
+
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (symbol instanceof BVarSymbol) {
-                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
-                if (originalSymbol != null) {
-                    symbol = originalSymbol;
-                }
-            }
             if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;

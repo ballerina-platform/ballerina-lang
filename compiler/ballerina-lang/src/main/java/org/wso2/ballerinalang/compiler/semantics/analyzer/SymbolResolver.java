@@ -23,6 +23,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -837,6 +838,30 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         return lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
+    }
+
+    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Symbol symbol, Name name, long expSymTag) {
+        ScopeEntry entry = env.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if (entry.symbol != symbol) {
+                entry = entry.next;
+                continue;
+            }
+            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
+                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                return entry.symbol;
+            }
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+
+        if (env.enclEnv == null || env.enclEnv.node == null) {
+            return symTable.notFoundSymbol;
+        }
+
+        return lookupClosureVarSymbol(env.enclEnv, symbol, name, expSymTag);
     }
 
     public BSymbol lookupMainSpaceSymbolInPackage(Location pos,
