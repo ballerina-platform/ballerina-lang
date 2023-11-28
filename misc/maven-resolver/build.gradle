@@ -17,6 +17,18 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+//    implementation.exclude group: "org.slf4j"
+//    mavenJar
+//    testRuntimeClasspath {
+//        extendsFrom runtimeClasspath
+//    }
+    slf4jExclusion {
+        exclude group: 'org.slf4j'
+    }
+    testWithSlf4j
+}
+
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
@@ -25,8 +37,27 @@ jar {
                 'Implementation-Version': version
         )
     }
+//    from {
+//        configurations.runtimeClasspath.findAll { file ->
+//            !(file.group == 'org.slf4j' && (file.module == 'slf4j-api' || file.module == 'slf4j-simple'))
+//        }
+//    }
+//    from {
+//        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } - configurations.slf4jExclusion
+//    }
+    from(configurations.runtimeClasspath - configurations.slf4jExclusion)
+}
+
+task testJar(type: Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'Implementation-Title': 'Maven Resolver Tests',
+                'Implementation-Version': version
+        )
+    }
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.testWithSlf4j
     }
 }
 
@@ -40,7 +71,18 @@ dependencies {
     implementation "org.apache.maven.resolver:maven-resolver-transport-file:${project.apacheMavenTransportFileVersion}"
     implementation "org.apache.maven.resolver:maven-resolver-transport-http:${project.apacheMavenTransportHttpVersion}"
     implementation 'me.tongfei:progressbar'
+
     testImplementation 'org.testng:testng'
+//    testImplementation 'org.slf4j:slf4j-api'
+//    testImplementation 'org.slf4j:slf4j-simple'
+
+    // Define SLF4J dependencies for exclusion
+//    slf4jExclusion 'org.slf4j:slf4j-api'
+//    slf4jExclusion 'org.slf4j:slf4j-simple'
+    // Define SLF4J dependencies for TestNG tests
+    testWithSlf4j 'org.slf4j:slf4j-api'
+    testWithSlf4j 'org.slf4j:slf4j-simple'
+
 }
 
 test {

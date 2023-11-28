@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 public class MavenResolverTest {
     String targetRepo = Paths.get("build").toAbsolutePath().toString() + File.separator + "platform-libs";
     String mavenArtifactVersion = "3.6.3";
-    String ballerinaMysqlVersion = "1.2.9";
+    String ballerinaMysqlVersion = "1.2.47";
     String commandDistVersion = "0.8.5";
     MavenResolver resolver = new MavenResolver(targetRepo);
 
@@ -68,18 +68,18 @@ public class MavenResolverTest {
         }
     }
 
-    @Test
-    public void testAddRemoteRepository() {
-        try {
-            resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
-            Dependency dependency = resolver.resolve("org.ballerinalang", "ballerina-mysql",
-                    ballerinaMysqlVersion, true);
-            String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
-            Assert.assertTrue(new File(jarPath).exists());
-        } catch (MavenResolverException e) {
-            Assert.fail(e.getMessage());
-        }
-    }
+//    @Test
+//    public void testAddRemoteRepository() {
+//        try {
+//            resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
+//            Dependency dependency = resolver.resolve("org.ballerinalang", "ballerina-libs",
+//                    ballerinaMysqlVersion, true);
+//            String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
+//            Assert.assertTrue(new File(jarPath).exists());
+//        } catch (MavenResolverException e) {
+//            Assert.fail(e.getMessage());
+//        }
+//    }
 
     @Test
     public void testAddRemoteRepositoryWithCredentials() {

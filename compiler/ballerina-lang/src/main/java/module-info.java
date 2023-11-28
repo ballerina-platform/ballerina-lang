@@ -13,6 +13,8 @@ module io.ballerina.lang {
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
     requires io.ballerina.identifier;
+    requires org.apache.commons.lang3;
+    requires maven.artifact;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;
