@@ -161,10 +161,10 @@ type Employee record {|
     string dept;
 |};
 
-type Candidate record {
+type Candidate record {|
     string name;
     never university?;
-};
+|};
 
 function testSpreadFieldWithRecordTypeHavingNeverField() {
     Grades grades = { physics: 75 };
