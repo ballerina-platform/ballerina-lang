@@ -161,32 +161,36 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "missing non-defaultable required record field 'i'", 67, 13);
         validateError(result, i++, "missing non-defaultable required record field 'i'", 71, 13);
         validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
-                84, 39);
+                90, 39);
         validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
-                87, 39);
-        validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
-                90, 20);
-        validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
-                93, 20);
+                93, 39);
         validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
                 96, 20);
         validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
-                100, 17);
+                99, 20);
         validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
-                100, 26);
-        validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 107, 28);
-        validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 115, 25);
-        validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 115, 39);
-        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 119, 38);
-        validateError(result, i++, "undefined symbol 'b'", 119, 38);
-        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 119, 44);
-        validateError(result, i++, "undefined function 'getFoo'", 119, 44);
-        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 129, 18);
-        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 129, 30);
-        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 130, 30);
-        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 130, 36);
-        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 143, 18);
-        validateError(result, i++, "incompatible types: expected '(int|float)', found 'string'", 144, 32);
+                102, 20);
+        validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
+                106, 17);
+        validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
+                106, 26);
+        validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
+                109, 21);
+        validateError(result, i++, "invalid usage of spread operator to construct a closed record from an open record",
+                112, 40);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 119, 28);
+        validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 127, 25);
+        validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 127, 39);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 131, 38);
+        validateError(result, i++, "undefined symbol 'b'", 131, 38);
+        validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 131, 44);
+        validateError(result, i++, "undefined function 'getFoo'", 131, 44);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 141, 18);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 141, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'any'", 142, 30);
+        validateError(result, i++, "incompatible types: expected 'json', found 'anydata'", 142, 36);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 155, 18);
+        validateError(result, i++, "incompatible types: expected '(int|float)', found 'string'", 156, 32);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -266,7 +270,8 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
-                { "testSpreadFieldWithRecordTypeHavingNeverField" }
+                { "testSpreadFieldWithRecordTypeHavingNeverField" },
+                { "testSpreadFieldWithClosedRecordCreatedFromOpenRecord" }
         };
     }
 

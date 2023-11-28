@@ -246,6 +246,37 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     assertEquality(8, bar8.i);
 }
 
+type Vehicle record {
+    string model;
+    int year;
+};
+
+type Car record {|
+    string model;
+    int year;
+    anydata ...;
+|};
+
+type Van record {|
+    string model;
+    int year;
+    any ...;
+|};
+
+function testSpreadFieldWithClosedRecordCreatedFromOpenRecord() {
+    Vehicle vehicle1 = { model: "Tesla", year: 2023, "isElectronic": true };
+    Car car = {...vehicle1};
+    assertEquality("Tesla", car.model);
+    assertEquality(2023, car.year);
+    assertEquality(true, car["isElectronic"]);
+
+    Vehicle vehicle2 = { model: "Mercedes-Benz", year: 2023, "nPassengers": 10 };
+    Van van = {...vehicle2};
+    assertEquality("Mercedes-Benz", van.model);
+    assertEquality(2023, van.year);
+    assertEquality(10, van["nPassengers"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
