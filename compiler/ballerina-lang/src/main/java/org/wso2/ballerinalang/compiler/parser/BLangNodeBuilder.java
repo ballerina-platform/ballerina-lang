@@ -1658,7 +1658,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
 
-        if (!isEnclosed(anonFuncExprNode)) {
+        if (!bLFunction.enclosed) {
             addToTop(bLFunction);
         }
 
