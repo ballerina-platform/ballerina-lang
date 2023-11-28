@@ -94,9 +94,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private long maxIntKey = 0;
 
     //These are required to achieve the iterator behavior
-    private LinkedHashMap<Long, K> indexToKeyMap;
+    private LinkedHashMap<Long, Long> indexToKeyMap;
     private LinkedHashMap<Long, Long> keyToIndexMap;
-    private LinkedHashMap<K, V> keyValues;
+    private LinkedHashMap<Long, KeyValuePair<K, V>> keyValues;
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
@@ -478,9 +478,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         @Override
         public Object next() {
-            K key = (K) indexToKeyMap.get(cursor);
-            if (key != null) {
-                V value = (V) keyValues.get(key);
+            Long hash = indexToKeyMap.get(cursor);
+            if (hash != null) {
+                KeyValuePair<K, V> keyValuePair = (KeyValuePair<K, V>) keyValues.get(hash);
+                K key = keyValuePair.getKey();
+                V value = keyValuePair.getValue();
 
                 List<Type> types = new ArrayList<>();
                 types.add(TypeChecker.getType(key));
@@ -534,7 +536,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             entries.put(hash, entryList);
             updateIndexKeyMappings((K) data, hash);
             values.put(hash, newData);
-            keyValues.put((K) data, data);
+            keyValues.put(hash, KeyValuePair.of((K) data, data));
             return data;
         }
 
@@ -588,7 +590,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 extEntries.add(entry);
                 List<V> extValues = values.get(hash);
                 extValues.add(data);
-                keyValues.put(key, data);
+                keyValues.put(hash, KeyValuePair.of(key, data));
                 updateIndexKeyMappings(key, hash);
                 return;
             }
@@ -630,14 +632,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         private V putData(K key, V value, List<V> data, Map.Entry<K, V> entry, Long hash) {
-
             List<Map.Entry<K, V>> entryList = new ArrayList<>();
             entryList.add(entry);
             entries.put(hash, entryList);
             keys.put(hash, key);
             updateIndexKeyMappings(key, hash);
             values.put(hash, data);
-            keyValues.put(key, value);
+            keyValues.put(hash, KeyValuePair.of(key, value));
             return data.get(0);
         }
 
@@ -655,8 +656,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V remove(K key) {
-            keyValues.remove(key);
             Long hash = TableUtils.hash(key, null);
+            keyValues.remove(hash);
             List<Map.Entry<K, V>> entryList = entries.get(hash);
             if (entryList != null && entryList.size() > 1) {
                 for (Map.Entry<K, V> entry: entryList) {
@@ -747,11 +748,33 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
     }
 
+    private static final class KeyValuePair<K, V> {
+        private K key;
+        private V value;
+
+        public KeyValuePair(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public static <K, V> KeyValuePair<K, V> of(K key, V value) {
+            return new KeyValuePair<>(key, value);
+        }
+
+        public K getKey() {
+            return key;
+        }
+
+        public V getValue() {
+            return value;
+        }
+    }
+
     // This method updates the indexes and the order required by the iterators
     private void updateIndexKeyMappings(K key, Long hash) {
         if (!keyToIndexMap.containsKey(hash)) {
             keyToIndexMap.put(hash, noOfAddedEntries);
-            indexToKeyMap.put(noOfAddedEntries, key);
+            indexToKeyMap.put(noOfAddedEntries, hash);
             noOfAddedEntries++;
         }
     }

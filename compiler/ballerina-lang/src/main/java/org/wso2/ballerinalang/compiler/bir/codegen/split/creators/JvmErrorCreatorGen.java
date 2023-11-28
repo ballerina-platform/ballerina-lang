@@ -48,6 +48,7 @@ import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -81,7 +82,7 @@ public class JvmErrorCreatorGen {
         generateCreateErrorMethods(cw, errorTypeDefList, moduleInitClass, errorsClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(errorsClass + ".class", bytes);
+        jarEntries.put(errorsClass + CLASS_FILE_SUFFIX, bytes);
     }
 
 
@@ -145,7 +146,7 @@ public class JvmErrorCreatorGen {
             mv.visitLabel(targetLabel);
             mv.visitTypeInsn(NEW, ERROR_VALUE);
             mv.visitInsn(DUP);
-            this.jvmTypeGen.loadType(mv, errorDefinition.type);
+            this.jvmTypeGen.loadType(mv, errorDefinition.referenceType);
             mv.visitVarInsn(ALOAD, messageIndex);
             mv.visitVarInsn(ALOAD, causeIndex);
             mv.visitVarInsn(ALOAD, detailsIndex);

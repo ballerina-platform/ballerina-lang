@@ -41,16 +41,12 @@ public class OnFailClauseNode extends ClauseNode {
         return childInBucket(1);
     }
 
-    public Optional<TypeDescriptorNode> typeDescriptor() {
+    public Optional<TypedBindingPatternNode> typedBindingPattern() {
         return optionalChildInBucket(2);
     }
 
-    public Optional<IdentifierToken> failErrorName() {
-        return optionalChildInBucket(3);
-    }
-
     public BlockStatementNode blockStatement() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     @Override
@@ -68,22 +64,19 @@ public class OnFailClauseNode extends ClauseNode {
         return new String[]{
                 "onKeyword",
                 "failKeyword",
-                "typeDescriptor",
-                "failErrorName",
+                "typedBindingPattern",
                 "blockStatement"};
     }
 
     public OnFailClauseNode modify(
             Token onKeyword,
             Token failKeyword,
-            TypeDescriptorNode typeDescriptor,
-            IdentifierToken failErrorName,
+            TypedBindingPatternNode typedBindingPattern,
             BlockStatementNode blockStatement) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement)) {
             return this;
         }
@@ -91,8 +84,7 @@ public class OnFailClauseNode extends ClauseNode {
         return NodeFactory.createOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -109,16 +101,14 @@ public class OnFailClauseNode extends ClauseNode {
         private final OnFailClauseNode oldNode;
         private Token onKeyword;
         private Token failKeyword;
-        private TypeDescriptorNode typeDescriptor;
-        private IdentifierToken failErrorName;
+        private TypedBindingPatternNode typedBindingPattern;
         private BlockStatementNode blockStatement;
 
         public OnFailClauseNodeModifier(OnFailClauseNode oldNode) {
             this.oldNode = oldNode;
             this.onKeyword = oldNode.onKeyword();
             this.failKeyword = oldNode.failKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
-            this.failErrorName = oldNode.failErrorName().orElse(null);
+            this.typedBindingPattern = oldNode.typedBindingPattern().orElse(null);
             this.blockStatement = oldNode.blockStatement();
         }
 
@@ -136,15 +126,9 @@ public class OnFailClauseNode extends ClauseNode {
             return this;
         }
 
-        public OnFailClauseNodeModifier withTypeDescriptor(
-                TypeDescriptorNode typeDescriptor) {
-            this.typeDescriptor = typeDescriptor;
-            return this;
-        }
-
-        public OnFailClauseNodeModifier withFailErrorName(
-                IdentifierToken failErrorName) {
-            this.failErrorName = failErrorName;
+        public OnFailClauseNodeModifier withTypedBindingPattern(
+                TypedBindingPatternNode typedBindingPattern) {
+            this.typedBindingPattern = typedBindingPattern;
             return this;
         }
 
@@ -159,8 +143,7 @@ public class OnFailClauseNode extends ClauseNode {
             return oldNode.modify(
                     onKeyword,
                     failKeyword,
-                    typeDescriptor,
-                    failErrorName,
+                    typedBindingPattern,
                     blockStatement);
         }
     }
