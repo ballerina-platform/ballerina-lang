@@ -42,7 +42,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.github.chewiebug:gcviewer'
-//    testImplementation "org.apache.maven.resolver:maven-resolver-api:${project.apacheMavenApiVersion}"
 
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation 'org.testng:testng'

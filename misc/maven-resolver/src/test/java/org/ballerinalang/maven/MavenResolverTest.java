@@ -68,18 +68,18 @@ public class MavenResolverTest {
         }
     }
 
-//    @Test
-//    public void testAddRemoteRepository() {
-//        try {
-//            resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
-//            Dependency dependency = resolver.resolve("org.ballerinalang", "ballerina-libs",
-//                    ballerinaMysqlVersion, true);
-//            String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
-//            Assert.assertTrue(new File(jarPath).exists());
-//        } catch (MavenResolverException e) {
-//            Assert.fail(e.getMessage());
-//        }
-//    }
+    @Test
+    public void testAddRemoteRepository() {
+        try {
+            resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
+            Dependency dependency = resolver.resolve("org.ballerinalang", "ballerina-mysql",
+                    ballerinaMysqlVersion, true);
+            String jarPath = Utils.getJarPath(targetRepo, dependency);
+            Assert.assertTrue(new File(jarPath).exists());
+        } catch (MavenResolverException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 
     @Test
     public void testAddRemoteRepositoryWithCredentials() {

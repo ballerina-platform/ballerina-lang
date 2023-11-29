@@ -37,8 +37,7 @@ dependencies {
     testImplementation "org.testng:testng:${project.testngVersion}"
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
-    implementation 'org.apache.commons:commons-lang3:+'
-    implementation 'org.apache.maven:maven-artifact:+'
+    testImplementation 'org.apache.commons:commons-lang3'
 }
 
 description = 'Ballerina - Lang'
