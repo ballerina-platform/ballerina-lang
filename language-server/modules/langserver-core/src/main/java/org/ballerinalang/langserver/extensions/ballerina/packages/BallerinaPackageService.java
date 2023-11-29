@@ -104,7 +104,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                             jsonPackages.add(getPackageComponents(project));
                         } catch (Throwable e) {
                             String msg = "Operation 'ballerinaPackage/components' load project failed!";
-                            this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
+                            this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null);
                         }
                     });
                 });
