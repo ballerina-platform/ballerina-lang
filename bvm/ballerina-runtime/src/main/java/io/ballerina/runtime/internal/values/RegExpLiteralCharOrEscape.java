@@ -51,11 +51,6 @@ public class RegExpLiteralCharOrEscape extends RegExpCommonValue implements RegE
         return this.charOrEscape;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

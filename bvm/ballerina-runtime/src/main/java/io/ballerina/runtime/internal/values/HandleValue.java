@@ -101,11 +101,6 @@ public class HandleValue implements BHandle, RefValue {
         return new HandleValue(value);
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

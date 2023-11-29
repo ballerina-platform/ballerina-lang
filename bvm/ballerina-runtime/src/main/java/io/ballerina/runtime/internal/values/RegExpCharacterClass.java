@@ -66,11 +66,6 @@ public class RegExpCharacterClass extends RegExpCommonValue implements RegExpAto
         return this.characterClassStart + this.negation + this.reCharSet.stringValue(parent) + this.characterClassEnd;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

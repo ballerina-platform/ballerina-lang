@@ -129,6 +129,11 @@ public class XmlText extends XmlNonElementItem {
     }
 
     @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(data);
     }
@@ -136,15 +141,5 @@ public class XmlText extends XmlNonElementItem {
     @Override
     public Type getType() {
         return this.type;
-    }
-
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
     }
 }

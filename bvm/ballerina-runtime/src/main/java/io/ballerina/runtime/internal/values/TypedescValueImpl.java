@@ -161,11 +161,20 @@ public class TypedescValueImpl implements TypedescValue {
      */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        ValuePair compValuePair = new ValuePair(this, o);
+        for (ValuePair valuePair : visitedValues) {
+            if (valuePair.equals(compValuePair, visitedValues)) {
+                return true;
+            }
+        }
+        visitedValues.add(compValuePair);
+
         if (o == this) {
             return true;
         }
-        TypedescValueImpl other = (TypedescValueImpl) o;
-//        return other.describingType == this.describingType;
+        if (!(o instanceof TypedescValueImpl other)) {
+            return false;
+        }
         return other.equals(this);
     }
 }

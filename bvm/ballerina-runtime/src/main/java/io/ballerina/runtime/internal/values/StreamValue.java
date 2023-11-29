@@ -142,11 +142,6 @@ public class StreamValue implements RefValue, BStream {
         return stringValue(null);
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

@@ -179,19 +179,6 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
-            /**
-             * @param o The reference value to be compared
-             * @param visitedValues Temporary set to keep already visited values
-             * @return boolean value indicating whether the given value is equal to this value
-             */
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                if (o == this) {
-                    return true;
-                }
-                return o.equals(this);
-            }
-
             @Override
             public boolean hasNext() {
                 return false;
@@ -200,6 +187,11 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
             @Override
             public Object next() {
                 throw new NoSuchElementException();
+            }
+
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                return o.equals(this);
             }
         };
     }

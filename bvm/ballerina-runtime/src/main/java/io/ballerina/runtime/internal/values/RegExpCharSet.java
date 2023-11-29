@@ -81,11 +81,6 @@ public class RegExpCharSet extends RegExpCommonValue {
         return atoms.toString();
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

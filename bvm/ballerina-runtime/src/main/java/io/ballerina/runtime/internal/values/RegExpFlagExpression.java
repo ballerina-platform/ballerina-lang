@@ -47,11 +47,6 @@ public class RegExpFlagExpression extends RegExpCommonValue {
         return this.questionMark + this.flagsOnOff.stringValue(parent) + this.colon;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

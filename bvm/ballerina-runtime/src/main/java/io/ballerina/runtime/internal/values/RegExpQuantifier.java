@@ -32,8 +32,8 @@ import java.util.Set;
  * @since 2201.3.0
  */
 public class RegExpQuantifier extends RegExpCommonValue {
-    private String quantifier;
-    private String nonGreedyChar;
+    private final String quantifier;
+    private final String nonGreedyChar;
 
     public RegExpQuantifier(String quantifier, String nonGreedyChar) {
         this.quantifier = quantifier;
@@ -45,11 +45,6 @@ public class RegExpQuantifier extends RegExpCommonValue {
         return this.quantifier + this.nonGreedyChar;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

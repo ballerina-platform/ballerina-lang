@@ -130,6 +130,11 @@ public class XmlPi extends XmlNonElementItem {
     }
 
     @Override
+    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(data, target);
     }
@@ -137,25 +142,5 @@ public class XmlPi extends XmlNonElementItem {
     @Override
     public String stringValue(BLink parent) {
         return "<?" + target + " " + data + "?>";
-    }
-
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (o == this) {
-            return true;
-        }
-        if (o instanceof XmlPi) {
-            if (visitedValues.contains(new ValuePair(o, this))) {
-                return true;
-            }
-            visitedValues.add(new ValuePair(o, this));
-            return ((XmlPi) o).equals(o, visitedValues);
-        }
-        return false;
     }
 }

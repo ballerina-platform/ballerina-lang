@@ -61,66 +61,33 @@ public class ValuePair implements RefValue {
         return true;
     }
 
-    /**
-     * @return 
-     */
     @Override
     public BTypedesc getTypedesc() {
-
         return null;
     }
 
-    /**
-     * Method to perform a deep copy, recursively copying all structural values and their members.
-     *
-     * @param refs The map which keep track of the references of already cloned values in cycles
-     * @return A new copy of the value
-     */
     @Override
     public Object copy(Map<Object, Object> refs) {
-
         return null;
     }
 
-    /**
-     * Method to performs a deep copy, recursively copying all structural values and their members but the created
-     * clone is a read-only value.
-     *
-     * @param refs The map which keep track of the references of already cloned values in cycles
-     * @return A new copy of the value
-     */
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-
         return null;
     }
 
-    /**
-     * @param parent 
-     * @return
-     */
     @Override
     public String stringValue(BLink parent) {
-
         return null;
     }
 
-    /**
-     * @param parent 
-     * @return
-     */
     @Override
     public String expressionStringValue(BLink parent) {
-
         return null;
     }
 
-    /**
-     * @return 
-     */
     @Override
     public Type getType() {
-
         return null;
     }
 }

@@ -187,11 +187,6 @@ public final class XmlQName implements RefValue, BXmlQName {
         this.prefix = prefix;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

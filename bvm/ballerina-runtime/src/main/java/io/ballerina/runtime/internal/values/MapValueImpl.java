@@ -599,13 +599,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return iterator.hasNext();
         }
 
-        /**
-         * Check the equality of two iterators.
-         *
-         * @param o Object to be compared for equality
-         * @param visitedValues Visited values in recursive calls
-         * @return Boolean value indicating whether the given value is equal to this value
-         */
         @Override
         public boolean equals(Object o, Set<ValuePair> visitedValues) {
             return o.equals(this);

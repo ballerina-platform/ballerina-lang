@@ -43,11 +43,6 @@ public class RegExpAssertion extends RegExpCommonValue implements RegExpTerm {
         return this.assertion;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);

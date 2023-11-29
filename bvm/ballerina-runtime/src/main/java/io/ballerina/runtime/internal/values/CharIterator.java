@@ -66,23 +66,8 @@ public class CharIterator implements IteratorValue {
         return cursor < length;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (o == this) {
-            return true;
-        }
-        if (o instanceof RefValue refValue) {
-            if (visitedValues.contains(new ValuePair(this, refValue))) {
-                return true;
-            }
-            visitedValues.add(new ValuePair(this, refValue));
-            return this.equals(refValue, visitedValues);
-        }
         return o.equals(this);
     }
 }

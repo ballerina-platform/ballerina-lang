@@ -126,16 +126,8 @@ public class XmlComment extends XmlNonElementItem {
         return this == obj;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (this == o) {
-            return true;
-        }
         return o.equals(this);
     }
 }

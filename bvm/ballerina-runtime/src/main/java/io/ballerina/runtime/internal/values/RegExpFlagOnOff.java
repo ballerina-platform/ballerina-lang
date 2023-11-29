@@ -32,7 +32,7 @@ import java.util.Set;
  * @since 2201.3.0
  */
 public class RegExpFlagOnOff extends RegExpCommonValue {
-    private String flags;
+    private final String flags;
 
     public RegExpFlagOnOff(String flags) {
         this.flags = flags;
@@ -43,11 +43,6 @@ public class RegExpFlagOnOff extends RegExpCommonValue {
         return this.flags;
     }
 
-    /**
-     * @param o
-     * @param visitedValues
-     * @return
-     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         return o.equals(this);
