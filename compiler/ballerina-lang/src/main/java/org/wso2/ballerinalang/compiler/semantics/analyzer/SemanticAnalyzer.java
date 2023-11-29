@@ -1609,6 +1609,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         typeChecker.checkExpr(varNode.expr, currentEnv, varNode.getBType(), data.prevEnvs,
                 data.commonAnalyzerData);
         checkSelfReferencesInVarNode(varNode, varNode.expr, data);
+        analyzeNode(varNode.typeNode, data);
     }
 
     private void checkSelfReferencesInVarNode(BLangVariable variable, BLangExpression rhsExpr, AnalyzerData data) {
