@@ -83,8 +83,8 @@ public class MavenResolverTest {
 
     @Test
     public void testAddRemoteRepositoryWithCredentials() {
-        String username = System.getenv("publishUser");
-        String password = System.getenv("publishPAT");
+        String username = System.getenv("MAVEN_RESOLVER_USERNAME");
+        String password = System.getenv("MAVEN_RESOLVER_PASSWORD");
         if (username == null && password == null) {
             return;
         }
