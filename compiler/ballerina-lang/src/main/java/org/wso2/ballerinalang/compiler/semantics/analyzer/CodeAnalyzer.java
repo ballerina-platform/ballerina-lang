@@ -1958,8 +1958,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation(SymbolEnv env) {
+    private boolean isReceiveAllowedLocation(SymbolEnv env) {
         return isTopLevel(env);
+    }
+
+    private boolean isSendAllowedLocation(SymbolEnv env) {
+        return isTopLevel(env) || env.node.parent.getKind() == NodeKind.IF; // TODO: fix properly
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2003,7 +2007,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
-        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (data.withinQuery || (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2062,7 +2066,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (data.withinQuery || (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2113,7 +2117,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (data.withinQuery || (!isReceiveAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
