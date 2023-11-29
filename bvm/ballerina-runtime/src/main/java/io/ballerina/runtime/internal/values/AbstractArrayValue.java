@@ -78,8 +78,10 @@ public abstract class AbstractArrayValue implements ArrayValue {
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         ValuePair compValuePair = new ValuePair(this, o);
-        if (visitedValues.contains(compValuePair)) {
-            return true;
+        for (ValuePair valuePair : visitedValues) {
+            if (valuePair.equals(compValuePair, visitedValues)) {
+                return true;
+            }
         }
         visitedValues.add(compValuePair);
 
