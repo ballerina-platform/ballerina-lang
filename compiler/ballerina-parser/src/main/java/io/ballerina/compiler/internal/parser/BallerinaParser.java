@@ -13220,7 +13220,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createQualifiedReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
         STNode colon = parseColon();
