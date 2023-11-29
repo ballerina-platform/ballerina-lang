@@ -1145,8 +1145,35 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCombinedWorkerReceive combinedWorkerReceive) {
-        // TODO: 22/11/23 implement
-        throw new AssertionError("alternate/multiple receive not yet implemented");
+        if (combinedWorkerReceive.getKind() == NodeKind.ALTERNATE_WORKER_RECEIVE) {
+            BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
+            addToTrapStack(thenBB);
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(combinedWorkerReceive.getBType(),
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            BIROperand lhsOp = new BIROperand(tempVarDcl);
+            this.env.targetOperand = lhsOp;
+
+            boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+
+            this.env.enclBB.terminator = new BIRTerminator.WorkerAlternateReceive(combinedWorkerReceive.pos,
+                    getChannelList(combinedWorkerReceive), lhsOp, isOnSameStrand, thenBB, this.currentScope);
+
+            this.env.enclBasicBlocks.add(thenBB);
+            this.env.enclBB = thenBB;
+
+        } else {
+            // TODO: 22/11/23 implement
+            throw new AssertionError("multiple receive not yet implemented");
+        }
+    }
+
+    private List<String> getChannelList(BLangCombinedWorkerReceive combinedWorkerReceive) {
+        List<String> channels = new ArrayList<>();
+        for (BLangWorkerReceive workerReceive : combinedWorkerReceive.getWorkerReceives()) {
+            channels.add(workerReceive.getChannel().channelId());
+        }
+        return channels;
     }
 
     @Override

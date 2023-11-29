@@ -233,6 +233,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(entry.thenBB.id.value);
     }
 
+    @Override
+    public void visit(BIRTerminator.WorkerAlternateReceive entry) {
+        entry.channels.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        entry.lhsOp.accept(this);
+        buf.writeBoolean(entry.isSameStrand);
+        addCpAndWriteString(entry.thenBB.id.value);
+    }
+
     public void visit(BIRTerminator.WaitAll waitAll) {
         waitAll.lhsOp.accept(this);
         buf.writeInt(waitAll.keys.size());

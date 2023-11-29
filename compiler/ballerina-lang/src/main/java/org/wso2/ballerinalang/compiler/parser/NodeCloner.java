@@ -1027,6 +1027,7 @@ public class NodeCloner extends BLangNodeVisitor {
         asyncSendExpr.cloneRef = clone;
         clone.expr = clone(asyncSendExpr.expr);
         clone.workerIdentifier = asyncSendExpr.workerIdentifier;
+        clone.setChannel(asyncSendExpr.getChannel());
     }
 
     @Override
@@ -1049,6 +1050,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
+        clone.setChannel(source.getChannel());
     }
 
     @Override
@@ -2206,6 +2208,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.workerIdentifier = source.workerIdentifier;
         clone.expr = clone(source.expr);
+        clone.setChannel(source.getChannel());
     }
 
     @Override

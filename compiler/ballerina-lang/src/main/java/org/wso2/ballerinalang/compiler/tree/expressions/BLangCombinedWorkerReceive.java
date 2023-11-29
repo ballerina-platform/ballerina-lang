@@ -72,4 +72,19 @@ public class BLangCombinedWorkerReceive extends BLangExpression implements Actio
     public void setWorkerReceives(List<BLangWorkerReceive> workerReceives) {
         this.workerReceives = workerReceives;
     }
+
+    @Override
+    public String toString() {
+        return "CombinedWorkerReceive: " + this.toActionString();
+    }
+
+    public String toActionString() {
+        StringBuilder sb = new StringBuilder(" <- ");
+        int size = workerReceives.size();
+        for (int i = 0; i < size - 1; i++) {
+            sb.append(workerReceives.get(i)).append(" | ");
+        }
+        sb.append(workerReceives.get(size - 1));
+        return sb.toString();
+    }
 }

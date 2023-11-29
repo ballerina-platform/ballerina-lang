@@ -679,6 +679,54 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         }
     }
 
+
+    /**
+     * A worker receive instruction for alternate receive.
+     * <p>
+     * e.g., WRK_RECEIVE w1 | w2;
+     *
+     * @since 2201.9.0
+     */
+    public static class WorkerAlternateReceive extends BIRTerminator {
+        public List<String> channels;
+        public boolean isSameStrand;
+
+        public WorkerAlternateReceive(Location pos, List<String> channels, BIROperand lhsOp,
+                             boolean isSameStrand, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_ALT_RECEIVE);
+            this.channels = channels;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
+            this.lhsOp = lhsOp;
+        }
+
+        public WorkerAlternateReceive(Location pos, List<String> channels, BIROperand lhsOp, boolean isSameStrand,
+                             BIRBasicBlock thenBB, BirScope scope) {
+            this(pos, channels, lhsOp, isSameStrand, thenBB);
+            this.scope = scope;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+
+        @Override
+        public void setRhsOperands(BIROperand[] operands) {
+            // do nothing
+        }
+
+        @Override
+        public BIRBasicBlock[] getNextBasicBlocks() {
+            return new BIRBasicBlock[]{thenBB};
+        }
+    }
+
     /**
      * A worker send instruction.
      * <p>

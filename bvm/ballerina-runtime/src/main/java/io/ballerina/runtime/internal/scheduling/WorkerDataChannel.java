@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -49,17 +49,21 @@ public class WorkerDataChannel {
 
     @SuppressWarnings("rawtypes")
     private Queue<WorkerResult> channel = new LinkedList<>();
+    private State state;
 
     public WorkerDataChannel() {
         this.channelLock = new ReentrantLock();
         this.senderCounter = 0;
         this.receiverCounter = 0;
+        this.state = State.OPEN;
     }
+
     public WorkerDataChannel(String channelName) {
         this.channelLock = new ReentrantLock();
         this.senderCounter = 0;
         this.receiverCounter = 0;
         this.chnlName = channelName;
+        this.state = State.OPEN;
     }
 
     public void acquireChannelLock() {
@@ -70,13 +74,25 @@ public class WorkerDataChannel {
         this.channelLock.unlock();
     }
 
+    public boolean isClosed() {
+        return this.state == State.CLOSED;
+    }
+
+    public enum State {
+        OPEN, CLOSED, FAILED
+    }
+
     @SuppressWarnings("rawtypes")
     public void sendData(Object data, Strand sender) {
+        if (isClosed()) {
+            return;
+        }
+
         try {
             acquireChannelLock();
             this.channel.add(new WorkerResult(data));
             this.senderCounter++;
-            if (this.receiver != null) {
+            if (this.receiver != null && receiver.scheduler != null) {
                 this.receiver.scheduler.unblockStrand(this.receiver);
                 this.receiver = null;
             }
@@ -85,9 +101,18 @@ public class WorkerDataChannel {
         }
     }
 
+    public void close() {
+        this.state = State.CLOSED;
+        if (this.receiver != null && this.receiver.isBlocked()) {
+            this.receiver.scheduler.unblockStrand(this.receiver);
+            this.receiver = null;
+        }
+    }
+
     /**
      * Put data for sync send.
-     * @param data - data to be sent over the channel
+     *
+     * @param data   - data to be sent over the channel
      * @param strand - sending strand, that will be paused
      * @return error if receiver already in error state, else null
      * @throws Throwable panic
@@ -149,18 +174,16 @@ public class WorkerDataChannel {
                 if (result.isSync) {
                     // sync sender will pick the this.error as result, which is null
                     if (this.waitingSender != null) {
-                        Strand waiting  = this.waitingSender.waitingStrand;
+                        Strand waiting = this.waitingSender.waitingStrand;
                         waiting.scheduler.unblockStrand(waiting);
                         this.waitingSender = null;
                     }
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;
-                    if (this.flushSender.waitingStrand.flushDetail.flushedCount
-                            == this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
-                            this.flushSender.waitingStrand.isBlocked()) {
-                            //will continue if this is a sync wait, will try to flush again if blocked on flush
-                            this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
+                    if (this.flushSender.waitingStrand.flushDetail.flushedCount == this.flushSender.waitingStrand.flushDetail.flushChannels.length && this.flushSender.waitingStrand.isBlocked()) {
+                        //will continue if this is a sync wait, will try to flush again if blocked on flush
+                        this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
 
                     }
                     this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
@@ -183,8 +206,51 @@ public class WorkerDataChannel {
         }
     }
 
+    public Object tryTakeDataRecursively(Strand strand) throws Throwable {
+        try {
+            acquireChannelLock();
+            WorkerResult result = this.channel.peek();
+            if (result != null) {
+                this.receiverCounter++;
+                this.channel.remove();
+
+                if (result.isSync) {
+                    // sync sender will pick the this.error as result, which is null
+                    if (this.waitingSender != null) {
+                        Strand waiting = this.waitingSender.waitingStrand;
+                        waiting.scheduler.unblockStrand(waiting);
+                        this.waitingSender = null;
+                    }
+                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
+                    this.flushSender.waitingStrand.flushDetail.flushLock.lock();
+                    this.flushSender.waitingStrand.flushDetail.flushedCount++;
+                    if (this.flushSender.waitingStrand.flushDetail.flushedCount == this.flushSender.waitingStrand.flushDetail.flushChannels.length && this.flushSender.waitingStrand.isBlocked()) {
+                        //will continue if this is a sync wait, will try to flush again if blocked on flush
+                        this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
+
+                    }
+                    this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
+                    this.flushSender = null;
+                }
+                return result.value;
+            } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
+                this.receiverCounter++;
+                throw this.panic;
+            } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
+                this.receiverCounter++;
+                return error;
+            } else {
+                this.receiver = strand;
+                return null;
+            }
+        } finally {
+            releaseChannelLock();
+        }
+    }
+
     /**
      * Set the state as error if the receiving worker is in error state.
+     *
      * @param error the BError of the receiving worker
      */
     public void setSendError(ErrorValue error) {
@@ -263,9 +329,12 @@ public class WorkerDataChannel {
      * @param panic to be set
      */
     public void setSendPanic(Throwable panic) {
+        if (isClosed()) {
+            return;
+        }
         try {
             acquireChannelLock();
-            this.panic  = panic;
+            this.panic = panic;
             this.senderCounter++;
             if (this.receiver != null) {
                 this.receiver.scheduler.unblockStrand(this.receiver);
@@ -282,8 +351,11 @@ public class WorkerDataChannel {
      * @param panic to be set
      */
     public void setReceiverPanic(Throwable panic) {
+        if (isClosed()) {
+            return;
+        }
         acquireChannelLock();
-        this.panic  = panic;
+        this.panic = panic;
         this.receiverCounter++;
         if (this.flushSender != null) {
             this.flushSender.waitingStrand.flushDetail.flushLock.lock();
@@ -313,7 +385,6 @@ public class WorkerDataChannel {
 
         public Object value;
         public boolean isSync;
-
 
         public WorkerResult(Object value) {
             this.value = value;
