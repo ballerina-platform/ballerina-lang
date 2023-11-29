@@ -38,7 +38,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 277);
+        Assert.assertEquals(compileResult.getErrorCount(), 278);
     }
 
     @Test
@@ -518,6 +518,12 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "expression is not a constant expression", line += 7, 16);
         validateError(compileResult, index++, "expression is not a constant expression", line += 9, 16);
         validateError(compileResult, index, "expression is not a constant expression", line + 7, 16);
+    }
+
+    public void testInvalidAnnotationAttachmentOnField() {
+        int index = 277;
+        int line = 980;
+        validateError(compileResult, index, "undefined annotation 'UndefinedAnnotation'", line, 6);
     }
 
     @AfterClass

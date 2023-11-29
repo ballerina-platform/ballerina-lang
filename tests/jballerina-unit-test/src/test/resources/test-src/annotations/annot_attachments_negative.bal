@@ -975,3 +975,7 @@ type F4 record {|
 type F5 record {|
     int x;
 |};
+
+function testInvalidAnnotationAttachmentOnField() {
+    [@UndefinedAnnotation int, int] [first, second] = [1, 2];
+}
