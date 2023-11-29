@@ -74,11 +74,11 @@ public class WDChannels {
         }
         if (result == null) {
             if (errors.size() != channels.size()) {
-                    strand.setState(BLOCK_AND_YIELD);
-                } else {
-                    result = errors.get(errors.size() -1);
-                }
+                strand.setState(BLOCK_AND_YIELD);
+            } else {
+                result = errors.get(errors.size() - 1);
             }
+        }
         return result;
     }
 

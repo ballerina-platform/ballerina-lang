@@ -181,7 +181,9 @@ public class WorkerDataChannel {
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;
-                    if (this.flushSender.waitingStrand.flushDetail.flushedCount == this.flushSender.waitingStrand.flushDetail.flushChannels.length && this.flushSender.waitingStrand.isBlocked()) {
+                    if (this.flushSender.waitingStrand.flushDetail.flushedCount ==
+                            this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
+                            this.flushSender.waitingStrand.isBlocked()) {
                         //will continue if this is a sync wait, will try to flush again if blocked on flush
                         this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
 
@@ -224,7 +226,9 @@ public class WorkerDataChannel {
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;
-                    if (this.flushSender.waitingStrand.flushDetail.flushedCount == this.flushSender.waitingStrand.flushDetail.flushChannels.length && this.flushSender.waitingStrand.isBlocked()) {
+                    if (this.flushSender.waitingStrand.flushDetail.flushedCount ==
+                            this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
+                            this.flushSender.waitingStrand.isBlocked()) {
                         //will continue if this is a sync wait, will try to flush again if blocked on flush
                         this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
 

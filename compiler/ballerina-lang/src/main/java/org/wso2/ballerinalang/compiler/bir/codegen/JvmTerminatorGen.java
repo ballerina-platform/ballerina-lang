@@ -1252,7 +1252,8 @@ public class JvmTerminatorGen {
     }
 
     private void generateReceiveResultStore(BIROperand ins) {
-        BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("wrkMsg"), VarScope.FUNCTION, VarKind.ARG);
+        BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("wrkMsg"),
+                VarScope.FUNCTION, VarKind.ARG);
         int wrkResultIndex = this.getJVMIndexOfVarRef(tempVar);
         this.mv.visitVarInsn(ASTORE, wrkResultIndex);
 
