@@ -549,27 +549,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
            return cursor < noOfAddedEntries && values.size() != 0;
         }
 
-        /**
-         * Check whether the given value is equal to the current value.
-         *
-         * @param o the value to check equality with
-         * @param visitedValues the values that have already been visited
-         * @return true if the current value is equal to the given value
-         */
         @Override
         public boolean equals(Object o, Set<ValuePair> visitedValues) {
-            if (o == this) {
-                return true;
-            }
-
-            if (o instanceof RefValue refValue) {
-                ValuePair valuePair = new ValuePair(this, refValue);
-                if (visitedValues.contains(valuePair)) {
-                    return true;
-                }
-                visitedValues.add(valuePair);
-                return refValue.equals(this, visitedValues);
-            }
             return o.equals(this);
         }
     }
