@@ -548,11 +548,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         public boolean hasNext() {
            return cursor < noOfAddedEntries && values.size() != 0;
         }
-
-        @Override
-        public boolean equals(Object o, Set<ValuePair> visitedValues) {
-            return o.equals(this);
-        }
     }
 
     private class ValueHolder {

@@ -65,9 +65,4 @@ public class CharIterator implements IteratorValue {
     public boolean hasNext() {
         return cursor < length;
     }
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
-    }
 }

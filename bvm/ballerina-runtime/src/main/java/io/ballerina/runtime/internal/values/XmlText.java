@@ -110,11 +110,6 @@ public class XmlText extends XmlNonElementItem {
                     throw new NoSuchElementException();
                 }
             }
-
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                return o.equals(this);
-            }
         };
     }
 

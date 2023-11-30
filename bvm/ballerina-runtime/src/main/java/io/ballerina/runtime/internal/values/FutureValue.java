@@ -26,7 +26,6 @@
  import io.ballerina.runtime.internal.types.BFutureType;
 
  import java.util.Map;
- import java.util.Set;
  import java.util.StringJoiner;
 
  /**
@@ -160,10 +159,5 @@
 
      public void setWaited(boolean waited) {
          this.waited = waited;
-     }
-
-     @Override
-     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-         return this.equals(o);
      }
  }

@@ -598,11 +598,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         public boolean hasNext() {
             return iterator.hasNext();
         }
-
-        @Override
-        public boolean equals(Object o, Set<ValuePair> visitedValues) {
-            return o.equals(this);
-        }
     }
 
     /**

@@ -33,5 +33,7 @@ import java.util.Set;
  */
 public interface RefValue extends SimpleValue, BRefValue {
 
-    boolean equals(Object o, Set<ValuePair> visitedValues);
+    default boolean equals(Object o, Set<ValuePair> visitedValues) {
+        return o.equals(this);
+    }
 }

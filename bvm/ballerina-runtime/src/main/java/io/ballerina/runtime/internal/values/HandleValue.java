@@ -100,9 +100,4 @@ public class HandleValue implements BHandle, RefValue {
     public static HandleValue valueOfJ(Object value) {
         return new HandleValue(value);
     }
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
-    }
 }

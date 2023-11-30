@@ -677,11 +677,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
                 read = true;
                 return that;
             }
-
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                return o.equals(this);
-            }
         };
     }
 

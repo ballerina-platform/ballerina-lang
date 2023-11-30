@@ -624,11 +624,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             public Object next() {
                 return iterator.next();
             }
-
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                return o.equals(this);
-            }
         };
     }
 

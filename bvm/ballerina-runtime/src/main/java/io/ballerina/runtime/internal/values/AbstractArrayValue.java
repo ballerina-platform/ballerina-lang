@@ -294,10 +294,5 @@ public abstract class AbstractArrayValue implements ArrayValue {
         public boolean hasNext() {
             return cursor < length;
         }
-
-        @Override
-        public boolean equals(Object o, Set<ValuePair> visitedValues) {
-            return o.equals(this);
-        }
     }
 }

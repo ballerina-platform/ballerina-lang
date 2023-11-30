@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>
@@ -240,11 +239,6 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
             }
 
             return array.datasource.hasNext();
-        }
-
-        @Override
-        public boolean equals(Object o, Set<ValuePair> visitedValues) {
-            return o.equals(this);
         }
     }
 }

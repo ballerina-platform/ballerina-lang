@@ -188,11 +188,6 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
             public Object next() {
                 throw new NoSuchElementException();
             }
-
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                return o.equals(this);
-            }
         };
     }
 
