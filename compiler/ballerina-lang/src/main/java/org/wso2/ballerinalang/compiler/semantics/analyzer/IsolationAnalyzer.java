@@ -2605,7 +2605,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BField field = ((BObjectType) env.enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value);
+        BLangInvokableNode enclInvokable = getEnclNonAnonymousFunction((BLangFunction) env.enclInvokable);
+        BField field = ((BObjectType) enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value);
 
         if (field == null) {
             // Bound method access.
@@ -3294,6 +3295,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BLangFunction enclFunction = (BLangFunction) enclInvokable;
 
+        if (Symbols.isFlagOn(enclFunction.symbol.flags, Flags.ANONYMOUS)) {
+            BLangFunction enclNonAnonymousFunction = getEnclNonAnonymousFunction(enclFunction);
+
+            if (enclNonAnonymousFunction == null) {
+                return false;
+            }
+            enclFunction = enclNonAnonymousFunction;
+        }
+
         if (!enclFunction.attachedFunction) {
             return false;
         }
@@ -3302,9 +3312,27 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BType ownerType = Types.getImpliedType(enclInvokable.symbol.owner.type);
+        BType ownerType = Types.getImpliedType(enclFunction.symbol.owner.type);
 
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
+    }
+
+    private BLangFunction getEnclNonAnonymousFunction(BLangFunction enclFunction) {
+        if (enclFunction == null || enclFunction.symbol.owner.kind == SymbolKind.PACKAGE) {
+            return null;
+        }
+
+        if (!Symbols.isFlagOn(enclFunction.symbol.flags, Flags.ANONYMOUS)) {
+            return enclFunction;
+        }
+
+        BLangNode enclNode = enclFunction.parent;
+
+        while (enclNode != null && enclNode.getKind() != NodeKind.FUNCTION) {
+            enclNode = enclNode.parent;
+        }
+
+        return getEnclNonAnonymousFunction((BLangFunction) enclNode);
     }
 
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, SymbolEnv currentEnv) {
