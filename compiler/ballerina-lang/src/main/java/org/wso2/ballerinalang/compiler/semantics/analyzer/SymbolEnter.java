@@ -1116,10 +1116,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        List<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
-        if (!imports.contains(pkgSymbol)) {
-            imports.add(pkgSymbol);
-        }
+        Set<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
+        imports.add(pkgSymbol);
 
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
@@ -1134,7 +1132,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules,
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
         this.env = env;
         for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
             Name alias = predeclaredModuleEntry.getKey();

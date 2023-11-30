@@ -34,6 +34,7 @@ import java.util.Map;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.V17;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_FRAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.FUNCTION_INVOCATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.STATE;
@@ -104,7 +105,7 @@ public class FrameClassGen {
 
         // panic if there are errors in the frame class. These cannot be logged, since
         // frame classes are internal implementation details.
-        pkgEntries.put(frameClassName + ".class", cw.toByteArray());
+        pkgEntries.put(frameClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
 }

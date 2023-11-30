@@ -156,6 +156,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
@@ -432,7 +433,7 @@ public class JvmInstructionGen {
 
         switch (varDcl.kind) {
             case SELF:
-                mv.visitVarInsn(ALOAD, 0);
+                mv.visitVarInsn(ALOAD, this.indexMap.get(OBJECT_SELF_INSTANCE));
                 return;
             case CONSTANT:
             case GLOBAL:
@@ -1517,7 +1518,7 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, className);
             visitKeyValueExpressions(objectStoreIns);
             // invoke setOnInitialization() method
-            this.mv.visitMethodInsn(INVOKESPECIAL, className, "setOnInitialization",
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, className, "setOnInitialization",
                     SET_ON_INIT, false);
             return;
         }

@@ -219,7 +219,10 @@ public class PushCommand implements BLauncherCmd {
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), settings.getProxy().username(),
-                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
+                        settings.getProxy().password(), getAccessTokenOfCLI(settings),
+                        settings.getCentral().getConnectTimeout(),
+                        settings.getCentral().getReadTimeout(), settings.getCentral().getWriteTimeout(),
+                        settings.getCentral().getCallTimeout());
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {
@@ -376,11 +379,13 @@ public class PushCommand implements BLauncherCmd {
 
         Path balaDestPath = repoPath.resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(org).resolve(packageName).resolve(version).resolve(platform);
+        Path balaVersionPath = repoPath.resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(org).resolve(packageName).resolve(version);
         Path balaCachesPath = repoPath.resolve(ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion)
                 .resolve(org).resolve(packageName).resolve(version);
         try {
-            if (Files.exists(balaDestPath)) {
-                ProjectUtils.deleteDirectory(balaDestPath);
+            if (Files.exists(balaVersionPath)) {
+                ProjectUtils.deleteDirectory(balaVersionPath);
             }
             if (Files.exists(balaCachesPath)) {
                 ProjectUtils.deleteDirectory(balaCachesPath);

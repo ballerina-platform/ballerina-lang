@@ -153,7 +153,7 @@ public class VarDeclaredAssignmentStmtTest {
         BRunUtil.invoke(result, "testObjectToVarAssignment2");
     }
 
-    @Test(description = "Test var in variable def.", groups = {"disableOnOldParser"})
+    @Test(description = "Test var in variable def.")
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");

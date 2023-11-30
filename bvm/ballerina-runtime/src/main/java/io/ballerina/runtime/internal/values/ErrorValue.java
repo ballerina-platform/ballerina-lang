@@ -76,6 +76,7 @@ public class ErrorValue extends BError implements RefValue {
     private final Object details;
 
     private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
+    private static final String SPLIT_CLASS_SUFFIX_REGEX = "\\$split\\$\\d";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -443,7 +444,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
+        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "").replaceAll(SPLIT_CLASS_SUFFIX_REGEX, "");
     }
 
     private boolean isCompilerAddedName(String name) {
