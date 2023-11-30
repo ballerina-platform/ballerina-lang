@@ -187,15 +187,11 @@ function testMapFromBalString() {
         <string>checkpanic output.detail()["message"]);
     }
 
-    mapExpString = string `{"   name
-    ":"
-                John","     city ":"        London
-                    "}`;
+    mapExpString = string `{"   name    ":"                John","     city ":"        London                    "}`;
     output = mapExpString.fromBalString();
     assert(output is error, false);
     if (output is anydata) {
-        assert(output,
-        {"   name\n    ": "\n                John", "     city ": "        London\n                    "});
+        assert(output, {"   name    ": "                John", "     city ": "        London                    "});
     }
 
     mapExpString = string `   {"name" :    "John"  ,  "city"  :  "London"}   `;
