@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
-import java.util.Set;
-
 /**
  * <p>
  * Represents a flag expression, "?" ReFlagsOnOff ":" in regular expression.
@@ -32,9 +30,9 @@ import java.util.Set;
  * @since 2201.3.0
  */
 public class RegExpFlagExpression extends RegExpCommonValue {
-    private String questionMark;
-    private RegExpFlagOnOff flagsOnOff;
-    private String colon;
+    private final String questionMark;
+    private final RegExpFlagOnOff flagsOnOff;
+    private final String colon;
 
     public RegExpFlagExpression(String questionMark, RegExpFlagOnOff flagsOnOff, String colon) {
         this.questionMark = questionMark;
@@ -45,10 +43,5 @@ public class RegExpFlagExpression extends RegExpCommonValue {
     @Override
     public String stringValue(BLink parent) {
         return this.questionMark + this.flagsOnOff.stringValue(parent) + this.colon;
-    }
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
     }
 }

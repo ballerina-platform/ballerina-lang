@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -46,6 +47,7 @@ import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.internal.TypeChecker.isEqual;
 
 /**
  * <p>
@@ -666,18 +668,35 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         return iteratorNextReturnType;
     }
 
+    /**
+     * Deep equality check for XML Sequence.
+     *
+     * @param o The XML Sequence to be compared
+     * @param visitedValues Visited values in previous recursive calls
+     * @return True if the XML Sequences are equal; False otherwise
+     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        if (o == this) {
-            return true;
+        if (o instanceof XmlSequence rhsXMLSequence) {
+            return isXMLSequenceChildrenEqual(this.getChildrenList(), rhsXMLSequence.getChildrenList());
         }
-        if (o instanceof XmlSequence) {
-            if (visitedValues.contains(new ValuePair(this, o))) {
-                return true;
+        if (o instanceof XmlItem) {
+            return this.getChildrenList().size() == 1 &&
+                    isEqual(this.getChildrenList().get(0), o);
+        }
+        return this.getChildrenList().isEmpty() && TypeUtils.getType(o) == PredefinedTypes.TYPE_XML_NEVER;
+    }
+
+    private static boolean isXMLSequenceChildrenEqual(List<BXml> lhsList, List<BXml> rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.get(i), rhsList.get(i))) {
+                return false;
             }
-            visitedValues.add(new ValuePair(this, o));
-            return ((XmlSequence) o).equals(o, visitedValues);
         }
-        return false;
+        return true;
     }
 }

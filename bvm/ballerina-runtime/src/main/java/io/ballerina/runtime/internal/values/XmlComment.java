@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class XmlComment extends XmlNonElementItem {
 
-    private String data;
+    private final String data;
 
     public XmlComment(String data) {
         this.data = data;
@@ -126,8 +126,18 @@ public class XmlComment extends XmlNonElementItem {
         return this == obj;
     }
 
+    /**
+     * Deep equality check for xml comment.
+     *
+     * @param o The xml comment on the right hand side
+     * @param visitedValues Visited values in order to break cyclic references.
+     * @return True if the xml comments are equal, else false.
+     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
+        if (!(o instanceof XmlComment rhXMLComment)) {
+            return false;
+        }
+        return this.getTextValue().equals(rhXMLComment.getTextValue());
     }
 }

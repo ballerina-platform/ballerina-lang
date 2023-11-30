@@ -19,7 +19,6 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
-import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
@@ -63,10 +62,5 @@ public class RegExpDisjunction extends RegExpCommonValue {
             terms.add(getStringVal(t, parent));
         }
         return terms.toString();
-    }
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
     }
 }

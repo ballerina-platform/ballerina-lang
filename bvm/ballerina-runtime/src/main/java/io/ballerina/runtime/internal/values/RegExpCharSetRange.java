@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
-import java.util.Set;
-
 /**
  * <p>
  * Represents an ReCharSetRange or ReCharSetRangeNoDash in regular expression.
@@ -61,10 +59,5 @@ public class RegExpCharSetRange extends RegExpCommonValue {
     @Override
     public String stringValue(BLink parent) {
         return this.lhsCharSetAtom + this.dash + this.rhsCharSetAom;
-    }
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
     }
 }

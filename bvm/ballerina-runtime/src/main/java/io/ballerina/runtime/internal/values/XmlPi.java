@@ -54,16 +54,6 @@ public class XmlPi extends XmlNonElementItem {
     public IteratorValue getIterator() {
         XmlPi that = this;
         return new IteratorValue() {
-            /**
-             * @param o
-             * @param visitedValues
-             * @return
-             */
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                return o.equals(that);
-            }
-
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -78,6 +68,11 @@ public class XmlPi extends XmlNonElementItem {
                 } else {
                     throw new NoSuchElementException();
                 }
+            }
+
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                return o.equals(that);
             }
         };
     }
@@ -129,9 +124,19 @@ public class XmlPi extends XmlNonElementItem {
         return this == obj;
     }
 
+    /**
+     * Deep equality check for XML Processing Instruction.
+     *
+     * @param o The XML on the right hand side
+     * @param visitedValues Visited values in order to break cyclic references.
+     * @return True if the XML values are equal, else false.
+     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
+        if (!(o instanceof XmlPi rhsXMLPi)) {
+            return false;
+        }
+        return this.getData().equals(rhsXMLPi.getData()) && this.getTarget().equals(rhsXMLPi.getTarget());
     }
 
     @Override

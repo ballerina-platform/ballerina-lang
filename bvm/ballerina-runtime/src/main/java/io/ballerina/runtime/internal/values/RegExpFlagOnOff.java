@@ -19,8 +19,6 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BLink;
 
-import java.util.Set;
-
 /**
  * <p>
  * Represents an ReFlagsOnOff in regular expression.
@@ -41,10 +39,5 @@ public class RegExpFlagOnOff extends RegExpCommonValue {
     @Override
     public String stringValue(BLink parent) {
         return this.flags;
-    }
-
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
     }
 }

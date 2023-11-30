@@ -95,16 +95,6 @@ public class XmlText extends XmlNonElementItem {
     public IteratorValue getIterator() {
         XmlText that = this;
         return new IteratorValue() {
-            /**
-             * @param o
-             * @param visitedValues
-             * @return
-             */
-            @Override
-            public boolean equals(Object o, Set<ValuePair> visitedValues) {
-                return o.equals(this);
-            }
-
             boolean read = false;
             @Override
             public boolean hasNext() {
@@ -120,6 +110,11 @@ public class XmlText extends XmlNonElementItem {
                     throw new NoSuchElementException();
                 }
             }
+
+            @Override
+            public boolean equals(Object o, Set<ValuePair> visitedValues) {
+                return o.equals(this);
+            }
         };
     }
 
@@ -128,9 +123,20 @@ public class XmlText extends XmlNonElementItem {
         return this == obj;
     }
 
+    /**
+     * Deep equality check for XML Text.
+     *
+     * @param o The XML Text to be compared
+     * @param visitedValues Visited values in previous recursive calls
+     * @return True if the XML Texts are equal; False otherwise
+     */
     @Override
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
-        return o.equals(this);
+        if (o instanceof XmlText rhsXMLText) {
+            return this.getTextValue().equals(rhsXMLText.getTextValue());
+        }
+        return this.getType() == PredefinedTypes.TYPE_XML_NEVER && (o instanceof XmlSequence) &&
+                ((XmlSequence) o).getChildrenList().isEmpty();
     }
 
     @Override
