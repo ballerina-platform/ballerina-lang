@@ -131,7 +131,8 @@ public class FileRecoveryLog implements RecoveryLog {
 
     @Override
     public void put(TransactionLogRecord trxRecord) {
-        writeToFile(trxRecord.getTransactionLogRecord());
+        boolean force = !trxRecord.getTransactionStatus().equals(RecoveryStatus.TERMINATED); // lazy write for done record
+        writeToFile(trxRecord.getTransactionLogRecord(), force);
         if (checkpointInterval != -1) {
             ifNeedWriteCheckpoint();
             numOfPutsSinceLastCheckpoint++;
@@ -160,10 +161,14 @@ public class FileRecoveryLog implements RecoveryLog {
      *
      * @param str the log entry to write
      */
-    private void writeToFile(String str) {
+    private void writeToFile(String str, boolean force) {
+        if (appendChannel == null) {
+            initAppendChannel(file);
+        }
         byte[] bytes = str.getBytes();
         try {
             appendChannel.write(java.nio.ByteBuffer.wrap(bytes));
+            appendChannel.force(force);
             log.info(String.format("Wrote to recovery log file: " + str));
         } catch (IOException e) {
             log.error("An error occurred while writing to the recovery log file.");

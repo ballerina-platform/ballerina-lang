@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static io.ballerina.runtime.transactions.TransactionConstants.IN_MEMORY_CHECKPOINT_INTERVAL;
 
-public class InMemoryRecoveryLog implements RecoveryLog{
+public class InMemoryRecoveryLog implements RecoveryLog {
      private static final Logger log = LoggerFactory.getLogger(InMemoryRecoveryLog.class);
     private Map<String, TransactionLogRecord> transactionLogs;
     private int numOfPutsSinceLastCheckpoint;
