@@ -148,3 +148,16 @@ function testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS() {
         }
         panic error("Assertion error, expected: `<baz>1</baz>`, found: " + s);
 }
+
+function testXMLNavigationWithEscapeCharacter() returns [xml, xml, xml, xml, xml] {
+    xmlns "foo" as ns;
+    xml x1 = xml `<person><name>John</name><home-address>some address</home-address></person>`;
+    xml x2 = xml `<ns:root><ns:child-node></ns:child-node></ns:root>`;
+    xml x3 = x1/<home\-address>;
+    xml x4 = x2/<ns:child\-node>;
+    xml x5 = x1/**/<person>/<home\-address>;
+    xml x6 = x1/**/<person>/<name|home\-address>;
+    xml x7 = x1/**/<person>/<name|home\-address>.<home\-address>;
+
+    return [x3, x4, x5, x6, x7];
+}

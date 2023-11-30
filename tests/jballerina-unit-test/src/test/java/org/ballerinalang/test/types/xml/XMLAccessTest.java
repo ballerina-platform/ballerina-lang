@@ -225,6 +225,16 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLNavigationWithEscapeCharacter() {
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationWithEscapeCharacter");
+        Assert.assertEquals(returns.get(0).toString(), "<home-address>some address</home-address>");
+        Assert.assertEquals(returns.get(1).toString(), "<ns:child-node xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns.get(2).toString(), "<home-address>some address</home-address>");
+        Assert.assertEquals(returns.get(3).toString(), "<name>John</name><home-address>some address</home-address>");
+        Assert.assertEquals(returns.get(4).toString(), "<home-address>some address</home-address>");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 5);
