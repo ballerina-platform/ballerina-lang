@@ -44,8 +44,6 @@ public class AnnotationNodeTest {
 
     private SemanticModel model;
     private Document srcFile;
-    private final String INFO_TYPE_SIGNATURE = "Info";
-    private final String DOC_TYPE_SIGNATURE = "int|record {|string description; int id; string name?; anydata...;|}?";
 
     @BeforeClass
     public void setup() {
@@ -56,8 +54,9 @@ public class AnnotationNodeTest {
 
     @Test(dataProvider = "LinePosProvider")
     public void testExpectedType(int infoLine, int infoCol, int docLine, int docCol) {
-        assertTypeSymbol(infoLine, infoCol, TypeDescKind.TYPE_REFERENCE, INFO_TYPE_SIGNATURE);
-            assertTypeSymbol(docLine, docCol, TypeDescKind.UNION, DOC_TYPE_SIGNATURE);
+        assertTypeSymbol(infoLine, infoCol, TypeDescKind.TYPE_REFERENCE, "Info");
+        assertTypeSymbol(docLine, docCol, TypeDescKind.UNION,
+                "int|record {|string description; int id; string name?; anydata...;|}?");
     }
 
     @DataProvider(name = "LinePosProvider")
