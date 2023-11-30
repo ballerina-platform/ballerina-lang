@@ -164,51 +164,10 @@ public class WorkerDataChannel {
 
     @SuppressWarnings("rawtypes")
     public Object tryTakeData(Strand strand) throws Throwable {
-        try {
-            acquireChannelLock();
-            WorkerResult result = this.channel.peek();
-            if (result != null) {
-                this.receiverCounter++;
-                this.channel.remove();
-
-                if (result.isSync) {
-                    // sync sender will pick the this.error as result, which is null
-                    if (this.waitingSender != null) {
-                        Strand waiting = this.waitingSender.waitingStrand;
-                        waiting.scheduler.unblockStrand(waiting);
-                        this.waitingSender = null;
-                    }
-                } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
-                    this.flushSender.waitingStrand.flushDetail.flushLock.lock();
-                    this.flushSender.waitingStrand.flushDetail.flushedCount++;
-                    if (this.flushSender.waitingStrand.flushDetail.flushedCount ==
-                            this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
-                            this.flushSender.waitingStrand.isBlocked()) {
-                        //will continue if this is a sync wait, will try to flush again if blocked on flush
-                        this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
-
-                    }
-                    this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
-                    this.flushSender = null;
-                }
-                return result.value;
-            } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
-                this.receiverCounter++;
-                throw this.panic;
-            } else if (this.error != null && this.senderCounter == this.receiverCounter + 1) {
-                this.receiverCounter++;
-                return error;
-            } else {
-                this.receiver = strand;
-                strand.setState(BLOCK_AND_YIELD);
-                return null;
-            }
-        } finally {
-            releaseChannelLock();
-        }
+        return tryTakeData(strand, false);
     }
 
-    public Object tryTakeDataRecursively(Strand strand) throws Throwable {
+    public Object tryTakeData(Strand strand, boolean isMultiple) throws Throwable {
         try {
             acquireChannelLock();
             WorkerResult result = this.channel.peek();
@@ -245,6 +204,9 @@ public class WorkerDataChannel {
                 return error;
             } else {
                 this.receiver = strand;
+                if (!isMultiple) {
+                    strand.setState(BLOCK_AND_YIELD);
+                }
                 return null;
             }
         } finally {

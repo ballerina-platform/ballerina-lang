@@ -58,7 +58,7 @@ public class WDChannels {
                 continue;
             }
 
-            result = channel.tryTakeDataRecursively(strand);
+            result = channel.tryTakeData(strand, true);
             if (result != null) {
                 if (result instanceof ErrorValue) {
                     errors.add((ErrorValue) result);

@@ -40,13 +40,13 @@ public class WorkerAlternateReceiveTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test(dataProvider = "FunctionProvider")
+    @Test(dataProvider = "functionProvider")
     public void workerAlternateReceiveTest(String funcName) {
         BRunUtil.invoke(result, funcName, new Object[0]);
     }
 
     @DataProvider
-    public static String[] FunctionProvider() {
+    public static String[] functionProvider() {
         return new String[] {
                 "workerAlternateReceiveTest",
                 "workerAlternateReceiveTest2",
