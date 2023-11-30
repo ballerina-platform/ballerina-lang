@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import java.util.Set;
-
 /**
  * {@code {@link CharIterator }} provides iterator implementation for Ballerina string values.
  *

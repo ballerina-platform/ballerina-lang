@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>
