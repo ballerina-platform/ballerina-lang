@@ -4234,10 +4234,12 @@ public class FormattingTreeModifier extends TreeModifier {
             // Therefore, increase the 'consecutiveNewlines' count
             consecutiveNewlines++;
 
-            for (int i = 0; i < env.leadingNL; i++) {
-                prevMinutiae = getNewline();
-                leadingMinutiae.add(prevMinutiae);
-                consecutiveNewlines++;
+            if (!token.isMissing()) {
+                for (int i = 0; i < env.leadingNL; i++) {
+                    prevMinutiae = getNewline();
+                    leadingMinutiae.add(prevMinutiae);
+                    consecutiveNewlines++;
+                }
             }
         }
 
@@ -4257,7 +4259,8 @@ public class FormattingTreeModifier extends TreeModifier {
                         // Shouldn't update the prevMinutiae
                         continue;
                     }
-                    if (env.preserveIndentation) {
+                    if (env.preserveIndentation &&
+                            (prevMinutiae == null || prevMinutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE)) {
                         addWhitespace(getPreservedIndentation(token), leadingMinutiae);
                     } else {
                         addWhitespace(1, leadingMinutiae);
@@ -4493,17 +4496,20 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private int getPreservedIndentation(Token token) {
         int position = token.lineRange().startLine().offset();
+        int startLine = token.lineRange().startLine().line();
+        for (Token invalidToken : token.leadingInvalidTokens()) {
+            if (invalidToken.lineRange().startLine().line() == startLine) {
+                position = invalidToken.lineRange().startLine().offset();
+                break;
+            }
+        }
         int tabSize = options.getTabSize();
-        int offset = position % tabSize;
         if (env.currentIndentation % tabSize == 0 && env.currentIndentation > position) {
             return env.currentIndentation;
         }
+        int offset = position % tabSize;
         if (offset != 0) {
-            if (offset > 2) {
-                position = position + tabSize - offset;
-            } else {
-                position = position - offset;
-            }
+            return offset > 2 ? position + tabSize - offset : position - offset;
         }
         return position;
     }
