@@ -84,7 +84,6 @@ public class WorkerDataChannel {
         if (isClosed()) {
             return;
         }
-
         try {
             acquireChannelLock();
             this.channel.add(new WorkerResult(data));
