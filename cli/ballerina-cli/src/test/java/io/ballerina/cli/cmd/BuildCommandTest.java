@@ -1169,17 +1169,22 @@ public class BuildCommandTest extends BaseCommandTest {
                 {
                         "build-tool-with-invalid-missing-toml-properties",
                         "build-tool-with-invalid-missing-toml-properties.txt",
-                        "error: Ballerina toml validation for pre build tool execution contains errors"
+                        "error: ballerina.toml validation for pre build tool execution contains errors"
                 },
                 {
                         "build-tool-with-invalid-missing-optional-toml-properties",
                         "build-tool-with-invalid-missing-optional.txt",
-                        "error: Ballerina toml validation for build tool execution contains errors",
+                        "error: ballerina.toml validation for build tool execution contains errors"
                 },
                 {
                         "build-tool-with-diagnostics",
                         "build-tool-with-diagnostics.txt",
-                        "error: Pre build tool openapi execution contains errors"
+                        "error: pre-build tool openapi execution contains errors"
+                },
+                {
+                        "build-tool-with-recurring-tool-properties",
+                        "build-tool-with-recurring-tool-properties.txt",
+                        "error: ballerina.toml validation for pre build tool execution contains errors"
                 }
         };
     }
