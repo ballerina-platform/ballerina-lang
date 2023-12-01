@@ -1243,7 +1243,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         if (!varSymbol.closure && isClosure) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol =
-                            symResolver.lookupClosureVarSymbol(encInvokableEnv, varSymbol.name, SymTag.VARIABLE);
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, varSymbol, varSymbol.name, SymTag.VARIABLE);
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 varSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol, pos));
