@@ -203,6 +203,9 @@ public abstract class BIRNode {
 
         @Override
         public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
             return this.type.tsymbol.pkgID;
         }
 
@@ -483,6 +486,10 @@ public abstract class BIRNode {
 
         @Override
         public PackageID getPackageID() {
+            // TODO use Optional to handle null instances
+            if (this.type.tsymbol == null) {
+                return null;
+            }
             return this.type.tsymbol.pkgID;
         }
 
@@ -610,6 +617,9 @@ public abstract class BIRNode {
 
         @Override
         public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
             return this.type.tsymbol.pkgID;
         }
 
@@ -806,6 +816,9 @@ public abstract class BIRNode {
 
         @Override
         public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
             return this.type.tsymbol.pkgID;
         }
 
@@ -902,6 +915,10 @@ public abstract class BIRNode {
             addParent(childNode, this);
 
             if (this.usedState == UsedState.USED) {
+                // It is possible to omit unused modules from codegen if they are identified in the analyzer phase
+                if (!isSamePackageAsParent(childNode)) {
+
+                }
                 childNode.markSelfAndChildrenAsUsed();
             }
         }
@@ -1075,6 +1092,9 @@ public abstract class BIRNode {
 
         @Override
         public PackageID getPackageID() {
+            if (this.type == null || this.type.tsymbol == null) {
+                return null;
+            }
             return this.type.tsymbol.pkgID;
         }
 
