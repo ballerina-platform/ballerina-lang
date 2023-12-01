@@ -125,7 +125,6 @@ public class LauncherUtils {
     }
 
     private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder) {
-
         String commandName = command.getCommandName();
         BLauncherCmd bLauncherCmd = (BLauncherCmd) command.getCommandSpec().userObject();
         CommandLine.Command annotation = bLauncherCmd.getClass().getAnnotation(CommandLine.Command.class);
