@@ -59,11 +59,8 @@ public class WorkerDataChannel {
     }
 
     public WorkerDataChannel(String channelName) {
-        this.channelLock = new ReentrantLock();
-        this.senderCounter = 0;
-        this.receiverCounter = 0;
+        this();
         this.chnlName = channelName;
-        this.state = State.OPEN;
     }
 
     public void acquireChannelLock() {
@@ -79,7 +76,7 @@ public class WorkerDataChannel {
     }
 
     public enum State {
-        OPEN, CLOSED, FAILED
+        OPEN, CLOSED
     }
 
     @SuppressWarnings("rawtypes")
@@ -103,10 +100,6 @@ public class WorkerDataChannel {
 
     public void close() {
         this.state = State.CLOSED;
-        if (this.receiver != null && this.receiver.isBlocked()) {
-            this.receiver.scheduler.unblockStrand(this.receiver);
-            this.receiver = null;
-        }
     }
 
     /**
@@ -295,9 +288,6 @@ public class WorkerDataChannel {
      * @param panic to be set
      */
     public void setSendPanic(Throwable panic) {
-        if (isClosed()) {
-            return;
-        }
         try {
             acquireChannelLock();
             this.panic = panic;
@@ -317,9 +307,6 @@ public class WorkerDataChannel {
      * @param panic to be set
      */
     public void setReceiverPanic(Throwable panic) {
-        if (isClosed()) {
-            return;
-        }
         acquireChannelLock();
         this.panic = panic;
         this.receiverCounter++;
