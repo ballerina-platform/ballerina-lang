@@ -171,6 +171,16 @@ function testMapFromBalString() {
         assert(output, {"name": "John", "city": "London"});
     }
 
+    string mapExpString1 = string `{"key1": [ 1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2"  : `;
+    string mapExpString2 = string `{"key1": [1, 2, "three", ["",4,{"key1":"val1", "key2": 2}]],  "key2": "London"}}`;
+    mapExpString = mapExpString1 + mapExpString2;
+    output = mapExpString.fromBalString();
+    assert(output is error, false);
+    if (output is anydata) {
+        assert(output, {"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],
+        "key2":{"key1":[1,2,"three",["",4,{"key1":"val1","key2":2}]],"key2":"London"}});
+    }
+
     mapExpString = string `{"name":"John",city:"London"}`;
     output = mapExpString.fromBalString();
     assert(output is error, true);
