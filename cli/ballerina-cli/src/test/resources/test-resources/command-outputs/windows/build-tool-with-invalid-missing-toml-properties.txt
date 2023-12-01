@@ -1,2 +1,2 @@
-ERROR [Ballerina.toml:(6:1,9:24)] empty string found for key '[filePath]'
-ERROR [Ballerina.toml:(6:1,9:24)] missing key '[targetModule]' in table '[tool.openapi]' in 'Ballerina.toml'.
+ERROR [Ballerina.toml:(6:1,9:24)] empty string found for key '[filePath]' in table '[tool.openapi]'.
+WARNING [Ballerina.toml:(6:1,9:24)] missing key '[targetModule]' in table '[tool.openapi]'. Default module will be taken as target module.

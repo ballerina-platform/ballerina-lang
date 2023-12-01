@@ -214,12 +214,12 @@ public class BallerinaTomlTests {
         return new Object[][] {
                 {
                     "missing-tool-entries.toml",
-                    "missing key '[filePath]' in table '[tool.openapi]' in 'Ballerina.toml'.",
-                    "missing key '[targetModule]' in table '[tool.openapi]' in 'Ballerina.toml'."
+                    "missing key '[filePath]' in table '[tool.openapi]'.",
+                    "missing key '[id]' in table '[tool.openapi]'."
                 },
                 {
                     "invalid-tool-entries.toml",
-                    "empty string found for key '[filePath]'",
+                    "empty string found for key '[filePath]' in table '[tool.openapi]'.",
                     "incompatible type found for key '[targetModule]': expected 'STRING'"
                 }
         };

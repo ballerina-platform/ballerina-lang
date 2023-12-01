@@ -4,5 +4,4 @@ org = "foo"
 version = "0.1.0"
 
 [[tool.openapi]]
-id = "generate-delivery-client"
 options.mode = "client"
