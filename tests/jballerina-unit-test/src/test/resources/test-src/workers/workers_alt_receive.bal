@@ -134,7 +134,7 @@ function alternateReceiveWithMultiplePanic() {
     test:assertTrue(validError, "Invalid error message");
 }
 
-function alternateReceiveWithError() {
+function alternateReceiveWithSenderError() {
     worker w1 returns error? {
         int value = 10;
         if value == 10 {

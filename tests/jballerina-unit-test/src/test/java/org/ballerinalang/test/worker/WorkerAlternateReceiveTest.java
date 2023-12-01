@@ -52,7 +52,7 @@ public class WorkerAlternateReceiveTest {
                 "workerAlternateReceiveTest2",
                 "alternateReceiveWithSenderPanic",
                 "alternateReceiveWithMultiplePanic",
-                "alternateReceiveWithError",
+                "alternateReceiveWithSenderError",
                 "alternateReceiveWithMultipleError",
                 "alternateReceiveWithPanicAndError",
                 "alternateReceiveWithReceiverPanic",
