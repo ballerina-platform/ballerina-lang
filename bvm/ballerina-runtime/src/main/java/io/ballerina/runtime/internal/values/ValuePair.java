@@ -18,12 +18,7 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BTypedesc;
-
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -32,62 +27,27 @@ import java.util.Set;
  * @since 2201.9.0
  */
 
-public class ValuePair implements RefValue {
+public class ValuePair {
 
-    Set<Object> valuePairSet = new LinkedHashSet<>(2);
+    Set<Object> valuePairSet = new HashSet<>(2);
 
     public ValuePair(Object obj1, Object obj2) {
         valuePairSet.add(obj1);
         valuePairSet.add(obj2);
     }
 
-    @Override
-    public boolean equals(Object o, Set<ValuePair> visitedValues) {
+    public boolean equals(Object o) {
         if (!(o instanceof ValuePair valuePair)) {
             return false;
         }
 
         Set<Object> otherSet = valuePair.valuePairSet;
         Set<Object> currentSet = this.valuePairSet;
-        if (otherSet.size() != currentSet.size()) {
-            return false;
-        }
-
         for (Object otherObj : otherSet) {
             if (!currentSet.contains(otherObj)) {
                 return false;
             }
         }
         return true;
-    }
-
-    @Override
-    public BTypedesc getTypedesc() {
-        return null;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return null;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return null;
-    }
-
-    @Override
-    public String stringValue(BLink parent) {
-        return null;
-    }
-
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        return null;
     }
 }

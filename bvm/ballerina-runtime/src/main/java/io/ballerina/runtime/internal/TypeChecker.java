@@ -88,7 +88,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -377,7 +376,7 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean isEqual(Object lhsValue, Object rhsValue) {
-        return isEqual(lhsValue, rhsValue, new LinkedHashSet<>());
+        return isEqual(lhsValue, rhsValue, new HashSet<>());
     }
 
     /**

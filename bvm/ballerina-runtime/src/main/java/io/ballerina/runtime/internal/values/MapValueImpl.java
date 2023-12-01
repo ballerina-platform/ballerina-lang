@@ -341,7 +341,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public boolean equals(Object o, Set<ValuePair> visitedValues) {
         ValuePair compValuePair = new ValuePair(this, o);
         for (ValuePair valuePair : visitedValues) {
-            if (valuePair.equals(compValuePair, visitedValues)) {
+            if (valuePair.equals(compValuePair)) {
                 return true;
             }
         }
