@@ -20,7 +20,8 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.expressions.EnclosingFunction;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -29,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.TreeMap;
 /**
  * @since 0.94
  */
-public class BLangFunction extends BLangInvokableNode implements FunctionNode, EnclosingFunction {
+public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     // Parser Flags and Data
     //TODO remove this and use ATTACHED flag instead
@@ -70,7 +70,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
 
     // TODO: remove this field when all lambda liftings are removed (used to separate those which are fixed)
     public boolean enclosed = false;
-    public List<BLangLambdaFunction> enclosedFunctions = new ArrayList<>();
+    public List<BLangLambdaFunction> enclosedFunctions;
 
     public SimpleVariableNode getReceiver() {
         return receiver;
@@ -78,6 +78,32 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
 
     public void setReceiver(SimpleVariableNode receiver) {
         this.receiver = (BLangSimpleVariable) receiver;
+    }
+
+    public List<BLangLambdaFunction> getEnclosedFunctions() {
+        if (enclosedFunctions == null) {
+            // As long as we don't modify the body we can cache the result
+            enclosedFunctions = accumulateEnclosedFunctions();
+        }
+        return enclosedFunctions;
+    }
+
+    private List<BLangLambdaFunction> accumulateEnclosedFunctions() {
+        List<BLangLambdaFunction> enclosedFunctions = new ArrayList<>();
+        if (this.getBody() == null || this.getBody().getKind() != NodeKind.BLOCK_FUNCTION_BODY) {
+            return enclosedFunctions;
+        }
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) this.getBody();
+        for (BLangStatement stmt : body.stmts) {
+            if (stmt.getKind() == NodeKind.VARIABLE_DEF) {
+                VariableDefinitionNode varDef = (VariableDefinitionNode) stmt;
+                ExpressionNode initExpr = varDef.getVariable().getInitialExpression();
+                if (initExpr != null && initExpr.getKind() == NodeKind.LAMBDA) {
+                    enclosedFunctions.add((BLangLambdaFunction) initExpr);
+                }
+            }
+        }
+        return enclosedFunctions;
     }
 
     @Override
@@ -103,18 +129,5 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode, E
     @Override
     public String toString() {
         return "BLangFunction: " + super.toString();
-    }
-
-    @Override
-    public void encloseFunction(BLangLambdaFunction lambdaFunction) {
-        if (enclosedFunctions.contains(lambdaFunction)) {
-            return;
-        }
-        enclosedFunctions.add(lambdaFunction);
-    }
-
-    @Override
-    public List<BLangLambdaFunction> getEnclosedFunctions() {
-        return Collections.unmodifiableList(enclosedFunctions);
     }
 }
