@@ -279,8 +279,9 @@ public class LargeMethodSplitter {
         newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
         generatedFunctions.add(newFunc);
 
-        // for the stop function, splitting is done same as the start function except here.
-        // here just need only to call the next created stop function because the return value is () and not ()|error.
+        // For the stop function, splitting is done the same as the start function except here.
+        // Here, it is only required to call the next created stop function
+        // because the return value is () and not ()|error.
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
 
