@@ -262,11 +262,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -295,7 +297,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean inLockStatement = false;
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
-    private final List<BLangFunction> enclosedFunctions = new ArrayList<>();
+    private final Queue<BLangFunction> functionQueue = new ArrayDeque<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
     private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
 
@@ -335,7 +337,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        this.enclosedFunctions.clear();
         if (pkgNode.completedPhases.contains(CompilerPhase.ISOLATION_ANALYZE)) {
             return;
         }
@@ -363,15 +364,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             analyzeNode(classDefinition, pkgEnv);
         }
-
-        for (BLangFunction function : pkgNode.getFunctions()) {
+        functionQueue.addAll(pkgNode.getFunctions());
+        while (!functionQueue.isEmpty()) {
+            BLangFunction function = functionQueue.poll();
             // Skip visiting worker lambdas here. They will be visited when enclosing function is visited.
-            if (!isWorkerLambda(function)) {
-                analyzeNode(function, pkgEnv);
+            if (isWorkerLambda(function)) {
+                continue;
             }
-        }
-        for (int i = 0; i < enclosedFunctions.size(); i++) {
-            analyzeNode(enclosedFunctions.get(i), pkgEnv);
+            analyzeNode(function, pkgEnv);
         }
 
         for (BLangVariable globalVar : moduleLevelVariables) {
@@ -1724,8 +1724,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         // Visit worker lambdas.
         BLangFunction function = bLangLambdaFunction.function;
-        if (function.enclosed) {
-            enclosedFunctions.add(function);
+        // TODO: see if we can do this similar to worker lambdas
+        if (!functionQueue.contains(function)) {
+            functionQueue.add(function);
         }
         if (isWorkerLambda(function)) {
             visit(function);

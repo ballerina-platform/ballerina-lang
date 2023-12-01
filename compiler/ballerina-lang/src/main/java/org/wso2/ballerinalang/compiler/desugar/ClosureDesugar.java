@@ -212,7 +212,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
-    private List<BLangFunction> enclosedFunctions = new ArrayList<>();
+    private List<BLangFunction> packageFunctions = new ArrayList<>();
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -242,7 +242,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
+        packageFunctions.clear();
+        packageFunctions.addAll(pkgNode.getFunctions());
         pkgNode.services.forEach(service -> rewrite(service, pkgEnv));
         pkgNode.globalVars.forEach(globalVar -> rewrite(globalVar, pkgEnv));
         pkgNode.typeDefinitions.forEach(typeDefinition -> rewrite(typeDefinition, pkgEnv));
@@ -265,7 +266,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Update function parameters.
         pkgNode.getFunctions().forEach(ClosureDesugar::updateFunctionParams);
-        enclosedFunctions.forEach(ClosureDesugar::updateFunctionParams);
         result = pkgNode;
     }
 
@@ -1396,12 +1396,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
             boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
             bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
         }
-        // TODO: remove this when all the lambda liftings are removed
-        if (bLangLambdaFunction.function.enclosed) {
-            enclosedFunctions.add(bLangLambdaFunction.function);
+        if (lambdaEnclosed(bLangLambdaFunction)) {
+            updateFunctionParams(bLangLambdaFunction.function);
         }
         bLangLambdaFunction.capturedClosureEnv = null;
         result = bLangLambdaFunction;
+    }
+
+    private boolean lambdaEnclosed(BLangLambdaFunction lambdaExpr) {
+        return packageFunctions.stream().noneMatch(func -> func.getName() == lambdaExpr.function.getName());
     }
 
     private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv, BLangInvokableNode enclInvokable,

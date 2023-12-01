@@ -154,10 +154,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     public void addFunction(BLangFunction function) {
-        // TODO: remove this sanity check when closures are fully implemented
-        if (function.enclosed) {
-            throw new AssertionError("Cannot add an enclosed function to a package");
-        }
         this.functions.add(function);
     }
 

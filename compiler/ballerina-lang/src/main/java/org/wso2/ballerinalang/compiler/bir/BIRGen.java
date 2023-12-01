@@ -257,6 +257,7 @@ public class BIRGen extends BLangNodeVisitor {
     private Unifier unifier;
 
     private BirScope currentScope;
+    private List<BLangFunction> packageFunctions = new ArrayList<>();
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -339,6 +340,8 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPackage astPkg) {
         // Lower function nodes in AST to bir function nodes.
         // TODO handle init, start, stop functions
+        packageFunctions.clear();
+        packageFunctions.addAll(astPkg.getFunctions());
         astPkg.imports.forEach(impPkg -> impPkg.accept(this));
         astPkg.constants.forEach(astConst -> astConst.accept(this));
         astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
@@ -858,14 +861,23 @@ public class BIRGen extends BLangNodeVisitor {
                             getFieldName(funcName.value, targetType.tsymbol.name.value)));
         }
         this.env.targetOperand = lhsOp;
+        if (lambdaEnclosed(lambdaExpr)) {
+            encloseFunction(enclFunc, lambdaExpr.function);
+        } else if (lambdaExpr.capturedClosureEnv != null) {
+            throw new AssertionError("Capturing in a non-enclosed function");
+        }
+    }
+
+    private boolean lambdaEnclosed(BLangLambdaFunction lambdaExpr) {
+        return packageFunctions.stream().noneMatch(func -> func.getName() == lambdaExpr.function.getName());
+    }
+
+    private void encloseFunction(BIRFunction enclFunc, BLangFunction innerFunc) {
         this.env = this.env.createNestedEnv();
         this.currentScope = new BirScope(this.currentScope.id + 1, this.currentScope);
-        if (lambdaExpr.function.enclosed) {
-            BLangFunction bLangFunction = lambdaExpr.function;
-            BIRFunction birFunc = createBIRFunction(bLangFunction);
-            enclFunc.encloseFunction(birFunc);
-            generateBIRFunctionBody(birFunc, bLangFunction);
-        }
+        BIRFunction innerBirFunc = createBIRFunction(innerFunc);
+        enclFunc.encloseFunction(innerBirFunc);
+        generateBIRFunctionBody(innerBirFunc, innerFunc);
         this.currentScope = this.currentScope.parent;
         this.env = this.env.parentEnv;
     }

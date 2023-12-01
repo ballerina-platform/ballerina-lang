@@ -30,6 +30,8 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -326,6 +328,7 @@ import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -2114,7 +2117,6 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()), constraint, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
-        env.enclPkg.addFunction(function);
 
         // Create and return a lambda function
         return createLambdaFunction(function, functionSymbol, env);
@@ -2401,7 +2403,6 @@ public class Desugar extends BLangNodeVisitor {
                                                  getRestType(functionSymbol), symTable.booleanType, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
-        env.enclPkg.addFunction(function);
         return functionSymbol;
     }
 
@@ -5707,8 +5708,6 @@ public class Desugar extends BLangNodeVisitor {
         final BPackageSymbol packageSymbol = targetPkg.symbol;
         final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
-        packageEnv.enclPkg.addFunction(funcNode);
-        packageEnv.enclPkg.topLevelNodes.add(funcNode);
     }
 
     @Override
@@ -6272,9 +6271,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = func;
         lambdaFunction.capturedClosureEnv = env;
-        env.enclPkg.addFunction(func);
-        env.enclPkg.topLevelNodes.add(func);
-        //env.enclPkg.lambdaFunctions.add(lambdaFunction);
         lambdaFunction.parent = env.enclInvokable;
         lambdaFunction.setBType(func.getBType());
 
@@ -7911,7 +7907,9 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
         lambdaFunction.capturedClosureEnv = env;
-        env.enclPkg.addFunction(lambdaFunction.function);
+        if (!shouldEnclose(env.enclInvokable)) {
+            env.enclPkg.addFunction(lambdaFunction.function);
+        }
         result = rewriteExpr(lambdaFunction);
     }
 
@@ -10366,5 +10364,13 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.imports.add(importDcl);
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
+    }
+
+    private static boolean shouldEnclose(InvokableNode parent) {
+        if (parent == null) {
+            return false;
+        }
+        IdentifierNode name = parent.getName();
+        return !name.getValue().contains("<init>");
     }
 }

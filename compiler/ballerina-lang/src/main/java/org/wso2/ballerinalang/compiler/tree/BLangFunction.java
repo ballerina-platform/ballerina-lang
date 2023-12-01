@@ -68,10 +68,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public String anonForkName;
     public boolean mapSymbolUpdated;
 
-    // TODO: remove this field when all lambda liftings are removed (used to separate those which are fixed)
-    public boolean enclosed = false;
-    public List<BLangLambdaFunction> enclosedFunctions;
-
     public SimpleVariableNode getReceiver() {
         return receiver;
     }
@@ -80,15 +76,8 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
         this.receiver = (BLangSimpleVariable) receiver;
     }
 
+    // This is to support cases where we don't visit the functions body but need all the lambdas defined within it.
     public List<BLangLambdaFunction> getEnclosedFunctions() {
-        if (enclosedFunctions == null) {
-            // As long as we don't modify the body we can cache the result
-            enclosedFunctions = accumulateEnclosedFunctions();
-        }
-        return enclosedFunctions;
-    }
-
-    private List<BLangLambdaFunction> accumulateEnclosedFunctions() {
         List<BLangLambdaFunction> enclosedFunctions = new ArrayList<>();
         if (this.getBody() == null || this.getBody().getKind() != NodeKind.BLOCK_FUNCTION_BODY) {
             return enclosedFunctions;

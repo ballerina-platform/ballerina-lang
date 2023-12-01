@@ -1654,14 +1654,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
-        bLFunction.enclosed = isEnclosed(anonFuncExprNode);
 
         setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
         lambdaExpr.pos = pos;
-        if (!bLFunction.enclosed) {
+        if (!isEnclosed(anonFuncExprNode)) {
             addToTop(bLFunction);
         }
 
@@ -1765,7 +1764,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
         bLFunction.addFlag(Flag.WORKER);
-        bLFunction.enclosed = isEnclosed(namedWorkerDeclNode);
 
         if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
             bLFunction.addFlag(Flag.TRANSACTIONAL);
@@ -1806,7 +1804,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         lambdaExpr.pos = workerBodyPos;
         lambdaExpr.internal = true;
 
-        if (!bLFunction.enclosed) {
+        if (!isEnclosed(namedWorkerDeclNode)) {
             addToTop(bLFunction);
         }
 

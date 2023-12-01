@@ -224,7 +224,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private AnnotationDesugar annotationDesugar;
     private Types types;
-
     public static ClosureGenerator getInstance(CompilerContext context) {
         ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);
         if (closureGenerator == null) {
@@ -247,7 +246,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
         List<BLangFunction> functions = pkgNode.getFunctions();
         for (int i = 0; i < functions.size(); i++) {
             BLangFunction bLangFunction = functions.get(i);
@@ -438,8 +436,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
             return;
         }
         owner = getOwner(env);
+        boolean encloseLambdas = owner.getKind() != SymbolKind.PACKAGE;
         BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(fields, pos, env.enclPkg, env,
-                                                                                      typeSymbol.pkgID, owner);
+                typeSymbol.pkgID, owner, encloseLambdas);
         if (lambdaFunction != null) {
             boolean isPackageLevelAnnotationClosure = owner.getKind() == SymbolKind.PACKAGE;
             BInvokableSymbol invokableSymbol = createSimpleVariable(lambdaFunction.function, lambdaFunction,
@@ -573,7 +572,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
-        BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
+        boolean encloseLambdas = owner.getKind() != SymbolKind.PACKAGE;
+        BLangFunction function =
+                createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType(), !encloseLambdas);
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = types.addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
@@ -587,9 +588,15 @@ public class ClosureGenerator extends BLangNodeVisitor {
             ((BRecordTypeSymbol) symbol).defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
             lambdaFunction.function.flagSet.add(Flag.RECORD);
         }
-        env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
-        env.enclPkg.addFunction(function);
-        env.enclPkg.topLevelNodes.add(function);
+        if (encloseLambdas) {
+            this.env.enclInvokable.symbol.scope.define(function.symbol.name, function.symbol);
+        } else {
+            // Closures for creating default values for function definition. These should be in package scope so callers
+            // can use them directly. (Ideally these should be part of the function type descriptor not the package)
+            env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
+            env.enclPkg.addFunction(function);
+            env.enclPkg.topLevelNodes.add(function);
+        }
         rewrite(lambdaFunction, env);
     }
 
@@ -673,10 +680,16 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return funcInvocation;
     }
 
-    private BLangFunction createFunction(String funcName, Location pos, PackageID pkgID, BSymbol owner, BType bType) {
+    private BLangFunction createFunction(String funcName, Location pos, PackageID pkgID, BSymbol owner, BType bType,
+                                         boolean isPublic) {
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
-        function.flagSet.add(Flag.PUBLIC);
-        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.PUBLIC,
+        if (isPublic) {
+            function.flagSet.add(Flag.PUBLIC);
+        } else {
+            function.flagSet.add(Flag.PRIVATE);
+        }
+        long visibility = isPublic ? Flags.PUBLIC : Flags.PRIVATE;
+        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, visibility,
                                                                                      pkgID, bType, owner, pos, VIRTUAL);
         function.setBType(new BInvokableType(new ArrayList<>(), bType, invokableTypeSymbol));
 
@@ -686,7 +699,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         typeNode.pos = pos;
         function.returnTypeNode = typeNode;
 
-        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.FUNCTION, Flags.PUBLIC, new Name(funcName), pkgID,
+        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.FUNCTION, visibility, new Name(funcName), pkgID,
                                                                function.getBType(), owner, pos, VIRTUAL);
         functionSymbol.bodyExist = true;
         functionSymbol.kind = SymbolKind.FUNCTION;

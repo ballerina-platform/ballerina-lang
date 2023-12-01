@@ -72,6 +72,8 @@ public class BIREmitter {
     }
 
     public void emit(BIRNode.BIRPackage birPackage) {
+        // FIXME:
+        dumpBIR = birPackage.packageID.sourceRoot.contains("global-queries.bal") || dumpBIR;
         if (dumpBIR) {
             console.println(emitModule(birPackage));
         }
