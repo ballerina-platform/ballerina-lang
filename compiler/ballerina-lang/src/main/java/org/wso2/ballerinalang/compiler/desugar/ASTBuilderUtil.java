@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
@@ -550,6 +551,21 @@ public class ASTBuilderUtil {
         variableDef.pos = pos;
         variableDef.var = variable;
         return variableDef;
+    }
+
+    static BLangErrorVariable createErrorVariable(Location pos, BType type, BLangExpression expr,
+                                                  BLangSimpleVariable message, BLangVariable cause,
+                                                  BLangSimpleVariable restDetail,
+                                                  List<BLangErrorVariable.BLangErrorDetailEntry> detail) {
+        final BLangErrorVariable errVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
+        errVariable.pos = pos;
+        errVariable.setBType(type);
+        errVariable.expr = expr;
+        errVariable.message = message;
+        errVariable.cause =  cause;
+        errVariable.restDetail = restDetail;
+        errVariable.detail = detail;
+        return errVariable;
     }
 
     static BLangErrorVariableDef createErrorVariableDef(Location pos, BLangErrorVariable variable) {

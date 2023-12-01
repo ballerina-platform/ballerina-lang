@@ -3936,25 +3936,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPosition(onFailClauseNode);
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         onFailClause.pos = pos;
-        onFailClauseNode.typeDescriptor().ifPresent(typeDescriptorNode -> {
-            BLangSimpleVariableDef variableDefinitionNode =
-                    (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-            BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-            boolean isDeclaredWithVar = typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC;
-            var.isDeclaredWithVar = isDeclaredWithVar;
-            if (!isDeclaredWithVar) {
-                var.setTypeNode(createTypeNode(typeDescriptorNode));
-            }
-            var.pos = pos;
-            onFailClauseNode.failErrorName().ifPresent(identifierToken -> {
-                var.setName(this.createIdentifier(identifierToken));
-                var.name.pos = getPosition(identifierToken);
-                variableDefinitionNode.setVariable(var);
-                variableDefinitionNode.pos = getPosition(typeDescriptorNode,
-                        identifierToken);
-            });
-            onFailClause.isDeclaredWithVar = isDeclaredWithVar;
-            markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
+        onFailClauseNode.typedBindingPattern().ifPresent(typedBindingPatternNode -> {
+            VariableDefinitionNode variableDefinitionNode =
+                    createBLangVarDef(getPosition(typedBindingPatternNode), typedBindingPatternNode,
+                            Optional.empty(), Optional.empty());
+            onFailClause.isDeclaredWithVar =
+                    typedBindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+            markVariableWithFlag((BLangVariable) variableDefinitionNode.getVariable(), Flag.FINAL);
             onFailClause.variableDefinitionNode = variableDefinitionNode;
         });
         BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
