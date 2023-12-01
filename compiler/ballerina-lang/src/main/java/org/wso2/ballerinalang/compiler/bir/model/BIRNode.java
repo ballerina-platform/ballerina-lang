@@ -200,6 +200,16 @@ public abstract class BIRNode {
         public String toString() {
             return name.toString();
         }
+
+        @Override
+        public PackageID getPackageID() {
+            return this.type.tsymbol.pkgID;
+        }
+
+        @Override
+        public String getNodeDetails() {
+            return null;
+        }
     }
 
     /**
@@ -470,6 +480,18 @@ public abstract class BIRNode {
         public Name getName() {
             return name;
         }
+
+        @Override
+        public PackageID getPackageID() {
+            return this.type.tsymbol.pkgID;
+        }
+
+        @Override
+        public String getNodeDetails() {
+            // TODO Expand this elvis
+            return name.toString() + "____" + (type != null ? (type.tsymbol != null? type.tsymbol.pkgID.toString() : "") : "");
+        }
+
     }
 
     /**
@@ -584,6 +606,17 @@ public abstract class BIRNode {
         @Override
         public Name getName() {
             return name;
+        }
+
+        @Override
+        public PackageID getPackageID() {
+            return this.type.tsymbol.pkgID;
+        }
+
+        @Override
+        public String getNodeDetails() {
+            // TODO remove nested elvis
+            return name.toString() + "____" + (type != null ? (type.tsymbol != null? type.tsymbol.pkgID.toString() : "") : "");
         }
     }
 
@@ -702,6 +735,15 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+        @Override
+        public PackageID getPackageID() {
+            return this.packageID;
+        }
+
+        @Override
+        public String getNodeDetails() {
+            return null;
+        }
     }
 
     /**
@@ -762,6 +804,15 @@ public abstract class BIRNode {
             visitor.visit(this);
         }
 
+        @Override
+        public PackageID getPackageID() {
+            return this.type.tsymbol.pkgID;
+        }
+
+        @Override
+        public String getNodeDetails() {
+            return null;
+        }
     }
 
     /**
@@ -865,6 +916,14 @@ public abstract class BIRNode {
                 this.childNodes.forEach(BIRDocumentableNode::markSelfAndChildrenAsUsed);
             }
         }
+
+        public boolean isSamePackageAsParent(BIRDocumentableNode childNode) {
+            return (this.getPackageID() == childNode.getPackageID());
+        }
+
+        public abstract PackageID getPackageID();
+
+        public abstract String getNodeDetails();
     }
 
     /**
@@ -1012,6 +1071,16 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public PackageID getPackageID() {
+            return this.type.tsymbol.pkgID;
+        }
+
+        @Override
+        public String getNodeDetails() {
+            return null;
         }
     }
 }

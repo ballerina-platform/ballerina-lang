@@ -180,8 +180,8 @@ public class TypeDefAnalyzer implements TypeVisitor {
 
     @Override
     public void visit(BErrorType bErrorType) {
-        bErrorType.detailType.accept(this);
         addDependency(bErrorType);
+        bErrorType.detailType.accept(this);
     }
 
     @Override
@@ -192,6 +192,12 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BInvokableType bInvokableType) {
         addDependency(bInvokableType);
+        if (bInvokableType.paramTypes != null) {
+            bInvokableType.paramTypes.forEach(param -> param.accept(this));
+        }
+        if (bInvokableType.retType != null) {
+            bInvokableType.retType.accept(this);
+        }
     }
 
     @Override
@@ -218,6 +224,9 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BTypedescType bTypedescType) {
         addDependency(bTypedescType);
+        if (currentTypeIsNotVisited) {
+            bTypedescType.constraint.accept(this);
+        }
     }
 
     @Override
@@ -253,6 +262,9 @@ public class TypeDefAnalyzer implements TypeVisitor {
     @Override
     public void visit(BTableType bTableType) {
         addDependency(bTableType);
+        if (currentTypeIsNotVisited) {
+            bTableType.constraint.accept(this);
+        }
     }
 
     @Override
