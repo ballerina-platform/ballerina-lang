@@ -56,6 +56,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -246,6 +247,9 @@ public class ManifestBuilder {
         }
         TomlTableNode toolTable = (TomlTableNode) toolEntries;
         Set<String> toolCodes = toolTable.entries().keySet();
+        List<String> toolIds = new ArrayList<>();
+        List<String> toolTargetModules = new ArrayList<>();
+
         for (String toolCode : toolCodes) {
             TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
             if (toolCodeNode.kind() != TomlType.TABLE_ARRAY) {
@@ -280,12 +284,14 @@ public class ManifestBuilder {
                 PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
                     targetModule, optionsToml, optionsNode);
                 tools.add(tool);
+                addIdTargetModuleToLists(id, targetModule, toolIds, toolTargetModules);
             }
         }
+        validateUniqueIdAndTargetModule(toolIds, toolTargetModules, toolTable);
         return tools;
     }
 
-    public void validateEmptyOptionsToml(TomlTableNode toolNode, String toolName) throws IOException {
+    private void validateEmptyOptionsToml(TomlTableNode toolNode, String toolName) throws IOException {
         Schema schema = Schema.from(FileUtils.readFileAsString(toolName + "-options-schema.json"));
         List<String> requiredFields = schema.required();
         if (!requiredFields.isEmpty()) {
@@ -789,11 +795,17 @@ public class ManifestBuilder {
 
     private String getStringValueFromPreBuildToolNode(TomlTableNode toolNode, String key, String toolCode) {
         TopLevelNode topLevelNode = toolNode.entries().get(key);
-        String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]' in 'Ballerina.toml'.";
+        String errorMessage = "missing key '[" + key + "]' in table '[tool." + toolCode + "]'.";
         if (topLevelNode == null) {
-            reportDiagnostic(toolNode, errorMessage,
-                ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
-                DiagnosticSeverity.ERROR);
+            if (!key.equals("targetModule")) {
+                reportDiagnostic(toolNode, errorMessage,
+                        ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                        DiagnosticSeverity.ERROR);
+                return null;
+            }
+            reportDiagnostic(toolNode, errorMessage + " Default module will be taken as target module.",
+                    ProjectDiagnosticErrorCode.MISSING_TOOL_PROPERTIES_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
             return null;
         }
         ToolNodeValueType toolNodeValueType = getBuildToolTomlValueType(topLevelNode);
@@ -801,13 +813,14 @@ public class ManifestBuilder {
             return getStringFromTomlTableNode(topLevelNode);
         } else if (ToolNodeValueType.EMPTY.equals(toolNodeValueType)) {
             if (!key.equals("targetModule")) {
-                reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'",
+                reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
+                                + toolCode + "]'.",
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
                     DiagnosticSeverity.ERROR);
                 return null;
             }
-            reportDiagnostic(toolNode, "empty string found for key '[" + key + "]'. " +
-                            "Default module will be taken as the target module",
+            reportDiagnostic(toolNode, "empty string found for key '[" + key + "]' in table '[tool."
+                            + toolCode + "]'. " + "Default module will be taken as the target module",
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
                     DiagnosticSeverity.WARNING);
             return getStringFromTomlTableNode(topLevelNode);
@@ -830,6 +843,42 @@ public class ManifestBuilder {
         }
         TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
         return new Toml(optionsNode);
+    }
+
+    private void addIdTargetModuleToLists(String id, String targetModule, List<String> toolIds,
+                                          List<String> targetModules) {
+        if (id != null) {
+            toolIds.add(id);
+        }
+        if (targetModule == null || targetModule.isEmpty()) {
+            targetModules.add("default");
+            return;
+        }
+        targetModules.add(targetModule);
+    }
+
+    private void validateUniqueIdAndTargetModule(List<String> toolIds, List<String> targetModules,
+                                                 TomlTableNode tomlTableNode) {
+        Set<String> toolIdsSet = new HashSet<>();
+        Set<String> targetModuleSet = new HashSet<>();
+        for (String toolId: toolIds) {
+            if (!toolIdsSet.add(toolId)) {
+                reportDiagnostic(tomlTableNode, "recurring tool id " + toolId + " found in Ballerina.toml. " +
+                                "Tool id must be unique for each tool",
+                        ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
+                        DiagnosticSeverity.ERROR);
+                break;
+            }
+        }
+        for (String targetModule: targetModules) {
+            if (!targetModuleSet.add(targetModule)) {
+                reportDiagnostic(tomlTableNode, "recurring target module " + targetModule + " found in " +
+                                "Ballerina.toml. Target module must be unique for each tool",
+                        ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
+                        DiagnosticSeverity.ERROR);
+                break;
+            }
+        }
     }
 
     /**

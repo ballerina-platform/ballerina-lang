@@ -85,6 +85,7 @@ public class ProjectConstants {
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TESTS_CACHE_DIR_NAME = "tests_cache";
     public static final String TEST_DIR_NAME = "tests";
+    public static final String USER_DIR_PROPERTY = "user.dir";
 
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".bala";
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
