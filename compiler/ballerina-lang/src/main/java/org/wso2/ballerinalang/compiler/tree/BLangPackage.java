@@ -154,7 +154,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     public void addFunction(BLangFunction function) {
-        // TODO: this should take care of adding to top level node
+        // TODO: remove this sanity check when closures are fully implemented
         if (function.enclosed) {
             throw new AssertionError("Cannot add an enclosed function to a package");
         }

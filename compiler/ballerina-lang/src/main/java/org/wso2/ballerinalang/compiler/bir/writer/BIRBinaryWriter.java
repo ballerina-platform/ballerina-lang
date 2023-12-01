@@ -316,7 +316,6 @@ public class BIRBinaryWriter {
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
-
     }
     
     private void writePathParameters(ByteBuf buf, BIRNode.BIRFunction birFunction) {

@@ -571,10 +571,16 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction astFunc) {
         this.currentScope = new BirScope(0, null);
-        BIRFunction birFunc = createBIRFunction(astFunc, false);
+        BIRFunction birFunc = createBIRFunction(astFunc);
+        if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.getBType().tsymbol)) {
+            typeDefs.get(astFunc.receiver.getBType().tsymbol).attachedFuncs.add(birFunc);
+        } else {
+            this.env.enclPkg.addFunction(birFunc);
+        }
+        generateBIRFunctionBody(birFunc, astFunc);
     }
 
-    private BIRFunction createBIRFunction(BLangFunction astFunc, boolean isClosure) {
+    private BIRFunction createBIRFunction(BLangFunction astFunc) {
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         BInvokableType type = astFunc.symbol.getType();
 
@@ -626,12 +632,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         birFunc.argsCount = astFunc.requiredParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
-        if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.getBType().tsymbol)) {
-            typeDefs.get(astFunc.receiver.getBType().tsymbol).attachedFuncs.add(birFunc);
-        } else if (!isClosure) {
-            this.env.enclPkg.addFunction(birFunc);
-        }
 
+        return birFunc;
+    }
+
+    private void generateBIRFunctionBody(BIRFunction birFunc, BLangFunction astFunc) {
         this.env.enclFunc = birFunc;
 
         // TODO: Return variable with NIL type should be written to BIR
@@ -654,7 +659,7 @@ public class BIRGen extends BLangNodeVisitor {
             // Parent symbol will always be BObjectTypeSymbol for resource functions
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) parentTSymbol;
             for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
-                if (func.funcName.value.equals(funcName.value)) {
+                if (func.funcName.value.equals(birFunc.name.value)) {
                     BResourceFunction resourceFunction = (BResourceFunction) func;
 
                     List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams;
@@ -691,7 +696,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (astFunc.interfaceFunction || Symbols.isNative(astFunc.symbol)) {
             this.env.clear();
-            return birFunc;
+            return;
         }
 
         // Create the entry basic block
@@ -713,7 +718,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.clear();
         birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
                 .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
-        return birFunc;
     }
     
     private BIRVariableDcl createBIRVarDeclForPathParam(BVarSymbol pathParamSym) {
@@ -857,7 +861,10 @@ public class BIRGen extends BLangNodeVisitor {
         this.env = this.env.createNestedEnv();
         this.currentScope = new BirScope(this.currentScope.id + 1, this.currentScope);
         if (lambdaExpr.function.enclosed) {
-            enclFunc.encloseFunction(createBIRFunction(lambdaExpr.function, true));
+            BLangFunction bLangFunction = lambdaExpr.function;
+            BIRFunction birFunc = createBIRFunction(bLangFunction);
+            enclFunc.encloseFunction(birFunc);
+            generateBIRFunctionBody(birFunc, bLangFunction);
         }
         this.currentScope = this.currentScope.parent;
         this.env = this.env.parentEnv;
