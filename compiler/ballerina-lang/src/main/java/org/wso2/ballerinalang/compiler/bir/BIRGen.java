@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -102,8 +103,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -129,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
@@ -364,11 +366,11 @@ public class BIRGen extends BLangNodeVisitor {
         BType type = getDefinedType(astTypeDefinition);
         BType referredType = Types.getImpliedType(type);
         BSymbol symbol = astTypeDefinition.symbol;
-        Name displayName = symbol.name;
+        String displayName = symbol.name.value;
         if (referredType.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) referredType;
             if (recordType.shouldPrintShape()) {
-                displayName = new Name(recordType.toString());
+                displayName = recordType.toString();
             }
         }
 
@@ -379,7 +381,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                           type,
                                                           new ArrayList<>(),
                                                           symbol.origin.toBIROrigin(),
-                                                          displayName,
+                                                          new Name(Utils.unescapeBallerina(displayName)),
                                                           symbol.originalName);
         if (symbol.tag == SymTag.TYPE_DEF) {
             BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
@@ -1144,36 +1146,34 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangCombinedWorkerReceive combinedWorkerReceive) {
-        if (combinedWorkerReceive.getKind() == NodeKind.ALTERNATE_WORKER_RECEIVE) {
-            BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
-            addToTrapStack(thenBB);
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(combinedWorkerReceive.getBType(),
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            BIROperand lhsOp = new BIROperand(tempVarDcl);
-            this.env.targetOperand = lhsOp;
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
+        addToTrapStack(thenBB);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(altWorkerReceive.getBType(), this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
 
-            boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
+        boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
-            this.env.enclBB.terminator = new BIRTerminator.WorkerAlternateReceive(combinedWorkerReceive.pos,
-                    getChannelList(combinedWorkerReceive), lhsOp, isOnSameStrand, thenBB, this.currentScope);
-
-            this.env.enclBasicBlocks.add(thenBB);
-            this.env.enclBB = thenBB;
-
-        } else {
-            // TODO: 22/11/23 implement
-            throw new AssertionError("multiple receive not yet implemented");
-        }
+        this.env.enclBB.terminator = new BIRTerminator.WorkerAlternateReceive(altWorkerReceive.pos,
+                getChannelList(altWorkerReceive), lhsOp, isOnSameStrand, thenBB, this.currentScope);
+        this.env.enclBasicBlocks.add(thenBB);
+        this.env.enclBB = thenBB;
     }
 
-    private List<String> getChannelList(BLangCombinedWorkerReceive combinedWorkerReceive) {
+    private List<String> getChannelList(BLangAlternateWorkerReceive alternateWorkerReceive) {
         List<String> channels = new ArrayList<>();
-        for (BLangWorkerReceive workerReceive : combinedWorkerReceive.getWorkerReceives()) {
+        for (BLangWorkerReceive workerReceive : alternateWorkerReceive.getWorkerReceives()) {
             channels.add(workerReceive.getChannel().channelId());
         }
         return channels;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        // TODO: 24/11/23 implement
+        throw new AssertionError("multiple receive not yet implemented");
     }
 
     @Override

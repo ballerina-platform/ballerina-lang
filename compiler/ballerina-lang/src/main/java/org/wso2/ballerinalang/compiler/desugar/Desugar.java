@@ -129,12 +129,12 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBinding
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -170,6 +170,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -220,6 +221,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -362,6 +364,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String GENERATED_ERROR_VAR = "$error$";
     private static final String HAS_KEY = "hasKey";
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
+    private static final String CHANNEL_AUTO_CLOSE_FUNC_NAME = "autoClose";
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -414,6 +417,10 @@ public class Desugar extends BLangNodeVisitor {
     private int funcParamCount = 1;
     private boolean isVisitingQuery;
     private boolean desugarToReturn;
+
+    // Worker related variables
+    private boolean withinIfStmt;
+    private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
 
     // Safe navigation related variables
     private Stack<BLangMatchStatement> matchStmtStack = new Stack<>();
@@ -3543,11 +3550,103 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
+        boolean prevWithinIfStmt = this.withinIfStmt;
+        Set<BLangWorkerSendReceiveExpr.Channel> prevChannels = new LinkedHashSet<>(this.channelsWithinIfStmt);
+        this.withinIfStmt = true;
+
         ifNode.expr = rewriteExpr(ifNode.expr);
+
+        Set<BLangWorkerSendReceiveExpr.Channel> ifBlockChannels = new LinkedHashSet<>();
+        this.channelsWithinIfStmt = ifBlockChannels;
         ifNode.body = rewrite(ifNode.body, env);
+
+        Set<BLangWorkerSendReceiveExpr.Channel> elseBlockChannels = new LinkedHashSet<>();
+        this.channelsWithinIfStmt = elseBlockChannels;
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
 
+        addWorkerChannelAutoCloseStmts(ifNode, ifBlockChannels, elseBlockChannels);
+
+        prevChannels.addAll(ifBlockChannels);
+        prevChannels.addAll(elseBlockChannels);
+        this.withinIfStmt = prevWithinIfStmt;
+        this.channelsWithinIfStmt = prevChannels;
         result = ifNode;
+    }
+
+    /**
+     * We need to close the channels that the send actions are not going to execute in the if-else block.
+     * This method will add channel auto close function calls at the beginning of if and/or else blocks.
+     * <p>
+     * If else will be generated as follows:
+     * <p>
+     * <code>
+     * if expr {
+     * autoClose(string ... channelIds);
+     * stmti1;
+     * stmti2;
+     * ...
+     * } else {
+     * autoClose(string ... channelIds);
+     * stmtj1;
+     * stmtj2;
+     * ...
+     * }
+     * </code>
+     *
+     * @param ifNode            if-else node
+     * @param ifBlockChannels   channels used in if block
+     * @param elseBlockChannels channels used in else block
+     */
+    private void addWorkerChannelAutoCloseStmts(BLangIf ifNode,
+                                                Set<BLangWorkerSendReceiveExpr.Channel> ifBlockChannels,
+                                                Set<BLangWorkerSendReceiveExpr.Channel> elseBlockChannels) {
+        if (!elseBlockChannels.isEmpty()) {
+            ifNode.body.stmts.add(0, generateChannelAutoCloseStmt(elseBlockChannels));
+        }
+        if (!ifBlockChannels.isEmpty()) {
+            // Three cases to handle:
+            // 1) No else block
+            // 2) There is an else block
+            // 3) Else block itself is an if-else node
+
+            BLangStatement elseStmt = ifNode.elseStmt;
+
+            if (elseStmt == null) {
+                List<BLangStatement> stmts =
+                        new ArrayList<>(Collections.singletonList(generateChannelAutoCloseStmt(ifBlockChannels)));
+                ifNode.elseStmt = rewrite(ASTBuilderUtil.createBlockStmt(symTable.builtinPos, stmts), env);
+            } else if (elseStmt.getKind() == NodeKind.BLOCK) {
+                ((BLangBlockStmt) elseStmt).stmts.add(0, generateChannelAutoCloseStmt(ifBlockChannels));
+            } else {
+                assert elseStmt.getKind() == NodeKind.IF;
+                List<BLangStatement> stmts = new ArrayList<>(2);
+                stmts.add(generateChannelAutoCloseStmt(ifBlockChannels));
+                stmts.add(elseStmt);
+                ifNode.elseStmt = rewrite(ASTBuilderUtil.createBlockStmt(elseStmt.pos, stmts), env);
+            }
+        }
+    }
+
+    private BLangExpressionStmt generateChannelAutoCloseStmt(Set<BLangWorkerSendReceiveExpr.Channel> channels) {
+        List<BLangExpression> restArgs = generateChannelIdLiteralList(channels);
+        BLangInvocation funcInvocation = createLangLibInvocationNode(CHANNEL_AUTO_CLOSE_FUNC_NAME, new ArrayList<>(),
+                restArgs, symTable.nilType, symTable.builtinPos);
+        funcInvocation.internal = true;
+
+        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.internal = true;
+        exprStmt.expr = funcInvocation;
+        exprStmt.pos = symTable.builtinPos;
+        return rewrite(exprStmt, env);
+    }
+
+    private List<BLangExpression> generateChannelIdLiteralList(Set<BLangWorkerSendReceiveExpr.Channel> channels) {
+        List<BLangExpression> exprs = new ArrayList<>();
+        for (BLangWorkerSendReceiveExpr.Channel channel : channels) {
+            BLangLiteral channelIdLiteral = createStringLiteral(symTable.builtinPos, channel.channelId());
+            exprs.add(channelIdLiteral);
+        }
+        return exprs;
     }
 
     @Override
@@ -5169,18 +5268,8 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.stmts.addAll(onFailClause.body.stmts);
         env.scope.entries.putAll(onFailClause.body.scope.entries);
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
-        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        if (onFailVarDefNode != null) {
-            BVarSymbol onFailErrorVariableSymbol =
-                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
-            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                    onFailErrorVariableSymbol);
-            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-            env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-            onFailBody.stmts.add(0, errorVarDef);
-        }
+        handleOnFailErrorVarDefNode(onFailClause.variableDefinitionNode, onFailBody, fail);
 
         if (onFailClause.isInternal && fail.exprStmt != null) {
             if (fail.exprStmt instanceof BLangPanic) {
@@ -5199,6 +5288,37 @@ public class Desugar extends BLangNodeVisitor {
         return fail;
     }
 
+    private void handleOnFailErrorVarDefNode(VariableDefinitionNode onFailVarDefNode, BLangBlockStmt onFailBody,
+                                             BLangFail fail) {
+        if (onFailVarDefNode == null) {
+            return;
+        }
+
+        BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
+        onFailBody.stmts.add(0,
+                             variableNode.getKind() == NodeKind.ERROR_VARIABLE ?
+                                     handleErrorBPInOnFail((BLangErrorVariable) variableNode, fail) :
+                                     handleCaptureBPInOnFail((BLangSimpleVariable) variableNode, fail));
+    }
+
+    private BLangStatement handleErrorBPInOnFail(BLangErrorVariable varNode, BLangFail fail) {
+        BLangErrorVariable errorVar = ASTBuilderUtil.createErrorVariable(varNode.pos,
+                varNode.getBType(), rewrite(fail.expr, env), varNode.message, varNode.cause, varNode.restDetail,
+                varNode.detail);
+        BLangErrorVariableDef errorVarDef = ASTBuilderUtil.createErrorVariableDef(varNode.pos, errorVar);
+        return rewrite(errorVarDef, env);
+    }
+
+    private BLangStatement handleCaptureBPInOnFail(BLangSimpleVariable varNode, BLangFail fail) {
+        BVarSymbol onFailErrorVariableSymbol = varNode.symbol;
+        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                onFailErrorVariableSymbol);
+        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+        return errorVarDef;
+    }
+
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangOnFailClause currentOnFail = this.onFailClause;
 
@@ -5207,18 +5327,8 @@ public class Desugar extends BLangNodeVisitor {
         onFailBody.scope = onFailClause.body.scope;
         onFailBody.mapSymbol = onFailClause.body.mapSymbol;
         onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
-        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        if (onFailVarDefNode != null) {
-            BVarSymbol onFailErrorVariableSymbol =
-                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
-            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                    onFailErrorVariableSymbol);
-            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-            onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-            onFailBody.stmts.add(0, errorVarDef);
-        }
+        handleOnFailErrorVarDefNode(onFailClause.variableDefinitionNode, onFailBody, fail);
 
         int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
         int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
@@ -8134,18 +8244,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
         asyncSendExpr.expr = visitCloneInvocation(rewriteExpr(asyncSendExpr.expr), asyncSendExpr.expr.getBType());
+        this.channelsWithinIfStmt.add(asyncSendExpr.getChannel());
         result = asyncSendExpr;
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         syncSendExpr.expr = visitCloneInvocation(rewriteExpr(syncSendExpr.expr), syncSendExpr.expr.getBType());
+        this.channelsWithinIfStmt.add(syncSendExpr.getChannel());
         result = syncSendExpr;
     }
 
     @Override
-    public void visit(BLangCombinedWorkerReceive combinedWorkerReceive) {
-        result = combinedWorkerReceive;
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
+        result = altWorkerReceive;
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        result = multipleWorkerReceive;
     }
 
     @Override
@@ -8864,7 +8981,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangInvocation createLangLibInvocationNode(String functionName,
-                                                        List<BLangExpression> args,
+                                                        List<BLangExpression> requiredArgs,
+                                                        BType retType,
+                                                        Location pos) {
+        return createLangLibInvocationNode(functionName, requiredArgs, new ArrayList<>(), retType, pos);
+    }
+
+    private BLangInvocation createLangLibInvocationNode(String functionName,
+                                                        List<BLangExpression> requiredArgs,
+                                                        List<BLangExpression> restArgs,
                                                         BType retType,
                                                         Location pos) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -8879,9 +9004,8 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.symbol = symResolver.lookupMethodInModule(symTable.langInternalModuleSymbol,
                 names.fromString(functionName), env);
 
-        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
-        requiredArgs.addAll(args);
-        invocationNode.requiredArgs = requiredArgs;
+        invocationNode.requiredArgs = new ArrayList<>(requiredArgs);
+        invocationNode.restArgs = new ArrayList<>(restArgs);
 
         invocationNode.setBType(retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType);
         invocationNode.langLibInvocation = true;
