@@ -41,6 +41,7 @@ import org.ballerinalang.maven.Utils;
 import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
@@ -54,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -136,6 +138,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final List<JarConflict> conflictedJars;
     private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
     private final SymbolTable symbolTable;
+    private static final HashSet<BIRNode.BIRDocumentableNode> reportedNodes = new HashSet<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -510,16 +513,24 @@ public class JBallerinaBackend extends CompilerBackend {
 
             // Have to remove the BAttachedFunction Types from the ClassSymbol because they are used in codeGen
             // Check line 173 of ObjectTypeGen Class
-            if (Flags.unMask(typeDef.type.tsymbol.flags).contains(Flag.CLASS)) {
+//            if (Flags.unMask(typeDef.type.tsymbol.flags).contains(Flag.CLASS)) {
+//                HashSet<BAttachedFunction> deadBAttFuncs = new HashSet<>();
+//                ((BClassSymbol) typeDef.type.tsymbol).attachedFuncs.forEach(bAttFunc->{
+//                    if (deadAttachedFuncTypes.contains(bAttFunc.type)) {
+//                        deadBAttFuncs.add(bAttFunc);
+//                    }
+//                });
+//                ((BClassSymbol) typeDef.type.tsymbol).attachedFuncs.removeAll(deadBAttFuncs);
+//            }
+            if (typeDef.type.tsymbol.kind == SymbolKind.OBJECT) {
                 HashSet<BAttachedFunction> deadBAttFuncs = new HashSet<>();
-                ((BClassSymbol) typeDef.type.tsymbol).attachedFuncs.forEach(bAttFunc->{
+                ((BObjectTypeSymbol) typeDef.type.tsymbol).attachedFuncs.forEach(bAttFunc -> {
                     if (deadAttachedFuncTypes.contains(bAttFunc.type)) {
                         deadBAttFuncs.add(bAttFunc);
                     }
                 });
-                ((BClassSymbol) typeDef.type.tsymbol).attachedFuncs.removeAll(deadBAttFuncs);
+                ((BObjectTypeSymbol) typeDef.type.tsymbol).attachedFuncs.removeAll(deadBAttFuncs);
             }
-
         }
     }
 
@@ -620,6 +631,8 @@ public class JBallerinaBackend extends CompilerBackend {
 
             // Sort jar libraries list to avoid inconsistent jar reporting
             sortAndCopyJars(jarLibraries, outStream, copiedEntries, serviceEntries);
+
+//            emitCodeGenOptimizationReport();
 
             // Copy merged spi services.
             copyMergedSpiServices(serviceEntries, outStream);
@@ -831,8 +844,9 @@ public class JBallerinaBackend extends CompilerBackend {
         return optimizedStream;
     }
 
+    // FIXME: remove this method
     private static HashMap<String, HashSet<String>> getDeadFunctionListOLD(String pkgName,
-                                                                        CompilerContext compilerContext) {
+                                                                           CompilerContext compilerContext) {
         org.wso2.ballerinalang.compiler.PackageCache packageCache =
                 org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
 
@@ -856,7 +870,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private static HashMap<String, HashSet<String>> getDeadFunctionList(String pkgName,
-                                                                           CompilerContext compilerContext) {
+                                                                        CompilerContext compilerContext) {
         if (pkgName.equals("ballerina/observe")) {
             return new HashMap<>();
         }
@@ -870,7 +884,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private static HashSet<String> getDeadTypeDefList(String pkgName,
-                                                                        CompilerContext compilerContext) {
+                                                      CompilerContext compilerContext) {
         if (pkgName.equals("ballerina/observe")) {
             return new HashSet<>();
         }
@@ -881,6 +895,43 @@ public class JBallerinaBackend extends CompilerBackend {
         BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData = packageCache.getSymbol(pkgName).invocationData_OLD;
         HashSet<String> classWiseDeadFunctionMap = invocationData.deadTypeDefJarPathMap;
         return new HashSet<>(classWiseDeadFunctionMap);
+    }
+    public void emitCodeGenOptimizationReport() {
+        DeadBIRNodeAnalyzer deadBIRNodeAnalyzer = DeadBIRNodeAnalyzer.getInstance(compilerContext);
+
+        try {
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+                    "C:\\Users\\Thushara Piyasekara\\Documents\\ASM_Test\\untitled\\JAR_Cache\\httpService\\dotGraphOut.dot")));
+            out.write("digraph {");
+            out.newLine();
+            for (DeadBIRNodeAnalyzer.InvocationData invocationData : deadBIRNodeAnalyzer.pkgWiseInvocationData.values()) {
+                emitModuleInvocationData(invocationData, out);
+            }
+            out.write("}");
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private static void emitModuleInvocationData(DeadBIRNodeAnalyzer.InvocationData invocationData, BufferedWriter out)
+        throws IOException {
+
+        for (BIRNode.BIRFunction birFunction : invocationData.usedFunctions) {
+            writeSubtreeEdges(birFunction, out);
+        }
+    }
+
+    private static void writeSubtreeEdges(BIRNode.BIRDocumentableNode rootNode, BufferedWriter out) throws IOException {
+        for (BIRNode.BIRDocumentableNode child : rootNode.childNodes) {
+            if (!reportedNodes.contains(child)) {
+                out.write(String.format(("\"%s\" -> \"%s\""), rootNode.getNodeDetails(), child.getNodeDetails()));
+                out.newLine();
+                reportedNodes.add(child);
+                writeSubtreeEdges(child, out);
+            }
+        }
     }
 
     private static boolean isCopiedEntry(String entryName, HashMap<String, JarLibrary> copiedEntries) {
