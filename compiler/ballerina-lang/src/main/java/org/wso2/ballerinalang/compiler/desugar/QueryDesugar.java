@@ -1911,8 +1911,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 symbol = originalSymbol;
             }
         }
-        BSymbol resolvedSymbol =
-                symResolver.lookupClosureVarSymbol(env, symbol, Names.fromString(identifier), SymTag.VARIABLE);
+        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol, Names.fromString(identifier));
 
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
@@ -1965,8 +1964,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             resolvedSymbol.closure = true;
             // When there's a type guard, there can be a enclSymbol before type narrowing.
             // So, we have to mark that as a closure as well.
-            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol,
-                    Names.fromString(identifier), SymTag.VARIABLE);
+            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol, Names.fromString(identifier));
             if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
                 enclSymbol.closure = true;
             }

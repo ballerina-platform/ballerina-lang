@@ -818,10 +818,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
      * @param env       symbol env to analyse and find the closure variable.
      * @param symbol    symbol to lookup
      * @param name      name of the symbol to lookup
-     * @param expSymTag symbol tag
      * @return closure symbol wrapper along with the resolved count
      */
-    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Symbol symbol, Name name, long expSymTag) {
+    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Symbol symbol, Name name) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (entry.symbol != symbol) {
@@ -832,7 +831,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
                 return entry.symbol;
             }
-            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
+            if ((entry.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE &&
+                    !isFieldRefFromWithinARecord(entry.symbol, env)) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -842,7 +842,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        return lookupClosureVarSymbol(env.enclEnv, symbol, name, expSymTag);
+        return lookupClosureVarSymbol(env.enclEnv, symbol, name);
     }
 
     public BSymbol lookupMainSpaceSymbolInPackage(Location pos,
