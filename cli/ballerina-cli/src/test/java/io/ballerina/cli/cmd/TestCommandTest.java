@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -27,6 +28,8 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -223,7 +226,7 @@ public class TestCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
     }
 
-    @Test
+    @Test(description = "Test a ballerina project with an invalid argument for --coverage-format")
     public void testUnsupportedCoverageFormat() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand testCommand = new TestCommand(
@@ -236,7 +239,7 @@ public class TestCommandTest extends BaseCommandTest {
                 "supported."));
     }
 
-    @Test ()
+    @Test (description = "Test a ballerina project with a custom value for --target-dir")
     public void testCustomTargetDirWithTestCmd() {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         Path customTargetDir = projectPath.resolve("customTargetDir3");
@@ -258,6 +261,31 @@ public class TestCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(customTargetDir.resolve("rerun_test.json")));
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
                 ".json")));
+    }
+
+    @Test(description = "Test a ballerina project with --test-report")
+    public void testTestWithReport() {
+        Path projectPath = this.testResources.resolve("validProjectWithTests");
+        TestCommand testCommand = new TestCommand(
+                projectPath, printStream, printStream, false, true, false, null);
+        new CommandLine(testCommand).parseArgs();
+        try (MockedStatic<TestUtils> testUtilsMockedStatic = Mockito.mockStatic(
+                TestUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            testUtilsMockedStatic.when(TestUtils::getReportToolsPath)
+                    .thenReturn(projectPath.resolve("resources").resolve("coverage").resolve("report.zip"));
+            testCommand.execute();
+        }
+        Path reportDir = projectPath.resolve("target").resolve("report");
+
+        Assert.assertTrue(Files.exists(reportDir));
+        Assert.assertTrue(Files.exists(reportDir.resolve("favicon.ico")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("index.html")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("test_results.json")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("manifest.json")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("css").resolve("2.d5162072.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("css").resolve("main.15691da7.chunk.css")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("js").resolve("2.bc541f30.chunk.js")));
+        Assert.assertTrue(Files.exists(reportDir.resolve("static").resolve("js").resolve("main.ea323a3b.chunk.js")));
     }
 
     @Test(description = "tests bal test command with sticky flag")
