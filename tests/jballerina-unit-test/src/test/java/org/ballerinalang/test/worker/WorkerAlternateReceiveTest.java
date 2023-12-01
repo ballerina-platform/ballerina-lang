@@ -50,11 +50,13 @@ public class WorkerAlternateReceiveTest {
         return new String[] {
                 "workerAlternateReceiveTest",
                 "workerAlternateReceiveTest2",
-                "alternateReceiveWithPanic",
+                "alternateReceiveWithSenderPanic",
                 "alternateReceiveWithMultiplePanic",
                 "alternateReceiveWithError",
                 "alternateReceiveWithMultipleError",
-                "alternateReceiveWithPanicAndError"
+                "alternateReceiveWithPanicAndError",
+                "alternateReceiveWithReceiverPanic",
+                "alternateReceiveWithReceiverError"
         };
     }
 

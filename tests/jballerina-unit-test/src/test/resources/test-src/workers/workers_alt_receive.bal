@@ -80,7 +80,7 @@ function workerAlternateReceiveTest2() {
     test:assertEquals(result, 3, "Invalid int result");
 }
 
-function alternateReceiveWithPanic() {
+function alternateReceiveWithSenderPanic() {
     worker w1 {
         int value = 10;
         if value == 10 {
@@ -187,8 +187,6 @@ function alternateReceiveWithMultipleError() {
     test:assertEquals(e.message(), "Error in worker 3", "Invalid error message");
 }
 
-
-
 function alternateReceiveWithPanicAndError() {
     worker w1 {
         int value = 10;
@@ -215,4 +213,52 @@ function alternateReceiveWithPanicAndError() {
     test:assertTrue(unionResult is error, "Expected error result");
     error e = <error>unionResult;
     test:assertEquals(e.message(), "Error in worker 1", "Invalid error message");
+}
+
+function alternateReceiveWithReceiverPanic() {
+    worker w1 {
+        10 -> w2;
+    }
+
+    worker w2 returns int {
+        int value = 10;
+        if value == 10 {
+            panic error("Error in worker 2");
+        }
+        int a = <- w1 | w3;
+        return a;
+    }
+
+    worker w3 {
+        3 -> w2;
+    }
+
+    int|error unionResult = trap wait w2;
+    test:assertTrue(unionResult is error, "Expected error result");
+    error e = <error>unionResult;
+    test:assertEquals(e.message(), "Error in worker 2", "Invalid error message");
+}
+
+function alternateReceiveWithReceiverError() {
+    worker w1 {
+        10 -> w2;
+    }
+
+    worker w2 returns int|error {
+        int value = 10;
+        if value == 10 {
+            return error("Error in worker 2");
+        }
+        int a = <- w1 | w3;
+        return a;
+    }
+
+    worker w3 {
+        3 -> w2;
+    }
+
+    int|error unionResult = wait w2;
+    test:assertTrue(unionResult is error, "Expected error result");
+    error e = <error>unionResult;
+    test:assertEquals(e.message(), "Error in worker 2", "Invalid error message");
 }
