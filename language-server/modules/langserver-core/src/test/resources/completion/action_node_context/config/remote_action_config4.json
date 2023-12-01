@@ -102,7 +102,7 @@
       }
     },
     {
-      "label": "/path1/<path>/path2/<path>.post(string str, string... ids2)",
+      "label": "/path1/<id1>/path2/<ids>.post(string str, string... ids2)",
       "kind": "Function",
       "detail": "mod:Response",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "/path4/<path>(mod:TargetType targetType)",
+      "label": "/path4/<pathParam>(mod:TargetType targetType)",
       "kind": "Function",
       "detail": "targetType|mod:ClientError|error",
       "documentation": {
