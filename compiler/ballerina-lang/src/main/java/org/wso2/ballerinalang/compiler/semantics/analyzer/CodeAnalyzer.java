@@ -752,6 +752,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             data.withinTransactionScope = prevTxMode;
         }
+        boolean returnFromIf = elseStmt == null && ifStmt.getBody().stmts.stream().anyMatch(
+                stmt -> stmt.getKind() == NodeKind.RETURN || stmt.getKind() == NodeKind.PANIC ||
+                        stmt.getKind() == NodeKind.FAIL);
         if (elseStmt != null) {
             if (independentBlocks) {
                 data.commitRollbackAllowed = true;
@@ -761,6 +764,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if ((prevCommitCount != data.commitCount) || prevRollbackCount != data.rollbackCount) {
                 data.commitRollbackAllowed = false;
             }
+        } else if (returnFromIf && prevTxMode) {
+            data.withinTransactionScope = true;
         }
 
         analyzeExpr(ifStmt.expr, data);
