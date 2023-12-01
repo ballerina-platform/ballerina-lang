@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -31,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
@@ -45,7 +43,6 @@ import java.util.Properties;
 
 /**
  * Detect the unused BIRFunctions, BIRTypeDefs and BIRConstants
- *
  */
 public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
@@ -54,10 +51,9 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     private static final HashSet<String> USED_FUNCTION_NAMES =
             new HashSet<>(Arrays.asList("main", ".<init>", ".<start>", ".<stop>"));
     private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
-
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE,
-                    InstructionKind.TYPE_CAST, InstructionKind.FP_LOAD , InstructionKind.TYPE_TEST));
+                    InstructionKind.TYPE_CAST, InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST));
     public PackageCache pkgCache;
     public TypeDefAnalyzer typeDefAnalyzer;
     public List<BIRNonTerminator> currentInstructionArr;
@@ -67,7 +63,6 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
     // TODO Implement an instruction and var chain to track the fp assignments
     // If the FP is not invoked we can delete the path
     public static HashSet<BIRNode.BIRVariableDcl> localFpHolders = new HashSet<>();
-
     public final HashMap<PackageID, InvocationData> pkgWiseInvocationData = new HashMap<>();
 
     private DeadBIRNodeAnalyzer(CompilerContext context) {
@@ -133,9 +128,9 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         // When there is external code callings, the compiler is blind to which functions will be invoked from the parameters
         // Therefore it is safer to connect all the attached functions of parameters to the parent external function
 
-        if (Flags.unMask(birFunction.flags).contains(Flag.NATIVE)) {
+        if ((birFunction.flags & Flags.NATIVE) == Flags.NATIVE) {
             HashSet<BIRNode.BIRFunction> allAttachedFuncs = new HashSet<>();
-            birFunction.childNodes.forEach(childNode ->{
+            birFunction.childNodes.forEach(childNode -> {
                 BIRNode.BIRTypeDefinition childTypeDef = ((BIRNode.BIRTypeDefinition) childNode);
                 allAttachedFuncs.addAll(childTypeDef.attachedFuncs);
             });
@@ -145,13 +140,20 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRTypeDefinition typeDef) {
-        typeDef.attachedFuncs.forEach(func -> {
+        typeDef.attachedFuncs.forEach(attachedFunc -> {
             //TODO use a constant for finding the init function of the type def
-            if (func.name.toString().contains("init")) {
-                typeDef.addChildNode(func);
+            if (attachedFunc.name.toString().contains("init")) {
+                typeDef.addChildNode(attachedFunc);
             }
 
-            func.accept(this);
+            if ((typeDef.flags & Flags.SERVICE) == Flags.SERVICE) {
+                typeDef.addChildNode(attachedFunc);
+            }
+
+            // TODO This is done because of the risk of methods being overridden. Change it one day hopefully.
+            typeDef.addChildNode(attachedFunc);
+
+            attachedFunc.accept(this);
         });
 
         HashSet<String> interopDependencies = INTEROP_DEPENDENCIES.get(typeDef.type.tsymbol.pkgID.toString());
@@ -260,11 +262,10 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
                 INTEROP_DEPENDENCIES.putIfAbsent(entry.getKey().toString(), usedRecordNames);
             }
 
-        } catch (IOException  e) {
+        } catch (IOException e) {
             System.out.println("Failed to load interop-dependencies : " + e);
         }
     }
-
 
     public static class InvocationData {
 
@@ -279,6 +280,7 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
         public final HashSet<BIRNode.BIRDocumentableNode> dependencyMap = new HashSet<>();
         public final HashSet<BIRNode.BIRFunction> usedSourceFunctions = new HashSet<>();
         public final HashSet<BIRNode.BIRFunction> deadSourceFunctions = new HashSet<>();
+        public boolean packageIsUsed = false;
 
         // TODO Remove the "remove from hashset" part later. It wont be needed
         public void updateInvocationData() {
@@ -311,14 +313,15 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
             });
         }
 
-        // TODO Find a better way register the BIR Nodes
+        // TODO Dont use the original name. Use name instead.
+        // TODO Parent class of attached functions is the first argument of all attached function calls
         public void registerNodes(BIRNode.BIRPackage birPackage) {
             birPackage.functions.forEach(this::initializeFunction);
             // TODO check why we omitted the FINITE typeDefs
             // TODO migrating the typeDef UsedState initialization to TypeDefAnalyzer. Clean up here if its permanent
             birPackage.typeDefs.forEach(typeDef -> {
                 typeDefPool.putIfAbsent(typeDef.type, typeDef);
-                typeDef.attachedFuncs.forEach(birFunction -> initializeAttachedFunction(typeDef,birFunction));
+                typeDef.attachedFuncs.forEach(birFunction -> initializeAttachedFunction(typeDef, birFunction));
             });
         }
 
@@ -327,22 +330,15 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
             functionPool.putIfAbsent(birFunction.originalName.value, birFunction);
         }
 
-        public void initializeAttachedFunction(BIRNode.BIRTypeDefinition parentTypeDef, BIRNode.BIRFunction attachedFunc) {
+        public void initializeAttachedFunction(BIRNode.BIRTypeDefinition parentTypeDef,
+                                               BIRNode.BIRFunction attachedFunc) {
             attachedFunc.usedState = UsedState.UNUSED;
-            functionPool.putIfAbsent(parentTypeDef.internalName.value + "." + parentTypeDef.attachedFuncs.get(0).name.value, attachedFunc);
-
-            // Connecting init with the typeDef
-            if (attachedFunc.name.equals(new Name(".<init>"))) {
-                parentTypeDef.addChildNode(attachedFunc);
-            }
-
-            if (Flags.unMask(parentTypeDef.flags).contains(Flag.SERVICE)) {
-                parentTypeDef.addChildNode(attachedFunc);
-            }
+            functionPool.putIfAbsent(parentTypeDef.internalName.value + "." + attachedFunc.name.value, attachedFunc);
         }
     }
 
-    public static class LambdaPointerData{
+    public static class LambdaPointerData {
+
         // Can be deleted from the BirFunctions of the enclosing module
         public BIRNode.BIRFunction lambdaFunction;
         // Can be deleted from the localVar or global var list
@@ -365,13 +361,6 @@ public class DeadBIRNodeAnalyzer extends BIRVisitor {
             if (lambdaPointerVar.usedState == UsedState.UNEXPOLORED) {
                 lambdaPointerVar.usedState = UsedState.UNUSED;
             }
-//            if (USED_FUNCTION_NAMES.contains(currentParentFunction.originalName.value)) {
-//                lambdaPointerVar.markSelfAndChildrenAsUsed();
-//            }
-
-//            if (lambdaPointerVar.kind == VarKind.TEMP) {
-//                lambdaPointerVar.markSelfAndChildrenAsUsed();
-//            }
             localFpHolders.add(lambdaPointerVar);
             lambdaPointerVar.addChildNode(lambdaFunction);
         }
