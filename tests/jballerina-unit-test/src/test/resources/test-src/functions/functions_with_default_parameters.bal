@@ -300,6 +300,20 @@ function value2(record {|int a; int b;|} x) returns int {
     return x.a + x.b;
 }
 
+type F1 function() returns int;
+
+function execute(F1 f) returns int {
+    return f();
+}
+
+function baz(int a, F1 b = function() returns int { return a + 1; }) returns int {
+    return a + b();
+}
+
+function testParamAsDefault() {
+    assertEquality(baz(10), 21);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
