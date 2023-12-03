@@ -574,6 +574,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             funcSymbol.scope.define(symbolName, symbol);
             funcSymbol.params.add(symbol);
             funcType.paramTypes.add(symbol.type);
+            symbol.owner = funcSymbol;
             funcNode.requiredParams.add(ASTBuilderUtil.createVariable(symbol.pos, symbolName.value, symbol.type, null,
                                                                       symbol));
         }
