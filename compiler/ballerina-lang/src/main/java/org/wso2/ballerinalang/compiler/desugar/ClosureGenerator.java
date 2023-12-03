@@ -190,6 +190,7 @@ import java.util.Set;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOLLAR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isFunctionParameter;
 
 /**
  * Parameter desugar for create closures for default values.
@@ -520,7 +521,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
         BLangExpression bLangExpression;
-        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM) &&
+            varNode.expr != null) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode);
         } else {
@@ -1210,7 +1212,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private void updateClosureVariable(BVarSymbol varSymbol, BLangInvokableNode encInvokable, Location pos) {
         Set<Flag> flagSet = encInvokable.flagSet;
         boolean isClosure = !flagSet.contains(Flag.QUERY_LAMBDA) && flagSet.contains(Flag.LAMBDA) &&
-                            !flagSet.contains(Flag.ATTACHED) && varSymbol.owner.tag != SymTag.PACKAGE;
+                            !flagSet.contains(Flag.ATTACHED) && varSymbol.owner.tag != SymTag.PACKAGE &&
+                            !isFunctionParameter(varSymbol, encInvokable.requiredParams);
         if (!varSymbol.closure && isClosure) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
             BSymbol resolvedSymbol =
