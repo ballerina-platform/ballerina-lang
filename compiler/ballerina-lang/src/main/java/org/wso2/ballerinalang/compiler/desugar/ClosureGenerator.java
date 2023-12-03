@@ -566,17 +566,16 @@ public class ClosureGenerator extends BLangNodeVisitor {
         // Add params to the required param list if there are any.
         BInvokableSymbol funcSymbol = funcNode.symbol;
         for (BVarSymbol symbol : params) {
-            if (paramName.equals(symbol.name.value)) {
+            Name symbolName = symbol.name;
+            if (paramName.equals(symbolName.value)) {
                 break;
             }
             BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            BVarSymbol varSymbol = ASTBuilderUtil.duplicateParamSymbol(symbol, funcSymbol);
-            varSymbol.flags = 0;
-            funcSymbol.scope.define(varSymbol.name, varSymbol);
-            funcSymbol.params.add(varSymbol);
-            funcType.paramTypes.add(varSymbol.type);
-            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(varSymbol.pos, varSymbol.name.value,
-                                        varSymbol.type, null, varSymbol));
+            funcSymbol.scope.define(symbolName, symbol);
+            funcSymbol.params.add(symbol);
+            funcType.paramTypes.add(symbol.type);
+            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(symbol.pos, symbolName.value, symbol.type, null,
+                                                                      symbol));
         }
     }
 
