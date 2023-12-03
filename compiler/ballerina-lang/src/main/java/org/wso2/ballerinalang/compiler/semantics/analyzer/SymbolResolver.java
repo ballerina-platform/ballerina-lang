@@ -823,16 +823,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BSymbol lookupClosureVarSymbol(SymbolEnv env, BSymbol symbol) {
         ScopeEntry entry = env.scope.lookup(symbol.name);
         while (entry != NOT_FOUND_ENTRY) {
-            if (entry.symbol != symbol) {
-                entry = entry.next;
-                continue;
-            }
-            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
-                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-                return entry.symbol;
-            }
-            if ((entry.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE &&
-                    !isFieldRefFromWithinARecord(entry.symbol, env)) {
+            if (entry.symbol == symbol) {
                 return entry.symbol;
             }
             entry = entry.next;

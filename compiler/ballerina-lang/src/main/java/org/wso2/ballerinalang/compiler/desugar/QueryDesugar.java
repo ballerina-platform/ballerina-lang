@@ -20,6 +20,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -1904,9 +1905,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
         if (symbol == null) {
+            result = bLangSimpleVarRef;
             return;
         }
-        if (symbol instanceof BVarSymbol) {
+        if (symbol.kind == SymbolKind.VARIABLE) {
             BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
             if (originalSymbol != null) {
                 symbol = originalSymbol;
