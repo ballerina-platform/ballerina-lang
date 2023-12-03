@@ -1903,15 +1903,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
-        String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
-                String.valueOf(bLangSimpleVarRef.variableName);
+        if (symbol == null) {
+            return;
+        }
         if (symbol instanceof BVarSymbol) {
             BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
             if (originalSymbol != null) {
                 symbol = originalSymbol;
             }
         }
-        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol, Names.fromString(identifier));
+        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol);
+        String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
+                String.valueOf(bLangSimpleVarRef.variableName);
 
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
@@ -1964,7 +1967,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             resolvedSymbol.closure = true;
             // When there's a type guard, there can be a enclSymbol before type narrowing.
             // So, we have to mark that as a closure as well.
-            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol, Names.fromString(identifier));
+            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol);
             if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
                 enclSymbol.closure = true;
             }
