@@ -1628,8 +1628,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         SymbolEnv resolvedSymbolEnv = symbolEnv;
         while (resolvedSymbolEnv != null && resolvedSymbolEnv.node.getKind() != NodeKind.PACKAGE) {
             Scope.ScopeEntry entry = resolvedSymbolEnv.scope.lookup(varSymbol.name);
-            if (entry != NOT_FOUND_ENTRY && varSymbol == entry.symbol &&
-                    varSymbol.owner == resolvedSymbolEnv.scope.owner) {
+            if (entry != NOT_FOUND_ENTRY && varSymbol == entry.symbol) {
                 return resolvedSymbolEnv.envCount;
             }
             resolvedSymbolEnv = resolvedSymbolEnv.enclEnv;
