@@ -1920,7 +1920,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
-        if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
+        if (symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
             if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
@@ -1965,7 +1965,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
             }
-        } else if (resolvedSymbol != symTable.notFoundSymbol && symbol != null) {
+        } else if (resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
             // When there's a type guard, there can be a enclSymbol before type narrowing.
             // So, we have to mark that as a closure as well.

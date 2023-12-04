@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -143,15 +144,17 @@ public class BinaryExprTest {
         Assert.assertEquals(((Byte) returns.get(3)).longValue(), b & d);
     }
 
-    @Test(description = "Test binary expression with query")
-    public void binaryExpressionWithQuery() {
-        Object resultAnd = BRunUtil.invoke(result, "binaryANDWithQuery", new Object[]{});
-        Assert.assertSame(resultAnd.getClass(), Boolean.class);
-        Assert.assertTrue((boolean) resultAnd);
+    @Test(description = "Test binary expression with query", dataProvider = "binaryExpressionWithQueryDataProvider")
+    public void binaryExpressionWithQuery(String fnName) {
+        BRunUtil.invoke(result, fnName, new Object[]{});
+    }
 
-        Object resultOr = BRunUtil.invoke(result, "binaryORWithQuery", new Object[]{});
-        Assert.assertSame(resultOr.getClass(), Boolean.class);
-        Assert.assertTrue((boolean) resultOr);
+    @DataProvider(name = "binaryExpressionWithQueryDataProvider")
+    public Object[] binaryExpressionWithQueryData() {
+        return new Object[] {
+                "binaryAndWithQuery",
+                "binaryOrWithQuery"
+        };
     }
 
     @AfterClass

@@ -6694,17 +6694,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return true;
             }
         }
-
-        if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
-            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
-            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol);
-            if (resolvedSymbol != symTable.notFoundSymbol && encInvokable != null &&
-                    !encInvokable.flagSet.contains(Flag.ATTACHED)) {
-                resolvedSymbol.closure = true;
-                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
-            }
-        }
         return false;
     }
 

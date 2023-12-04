@@ -384,6 +384,39 @@ function testTernaryWithQueryWithModuleVariable() {
     assertEquals([2,2], elseResult);
 }
 
+type A int?;
+A a = 3;
+function testTernaryWithQueryWithTypeDef() {
+    int|int[] thenResult = a is int ?
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = a is () ? 2 :
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+function testTernaryWithQueryForTwoVariables() {
+    int? a = 3;
+    int? b = ();
+
+    int|int[] thenResult = a != b ?
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2 : 2;
+    assertEquals([2, 2], thenResult);
+
+    int|int[] elseResult = a == b ? 2 :
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2;
+    assertEquals([2, 2], elseResult);
+}
+
 boolean cond2 = true;
 int i1 =10;
 byte j1 = 100;

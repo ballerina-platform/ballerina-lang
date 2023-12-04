@@ -404,8 +404,18 @@ public class TernaryExpressionTest {
     }
 
     @Test
+    public void testTernaryWithQueryWithTypeDef() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryWithTypeDef");
+    }
+
+    @Test
     public void testTernaryWithQueryWithModuleVariable() {
         BRunUtil.invoke(compileResult, "testTernaryWithQueryWithModuleVariable");
+    }
+
+    @Test
+    public void testTernaryWithQueryForTwoVariables() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryForTwoVariables");
     }
 
     @Test(description = "Test type narrowing for ternary expression")

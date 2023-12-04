@@ -652,7 +652,7 @@ function testWorkerInteractionsAfterCheck() {
     validateError(e, "Error");
 }
 
-public function testWorkerWithQuery() returns int {
+public function testWorkerWithQuery() {
     worker A {
         int? i = 3;
         i is int ? from var _ in [1, 2]
@@ -664,7 +664,7 @@ public function testWorkerWithQuery() returns int {
     foreach var item in x {
         sum += item;
     }
-    return sum;
+    assertEquals(4, sum);
 }
 
 public function sleep(int millis) = @java:Method {
@@ -679,4 +679,12 @@ function validateError(any|error value, string message) {
         panic error("Expected error message: " + message + ", found: " + value.message());
     }
     panic error("Expected error, found: " + (typeof value).toString());
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected [${expected.toString()}], found [${actual.toString()}]`);
 }

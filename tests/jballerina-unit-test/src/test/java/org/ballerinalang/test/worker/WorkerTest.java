@@ -352,9 +352,7 @@ public class WorkerTest {
 
     @Test
     public void testWorkerWithQuery() {
-        Object returns = BRunUtil.invoke(result, "testWorkerWithQuery", new Object[0]);
-        long ret = (long) returns;
-        Assert.assertEquals(ret, 4);
+        BRunUtil.invoke(result, "testWorkerWithQuery", new Object[0]);
     }
 
     @AfterClass

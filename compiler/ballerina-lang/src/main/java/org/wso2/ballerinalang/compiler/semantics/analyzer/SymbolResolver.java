@@ -23,7 +23,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -817,7 +816,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
      *
      * @param env       symbol env to analyse and find the closure variable.
      * @param symbol    symbol to lookup
-     * @param name      name of the symbol to lookup
      * @return closure symbol wrapper along with the resolved count
      */
     public BSymbol lookupClosureVarSymbol(SymbolEnv env, BSymbol symbol) {

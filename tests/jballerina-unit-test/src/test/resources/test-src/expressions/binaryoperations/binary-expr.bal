@@ -38,16 +38,25 @@ function bitwiseAnd(int a, int b, byte c, byte d) returns [int, byte, byte, byte
     return res;
 }
 
-function binaryANDWithQuery() returns boolean {
+function binaryAndWithQuery() {
     int? i = 3;
-    return i is int && (from var _ in [1, 2]
+    boolean result = i is int && (from var _ in [1, 2]
         where i + 2 == 5
         select 2) == [2, 2];
+    assertTrue(result);
 }
 
-function binaryORWithQuery() returns boolean {
+function binaryOrWithQuery() {
     int? i = 3;
-    return i is () || (from var _ in [1, 2]
+    boolean result = i is () || (from var _ in [1, 2]
         where i + 2 == 5
         select 2) == [2, 2];
+    assertTrue(result);
+}
+
+function assertTrue(boolean actual) {
+    if actual {
+        return;
+    }
+    panic error(string `expected 'true', found '${actual.toString()}'`);
 }
