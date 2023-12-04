@@ -9,7 +9,6 @@ type AnnotationConfig record {|
     int|record {*Info; string description;} doc?
 |};
 
-
 const annotation AnnotationConfig CustomAnnotation on source type, source const, source class,
                                                         source function, source object function,
                                                         source service, source return, source parameter,
@@ -41,7 +40,6 @@ const int TEST_CONST = 32;
     doc: {}
 }
 function testFunction() {
-
 }
 
 @CustomAnnotation {
@@ -60,7 +58,6 @@ isolated class TestClass {
         doc: {}
     }
     function testClassFunction() {
-
     }
 
     public function init() {
@@ -110,7 +107,6 @@ service / on new TestClass() {
         doc: {}
     }
     remote function name() {
-
     }
 
     @CustomAnnotation {
@@ -118,7 +114,6 @@ service / on new TestClass() {
         doc: {}
     }
     resource function accessor path() {
-
     }
 }
 
@@ -152,7 +147,6 @@ var a = service object {
         doc: {}
     }
     remote function name() {
-
     }
 
     @CustomAnnotation {
@@ -160,7 +154,6 @@ var a = service object {
         doc: {}
     }
     resource function accessor path() {
-
     }
 };
 
@@ -169,8 +162,7 @@ function testFunctionWithReturn() returns @CustomAnnotation {info: {}, doc: {}} 
 function testFunctionWithParams(@CustomAnnotation {info: {}, doc: {}} int i,
         @CustomAnnotation {info: {}, doc: {}} int j = 32,
         @CustomAnnotation {info: {}, doc: {}} *Info info,
-        @CustomAnnotation {info: {}, doc: {}}
-        anydata... rest) {
+        @CustomAnnotation {info: {}, doc: {}} anydata... rest) {
 }
 
 type TestRecord record {|
@@ -219,7 +211,6 @@ function testWorker() {
         doc: {}
     }
     worker TestNamedWorker {
-
     }
 }
 
@@ -239,7 +230,6 @@ client class TestClient {
         doc: {}
     }
     remote function name() {
-
     }
 
     @CustomAnnotation {
@@ -247,9 +237,7 @@ client class TestClient {
         doc: {}
     }
     resource function accessor path() {
-
     }
-
 }
 
 @CustomAnnotation {
@@ -280,11 +268,9 @@ function testErrorVariable() {
 
 client class TestResourceSegments {
     resource function testResourceVariable path/[@CustomAnnotation {info: {}, doc: {}} string i]() {
-        
     }
 
     resource function testRestVariable path/[@CustomAnnotation {info: {}, doc: {}} string ... i]() {
-        
     }
 }
 
