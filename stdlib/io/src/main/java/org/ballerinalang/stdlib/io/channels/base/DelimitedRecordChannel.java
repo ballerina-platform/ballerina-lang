@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.io.channels.base;
 
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +181,8 @@ public class DelimitedRecordChannel implements IOChannel {
         final int numberOfSplits = 2;
         do {
             if (log.isTraceEnabled()) {
-                log.trace(String.format("char[] remaining in memory %s", persistentCharSequence));
+                log.trace(String.format("char[] remaining in memory %s", Utils.sanitizeText(
+                        persistentCharSequence.toString())));
             }
             //We need to split the string into 2
             String[] delimitedRecord = persistentCharSequence.toString().
@@ -232,7 +234,8 @@ public class DelimitedRecordChannel implements IOChannel {
             //Once the final record is processed there will be no chars left
             persistentCharSequence.setLength(minimumRemainingLength);
             if (log.isTraceEnabled()) {
-                log.trace(String.format("char [] remaining in memory, will be marked as the last record %s", record));
+                log.trace(String.format("char [] remaining in memory, will be marked as the last record %s",
+                        Utils.sanitizeText(record)));
             }
         }
         if (log.isDebugEnabled()) {
@@ -253,11 +256,13 @@ public class DelimitedRecordChannel implements IOChannel {
         String readCharacters;
         readCharacters = channel.read(recordCharacterCount);
         if (log.isTraceEnabled()) {
-            log.trace(String.format("char [] get from channel,%d=%s", channel.hashCode(), readCharacters));
+            log.trace(String.format("char [] get from channel,%d=%s", channel.hashCode(),
+                    Utils.sanitizeText(readCharacters)));
         }
         persistentCharSequence.append(readCharacters);
         if (log.isTraceEnabled()) {
-            log.trace(String.format("char [] appended to the memory %s", persistentCharSequence));
+            log.trace(String.format("char [] appended to the memory %s", Utils.sanitizeText(
+                    persistentCharSequence.toString())));
         }
         return readCharacters;
     }
@@ -283,8 +288,10 @@ public class DelimitedRecordChannel implements IOChannel {
         persistentCharSequence.setLength(minimumRemainingLength);
         persistentCharSequence.append(recordContent);
         if (log.isTraceEnabled()) {
-            log.trace(String.format("Record identified from remaining char[] in memory %s", record));
-            log.trace(String.format("The char[] left after split %s", persistentCharSequence));
+            log.trace(String.format("Record identified from remaining char[] in memory %s",
+                    Utils.sanitizeText(record)));
+            log.trace(String.format("The char[] left after split %s",
+                    Utils.sanitizeText(persistentCharSequence.toString())));
         }
         return record;
     }
@@ -362,7 +369,7 @@ public class DelimitedRecordChannel implements IOChannel {
                 }
                 if (log.isTraceEnabled()) {
                     log.trace("The list of fields identified in record " + numberOfRecordsReadThroughChannel + "from " +
-                            "channel " + channel.hashCode() + "," + Arrays.toString(fields));
+                            "channel " + channel.hashCode() + "," + Utils.sanitizeText(Arrays.toString(fields)));
                 }
             }
         } else {
@@ -428,7 +435,8 @@ public class DelimitedRecordChannel implements IOChannel {
         String record = composeRecord(fields);
         record = record + getRecordSeparatorForWriting();
         if (log.isTraceEnabled()) {
-            log.trace(String.format("The record %d composed for writing, %s", numberOfRecordsWrittenToChannel, record));
+            log.trace(String.format("The record %d composed for writing, %s", numberOfRecordsWrittenToChannel,
+                    Utils.sanitizeText(record)));
         }
         channel.write(record, writeOffset);
         if (log.isDebugEnabled()) {

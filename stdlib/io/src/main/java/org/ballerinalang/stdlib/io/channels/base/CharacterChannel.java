@@ -18,6 +18,7 @@
 package org.ballerinalang.stdlib.io.channels.base;
 
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +130,7 @@ public class CharacterChannel implements IOChannel {
         charBuffer.get(remainingChars, indexCharacterOffset, characterCount);
         content.append(remainingChars);
         if (log.isTraceEnabled()) {
-            log.trace(String.format("characters appended to the string,%s", content));
+            log.trace(String.format("characters appended to the string,%s", Utils.sanitizeText(content.toString())));
         }
     }
 

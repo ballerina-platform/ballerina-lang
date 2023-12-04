@@ -275,4 +275,14 @@ public class Utils {
         }
         return new ArrayValueImpl(decodedContent);
     }
+
+    /**
+     * Sanitize a given text by removing CRLF characters.
+     *
+     * @param text   text to be sanitized
+     * @return text after removing line break characters
+     */
+    public static String sanitizeText(String text) {
+        return text.replace("\r", " ").replace("\n", " ");
+    }
 }
