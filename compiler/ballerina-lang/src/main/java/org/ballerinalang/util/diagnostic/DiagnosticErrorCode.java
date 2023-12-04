@@ -722,7 +722,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD(
             "BCE3988", "mismatched.visibility.qualifiers.in.object.field"),
     INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS("BCE3989", "invalid.inclusion.of.object.with.private.members"),
-    // Vacant error code: BCE3990
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3990", "multiple.receive.action.not.yet.supported"),
 
     INVALID_READONLY_FIELD_TYPE("BCE3991", "invalid.readonly.field.type"),
 

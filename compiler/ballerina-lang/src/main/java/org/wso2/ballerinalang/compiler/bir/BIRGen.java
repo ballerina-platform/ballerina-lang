@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -1173,7 +1174,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
         // TODO: 24/11/23 implement
-        throw new AssertionError("multiple receive not yet implemented");
+        throw new AssertionError(DiagnosticErrorCode.MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED);
     }
 
     @Override
