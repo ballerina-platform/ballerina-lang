@@ -8,6 +8,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -18,8 +19,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 
@@ -258,10 +260,8 @@ public class PackCommandTest extends BaseCommandTest {
         // `Dependencies.toml` file should not get deleted
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
         // `dependencies-toml-version` should exists in `Dependencies.toml`
-        String expected = "[ballerina]\n"
-                + "dependencies-toml-version = \"2\"";
-        String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertTrue(actual.contains(expected));
+        assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
+                projectPath.resolve("resources").resolve("expectedDependencies.toml"));
     }
 
     @Test(description = "Pack a package without root package in Dependencies.toml")
@@ -278,8 +278,8 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java17-0.1.0.bala")
                 .toFile().exists());
 
-        Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
-                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")).trim());
+        assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
+                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
     }
 
     @Test(description = "Pack an empty package with compiler plugin")
@@ -293,7 +293,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithCompilerPlugin-any-0.1.0.bala").toFile().exists());
+                .resolve("wso2-emptyProjWithCompilerPlugin-java17-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
     }
@@ -309,7 +309,7 @@ public class PackCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                .resolve("wso2-emptyProjWithTool-any-0.1.0.bala").toFile().exists());
+                .resolve("wso2-emptyProjWithTool-java17-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("compile-empty-project-with-tool.txt"));
     }
@@ -427,6 +427,8 @@ public class PackCommandTest extends BaseCommandTest {
     @Test(description = "Pack an empty package with compiler plugin")
     public void testPackEmptyPackageWithCompilerPlugin() throws IOException {
         Path projectPath = this.testResources.resolve("emptyPackageWithCompilerPlugin");
+        replaceDependenciesTomlContent(
+                projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", RepoUtils.getBallerinaShortVersion());
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
@@ -497,14 +499,14 @@ public class PackCommandTest extends BaseCommandTest {
 
     @Test(description = "Pack a library package with platform libraries")
     public void testPackProjectWithPlatformLibs() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs1");
         System.setProperty("user.dir", projectPath.toString());
 
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
         packCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("WARNING: Package is not verified with GraalVM."));
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("pack-project-with-platform-libs.txt"));
     }
 
     @AfterClass
