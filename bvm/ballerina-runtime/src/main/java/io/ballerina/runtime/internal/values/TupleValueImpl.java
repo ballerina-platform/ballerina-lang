@@ -333,7 +333,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         addRefValue(index, value);
     }
 
-    private void addRefValue(long index, Object value) {
+    public void addRefValue(long index, Object value) {
         prepareForAdd(index, value, refValues.length);
         refValues[(int) index] = value;
     }

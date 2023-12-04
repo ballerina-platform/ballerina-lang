@@ -90,5 +90,6 @@ public interface Type {
     @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
+    // TODO: Deprecate and remove this
     Module getPkg();
 }
