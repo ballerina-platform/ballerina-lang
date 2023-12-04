@@ -543,6 +543,8 @@ public class JvmPackageGen {
         jvmClassMap.put(initClass, klass);
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, packageID, initClass));
+        initFunc.getEnclosedFunctions()
+                .forEach(enclFunc -> linkFunction(enclFunc, packageID, pkgName, jvmClassMap, isEntry));
         count += 1;
 
         // Add start function
@@ -550,6 +552,8 @@ public class JvmPackageGen {
         functionName = Utils.encodeFunctionIdentifier(startFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(startFunc, packageID, initClass));
         klass.functions.add(1, startFunc);
+        startFunc.getEnclosedFunctions()
+                .forEach(enclFunc -> linkFunction(enclFunc, packageID, pkgName, jvmClassMap, isEntry));
         count += 1;
 
         // Add stop function
@@ -557,6 +561,8 @@ public class JvmPackageGen {
         functionName = Utils.encodeFunctionIdentifier(stopFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
+        stopFunc.getEnclosedFunctions()
+                .forEach(enclFunc -> linkFunction(enclFunc, packageID, pkgName, jvmClassMap, isEntry));
         count += 1;
 
         // Generate classes for other functions.
