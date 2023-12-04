@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -210,7 +211,8 @@ public class Profiler {
     private void extractProfiler() throws ProfilerException {
         OUT_STREAM.printf("%s[1/6] Initializing...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try {
-            new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime").start().waitFor();
+            Path profilerRuntimePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            new ProcessBuilder("jar", "xvf", "Profiler.jar", profilerRuntimePath.toString()).start().waitFor();
         } catch (IOException | InterruptedException exception) {
             throw new ProfilerException(exception);
         }
@@ -247,15 +249,16 @@ public class Profiler {
                 if (mainClassPackage == null) {
                     continue;
                 }
-                if (className.startsWith(mainClassPackage.split("/")[0]) || utilPaths.contains(className)) {
+                String mainClassPackagePart = mainClassPackage.split(Pattern.quote(File.separator))[0];
+                if (className.startsWith(mainClassPackagePart) || utilPaths.contains(className)) {
                     try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
                         byte[] code = profilerMethodWrapper.modifyMethods(inputStream);
                         profilerClassLoader.loadClass(code);
-                        usedPaths.add(className.replace(Constants.CLASS_SUFFIX, "").replace("/", "."));
+                        usedPaths.add(className.replace(Constants.CLASS_SUFFIX, "").replace(File.separator, "."));
                         profilerMethodWrapper.printCode(className, code, getFileNameWithoutExtension(balJarName));
                     }
                 }
-                if (className.endsWith("/$_init.class")) {
+                if (className.endsWith(File.separator + "$_init.class")) {
                     moduleCount++;
                 }
             }
@@ -281,7 +284,8 @@ public class Profiler {
             for (String instrumentedFilePath : instrumentedPaths) {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
-            FileUtils.deleteDirectory(new File("io/ballerina/runtime/profiler/runtime"));
+            Path filePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            FileUtils.deleteDirectory(new File(filePath.toString()));
             profilerMethodWrapper.invokeMethods(profilerDebugArg);
         }
     }
@@ -315,12 +319,12 @@ public class Profiler {
     }
 
     private void updateInstrumentedFile(File fileEntry, String absolutePath) {
-        String fileEntryString = String.valueOf(fileEntry);
+        String fileEntryString = fileEntry.getPath();
         if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
             fileEntryString = fileEntryString.replaceAll(absolutePath, "");
-            int index = fileEntryString.lastIndexOf('/');
+            int index = fileEntryString.lastIndexOf(File.separator);
             fileEntryString = index == -1 ? "" : fileEntryString.substring(0, index);
-            String[] fileEntryParts = fileEntryString.split("/");
+            String[] fileEntryParts = fileEntryString.split(Pattern.quote(File.separator));
             instrumentedPaths.add(fileEntryParts[0]);
             instrumentedFiles.add(fileEntryString);
         }
@@ -342,7 +346,7 @@ public class Profiler {
             for (String path : utilInitPaths) {
                 if (name.startsWith(path)) {
                     String subPath = name.substring(path.length());
-                    if (subPath.indexOf('/') == -1) {
+                    if (!subPath.contains(File.separator)) {
                         utilPaths.add(name);
                     }
                 }
@@ -353,7 +357,7 @@ public class Profiler {
     private void populateInitPaths(ArrayList<String> classNames) {
         for (String className : classNames) {
             if (className.endsWith("$_init.class")) {
-                String path = className.substring(0, className.lastIndexOf('/') + 1);
+                String path = className.substring(0, className.lastIndexOf(File.separator) + 1);
                 if (!utilInitPaths.contains(path)) {
                     utilInitPaths.add(path);
                 }
