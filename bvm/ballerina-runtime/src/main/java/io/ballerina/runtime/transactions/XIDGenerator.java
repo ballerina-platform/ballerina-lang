@@ -20,6 +20,8 @@ package io.ballerina.runtime.transactions;
 import java.security.SecureRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.ballerina.runtime.transactions.TransactionConstants.PLACEHOLDER_BQUAL;
+
 /**
  * Generates XID for the distributed transactions.
  *
@@ -27,19 +29,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class XIDGenerator {
 
-    private static final SecureRandom secureRand = new SecureRandom();
-    private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
+//    private static final SecureRandom secureRand = new SecureRandom();
+//    private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
+    private static final int DEFAULT_FORMAT = ('B' << 24) + ('A' << 16) + ('L' << 8); // unique but same for each transaction
 
-    private static byte[] randomBytes() {
-        final byte[] bytes = new byte[48];
-        secureRand.nextBytes(bytes);
-        return bytes;
-    }
+//    private static byte[] randomBytes() {
+//        final byte[] bytes = new byte[48];
+//        secureRand.nextBytes(bytes);
+//        return bytes;
+//    }
 
-    static XATransactionID createXID() {
-        final byte[] branchQualifier = randomBytes();
-        final byte[] globalTransactionId = randomBytes();
-        return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
+//    static XATransactionID createXID() {
+//        final byte[] branchQualifier = randomBytes();
+//        final byte[] globalTransactionId = randomBytes();
+//        return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
+//    }
+
+    static XATransactionID createXID(String combinedId) {
+        String globalTrid = combinedId.strip().split("_")[0];
+        final byte[] branchQualifier = PLACEHOLDER_BQUAL.getBytes();
+        final byte[] globalTransactionId = globalTrid.getBytes();
+        return new XATransactionID(DEFAULT_FORMAT, branchQualifier, globalTransactionId);
     }
 
     private XIDGenerator() {
