@@ -40,8 +40,7 @@
               }
 
               .container {
-                 padding-left: 0px;
-                 margin-left: 40px;
+                 width: 100%
               }
               .btn {
                  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
@@ -51,6 +50,7 @@
                  color: #1B2024;
                  font-weight: bold;
                  font-family: pragmatica, sans-serif;
+                 margin-right: 10px;
               }
 
               .btn:hover {
@@ -71,10 +71,7 @@
               }
 
               .header {
-                 margin-left: -40px;
-                 box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
-                 padding-right: 40px;
-                 width: 1920px;
+                 width: auto;
                  background-color: #fbfbfd;
                  padding-bottom: 25px;
               }
@@ -121,14 +118,13 @@
                  margin-top: 40px;
                  margin-bottom: 40px;
                  max-height: 780px;
-                 width: 1840px;
+                 width: auto;
                  border-radius: 20px;
                  overflow-y: auto;
                  overflow-x: auto;
                  background-color: #fbfbfd;
               }#details{
                  color: black;
-                 padding: 20px;
                  position: absolute;
                  left: 50%;
                  font-weight: bold;
@@ -159,8 +155,8 @@
                         <input placeholder="Search..." id="searchBox" type="text" class="form-control" id="term">
                     </div>
                     <a class="btn btn-primary" href="javascript: search();">Search</a>
-                    <a class="btn" href="javascript: resetZoom();">Reset zoom</a>
                     <a class="btn" href="javascript: clearSearch();">Clear</a>
+                    <a class="btn" href="javascript: resetZoom();">Reset zoom</a>
                 </form>
             </div>
         </nav>
@@ -178,15 +174,16 @@
 
     ${profile_data}
     var flameGraph = d3.flamegraph()
-        .width(1840)
-        .selfValue(false)
+        .width(window.innerWidth - 40)
         .cellHeight(18)
         .transitionDuration(750)
         .minFrameSize(5)
         .transitionEase(d3.easeCubic)
-        .sort(false)
+        .sort(true)
+        .title("")
         .onClick(onClick)
-        .differential(false);
+        .differential(false)
+        .selfValue(false);
 
           var details = document.getElementById("details");
           flameGraph.setDetailsElement(details);

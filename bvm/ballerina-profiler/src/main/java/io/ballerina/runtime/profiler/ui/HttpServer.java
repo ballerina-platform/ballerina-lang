@@ -37,6 +37,7 @@ import java.util.EnumSet;
 import static io.ballerina.runtime.profiler.util.Constants.BALLERINA_HOME;
 import static io.ballerina.runtime.profiler.util.Constants.HTML_PROFILER_REPORT;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 import static io.ballerina.runtime.profiler.util.Constants.WORKING_DIRECTORY;
 
 /**
@@ -59,7 +60,7 @@ public class HttpServer {
             throw new ProfilerException("Error occurred while copying the resources", e);
         }
 
-        String content = FileUtils.readFileAsString("performance_report.json");
+        String content = FileUtils.readFileAsString(PERFORMANCE_JSON);
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);
         try (FileWriter writer = new FileWriter(HTML_PROFILER_REPORT, StandardCharsets.UTF_8)) {

@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -13,13 +13,15 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import function_mocking_legacy.moduleB;
 
-function intAdd(int a, int b) returns int {
-    return a + b;
-}
+boolean num = float:isFinite(1.0);
+int a = 10;
 
-public function intMul3Num(int a, int b, int c) returns int {
-    int result = moduleB:intMul(a, b);
-    return moduleB:intMul(result, c);
+public function func1() returns int {
+    if (num) {
+        a = 20;
+    } else {
+        a = 30;
+    }
+    return a;
 }
