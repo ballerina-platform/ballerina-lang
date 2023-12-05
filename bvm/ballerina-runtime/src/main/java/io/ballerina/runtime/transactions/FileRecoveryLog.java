@@ -119,7 +119,7 @@ public class FileRecoveryLog implements RecoveryLog {
      */
     private void initAppendChannel(File file) {
         try {
-            appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
+            appendChannel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
             FileLock lock = appendChannel.tryLock();
             if (lock == null) {
                 log.error("Could not acquire lock on recovery log file.");
@@ -162,14 +162,14 @@ public class FileRecoveryLog implements RecoveryLog {
      * @param str the log entry to write
      */
     private void writeToFile(String str, boolean force) {
-        if (appendChannel == null) {
+        if (appendChannel == null || !appendChannel.isOpen()) {
             initAppendChannel(file);
         }
         byte[] bytes = str.getBytes();
         try {
             appendChannel.write(java.nio.ByteBuffer.wrap(bytes));
             appendChannel.force(force);
-            log.info(String.format("Wrote to recovery log file: " + str));
+            log.debug(String.format("Wrote to recovery log file: " + str));
         } catch (IOException e) {
             log.error("An error occurred while writing to the recovery log file.");
         }
@@ -221,6 +221,24 @@ public class FileRecoveryLog implements RecoveryLog {
             File newFile = createNextVersion();
             file = newFile;
         }
+    }
+
+    public void cleanUpAfterRecovery() {
+        int latestVersion = findLatestVersion();
+        File oldFile = recoveryLogDir.resolve(baseFileName + latestVersion + ".log").toFile();
+        if (oldFile.exists()) {
+               oldFile.delete();
+            }
+
+        File newFile = recoveryLogDir.resolve(baseFileName + (latestVersion + 1) + ".log").toFile();
+        try {
+            Files.createDirectories(recoveryLogDir); // create directory if not exists
+            newFile.createNewFile();
+            initAppendChannel(newFile);
+        } catch (IOException e) {
+            log.error("An error occurred while creating the new recovery log file.");
+        }
+        file = newFile;
     }
 
     @Override
