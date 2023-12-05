@@ -73,4 +73,6 @@ public class TransactionConstants {
 
     public static final int DEFAULT_CHECKPOINT_INTERVAL = 10000;
     public static final int IN_MEMORY_CHECKPOINT_INTERVAL = 25;
+
+    public static final String PLACEHOLDER_BQUAL = "_";
 }
