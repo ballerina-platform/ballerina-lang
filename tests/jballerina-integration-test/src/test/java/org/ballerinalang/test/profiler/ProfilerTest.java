@@ -70,11 +70,12 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecutionWithConfigurableVars() throws BallerinaTestException {
-        String packageName = "projectForProfile/package_b";
-        String sourceRoot = testFileLocation + "/" + packageName;
+        String packageName = "projectForProfile" + File.separator + "package_b";
+        String sourceRoot = testFileLocation + File.separator + packageName;
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        List<LogLeecher> leechers = getProfilerLogLeechers(packageName + "/target/bin/" + outputFile);
+        List<LogLeecher> leechers = getProfilerLogLeechers(packageName + File.separator + "target" +
+                File.separator + "profiler" + File.separator + outputFile);
         leechers.add(new LogLeecher("Tests passed"));
         bMainInstance.runMain("profile", new String[]{}, envProperties, null,
                 leechers.toArray(new LogLeecher[0]), sourceRoot);
