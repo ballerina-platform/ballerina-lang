@@ -927,6 +927,18 @@ isolated class TestIsolatedObjectWithSelfAccessInAnonFunctions {
             };
         }
     }
+
+    function f3() {
+        object{} _ = object {
+            private int[][] arr2 = [];
+
+            function fn() {
+                function _ = function (int[] node) {
+                    self.arr2.push(node); // OK because `self` is of the non-isolated object
+                };
+            }
+        };
+    }
 }
 
 function assertTrue(any|error actual) {
