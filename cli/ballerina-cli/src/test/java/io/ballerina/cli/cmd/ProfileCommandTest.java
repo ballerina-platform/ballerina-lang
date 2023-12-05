@@ -85,8 +85,8 @@ public class ProfileCommandTest extends BaseCommandTest {
         Assert.assertTrue(htmlPath.toFile().exists());
         try {
             String htmlContent = Files.readString(htmlPath);
-            Assert.assertTrue(htmlContent.contains("foo/package_a/0/main.main()"));
-            Assert.assertTrue(htmlContent.contains("foo/package_a/0/$_init.$moduleExecute()"));
+            Assert.assertTrue(htmlContent.contains("foo/package_a/0/main.main"));
+            Assert.assertTrue(htmlContent.contains("foo/package_a/0/$_init.$moduleInit"));
         } catch (IOException e) {
             Assert.fail("Error reading html file");
         }

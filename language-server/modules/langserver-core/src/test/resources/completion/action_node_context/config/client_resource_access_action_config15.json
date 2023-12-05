@@ -22,7 +22,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -56,7 +56,7 @@
       }
     },
     {
-      "label": "/<path>.post(string b, string... ids2)",
+      "label": "/<ids>.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
