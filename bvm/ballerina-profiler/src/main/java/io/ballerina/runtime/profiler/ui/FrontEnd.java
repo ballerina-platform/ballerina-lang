@@ -48,7 +48,6 @@ public class FrontEnd {
 
     public String readFileAsString() throws IOException {
         StringBuilder sb = new StringBuilder();
-
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(FILE_LOCATION)) {
             if (inputStream == null) {
                 throw new ProfilerRuntimeException("resource file not found: " + FILE_LOCATION);
