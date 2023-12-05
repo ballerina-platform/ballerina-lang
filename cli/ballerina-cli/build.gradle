@@ -84,6 +84,8 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
+    compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
 task createTestDistributionCache(type: Copy) {

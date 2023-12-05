@@ -45,8 +45,15 @@ public class PackCommandTest extends BaseCommandTest {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                     .toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI),
-                    new BuildCommandTest.Copy(Paths.get(testResourcesURI), this.testResources));
+            Path testResourcesPath = Paths.get(testResourcesURI);
+            Files.walkFileTree(testResourcesPath,
+                    new BuildCommandTest.Copy(testResourcesPath, this.testResources));
+
+            // Copy the compiler plugin jars to the test resources directory
+            Path compilerPluginJarsPath = Paths.get("build", "compiler-plugin-jars");
+            Files.walkFileTree(compilerPluginJarsPath,
+                    new BuildCommandTest.Copy(compilerPluginJarsPath,
+                            this.testResources.resolve("compiler-plugin-jars")));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
@@ -447,7 +454,7 @@ public class PackCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(compilerPluginPath.toString());
     }
 
-    @Test(enabled = false, description = "Pack a non template package with a compiler plugin dependency",
+    @Test(description = "Pack a non template package with a compiler plugin dependency",
             groups = {"packWithCompilerPlugin"})
     public void testPackNonTemplatePackageWithACompilerPackageDependency() throws IOException {
 
@@ -472,7 +479,7 @@ public class PackCommandTest extends BaseCommandTest {
                 "returns error? {\n}"));
     }
 
-    @Test(enabled = false, description = "Pack a template package with a compiler plugin dependency",
+    @Test(description = "Pack a template package with a compiler plugin dependency",
             groups = {"packWithCompilerPlugin"})
     public void testPackTemplatePackageWithACompilerPackageDependency() throws IOException {
 
