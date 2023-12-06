@@ -23,6 +23,7 @@ public function testRecordBasedQueryExpr() {
     testQueryExprInLambda();
     testQueryExprInLambdaV2();
     testQueryExprInLambdaV3();
+    testQueryWithRecordDefaultValues();
 }
 
 type Person record {
@@ -236,6 +237,23 @@ public function testQueryExprInLambdaV3() {
     };
 
     assertEquality(23, anonFunction()[0].age);
+}
+
+function testQueryWithRecordDefaultValues() {
+    [int, string][] a = [[1, "value"]];
+
+    record {|string name; int id; boolean employed; int salary;|}[] b = from var [id, name] in a
+                let record {|
+                    string name;
+                    int id;
+                    boolean employed = true;
+                    int salary = 1234;
+                |} rec = {id, name}
+                select rec;
+    assertEquality("value", b[0].name);
+    assertEquality(1, b[0].id);
+    assertEquality(true, b[0].employed);
+    assertEquality(1234, b[0].salary);
 }
 
 //---------------------------------------------------------------------------------------------------------
