@@ -254,13 +254,13 @@ class JMethodResolver {
 
     private boolean isOverridden(Method method1, Method method2, Class<?> clazz) {
         if (method1.getParameterCount() != method2.getParameterCount()) {
-            // This occurs when there are static methods and instance methods and the static method has one more
-            // parameter than the instance method. Also, this occurs when an interop method in an object maps to
-            // instance methods of which one accepting self and another that doesn't.
+            // This occurs when there are static methods and instance methods, and the static method has one more
+            // parameter than the instance method. Additionally, this occurs when an interop method in an object
+            // maps to instance methods, one accepting `self` and another that doesn't.
             throw new JInteropException(OVERLOADED_METHODS, "Overloaded methods cannot be differentiated. " +
                     "Please specify the parameter types for each parameter in 'paramTypes' field in the annotation");
         }
-        // Return false if returns types are not covariant
+        // Returns false if return types are not covariant
         Method currentMethod;
         Method otherMethod;
         if (method2.getReturnType().isAssignableFrom(method1.getReturnType())) {
@@ -524,7 +524,8 @@ class JMethodResolver {
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
                     return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.JSON, TypeTags.READONLY:
+                case TypeTags.JSON:
+                case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.OBJECT:
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
