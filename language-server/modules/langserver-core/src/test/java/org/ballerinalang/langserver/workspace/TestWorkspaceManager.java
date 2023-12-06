@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.langserver.workspace;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
@@ -25,6 +28,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.command.executors.RunExecutor;
 import org.ballerinalang.langserver.command.executors.StopExecutor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -35,6 +39,7 @@ import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
+import org.ballerinalang.langserver.extensions.ballerina.document.ExecutorPositionsUtil;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
@@ -549,8 +554,37 @@ public class TestWorkspaceManager {
 
     @Test
     public void testWSRunStopProject()
-            throws WorkspaceDocumentException, EventSyncException, IOException, LSCommandExecutorException {
-        Path filePath = RESOURCE_DIRECTORY.resolve("long_running").resolve("main.bal").toAbsolutePath();
+            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("long_running");
+        Path filePath = projectPath.resolve("main.bal");
+        ExecuteCommandContext execContext = runViaLs(filePath);
+        stopViaLs(execContext, projectPath);
+    }
+
+    @Test
+    public void testSemanticApiAfterWSRun()
+            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("hello_service");
+        Path filePath = projectPath.resolve("main.bal");
+        ExecuteCommandContext execContext = runViaLs(filePath);
+
+        // Test syntax tree api
+        JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(workspaceManager.document(filePath).orElseThrow(),
+                workspaceManager.semanticModel(filePath).orElseThrow());
+        // 0 = func def 1 = func def 2 = class def, 3 = listener decl, 4 = service decl
+        JsonObject service = syntaxTreeJSON.getAsJsonObject().get("members").getAsJsonArray().get(4).getAsJsonObject();
+        Assert.assertEquals(service.get("kind").getAsString(), "ServiceDeclaration");
+
+        // test executor positions api
+        JsonArray execPositions = ExecutorPositionsUtil.getExecutorPositions(workspaceManager, filePath);
+        Assert.assertEquals(execPositions.getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString(),
+                "hello");
+
+        stopViaLs(execContext, projectPath);
+    }
+
+    private ExecuteCommandContext runViaLs(Path filePath)
+            throws WorkspaceDocumentException, EventSyncException, LSCommandExecutorException {
         System.setProperty("java.command", guessJavaPath());
         System.setProperty(BALLERINA_HOME, "./build");
         workspaceManager.loadProject(filePath);
@@ -567,13 +601,17 @@ public class TestWorkspaceManager {
         Boolean didRan = runExecutor.execute(execContext);
         Assert.assertTrue(didRan);
         Assert.assertEquals(reduceToOutString(logCaptor), "Hello, World!" + System.lineSeparator());
+        return execContext;
+    }
 
+    private static void stopViaLs(ExecuteCommandContext execContext, Path projectPath)
+            throws LSCommandExecutorException {
         StopExecutor stopExecutor = new StopExecutor();
         Boolean didStop = stopExecutor.execute(execContext);
         Assert.assertTrue(didStop);
 
-        Path target = RESOURCE_DIRECTORY.resolve("long_running").resolve("target");
-        FileUtils.deleteDirectory(target.toFile());
+        Path target = projectPath.resolve("target");
+        FileUtils.deleteQuietly(target.toFile());
     }
 
     private static String reduceToOutString(ArgumentCaptor<LogTraceParams> logCaptor) {
