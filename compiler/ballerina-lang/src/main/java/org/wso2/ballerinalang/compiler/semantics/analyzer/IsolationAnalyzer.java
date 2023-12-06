@@ -2150,8 +2150,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv env = this.env;
         while (env != null) {
             BLangNode node = env.node;
-            if (node != null && (node.getKind() == NodeKind.FUNCTION || node.getKind() == NodeKind.RESOURCE_FUNC) &&
-                    !isWorkerLambda((BLangFunction) node)) {
+            if (node != null && isFunction(node) && !isWorkerLambda((BLangFunction) node)) {
                 return env.enclInvokable;
             }
             env = env.enclEnv;
@@ -3288,8 +3287,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isInIsolatedObjectMethod(SymbolEnv env, boolean ignoreInit) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
 
-        if (enclInvokable == null ||
-                (enclInvokable.getKind() != NodeKind.FUNCTION && enclInvokable.getKind() != NodeKind.RESOURCE_FUNC)) {
+        if (enclInvokable == null || !isFunction(enclInvokable)) {
             return false;
         }
 
@@ -3328,11 +3326,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BLangNode enclNode = enclFunction.parent;
 
-        while (enclNode != null && enclNode.getKind() != NodeKind.FUNCTION) {
+        while (enclNode != null && !isFunction(enclNode)) {
             enclNode = enclNode.parent;
         }
 
         return getEnclNonAnonymousFunction((BLangFunction) enclNode);
+    }
+
+    private boolean isFunction(BLangNode enclNode) {
+        NodeKind kind = enclNode.getKind();
+        return kind == NodeKind.FUNCTION || kind == NodeKind.RESOURCE_FUNC;
     }
 
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, SymbolEnv currentEnv) {
@@ -3403,7 +3406,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (parent == null || parent.getKind() == NodeKind.FUNCTION || parent.getKind() == NodeKind.RESOURCE_FUNC) {
+        if (parent == null || isFunction(parent)) {
             return false;
         }
 

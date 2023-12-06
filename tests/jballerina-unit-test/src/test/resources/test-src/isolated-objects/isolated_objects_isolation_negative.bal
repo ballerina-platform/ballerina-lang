@@ -955,3 +955,20 @@ isolated class TestInvalidTransferOfValuesInAnonFunctionsInIsolatedObject {
     }
 }
 
+client isolated class TestInvalidAccessOfSelfWithinAnonFunctionInRemoteAndResourceMethods {
+    private int[][] arr = [];
+
+    resource function get test() {
+        function _ = function (int[] node) {
+            self.arr.push(node);
+        };
+    }
+
+    remote function testFn() {
+        function _ = function (int[] node) {
+            lock {
+                self.arr.push(node);
+            }
+        };
+    }
+}
