@@ -192,8 +192,8 @@ public class BalStringUtils {
         if (key.startsWith("\"") && key.endsWith("\"")) {
             key = key.substring(1, key.length() - 1);
         } else {
-            throw ErrorCreator.createError(fromString("invalid expression style string value. " +
-                    "map keys are not enclosed with '\"'."));
+            throw ErrorCreator.createError(fromString("invalid expression style string value: " +
+                    "the map keys are not enclosed with '\"'."));
         }
         return key;
     }

@@ -185,7 +185,7 @@ function testMapFromBalString() {
     output = mapExpString.fromBalString();
     assert(output is error, true);
     if (output is error) {
-        assert("invalid expression style string value. map keys are not enclosed with '\"'.",
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
         <string>checkpanic output.detail()["message"]);
     }
 
@@ -193,7 +193,7 @@ function testMapFromBalString() {
     output = mapExpString.fromBalString();
     assert(output is error, true);
     if (output is error) {
-        assert("invalid expression style string value. map keys are not enclosed with '\"'.",
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
         <string>checkpanic output.detail()["message"]);
     }
 
@@ -238,7 +238,7 @@ function testMapFromBalString() {
     output = mapExpString.fromBalString();
     assert(output is error, true);
     if (output is error) {
-        assert("invalid expression style string value. map keys are not enclosed with '\"'.",
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
         <string>checkpanic output.detail()["message"]);
     }
 
@@ -249,7 +249,7 @@ function testMapFromBalString() {
     output = mapExpString.fromBalString();
     assert(output is error, true);
     if (output is error) {
-        assert("invalid expression style string value. map keys are not enclosed with '\"'.",
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
         <string>checkpanic output.detail()["message"]);
     }
 
@@ -260,7 +260,7 @@ function testMapFromBalString() {
     output = mapExpString.fromBalString();
     assert(output is error, true);
     if (output is error) {
-        assert("invalid expression style string value. map keys are not enclosed with '\"'.",
+        assert("invalid expression style string value: the map keys are not enclosed with '\"'.",
         <string>checkpanic output.detail()["message"]);
     }
 }
