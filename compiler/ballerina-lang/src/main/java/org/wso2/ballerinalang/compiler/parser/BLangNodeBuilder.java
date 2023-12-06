@@ -545,6 +545,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean inCollectContext = false;
 
     private HashSet<String> constantSet = new HashSet<String>();
+
     public BLangNodeBuilder(CompilerContext context,
                             PackageID packageID, String entryName) {
         this.dlog = BLangDiagnosticLog.getInstance(context);

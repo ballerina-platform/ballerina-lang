@@ -657,6 +657,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (astFunc.restParam != null) {
             addRestParam(birFunc, astFunc.restParam.symbol, astFunc.restParam.pos);
         }
+
         if (astFunc.flagSet.contains(Flag.RESOURCE)) {
             BTypeSymbol parentTSymbol = astFunc.parent.getBType().tsymbol;
             // Parent symbol will always be BObjectTypeSymbol for resource functions
@@ -718,6 +719,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (enclBB.terminator == null && this.env.returnBB != null) {
             enclBB.terminator = new BIRTerminator.GOTO(null, this.env.returnBB, this.currentScope);
         }
+
         this.env.clear();
         birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
                 .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
@@ -863,8 +865,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
         if (lambdaEnclosed(lambdaExpr)) {
             encloseFunction(enclFunc, lambdaExpr.function);
-        } else if (lambdaExpr.capturedClosureEnv != null) {
-            throw new AssertionError("Capturing in a non-enclosed function");
         }
     }
 

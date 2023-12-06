@@ -368,10 +368,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         while (!functionQueue.isEmpty()) {
             BLangFunction function = functionQueue.poll();
             // Skip visiting worker lambdas here. They will be visited when enclosing function is visited.
-            if (isWorkerLambda(function)) {
-                continue;
+            if (!isWorkerLambda(function)) {
+                analyzeNode(function, pkgEnv);
             }
-            analyzeNode(function, pkgEnv);
         }
 
         for (BLangVariable globalVar : moduleLevelVariables) {

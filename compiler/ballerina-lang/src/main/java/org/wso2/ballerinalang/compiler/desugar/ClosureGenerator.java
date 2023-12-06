@@ -246,6 +246,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+
         List<BLangFunction> functions = pkgNode.getFunctions();
         for (int i = 0; i < functions.size(); i++) {
             BLangFunction bLangFunction = functions.get(i);
@@ -436,9 +437,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
             return;
         }
         owner = getOwner(env);
-        boolean encloseLambdas = owner.getKind() != SymbolKind.PACKAGE;
         BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(fields, pos, env.enclPkg, env,
-                typeSymbol.pkgID, owner, encloseLambdas);
+                typeSymbol.pkgID, owner);
         if (lambdaFunction != null) {
             boolean isPackageLevelAnnotationClosure = owner.getKind() == SymbolKind.PACKAGE;
             BInvokableSymbol invokableSymbol = createSimpleVariable(lambdaFunction.function, lambdaFunction,
@@ -688,8 +688,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         } else {
             function.flagSet.add(Flag.PRIVATE);
         }
-        long visibility = isPublic ? Flags.PUBLIC : Flags.PRIVATE;
-        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, visibility,
+        long flags = isPublic ? Flags.PUBLIC : Flags.PRIVATE;
+        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                                      pkgID, bType, owner, pos, VIRTUAL);
         function.setBType(new BInvokableType(new ArrayList<>(), bType, invokableTypeSymbol));
 
@@ -699,7 +699,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         typeNode.pos = pos;
         function.returnTypeNode = typeNode;
 
-        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.FUNCTION, visibility, new Name(funcName), pkgID,
+        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.FUNCTION, flags, new Name(funcName), pkgID,
                                                                function.getBType(), owner, pos, VIRTUAL);
         functionSymbol.bodyExist = true;
         functionSymbol.kind = SymbolKind.FUNCTION;
