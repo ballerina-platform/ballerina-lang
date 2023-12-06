@@ -30,6 +30,8 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static org.testng.Assert.assertEquals;
@@ -60,6 +62,14 @@ public class TypeOfInResourceAccessActionTest {
         return new Object[][]{
                 {42, 23, 42, 54, UNION},
                 {42, 23, 42, 32, TYPE_REFERENCE},
+                {110, 9, 110, 12, STRING},
+                {111, 9, 111, 14, STRING},
+                {111, 17, 111, 25, STRING},
+                {112, 17, 111, 19, STRING},
+                {113, 15, 113, 19, INT},
+                {114, 15, 114, 16, INT},
+                {115, 9, 115, 14, STRING},
+                {115, 17, 115, 24, STRING},
         };
     }
 

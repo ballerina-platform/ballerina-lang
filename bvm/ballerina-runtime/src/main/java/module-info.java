@@ -43,7 +43,7 @@ module io.ballerina.runtime {
             io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core,
             io.ballerina.cli, io.ballerina.lang.integer, io.ballerina.lang.bool, io.ballerina.lang.decimal,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.internal, io.ballerina.lang.function,
-            io.ballerina.lang.regexp;
+            io.ballerina.lang.regexp, io.ballerina.runtime.profiler;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
     exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
             ballerina.test.listener, io.ballerina.cli, org.ballerinalang.debugadapter.runtime;
@@ -51,7 +51,7 @@ module io.ballerina.runtime {
             io.ballerina.lang.array, io.ballerina.lang.error, io.ballerina.lang.internal, io.ballerina.lang.map,
             io.ballerina.lang.table, io.ballerina.lang.transaction, io.ballerina.lang.value, io.ballerina.lang.xml,
             io.ballerina.log.api, io.ballerina.testerina.core, io.ballerina.testerina.runtime, io.ballerina.shell,
-            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function;
+            org.ballerinalang.debugadapter.runtime, io.ballerina.lang.function, io.ballerina.runtime.profiler;
     exports io.ballerina.runtime.internal.util to io.ballerina.testerina.runtime, io.ballerina.lang,
             io.ballerina.lang.integer, io.ballerina.lang.floatingpoint, io.ballerina.lang.array,
             io.ballerina.lang.table, io.ballerina.java, io.ballerina.lang.map, io.ballerina.lang.string,

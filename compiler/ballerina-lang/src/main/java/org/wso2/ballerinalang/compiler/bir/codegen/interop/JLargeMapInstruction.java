@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 
 /**
  * New large map instruction modeled as BIR NonTerminator JInstruction.
@@ -49,4 +50,10 @@ public class JLargeMapInstruction extends JInstruction {
         this.rhsOp = operands[0];
         this.initialValues = operands[1];
     }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }
