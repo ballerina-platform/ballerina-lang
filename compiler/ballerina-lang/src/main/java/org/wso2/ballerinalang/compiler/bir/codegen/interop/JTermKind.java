@@ -26,7 +26,8 @@ public enum JTermKind {
     J_METHOD_CALL((byte) 1),
     JI_METHOD_CALL((byte) 2),
     JI_CONSTRUCTOR_CALL((byte) 3),
-    J_INTERNAL_METHOD_CALL((byte) 4);
+    J_INTERNAL_METHOD_CALL((byte) 4),
+    JI_METHOD_CLI_CALL((byte) 5);
 
     private final byte termKind;
 

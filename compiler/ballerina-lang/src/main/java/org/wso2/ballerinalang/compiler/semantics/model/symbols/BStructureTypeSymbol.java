@@ -35,7 +35,6 @@ import java.util.List;
 public abstract class BStructureTypeSymbol extends BTypeSymbol {
 
     public List<BAttachedFunction> attachedFuncs;
-    public BAttachedFunction initializerFunc;
 
     //todo remove once BTypeReferenceType is introduced to runtime
     public BTypeDefinitionSymbol typeDefinitionSymbol;
