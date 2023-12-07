@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.regexp;
 
 function testBasicRegExp() {
     string:RegExp _ = re `AB*|[^c-d]{1,5}`;
@@ -104,6 +105,9 @@ function testRegExpWithUserDefinedType() {
     any & readonly x7 = x1;
     assertEquality(re `AB*|[^c-d]{1,5}`, x7);
 }
+
+type T1 string:RegExp & readonly;
+type T2 regexp:RegExp & readonly;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
