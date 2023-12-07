@@ -161,10 +161,10 @@ type Employee record {|
     string dept;
 |};
 
-type Candidate record {|
+type Candidate record {
     string name;
     never university?;
-|};
+};
 
 function testSpreadFieldWithRecordTypeHavingNeverField() {
     Grades grades = { physics: 75 };
@@ -183,7 +183,7 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     assertEquality("Main Street", location["street"]);
 
     Candidate candidate = {name: "Jack"};
-    record {|string name;|} candidateInLine = {...candidate};
+    record {string name;} candidateInLine = {...candidate};
     assertEquality ("Jack", candidateInLine.name);
 
     record {|int i; string s; never n?;|} bar1InLine = {i: 1, s: "s"};
@@ -246,35 +246,48 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     assertEquality(8, bar8.i);
 }
 
-type Vehicle record {
-    string model;
+type Vehicle record {|
     int year;
+    string manufacturer;
+    string model;
+    anydata...;
+|};
+
+type Truck record {
+    int year;
+    string manufacturer;
+    string model;
+    int loadCapacity;
 };
 
-type Car record {|
-    string model;
-    int year;
-    anydata ...;
+type RecA record {|
+    int i;
+    string s;
+    string m;
+    any|error...;
 |};
 
-type Van record {|
-    string model;
-    int year;
-    any ...;
-|};
+type RecB record {
+    int i;
+    string s;
+    string m;
+    error e;
+};
 
-function testSpreadFieldWithClosedRecordCreatedFromOpenRecord() {
-    Vehicle vehicle1 = { model: "Tesla", year: 2023, "isElectronic": true };
-    Car car = {...vehicle1};
-    assertEquality("Tesla", car.model);
-    assertEquality(2023, car.year);
-    assertEquality(true, car["isElectronic"]);
+function testSpreadFieldWithRecordTypeHavingRestDescriptor() {
+    Truck truck = {year: 2023, manufacturer: "Tesla", model: "Cybertruck", loadCapacity: 15000};
+    Vehicle vehicle = {...truck};
+    assertEquality("Cybertruck", vehicle.model);
+    assertEquality("Tesla", vehicle.manufacturer);
+    assertEquality(2023, vehicle.year);
+    assertEquality(15000, vehicle["loadCapacity"]);
 
-    Vehicle vehicle2 = { model: "Mercedes-Benz", year: 2023, "nPassengers": 10 };
-    Van van = {...vehicle2};
-    assertEquality("Mercedes-Benz", van.model);
-    assertEquality(2023, van.year);
-    assertEquality(10, van["nPassengers"]);
+    RecB recB = {i: 1, s: "s", m: "m", e: error("e")};
+    RecA recA = {...recB};
+    assertEquality(1, recA.i);
+    assertEquality("s", recA.s);
+    assertEquality("m", recA.m);
+    assertEquality("e", (<error>recA["e"]).message());
 }
 
 function assertEquality(any|error expected, any|error actual) {

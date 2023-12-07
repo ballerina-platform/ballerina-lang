@@ -108,9 +108,14 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
                 "found 'Department'", 113, 12);
         validateError(result, index++,
-                "invalid usage of spread operator to construct a closed record from an open record", 113, 12);
+                "invalid usage of spread field with open record of type 'record {| Department dept; anydata...; |}' " +
+                        "that may have rest fields to construct a closed record",
+                113, 12);
         validateError(result, index++,
-                "invalid usage of spread operator to construct a closed record from an open record", 133, 12);
+                "invalid usage of spread field with open record of type 'record {| readonly (Department & readonly) " +
+                        "dept; (anydata & readonly)...; |} & readonly' that may have rest fields to construct a " +
+                        "closed record",
+                133, 12);
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 136, 5);

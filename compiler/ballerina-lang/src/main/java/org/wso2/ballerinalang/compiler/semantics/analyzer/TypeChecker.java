@@ -7656,12 +7656,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             }
                         }
                     }
-                    if (!spreadRecordType.sealed && (mappingRecordType.sealed ||
-                            !types.isAssignable(spreadRecordType.restFieldType, mappingRecordType.restFieldType))) {
-                        dlog.error(spreadExpr.pos,
-                                DiagnosticErrorCode.INVALID_SPREAD_OP_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD,
-                                spreadExprType);
-                        errored = true;
+                    if (!spreadRecordType.sealed) {
+                         if (mappingRecordType.sealed) {
+                             dlog.error(spreadExpr.pos,
+                                     DiagnosticErrorCode.INVALID_SPREAD_FIELD_TO_CREATE_CLOSED_RECORD_FROM_OPEN_RECORD,
+                                     spreadRecordType);
+                             errored = true;
+                         } else if (!types.isAssignable(spreadRecordType.restFieldType,
+                                 mappingRecordType.restFieldType)) {
+                             dlog.error(spreadExpr.pos,
+                                     DiagnosticErrorCode.MISMATCHING_REST_TYPE_DESCRIPTOR_IN_SPREAD_FIELD,
+                                     mappingRecordType, mappingRecordType.restFieldType,
+                                     spreadRecordType.restFieldType);
+                             errored = true;
+                         }
                     }
                     return errored ? symTable.semanticError : symTable.noType;
                 } else {

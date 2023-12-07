@@ -79,12 +79,6 @@ type Street record {|
     string street;
 |};
 
-type Country record {|
-    string name;
-    string continent;
-    string ...;
-|};
-
 function testSpreadOfOpenRecordToCreateClosedRecord() {
     Address address1 = {street: "Main Street"};
     record {|string street;|} _ = {...address1};
@@ -104,12 +98,23 @@ function testSpreadOfOpenRecordToCreateClosedRecord() {
     record {string s;} foo1 = {s: "S"};
     record {int i;} foo2 = {i: 2};
     Foo _ = {...foo1, ...foo2};
+}
 
-    record {string name; string continent;} country1 = {name: "Sri Lanka", continent: "Asia"};
+type Country record {|
+    string name;
+    string continent;
+    string...;
+|};
+
+function testSpreadOpFieldOfMismatchingRestType() {
+    record {string name; string continent; int population;} country1 = {name: "China", continent: "Asia", population: 1400};
     Country _ = {...country1};
 
-    record {string name;} country2 = {name: "India"};
-    Country _ = {continent: "Asia", ...country2};
+    record {string name; string continent;} country2 = {name: "Sri Lanka", continent: "Asia"};
+    Country _ = {...country2};
+
+    record {string name;} country3 = {name: "India"};
+    Country _ = {continent: "Asia", ...country3};
 }
 
 ///////////////////////// Map Tests /////////////////////////
