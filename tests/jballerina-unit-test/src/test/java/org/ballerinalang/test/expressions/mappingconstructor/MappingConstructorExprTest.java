@@ -470,6 +470,30 @@ public class MappingConstructorExprTest {
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
+    @Test
+    public void testInaccesibleModuleDefinitionsInMappingConstructor() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/test_project");
+        int index = 0;
+
+        validateError(compileResult, index++, "incompatible mapping constructor expression for type 'map<string>?'", 8,
+                22);
+        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 8, 24);
+        validateError(compileResult, index++, "undefined symbol 'NAME'", 8, 24);
+        validateError(compileResult, index++, "incompatible mapping constructor expression for type 'map<string>?'", 9,
+                22);
+        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 9, 24);
+        validateError(compileResult, index++, "undefined symbol 'NAME'", 9, 24);
+        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 9, 35);
+        validateError(compileResult, index++, "undefined symbol 'NAME'", 9, 35);
+        validateError(compileResult, index++, "missing non-defaultable required record field 'name'", 10, 14);
+        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 10, 16);
+        validateError(compileResult, index++, "undefined symbol 'NAME'", 10, 16);
+        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 10, 27);
+        validateError(compileResult, index++, "undefined symbol 'NAME'", 10, 27);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
