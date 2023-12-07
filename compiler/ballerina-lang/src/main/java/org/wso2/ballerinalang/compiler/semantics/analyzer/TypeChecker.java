@@ -2556,8 +2556,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 dlog.resetErrorCount();
+                BLangRecordLiteral clonedMappingConstructor = nodeCloner.cloneNode(mappingConstructor);
                 BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
-                                                                                 mappingConstructor, data);
+                        clonedMappingConstructor, data);
 
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
@@ -7900,6 +7901,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
                 break;
+            case TypeTags.SEMANTIC_ERROR:
+                if (keyValueField) {
+                    BLangRecordKeyValueField keyValField = (BLangRecordKeyValueField) field;
+                    BLangRecordKey key = keyValField.key;
+                    checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey, data);
+                }
         }
 
 
