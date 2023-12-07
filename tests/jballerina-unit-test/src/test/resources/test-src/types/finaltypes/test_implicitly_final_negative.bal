@@ -44,3 +44,7 @@ listener test:MockListener ml = new (8080);
 public function testChangingListenerVariableAfterDefining() {
     ml = new test:MockListener(8081);
 }
+
+function restFinal(string p1, string... p2) {
+    p2 = ["a", "b"];
+}
