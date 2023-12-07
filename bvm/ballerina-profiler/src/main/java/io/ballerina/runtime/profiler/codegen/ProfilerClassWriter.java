@@ -21,6 +21,8 @@ package io.ballerina.runtime.profiler.codegen;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
+import java.io.File;
+
 /**
  * This class is used as a class writer for the Ballerina profiler.
  *
@@ -40,8 +42,8 @@ public class ProfilerClassWriter extends ClassWriter {
         Class<?> class1;
         Class<?> class2;
         try {
-            class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
-            class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
+            class1 = Class.forName(type1.replace(File.separatorChar, '.'), false, classLoader);
+            class2 = Class.forName(type2.replace(File.separatorChar, '.'), false, classLoader);
         } catch (ClassNotFoundException e) {
             return OBJECT_CLASS;
         }
@@ -56,6 +58,6 @@ public class ProfilerClassWriter extends ClassWriter {
         while (!class1.isAssignableFrom(class2)) {
             class1 = class1.getSuperclass();
         }
-        return class1.getName().replace('.', '/');
+        return class1.getName().replace('.', File.separatorChar);
     }
 }

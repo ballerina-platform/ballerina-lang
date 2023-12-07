@@ -293,7 +293,7 @@ public class Profiler {
         String fileEntryString = fileEntry.getPath();
         if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
             fileEntryString = fileEntryString.replaceAll(absolutePath, "");
-            int index = fileEntryString.lastIndexOf(File.separator);
+            int index = fileEntryString.lastIndexOf(File.separatorChar);
             fileEntryString = index == -1 ? "" : fileEntryString.substring(0, index);
             String[] fileEntryParts = fileEntryString.split(Pattern.quote(File.separator));
             instrumentedPaths.add(fileEntryParts[0]);

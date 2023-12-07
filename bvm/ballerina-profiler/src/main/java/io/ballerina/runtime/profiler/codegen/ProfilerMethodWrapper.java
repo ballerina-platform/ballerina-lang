@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.profiler.util.Constants.CURRENT_DIR_KEY;
 import static io.ballerina.runtime.profiler.util.Constants.ERROR_STREAM;
@@ -78,10 +79,10 @@ public class ProfilerMethodWrapper extends ClassLoader {
 
     public String mainClassFinder(URLClassLoader manifestClassLoader) {
         try {
-            URL manifestURL = manifestClassLoader.findResource("META-INF/MANIFEST.MF");
+            URL manifestURL = manifestClassLoader.findResource("META-INF" + File.separator + "MANIFEST.MF");
             Manifest manifest = new Manifest(manifestURL.openStream());
             Attributes attributes = manifest.getMainAttributes();
-            return attributes.getValue("Main-Class").replace(".$_init", "").replace(".", "/");
+            return attributes.getValue("Main-Class").replace(".$_init", "").replace(".", File.separator);
         } catch (Throwable throwable) {
             ERROR_STREAM.println(throwable + "%n");
             return null;
@@ -106,11 +107,11 @@ public class ProfilerMethodWrapper extends ClassLoader {
 
     // Print out the modified class code
     public void printCode(String className, byte[] code, String balJarName) {
-        int lastSlashIndex = className.lastIndexOf('/');
+        int lastSlashIndex = className.lastIndexOf(Pattern.quote(File.separator));
         String output;
         if (lastSlashIndex == -1) {
             output = balJarName;
-            className = balJarName + "/" + className;
+            className = balJarName + File.separator + className;
         } else {
             output = className.substring(0, lastSlashIndex);
         }
