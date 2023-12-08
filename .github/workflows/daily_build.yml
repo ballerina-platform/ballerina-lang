@@ -2,6 +2,10 @@ name: Ballerina daily build
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
   schedule:
     - cron:  '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
     - cron:  '30 6 * * *'     # 12:00 in LK time (GMT+5:30)
