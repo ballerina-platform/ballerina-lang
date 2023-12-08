@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to run the workflow on'
+        description: 'The ranch to run the workflow on'
         required: true
   schedule:
     - cron:  '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
