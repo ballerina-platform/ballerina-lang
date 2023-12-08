@@ -419,7 +419,6 @@ public class Desugar extends BLangNodeVisitor {
     private boolean desugarToReturn;
 
     // Worker related variables
-    private boolean withinIfStmt;
     private Set<BLangWorkerSendReceiveExpr.Channel> channelsWithinIfStmt = new LinkedHashSet<>();
 
     // Safe navigation related variables
@@ -3550,10 +3549,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        boolean prevWithinIfStmt = this.withinIfStmt;
-        Set<BLangWorkerSendReceiveExpr.Channel> prevChannels = new LinkedHashSet<>(this.channelsWithinIfStmt);
-        this.withinIfStmt = true;
-
+        Set<BLangWorkerSendReceiveExpr.Channel> prevChannels = this.channelsWithinIfStmt;
         ifNode.expr = rewriteExpr(ifNode.expr);
 
         Set<BLangWorkerSendReceiveExpr.Channel> ifBlockChannels = new LinkedHashSet<>();
@@ -3568,7 +3564,6 @@ public class Desugar extends BLangNodeVisitor {
 
         prevChannels.addAll(ifBlockChannels);
         prevChannels.addAll(elseBlockChannels);
-        this.withinIfStmt = prevWithinIfStmt;
         this.channelsWithinIfStmt = prevChannels;
         result = ifNode;
     }
