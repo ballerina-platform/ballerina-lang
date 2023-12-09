@@ -401,6 +401,15 @@
       "sortText": "P",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
