@@ -121,7 +121,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_E
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
@@ -752,8 +751,6 @@ public class JvmPackageGen {
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
 
         removeSourceAnnotationTypeDefs(module.typeDefs);
-        // desugar the record init function
-        rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);

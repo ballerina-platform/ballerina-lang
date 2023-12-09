@@ -257,7 +257,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_GET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_GET_ITEM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_ATTRIBUTE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 /**
@@ -2182,11 +2181,7 @@ public class JvmInstructionGen {
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
-        BType type = JvmCodeGenUtil.getImpliedType(btype);
         String className = TYPEDESC_VALUE_IMPL;
-        if (type.tag == TypeTags.RECORD) {
-            className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
-        }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
         jvmTypeGen.loadType(this.mv, btype);
