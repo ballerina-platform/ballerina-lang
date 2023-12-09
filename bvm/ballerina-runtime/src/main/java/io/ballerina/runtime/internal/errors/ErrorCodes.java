@@ -150,7 +150,7 @@ public enum ErrorCodes implements DiagnosticCode {
     CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
                                                                "RUNTIME_0121"),
     EMPTY_XML_SEQUENCE_HAS_NO_ATTRIBUTES("empty.xml.sequence.no.attributes", "RUNTIME_0122"),
-    NO_MESSAGE_ERROR("no.worker.message.received", "RUNTIME_0123" );
+    NO_MESSAGE_ERROR("no.worker.message.received", "RUNTIME_0123");
 
     private final String errorMsgKey;
     private final String errorCode;
