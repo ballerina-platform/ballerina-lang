@@ -262,12 +262,11 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
                         "\"lastName\":\"Fonseka\",\"score\":90.6}]");
         Assert.assertEquals(teacher1.get(StringUtils.fromString("experience")).toString(),
                 "{\"duration\":10,\"qualitifications\":\"B.Sc.\"}");
-        Assert.assertEquals(teacher1.toString(),
-                "{\"classStudents\":[{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":82.5}," +
-                        "{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\",\"score\":90.6}]," +
-                        "\"experience\":{\"duration\":10,\"qualitifications\":\"B.Sc.\"}," +
-                        "\"firstName\":\"Alex\",\"lastName\":\"George\",\"deptAccess\":\"XYZ\"," +
-                        "\"address\":{\"city\":\"NY\",\"country\":\"America\"}}");
+        Assert.assertEquals(teacher1.toString(), "{\"firstName\":\"Alex\",\"address\":{\"city\":\"NY\"," +
+                "\"country\":\"America\"},\"classStudents\":[{\"firstName\":\"Alex\",\"lastName\":\"George\"," +
+                "\"score\":82.5},{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\",\"score\":90.6}]," +
+                "\"deptAccess\":\"XYZ\",\"lastName\":\"George\",\"experience\":{\"duration\":10," +
+                "\"qualitifications\":\"B.Sc.\"}}");
 
         Assert.assertTrue(teacher2.get(StringUtils.fromString("classStudents")) instanceof BArray);
         Assert.assertTrue(teacher2.get(StringUtils.fromString("experience")) instanceof BMap);
@@ -277,11 +276,10 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(teacher2.get(StringUtils.fromString("experience")).toString(),
                 "{\"duration\":10,\"qualitifications\":\"B.Sc.\"}");
         Assert.assertEquals(teacher2.toString(),
-                "{\"classStudents\":[{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":82.5}," +
-                        "{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\",\"score\":90.6}]," +
-                        "\"experience\":{\"duration\":10,\"qualitifications\":\"B.Sc.\"}," +
-                        "\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\",\"deptAccess\":\"XYZ\"," +
-                        "\"address\":{\"city\":\"NY\",\"country\":\"America\"}}");
+                "{\"firstName\":\"Ranjan\",\"address\":{\"city\":\"NY\",\"country\":\"America\"}," +
+                        "\"classStudents\":[{\"firstName\":\"Alex\",\"lastName\":\"George\",\"score\":82.5}," +
+                        "{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\",\"score\":90.6}],\"deptAccess\":\"XYZ\"," +
+                        "\"lastName\":\"Fonseka\",\"experience\":{\"duration\":10,\"qualitifications\":\"B.Sc.\"}}");
     }
 
     @Test(description = "Test query expressions with tuple typed binding in let")

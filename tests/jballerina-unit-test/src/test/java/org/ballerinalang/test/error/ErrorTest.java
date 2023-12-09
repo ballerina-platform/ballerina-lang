@@ -84,8 +84,8 @@ public class ErrorTest {
         Object returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
         BArray errors = (BArray) returns;
         Assert.assertEquals(errors.size(), 4);
-        Assert.assertEquals(errors.get(0).toString(), "error UserDefErrorTwoA (\"arg\",message=\"\",data={})");
-        Assert.assertEquals(errors.get(1).toString(), "error UserDefErrorTwoA (\"arg\",message=\"\",data={})");
+        Assert.assertEquals(errors.get(0).toString(), "error UserDefErrorTwoA (\"arg\",data={},message=\"\")");
+        Assert.assertEquals(errors.get(1).toString(), "error UserDefErrorTwoA (\"arg\",data={},message=\"\")");
         Assert.assertEquals(errors.get(2), errors.get(0));
         Assert.assertEquals(errors.get(3), errors.get(1));
     }
@@ -138,7 +138,7 @@ public class ErrorTest {
     @Test
     public void customErrorDetailsTest() {
         Object returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
-        Assert.assertEquals(returns.toString(), "error TrxError (\"trxErr\",message=\"\",data=\"test\")");
+        Assert.assertEquals(returns.toString(), "error TrxError (\"trxErr\",data=\"test\",message=\"\")");
         Assert.assertEquals(getType(((BError) returns).getDetails()).getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(getType(((BError) returns).getDetails()).getName(), "(TrxErrorData & readonly)");
     }

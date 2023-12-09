@@ -185,9 +185,8 @@ public class ArrayTest {
     public void testArraysOfCyclicDependentTypes() {
         Object retVals = BRunUtil.invoke(compileResult, "testArraysOfCyclicDependentTypes");
         BArray arr = (BArray) retVals;
-        Assert.assertEquals(arr.toString(),
-                "[{\"b\":{\"b1\":\"B1\"}},{\"b\":{\"b1\":\"B1\"}},{\"b\":{\"b1\":\"B1\"}},{\"b\":{\"b1\":\"B1\"}," +
-                        "\"a1\":\"A1\"}]");
+        Assert.assertEquals(arr.toString(), "[{\"b\":{\"b1\":\"B1\"}},{\"b\":{\"b1\":\"B1\"}}," +
+                "{\"b\":{\"b1\":\"B1\"}},{\"a1\":\"A1\",\"b\":{\"b1\":\"B1\"}}]");
     }
 
     @Test
