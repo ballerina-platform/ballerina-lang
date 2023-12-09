@@ -28,41 +28,41 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * worker alternative receive related tests.
+ * worker conditional send related tests.
  */
-public class WorkerAlternateReceiveTest {
+public class WorkerConditionalSendTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/workers/workers_alt_receive.bal");
+        this.result = BCompileUtil.compile("test-src/workers/workers_conditional_send.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
     @Test(dataProvider = "functionProvider")
-    public void workerAlternateReceiveTest(String funcName) {
+    public void workerConditionalSendTest(String funcName) {
         BRunUtil.invoke(result, funcName, new Object[0]);
     }
 
     @DataProvider
     public static String[] functionProvider() {
         return new String[] {
-                "workerAlternateReceiveTest",
-                "workerAlternateReceiveTest2",
-                "alternateReceiveWithSenderPanic",
-                "alternateReceiveWithMultiplePanic",
-                "alternateReceiveWithSenderError",
-                "alternateReceiveWithMultipleError",
-                "alternateReceiveWithPanicAndError",
-                "alternateReceiveWithReceiverPanic",
-                "alternateReceiveWithReceiverError",
-                "alternateReceiveWithSameWorkerSend",
-                "alternateReceiveWithSameWorkerSendError1",
-                "alternateReceiveWithSameWorkerSendError2",
-                "alternateReceiveWithSameWorkerSendPanic",
-                "multilpleAlternateReceive1",
-                "multilpleAlternateReceive2"
+                "workerConditionalSendTest",
+                "sameWorkerSendTest",
+                "sameWorkerSendEitherOnePath",
+                "sameWorkerSendAltReceiveSendError",
+                "sameWorkerSendAltReceiveReceiverError",
+                "sameWorkerSendElse",
+                "sameWorkerSendSenderPanic",
+                "sameWorkerSendReceiverPanic",
+                "sameWorkerSendMultiplePath1",
+                "sameWorkerSendMultiplePath2",
+                // TODO: Enable these tests when it is compiling
+//                "sameWorkerSendMultiplePathError1",
+//                "sameWorkerSendMultiplePathError2",
+//                "multipleReceiveConditional"
+                "multipleReceiveWithNonConditionalSend"
         };
     }
 

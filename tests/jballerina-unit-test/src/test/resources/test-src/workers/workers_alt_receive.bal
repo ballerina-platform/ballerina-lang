@@ -262,3 +262,119 @@ function alternateReceiveWithReceiverError() {
     error e = <error>unionResult;
     test:assertEquals(e.message(), "Error in worker 2", "Invalid error message");
 }
+
+function alternateReceiveWithSameWorkerSend() {
+    worker w1 {
+        1 -> w2;
+        2 -> w2;
+    }
+
+    worker w2 returns int {
+        int x = <- w1 | w1;
+        return x;
+    }
+
+    int intResult = wait w2;
+    test:assertEquals(intResult, 1, "Invalid int result");
+}
+
+function alternateReceiveWithSameWorkerSendError1() {
+    worker w1 {
+        int|error x = int:fromString("invalid");
+        x -> w2;
+        2 -> w2;
+    }
+
+    worker w2 returns int|error {
+        int|error x = <- w1 | w1;
+        return x;
+    }
+
+    int|error intResult = wait w2;
+    test:assertEquals(intResult, 2, "Invalid int result");
+}
+
+
+function alternateReceiveWithSameWorkerSendError2() {
+    worker w1 {
+        int|error x = int:fromString("invalid");
+        x -> w2;
+        x -> w2;
+    }
+
+    worker w2 returns int|error {
+        int|error x = <- w1 | w1;
+        return x;
+    }
+
+    int|error intResult = wait w2;
+    test:assertTrue(intResult is error, "Expected error result");
+    error e = <error>intResult;
+    test:assertEquals(e.message(), "{ballerina/lang.int}NumberParsingError", "Invalid error result");
+    test:assertEquals(e.detail().toString(), "{\"message\":\"'string' value 'invalid' cannot be converted to 'int'\"}",
+     "Invalid error result");
+}
+
+function alternateReceiveWithSameWorkerSendPanic() {
+    worker w1 {
+        int x = checkpanic int:fromString("invalid");
+        x -> w2;
+        2 -> w2;
+    }
+
+    worker w2 returns int {
+        int x = <- w1 | w1;
+        return x;
+    }
+
+    int|error intResult = trap wait w2;
+    test:assertTrue(intResult is error, "Expected error result");
+    error e = <error>intResult;
+    test:assertEquals(e.message(), "{ballerina/lang.int}NumberParsingError", "Invalid error result");
+    test:assertEquals(e.detail().toString(), "{\"message\":\"'string' value 'invalid' cannot be converted to 'int'\"}",
+     "Invalid error result");
+    }
+
+    function multilpleAlternateReceive1() {
+        worker w1 {
+            1 -> w2;
+            2 -> w2;
+        }
+
+        worker w2 returns [int, int] {
+            int x = <- w1 | w3;
+            int y = <- w1;
+            return [x, y];
+        }
+
+        worker w3 {
+            runtime:sleep(2);
+            3 -> w2;
+        }
+
+        [int, int] [x, y] = wait w2;
+        test:assertEquals(x, 1, "Invalid int result");
+        test:assertEquals(y, 2, "Invalid int result");
+    }
+
+    function multilpleAlternateReceive2() {
+        worker w1 {
+            runtime:sleep(2);
+            1 -> w2;
+            2 -> w2;
+        }
+
+        worker w2 returns [int, int] {
+            int x = <- w1 | w3;
+            int y = <- w1;
+            return [x, y];
+        }
+
+        worker w3 {
+            3 -> w2;
+        }
+
+        [int, int] [x, y] = wait w2;
+        test:assertEquals(x, 3, "Invalid int result");
+        test:assertEquals(y, 2, "Invalid int result");
+    }
