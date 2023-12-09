@@ -121,6 +121,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         populateInitialValues(initialValues);
     }
 
+    public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues, TypedescValue typedesc) {
+        this(type, initialValues);
+        if (!type.isReadOnly()) {
+            this.typedesc = typedesc;
+        }
+    }
+
     public MapValueImpl() {
         super();
         type = PredefinedTypes.TYPE_MAP;

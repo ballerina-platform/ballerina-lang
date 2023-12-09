@@ -97,8 +97,8 @@ public class TypedescValueImpl implements TypedescValue {
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         Type referredType = getImpliedType(this.describingType);
-        if (referredType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
+        if (referredType.getTag() == TypeTags.MAP_TAG || referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues, this);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {
             return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues, this);
         }
