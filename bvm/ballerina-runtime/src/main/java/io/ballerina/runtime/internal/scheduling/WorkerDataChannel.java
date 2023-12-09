@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.LinkedList;
@@ -72,11 +73,28 @@ public class WorkerDataChannel {
     }
 
     public boolean isClosed() {
-        return this.state == State.CLOSED;
+        return this.state == State.CLOSED || this.state == State.AUTO_CLOSED;
+    }
+
+    private void close(State state) {
+        try {
+            acquireChannelLock();
+            this.state = state;
+            if (this.receiver != null) {
+                this.receiver.scheduler.unblockStrand(this.receiver);
+                this.receiver = null;
+            }
+        } finally {
+            releaseChannelLock();
+        }
+    }
+
+    public State getState() {
+        return this.state;
     }
 
     public enum State {
-        OPEN, CLOSED
+        OPEN, AUTO_CLOSED, CLOSED
     }
 
     @SuppressWarnings("rawtypes")
@@ -97,8 +115,12 @@ public class WorkerDataChannel {
         }
     }
 
+    public void autoClose() {
+        close(State.AUTO_CLOSED);
+    }
+
     public void close() {
-        this.state = State.CLOSED;
+        close(State.CLOSED);
     }
 
     /**
@@ -162,6 +184,9 @@ public class WorkerDataChannel {
     public Object tryTakeData(Strand strand, boolean isMultiple) throws Throwable {
         try {
             acquireChannelLock();
+            if (isClosed()) {
+                throw ErrorUtils.createNoMessageError(chnlName);
+            }
             WorkerResult result = this.channel.peek();
             if (result != null) {
                 this.receiverCounter++;

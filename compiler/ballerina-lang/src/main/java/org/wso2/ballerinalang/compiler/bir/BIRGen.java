@@ -1150,7 +1150,8 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangAlternateWorkerReceive altWorkerReceive) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId());
         addToTrapStack(thenBB);
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(altWorkerReceive.getBType(), this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(altWorkerReceive.getBType(), this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;

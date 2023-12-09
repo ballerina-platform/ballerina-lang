@@ -187,4 +187,9 @@ public class ErrorUtils {
                 ErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
                 ErrorHelper.getErrorDetails(ErrorCodes.INVALID_FRACTION_DIGITS));
     }
+
+    public static BError createNoMessageError(String chnlName) {
+        return createError(ErrorReasons.NO_MESSAGE_ERROR, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
+                StringUtils.fromString(chnlName.split(":")[0])));
+    }
 }

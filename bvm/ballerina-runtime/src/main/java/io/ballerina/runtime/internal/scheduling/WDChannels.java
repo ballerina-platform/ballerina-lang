@@ -17,6 +17,7 @@
 */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.ArrayList;
@@ -52,12 +53,16 @@ public class WDChannels {
 
     public Object tryTakeData(Strand strand, List<String> channels) throws Throwable {
         Object result = null;
+        boolean allChannelsClosed = true;
         for (String channelName : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelName);
             if (channel.isClosed()) {
+                if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
+                    errors.add((ErrorValue) ErrorUtils.createNoMessageError(channelName));
+                }
                 continue;
             }
-
+            allChannelsClosed = false;
             result = channel.tryTakeData(strand, true);
             if (result != null) {
                 if (result instanceof ErrorValue) {
@@ -73,10 +78,10 @@ public class WDChannels {
 
         }
         if (result == null) {
-            if (errors.size() != channels.size()) {
-                strand.setState(BLOCK_AND_YIELD);
-            } else {
+            if (errors.size() == channels.size()) {
                 result = errors.get(errors.size() - 1);
+            } else if (!allChannelsClosed) {
+                strand.setState(BLOCK_AND_YIELD);
             }
         }
         return result;

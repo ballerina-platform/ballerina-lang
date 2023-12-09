@@ -18,6 +18,9 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.scheduling.WorkerDataChannel;
 
 /**
  * Native implementation of lang.internal:AutoCloseChannels.
@@ -32,12 +35,15 @@ public class AutoCloseChannels {
      * @param channelIds channel IDs of the channels to be closed
      */
     public static void autoClose(BString[] channelIds) {
+        Strand parent = Scheduler.getStrand().parent;
         for (BString channelId : channelIds) {
-            autoCloseChannel(channelId);
+            String channelName = channelId.getValue() + ":" + (parent.functionInvocation - 1);
+            autoCloseChannel(channelName, parent);
         }
     }
 
-    private static void autoCloseChannel(BString channelId) {
-        // TODO: Close channel if exists. Else close it at the creation in future.
+    private static void autoCloseChannel(String channelId, Strand parent) {
+        WorkerDataChannel workerDataChannel = parent.wdChannels.getWorkerDataChannel(channelId);
+        workerDataChannel.autoClose();
     }
 }
