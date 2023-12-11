@@ -796,8 +796,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
-                env, pkgID, null, 0, false);
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names,
+                recordTypeNode, type, type, pos, env, pkgID, null, 0, false);
         recordTypeNode.sealed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,

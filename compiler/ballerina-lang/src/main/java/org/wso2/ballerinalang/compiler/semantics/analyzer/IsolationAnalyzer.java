@@ -2150,8 +2150,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv env = this.env;
         while (env != null) {
             BLangNode node = env.node;
-            if (node != null && (node.getKind() == NodeKind.FUNCTION || node.getKind() == NodeKind.RESOURCE_FUNC) &&
-                    !isWorkerLambda((BLangFunction) node)) {
+            if (node != null && isFunction(node) && !isWorkerLambda((BLangFunction) node)) {
                 return env.enclInvokable;
             }
             env = env.enclEnv;
@@ -2605,7 +2604,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BField field = ((BObjectType) env.enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value);
+        BLangInvokableNode enclInvokable = getEnclNonAnonymousFunction((BLangFunction) env.enclInvokable);
+        BField field = ((BObjectType) enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value);
 
         if (field == null) {
             // Bound method access.
@@ -3287,12 +3287,20 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isInIsolatedObjectMethod(SymbolEnv env, boolean ignoreInit) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
 
-        if (enclInvokable == null ||
-                (enclInvokable.getKind() != NodeKind.FUNCTION && enclInvokable.getKind() != NodeKind.RESOURCE_FUNC)) {
+        if (enclInvokable == null || !isFunction(enclInvokable)) {
             return false;
         }
 
         BLangFunction enclFunction = (BLangFunction) enclInvokable;
+
+        if (Symbols.isFlagOn(enclFunction.symbol.flags, Flags.ANONYMOUS)) {
+            BLangFunction enclNonAnonymousFunction = getEnclNonAnonymousFunction(enclFunction);
+
+            if (enclNonAnonymousFunction == null) {
+                return false;
+            }
+            enclFunction = enclNonAnonymousFunction;
+        }
 
         if (!enclFunction.attachedFunction) {
             return false;
@@ -3302,9 +3310,32 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BType ownerType = Types.getImpliedType(enclInvokable.symbol.owner.type);
+        BType ownerType = Types.getImpliedType(enclFunction.symbol.owner.type);
 
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
+    }
+
+    private BLangFunction getEnclNonAnonymousFunction(BLangFunction enclFunction) {
+        if (enclFunction == null || enclFunction.symbol.owner.kind == SymbolKind.PACKAGE) {
+            return null;
+        }
+
+        if (!Symbols.isFlagOn(enclFunction.symbol.flags, Flags.ANONYMOUS)) {
+            return enclFunction;
+        }
+
+        BLangNode enclNode = enclFunction.parent;
+
+        while (enclNode != null && !isFunction(enclNode)) {
+            enclNode = enclNode.parent;
+        }
+
+        return getEnclNonAnonymousFunction((BLangFunction) enclNode);
+    }
+
+    private boolean isFunction(BLangNode enclNode) {
+        NodeKind kind = enclNode.getKind();
+        return kind == NodeKind.FUNCTION || kind == NodeKind.RESOURCE_FUNC;
     }
 
     private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, SymbolEnv currentEnv) {
@@ -3375,7 +3406,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (parent == null || parent.getKind() == NodeKind.FUNCTION || parent.getKind() == NodeKind.RESOURCE_FUNC) {
+        if (parent == null || isFunction(parent)) {
             return false;
         }
 

@@ -50,6 +50,7 @@ import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.ICONST_2;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -298,6 +299,14 @@ public class MainMethodGen {
 
     private void loadCLIArgsForMain(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
                                     List<BIRNode.BIRAnnotationAttachment> annotAttachments) {
+        mv.visitInsn(ICONST_2);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(AASTORE);
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_1);
         mv.visitTypeInsn(NEW , CLI_SPEC);
         mv.visitInsn(DUP);
         // get defaultable arg names from function annotation
@@ -307,7 +316,7 @@ public class MainMethodGen {
         // load string[] that got parsed into java main
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL , CLI_SPEC, JVM_INIT_METHOD, INIT_CLI_SPEC, false);
-        mv.visitMethodInsn(INVOKEVIRTUAL , CLI_SPEC, "getMainArgs", GET_MAIN_ARGS, false);
+        mv.visitInsn(AASTORE);
     }
 
     private void loadCLIArgsForTestConfigInit(MethodVisitor mv) {
