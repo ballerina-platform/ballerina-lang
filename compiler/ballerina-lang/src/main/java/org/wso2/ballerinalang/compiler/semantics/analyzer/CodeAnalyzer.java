@@ -1511,12 +1511,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangDo doNode, AnalyzerData data) {
         boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
+        boolean previousWithinDoBlock = data.withinWorkerTopLevelDo;
+        data.withinWorkerTopLevelDo = isTopLevel(data.env) && isInWorker(data.env);
         if (onFailExists) {
             data.failureHandled = true;
         }
         analyzeNode(doNode.body, data);
         data.failureHandled = failureHandled;
         analyseOnFailClause(onFailExists, doNode.onFailClause, data);
+        data.withinWorkerTopLevelDo = previousWithinDoBlock;
     }
 
 
@@ -2007,7 +2010,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
-        if (data.withinQuery || (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (!data.withinWorkerTopLevelDo && (data.withinQuery  ||
+                (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2066,7 +2070,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        if (data.withinQuery || (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (!data.withinWorkerTopLevelDo && (data.withinQuery ||
+                (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -4268,6 +4273,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean loopAlterNotAllowed;
         // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
+        boolean withinWorkerTopLevelDo;
         int workerSystemMovementSequence;
         Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
