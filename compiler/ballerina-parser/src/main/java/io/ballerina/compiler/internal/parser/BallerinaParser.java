@@ -13045,8 +13045,11 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-            case FUNCTION_KEYWORD:
                 return consume();
+            case FUNCTION_KEYWORD:
+                STToken functionKeyword = consume();
+                return STNodeFactory.createIdentifierToken(functionKeyword.text(), functionKeyword.leadingMinutiae(),
+                        functionKeyword.trailingMinutiae(), functionKeyword.diagnostics());
             default:
                 recover(token, ParserRuleContext.PEER_WORKER_NAME);
                 return parsePeerWorkerIdentifier();

@@ -596,7 +596,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "FUNCTION_KEYWORD"
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "function"
                                 }
                               ]
                             },

@@ -83,7 +83,8 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "FUNCTION_KEYWORD"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "function"
                         }
                       ]
                     }
@@ -477,7 +478,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "FUNCTION_KEYWORD"
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "function"
                                 }
                               ]
                             },
