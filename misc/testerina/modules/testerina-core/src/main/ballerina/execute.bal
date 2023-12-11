@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/lang.'error as langError;
 import ballerina/lang.runtime;
 
@@ -24,9 +23,12 @@ ConcurrentExecutionManager conMgr = new (1);
 
 public function startSuite() returns int {
     // exit if setTestOptions has failed
-    if exitCode > 0 {
-        return exitCode;
+    lock {
+        if exitCode > 0 {
+            return exitCode;
+        }
     }
+
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();
         if groupsList.length() == 0 {
@@ -38,7 +40,10 @@ public function startSuite() returns int {
     } else {
         if testRegistry.getFunctions().length() == 0 && testRegistry.getDependentFunctions().length() == 0 {
             println("\tNo tests found");
-            return exitCode;
+            lock {
+                return exitCode;
+            }
+
         }
 
         error? err = orderTests();
@@ -56,7 +61,9 @@ public function startSuite() returns int {
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
     }
-    return exitCode;
+    lock {
+        return exitCode;
+    }
 }
 
 function executeTests() returns error? {
