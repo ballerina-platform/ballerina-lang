@@ -1966,7 +1966,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean isSendAllowedLocation(SymbolEnv env) {
-        return isTopLevel(env) || env.node.parent.getKind() == NodeKind.IF; // TODO: fix properly
+        return true;
+//        return isTopLevel(env) || env.node.parent.getKind() == NodeKind.IF; // TODO: fix properly
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2040,7 +2041,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (onlyContainErrors(returnType)) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN);
+//                this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN); TODO: fix
             }
         }
         returnTypeAndSendType.add(exprType);
@@ -2178,7 +2179,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (onlyContainErrors(returnType)) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN);
+//                this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN); TODO: fix
             }
         }
         returnTypeAndSendType.add(symTable.nilType);
