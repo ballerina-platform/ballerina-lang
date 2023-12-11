@@ -990,10 +990,10 @@ service class ServiceClass2 {
     @v3 { // OK
         val: "v3"
     }
-    @v4 { // OK?, but error atm
+    @v4 { // OK
         x: 1
     }
-    @v5 {
+    @v5 { // OK
         val: "v5"
     }
     @v6 {
