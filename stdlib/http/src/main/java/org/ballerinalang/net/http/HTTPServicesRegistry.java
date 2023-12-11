@@ -123,8 +123,9 @@ public class HTTPServicesRegistry {
                                 basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
-            String errLog = String.format("Service deployed : %s with context %s", service.getType().getName(),
-                                          basePath);
+            String errLog = String.format("Service deployed : %s with context %s",
+                            sanitizeText(service.getType().getName()),
+                                          sanitizeText(basePath));
             logger.info(errLog);
 
             //basePath will get cached after registering service
@@ -226,10 +227,22 @@ public class HTTPServicesRegistry {
             servicesByBasePath.remove(basePath);
             sortedServiceURIs.remove(basePath);
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Service detached : %s with context %s", service.getType().getName(),
-                                           basePath));
+                logger.debug(String.format("Service detached : %s with context %s",
+                                sanitizeText(service.getType().getName()),
+                                           sanitizeText(basePath)));
             }
             sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
         }
     }
+
+    /**
+     * Sanitize a given text by removing CRLF characters.
+     *
+     * @param text   text to be sanitized
+     * @return text after removing line break characters
+     */
+    private static String sanitizeText(String text) {
+        return text.replace("\r", " ").replace("\n", " ");
+    }
+
 }
