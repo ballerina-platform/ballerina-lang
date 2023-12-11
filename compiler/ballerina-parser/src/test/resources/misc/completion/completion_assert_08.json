@@ -1200,17 +1200,11 @@
                                           "kind": "COLON_TOKEN"
                                         },
                                         {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
-                                              ]
-                                            }
+                                          "diagnostics": [
+                                            "ERROR_MISSING_IDENTIFIER"
                                           ]
                                         }
                                       ]
