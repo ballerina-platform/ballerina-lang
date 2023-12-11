@@ -975,3 +975,57 @@ type F4 record {|
 type F5 record {|
     int x;
 |};
+
+public annotation v26 on service remote function;
+
+service class ServiceClass2 {
+    string name = "ballerina";
+
+    @v1 {
+        val: "v1"
+    }
+    @v2 {
+        val: "v2"
+    }
+    @v3 { // OK
+        val: "v3"
+    }
+    @v4 { // OK?, but error atm
+        x: 1
+    }
+    @v5 {
+        val: "v5"
+    }
+    @v6 {
+        val: "v6"
+    }
+    @v7
+    @v8 {
+        val: "v8"
+    }
+    @v9 {
+        val: "v9"
+    }
+    @v10 {
+        val: "v10"
+    }
+    @v11 {
+        val: 11
+    }
+    @v12 {
+        val: "v12"
+    }
+    @v13 {
+        val: "v13"
+    }
+    @v15 {
+        val: false
+    }
+    remote function getName() returns string { return self.name; }
+
+    @v26
+    resource function get name() returns string { return self.name; }
+
+    @v26
+    function getFirstName() returns string { return self.name; }
+}

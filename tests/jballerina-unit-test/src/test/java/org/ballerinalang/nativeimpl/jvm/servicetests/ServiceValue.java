@@ -191,6 +191,15 @@ public class ServiceValue {
         return null;
     }
 
+    public static BValue getRemoteMethodAnnotations(BObject service, BString method, BString annotName) {
+        for (var methodType : ((ServiceType) service.getOriginalType()).getRemoteMethods()) {
+            if (methodType.getName().equals(method.getValue())) {
+                return (BValue) methodType.getAnnotation(annotName);
+            }
+        }
+        return null;
+    }
+
     public static BArray getParamDefaultability(BObject service, BString name) {
         ServiceType serviceType = (ServiceType) service.getType();
         Optional<ResourceMethodType> func = Arrays.stream(serviceType.getResourceMethods())
