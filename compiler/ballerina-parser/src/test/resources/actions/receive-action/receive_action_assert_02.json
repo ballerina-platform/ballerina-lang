@@ -312,12 +312,17 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a",
-                              "trailingMinutiae": [
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -340,13 +345,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "c"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
                                 }
                               ]
                             },
@@ -360,8 +360,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -442,8 +447,13 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             },
                             {
                               "kind": "COMMA_TOKEN",
@@ -470,13 +480,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "c"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
                                 }
                               ]
                             },
@@ -501,17 +506,11 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
                                   "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER"
-                                      ]
-                                    }
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
                                   ]
                                 }
                               ]
@@ -597,12 +596,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "FUNCTION_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "function"
                                 }
                               ]
                             },
@@ -616,8 +611,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                }
+                              ]
                             }
                           ]
                         },

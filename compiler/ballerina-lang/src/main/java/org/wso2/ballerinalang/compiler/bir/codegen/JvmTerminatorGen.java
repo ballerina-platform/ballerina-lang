@@ -150,6 +150,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJUnboxInsn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ALT_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANNOTATION_GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
@@ -384,6 +385,10 @@ public class JvmTerminatorGen {
                 return;
             case WK_RECEIVE:
                 this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, localVarOffset, invocationVarIndex);
+                return;
+            case WK_ALT_RECEIVE:
+                this.genWorkerAlternateReceiveIns((BIRTerminator.WorkerAlternateReceive) terminator, localVarOffset,
+                        invocationVarIndex);
                 return;
             case FLUSH:
                 this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset, invocationVarIndex);
@@ -1193,6 +1198,40 @@ public class JvmTerminatorGen {
         }
     }
 
+    private void genWorkerAlternateReceiveIns(BIRTerminator.WorkerAlternateReceive ins, int localVarOffset,
+                                              int invocationVarIndex) {
+        BIRNode.BIRVariableDcl listVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("channels"),
+                VarScope.FUNCTION, VarKind.LOCAL);
+        int channelIndex = this.getJVMIndexOfVarRef(listVar);
+        this.mv.visitTypeInsn(NEW, ARRAY_LIST);
+        this.mv.visitInsn(DUP);
+        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
+
+        int i = 0;
+        while (i < ins.channels.size()) {
+            this.mv.visitInsn(DUP);
+            this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+            this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                    new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                    ins.channels.get(i) + START_OF_HEADING_WITH_SEMICOLON);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, LIST, ADD_METHOD, ANY_TO_JBOOLEAN, true);
+            this.mv.visitInsn(POP);
+            i += 1;
+        }
+        this.mv.visitVarInsn(ASTORE, channelIndex);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        if (!ins.isSameStrand) {
+            this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
+        }
+        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        this.mv.visitVarInsn(ALOAD, channelIndex);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "tryTakeData", ALT_RECEIVE_CALL, false);
+
+        generateReceiveResultStore(ins.lhsOp);
+    }
+
     private void genWorkerReceiveIns(BIRTerminator.WorkerReceive ins, int localVarOffset, int invocationVarIndex) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -1209,7 +1248,10 @@ public class JvmTerminatorGen {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WORKER_DATA_CHANNEL, "tryTakeData", TRY_TAKE_DATA, false);
+        generateReceiveResultStore(ins.lhsOp);
+    }
 
+    private void generateReceiveResultStore(BIROperand ins) {
         BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("wrkMsg"),
                 VarScope.FUNCTION, VarKind.ARG);
         int wrkResultIndex = this.getJVMIndexOfVarRef(tempVar);
@@ -1222,9 +1264,8 @@ public class JvmTerminatorGen {
         Label withinReceiveSuccess = new Label();
         this.mv.visitLabel(withinReceiveSuccess);
         this.mv.visitVarInsn(ALOAD, wrkResultIndex);
-        jvmCastGen.addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type);
-        this.storeToVar(ins.lhsOp.variableDcl);
-
+        jvmCastGen.addUnboxInsn(this.mv, ins.variableDcl.type);
+        this.storeToVar(ins.variableDcl);
         this.mv.visitLabel(jumpAfterReceive);
     }
 

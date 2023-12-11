@@ -13038,14 +13038,21 @@ public class BallerinaParser extends AbstractParser {
      * @return peer worker name node
      */
     private STNode parsePeerWorkerName() {
+        return STNodeFactory.createSimpleNameReferenceNode(parsePeerWorkerIdentifier());
+    }
+
+    private STNode parsePeerWorkerIdentifier() {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
+                return consume();
             case FUNCTION_KEYWORD:
-                return STNodeFactory.createSimpleNameReferenceNode(consume());
+                STToken functionKeyword = consume();
+                return STNodeFactory.createIdentifierToken(functionKeyword.text(), functionKeyword.leadingMinutiae(),
+                        functionKeyword.trailingMinutiae(), functionKeyword.diagnostics());
             default:
                 recover(token, ParserRuleContext.PEER_WORKER_NAME);
-                return parsePeerWorkerName();
+                return parsePeerWorkerIdentifier();
         }
     }
 
@@ -13220,11 +13227,11 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createQualifiedReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
         STNode colon = parseColon();
-        STNode peerWorker = parsePeerWorkerName();
+        STNode peerWorker = parsePeerWorkerIdentifier();
         return createQualifiedNameReferenceNode(identifier, colon, peerWorker);
     }
 

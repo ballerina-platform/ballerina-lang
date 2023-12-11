@@ -115,13 +115,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -140,6 +140,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -1511,7 +1512,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
         boolean previousWithinDoBlock = data.withinWorkerTopLevelDo;
-        data.withinWorkerTopLevelDo = isCommunicationAllowedLocation(data.env) && isInWorker(data.env);
+        data.withinWorkerTopLevelDo = isTopLevel(data.env) && isInWorker(data.env);
         if (onFailExists) {
             data.failureHandled = true;
         }
@@ -1960,8 +1961,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation(SymbolEnv env) {
+    private boolean isReceiveAllowedLocation(SymbolEnv env) {
         return isTopLevel(env);
+    }
+
+    private boolean isSendAllowedLocation(SymbolEnv env) {
+        return true;
+//        return isTopLevel(env) || env.node.parent.getKind() == NodeKind.IF; // TODO: fix properly
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2006,7 +2012,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (!data.withinWorkerTopLevelDo && (data.withinQuery  ||
-                (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
+                (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2035,7 +2041,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (onlyContainErrors(returnType)) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN);
+//                this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN); TODO: fix
             }
         }
         returnTypeAndSendType.add(exprType);
@@ -2066,7 +2072,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         if (!data.withinWorkerTopLevelDo && (data.withinQuery ||
-                (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
+                (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2084,9 +2090,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
-    public void visit(BLangCombinedWorkerReceive combinedWorkerReceive, AnalyzerData data) {
-        for (BLangWorkerReceive bLangWorkerReceive : combinedWorkerReceive.getWorkerReceives()) {
+    public void visit(BLangAlternateWorkerReceive altWorkerReceive, AnalyzerData data) {
+        for (BLangWorkerReceive bLangWorkerReceive : altWorkerReceive.getWorkerReceives()) {
             analyzeExpr(bLangWorkerReceive, data);
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive, AnalyzerData data) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : multipleWorkerReceive.getReceiveFields()) {
+            analyzeExpr(rvField.getWorkerReceive(), data);
         }
     }
 
@@ -2110,7 +2123,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (data.withinQuery || (!isReceiveAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -2166,7 +2179,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (onlyContainErrors(returnType)) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN);
+//                this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN); TODO: fix
             }
         }
         returnTypeAndSendType.add(symTable.nilType);

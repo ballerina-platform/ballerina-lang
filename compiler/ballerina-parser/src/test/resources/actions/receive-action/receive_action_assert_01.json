@@ -83,7 +83,8 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "FUNCTION_KEYWORD"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "function"
                         }
                       ]
                     }
@@ -265,8 +266,13 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -343,8 +349,13 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             },
                             {
                               "kind": "COMMA_TOKEN",
@@ -366,13 +377,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "c"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
                                 }
                               ]
                             },
@@ -386,8 +392,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -467,12 +478,8 @@
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "FUNCTION_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "function"
                                 }
                               ]
                             },
@@ -486,8 +493,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "d"
+                                }
+                              ]
                             }
                           ]
                         },

@@ -85,13 +85,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCombinedWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentati
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -1027,11 +1028,12 @@ public class NodeCloner extends BLangNodeVisitor {
         asyncSendExpr.cloneRef = clone;
         clone.expr = clone(asyncSendExpr.expr);
         clone.workerIdentifier = asyncSendExpr.workerIdentifier;
+        clone.setChannel(asyncSendExpr.getChannel());
     }
 
     @Override
-    public void visit(BLangCombinedWorkerReceive source) {
-        BLangCombinedWorkerReceive clone = new BLangCombinedWorkerReceive(source.getKind());
+    public void visit(BLangAlternateWorkerReceive source) {
+        BLangAlternateWorkerReceive clone = new BLangAlternateWorkerReceive();
         source.cloneRef = clone;
 
         List<BLangWorkerReceive> workerReceives = new ArrayList<>(source.getWorkerReceives().size());
@@ -1043,12 +1045,31 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMultipleWorkerReceive source) {
+        BLangMultipleWorkerReceive clone = new BLangMultipleWorkerReceive();
+        source.cloneRef = clone;
+
+        List<BLangMultipleWorkerReceive.BLangReceiveField> cloneFields =
+                new ArrayList<>(source.getReceiveFields().size());
+        for (BLangMultipleWorkerReceive.BLangReceiveField rvField : source.getReceiveFields()) {
+            BLangMultipleWorkerReceive.BLangReceiveField clonedRvField =
+                    new BLangMultipleWorkerReceive.BLangReceiveField();
+            clonedRvField.setKey(clone(rvField.getKey()));
+            clonedRvField.setWorkerReceive(clone(rvField.getWorkerReceive()));
+            cloneFields.add(clonedRvField);
+        }
+
+        clone.setReceiveFields(cloneFields);
+    }
+
+    @Override
     public void visit(BLangWorkerReceive source) {
 
         BLangWorkerReceive clone = new BLangWorkerReceive();
         source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
+        clone.setChannel(source.getChannel());
     }
 
     @Override
@@ -2206,6 +2227,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.workerIdentifier = source.workerIdentifier;
         clone.expr = clone(source.expr);
+        clone.setChannel(source.getChannel());
     }
 
     @Override

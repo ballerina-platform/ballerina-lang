@@ -17,8 +17,15 @@
 */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.values.ErrorValue;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 
 /**
  * This represents a worker data channel holder that is created for each strand to hold channels required.
@@ -28,10 +35,9 @@ import java.util.Map;
 public class WDChannels {
 
     private Map<String, WorkerDataChannel> wDChannels;
+    private final List<ErrorValue> errors = new ArrayList<>();
 
     //TODO try to generalize this to a normal data channel, in that case we won't need these classes.
-    public WDChannels() {
-    }
 
     public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
         if (this.wDChannels == null) {
@@ -44,4 +50,48 @@ public class WDChannels {
         }
         return channel;
     }
+
+    public Object tryTakeData(Strand strand, List<String> channels) throws Throwable {
+        Object result = null;
+        boolean allChannelsClosed = true;
+        for (String channelName : channels) {
+            WorkerDataChannel channel = getWorkerDataChannel(channelName);
+            if (channel.isClosed()) {
+                if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
+                    errors.add((ErrorValue) ErrorUtils.createNoMessageError(channelName));
+                }
+                continue;
+            }
+            allChannelsClosed = false;
+            result = channel.tryTakeData(strand, true);
+            if (result != null) {
+                if (result instanceof ErrorValue) {
+                    errors.add((ErrorValue) result);
+                    channel.close();
+                    result = null;
+                    continue;
+                } else {
+                    closeChannels(channels);
+                }
+                break;
+            }
+
+        }
+        if (result == null) {
+            if (errors.size() == channels.size()) {
+                result = errors.get(errors.size() - 1);
+            } else if (!allChannelsClosed) {
+                strand.setState(BLOCK_AND_YIELD);
+            }
+        }
+        return result;
+    }
+
+    private void closeChannels(List<String> channels) {
+        for (String channelName : channels) {
+            WorkerDataChannel channel = getWorkerDataChannel(channelName);
+            channel.close();
+        }
+    }
+
 }

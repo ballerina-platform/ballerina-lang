@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -26,28 +27,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.List;
 
 /**
- * Represents both alternate-receive and multiple-receive in worker communication.
+ * Represents multiple-receive in worker communication.
  *
  * @since 2201.9.0
  */
-public class BLangCombinedWorkerReceive extends BLangExpression implements ActionNode {
+public class BLangMultipleWorkerReceive extends BLangExpression implements ActionNode {
 
-    private final NodeKind nodeKind;
-    private List<BLangWorkerReceive> workerReceives;
-
-    /**
-     * Constructs a BLangCombinedWorkerReceive with NodeKind.
-     *
-     * @param nodeKind Combined worker kind. Either {@link NodeKind#ALTERNATE_WORKER_RECEIVE} or
-     *                 {@link NodeKind#MULTIPLE_WORKER_RECEIVE}
-     */
-    public BLangCombinedWorkerReceive(NodeKind nodeKind) {
-        this.nodeKind = nodeKind;
-    }
+    private List<BLangReceiveField> receiveFields;
 
     @Override
     public NodeKind getKind() {
-        return nodeKind;
+        return NodeKind.MULTIPLE_WORKER_RECEIVE;
     }
 
     @Override
@@ -65,11 +55,37 @@ public class BLangCombinedWorkerReceive extends BLangExpression implements Actio
         return modifier.transform(this, props);
     }
 
-    public List<BLangWorkerReceive> getWorkerReceives() {
-        return workerReceives;
+    public List<BLangReceiveField> getReceiveFields() {
+        return receiveFields;
     }
 
-    public void setWorkerReceives(List<BLangWorkerReceive> workerReceives) {
-        this.workerReceives = workerReceives;
+    public void setReceiveFields(List<BLangReceiveField> receiveFields) {
+        this.receiveFields = receiveFields;
+    }
+
+    /**
+     * This static inner class represents key-value pair in a multiple worker.
+     *
+     * @since 2201.9.0
+     */
+    public static class BLangReceiveField {
+        private BLangIdentifier key;
+        private BLangWorkerReceive workerReceive;
+
+        public BLangIdentifier getKey() {
+            return key;
+        }
+
+        public void setKey(BLangIdentifier key) {
+            this.key = key;
+        }
+
+        public BLangWorkerReceive getWorkerReceive() {
+            return workerReceive;
+        }
+
+        public void setWorkerReceive(BLangWorkerReceive workerReceive) {
+            this.workerReceive = workerReceive;
+        }
     }
 }

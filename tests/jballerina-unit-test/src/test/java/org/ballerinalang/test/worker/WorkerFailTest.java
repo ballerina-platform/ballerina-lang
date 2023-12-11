@@ -140,24 +140,6 @@ public class WorkerFailTest {
     }
 
     @Test
-    public void invalidSendInIf() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
-                "must be a top level statement in a worker"), message);
-    }
-
-    @Test
-    public void invalidSyncSendInIf() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-if.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
-                "must be a top level statement in a worker"), message);
-    }
-
-    @Test
     public void invalidReceiveInIf() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
@@ -232,15 +214,6 @@ public class WorkerFailTest {
     @Test
     public void invalidAsyncSendInFork() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-async-send-in-fork.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
-                "must be a top level statement in a worker"), message);
-    }
-
-    @Test
-    public void invalidSyncSendInFork() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-fork.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
         Assert.assertTrue(message.contains("worker send statement position not supported yet, " +
