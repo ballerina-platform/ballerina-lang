@@ -1,0 +1,80 @@
+{
+  "position": {
+    "line": 0,
+    "character": 18
+  },
+  "source": "import_decl/source/import_decl_with_ballerinax_org.bal",
+  "description": "Test completions for ballerinax packages",
+  "items": [
+    {
+      "label": "azure.ad",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "azure.ad",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hubspot.crm.quote",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "hubspot.crm.quote",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "powertoolsdeveloper.datetime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "powertoolsdeveloper.datetime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "azure.qnamaker",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "azure.qnamaker",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "godaddy.aftermarket",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "godaddy.aftermarket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "googleapis.manufacturercenter",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "googleapis.manufacturercenter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cloudmersive.barcode",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "cloudmersive.barcode",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "saps4hana.wls.screeninghits",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "saps4hana.wls.screeninghits",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "hubspot.crm.pipeline",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "hubspot.crm.pipeline",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "workday.absencemanagement",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "workday.absencemanagement",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

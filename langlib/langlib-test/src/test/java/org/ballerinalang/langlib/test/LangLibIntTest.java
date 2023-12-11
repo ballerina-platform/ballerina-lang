@@ -114,7 +114,7 @@ public class LangLibIntTest {
         BError err = (BError) result.get(1);
         assertEquals(err.getErrorMessage().getValue(),
                 getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER).getValue());
-        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
+        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\" under radix 16\"}");
     }
 
     @DataProvider(name = "MaxNumList")

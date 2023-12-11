@@ -331,7 +331,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("BCE2577", "invalid.record.literal.in.binding.pattern"),
-    DUPLICATE_KEY_IN_RECORD_LITERAL("BCE2578", "duplicate.key.in.record.literal"),
+    DUPLICATE_KEY_IN_MAPPING_CONSTRUCTOR("BCE2578", "duplicate.key.in.mapping.constructor"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("BCE2579", "duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("BCE2580", "duplicate.key.in.record.literal.spread.op"),
     POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP(
@@ -422,6 +422,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
     INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
+    FUNCTION_CALL_SYNTAX_NOT_DEFINED("BCE2655", "function.call.syntax.not.defined"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -467,7 +468,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3035", "fail.expr.no.matching.error.return.in.encl.invokable"),
-    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3036", "on.fail.no.matching.error"),
 
     START_REQUIRE_INVOCATION("BCE3037", "start.require.invocation"),
     INVALID_EXPR_STATEMENT("BCE3038", "invalid.expr.statement"),
@@ -804,11 +804,18 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCE4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
     SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4048", "seq.arg.followed.by.another.seq.arg"),
-
     QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4049", "query.construct.types.cannot.be.used.with.collect"),
     VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4050", "variable.is.sequenced.more.than.once"),
     INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
-    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param")
+    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param"),
+    INVALID_QUERY_CONSTRUCT_INFERRED_MAP("BCE4053", "inferred.query.construct.type.as.map"),
+    INVALID_QUERY_CONSTRUCT_INFERRED_STREAM("BCE4054", "inferred.query.construct.type.as.stream"),
+    INVALID_QUERY_CONSTRUCT_TYPE("BCE4055", "invalid.error.query.construct.type"),
+    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4056",
+            "cannot.use.alternate.wait.action.within.multiple.wait.action"),
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4057", "future.expression.expected"),
+    INSTANTIATION_ERROR("BCE4058", "instantiation.error"),
+    INVALID_BINDING_PATTERN_IN_ON_FAIL("BCE4059", "invalid.binding.pattern.in.on.fail")
     ;
 
     private String diagnosticId;

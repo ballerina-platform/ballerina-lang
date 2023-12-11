@@ -4,6 +4,7 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -32,6 +33,9 @@ public class PackCommandTest extends BaseCommandTest {
     private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
+    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+            "log_creator_combined_plugin/compiler-plugin.txt");
+
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -44,6 +48,8 @@ public class PackCommandTest extends BaseCommandTest {
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
+        Files.createDirectories(logFile.getParent());
+        Files.writeString(logFile, "");
     }
 
     @Test(description = "Test package command")
@@ -76,8 +82,50 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
+    }
+
+    @Test(description = "Pack a ballerina project with the engagement of all type of compiler plugins")
+    public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
+        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources/compiler-plugins");
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im")
+                        .toAbsolutePath().toString());
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im")
+                .toAbsolutePath().toString());
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_modifier_im")
+                .toAbsolutePath().toString());
+
+        Path projectPath = this.testResources.resolve("compiler-plugins").resolve("log_creator_combined_plugin");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String logFileContent =  Files.readString(logFile);
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-analyzer"),
+                "Package provided syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-analyzer"),
+                "In-Built syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-analyzer"),
+                "Package provided source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-analyzer"),
+                "In-Built source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-generator"),
+                "Package provided syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-generator"),
+                "In-Built syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-generator"),
+                "Package provided source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-generator"),
+                "In-Built source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-modifier"),
+                "In-Built syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-modifier"),
+                "In-Built source modifier from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-modifier"),
+                "Package provided syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-modifier"),
+                "Package provided source modifier from code modifier has failed to run");
     }
 
     @Test(description = "Pack an application package")
@@ -95,22 +143,19 @@ public class PackCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pack a Standalone Ballerina file")
-    public void testPackStandaloneFile() {
+    public void testPackStandaloneFile() throws IOException {
         Path projectPath = this.testResources.resolve("valid-bal-file").resolve("hello_world.bal");
         System.setProperty("user.dir", this.testResources.resolve("valid-bal-file").toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
-        try {
-            packCommand.execute();
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0)
-                    .contains("'-c' or '--compile' can only be used with a Ballerina package."));
-        }
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains(" bal pack can only be used with a Ballerina package."));
     }
 
     @Test(description = "Pack a package with platform libs")
     public void testPackageWithPlatformLibs() throws IOException {
-        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        Path projectPath = this.testResources.resolve("validGraalvmCompatibleProjectWithPlatformLibs");
         System.setProperty("user.dir", projectPath.toString());
         PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
         new CommandLine(packCommand).parseArgs();
@@ -119,7 +164,81 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java11-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java17-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with java11 platform libs")
+    public void testPackageWithJava11PlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithJava11PlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-project-with-platform-libs.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+                .toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with java11 and java17 platform libs")
+    public void testPackageWithJava11andJava17PlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithJava11and17PlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-project-with-platform-libs.txt"));
+        Path balaDirPath = projectPath.resolve("target").resolve("bala");
+        Assert.assertTrue(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala")
+                .toFile().exists());
+
+        Path balaDestPath = balaDirPath.resolve("extracted");
+        ProjectUtils.extractBala(balaDirPath.resolve("sameera-myproject-java17-0.1.0.bala"), balaDestPath);
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("one-1.0.0.jar")
+                .toFile().exists());
+        Assert.assertTrue(balaDestPath.resolve("platform").resolve("java17").resolve("two-2.0.0.jar")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with testOnly platform libs")
+    public void testPackageWithTestOnlyPlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithTestOnlyPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-test-only-platform-libs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
+                .toFile().exists());
+    }
+
+    @Test(description = "Pack a package with ballerina/java imports only in tests")
+    public void testPackageWithTestOnlyJavaImports() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithTestOnlyJavaImports");
+        System.setProperty("user.dir", projectPath.toString());
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-project-with-test-only-platform-libs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-any-0.1.0.bala")
                 .toFile().exists());
     }
 
@@ -156,7 +275,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java11-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java17-0.1.0.bala")
                 .toFile().exists());
 
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
@@ -177,6 +296,22 @@ public class PackCommandTest extends BaseCommandTest {
                 .resolve("wso2-emptyProjWithCompilerPlugin-any-0.1.0.bala").toFile().exists());
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
+    }
+
+    @Test(description = "Pack an empty package as a tool")
+    public void testPackEmptyProjectWithTool() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyProjectWithTool");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+                .resolve("wso2-emptyProjWithTool-any-0.1.0.bala").toFile().exists());
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("compile-empty-project-with-tool.txt"));
     }
 
     @Test(description = "Pack an empty package with tests only")
@@ -358,5 +493,24 @@ public class PackCommandTest extends BaseCommandTest {
                 .resolve("package_plugin_code_modify_user_template").resolve("main.bal"));
         Assert.assertFalse(mainBalContent.contains("public function newFunctionByCodeModifiermain(string params) " +
                 "returns error? {\n}"));
+    }
+
+    @Test(description = "Pack a library package with platform libraries")
+    public void testPackProjectWithPlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("WARNING: Package is not verified with GraalVM."));
+    }
+
+    @AfterClass
+    public void cleanUp() throws IOException {
+        Files.deleteIfExists(logFile);
+        Files.deleteIfExists(logFile.getParent());
+        Files.deleteIfExists(logFile.getParent().getParent());
     }
 }

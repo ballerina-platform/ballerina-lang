@@ -65,7 +65,13 @@ public class QualifiedIdentifierTest extends AbstractExpressionsTest {
 
     @Test
     public void testInterveningWSNotAllowed() {
-        testFile("qualified-identifier/qualified_identifier_assert_08.bal", 
+        testFile("qualified-identifier/qualified_identifier_source_08.bal",
                 "qualified-identifier/qualified_identifier_assert_08.json");
+    }
+
+    @Test
+    public void testMapTypeAfterColon() {
+        testFile("qualified-identifier/qualified_identifier_source_09.bal",
+                "qualified-identifier/qualified_identifier_assert_09.json");
     }
 }

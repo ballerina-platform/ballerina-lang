@@ -20,6 +20,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -77,5 +78,10 @@ public class TypeReferenceTests {
         validateError(compileResult, index++, "incompatible types: expected 'BarTable', found 'string'", 67, 21);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'BTable'", 70, 16);
         Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

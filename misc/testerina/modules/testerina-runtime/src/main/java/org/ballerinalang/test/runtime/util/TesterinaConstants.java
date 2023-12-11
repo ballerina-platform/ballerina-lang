@@ -57,7 +57,7 @@ public class TesterinaConstants {
     public static final String TESTABLE = "testable";
     public static final String MODIFIED = "mod";
     public static final String CACHE_DIR = "cache";
-    public static final String JAVA_11_DIR = "java11";
+    public static final String JAVA_17_DIR = "java17";
     public static final String ANON_ORG = "$anon";
     public static final String WILDCARD = "*";
 
@@ -82,11 +82,11 @@ public class TesterinaConstants {
     public static final int FILE_DEPTH = 5;
 
     //Coverage dependencies
-    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";
-    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.5.jar";
-    public static final String ASM_JAR = "asm-7.1.jar";
-    public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
-    public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
+    public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";
+    public static final String JACOCO_REPORT_JAR = "org.jacoco.report-0.8.10.jar";
+    public static final String ASM_JAR = "asm-9.5.jar";
+    public static final String ASM_TREE_JAR = "asm-tree-9.5.jar";
+    public static final String ASM_COMMONS_JAR = "asm-commons-9.5.jar";
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;

@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -237,10 +238,10 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 243, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                                  "incompatible types: expected 'string[] & readonly', found '(int[] & readonly)'",
+                                  "incompatible types: expected '(string[] & readonly)', found '(int[] & readonly)'",
                                   255, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                                  "incompatible types: expected 'int[] & readonly', found 'int[]'", 265, 9);
+                                  "incompatible types: expected '(int[] & readonly)', found 'int[]'", 265, 9);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
@@ -278,5 +279,12 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, i++, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 36, 27);
         Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

@@ -36,3 +36,6 @@ public type Data3 record {|
 
 public type ErrorIntersection1 distinct error<Data1> & error<Data2>;
 public type ErrorIntersection2 distinct error<Data3> & error<Data2>;
+
+public type StatusCodeError distinct error;
+public type DefaultStatusCodeError distinct StatusCodeError & error<record { int code; }>;

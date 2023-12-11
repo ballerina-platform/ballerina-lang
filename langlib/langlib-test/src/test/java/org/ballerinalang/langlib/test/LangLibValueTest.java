@@ -378,7 +378,9 @@ public class LangLibValueTest {
                 "testCloneWithTypeRecordWithXMLField",
                 "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
                 "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
-                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
+                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative",
+                "testCloneWithTypeRecordDefaultValues", "testCloneWithTypeToRecordWithIntersectingUnionMembers",
+                "testCloneWithTypeToRecordWithSpecialChars"
         };
     }
 

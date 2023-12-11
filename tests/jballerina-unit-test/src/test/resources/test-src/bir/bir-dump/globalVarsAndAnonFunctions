@@ -9,7 +9,7 @@ public globalVarsAndAnonFunctions function() -> () {
 
     bb0 {
         %2 = newType map<any|error>;
-        %1 = NewMap %2;
+        %1 = NewMap %2{};
         %5 = ConstLoad 3;
         %4 = <any|error> %5;
         %7 = ConstLoad a;

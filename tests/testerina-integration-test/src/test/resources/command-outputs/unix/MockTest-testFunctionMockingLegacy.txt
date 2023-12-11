@@ -8,9 +8,10 @@ Running Tests with Coverage
 		Test execution time :*****ms
 
 		[pass] testIntAdd
+		[pass] testIntMul
 
 
-		1 passing
+		2 passing
 		0 failing
 		0 skipped
 

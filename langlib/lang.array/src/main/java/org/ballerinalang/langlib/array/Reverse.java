@@ -36,7 +36,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 public class Reverse {
 
     public static BArray reverse(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         BArray reversedArr;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:

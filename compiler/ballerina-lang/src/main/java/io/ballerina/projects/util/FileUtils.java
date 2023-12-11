@@ -47,6 +47,9 @@ import java.util.stream.Stream;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
+import static io.ballerina.projects.util.ProjectConstants.EMPTY_STRING;
+import static io.ballerina.projects.util.ProjectConstants.IMPORT_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
@@ -291,6 +294,23 @@ public class FileUtils {
         }
     }
 
+    public static void replaceTemplateName(Path path, String templateName, String packageName) {
+        Optional<Path> fileName = Optional.ofNullable(path.getFileName());
+        if (fileName.isPresent() && fileName.get().toString().endsWith(BLANG_SOURCE_EXT)) {
+            try {
+                String content = Files.readString(path);
+                String oldImportStatementStart = IMPORT_PREFIX + templateName + DOT;
+                String newImportStatementStart = IMPORT_PREFIX + packageName + DOT;
+                if (content.contains(oldImportStatementStart)) {
+                    content = content.replaceAll(oldImportStatementStart, newImportStatementStart);
+                    Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error while replacing template name in module import statements: " + path, e);
+            }
+        }
+    }
+
     /**
      * Get the list of files and directories in a directory.
      *
@@ -313,17 +333,26 @@ public class FileUtils {
     public static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
+        private String templateName;
+        private String packageName;
         private StandardCopyOption copyOption;
 
 
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        public Copy(Path fromPath, Path toPath, String templateName, String packageName,
+                    StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
+            this.templateName = templateName;
+            this.packageName = packageName;
             this.copyOption = copyOption;
         }
 
         public Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+            this(fromPath, toPath, EMPTY_STRING, EMPTY_STRING, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        public Copy(Path fromPath, Path toPath, String templateName, String packageName) {
+            this(fromPath, toPath, templateName, packageName, StandardCopyOption.REPLACE_EXISTING);
         }
 
         @Override
@@ -342,6 +371,10 @@ public class FileUtils {
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
+            if (!packageName.equals(EMPTY_STRING) && !templateName.equals(EMPTY_STRING) &&
+                    !packageName.equals(templateName)) {
+                replaceTemplateName(toPath.resolve(fromPath.relativize(file).toString()), templateName, packageName);
+            }
             return FileVisitResult.CONTINUE;
         }
     }

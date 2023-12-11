@@ -247,7 +247,7 @@ public class ClosedRecordTest {
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
-        String errMsg = "undefined function 'fp'";
+        String errMsg = "function call syntax is not defined for 'function (string,string) returns (string)?'";
         int indx = 0;
         BAssertUtil.validateError(result, indx++, errMsg, 29, 17);
         BAssertUtil.validateError(result, indx++, errMsg, 35, 17);

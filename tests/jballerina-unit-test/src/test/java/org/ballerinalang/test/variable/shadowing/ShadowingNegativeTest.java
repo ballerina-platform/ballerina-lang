@@ -58,6 +58,7 @@ public class ShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'Vehicle'", 134, 5);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'returnVal'", 139, 40);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Foo'", 147, 6);
+        BAssertUtil.validateError(compileResult, index++, "function call syntax is not defined for 'string'", 154, 9);
         assertEquals(index, compileResult.getErrorCount());
     }
 }

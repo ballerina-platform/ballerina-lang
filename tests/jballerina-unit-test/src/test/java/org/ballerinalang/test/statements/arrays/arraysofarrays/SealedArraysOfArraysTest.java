@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -154,7 +155,7 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "invalid usage of closed type: array not initialized", 73, 5);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '((float[*][] & readonly)|string)', " +
+                resultNegative, i++, "incompatible types: expected '((float[*][]|string) & readonly)', " +
                         "found '(float[2][2] & readonly)'", 76, 40);
         BAssertUtil.validateError(
                 resultNegative, i++, "list index out of range: index: '4'", 83, 11);
@@ -241,5 +242,13 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 72, 36);
         Assert.assertEquals(codeAnalysisNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        resultNegative = null;
+        codeAnalysisNegative = null;
+
     }
 }

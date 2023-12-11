@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -53,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
@@ -172,7 +172,7 @@ public class ASTBuilderUtil {
     }
 
     private static boolean isValueType(BType type) {
-        return type.tag < TypeTags.JSON;
+        return Types.getReferredType(type).tag < TypeTags.JSON;
     }
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
@@ -413,7 +413,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.getBType().tag == target.tag || varRef.getBType().tag > TypeTags.BOOLEAN) {
+        BType varRefType = Types.getImpliedType(varRef.getBType());
+        if (varRefType.tag == Types.getImpliedType(target).tag || varRefType.tag > TypeTags.BOOLEAN) {
             return varRef;
         }
         // Box value using cast expression.
@@ -552,6 +553,21 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
+    static BLangErrorVariable createErrorVariable(Location pos, BType type, BLangExpression expr,
+                                                  BLangSimpleVariable message, BLangVariable cause,
+                                                  BLangSimpleVariable restDetail,
+                                                  List<BLangErrorVariable.BLangErrorDetailEntry> detail) {
+        final BLangErrorVariable errVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
+        errVariable.pos = pos;
+        errVariable.setBType(type);
+        errVariable.expr = expr;
+        errVariable.message = message;
+        errVariable.cause =  cause;
+        errVariable.restDetail = restDetail;
+        errVariable.detail = detail;
+        return errVariable;
+    }
+
     static BLangErrorVariableDef createErrorVariableDef(Location pos, BLangErrorVariable variable) {
         final BLangErrorVariableDef variableDef =
                 (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
@@ -664,11 +680,9 @@ public class ASTBuilderUtil {
     }
 
     static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
-        if (type.tag == TypeTags.INTERSECTION) {
-            type = ((BIntersectionType) type).effectiveType;
-        }
+        BType referredType = Types.getImpliedType(type);
 
-        if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {
+        if (referredType.tag != TypeTags.ARRAY && referredType.tag != TypeTags.TUPLE) {
             throw new IllegalArgumentException("Expected a 'BArrayType' instance or a 'BTupleType' instance");
         }
 

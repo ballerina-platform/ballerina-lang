@@ -311,7 +311,7 @@ public class JsonParser {
             }
 
             Object parentNode = this.nodesStack.pop();
-            if (TypeUtils.getReferredType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
+            if (TypeUtils.getImpliedType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
                 ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
                                                                  currentJsonNode);
                 currentJsonNode = parentNode;
@@ -928,6 +928,8 @@ public class JsonParser {
                             default:
                                 if (isNegativeZero(str)) {
                                     setValueToJsonType(type, Double.parseDouble(str));
+                                } else if (isExponential(str)) {
+                                    setValueToJsonType(type, new DecimalValue(str));
                                 } else {
                                     setValueToJsonType(type, Long.parseLong(str));
                                 }
@@ -938,6 +940,10 @@ public class JsonParser {
                     }
                 }
             }
+        }
+
+        private boolean isExponential(String str) {
+            return str.contains("e") || str.contains("E");
         }
 
         private void setValueToJsonType(ValueType type, Object value) {

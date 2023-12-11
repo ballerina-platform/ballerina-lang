@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotatableNode;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -96,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -130,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -181,7 +185,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -249,8 +252,8 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            if (!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) || isLambdaFunction(node)
-                    || isClassForService(node)) {
+            if ((!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) && !isWithinNodeMetaData(node)) ||
+                    isLambdaFunction(node) || isClassForService(node)) {
                 continue;
             }
 
@@ -302,15 +305,18 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         lookupNodes(funcNode.annAttachments);
-        // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
-        // container of the function.
-        if (!this.range.equals(funcNode.symbol.pos.lineRange())) {
-            this.enclosingContainer = funcNode;
-        }
 
+        for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
+            lookupNodes(requiredParam.annAttachments);
+        }
         lookupNodes(funcNode.requiredParams);
+
+        if (funcNode.restParam != null) {
+            lookupNodes(funcNode.restParam.annAttachments);
+        }
         lookupNode(funcNode.restParam);
         lookupNode(funcNode.returnTypeNode);
+        lookupNodes(funcNode.returnTypeAnnAttachments);
         lookupNode(funcNode.body);
     }
 
@@ -345,12 +351,14 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         lookupNode(typeDefinition.typeNode);
+        lookupNodes(typeDefinition.annAttachments);
     }
 
     @Override
     public void visit(BLangConstant constant) {
         lookupNode(constant.typeNode);
         lookupNode(constant.expr);
+        lookupNodes(constant.annAttachments);
         setEnclosingNode(constant, constant.name.pos);
     }
 
@@ -365,6 +373,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangAnnotation annotationNode) {
         lookupNode(annotationNode.typeNode);
+        lookupNodes(annotationNode.annAttachments);
         setEnclosingNode(annotationNode, annotationNode.name.pos);
     }
 
@@ -585,9 +594,9 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        lookupNode(workerSendNode.expr);
-        setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        lookupNode(asyncSendExpr.expr);
+        setEnclosingNode(asyncSendExpr, asyncSendExpr.workerIdentifier.pos);
     }
 
     @Override
@@ -679,6 +688,7 @@ class NodeFinder extends BaseVisitor {
         lookupNodes(actionInvocationExpr.argExprs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
+        lookupNodes(actionInvocationExpr.annAttachments);
 
         if (setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
             return;
@@ -951,9 +961,17 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         lookupNodes(classDefinition.annAttachments);
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            lookupNodes(field.annAttachments);
+        }
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
+
+        for (BLangFunction method : classDefinition.functions) {
+            lookupNodes(method.annAttachments);
+        }
         lookupNodes(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
         setEnclosingNode(classDefinition, classDefinition.name.pos);
@@ -971,13 +989,28 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
         lookupNodes(objectTypeNode.fields);
+
+        for (BLangFunction function : objectTypeNode.functions) {
+            lookupNodes(function.annAttachments);
+        }
         lookupNodes(objectTypeNode.functions);
         lookupNodes(objectTypeNode.typeRefs);
     }
 
     @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        lookupNode(objectConstructorExpression.classNode);
+    }
+
+    @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            lookupNodes(field.annAttachments);
+        }
         lookupNodes(recordTypeNode.fields);
         lookupNodes(recordTypeNode.typeRefs);
     }
@@ -1527,5 +1560,19 @@ class NodeFinder extends BaseVisitor {
 
         return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE) && ((BLangClassDefinition) node).flagSet
                 .contains(Flag.ANONYMOUS);
+    }
+
+    private boolean isWithinNodeMetaData(TopLevelNode node) {
+        if (node instanceof AnnotatableNode) {
+            List<AnnotationAttachmentNode> nodes =
+                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+
+            for (AnnotationAttachmentNode annotAttachment : nodes) {
+                if (PositionUtil.isRangeWithinNode(this.range, annotAttachment.getPosition())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

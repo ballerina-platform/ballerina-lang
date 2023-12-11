@@ -9,7 +9,9 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
@@ -35,6 +37,14 @@ public class RunCommandTest extends BaseCommandTest {
     private Path testResources;
     private Path testDistCacheDirectory;
     private ProjectEnvironmentBuilder projectEnvironmentBuilder;
+    static Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+            "log_creator_combined_plugin/compiler-plugin.txt");
+
+    @BeforeSuite
+    public void setupSuite() throws IOException {
+        Files.createDirectories(logFile.getParent());
+        Files.writeString(logFile, "");
+    }
 
     @BeforeClass
     public void setup() throws IOException {
@@ -243,11 +253,57 @@ public class RunCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
                 ".0")));
         if (!(Files.exists(customTargetDir.resolve("cache").resolve("wso2").resolve("foo").resolve("0.1" +
-                ".0").resolve("java11").resolve("wso2-foo-0.1.0.jar")) || Files.exists(customTargetDir.resolve(
+                ".0").resolve("java17").resolve("wso2-foo-0.1.0.jar")) || Files.exists(customTargetDir.resolve(
                         "cache").resolve("wso2").resolve("foo").resolve("0.1" +
                 ".0").resolve("any").resolve("wso2-foo-0.1.0.jar")))) {
             Assert.fail("Run command with custom target dir failed");
         }
+    }
+
+    @Test(description = "Run a ballerina project with the engagement of all type of compiler plugins")
+    public void testRunBalProjectWithAllCompilerPlugins() throws IOException {
+        Path logFile = Paths.get("./src/test/resources/compiler_plugin_tests/" +
+                "log_creator_combined_plugin/compiler-plugin.txt");
+        Files.createDirectories(logFile.getParent());
+        Files.writeString(logFile, "");
+        Path compilerPluginPath = Paths.get("./src/test/resources/test-resources").resolve("compiler-plugins");
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_analyzer_im"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_generator_im"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(compilerPluginPath.resolve("log_creator_pkg_provided_code_modifier_im"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        Path projectPath = this.testResources.resolve("compiler-plugins").resolve("log_creator_combined_plugin");
+        System.setProperty("user.dir", projectPath.toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+        String logFileContent =  Files.readString(logFile);
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-analyzer"),
+                "Package provided syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-analyzer"),
+                "In-Built syntax node analysis from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-analyzer"),
+                "Package provided source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-analyzer"),
+                "In-Built source analyzer from code analyzer has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-generator"),
+                "Package provided syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-generator"),
+                "In-Built syntax node analysis from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-generator"),
+                "Package provided source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-generator"),
+                "In-Built source generator from code generator has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-syntax-node-analysis-modifier"),
+                "In-Built syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("in-built-source-modifier"),
+                "In-Built source modifier from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-syntax-node-analysis-modifier"),
+                "Package provided syntax node analysis from code modifier has failed to run");
+        Assert.assertTrue(logFileContent.contains("pkg-provided-source-modifier"),
+                "Package provided source modifier from code modifier has failed to run");
     }
 
     @Test(description = "Run a valid ballerina project with invalid argument")
@@ -281,7 +337,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("package_a").resolve("0.1.0").resolve("java17")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -305,7 +361,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("run-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("package_a").resolve("0.1.0").resolve("java17")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -322,5 +378,12 @@ public class RunCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
+    }
+
+    @AfterSuite
+    public void cleanUp() throws IOException {
+        Files.deleteIfExists(logFile);
+        Files.deleteIfExists(logFile.getParent());
+        Files.deleteIfExists(logFile.getParent().getParent());
     }
 }

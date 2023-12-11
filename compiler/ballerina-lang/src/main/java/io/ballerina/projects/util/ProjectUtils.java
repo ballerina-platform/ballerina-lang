@@ -111,6 +111,7 @@ import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -366,11 +367,13 @@ public class ProjectUtils {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
 
-        // if package name is starting with numeric character, prepend `app` / `lib`
+        // if package name is starting with numeric character, prepend `app` / `lib` / `tool`
         if (packageName.matches("[0-9].*")) {
-            if (template.equalsIgnoreCase("lib")) {
-                packageName = "lib" + packageName;
-            } else {
+            if (template.equalsIgnoreCase(LIB_DIR)) {
+                packageName = LIB_DIR + packageName;
+            } else if (template.equalsIgnoreCase(TOOL_DIR)) {
+                packageName = TOOL_DIR + packageName;
+            }  else {
                 packageName = "app" + packageName;
             }
         }
@@ -1092,8 +1095,12 @@ public class ProjectUtils {
                 if (buildJson != null
                         && buildJson.getLastModifiedTime() != null
                         && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
-                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                    Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
                             .get(project.currentPackage().packageName().value());
+                    if (defaultModuleLastModifiedTime == null) {
+                        // package name has changed
+                        return true;
+                    }
                     return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
                 }
             } catch (IOException e) {
@@ -1273,7 +1280,7 @@ public class ProjectUtils {
     }
 
     /**
-     * Return the path of a bala with the available platform directory (java11 or any).
+     * Return the path of a bala with the available platform directory (java17 or any).
      *
      * @param balaDirPath path to the bala directory
      * @param org org name of the bala
@@ -1286,9 +1293,12 @@ public class ProjectUtils {
         Path balaPath = balaDirPath.resolve(
                 ProjectUtils.getRelativeBalaPath(org, name, version, null));
         if (!Files.exists(balaPath)) {
-            // If bala for any platform not exist check for specific platform
-            balaPath = balaDirPath.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+            for (JvmTarget jvmTarget : JvmTarget.values()) {
+                balaPath = balaDirPath.resolve(ProjectUtils.getRelativeBalaPath(org, name, version, jvmTarget.code()));
+                if (Files.exists(balaPath)) {
+                    break;
+                }
+            }
         }
         return balaPath;
     }

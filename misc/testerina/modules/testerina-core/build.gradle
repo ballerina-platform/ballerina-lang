@@ -37,15 +37,17 @@ dependencies {
 
     interopImports "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"
 
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'io.swagger.core.v3:swagger-models'
-    testCompile 'io.swagger.parser.v3:swagger-parser'
-    testCompile 'com.github.jknack:handlebars'
+    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'io.swagger.core.v3:swagger-models'
+    testImplementation 'io.swagger.parser.v3:swagger-parser'
+    testImplementation 'com.github.jknack:handlebars'
 
-    compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+    implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
 }
 
-jar.archiveName("${project.name}-${project.version}.jar")
+jar {
+    archiveFileName.set("${project.name}-${project.version}.jar")
+}
 
 task updateVersion {
     doLast {
@@ -63,4 +65,5 @@ ballerinaLangLibBuild {
     skipBootstrap = 'true'
 }
 
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":testerina:testerina-core:copyInteropImports")
 description = 'Ballerina - Testerina - Core'

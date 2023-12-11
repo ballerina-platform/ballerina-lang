@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -96,6 +97,11 @@ public class ArrayDestructureTest {
 
         BAssertUtil.validateError(negativeTestCompile, index++,
                 "incompatible types: expected '[Bar,Bar]', found 'Foo[2]'", 39, 14);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
 }

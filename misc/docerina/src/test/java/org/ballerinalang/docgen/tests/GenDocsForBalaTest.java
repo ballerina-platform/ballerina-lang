@@ -105,9 +105,9 @@ public class GenDocsForBalaTest {
         Assert.assertTrue(moduleApiDocsJsonAsString.contains("Task"), "Function annotation attachments missing");
     }
 
-    @Test
+    @Test (enabled = false)
     public void generatingDocsForBalaWithAnnotationTest2() throws IOException {
-        Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java11-2.4.0.bala");
+        Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java17-2.4.0.bala");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);

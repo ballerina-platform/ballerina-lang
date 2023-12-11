@@ -215,6 +215,8 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS, 209, 6);
         BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' with " +
                 "object type inclusion", 210, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' " +
+                "qualifier(s) in the referencing object", 218, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

@@ -1,0 +1,34 @@
+{
+  "range": {
+    "start": {
+      "line": 18,
+      "character": 24
+    },
+    "end": {
+      "line": 18,
+      "character": 80
+    }
+  },
+  "source": "source/inlayhint4.bal",
+  "result": [
+    {
+      "position": {
+        "line": 18,
+        "character": 24
+      },
+      "label": {
+        "left": "company: "
+      }
+    },
+    {
+      "position": {
+        "line": 18,
+        "character": 56
+      },
+      "label": {
+        "left": "...employee: "
+      }
+    }
+  ],
+  "description": "inlay hints for remote method calls"
+}

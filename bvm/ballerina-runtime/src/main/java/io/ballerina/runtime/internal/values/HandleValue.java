@@ -40,7 +40,6 @@ public class HandleValue implements BHandle, RefValue {
     private Object value;
     private BTypedesc typedesc;
 
-    @Deprecated
     public HandleValue(Object value) {
         this.value = value;
     }

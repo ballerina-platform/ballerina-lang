@@ -122,7 +122,7 @@ public interface BTable<K, V> extends BRefValue, BCollection {
      * @return the value to which the specified key is mapped
      * @throws BError if the key does not exists
      */
-    V getOrThrow(Object key);
+    V getOrThrow(Object key) throws BError;
 
     /**
      * Returns the value for the given key from map. If the key does not exist, but there exists a filler

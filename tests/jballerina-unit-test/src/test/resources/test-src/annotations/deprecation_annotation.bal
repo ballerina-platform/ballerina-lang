@@ -309,16 +309,16 @@ type Employee record {|
 type Job record {|
     string title;
     @deprecated
-    int experiance;
+    int experience;
 |};
 
 public function testDeprecatedRecordFields() {
-    Employee employee = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
+    Employee employee = {name: "John", id: 112, job: {title: "SE", experience: 2}};
     _ = employee.name; // warning
     _ = employee.id;
     _ = employee.job; // warning
     _ = employee.job.title; // warning
-    _ = employee.job.experiance; // warning
+    _ = employee.job.experience; // warning
 }
 
 # Employee2 record
@@ -340,7 +340,7 @@ type Employee2 record {|
 |};
 
 public function testDeprecatedRecordFieldsWithDocumentation() {
-    Employee2 employee2 = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
+    Employee2 employee2 = {name: "John", id: 112, job: {title: "SE", experience: 2}};
     _ = employee2.name; // warning
     _ = employee2.id;
     _ = employee2.job; // warning
@@ -390,7 +390,139 @@ type Employee5 record {
 };
 
 public function testDeprecatedAnonStructAsStructField() {
-    Employee5 employee5 = {address: {}};
+    Employee5 employee5 = {address: {}};    // warning
     _ = employee5.address;  // warning
     _ = employee5.address.line02;   // warning
+}
+
+type Company record {
+    int companyId;
+
+    @deprecated
+    string name;
+
+    @deprecated
+    string city;
+
+    @deprecated
+    string country;
+};
+
+public function testDeprecatedAnonRecordFieldInInitialization() {
+     Job _ = {
+        title: "SE",
+        experience: 1  // warning
+    };
+
+    int experience = 2;
+    Job _ = {
+        title: "SE",
+        experience  // warning
+    };
+
+    var details = {experience: 2};
+    Job _ = {
+        title: "SE",
+        ...details  // warning
+    };
+
+    string city = "Berlin";
+    var companyDetails = {country: "Germany"};
+    Company _ = {
+        companyId: 1,
+        name: "Foo",    // warning
+        city: city,     // warning
+        ...companyDetails   // warning
+    };
+}
+
+function fooFn(int x1, @deprecated int x2){
+}
+
+function barFn(string s, *Company company) {
+}
+
+function bazFn(string a, @deprecated string b, @deprecated int... c) {
+}
+
+function quxFn(@deprecated string y1 = "Qux", @deprecated int y2 = 10) {
+}
+
+function quuxFn(record {|
+    int id;
+    record {|string name; @deprecated int age;|} person;
+|} z) {
+}
+
+public function testDeprecatedParamUsages() {
+    fooFn(10, 11);
+    fooFn(12, x2 = 13);
+    fooFn(x1 = 14, x2 = 15);
+    barFn("bar", {
+        companyId: 1,
+        city: "Berlin", // Warning
+        country: "Germany", // Warning
+        name: "Bar" // Warning
+    });
+    barFn(
+        "bar",
+        companyId = 1,
+        city = "Berlin", // Warning
+        country = "Germany", // Warning
+        name = "Bar" // Warning
+    );
+    bazFn(
+        "A",
+        "B",    // warning
+        1,      // warning
+        2,      // warning
+        3       // warning
+    );
+    quxFn(
+        "Quux", // warning
+        11      // warning
+    );
+    quxFn(
+        y1 = "Quux", // warning
+        y2 = 11      // warning
+    );
+    quuxFn({
+        id: 1,
+        person: {
+            name: "John",
+            age: 12     // warning
+        }
+    });
+
+    // As rest args
+    [int, int] argX = [1, 2];
+    fooFn(...argX);
+    fooFn(...[
+            1,
+            2           // warning
+        ]
+    );
+    var fn1 = function ()  returns int => 1;
+    fooFn(...[
+        1,
+        ...[
+            fn1()       // warning
+            ]
+        ]
+    );
+    var fn2 = function () returns [int, int] => [1, 2];
+    fooFn(...[
+        ...[
+            ...fn2()    // warning
+            ]
+        ]
+    );
+    bazFn(
+        "A",
+        ...[
+            "B",    // warning
+            1,      // warning
+            3       // warning
+        ]
+    );
 }

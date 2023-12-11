@@ -61,6 +61,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -176,10 +177,16 @@ public class JsonToRecordMapper {
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
                 }).collect(Collectors.toList());
-        TypeDefinitionNode lastTypeDefNode = convertToInlineRecord(typeDefNodes);
-        NodeList<ModuleMemberDeclarationNode> moduleMembers = isRecordTypeDesc ?
-                AbstractNodeFactory.createNodeList(lastTypeDefNode) :
-                AbstractNodeFactory.createNodeList(new ArrayList<>(typeDefNodes));
+
+        NodeList<ModuleMemberDeclarationNode> moduleMembers;
+        if (isRecordTypeDesc) {
+            Optional<TypeDefinitionNode> lastTypeDefNode = convertToInlineRecord(typeDefNodes, diagnosticMessages);
+            moduleMembers = lastTypeDefNode
+                    .<NodeList<ModuleMemberDeclarationNode>>map(AbstractNodeFactory::createNodeList)
+                    .orElseGet(AbstractNodeFactory::createEmptyNodeList);
+        } else {
+            moduleMembers = AbstractNodeFactory.createNodeList(new ArrayList<>(typeDefNodes));
+        }
 
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
@@ -235,21 +242,8 @@ public class JsonToRecordMapper {
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
             }
-            RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
-                    (RecordTypeDescriptorNode) recordToTypeDescNodes.get(recordName);
-            List<RecordFieldNode> previousRecordFields = previousRecordTypeDescriptorNode.fields().stream()
-                    .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
-            Map<String, RecordFieldNode> previousRecordFieldToNodes = previousRecordFields.stream()
-                    .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
-                            (val1, val2) -> val1, LinkedHashMap::new));
-            Map<String, RecordFieldNode> newRecordFieldToNodes = jsonObject.entrySet().stream()
-                    .map(entry ->
-                            (RecordFieldNode) getRecordField(entry, existingFieldNames, updatedFieldNames, false))
-                    .collect(Collectors.toList()).stream()
-                    .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
-                            (val1, val2) -> val1, LinkedHashMap::new));
-            updateRecordFields(jsonObject, jsonNodes, diagnosticMessages, recordFields, existingFieldNames,
-                    updatedFieldNames, previousRecordFieldToNodes, newRecordFieldToNodes);
+            prepareAndUpdateRecordFields(jsonObject, recordName, jsonNodes, recordToTypeDescNodes,
+                    diagnosticMessages, recordFields, existingFieldNames, updatedFieldNames, false);
         } else {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                 if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
@@ -260,6 +254,11 @@ public class JsonToRecordMapper {
                 Node recordField = getRecordField(entry, existingFieldNames, updatedFieldNames, false);
                 recordFields.add(recordField);
             }
+            if (recordToTypeDescNodes.containsKey(recordName)) {
+                recordFields.clear();
+                prepareAndUpdateRecordFields(jsonObject, recordName, jsonNodes, recordToTypeDescNodes,
+                        diagnosticMessages, recordFields, existingFieldNames, updatedFieldNames, true);
+            }
         }
         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFields);
         Token bodyEndDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.CLOSE_BRACE_PIPE_TOKEN :
@@ -268,7 +267,7 @@ public class JsonToRecordMapper {
                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                         fieldNodes, null, bodyEndDelimiter);
 
-        if (moveBefore == null) {
+        if (moveBefore == null || moveBefore.equals(recordName)) {
             recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);
         } else {
             List<Map.Entry<String, NonTerminalNode>> typeDescNodes = new ArrayList<>(recordToTypeDescNodes.entrySet());
@@ -299,6 +298,49 @@ public class JsonToRecordMapper {
                 generateRecordForObjAndArray(element, arrayElementKey, isClosed, recordToTypeDescNodes, moveBefore,
                         jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, true);
             }
+        }
+    }
+
+    /**
+     * This method prepares the existing fields and new fields to generate updated record fields.
+     *
+     * @param jsonObject JSON object node that has to be generated as Ballerina record
+     * @param recordName Name of the generated record
+     * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
+     * @param jsonNodes The map of JSON field names and the JSON nodes for already created TypeDescriptorNodes
+     * @param diagnosticMessages The list of diagnostic messages generated by the method
+     * @param recordFields The list generated record fields
+     * @param existingFieldNames The list of already existing record names in the ModulePartNode
+     * @param updatedFieldNames The map of updated record names for already existing record names in the ModulePartNode
+     * @param prepareForNestedSameField To denote if the fields are being prepared for normal processing or
+     *                                  for nested JSON with same field
+     */
+    private static void prepareAndUpdateRecordFields(JsonObject jsonObject, String recordName,
+                                                    Map<String, JsonElement> jsonNodes,
+                                                    Map<String, NonTerminalNode> recordToTypeDescNodes,
+                                                    List<DiagnosticMessage> diagnosticMessages,
+                                                    List<Node> recordFields, List<String> existingFieldNames,
+                                                    Map<String, String> updatedFieldNames,
+                                                    boolean prepareForNestedSameField) {
+        RecordTypeDescriptorNode previousRecordTypeDescriptorNode =
+                (RecordTypeDescriptorNode) recordToTypeDescNodes.get(recordName);
+        List<RecordFieldNode> previousRecordFields = previousRecordTypeDescriptorNode.fields().stream()
+                .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
+        Map<String, RecordFieldNode> previousRecordFieldToNodes = previousRecordFields.stream()
+                .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
+                        (val1, val2) -> val1, LinkedHashMap::new));
+        Map<String, RecordFieldNode> newRecordFieldToNodes = jsonObject.entrySet().stream()
+                .map(entry ->
+                        (RecordFieldNode) getRecordField(entry, existingFieldNames, updatedFieldNames, false))
+                .collect(Collectors.toList()).stream()
+                .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity(),
+                        (val1, val2) -> val1, LinkedHashMap::new));
+        if (prepareForNestedSameField) {
+            updateRecordFields(jsonObject, jsonNodes, diagnosticMessages, recordFields, existingFieldNames,
+                    updatedFieldNames, newRecordFieldToNodes, previousRecordFieldToNodes);
+        } else {
+            updateRecordFields(jsonObject, jsonNodes, diagnosticMessages, recordFields, existingFieldNames,
+                    updatedFieldNames, previousRecordFieldToNodes, newRecordFieldToNodes);
         }
     }
 
@@ -450,9 +492,11 @@ public class JsonToRecordMapper {
      * This method converts the list of TypeDefinitionNodes into single inline TypeDefinitionNode.
      *
      * @param typeDefNodes List of TypeDefinitionNodes that has to be converted into inline TypeDefinitionNode.
+     * @param diagnosticMessages The list of diagnostic messages generated by the method
      * @return {@link TypeDefinitionNode} The converted inline TypeDefinitionNode.
      */
-    private static TypeDefinitionNode convertToInlineRecord(List<TypeDefinitionNode> typeDefNodes) {
+    private static Optional<TypeDefinitionNode> convertToInlineRecord(List<TypeDefinitionNode> typeDefNodes,
+                                                                     List<DiagnosticMessage> diagnosticMessages) {
         Map<String, RecordTypeDescriptorNode> visitedRecordTypeDescNodeTypeToNodes = new LinkedHashMap<>();
         for (TypeDefinitionNode typeDefNode : typeDefNodes) {
             RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDefNode.typeDescriptor();
@@ -463,6 +507,12 @@ public class JsonToRecordMapper {
                 TypeDescriptorNode fieldTypeName = (TypeDescriptorNode) recordFieldNode.typeName();
                 TypeDescriptorNode converted =
                         convertUnionTypeToInline(fieldTypeName, visitedRecordTypeDescNodeTypeToNodes);
+                if (converted == null) {
+                    DiagnosticMessage message =
+                            DiagnosticMessage.jsonToRecordConverter107(recordFieldNode.fieldName().text());
+                    diagnosticMessages.add(message);
+                    return Optional.empty();
+                }
                 Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                 RecordFieldNode updatedRecordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                         converted, recordFieldNode.fieldName(),
@@ -483,8 +533,8 @@ public class JsonToRecordMapper {
         IdentifierToken typeName =
                 AbstractNodeFactory.createIdentifierToken(escapeIdentifier(lastRecordTypeDescNode.getKey()));
         Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-        return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
-                lastRecordTypeDescNode.getValue(), semicolon);
+        return Optional.of(NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
+                lastRecordTypeDescNode.getValue(), semicolon));
     }
 
     /**
@@ -569,10 +619,7 @@ public class JsonToRecordMapper {
         } else if (typeNames.size() == 1) {
             return typeNames.get(0);
         }
-        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
-        String unionTypeDescNodeSource = typeNames.stream().map(TypeDescriptorNode::toSourceCode)
-                .collect(Collectors.joining(pipeToken.toSourceCode()));
-        TypeDescriptorNode unionTypeDescNode = NodeParser.parseTypeDescriptor(unionTypeDescNodeSource);
+        TypeDescriptorNode unionTypeDescNode = joinToUnionTypeDescriptorNode(typeNames);
         Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
         Token questionMarkToken = NodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -582,6 +629,23 @@ public class JsonToRecordMapper {
 
         return isOptional ?
                 NodeFactory.createOptionalTypeDescriptorNode(parenTypeDescNode, questionMarkToken) : parenTypeDescNode;
+    }
+
+    /**
+     * This method joins types to create UnionTypeDescriptorNode.
+     *
+     * @param typeNames List of TypeDescriptorNodes to be unionized - the size of the list should be always >= 2
+     * @return {@link TypeDescriptorNode} Union TypeDescriptorNode of provided TypeDescriptorNodes
+     */
+    private static TypeDescriptorNode joinToUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
+        Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
+
+        TypeDescriptorNode unionTypeDescNode = typeNames.get(0);
+        for (int i = 1; i < typeNames.size(); i++) {
+            unionTypeDescNode =
+                    NodeFactory.createUnionTypeDescriptorNode(unionTypeDescNode, pipeToken, typeNames.get(i));
+        }
+        return unionTypeDescNode;
     }
 
     /**
@@ -612,6 +676,9 @@ public class JsonToRecordMapper {
 
             if (fieldKind.equals(SyntaxKind.IDENTIFIER_TOKEN)) {
                 arrayExtractedNode = visitedRecordTypeDescNodeTypeToNodes.get(fieldTypeNameText);
+                if (arrayExtractedNode == null) {
+                    return null;
+                }
             }
             updatedTypeDescNodes.add(arrayExtractedNode);
         } else {

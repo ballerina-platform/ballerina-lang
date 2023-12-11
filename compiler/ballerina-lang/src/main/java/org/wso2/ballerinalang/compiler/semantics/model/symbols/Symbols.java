@@ -171,7 +171,7 @@ public class Symbols {
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
-        if (type != null && Types.getReferredType(type).tag == TypeTags.INVOKABLE) {
+        if (type != null && Types.getImpliedType(type).tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol invokableTypeSymbol =
                     createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
             invokableTypeSymbol.returnType = ((BInvokableType) type).retType;

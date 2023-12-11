@@ -58,6 +58,8 @@ public class BCompileUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
+    private BCompileUtil() {}
+
     public static Project loadProject(String sourceFilePath) {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return loadProject(sourceFilePath, buildOptionsBuilder.build());
@@ -209,7 +211,7 @@ public class BCompileUtil {
         if (packageCompilation.diagnosticResult().errorCount() > 0) {
             logger.error("compilation failed with errors: " + currentPackage.project().sourceRoot());
         }
-        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
     }
 
     /**

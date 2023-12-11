@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -107,5 +108,10 @@ public class AnyFunctionTypeTest {
     @Test
     public void testFunctionWithNeverOrNeverEqualReturnType() {
         BRunUtil.invoke(functionTypeTestResult, "testFunctionWithNeverOrNeverEqualReturnType");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        functionTypeTestResult = null;
     }
 }

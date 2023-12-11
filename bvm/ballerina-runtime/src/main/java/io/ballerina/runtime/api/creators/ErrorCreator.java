@@ -158,7 +158,7 @@ public class ErrorCreator {
      * @throws BError if given error type is not defined in the ballerina module.
      */
     public static BError createError(Module module, String errorTypeName,
-                                     BString message, BError cause, BMap<BString, Object> details) {
+                                     BString message, BError cause, BMap<BString, Object> details) throws BError {
         details = RuntimeUtils.validateErrorDetails(details);
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
         try {

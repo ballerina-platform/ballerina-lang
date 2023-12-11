@@ -4,6 +4,7 @@
     "character": 11
   },
   "source": "typedesc_context/source/union_typedesc2.bal",
+  "description": "",
   "items": [
     {
       "label": "TestMap2",
@@ -157,11 +158,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -181,11 +182,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -205,11 +206,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -229,11 +230,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -253,11 +254,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -317,11 +318,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -341,11 +342,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -365,11 +366,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -389,11 +390,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -421,7 +422,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function4",
+      "filterText": "module1_function4",
       "insertText": "module1:function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -440,7 +441,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function3",
+      "filterText": "module1_function3",
       "insertText": "module1:function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -459,7 +460,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function2",
+      "filterText": "module1_function2",
       "insertText": "module1:function2()",
       "insertTextFormat": "Snippet"
     },
@@ -474,7 +475,7 @@
         }
       },
       "sortText": "BC",
-      "filterText": "function1",
+      "filterText": "module1_function1",
       "insertText": "module1:function1()",
       "insertTextFormat": "Snippet"
     },
@@ -490,11 +491,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },

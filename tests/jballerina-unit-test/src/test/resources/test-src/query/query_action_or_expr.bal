@@ -915,6 +915,97 @@ function testQueryActionWithQueryExpression() {
     assertEquality([4, 25], res2);
 }
 
+function testQueryActionWithRegexpLangLibs() {
+    string[] res = [];
+
+    from var item in ["a", "aab", "bc", "ac"] 
+    do {
+        if re `a.*`.isFullMatch(item) {
+            res.push(item);
+        }
+    };
+    
+    assertEquality(["a", "aab", "ac"], res);
+}
+
+function testQueryExprWithRegExpLangLibs() {
+    string[] res = from var item in ["a", "aab", "bc", "ac"] 
+    where re `a.*`.isFullMatch(item)
+    select item;
+    
+    assertEquality(["a", "aab", "ac"], res);
+}
+
+function testQueryActionWithInterpolationRegexpLangLibs() {
+    string[] res = [];
+    string pattern = "a.*";
+    from var item in ["aa", "aaab", "bc", "aac"] 
+    do {
+        if re `a${pattern}`.isFullMatch(item) {
+            res.push(item);
+        }
+    };
+
+    assertEquality(["aa", "aaab", "aac"], res);
+}
+
+type T1 record {
+    T3[] t3s;
+};
+
+type T2 record {
+    T3[]|T4[] t3OrT4;
+};
+
+type T3 record {
+    string str;
+};
+
+type T4 record {
+    boolean foo;
+};
+
+function transform(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select {
+           str: "transformed_" + t3sItem.str
+        }
+};
+
+function testQueryActionOrExpressionWithUnionRecordResultType() {
+    T1 t1 = {t3s: [{str: "str1"}, {str: "str2"}]};
+    T2 t2 = transform(t1);
+    assertEquality([{str: "transformed_str1"}, {str: "transformed_str2"}], t2.t3OrT4);
+}
+
+type Student record {
+    string firstName;
+    string lastName;
+    int intakeYear;
+    float gpa;
+};
+
+function calGraduationYear(int year) returns int => year + 5;
+
+function getBestStudents() returns any|error {
+    Student s1 = {firstName: "Martin", lastName: "Sadler", intakeYear: 1990, gpa: 3.5};
+    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001, gpa: 1.9};
+    Student s3 = {firstName: "Michelle", lastName: "Guthrie", intakeYear: 2002, gpa: 3.7};
+    Student s4 = {firstName: "George", lastName: "Fernando", intakeYear: 2005, gpa: 4.0};
+    Student[] studentList = [s1, s2, s3];
+
+    return from var student in studentList
+        where student.gpa >= 2.0
+        let string degreeName = "Bachelor of Medicine", int graduationYear = calGraduationYear(student.intakeYear)
+        order by student.gpa descending
+        limit 2
+        select {name: student.firstName + " " + student.lastName, degree: degreeName, graduationYear};
+}
+
+function testQueryActionOrExprWithAnyOrErrResultType() {
+    assertTrue(getBestStudents() is record {|string name; string degree; int graduationYear;|}[]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {

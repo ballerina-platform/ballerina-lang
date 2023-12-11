@@ -66,7 +66,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     public AbstractObjectValue(Type type) {
         this.type = type;
-        this.objectType = (BObjectType) TypeUtils.getReferredType(type);
+        this.objectType = (BObjectType) TypeUtils.getImpliedType(type);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class DocCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
             "dependencies.")
-    private boolean offline;
+    private Boolean offline;
 
     @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
     private boolean useOldParser;

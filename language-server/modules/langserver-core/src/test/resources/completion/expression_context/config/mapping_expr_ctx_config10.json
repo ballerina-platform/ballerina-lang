@@ -51,7 +51,7 @@
       "label": "...rec",
       "kind": "Variable",
       "detail": "TestRecord2",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "rec",
       "insertText": "...rec",
       "insertTextFormat": "Snippet"
@@ -60,7 +60,7 @@
       "label": "...rec1",
       "kind": "Variable",
       "detail": "TestRecord1",
-      "sortText": "F",
+      "sortText": "AC",
       "filterText": "rec1",
       "insertText": "...rec1",
       "insertTextFormat": "Snippet"

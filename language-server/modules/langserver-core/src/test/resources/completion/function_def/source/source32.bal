@@ -1,0 +1,3 @@
+class Clz {
+    public function
+}

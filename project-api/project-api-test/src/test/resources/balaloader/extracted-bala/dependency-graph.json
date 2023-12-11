@@ -4,7 +4,9 @@
       "org": "samjs",
       "name": "a",
       "version": "1.0.0",
-      "dependencies": []
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
     }
   ],
   "modules": [

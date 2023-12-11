@@ -24,6 +24,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -377,11 +378,11 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'l'", 183, 116);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'm'", 183, 120);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'n'", 183, 124);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '[string[] & readonly," +
-                "string]', found 'ReadOnlyTuple'", 192, 14);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '[string[] & readonly," +
-                "[int[] & readonly,any]]', found '([int[],ReadOnlyTuple] & readonly)'", 197, 19);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[] & readonly', " +
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected " +
+                "'[(string[] & readonly),string]', found 'ReadOnlyTuple'", 192, 14);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '[(string[] & " +
+                "readonly),[(int[] & readonly),any]]', found '([int[],ReadOnlyTuple] & readonly)'", 197, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '(int[] & readonly)', " +
                 "found 'int[]'", 199, 9);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
                 "mismatch with member type count", 204, 5);
@@ -425,5 +426,12 @@ public class TupleVariableReferenceTest {
                 "duplicate variable 'a'", 27, 10);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'a'", 27, 13);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        resultNegative = null;
+        resultSemanticsNegative = null;
     }
 }

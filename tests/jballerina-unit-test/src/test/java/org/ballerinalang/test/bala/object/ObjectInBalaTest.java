@@ -41,6 +41,7 @@ public class ObjectInBalaTest {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_two");
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_utils");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/bir_test_project");
 
         result = BCompileUtil.compile("test-src/bala/test_bala/object/test_objects.bal");
     }
@@ -546,6 +547,36 @@ public class ObjectInBalaTest {
                 "no implementation found for the method 'toString' of class 'FrameImpl'", 53, 1);
     }
 
+    @Test(description = "Test object inclusion with remote method with parameters")
+    public void testObjectInclusionWithMethodWithParameters() {
+        BRunUtil.invoke(result, "testObjectInclusionWithMethodWithParameters");
+    }
+
+    @Test (description = "Negative test to verify object qualifiers load properly from BIR")
+    public void testDistinctIsolatedObjectsNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: expected 'bir/objs:0.1.0:Foo', found 'bir/objs:0.1.0:Bar'", 24, 18);
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: expected 'bir/objs:0.1.0:Bar', found 'bir/objs:0.1.0:Foo'", 28, 18);
+        BAssertUtil.validateError(result, i++,
+                "incompatible types: expected 'Foo', found 'bir/objs:0.1.0:Foo'", 29, 13);
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: expected 'bir/objs:0.1.0:Qux', found 'bir/objs:0.1.0:Xyz'", 33, 18);
+        BAssertUtil.validateError(result, i++, 
+                "incompatible types: expected 'bir/objs:0.1.0:Xyz', found 'bir/objs:0.1.0:Qux'", 37, 18);
+        BAssertUtil.validateError(result, i++,
+                "incompatible types: expected 'bir/objs:0.1.0:Foo', found 'Foo'", 41, 18);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(description = "Positive test to verify object isolated and distinct qualifiers load properly from BIR")
+    public void testObjectTypeAssignabilityWithQualifiers() {
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/object/test_bir_positive.bal");
+        BRunUtil.invoke(result, "testObjectTypeAssignabilityWithQualifiers");
+    }
+    
     @AfterClass
     public void tearDown() {
         result = null;

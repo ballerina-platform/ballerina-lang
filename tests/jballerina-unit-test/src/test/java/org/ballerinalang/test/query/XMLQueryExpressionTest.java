@@ -50,7 +50,7 @@ public class XMLQueryExpressionTest {
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'," +
                         " found 'xml'", 21, 16);
-        validateError(negativeResult, index++, "incompatible types: expected 'xml:Element & readonly', " + "" +
+        validateError(negativeResult, index++, "incompatible types: expected 'xml:Element & readonly', " +
                 "found 'xml:Element'", 25, 16);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<(xml:Element & readonly)> & readonly', found 'xml:Element'",
@@ -71,6 +71,12 @@ public class XMLQueryExpressionTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<(xml:ProcessingInstruction & readonly)> & readonly', " +
                 "found 'xml:ProcessingInstruction'", 51, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(xml:Element|error)', found '(xml<xml:Element>|error)'", 81, 27);
+         validateError(negativeResult, index++, 
+                 "ambiguous type '[xml:Element, xml]'", 88, 16);
+         validateError(negativeResult, index++, 
+                 "ambiguous type '[xml:Element, xml]'", 99, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -83,7 +89,7 @@ public class XMLQueryExpressionTest {
                 "<name>Sherlock Holmes</name><name>The Da Vinci Code</name>");
     }
 
-    @Test(groups = {"disableOnOldParser"}, description = "Test simple query expression for XMLs - #2")
+    @Test(description = "Test simple query expression for XMLs - #2")
     public void testSimpleQueryExprForXML2() {
         Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForXML2");
         Assert.assertNotNull(returnValues);
@@ -99,6 +105,11 @@ public class XMLQueryExpressionTest {
 
         Assert.assertEquals(returnValues.toString(),
                 "<price>30.00</price><price>29.99</price><price>49.99</price><price>39.95</price>");
+    }
+
+    @Test(description = "Test simple query expression for XMLs - #4")
+    public void testSimpleQueryExprForXML4() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXML4");
     }
 
     @Test(description = "Test simple query expression with limit clause for XMLs")
@@ -138,7 +149,7 @@ public class XMLQueryExpressionTest {
                 "<name>Sherlock Holmes</name><name>The Da Vinci Code</name>");
     }
 
-    @Test(groups = {"disableOnOldParser"}, description = "Test simple query expression for xml? - #2")
+    @Test(description = "Test simple query expression for xml? - #2")
     public void testSimpleQueryExprForXMLOrNilResult2() {
         Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResult2");
         Assert.assertNotNull(returnValues);
@@ -344,8 +355,7 @@ public class XMLQueryExpressionTest {
         BRunUtil.invoke(result, "testSimpleQueryExprForXMLWithReadonly1");
     }
 
-    @Test(groups = {"disableOnOldParser"},
-            description = "Test simple query expression for XMLs with readonly intersection - #2")
+    @Test(description = "Test simple query expression for XMLs with readonly intersection - #2")
     public void testSimpleQueryExprForXMLWithReadonly2() {
         BRunUtil.invoke(result, "testSimpleQueryExprForXMLWithReadonly2");
     }
@@ -375,8 +385,7 @@ public class XMLQueryExpressionTest {
         BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResultWithReadonly1");
     }
 
-    @Test(groups = {"disableOnOldParser"},
-            description = "Test simple query expression for xml? with readonly intersection - #2")
+    @Test(description = "Test simple query expression for xml? with readonly intersection - #2")
     public void testSimpleQueryExprForXMLOrNilResultWithReadonly2() {
        BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResultWithReadonly2");
     }
@@ -509,6 +518,11 @@ public class XMLQueryExpressionTest {
             "intersection")
     public void testQueryExpressionIteratingOverStreamReturningXMLWithReadonly() {
         BRunUtil.invoke(result, "testQueryExpressionIteratingOverStreamReturningXMLWithReadonly");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml starting with whitespace")
+    public void testQueryExpressionXmlStartWithWhiteSpace() {
+        BRunUtil.invoke(result, "testQueryExpressionXmlStartWithWhiteSpace");
     }
 
     @AfterClass

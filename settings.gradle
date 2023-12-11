@@ -1,3 +1,7 @@
+plugins {
+    id "com.gradle.enterprise" version "3.13.2"
+}
+
 rootProject.name = 'ballerina-parent'
 include(':ballerina-tools-api')
 include(':ballerina-parser')
@@ -32,6 +36,7 @@ include(':ballerina-lang-test')
 include(':ballerina-langlib:test')
 include(':ballerina-io-internal')
 include(':json-mapper')
+include(':xml-to-record-converter')
 include(':lib-creator')
 include(':ballerina-runtime')
 include(':ballerina-rt')
@@ -69,7 +74,6 @@ include(':testerina')
 include(':testerina:report-tools')
 include(':testerina:testerina-compiler-plugin')
 include(':testerina:testerina-runtime')
-include(':testerina:testerina-core')
 include(':ballerina-spec-conformance-tests')
 include(':observability-symbol-collector')
 include(':metrics-extensions:ballerina-metrics-extension')
@@ -94,7 +98,6 @@ include(':testerina:report-tools')
 include(':testerina-integration-test')
 include(':jballerina-debugger-integration-test')
 include(':language-server-integration-tests')
-include(':language-server-simulator')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
 
@@ -126,10 +129,17 @@ include(':project-api-test-artifact:bad-sad-compiler-plugin')
 include(':project-api-test-artifact:logging-file-appender-plugin')
 include(':project-api-test-artifact:init-function-codegen-compiler-plugin')
 include(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+include(':project-api-test-artifact:log-creator-in-built-code-modifier')
+include(':project-api-test-artifact:log-creator-in-built-code-generator')
+include(':project-api-test-artifact:log-creator-in-built-code-analyzer')
+include(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
+include(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
+include(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
 include(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 include(':project-api-test-artifact:init-function-diagnostic-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier')
 include(':identifier-util')
+include(':ballerina-profiler')
 
 //include(':ballerina-libs')
 include(':bir-spec')
@@ -152,6 +162,12 @@ project(':project-api-test-artifact:bad-sad-compiler-plugin').projectDir = file(
 project(':project-api-test-artifact:logging-file-appender-plugin').projectDir = file('project-api/test-artifacts/logging-file-appender-plugin')
 project(':project-api-test-artifact:init-function-codegen-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-codegen-compiler-plugin')
 project(':project-api-test-artifact:init-function-code-modify-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-code-modify-compiler-plugin')
+project(':project-api-test-artifact:log-creator-in-built-code-modifier').projectDir = file('project-api/test-artifacts/log-creator-in-built-code-modifier')
+project(':project-api-test-artifact:log-creator-in-built-code-generator').projectDir = file('project-api/test-artifacts/log-creator-in-built-code-generator')
+project(':project-api-test-artifact:log-creator-in-built-code-analyzer').projectDir = file('project-api/test-artifacts/log-creator-in-built-code-analyzer')
+project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier').projectDir = file('project-api/test-artifacts/log-creator-pkg-provided-code-modifier')
+project(':project-api-test-artifact:log-creator-pkg-provided-code-generator').projectDir = file('project-api/test-artifacts/log-creator-pkg-provided-code-generator')
+project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer').projectDir = file('project-api/test-artifacts/log-creator-pkg-provided-code-analyzer')
 project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen').projectDir = file('project-api/test-artifacts/simple-code-gen-plugin-with-resource-gen')
 project(':project-api-test-artifact:init-function-diagnostic-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-diagnostic-compiler-plugin')
 project(':project-api-test-artifact:compiler-plugin-with-analyzer-generator-modifier').projectDir = file('project-api/test-artifacts/compiler-plugin-with-analyzer-generator-modifier')
@@ -186,6 +202,7 @@ project(':ballerina-treegen').projectDir = file('compiler/ballerina-treegen')
 project(':ballerina-test-utils').projectDir = file('tests/ballerina-test-utils')
 project(':ballerina-io-internal').projectDir = file('misc/io-internal')
 project(':json-mapper').projectDir = file('misc/json-to-record-converter')
+project(':xml-to-record-converter').projectDir = file('misc/xml-to-record-converter')
 project(':lib-creator').projectDir = file('misc/lib-creator')
 project(':ballerina-bindgen').projectDir = file('misc/ballerina-bindgen')
 project(':maven-resolver').projectDir = file('misc/maven-resolver')
@@ -229,7 +246,6 @@ project(':test-launch-listener-03').projectDir = file('tests/launch-listener-tes
 project(':test-launch-listener-04').projectDir = file('tests/launch-listener-test-util-libs/test-launch-listener-04')
 project(':jballerina-integration-test').projectDir = file('tests/jballerina-integration-test')
 project(':language-server-integration-tests').projectDir = file('tests/language-server-integration-tests')
-project(':language-server-simulator').projectDir = file('tests/language-server-simulator')
 // project(':composer-integration-test').projectDir = file('tests/composer-integration-test')
 // project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
 //project(':ballerina-stringutils').projectDir = file('stdlib/stringutils')
@@ -255,11 +271,19 @@ project(':ls-extensions:performance-analyzer-services').projectDir = file('misc/
 project(':ls-extensions:partial-parser').projectDir = file('misc/ls-extensions/modules/partial-parser')
 project(':ls-extensions:trigger-service').projectDir = file('misc/ls-extensions/modules/trigger-service')
 project(':ls-extensions:bal-shell-service').projectDir = file('misc/ls-extensions/modules/bal-shell-service')
+project(':ballerina-profiler').projectDir = file('bvm/ballerina-profiler')
 
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"
         enabled = false
         push = true
+    }
+}
+
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 }

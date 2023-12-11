@@ -17,12 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="debugger-intg-test-suite">
 
     <!-- Ballerina debug related test cases. -->
-    <test name="debugger-intg-tests" parallel="false">
+    <test name="debugger-intg-tests">
         <parameter name="enableDebuggerTests" value="true"/>
         <groups>
             <run>

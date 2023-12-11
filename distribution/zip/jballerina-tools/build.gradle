@@ -47,6 +47,9 @@ configurations {
     debugAdapterLib {
         transitive false
     }
+    jacocoAgentLib {
+        transitive false
+    }
     docerina
     bin
     bir
@@ -67,7 +70,6 @@ configurations {
 }
 
 dependencies {
-    dist "org.bytedeco:javacpp:${project.bytedecoJavacppVersion}"
     dist "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
     dist "com.fasterxml.jackson.core:jackson-core:${project.jacksonCoreVersion}"
     dist "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
@@ -81,7 +83,6 @@ dependencies {
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
 
-    // Following dependencies are required for kraal library
     dist "org.jetbrains.kotlin:kotlin-stdlib:${project.jetbrainsKotlinStdlibVersion}"
     dist "org.jetbrains.kotlin:kotlin-stdlib-common:${project.jetbrainsKotlinStdlibCommonVersion}"
     dist "org.ow2.asm:asm:${project.ow2AsmVersion}"
@@ -96,6 +97,13 @@ dependencies {
     dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"
     dist "com.atomikos:transactions:${project.atomikosTransactionsVersion}"
 
+    // Following dependencies are required for testerina
+    dist "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
+    dist "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
+    dist "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
+    dist "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"
+    jacocoAgentLib "org.jacoco:org.jacoco.agent:${project.jacocoVersion}:runtime"
+
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-tools-api')
@@ -103,7 +111,7 @@ dependencies {
     dist project(':ballerina-cli')
     dist project(':ballerina-rt')
     dist project(':ballerina-linter')
-
+    dist project(':ballerina-profiler')
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
     dist project(':formatter:formatter-cli')
@@ -136,6 +144,7 @@ dependencies {
     langserverLib project(':ls-extensions:partial-parser')
     langserverLib project(':ls-extensions:trigger-service')
     langserverLib project(':ls-extensions:bal-shell-service')
+    langserverLib project(':xml-to-record-converter')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')
@@ -292,13 +301,6 @@ def copyResourceSpec = {
     }
 }
 
-//def copySrcBalaSpec = {
-//    path -> copySpec {
-//        from configurations.balSource.files
-//        into("$path/src")
-//    }
-//}
-
 def copyBinSpec = {
     path -> copySpec {
         from configurations.bin
@@ -307,17 +309,11 @@ def copyBinSpec = {
     }
 }
 
-def copyKraalLib = {
+def copyAndRenameJaCoCoAgent = {
     path -> copySpec {
-        from('lib')
+        from configurations.jacocoAgentLib
         into("$path/bre/lib")
-    }
-}
-
-def copyJaCoCoAgent = {
-    path -> copySpec {
-        from('jacoco/jacocoagent.jar')
-        into("$path/bre/lib")
+        rename "org.jacoco.agent-${project.jacocoVersion}-runtime.jar", "jacocoagent.jar"
     }
 }
 
@@ -384,7 +380,7 @@ task extractBalxBirs(type: Copy) {
 
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
-    appendix = "pathing"
+    archiveAppendix = "pathing"
     doFirst {
         manifest {
             attributes "Class-Path": configurations.docerina.files.collect {
@@ -417,7 +413,7 @@ task generateDocs(type: JavaExec) {
 
 task createApiDocsZip(type: Zip) {
     from generateDocs.outputs.files
-    archiveName "ballerina-api-docs-${project.version}.zip"
+    archiveFileName = "ballerina-api-docs-${project.version}.zip"
 }
 
 task createZip(type: Zip) {
@@ -438,9 +434,7 @@ task createZip(type: Zip) {
     with copyStaticSpec(basePath)
     with copyDocerinaUi(basePath)
     with copyResourceSpec(basePath)
-//    with copySrcBalaSpec(basePath)
-    with copyKraalLib(basePath)
-    with copyJaCoCoAgent(basePath)
+    with copyAndRenameJaCoCoAgent(basePath)
     with copyToDistCache(basePath)
 }
 
@@ -462,9 +456,7 @@ task updateBalHome(type: Copy) {
     with copyStaticSpec(installDir)
     with copyDocerinaUi(installDir)
     with copyResourceSpec(installDir)
-    with copyKraalLib(installDir)
-    with copyJaCoCoAgent(installDir)
-//    with copySrcBalaSpec(installDir)
+    with copyAndRenameJaCoCoAgent(installDir)
     into System.getenv('BAL_HOME')
 }
 
@@ -488,9 +480,7 @@ task createDistribution(type: Copy) {
     with copyStaticSpec("")
     with copyDocerinaUi("")
     with copyResourceSpec("")
-//    with copySrcBalaSpec("")
-    with copyKraalLib("")
-    with copyJaCoCoAgent("")
+    with copyAndRenameJaCoCoAgent("")
     with copyToDistCache("")
     destinationDir=file(filePath)
 }
@@ -508,15 +498,17 @@ artifacts {
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.
-project.afterEvaluate {
-    configurations.dist.dependencies
-        .findAll { it instanceof ProjectDependency }
-        .each {
-            it.dependencyProject.afterEvaluate {
-                def dependencyCheck = it.tasks.find { it.name == 'check' }
-                check.dependsOn dependencyCheck
-            }
-        }
+tasks.whenTaskAdded { task ->
+    if (task.name == 'check') {
+        configurations.dist.dependencies
+                .findAll { it instanceof ProjectDependency }
+                .each { dependency ->
+                    dependency.dependencyProject.afterEvaluate {
+                        def dependencyCheck = tasks.named('check')
+                        task.dependsOn dependencyCheck
+                    }
+                }
+    }
 }
 
 publishing {
@@ -526,3 +518,9 @@ publishing {
         }
     }
 }
+
+tasks.createZip.dependsOn(':ballerina-io-internal:jar')
+tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')
+tasks.createDistribution.dependsOn(':ballerina-io-internal:jar')
+tasks.createDistribution.dependsOn(':ballerina-io-internal:copyInteropImports')
+

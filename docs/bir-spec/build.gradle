@@ -38,8 +38,9 @@ dependencies {
     implementation "org.yaml:snakeyaml:${project.snakeyamlVersion}"
     implementation 'com.github.jknack:handlebars'
 
-    testCompile 'org.testng:testng'
-    testCompile project(':ballerina-test-utils')
+    testImplementation 'org.testng:testng'
+    testImplementation project(':ballerina-test-utils')
+    testImplementation project(':ballerina-tools-api')
 }
 
 kaitai {
@@ -79,7 +80,16 @@ compileJava {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
+
+tasks.createJavadoc.dependsOn(':bir-spec:kaitai')

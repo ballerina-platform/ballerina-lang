@@ -479,12 +479,12 @@ public class CoverageReport {
 
                     // Replace line status with respective covered and missed statuses
                     for (Integer coveredLine : coveredLinesList) {
-                        lineStatus.remove(coveredLine - 1);
-                        lineStatus.add(coveredLine - 1, FULLY_COVERED);
+                        lineStatus.remove(coveredLine);
+                        lineStatus.add(coveredLine, FULLY_COVERED);
                     }
                     for (Integer missedLine : missedLinesList) {
-                        lineStatus.remove(missedLine - 1);
-                        lineStatus.add(missedLine - 1, NOT_COVERED);
+                        lineStatus.remove(missedLine);
+                        lineStatus.add(missedLine, NOT_COVERED);
                     }
 
                     List<Integer> newLineStatus = new ArrayList<>();

@@ -43,6 +43,8 @@ public class CentralClientConstants {
     static final String ORGANIZATION = "organization";
     static final String VERSION = "version";
     static final String BALA_URL = "balaURL";
+    static final String PLATFORM = "platform";
+    static final String ANY_PLATFORM = "any";
     static final String PKG_NAME = "name";
     static final String IS_DEPRECATED = "isdeprecated";
     static final String DEPRECATE_MESSAGE = "deprecatemessage";

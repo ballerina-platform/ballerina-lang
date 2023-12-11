@@ -126,7 +126,7 @@ public class Strand {
             Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
             if (currentContext != null) {
                 TransactionLocalContext branchedContext =
-                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                        createTrxContextBranch((TransactionLocalContext) currentContext, this.id);
                 setCurrentTransactionContext(branchedContext);
             }
         }
@@ -137,12 +137,16 @@ public class Strand {
     }
 
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
-                                                           String strandName) {
+                                                           int strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(currentTrxContext.getGlobalTransactionId(),
                         currentTrxContext.getURL(), currentTrxContext.getProtocol(),
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
+        if (currentTrxBlockId.contains("_")) {
+            // remove the parent strand id from the transaction block id
+            currentTrxBlockId = currentTrxBlockId.split("_")[0];
+        }
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
         trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
@@ -161,19 +165,10 @@ public class Strand {
         }
     }
 
-    /**
-     * @deprecated use Environment#getStrandLocal()
-     */
-    @Deprecated
     public Object getProperty(String key) {
         return this.globalProps.get(key);
     }
 
-    /**
-     *
-     * @deprecated use Environment#setStrandLocal()
-     */
-    @Deprecated
     public void setProperty(String key, Object value) {
         this.globalProps.put(key, value);
     }
@@ -190,8 +185,10 @@ public class Strand {
     public void removeCurrentTrxContext() {
         if (!this.trxContexts.isEmpty()) {
             this.currentTrxContext = this.trxContexts.pop();
+            globalProps.put(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
             return;
         }
+        globalProps.remove(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
         this.currentTrxContext = null;
     }
 
@@ -479,10 +476,10 @@ public class Strand {
         try {
             for (FunctionFrame frame : strandFrames) {
                 if (noPickedYieldStatus) {
-                    yieldStatus = frame.getYieldStatus();
+                    yieldStatus = frame.yieldStatus;
                     noPickedYieldStatus = false;
                 }
-                String yieldLocation = frame.getYieldLocation();
+                String yieldLocation = frame.yieldLocation;
                 frameStackTrace.append(stringPrefix).append(yieldLocation);
                 frameStackTrace.append("\n");
                 stringPrefix = "\t\t  \t";

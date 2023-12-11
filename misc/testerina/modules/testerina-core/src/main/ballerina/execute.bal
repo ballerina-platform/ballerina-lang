@@ -22,9 +22,11 @@ boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
 ConcurrentExecutionManager conMgr = new (1);
 
-public function startSuite() {
+public function startSuite() returns int {
     // exit if setTestOptions has failed
-    exitOnError();
+    if exitCode > 0 {
+        return exitCode;
+    }
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();
         if groupsList.length() == 0 {
@@ -36,7 +38,7 @@ public function startSuite() {
     } else {
         if testRegistry.getFunctions().length() == 0 && testRegistry.getDependentFunctions().length() == 0 {
             println("\tNo tests found");
-            return;
+            return exitCode;
         }
 
         error? err = orderTests();
@@ -54,15 +56,7 @@ public function startSuite() {
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
     }
-    exitOnError();
-}
-
-function exitOnError() {
-    lock {
-        if exitCode > 0 {
-            panic (error(""));
-        }
-    }
+    return exitCode;
 }
 
 function executeTests() returns error? {

@@ -19,7 +19,7 @@ testDefaultMockInvalidReturnValue has failed.
 				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
 				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 148
 				callableName: testDefaultMockInvalidReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 35
-				callableName: testDefaultMockInvalidReturnValue$lambda0$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 3
+				callableName: testDefaultMockInvalidReturnValue$lambda0$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
 
 

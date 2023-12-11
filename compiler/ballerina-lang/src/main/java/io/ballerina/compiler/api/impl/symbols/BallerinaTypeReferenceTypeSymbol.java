@@ -198,6 +198,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     }
 
     private BType getReferredType(BType type) {
+        if (type == null) {
+            return null;
+        }
+
         if (type.tag == TypeTags.TYPEREFDESC) {
             return ((BTypeReferenceType) type).referredType;
         }

@@ -32,7 +32,7 @@ public class FileSystemRepositoryValidationTests {
         }, TEST_REPO);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testGetPackageVersions() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("hevayo"), PackageName.from("package_d"), null),

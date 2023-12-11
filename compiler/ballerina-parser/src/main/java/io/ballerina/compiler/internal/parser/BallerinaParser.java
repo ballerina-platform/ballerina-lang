@@ -4145,17 +4145,19 @@ public class BallerinaParser extends AbstractParser {
                 STToken colon = consume();
                 STNode varOrFuncName = consume();
                 return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
-            case MAP_KEYWORD:
-                colon = consume();
-                STToken mapKeyword = consume();
-                STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
-                        mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
-                return createQualifiedNameReferenceNode(identifier, colon, refName);
             case COLON_TOKEN:
                 // specially handle cases where there are more than one colon.
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(identifier, isInConditionalExpr);
             default:
+                if (nextNextToken.kind == SyntaxKind.MAP_KEYWORD && peek(3).kind != SyntaxKind.LT_TOKEN) {
+                    colon = consume();
+                    STToken mapKeyword = consume();
+                    STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(),
+                            mapKeyword.leadingMinutiae(), mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+                    return createQualifiedNameReferenceNode(identifier, colon, refName);
+                }
+
                 if (isInConditionalExpr) {
                     return ConditionalExprResolver.getSimpleNameRefNode(identifier);
                 }
@@ -14094,18 +14096,41 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_FAIL_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
-        STToken token = peek();
-        STNode typeDescriptor = STNodeFactory.createEmptyNode();
-        STNode identifier = STNodeFactory.createEmptyNode();
-        if (token.kind != SyntaxKind.OPEN_BRACE_TOKEN) {
-            typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false,
-                    TypePrecedence.DEFAULT);
-            identifier = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
-        }
+        STNode typedBindingPattern = parseOnfailOptionalBP();
         STNode blockStatement = parseBlockNode();
         endContext();
-        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typeDescriptor, identifier,
+        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typedBindingPattern,
                 blockStatement);
+    }
+
+    private STNode parseOnfailOptionalBP() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            return STAbstractNodeFactory.createEmptyNode();
+        } else if (isTypeStartingToken(nextToken.kind)) {
+            return parseTypedBindingPattern();
+        } else {
+            recover(nextToken, ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN);
+            return parseOnfailOptionalBP();
+        }
+    }
+
+    /**
+     * Parse typed binding pattern.
+     * <p>
+     * <code>
+     * typed-binding-pattern := inferable-type-descriptor binding-pattern
+     * <br/>
+     * inferable-type-descriptor := type-descriptor | var
+     * </code>
+     *
+     * @return Typed binding pattern node
+     */
+    private STNode parseTypedBindingPattern() {
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                true, false, TypePrecedence.DEFAULT);
+        STNode bindingPattern = parseBindingPattern();
+        return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, bindingPattern);
     }
 
     /**

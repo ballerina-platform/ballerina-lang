@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -71,8 +72,7 @@ public class XMLAttributesTest {
                         "xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar\"/>");
     }
 
-    // ToDo: enable after fixing #40373
-    @Test(enabled = false)
+    @Test()
     public void testAddNamespaceAsAttribute1() {
         BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
         Assert.assertTrue(returns.get(0) instanceof BXml);
@@ -131,8 +131,7 @@ public class XMLAttributesTest {
                         "xmlns:ns5=\"http://sample.com/wso2/f/\" ns5:diff=\"yes\" ns5:foo1=\"bar1\"/>");
     }
 
-    // ToDo: enable after fixing #40373
-    @Test(enabled = false)
+    @Test()
     public void testAddAttributeWithQName_5() {
         Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns instanceof BXml);
@@ -286,4 +285,15 @@ public class XMLAttributesTest {
             System.setOut(original);
         }
     }
+    @Test
+    public void testAttributesInEmptyXMLSequence() {
+        BRunUtil.invoke(xmlAttrProgFile, "testAttributesInEmptyXMLSequence");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        xmlAttrProgFile = null;
+    }
+
+
 }

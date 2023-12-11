@@ -81,7 +81,7 @@ public class BaseTest {
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
         PackageCompilation compilation = dependencyProject.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
 
         List<String> repoNames = Lists.of("local", "stdlib.local");
         for (String repo : repoNames) {
@@ -122,7 +122,7 @@ public class BaseTest {
             throws IOException {
         Package currentPackage = dependencyProject.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
 
         Path centralRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(centralRepositoryCacheName).resolve(ProjectConstants.BALA_DIR_NAME);

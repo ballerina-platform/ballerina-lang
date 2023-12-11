@@ -15,7 +15,7 @@
  *
  */
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
 apply plugin: 'jacoco'
@@ -48,7 +48,6 @@ dependencies {
         implementation "com.squareup.okio:okio:${project.squareupOkioVersion}"
         implementation "io.jaegertracing:jaeger-core:${project.jaegerCoreVersion}"
         implementation "io.jaegertracing:jaeger-thrift:${project.jaegerThriftVersion}"
-        implementation "com.zaxxer:HikariCP:${project.hikariCPVersion}"
         implementation "com.github.spullara.mustache.java:compiler:${project.mustacheJavaCompilerVersion}"
         implementation "org.bitbucket.cowwoc:diff-match-patch:${project.bitbucketCowwocVersion}"
         implementation "guru.nidi:graphviz-java:${project.guruNidiGraphvizVersion}"
@@ -78,9 +77,8 @@ dependencies {
         implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
         implementation "org.javassist:javassist:${project.javassistVersion}"
         implementation "org.jvnet.mimepull:mimepull:${project.jvnetMimepullVersion}"
-        implementation "org.mockito:mockito-all:${project.mockitoAllVersion}"
-        implementation "org.powermock:powermock-mockito-release-full:${project.powermockMockitoReleaseVersion}"
-        implementation "org.powermock:powermock-module-testng-common:${project.powermockModuleTestngVersion}"
+        implementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+        implementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
         implementation "org.mvel:mvel2:${project.mvel2Version}"
         implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
         implementation "org.ow2.asm:asm-util:${project.ow2AsmUtilVersion}"
@@ -94,21 +92,11 @@ dependencies {
         implementation "org.wso2.transport.http:org.wso2.transport.http.netty:${project.wso2TransportHttpVersion}"
         implementation "org.wso2.transport.file:org.wso2.transport.local-file-system:${project.wso2TransportLocalFileSystemVersion}"
         implementation "org.wso2.staxon:staxon-core:${project.wso2StaxonCoreVersion}"
-        implementation "org.quartz-scheduler:quartz:${project.quartzSchedulerVersion}"
         implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${project.jacksonDatatypeJsr310Version}"
 
         implementation "info.picocli:picocli:${project.picocliVersion}"
-        implementation "io.ballerina.messaging:broker-common:${project.balMessagingBrokerCommonVersion}"
-        implementation "io.ballerina.messaging:broker-core:${project.balMessagingBrokerCoreVersion}"
         implementation "io.ballerina.messaging:broker-amqp:${project.balMessagingBrokerAmqpVersion}"
-        implementation "io.dropwizard.metrics:metrics-core:${project.dropwizardMetricsCoreVersion}"
-        implementation "io.netty:netty-codec:${project.nettyCodecVersion}"
         implementation "io.netty:netty-buffer:${project.nettyBufferVersion}"
-        implementation "io.netty:netty-common:${project.nettyCommonVersion}"
-        implementation "io.netty:netty-codec-http:${project.nettyCodecHttpVersion}"
-        implementation "io.netty:netty-codec-http2:${project.nettyCodecHttp2Version}"
-        implementation "io.netty:netty-handler:${project.nettyHandlerVersion}"
-        implementation "io.netty:netty-transport:${project.nettyTransportVersion}"
         implementation "io.opentelemetry:opentelemetry-api:${project.openTelemetryApiVersion}"
         implementation "io.opentelemetry:opentelemetry-sdk-trace:${project.openTelemetrySdkTraceVersion}"
         implementation "io.opentelemetry:opentelemetry-sdk-testing:${project.openTelemetrySdkTestingVersion}"
@@ -126,7 +114,9 @@ dependencies {
     }
 }
 
-sourceCompatibility = '1.11'
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -143,12 +133,12 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
-    jvmArgs '-Xmx2048m'
-    it.effort "max"
-    it.reportLevel "low"
+    jvmArgs = [ '-Xmx2048m' ]
+    it.effort = "max"
+    it.reportLevel = "low"
     it.reports {
-        xml.enabled false
-        html.enabled true
+        xml.required = false
+        html.required = true
     }
     def excludeFile = file('spotbugs-exclude.xml')
     if(excludeFile.exists()) {
@@ -173,11 +163,15 @@ test {
         events "failed"
         exceptionFormat "full"
     }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+    }
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled true
+        xml.required = true
     }
 }
 
@@ -192,11 +186,10 @@ check {
     dependsOn createJavadoc
 }
 
-task jacocoMergeExec(type: JacocoMerge) {
-        destinationFile = file("$buildDir/jacoco/jacoco.exec")
-        executionData = fileTree("$buildDir/jacoco/").matching {
-            include "**.exec"
-        } as FileCollection
+task jacocoMergeExec(type: JacocoReport) {
+    getExecutionData().setFrom(fileTree("$buildDir/jacoco/").matching {
+        include "**.exec"
+    } as FileCollection)
 }
 
 publishing {

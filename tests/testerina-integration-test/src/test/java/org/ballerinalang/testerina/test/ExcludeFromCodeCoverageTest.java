@@ -66,7 +66,8 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
                 {"./"},
                 {"./**"},
                 {"/**"},
-                {"*.bal"}};
+                {"*.bal"}
+        };
         for (String [] exclusionList : exclusionListOfList) {
             String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                     "--excludes=" + String.join(",", exclusionList)});

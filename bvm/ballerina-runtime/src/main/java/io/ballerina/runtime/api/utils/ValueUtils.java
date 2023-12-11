@@ -41,7 +41,7 @@ public class ValueUtils {
      * @return              converted value
      * @throws              BError if the conversion fails.
      */
-    public static Object convert(Object value, Type targetType) {
+    public static Object convert(Object value, Type targetType) throws BError {
         return ValueConverter.convert(value, targetType);
     }
 }

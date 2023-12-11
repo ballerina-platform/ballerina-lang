@@ -1,0 +1,30 @@
+NAME
+       ballerina-profile - Run Ballerina Profiler on the source and generate flame graph
+
+SYNOPSIS
+       bal profile [OPTIONS] [<package>|<source-file>]
+
+
+DESCRIPTION
+       Compile the current package and run the program with Ballerina Profiler. This command generates an html file
+       with name `ProfilerOutput.html` in the target directory.
+
+       The generated `ProfilerOutput.html` file contains the flame graph that visualizes the distributed Ballerina
+       functions with execution details.
+
+       Note: This is an experimental feature, which supports only a limited
+       set of functionality.
+
+OPTIONS
+       --debug <port>
+           Run Ballerina Profiler in the remote debugging mode.
+
+EXAMPLES
+       Run Ballerina profiler on the 'main' function and service(s) in the 'app.bal' file.
+           $ bal profile app.bal
+
+       Run the 'main' function and service(s) in the current package.
+           $ bal profile
+
+       Run the 'main' function in the current package with remote debugging enabled.
+           $ bal profile --debug 5005

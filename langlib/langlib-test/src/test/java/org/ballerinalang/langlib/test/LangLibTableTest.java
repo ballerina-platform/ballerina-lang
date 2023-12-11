@@ -174,7 +174,7 @@ public class LangLibTableTest {
     }
 
     @Test
-    public void testCompilerNegativeCases() {
+    public void testImplementationrNegativeCases() {
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'EmployeeTable', " +
                 "found 'table<Person> key<string>'", 68, 36);

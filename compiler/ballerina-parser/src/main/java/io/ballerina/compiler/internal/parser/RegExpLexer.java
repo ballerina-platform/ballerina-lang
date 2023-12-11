@@ -269,10 +269,14 @@ public class RegExpLexer extends AbstractLexer {
                 processAbbrWithOther();
                 break;
             default:
-                while (!isEndOfUnicodePropertyEscape()) {
-                    this.reader.advance();
-                }
-                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+                break;
+        }
+
+        if (!isEndOfUnicodePropertyEscape()) {
+            while (!isEndOfUnicodePropertyEscape()) {
+                this.reader.advance();
+            }
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
 
         return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
@@ -286,9 +290,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'm':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -298,9 +300,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'c':
             case 'e':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -310,9 +310,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'l':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -323,9 +321,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'k':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -339,9 +335,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'f':
             case 'o':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -351,9 +345,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'l':
             case 'p':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 
@@ -364,9 +356,7 @@ public class RegExpLexer extends AbstractLexer {
             case 'o':
             case 'n':
                 this.reader.advance();
-                break;
-            default:
-                break;
+                return;
         }
     }
 

@@ -140,6 +140,8 @@ public class ModuleExecutionFlowTests extends BaseTest {
         LogLeecher infoLeecher1 = new LogLeecher("Stopped stopHandlerFunc3");
         LogLeecher infoLeecher2 = new LogLeecher("Stopped stopHandlerFunc2");
         LogLeecher infoLeecher3 = new LogLeecher("Stopped stopHandlerFunc1");
+        LogLeecher infoLeecher4 = new LogLeecher("Stopped inlineStopHandler");
+        serverInstance.addLogLeecher(infoLeecher4);
         serverInstance.addLogLeecher(infoLeecher1);
         serverInstance.addLogLeecher(infoLeecher2);
         serverInstance.addLogLeecher(infoLeecher3);

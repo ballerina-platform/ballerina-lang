@@ -73,4 +73,6 @@ public class ClientResourceAccessActionTest {
         
         BRunUtil.invoke(result, "testAccessingDeprecatedResource");
     }
+
+
 }

@@ -34,7 +34,8 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
@@ -52,7 +53,7 @@ public class ShutDownListenerGen {
     void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
+        cw.visit(V17, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
         FieldVisitor fv = cw.visitField(ACC_PRIVATE , RUNTIME_REGISTRY_VARIABLE,
                 GET_RUNTIME_REGISTRY, null, null);
         fv.visitEnd();
@@ -64,7 +65,7 @@ public class ShutDownListenerGen {
         genRunMethod(initClass, innerClassName, cw);
 
         cw.visitEnd();
-        jarEntries.put(innerClassName + ".class", cw.toByteArray());
+        jarEntries.put(innerClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void genConstructor(String innerClassName, ClassWriter cw) {

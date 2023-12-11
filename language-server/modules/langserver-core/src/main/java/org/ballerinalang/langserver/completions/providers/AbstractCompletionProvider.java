@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -308,6 +309,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItem.setInsertText(moduleName + ":" + insertText);
                 completionItem.setLabel(moduleName + ":" + label);
                 completionItems.add(lsCompletionItem);
+                if (completionItem.getFilterText() != null) {
+                    completionItem.setFilterText(moduleName + "_" + completionItem.getFilterText());
+                }
             }
         });
         return completionItems;
@@ -540,6 +544,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
+                .sorted(Comparator.comparing(symbol -> symbol.getName().get()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));

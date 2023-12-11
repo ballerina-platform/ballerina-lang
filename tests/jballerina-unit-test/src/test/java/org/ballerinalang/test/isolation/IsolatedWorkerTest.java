@@ -32,6 +32,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -444,5 +445,13 @@ public class IsolatedWorkerTest {
         validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 97, 5);
         Assert.assertEquals(deprecationWarnRes.getErrorCount(), 0);
         Assert.assertEquals(deprecationWarnRes.getWarnCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        startActionCompileResult = null;
+        namedWorkerCompileResult = null;
+        isolationInference1 = null;
+        isolationInference2 = null;
     }
 }

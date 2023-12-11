@@ -209,3 +209,15 @@ isolated client class Class5 {
     *Class4;
     final int q = 1;
 }
+
+public type FooObj readonly & distinct service object {
+    isolated remote function execute(string aVar, int bVar) returns int;
+};
+
+readonly client class FooClass {
+    *FooObj;
+
+    isolated remote function execute(string aVar, int bVar) returns int {
+        return bVar;
+    }
+}

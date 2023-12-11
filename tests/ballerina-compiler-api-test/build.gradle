@@ -23,9 +23,16 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
 
-    testCompile 'org.testng:testng'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation 'org.testng:testng'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 }
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
 
 description = 'Ballerina - Compiler API'

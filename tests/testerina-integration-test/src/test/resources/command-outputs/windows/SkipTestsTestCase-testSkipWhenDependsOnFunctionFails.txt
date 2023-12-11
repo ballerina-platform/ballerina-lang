@@ -22,11 +22,11 @@ test2 has failed.
 
 		    error("{ballerina}DivisionByZero",message=" / by zero")
 				callableName: test2  fileName: dependson-skip-test.bal lineNumber: 34
-				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 59
+				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 60
 			
 
 
 		2 passing
 		1 failing
 		2 skipped
-error: there are test failures
+error: there are test failures

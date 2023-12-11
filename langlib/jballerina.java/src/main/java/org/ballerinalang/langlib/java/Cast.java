@@ -48,7 +48,7 @@ public class Cast {
 
     public static Object cast(BObject value, BTypedesc castType) {
         BHandle handleObj;
-        ObjectType objType = (ObjectType) TypeUtils.getReferredType(value.getType());
+        ObjectType objType = (ObjectType) TypeUtils.getImpliedType(value.getType());
         String valueObjName = objType.getName();
         handleObj = (BHandle) value.get(StringUtils.fromString(jObjField));
         Object jObj = handleObj.getValue();
@@ -106,7 +106,7 @@ public class Cast {
                 return createError(StringUtils.fromString(moduleName + " Cannot cast `" + valueObjName + "` to `" +
                         castObjTypeName + "`"));
             }
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             return createError(StringUtils.fromString(moduleName + " Error while casting `" + valueObjName +
                     "` object to the typedesc provided: " + e));
         }

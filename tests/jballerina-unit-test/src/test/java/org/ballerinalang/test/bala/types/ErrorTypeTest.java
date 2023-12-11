@@ -126,6 +126,11 @@ public class ErrorTypeTest {
         BRunUtil.invoke(result, "testErrorIntersection");
     }
 
+    @Test
+    public void testDistinctErrorIntersection() {
+        BRunUtil.invoke(result, "testDistinctErrorIntersection");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

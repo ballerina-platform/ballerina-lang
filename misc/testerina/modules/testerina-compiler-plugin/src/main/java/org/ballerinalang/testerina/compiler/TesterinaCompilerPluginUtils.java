@@ -19,12 +19,15 @@
 package org.ballerinalang.testerina.compiler;
 
 import com.google.gson.Gson;
+import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
@@ -36,7 +39,10 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.projects.ProjectException;
+import org.ballerinalang.model.types.TypeKind;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,7 +84,7 @@ public class TesterinaCompilerPluginUtils {
 
     public static void addStartSuiteCall(List<StatementNode> statements) {
         // Add the statement, 'test:startSuite();'
-        statements.add(getFunctionCallStatement(getTestFunctionCall(
+        statements.add(getAssignmentAndFunctionCallStatement(getTestFunctionCall(
                 TesterinaCompilerPluginConstants.START_SUITE_FUNCTION,
                 NodeFactory.createSeparatedNodeList(new ArrayList<>()))));
     }
@@ -92,6 +98,10 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createSeparatedNodeList(new ArrayList<>()),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN))
         ));
+    }
+
+    public static void addExitCodeGlobalVariable(List<ModuleMemberDeclarationNode> globalVarDeclaration) {
+        globalVarDeclaration.add(getExitCodeGlobalVarDclStatement());
     }
 
     public static FunctionDefinitionNode createTestExecutionFunction(List<StatementNode> statements) {
@@ -189,6 +199,39 @@ public class TesterinaCompilerPluginUtils {
     public static StatementNode getFunctionCallStatement(ExpressionNode expression) {
 
         return NodeFactory.createExpressionStatementNode(SyntaxKind.FUNCTION_CALL, expression,
+                NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
+    }
+
+    public static StatementNode getAssignmentAndFunctionCallStatement(ExpressionNode expression) {
+        return NodeFactory.createAssignmentStatementNode(
+                NodeFactory.createSimpleNameReferenceNode(
+                        NodeFactory.createIdentifierToken(TesterinaCompilerPluginConstants.TEST_EXECUTION_STATE)),
+                NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML()),
+                expression,
+                NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
+    }
+
+    public static ModuleMemberDeclarationNode getExitCodeGlobalVarDclStatement() {
+        TypeDescriptorNode typeDescriptor = NodeFactory.createSimpleNameReferenceNode(
+                NodeFactory.createIdentifierToken(TypeKind.INT.typeName()));
+        Token varName = AbstractNodeFactory.createIdentifierToken(
+                TesterinaCompilerPluginConstants.TEST_EXECUTION_STATE, singleWSML(), singleWSML());
+        CaptureBindingPatternNode captureBindingPattern = NodeFactory.createCaptureBindingPatternNode(varName);
+        Token publicKeyword = NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD, emptyML(), singleWSML());
+        Token equalsToken = NodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, emptyML(), singleWSML());
+
+        return NodeFactory.createModuleVariableDeclarationNode(
+                NodeFactory.createMetadataNode(null, AbstractNodeFactory.createNodeList()),
+                publicKeyword,
+                NodeFactory.createEmptyNodeList(),
+                NodeFactory.createTypedBindingPatternNode(typeDescriptor, captureBindingPattern),
+                equalsToken,
+                NodeFactory.createBasicLiteralNode(
+                        SyntaxKind.NUMERIC_LITERAL,
+                        NodeFactory.createLiteralValueToken(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN, "0",
+                                emptyML(), emptyML())),
                 NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
     }
@@ -315,5 +358,13 @@ public class TesterinaCompilerPluginUtils {
         } catch (IOException e) {
             throw new ProjectException("couldn't write cache data to the file : " + e.toString());
         }
+    }
+
+    private static MinutiaeList singleWSML() {
+        return emptyML().add(NodeFactory.createWhitespaceMinutiae(" "));
+    }
+
+    private static MinutiaeList emptyML() {
+        return NodeFactory.createEmptyMinutiaeList();
     }
 }

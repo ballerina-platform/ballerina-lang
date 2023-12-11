@@ -33,6 +33,7 @@ public class TesterinaCompilerPluginConstants {
     public static final String TEST_EXEC_FUNCTION = "__execute__";
     public static final String TEST_EXEC_FILENAME = "test_execute";
     public static final String TEST_REGISTRAR_EXEC_FUNCTION = "executeTestRegistrar";
+    public static final String TEST_EXECUTION_STATE = "__gH7W16nQmp0TestExecState__";
     public static final int REGISTERS_PER_FUNCTION = 150;
 
     public static final String TARGET_PATH_PARAMETER = "targetPath";
@@ -45,6 +46,7 @@ public class TesterinaCompilerPluginConstants {
     public static final String TESTS_PARAMETER = "tests";
     public static final String RERUN_FAILED_PARAMETER = "rerunFailed";
     public static final String LIST_GROUPS_PARAMETER = "listGroups";
-
     public static final String TEST_PARALLEL_JOBS_PARAMETER = "testWorkers";
+
+    private TesterinaCompilerPluginConstants() {}
 }

@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -67,6 +68,10 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "missing open parenthesis token", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing semicolon token", 97, 1);
         BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 11);
+        BAssertUtil.validateError(result, indx++, "invalid remote method call: expected a client object, " +
+                "but found 'int'", 106, 9);
+        BAssertUtil.validateError(result, indx++, "missing close parenthesis token", 106, 30);
+        BAssertUtil.validateError(result, indx++, "missing open parenthesis token", 106, 30);
         Assert.assertEquals(result.getErrorCount(), indx);
     }
 
@@ -93,5 +98,10 @@ public class StartActionTest {
                 {"testRecFieldFuncPointerAsyncCall"},
                 {"testObjectMethodsAsAsyncCalls"}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

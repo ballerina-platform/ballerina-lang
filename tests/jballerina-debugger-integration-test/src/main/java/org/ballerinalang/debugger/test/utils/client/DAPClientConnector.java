@@ -25,7 +25,6 @@ import org.ballerinalang.debugger.test.utils.client.connection.StreamConnectionP
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.Utils;
-import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
@@ -40,6 +39,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,7 +62,6 @@ public class DAPClientConnector {
     private DAPRequestManager requestManager;
     private StreamConnectionProvider streamConnectionProvider;
     private Future<Void> launcherFuture;
-    private Capabilities initializeResult;
     private ConnectionState myConnectionState;
     private final DebugServerEventHolder serverEventHolder;
     private final int debugAdapterPort;
@@ -73,6 +72,9 @@ public class DAPClientConnector {
     private static final String CONFIG_DEBUGEE_PORT = "debuggeePort";
     private static final String CONFIG_BAL_HOME = "ballerina.home";
     private static final String CONFIG_IS_TEST_CMD = "debugTests";
+    private static final String CONFIG_COMMAND_OPTIONS = "commandOptions";
+
+    private static final String OFFLINE_CMD_OPTION = "--offline";
 
     public DAPClientConnector(String balHome, Path projectPath, Path entryFilePath, int port,
                               boolean supportsRunInTerminalRequest) {
@@ -140,7 +142,6 @@ public class DAPClientConnector {
             initParams.setSupportsRunInTerminalRequest(this.supportsRunInTerminalRequest);
 
             debugServer.initialize(initParams).thenApply(res -> {
-                initializeResult = res;
                 LOGGER.info("initialize response received from the debug server.");
                 requestManager = new DAPRequestManager(this, debugServer);
                 debugClient.connect(requestManager);
@@ -185,6 +186,13 @@ public class DAPClientConnector {
             if (launchKind == DebugUtils.DebuggeeExecutionKind.TEST) {
                 requestArgs.put(CONFIG_IS_TEST_CMD, true);
             }
+
+            // All the debugger integration tests are executed in offline mode (to reduce the build
+            // time of the target Ballerina program).
+            List<String> commandOptions = new LinkedList<>();
+            commandOptions.add(OFFLINE_CMD_OPTION);
+            requestArgs.put(CONFIG_COMMAND_OPTIONS, commandOptions);
+
             requestManager.launch(requestArgs);
         } catch (Exception e) {
             LOGGER.warn("Debuggee launch request failed.", e);

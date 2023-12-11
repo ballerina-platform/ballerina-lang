@@ -34,5 +34,8 @@ function testRegExpNegative() {
     string:RegExp _ = re `[]`;
     string:RegExp _ = re `(([abc])|([]))`;
     string:RegExp _ = re `(?: [])`;
+    _ = re `\p{Lz}`;
+    _ = re `\p{NNz}`;
+    _ = re `\p{NN}`;
     _ = re `[AB\p{gc=Lu}]+` ? `;
 }

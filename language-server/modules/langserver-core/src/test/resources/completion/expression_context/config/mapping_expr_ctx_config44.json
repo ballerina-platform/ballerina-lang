@@ -43,7 +43,7 @@
       "label": "...range",
       "kind": "Variable",
       "detail": "Range",
-      "sortText": "AB",
+      "sortText": "AC",
       "filterText": "range",
       "insertText": "...range",
       "insertTextFormat": "Snippet"

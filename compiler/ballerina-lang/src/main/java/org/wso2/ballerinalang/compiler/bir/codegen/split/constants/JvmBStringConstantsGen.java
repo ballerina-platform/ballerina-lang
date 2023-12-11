@@ -33,7 +33,6 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -53,6 +52,7 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_SURROGATE_ARRAY_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
@@ -122,7 +122,7 @@ public class JvmBStringConstantsGen {
         highSurrogatesMap.forEach((key, value) -> generateGetHighSurrogateArrayMethod(cw, key, value));
 
         cw.visitEnd();
-        jarEntries.put(surrogatesMethodsClass + ".class", cw.toByteArray());
+        jarEntries.put(surrogatesMethodsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void generateGetHighSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
@@ -180,7 +180,7 @@ public class JvmBStringConstantsGen {
     private void visitStringField(ClassWriter cw, Map<String, String> varList) {
         FieldVisitor fv;
         for (String varName : varList.keySet()) {
-            fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, GET_STRING, null, null);
+            fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, GET_STRING, null, null);
             fv.visitEnd();
         }
     }
@@ -229,7 +229,7 @@ public class JvmBStringConstantsGen {
 
     private void visitBStringField(ClassWriter cw, String varName) {
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, GET_BSTRING, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, GET_BSTRING, null, null);
         fv.visitEnd();
     }
 
@@ -272,7 +272,7 @@ public class JvmBStringConstantsGen {
                 genMethodReturn(mv);
                 generateStaticClassInitializer(cw, constantClassName);
                 cw.visitEnd();
-                jarEntries.put(constantClassName + ".class", cw.toByteArray());
+                jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
             }
         }
 
@@ -280,7 +280,7 @@ public class JvmBStringConstantsGen {
             genMethodReturn(mv);
             generateStaticClassInitializer(cw, constantClassName);
             cw.visitEnd();
-            jarEntries.put(constantClassName + ".class", cw.toByteArray());
+            jarEntries.put(constantClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
         }
     }
 

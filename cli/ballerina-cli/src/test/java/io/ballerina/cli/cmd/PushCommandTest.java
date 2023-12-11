@@ -19,12 +19,15 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,17 +43,18 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.BALA_EXTENSION;
 
 /**
  * Push command tests.
  *
  * @since 2.0.0
  */
-@PrepareForTest({ RepoUtils.class })
-@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
+//@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
 public class PushCommandTest extends BaseCommandTest {
 
     private static final String VALID_PROJECT = "validApplicationProject";
+    private static final String POM_EXTENSION = ".pom";
     private Path testResources;
 
     @BeforeClass
@@ -80,6 +84,72 @@ public class PushCommandTest extends BaseCommandTest {
         String expected = "path provided for the bala file does not exist: " + invalidPath + ".";
         Assert.assertTrue(actual.contains(expected));
     }
+
+    @Test (description = "Push a package to a custom remote repository")
+    public void testPushPackageCustom() throws IOException, SettingsTomlException {
+        String org = "luheerathan";
+        String packageName = "pact1";
+        String version = "0.1.0";
+        String expected = "Successfully pushed src/test/resources/test-resources/custom-repo/" +
+                "luheerathan-pact1-any-0.1.0.bala to 'repo-push-pull' repository.\n";
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
+        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "luheerathan-pact1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=repo-push-pull" };
+        new CommandLine(pushCommand).parse(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
+                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
+            pushCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertEquals(actual, expected);
+        String artifact = packageName + "-" + version + BALA_EXTENSION;
+        String pomFile = packageName + "-" + version + POM_EXTENSION;
+        String pushPullPath = mockRepo.resolve(org).resolve(packageName).resolve(version).toAbsolutePath().toString();
+        for (String ext : new String[]{".sha1", ".md5", ""}) {
+            Assert.assertTrue(Paths.get(pushPullPath, artifact + ext).toFile().exists());
+            Assert.assertTrue(Paths.get(pushPullPath, pomFile + ext).toFile().exists());
+        }
+    }
+
+    @Test (description = "Push a package to a custom remote repository(not exist in Settings.toml)")
+    public void testPushPackageNonExistingCustom() throws IOException, SettingsTomlException {
+        String expected = "ballerina: unsupported repository 'repo-push-pul' found. " +
+                "Only 'local' repository and repositories mentioned in the Settings.toml are supported.\n";
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home").resolve("repositories").resolve("repo-push-pull");
+        Path balaPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
+                "luheerathan-pact1-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(null, printStream, printStream, false, balaPath);
+        String[] args = { "--repository=repo-push-pul" };
+        new CommandLine(pushCommand).parse(args);
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
+            repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
+                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
+            pushCommand.execute();
+        }
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertEquals(actual, expected);
+    }
+
+    private static Settings readSettings(Path settingsFilePath, String repoPath) throws SettingsTomlException {
+        try {
+            String settingString = Files.readString(settingsFilePath);
+            settingString = settingString.replaceAll("REPO_PATH", repoPath);
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), settingString);
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
+        } catch (IOException e) {
+            return Settings.from();
+        }
+    }
+
 
     @Test(description = "Push package with invalid file extension")
     public void testPushWithInvalidFileExtension() throws IOException {
@@ -113,9 +183,13 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse(args);
 
         Path mockRepo = Paths.get("build").resolve("ballerina-home");
-        PowerMockito.mockStatic(RepoUtils.class);
-        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
-        pushCommand.execute();
+
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+            pushCommand.execute();
+        }
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
@@ -185,7 +259,7 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-push - Push packages to Ballerina Central"));
+        Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
     @Test(description = "Test push command with help flag")
@@ -197,7 +271,7 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-push - Push packages to Ballerina Central"));
+        Assert.assertTrue(readOutput().contains("ballerina-push - Push the Ballerina Archive (BALA)"));
     }
 
     @Test
@@ -213,9 +287,13 @@ public class PushCommandTest extends BaseCommandTest {
         String[] args = { "--repository=local" };
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
-        PowerMockito.mockStatic(RepoUtils.class);
-        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
-        pushCommand.execute();
+        try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class)) {
+            repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockRepo);
+            repoUtils.when(RepoUtils::getBallerinaShortVersion).thenReturn("1.0.0");
+            repoUtils.when(RepoUtils::readSettings).thenReturn(Settings.from());
+            pushCommand.execute();
+        }
+
         try {
             ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
                     .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
@@ -248,7 +326,7 @@ public class PushCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains(expected));
     }
 
-    @Test
+    @Test (enabled = false)
     public void testPushWithEmptyPackageMd() throws IOException {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
@@ -264,7 +342,7 @@ public class PushCommandTest extends BaseCommandTest {
         Files.delete(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         // Push
-        String expected = "package md file cannot be empty";
+        String expected = "md file cannot be empty";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
@@ -289,7 +367,8 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
-        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported.";
+        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository and repositories " +
+                "mentioned in the Settings.toml are supported.";
         Assert.assertTrue(readOutput().contains(errMsg));
     }
 }

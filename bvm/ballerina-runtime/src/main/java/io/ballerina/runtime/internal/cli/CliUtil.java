@@ -47,7 +47,7 @@ public class CliUtil {
     }
 
     static Object getBValueWithUnionValue(Type type, String value, String parameterName) {
-        if (type.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getImpliedType(type).getTag() == TypeTags.UNION_TAG) {
             return getUnionValue(type, value, parameterName);
         }
         return getBValue(type, value, parameterName);
@@ -64,7 +64,7 @@ public class CliUtil {
     }
 
     static Object getBValue(Type type, String value, String parameterName) {
-        switch (type.getTag()) {
+        switch (TypeUtils.getImpliedType(type).getTag()) {
             case TypeTags.STRING_TAG:
                 return StringUtils.fromString(value);
             case TypeTags.CHAR_STRING_TAG:
@@ -84,7 +84,7 @@ public class CliUtil {
             case TypeTags.DECIMAL_TAG:
                 return getDecimalValue(value, parameterName);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getBValue(TypeUtils.getReferredType(type), value, parameterName);
+                return getBValue(TypeUtils.getImpliedType(type), value, parameterName);
             case TypeTags.BOOLEAN_TAG:
                 throw ErrorCreator.createError(StringUtils.fromString("the option '" + parameterName + "' of type " +
                                                                               "'boolean' is expected without a value"));
@@ -115,7 +115,7 @@ public class CliUtil {
     }
 
     static boolean isUnionWithNil(Type fieldType) {
-        if (fieldType.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getImpliedType(fieldType).getTag() == TypeTags.UNION_TAG) {
             List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
             if (isUnionWithNil(unionMemberTypes)) {
                 return true;

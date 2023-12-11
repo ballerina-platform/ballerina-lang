@@ -3,12 +3,12 @@ org = "foo"
 name = "winery"
 version = "0.1.0"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 groupId="org.ballerinalang"
 artifactId="ballerina-command-distribution"
 version="0.8.14"
 
-[[platform.java11.repository]]
+[[platform.java17.repository]]
 id="github-update-tool"
 url = "https://maven.pkg.github.com/ballerina-platform/ballerina-update-tool"
 username = "{{username}}"

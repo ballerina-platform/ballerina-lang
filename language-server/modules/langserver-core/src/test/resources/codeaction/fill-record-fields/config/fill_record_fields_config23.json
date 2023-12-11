@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 27,
+    "character": 45
+  },
+  "source": "fill_record_fields_source16.bal",
+  "description": "Fill record fields in object field",
+  "expected": [
+    {
+      "title": "Fill 'record {|readonly string 'type; readonly int id; anydata & readonly...;|}' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 27,
+              "character": 45
+            },
+            "end": {
+              "line": 27,
+              "character": 45
+            }
+          },
+          "newText": ",id: 0"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

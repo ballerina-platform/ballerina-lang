@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -423,30 +424,17 @@ public class BIRTypeWriter implements TypeVisitor {
                     getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        if (initializerFunc == null) {
-            buff.writeByte(0);
-            return;
-        }
-
-        buff.writeByte(1);
-        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeLong(initializerFunc.symbol.flags);
-        writeTypeCpIndex(initializerFunc.type);
-
         writeTypeInclusions(bRecordType.typeInclusions);
+
+        buff.writeInt(tsymbol.defaultValues.size());
+        tsymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            writeSymbolOfClosure(v);
+        });
     }
 
     @Override
     public void visit(BObjectType bObjectType) {
-        //This is to say this is an object, this is a temporary fix object - 1, service - 0,
-        // ideal fix would be to use the type tag to
-        // differentiate. TODO fix later
-        if ((bObjectType.flags & Flags.SERVICE) == Flags.SERVICE) {
-            buff.writeByte(1);
-        } else {
-            buff.writeByte(0);
-        }
         writeObjectAndServiceTypes(bObjectType);
         writeTypeIds(bObjectType.typeIdSet);
     }
@@ -460,9 +448,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeDefinitionSymbol typDefSymbol = ((BObjectTypeSymbol) tSymbol).typeDefinitionSymbol;
         buff.writeInt(addStringCPEntry(Objects.requireNonNullElse(typDefSymbol, tSymbol).name.value));
 
-        //TODO below two line are a temp solution, introduce a generic concept
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
-        buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
+        buff.writeLong(tSymbol.flags);
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
@@ -590,7 +576,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeValue(Object value, BType typeOfValue) {
         ByteBuf byteBuf = Unpooled.buffer();
-        switch (typeOfValue.tag) {
+        switch (Types.getImpliedType(typeOfValue).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

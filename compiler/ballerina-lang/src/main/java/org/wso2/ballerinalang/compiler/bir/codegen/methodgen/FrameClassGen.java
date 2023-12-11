@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
@@ -34,13 +33,9 @@ import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_FRAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.FUNCTION_INVOCATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.STATE;
 
@@ -62,7 +57,7 @@ public class FrameClassGen {
             }
 
             BType attachedType;
-            if (typeDef.type.tag == TypeTags.RECORD) {
+            if (JvmCodeGenUtil.getImpliedType(typeDef.type).tag == TypeTags.RECORD) {
                 // Only attach function of records is the record init. That should be
                 // generated as a static function.
                 attachedType = null;
@@ -83,9 +78,8 @@ public class FrameClassGen {
         if (func.pos != null && func.pos.lineRange().fileName() != null) {
             cw.visitSource(func.pos.lineRange().fileName(), null);
         }
-        cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT,
-                new String[]{FUNCTION_FRAME});
-        JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
+        cw.visit(V17, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, FUNCTION_FRAME, null);
+        JvmCodeGenUtil.generateDefaultConstructor(cw, FUNCTION_FRAME);
 
         int k = 0;
         List<BIRNode.BIRVariableDcl> localVars = func.localVars;
@@ -106,30 +100,12 @@ public class FrameClassGen {
         fv.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PUBLIC, FUNCTION_INVOCATION, "I", null, null);
         fv.visitEnd();
-        fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_LOCATION, GET_STRING, null, null);
-        fv.visitEnd();
-        fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_STATUS, GET_STRING, null, null);
-        fv.visitEnd();
-
-        generateGetStringFieldMethod(cw, frameClassName, "getYieldLocation", YIELD_LOCATION);
-        generateGetStringFieldMethod(cw, frameClassName, "getYieldStatus", YIELD_STATUS);
 
         cw.visitEnd();
 
         // panic if there are errors in the frame class. These cannot be logged, since
         // frame classes are internal implementation details.
-        pkgEntries.put(frameClassName + ".class", cw.toByteArray());
-    }
-
-    private void generateGetStringFieldMethod(ClassWriter cw, String frameClassName, String methodName,
-                                              String fieldName) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, GET_JSTRING, null, null);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, fieldName, GET_STRING);
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
+        pkgEntries.put(frameClassName + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
 }

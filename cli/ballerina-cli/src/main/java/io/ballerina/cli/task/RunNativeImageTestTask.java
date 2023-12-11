@@ -92,7 +92,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT_REPLACER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAR_EXTENSION;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAVA_11_DIR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.JAVA_17_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FUNC_NAME_PREFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
@@ -317,7 +317,7 @@ public class RunNativeImageTestTask implements Task {
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> updatedSingleExecTests;
@@ -479,15 +479,15 @@ public class RunNativeImageTestTask implements Task {
             if (nativeImageCommand == null) {
                 throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
                         "environment variable\nHINT: To install GraalVM, follow the link: " +
-                        "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
+                        "https://ballerina.io/learn/build-the-executable-locally/#configure-graalvm");
             }
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                     + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
             File commandExecutable = Paths.get(nativeImageCommand).toFile();
             if (!commandExecutable.exists()) {
-                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
-                        "Install it using: gu install native-image");
+                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME/bin "
+                        + "directory. Install it using: gu install native-image");
             }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
@@ -495,6 +495,10 @@ public class RunNativeImageTestTask implements Task {
 
         List<String> cmdArgs = new ArrayList<>();
         List<String> nativeArgs = new ArrayList<>();
+
+        String graalVMBuildOptions = currentPackage.project().buildOptions().graalVMBuildOptions();
+        nativeArgs.add(graalVMBuildOptions);
+
         cmdArgs.add(nativeImageCommand);
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
@@ -524,8 +528,6 @@ public class RunNativeImageTestTask implements Task {
                 nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
-        String graalVMBuildOptions = currentPackage.project().buildOptions().graalVMBuildOptions();
-        nativeArgs.add(graalVMBuildOptions);
 
         // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
         // use it as an argument.
@@ -706,7 +708,7 @@ public class RunNativeImageTestTask implements Task {
             //Load all classes within module jar
             Map<String, byte[]> unmodifiedFiles = loadUnmodifiedFilesWithinJar(mainJarPath);
             String modifiedJarPath = (target.path().resolve(CACHE_DIR).resolve(testSuite.getOrgName()).resolve
-                    (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_11_DIR)).toString()
+                    (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_17_DIR)).toString()
                     + PATH_SEPARATOR + modifiedJarName;
             //Dump modified jar
             dumpJar(modifiedClassDef, unmodifiedFiles, modifiedJarPath);

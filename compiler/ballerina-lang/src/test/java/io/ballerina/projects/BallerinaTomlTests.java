@@ -60,9 +60,10 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        PackageManifest.Platform platform = packageManifest.platform("java11");
+        PackageManifest.Platform platform = packageManifest.platform("java17");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
+        Assert.assertEquals(platform.graalvmCompatible().booleanValue(), true);
         for (Map<String, Object> library : platformDependencies) {
             Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));
@@ -110,7 +111,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "ballerina");
         Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
 
-        List<Map<String, Object>> platformDependencies = packageManifest.platform("java11").dependencies();
+        List<Map<String, Object>> platformDependencies = packageManifest.platform("java17").dependencies();
         Assert.assertEquals(platformDependencies.size(), 0);
     }
 
@@ -119,7 +120,7 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("platfoms-with-scope.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        PackageManifest.Platform platform = packageManifest.platform("java11");
+        PackageManifest.Platform platform = packageManifest.platform("java17");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         for (Map<String, Object> library : platformDependencies) {
@@ -196,8 +197,8 @@ public class BallerinaTomlTests {
         Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
     }
 
-    @Test(description = "Platform libs should be given as [[platform.java11.dependency]], " +
-            "Here checking error when it given as [platform.java11.dependency]")
+    @Test(description = "Platform libs should be given as [[platform.java17.dependency]], " +
+            "Here checking error when it given as [platform.java17.dependency]")
     public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
         PackageManifest packageManifest =
                 getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
@@ -407,7 +408,7 @@ public class BallerinaTomlTests {
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().iterator().next().message(),
-                            "incompatible type for key 'java11': expected 'OBJECT', found 'ARRAY'");
+                            "incompatible type for key 'java17': expected 'OBJECT', found 'ARRAY'");
     }
 
     @Test(description = "Test Ballerina.toml having invalid types for entries in package and build options")

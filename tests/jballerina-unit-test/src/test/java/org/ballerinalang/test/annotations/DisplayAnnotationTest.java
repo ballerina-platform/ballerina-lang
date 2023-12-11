@@ -26,6 +26,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -90,7 +91,7 @@ public class DisplayAnnotationTest {
 
     @Test
     public void testDisplayAnnotOnRecord() {
-        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(23);
+        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(13);
         List<? extends AnnotationAttachmentNode> annot = typeDefinition.getAnnotationAttachments();
         Assert.assertEquals(annot.size(), 1);
         Assert.assertEquals(annot.get(0).getExpression().toString(),
@@ -122,5 +123,11 @@ public class DisplayAnnotationTest {
             return ((BLangInvocation) expression).expr;
         }
         return expression;
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        negative = null;
     }
 }

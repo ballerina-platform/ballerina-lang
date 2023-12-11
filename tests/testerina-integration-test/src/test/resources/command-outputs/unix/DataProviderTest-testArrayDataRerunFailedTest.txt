@@ -25,7 +25,7 @@ intArrayDataProviderTest:1 has failed
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intArrayDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 66
-				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 8
+				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 9
 			
 
 		[fail] intArrayDataProviderTest#1:
@@ -37,7 +37,7 @@ intArrayDataProviderTest:1 has failed
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 				callableName: intArrayDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 66
-				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 8
+				callableName: intArrayDataProviderTest$lambda5$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 9
 			
 
 

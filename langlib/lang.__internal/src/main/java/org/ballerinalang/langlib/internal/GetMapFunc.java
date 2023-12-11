@@ -35,7 +35,7 @@ public class GetMapFunc {
 
     public static BFunctionPointer getMapFunc(Object obj) {
         BFunctionPointer functionPointer = (BFunctionPointer) obj;
-        FunctionType functionType = (FunctionType) TypeUtils.getReferredType(functionPointer.getType());
+        FunctionType functionType = (FunctionType) TypeUtils.getImpliedType(functionPointer.getType());
         functionType.getParameters()[0].type = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_ANY,
                 PredefinedTypes.TYPE_ERROR), 0);
         return functionPointer;

@@ -46,11 +46,6 @@ public class ErrorConstructorExprTest {
         Assert.assertEquals(result.getErrorCount(), 0, result.getDiagnosticResult().diagnostics().toString());
     }
 
-    @AfterClass
-    public void tearDown() {
-        result = null;
-    }
-
     @Test(dataProvider = "ErrorConstructorExprFunctions")
     public void testErrorConstructorExpr(String funcName) {
         BRunUtil.invoke(result, funcName);
@@ -124,5 +119,10 @@ public class ErrorConstructorExprTest {
         validateHint(negativeResult, i++, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

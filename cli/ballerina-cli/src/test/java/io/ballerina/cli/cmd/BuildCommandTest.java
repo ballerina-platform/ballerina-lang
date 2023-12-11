@@ -29,6 +29,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -267,7 +268,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -287,7 +288,7 @@ public class BuildCommandTest extends BaseCommandTest {
     public void testCodeGeneratorForBuildProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path thinJarPath = projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar");
         Path execPath = projectPath.resolve("target").resolve("bin").resolve("winery.jar");
         String generatedSource = "foo/winery/0/dummyfunc-generated_1.class";
@@ -359,13 +360,13 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
-                                  .resolve("conflictProject").resolve("0.1.7").resolve("java11")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("java17")
                                   .resolve("pramodya-conflictProject-0.1.7.jar").toFile().exists());
     }
 
     @Test(description = "Build a valid ballerina project with java imports")
-    public void testBuildJava11BalProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validJava11Project");
+    public void testBuildJavaBalProject() throws IOException {
+        Path projectPath = this.testResources.resolve("validJavaProject");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
@@ -377,7 +378,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                                  .resolve("winery").resolve("0.1.0").resolve("java11")
+                                  .resolve("winery").resolve("0.1.0").resolve("java17")
                                   .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -393,7 +394,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -410,7 +411,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -430,11 +431,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
 
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery.storage-0.1.0.jar").toFile().exists());
     }
 
@@ -451,10 +452,10 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-testable-0.1.0.jar").toFile().exists());
     }
 
@@ -479,11 +480,11 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
 
         Assert.assertFalse(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0-testable.jar").toFile().exists());
         Assert.assertFalse(
                 projectPath.resolve("target").resolve("report").resolve("test_results.json").toFile().exists());
@@ -672,7 +673,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(buildLog.contains("_org/validProjectWithEmptyBallerinaToml:0.1.0"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("_org")
-                                  .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0").resolve("java11")
+                                  .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0").resolve("java17")
                                   .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
     }
 
@@ -812,7 +813,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("package_a").resolve("0.1.0").resolve("java17")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -836,7 +837,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog, getOutput("build-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("package_a").resolve("0.1.0").resolve("java17")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
@@ -1249,5 +1250,69 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("testingExecutionDuration"),
                 "Missing testingExecutionDuration field in build time logs");
         Assert.assertTrue(buildLog.contains("totalDuration"), "Missing totalDuration field in build time logs");
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfJavaImportedProject() throws IOException {
+        // Project contains only dist provided Java dependencies
+        Path projectPath = this.testResources.resolve("validJavaProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0") &&
+                    !buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
+    }
+
+    @DataProvider(name = "validProjectWithPlatformLibs")
+    public Object[][] provideValidProjectWithPlatformLibs() {
+        String notVerifiedWaring = "WARNING: Package is not verified with GraalVM";
+        String notCompatibleWarning = "WARNING: Package is not compatible with GraalVM";
+        return new Object[][]{
+                {"validProjectWithPlatformLibs1", notVerifiedWaring},
+                {"validProjectWithPlatformLibs2", notCompatibleWarning},
+                {"validProjectWithPlatformLibs3", notCompatibleWarning},
+                {"validProjectWithPlatformLibs4", notVerifiedWaring}
+        };
+    }
+    @Test(description = "Check GraalVM compatibility of build project",
+            dataProvider = "validProjectWithPlatformLibs")
+    public void testGraalVMCompatibilityOfJavaProject(String projectName, String warning) throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve(projectName);
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") &&
+                    buildLog.contains("sameera/myproject:0.1.0") &&
+                    buildLog.contains(warning));
+        }
+    }
+
+    @Test(description = "Check GraalVM compatibility of build project")
+    public void testGraalVMCompatibilityOfAnyProject() throws IOException {
+        // Project contains platform Java dependencies
+        Path projectPath = this.testResources.resolve("validApplicationProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        // non existing bal file
+        new CommandLine(buildCommand).parseArgs("--graalvm");
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertTrue(buildLog.contains("Compiling source") && buildLog.contains("foo/winery:0.1.0")
+                    && !buildLog.contains("WARNING: Package is not verified with GraalVM"));
+        }
     }
 }

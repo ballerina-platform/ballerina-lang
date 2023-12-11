@@ -10,10 +10,10 @@ this license, please see the license as well as any agreement you’ve
 entered into with WSO2 governing the purchase of this software and any
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="language-server-data-mapper-test-suite">
-    <test name="language-server-data-mapper-tests" preserve-order="true" parallel="false">
+    <test name="language-server-data-mapper-tests" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken"/>

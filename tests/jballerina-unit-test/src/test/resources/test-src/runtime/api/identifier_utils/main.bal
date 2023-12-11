@@ -31,6 +31,10 @@ service class AccountService {
         email: "john.doe@email.com",
         phone: "1234567890"
     };
+    resource function get packages(int? 'limit = ()) returns json => {
+        'limit: 'limit,
+        body: "hello"
+    };
 }
 
 public function main() {
@@ -43,6 +47,8 @@ public function main() {
 function testFunctionParameters() {
     test:assertEquals(getParameterName(function(string account\-id) {}), "account-id");
     test:assertEquals(getParameterNameFromResource(AccountService), "account-id");
+    test:assertEquals(getParameterDefaultFunctionNameFromResource(AccountService),
+    "$AccountService_$get$packages_limit");
 }
 
 function testIdentifierDecoding() {
@@ -89,5 +95,9 @@ function getParameterName(function f) returns string = @java:Method {
 } external;
 
 function getParameterNameFromResource(typedesc<any> serviceObj) returns string = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getParameterDefaultFunctionNameFromResource(typedesc<any> serviceObj) returns string = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

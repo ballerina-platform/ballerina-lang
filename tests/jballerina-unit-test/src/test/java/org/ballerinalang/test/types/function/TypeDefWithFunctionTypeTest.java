@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.function;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,6 +38,11 @@ public class TypeDefWithFunctionTypeTest {
     @Test
     public void testFunctionType() {
         BRunUtil.invoke(functionTypeTestResult, "testFunctionType");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        functionTypeTestResult = null;
     }
 
 }

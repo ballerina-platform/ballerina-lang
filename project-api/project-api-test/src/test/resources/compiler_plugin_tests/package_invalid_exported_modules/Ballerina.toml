@@ -4,7 +4,7 @@ name = "too"
 version = "0.1.0"
 export = ["abc", "xyz"]
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 path = "../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar"
 groupId = "ballerina"
 artifactId = "runtime"

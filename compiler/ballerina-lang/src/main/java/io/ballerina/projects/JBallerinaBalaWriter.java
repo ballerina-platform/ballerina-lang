@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
 
@@ -60,9 +61,9 @@ public class JBallerinaBalaWriter extends BalaWriter {
     public JBallerinaBalaWriter(JBallerinaBackend backend) {
         this.backend = backend;
         this.packageContext = backend.packageContext();
-        this.target = getTargetPlatform(packageContext.getResolution()).code();
         this.compilerPluginToml = readCompilerPluginToml();
         this.balToolToml = readBalToolToml();
+        this.target = getTargetPlatform(packageContext.getResolution()).code();
     }
 
 
@@ -80,7 +81,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
         // -- Bala Root
         //   - libs
         //     - platform
-        //       - java11
+        //       - java17
         //         - java-library1.jar
         //         - java-library2.jar
         JsonArray newPlatformLibs = new JsonArray();
@@ -116,6 +117,10 @@ public class JBallerinaBalaWriter extends BalaWriter {
         if (this.compilerPluginToml.isPresent()) {
             List<String> compilerPluginLibPaths = new ArrayList<>();
             List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
+
+            if (compilerPluginDependencies.get(0) == null) {
+                throw new ProjectException("No dependencies found in CompilerPlugin.toml file");
+            }
 
             if (!compilerPluginDependencies.isEmpty()) {
 
@@ -166,47 +171,48 @@ public class JBallerinaBalaWriter extends BalaWriter {
             List<String> balToolLibPaths = new ArrayList<>();
             List<String> balToolDependencies = this.balToolToml.get().getBalToolDependencies();
 
-            if (!balToolDependencies.isEmpty()) {
-                // Iterate through bal tool dependencies and add them to bala
-                // organization would be
-                // -- Bala Root
-                //   - tool/
-                //     - libs
-                //       - java-library1.jar
-                //       - java-library2.jar
+            if (balToolDependencies.isEmpty()) {
+                throw new ProjectException("No dependencies found in BalTool.toml file");
+            }
+         // Iterate through bal tool dependencies and add them to bala
+            // organization would be
+            // -- Bala Root
+            //   - tool/
+            //     - libs
+            //       - java-library1.jar
+            //       - java-library2.jar
 
 
-                // Iterate jars and create directories for each target
-                for (String balToolLib : balToolDependencies) {
-                    Path libPath = this.packageContext.project().sourceRoot().resolve(balToolLib);
-                    // null check is added for spot bug with the toml validation filename cannot be null
-                    String fileName = Optional.ofNullable(libPath.getFileName())
-                            .map(p -> p.toString()).orElse("annon");
-                    Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
-                    // create a zip entry for each file
-                    putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
-                    balToolLibPaths.add(entryPath.toString());
-                }
+            // Iterate jars and create directories for each target
+            for (String balToolLib : balToolDependencies) {
+                Path libPath = this.packageContext.project().sourceRoot().resolve(balToolLib);
+                // null check is added for spot bug with the toml validation filename cannot be null
+                String fileName = Optional.ofNullable(libPath.getFileName())
+                        .map(p -> p.toString()).orElse("annon");
+                Path entryPath = Paths.get(TOOL).resolve(LIBS).resolve(fileName);
+                // create a zip entry for each file
+                putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                balToolLibPaths.add(entryPath.toString());
             }
 
-            BalToolJson balToolJson = new BalToolJson(this.balToolToml.get().tool().getId(), balToolLibPaths);
+        BalToolJson balToolJson = new BalToolJson(this.balToolToml.get().tool().getId(), balToolLibPaths);
 
-            // Remove fields with empty values from `BalTool.json`
-            Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
-                    .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
+        // Remove fields with empty values from `BalTool.json`
+        Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
+                .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 
-            try {
-                putZipEntry(balaOutputStream, Paths.get(TOOL, BAL_TOOL_JSON),
-                        new ByteArrayInputStream(
-                                gson.toJson(balToolJson).getBytes(Charset.defaultCharset())));
-            } catch (IOException e) {
-                throw new ProjectException("Failed to write '" + BAL_TOOL_JSON + "' file: " + e.getMessage(), e);
-            }
+        try {
+            putZipEntry(balaOutputStream, Paths.get(TOOL, BAL_TOOL_JSON),
+                    new ByteArrayInputStream(
+                            gson.toJson(balToolJson).getBytes(Charset.defaultCharset())));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write '" + BAL_TOOL_JSON + "' file: " + e.getMessage(), e);
+        }
         }
     }
 
     /**
-     * Mark target platform as `java11` if one of the following condition fulfils.
+     * Mark target platform as `java17` if one of the following condition fulfils.
      * 1) Direct dependencies of imports in the package have any `ballerina/java` dependency.
      * 2) Package has defined any platform dependency.
      *
@@ -222,19 +228,32 @@ public class JBallerinaBalaWriter extends BalaWriter {
         // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
             if (dependency.packageInstance().packageOrg().value().equals(Names.BALLERINA_ORG.value) &&
-                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value)) {
+                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value) &&
+                    !dependency.scope().equals(PackageDependencyScope.TEST_ONLY)) {
                 return this.backend.targetPlatform();
             }
         }
 
         // 2) Check package has defined any platform dependency
         PackageManifest manifest = this.packageContext.project().currentPackage().manifest();
-        if (manifest.platform(this.backend.targetPlatform().code()) != null &&
-                !manifest.platform(this.backend.targetPlatform().code()).dependencies().isEmpty()) {
+        if (hasPlatformDependencies(manifest.platforms())) {
             return this.backend.targetPlatform();
         }
 
+        // 3) Check if the package has a BalTool.toml or a CompilerPlugin.toml
+        if (this.balToolToml.isPresent() || this.compilerPluginToml.isPresent()) {
+            return this.backend.targetPlatform();
+        }
         return AnyTarget.ANY;
+    }
+
+    private boolean hasPlatformDependencies(Map<String, PackageManifest.Platform> platforms) {
+        for (PackageManifest.Platform value: platforms.values()) {
+            if (!value.dependencies().isEmpty() && !isPlatformDependenciesTestOnly(value.dependencies())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
@@ -257,5 +276,14 @@ public class JBallerinaBalaWriter extends BalaWriter {
             return Optional.of(BalToolDescriptor.from(tomlDocument, sourceRoot));
         }
         return Optional.empty();
+    }
+
+    private boolean isPlatformDependenciesTestOnly(List<Map<String, Object>> dependencies) {
+        for (Map<String, Object> dependency : dependencies) {
+            if (null == dependency.get("scope") || dependency.get("scope").equals("default")) {
+                return false;
+            }
+        }
+        return true;
     }
 }

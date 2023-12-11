@@ -17,7 +17,7 @@ such areas like Concept, Design of the language server, Implementation, Problems
 ## Ballerina Language Server
 
 Ballerina language server is a implementation of the Language server protocol to support the language features
-for [Ballerina Language](https://ballerina.io/). Implementation is done using Java 11 and
+for [Ballerina Language](https://ballerina.io/). Implementation is done using Java 17 and
 use [LSP4J](https://github.com/eclipse/lsp4j) library which has a JSON-RPC and Language Server Protocol specification
 implementation.
 

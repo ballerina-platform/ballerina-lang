@@ -21,6 +21,7 @@ package org.ballerinalang.test.bala.isolation;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -72,5 +73,10 @@ public class IsolationAnalysisBalaTest {
         validateError(negativeRes, index++, "invalid initial value expression: expected an isolated expression", 41,
                       18);
         assertEquals(negativeRes.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

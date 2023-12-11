@@ -17,7 +17,11 @@
  */
 package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Record Type Descriptor Context tests.
@@ -25,6 +29,12 @@ import org.testng.annotations.DataProvider;
  * @since 2.0.0
  */
 public class RecordTypeDescriptorTest extends CompletionTest {
+    @Test(dataProvider = "completion-data-provider")
+    @Override
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

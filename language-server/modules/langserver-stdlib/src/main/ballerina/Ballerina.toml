@@ -3,7 +3,7 @@ org = "ballerina"
 name = "module1"
 version = "0.1.0"
 
-[[platform.java11.dependency]]
+[[platform.java17.dependency]]
 path = "../libs/language-server-stdlib-${version}.jar"
 groupId = "ballerina"
 artifactId = "mock"

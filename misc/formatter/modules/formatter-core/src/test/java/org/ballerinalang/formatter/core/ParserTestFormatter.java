@@ -58,6 +58,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "minutiae_test_03.bal",
                 "minutiae_test_04.bal",
                 "minutiae_test_05.bal",
+                "minutiae_test_04_with_no_newlines.bal",
                 "minutiae_test_05_with_no_newlines.bal",
                 "invalid_token_minutiae_test_01.bal",
                 "invalid_token_minutiae_test_02.bal",
@@ -70,7 +71,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "float_literal_source_07.bal",
                 "method_call_expr_source_03.bal",
                 "method_call_expr_source_05.bal",
-                "qualified_identifier_assert_08.bal",
+                "qualified_identifier_source_08.bal",
                 "conditional_expr_source_28.bal",
                 "resiliency_source_04.bal",
                 "record_type_def_source_14.bal",
@@ -93,6 +94,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "query_expr_source_126.bal", "match_stmt_source_21.bal",
                 "func_params_source_27.bal",
 
+                "separated_node_list_import_decl.bal", "node_location_test_03.bal",
+
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",
@@ -111,7 +114,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "tuple_type_source_04.bal", "tuple_type_source_06.bal", "trivia_source_02.bal",
                 "enum_decl_source_05.bal", "enum_decl_source_08.bal", "enum_decl_source_09.bal",
                 "service_decl_source_09.bal", "service_decl_source_15.bal", "service_decl_source_03.bal",
-                 "service_decl_source_12.bal", "service_decl_source_10.bal", "service_decl_source_04.bal",
+                "service_decl_source_12.bal", "service_decl_source_10.bal", "service_decl_source_04.bal",
                 "service_decl_source_11.bal", "import_decl_source_19.bal", "import_decl_source_20.bal",
                 "import_decl_source_21.bal", "import_decl_source_23.bal", "import_decl_source_22.bal",
                 "import_decl_source_06.bal", "import_decl_source_04.bal", "import_decl_source_10.bal",
@@ -188,7 +191,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal",
                 "query_expr_source_101.bal", "query_expr_source_105.bal", "query_expr_source_94.bal",
                 "query_expr_source_116.bal", "query_expr_source_117.bal", "query_expr_source_118.bal",
-                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal"
+                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal",
+                "transaction_stmt_source_09.bal"
         );
     }
 
