@@ -109,6 +109,19 @@ function testRegExpWithUserDefinedType() {
 type T1 string:RegExp & readonly;
 type T2 regexp:RegExp & readonly;
 
+type Foo record {|
+    int e;
+    readonly regexp:RegExp f;
+|};
+
+Foo & readonly rf = {e: 1, f: re `test`};
+
+function testRegExpReadonlyLocalVars() {
+    string:RegExp & readonly x1 = re `test`;
+    T1 & readonly x2 = re `test`;
+    (T2 & readonly) & string:RegExp x3 = re `test`;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

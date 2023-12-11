@@ -163,6 +163,12 @@ function testRuntimeIsTypeForInherentlyImmutableBasicTypes() {
     'xml:Text xmlText = xml `xml text`;
     any n = xmlText;
     assertTrue(n is readonly);
+    
+    any reg1 = re `pattern`;
+    assertTrue(reg1 is readonly);
+    
+    readonly reg2 = re `pattern`;
+    assertTrue(reg2 is readonly);
 }
 
 function testRuntimeIsTypeForNeverImmutableBasicTypes() {
