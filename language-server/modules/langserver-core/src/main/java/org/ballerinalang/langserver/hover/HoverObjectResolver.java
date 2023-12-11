@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.hover;
 
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -169,22 +170,27 @@ public class HoverObjectResolver {
 
         if (isResourceMethod) {
             ResourcePath resourcePath = ((ResourceMethodSymbol) functionSymbol).resourcePath();
-            if (resourcePath.kind() == ResourcePath.Kind.PATH_SEGMENT_LIST) {
-                PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
-                List<PathParameterSymbol> pathParameterSymbols = pathSegmentList.pathParameters();
-                parameterSymbols.addAll(pathParameterSymbols);
-                if (pathSegmentList.pathRestParameter().isPresent()) {
-                    parameterSymbols.add(pathSegmentList.pathRestParameter().get());
-                }
-            } else if (resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
-                parameterSymbols.add(((PathRestParam) resourcePath).parameter());
+            switch (resourcePath.kind()) {
+                case PATH_SEGMENT_LIST:
+                    PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
+                    List<PathParameterSymbol> pathParameterSymbols = pathSegmentList.pathParameters();
+                    parameterSymbols.addAll(pathParameterSymbols);
+                    if (pathSegmentList.pathRestParameter().isPresent()) {
+                        parameterSymbols.add(pathSegmentList.pathRestParameter().get());
+                    }
+                    break;
+                case PATH_REST_PARAM:
+                    parameterSymbols.add(((PathRestParam) resourcePath).parameter());
+                    break;
+                default:
+                    // ignore
             }
         }
         Map<String, String> paramsMap = documentation.get().parameterMap();
         List<String> params = new ArrayList<>();
 
-        if (!parameterSymbols.isEmpty()) {
-            params.add(MarkupUtils.header(3, ContextConstants.PATH_PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+        if (!paramsMap.isEmpty() || !parameterSymbols.isEmpty()) {
+            params.add(MarkupUtils.header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
             params.addAll(parameterSymbols.stream().map(param -> {
                 if (param.getName().isEmpty()) {
                     return MarkupUtils.quotedString(NameUtil
@@ -195,11 +201,6 @@ public class HoverObjectResolver {
                 return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, param.typeDescriptor())) + " "
                         + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc;
             }).collect(Collectors.toList()));
-        }
-
-        if (!paramsMap.isEmpty()) {
-            params.add(MarkupUtils.header(3, isResourceMethod ? ContextConstants.QUERY_PARAM_TITLE
-                    : ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
             params.addAll(functionSymbol.typeDescriptor().params().get().stream().map(param -> {
                 if (param.getName().isEmpty()) {
                     return MarkupUtils.quotedString(NameUtil
@@ -232,7 +233,11 @@ public class HoverObjectResolver {
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
             if (restParam.isPresent()) {
-                String modifiedTypeName = NameUtil.getModifiedTypeName(context, restParam.get().typeDescriptor());
+                TypeSymbol typeSymbol = restParam.get().typeDescriptor();
+                String modifiedTypeName = typeSymbol.typeKind() == TypeDescKind.ARRAY ? NameUtil
+                        .getModifiedTypeName(context, ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor())
+                        : NameUtil.getModifiedTypeName(context, typeSymbol);
+
                 StringBuilder restParamBuilder = new StringBuilder(MarkupUtils.quotedString(modifiedTypeName + "..."));
                 if (restParam.get().getName().isPresent()) {
                     restParamBuilder.append(" ")

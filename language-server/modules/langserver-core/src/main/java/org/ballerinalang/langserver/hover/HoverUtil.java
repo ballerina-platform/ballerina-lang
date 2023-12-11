@@ -121,8 +121,9 @@ public class HoverUtil {
     private static Optional<Symbol> getSymbolAtCursor(HoverContext context, SemanticModel semanticModel,
                                                       Document srcFile, LinePosition linePosition) {
         NonTerminalNode cursor = context.getNodeAtCursor();
-        if (cursor.kind() == SyntaxKind.LIST || cursor.kind() == SyntaxKind.PARENTHESIZED_ARG_LIST
-                || cursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
+        SyntaxKind kind = cursor.kind();
+        if (kind == SyntaxKind.LIST || kind == SyntaxKind.PARENTHESIZED_ARG_LIST
+                || kind == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && cursor.parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             return semanticModel.symbol(cursor.parent());
         } else {
