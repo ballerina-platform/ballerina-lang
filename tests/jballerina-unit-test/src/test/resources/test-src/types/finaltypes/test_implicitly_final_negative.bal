@@ -45,6 +45,16 @@ public function testChangingListenerVariableAfterDefining() {
     ml = new test:MockListener(8081);
 }
 
-function restFinal(string p1, string... p2) {
+function testRestParamFinal(string p1, string... p2) {
     p2 = ["a", "b"];
+}
+
+function (int a, int... b) testModuleLevelRestParamFinal = function (int i, int... b) {
+        b = [];
+    };
+
+public function testLocalLevelRestParamFinal() {
+    function (int a, int... b) func = function (int i, int... b) {
+        b = [];
+    };
 }
