@@ -811,12 +811,15 @@ public class JvmPackageGen {
     }
 
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
-        if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
-            return true;
-        }
-        for (Scope.ScopeEntry entry : packageSymbol.scope.entries.values()) {
-            BSymbol symbol = entry.symbol;
-            if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+        if (packageSymbol.bir == null) {
+            for (Scope.ScopeEntry entry : packageSymbol.scope.entries.values()) {
+                BSymbol symbol = entry.symbol;
+                if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+                    return true;
+                }
+            }
+        } else {
+            if (packageSymbol.bir.isListenerAvailable) {
                 return true;
             }
         }
