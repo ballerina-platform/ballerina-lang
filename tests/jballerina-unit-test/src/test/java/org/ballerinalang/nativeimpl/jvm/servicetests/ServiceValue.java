@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -192,8 +193,9 @@ public class ServiceValue {
     }
 
     public static BValue getRemoteMethodAnnotations(BObject service, BString method, BString annotName) {
-        for (var methodType : ((ServiceType) service.getOriginalType()).getRemoteMethods()) {
-            if (methodType.getName().equals(method.getValue())) {
+        String methodName = method.getValue();
+        for (RemoteMethodType methodType : ((ServiceType) service.getOriginalType()).getRemoteMethods()) {
+            if (methodType.getName().equals(methodName)) {
                 return (BValue) methodType.getAnnotation(annotName);
             }
         }
