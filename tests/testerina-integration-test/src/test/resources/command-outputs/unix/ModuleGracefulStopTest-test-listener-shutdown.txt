@@ -8,6 +8,15 @@ Calling init for moduleA listener
 Calling init for default module listener
 Calling start for moduleA listener
 Calling start for default module listener
+
+main_negative_test1: has failed
+
+
+main_negative_test2: has failed
+
+
+		Test execution time :*****ms
+
 		[pass] main_test1
 		[pass] main_test2
 
@@ -45,6 +54,12 @@ Calling stop for moduleA listener
 	moduleGracefulStopTest.moduleA
 Calling init for moduleA listener
 Calling start for moduleA listener
+
+negative_test1: has failed
+
+
+		Test execution time :*****ms
+
 		[pass] test1
 
 		[fail] negative_test1:
