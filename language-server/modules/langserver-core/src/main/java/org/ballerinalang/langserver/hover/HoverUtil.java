@@ -126,9 +126,8 @@ public class HoverUtil {
                 || kind == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && cursor.parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
             return semanticModel.symbol(cursor.parent());
-        } else {
-            return semanticModel.symbol(srcFile, linePosition);
         }
+        return semanticModel.symbol(srcFile, linePosition);
     }
 
     /**
