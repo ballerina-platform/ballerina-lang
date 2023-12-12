@@ -28,27 +28,12 @@ import static io.ballerina.runtime.transactions.TransactionConstants.PLACEHOLDER
  * @since 1.0
  */
 public class XIDGenerator {
-
-//    private static final SecureRandom secureRand = new SecureRandom();
-//    private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
     private static final int DEFAULT_FORMAT = ('B' << 24) + ('A' << 16) + ('L' << 8); // unique but same for each transaction
 
-//    private static byte[] randomBytes() {
-//        final byte[] bytes = new byte[48];
-//        secureRand.nextBytes(bytes);
-//        return bytes;
-//    }
-
-//    static XATransactionID createXID() {
-//        final byte[] branchQualifier = randomBytes();
-//        final byte[] globalTransactionId = randomBytes();
-//        return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
-//    }
-
     static XATransactionID createXID(String combinedId) {
-        String globalTrid = combinedId.strip().split("_")[0];
-        final byte[] branchQualifier = PLACEHOLDER_BQUAL.getBytes();
-        final byte[] globalTransactionId = globalTrid.getBytes();
+        String trxId = combinedId.split("_")[0];
+        final byte[] branchQualifier = trxId.split(":")[1].getBytes();
+        final byte[] globalTransactionId = trxId.split(":")[0].getBytes();
         return new XATransactionID(DEFAULT_FORMAT, branchQualifier, globalTransactionId);
     }
 
