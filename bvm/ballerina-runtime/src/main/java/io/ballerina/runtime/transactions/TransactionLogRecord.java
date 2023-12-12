@@ -42,8 +42,8 @@ public class TransactionLogRecord {
             String transactionStatusString = logBlocks[1];
             String transactionId = combinedId[0];
             String transactionBlockId = combinedId[1];
-            RecoveryStatus transactionStatus = RecoveryStatus.getRecoveryStatus(transactionStatusString);
-            return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus);
+            RecoveryState transactionStatus = RecoveryState.getRecoveryStatus(transactionStatusString);
+            return new TransactionLogRecord(transactionId, transactionBlockId, transactionStatus, logTime);
         }
         // If parsing fails.. TODO: handle parsing fail properly
         return null;
@@ -55,7 +55,7 @@ public class TransactionLogRecord {
      * @return true if the transaction is completed
      */
     public boolean isCompleted() {
-        return transactionStatus.equals(RecoveryStatus.TERMINATED);
+        return transactionStatus.equals(RecoveryState.TERMINATED);
     }
 
 }

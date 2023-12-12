@@ -1,6 +1,6 @@
 package io.ballerina.runtime.transactions;
 
-    public enum RecoveryStatus {
+    public enum RecoveryState {
         // start record
         STARTING("STARTING"),
         // prepare record
@@ -12,7 +12,8 @@ package io.ballerina.runtime.transactions;
         COMMITTED("COMMITTED"),
         ABORTED("ABORTED"),
         MIXED("MIXED"),
-        HAZARD("HAZARD"),
+        HAZARD_COMMIT("HAZARD_COMMIT"),
+        HAZARD_ABORT("HAZARD_ABORT"),
         IN_DOUBT("IN_DOUBT"),
         // done record
         TERMINATED("TERMINATED");
@@ -21,7 +22,7 @@ package io.ballerina.runtime.transactions;
 
         private final String state;
 
-        RecoveryStatus(String state) {
+        RecoveryState(String state) {
             this.state = state;
         }
 
@@ -29,10 +30,10 @@ package io.ballerina.runtime.transactions;
             return state;
         }
 
-        public static RecoveryStatus getRecoveryStatus(String state) {
-            for (RecoveryStatus recoveryStatus : RecoveryStatus.values()) {
-                if (recoveryStatus.getState().equals(state)) {
-                    return recoveryStatus;
+        public static RecoveryState getRecoveryStatus(String state) {
+            for (RecoveryState recoveryState : RecoveryState.values()) {
+                if (recoveryState.getState().equals(state)) {
+                    return recoveryState;
                 }
             }
             return null;

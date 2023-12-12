@@ -131,7 +131,7 @@ public class FileRecoveryLog implements RecoveryLog {
 
     @Override
     public void put(TransactionLogRecord trxRecord) {
-        boolean force = !trxRecord.getTransactionStatus().equals(RecoveryStatus.TERMINATED); // lazy write for done record
+        boolean force = !(trxRecord.getTransactionState().equals(RecoveryState.TERMINATED)); // lazy write for done record
         writeToFile(trxRecord.getTransactionLogRecord(), force);
         if (checkpointInterval != -1) {
             ifNeedWriteCheckpoint();
