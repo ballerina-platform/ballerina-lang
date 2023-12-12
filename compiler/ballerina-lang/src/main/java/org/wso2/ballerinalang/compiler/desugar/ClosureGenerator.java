@@ -521,8 +521,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
         BLangExpression bLangExpression;
-        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM) &&
-            varNode.expr != null) {
+        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode);
         } else {
@@ -559,6 +558,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
         symbol.defaultValues.put(Utils.unescapeBallerina(paramName), varSymbol);
+        rewrite(lambdaFunction, lambdaFunction.capturedClosureEnv);
         return returnStmt.expr;
     }
 
@@ -570,13 +570,15 @@ public class ClosureGenerator extends BLangNodeVisitor {
             if (paramName.equals(symbolName.value)) {
                 break;
             }
-            BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            funcSymbol.scope.define(symbolName, symbol);
-            funcSymbol.params.add(symbol);
-            funcType.paramTypes.add(symbol.type);
-            symbol.owner = funcSymbol;
-            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(symbol.pos, symbolName.value, symbol.type, null,
-                                                                      symbol));
+            BType type = symbol.type;
+            Location pos = funcSymbol.pos;
+            BVarSymbol varSymbol = new BVarSymbol(Flags.REQUIRED_PARAM, symbolName, symbol.pkgID, type, funcSymbol, pos,
+                                                  VIRTUAL);
+            funcSymbol.scope.define(symbolName, varSymbol);
+            funcSymbol.params.add(varSymbol);
+            ((BInvokableType) funcSymbol.type).paramTypes.add(type);
+            funcNode.requiredParams.add(ASTBuilderUtil.createVariable(pos, symbolName.value, type, null,
+                                                                      varSymbol));
         }
     }
 
@@ -1117,7 +1119,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, env);
         result = bLangLambdaFunction;
     }
 
