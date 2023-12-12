@@ -573,17 +573,17 @@ public class MethodGen {
         return stateVarIndex;
     }
 
-    private void addCasesForBasicBlocks(BIRFunction func, String funcName, LabelGenerator labelGen, List<Label> lables,
+    private void addCasesForBasicBlocks(BIRFunction func, String funcName, LabelGenerator labelGen, List<Label> labels,
                                         List<Integer> states) {
         int caseIndex = 0;
         for (int i = 0; i < func.basicBlocks.size(); i++) {
             BIRBasicBlock bb = func.basicBlocks.get(i);
             if (i == 0) {
-                lables.add(caseIndex, labelGen.getLabel(funcName + bb.id.value));
+                labels.add(caseIndex, labelGen.getLabel(funcName + bb.id.value));
                 states.add(caseIndex, caseIndex);
                 caseIndex += 1;
             }
-            lables.add(caseIndex, labelGen.getLabel(funcName + bb.id.value + "beforeTerm"));
+            labels.add(caseIndex, labelGen.getLabel(funcName + bb.id.value + "beforeTerm"));
             states.add(caseIndex, caseIndex);
             caseIndex += 1;
         }

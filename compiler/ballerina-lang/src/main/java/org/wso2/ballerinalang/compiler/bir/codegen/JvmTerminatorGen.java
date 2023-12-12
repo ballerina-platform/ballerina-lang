@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCLICall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
@@ -58,6 +59,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.objectweb.asm.Opcodes.AALOAD;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -512,10 +514,39 @@ public class JvmTerminatorGen {
             case JI_CONSTRUCTOR_CALL:
                 this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
                 return;
+            case JI_METHOD_CLI_CALL:
+                this.genJICLICallTerm((JIMethodCLICall) terminator, localVarOffset, func);
+                return;
             default:
                 throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
                         terminator);
         }
+    }
+
+    private void genJICLICallTerm(JIMethodCLICall terminator, int localVarOffset, BIRNode.BIRFunction func) {
+        Label blockedOnExternLabel = new Label();
+        Label notBlockedOnExternLabel = new Label();
+        genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
+        this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+        this.mv.visitLabel(blockedOnExternLabel);
+        this.mv.visitVarInsn(ALOAD, localVarOffset + 1);
+        this.mv.visitTypeInsn(CHECKCAST, terminator.jClassName);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, terminator.jClassName, terminator.name, terminator.jMethodVMSig, false);
+        BIRNode.BIRVariableDcl tempVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("%arrayResult"),
+                VarScope.FUNCTION, VarKind.TEMP);
+        int resultIndex = this.getJVMIndexOfVarRef(tempVar);
+        this.mv.visitVarInsn(ASTORE, resultIndex);
+        int paramIndex = 1;
+        for (BIROperand localVar : terminator.lhsArgs) {
+            mv.visitVarInsn(ALOAD, resultIndex);
+            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitInsn(AALOAD);
+            jvmCastGen.addUnboxInsn(mv, localVar.variableDcl.type);
+            paramIndex += 1;
+            this.storeToVar(localVar.variableDcl);
+        }
+        this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
     private void genJCallTerm(JavaMethodCall callIns, BType attachedType, int localVarOffset) {

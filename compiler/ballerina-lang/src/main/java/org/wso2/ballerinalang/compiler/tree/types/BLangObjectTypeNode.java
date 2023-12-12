@@ -40,6 +40,7 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
 
     // BLangNodes
     public List<BLangFunction> functions;
+    public BLangFunction initFunction;
 
     public BLangObjectTypeNode() {
         this.functions = new ArrayList<>();
