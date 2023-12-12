@@ -1,10 +1,14 @@
 package io.ballerina.runtime.transactions;
 
 public class TransactionLogRecord {
+    private final static String LINE_SEPARATOR = System.getProperty("line.separator");
+    private final static String FIELD_SEPARATOR = "|";
+    private final static String COMBINED_ID_SEPARATOR = ":";
+
     public String transactionId;
     private String transactionBlockId;
-    private RecoveryStatus transactionStatus;
-
+    private RecoveryState transactionStatus;
+    private long logTime;
 
     /**
      * Create a transaction log record.
@@ -12,19 +16,43 @@ public class TransactionLogRecord {
      * @param transactionId      the transaction id
      * @param transactionBlockId the transaction block id
      * @param transactionStatus  the current status of the transaction
-     * TODO: add the following fields to the TransactionRecord
-     *          expirationTime;
-     *          parentTransactionId;
-     *          RecoveryDomain;
      */
-    public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryStatus transactionStatus) {
+
+    public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryState transactionStatus) {
         this.transactionId = transactionId;
         this.transactionBlockId = transactionBlockId;
         this.transactionStatus = transactionStatus;
+        this.logTime = System.currentTimeMillis();
+    }
+
+    public TransactionLogRecord(String transactionId, String transactionBlockId, RecoveryState transactionStatus, long logTime) {
+        this.transactionId = transactionId;
+        this.transactionBlockId = transactionBlockId;
+        this.transactionStatus = transactionStatus;
+        this.logTime = logTime;
+    }
+
+    public RecoveryState getTransactionState() {
+        return transactionStatus;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public String getTransactionBlockId() {
+        return transactionBlockId;
+    }
+
+    // Need to move or change
+    public String getCombinedId(){
+        String combinedId =  transactionId + ":" + transactionBlockId;
+        return combinedId;
     }
 
     public String getTransactionLogRecord() {
-        return transactionId + ":" + transactionBlockId + "|" + transactionStatus + System.getProperty("line.separator");
+        return transactionId + COMBINED_ID_SEPARATOR + transactionBlockId + FIELD_SEPARATOR + transactionStatus +
+                FIELD_SEPARATOR + logTime + LINE_SEPARATOR;
     }
 
     /**
@@ -33,13 +61,13 @@ public class TransactionLogRecord {
      * @param logLine the log as a string
      * @return the transaction log record
      *
-     * TODO: change as required, after adding more information to the log record
      */
     public static TransactionLogRecord parseTransactionLogRecord(String logLine) {
         String[] logBlocks = logLine.split("\\|");
-        if (logBlocks.length == 2) {
-            String[] combinedId = logBlocks[0].split(":");
+        if (logBlocks.length == 3) {
+            String[] combinedId = logBlocks[0].split(COMBINED_ID_SEPARATOR);
             String transactionStatusString = logBlocks[1];
+            Long logTime = Long.parseLong(logBlocks[2]);
             String transactionId = combinedId[0];
             String transactionBlockId = combinedId[1];
             RecoveryState transactionStatus = RecoveryState.getRecoveryStatus(transactionStatusString);
