@@ -488,9 +488,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
         visitedValues.add(compValuePair);
 
-        if (o == this) {
-            return true;
-        }
         if (!(o instanceof TableValueImpl<?, ?> table)) {
             return false;
         }

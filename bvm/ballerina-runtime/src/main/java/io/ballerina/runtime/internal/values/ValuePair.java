@@ -40,7 +40,6 @@ public class ValuePair {
         if (!(o instanceof ValuePair valuePair)) {
             return false;
         }
-
         Set<Object> otherSet = valuePair.valuePairSet;
         Set<Object> currentSet = this.valuePairSet;
         for (Object otherObj : otherSet) {

@@ -347,10 +347,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
         visitedValues.add(compValuePair);
 
-        if (this == o) {
-            return true;
-        }
-
         if (!(o instanceof MapValueImpl<?, ?> mapValue)) {
             return false;
         }
