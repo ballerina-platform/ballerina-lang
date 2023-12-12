@@ -24,12 +24,22 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
+name = "lang.runtime"
+version = "0.0.0"
+scope = "testOnly"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"}
+]
+
+[[package]]
+org = "ballerina"
 name = "test"
 version = "0.0.0"
 scope = "testOnly"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.error"}
+	{org = "ballerina", name = "lang.error"},
+	{org = "ballerina", name = "lang.runtime"}
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}

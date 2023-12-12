@@ -8,9 +8,7 @@ Running Tests
 
 	dependson-skip-test.bal
 
-****************************************************
 test2 has failed.
-****************************************************
 
 
 		Test execution time :*****ms
@@ -29,4 +27,4 @@ test2 has failed.
 		2 passing
 		1 failing
 		2 skipped
-error: there are test failures
+error: there are test failures

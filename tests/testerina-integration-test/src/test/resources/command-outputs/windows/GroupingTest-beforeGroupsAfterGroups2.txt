@@ -28,7 +28,7 @@ Running Tests
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
 			callableName: afterSuiteFunc  fileName: before-groups-after-groups-test2.bal lineNumber: 80
-			callableName: afterSuiteFunc$lambda9$  fileName: before-groups-after-groups-test2.bal lineNumber: 91
+			callableName: afterSuiteFunc$lambda9$  fileName: before-groups-after-groups-test2.bal lineNumber: 92
 		
 		[pass] testFunction
 		[pass] testFunction2

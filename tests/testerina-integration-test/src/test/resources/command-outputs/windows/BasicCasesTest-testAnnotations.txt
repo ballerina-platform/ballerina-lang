@@ -14,13 +14,13 @@ Running Tests with Coverage
 		[pass] test4
 		[pass] test5
 		[pass] testBefore
-		[pass] testAfter
-		[pass] testAfterAlone
-		[pass] testDependsOn1
 		[pass] stringDataProviderTest#0
 		[pass] stringDataProviderTest#1
 		[pass] stringDataProviderTest#2
 		[pass] stringDataProviderTest2#0
+		[pass] testAfter
+		[pass] testAfterAlone
+		[pass] testDependsOn1
 
 
 		14 passing

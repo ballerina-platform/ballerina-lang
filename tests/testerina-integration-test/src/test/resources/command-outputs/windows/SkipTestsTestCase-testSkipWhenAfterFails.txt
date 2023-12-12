@@ -43,4 +43,4 @@ Running Tests
 		2 passing
 		0 failing
 		1 skipped
-error: there are test failures
+error: there are test failures
