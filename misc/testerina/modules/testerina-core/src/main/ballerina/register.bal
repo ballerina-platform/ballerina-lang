@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/lang.runtime;
 
 final TestRegistry testRegistry = new ();
@@ -55,6 +54,7 @@ class ConcurrentExecutionManager {
     private final int intialWorkers;
 
     function init(int workers) {
+        println("Test workers count : " + workers.toBalString());
         self.intialWorkers = workers;
         self.unAllocatedTestWorkers = workers;
     }

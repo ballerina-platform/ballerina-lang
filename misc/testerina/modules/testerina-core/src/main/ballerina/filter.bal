@@ -25,7 +25,7 @@ boolean hasFilteredTests = false;
 string targetPath = "";
 boolean terminate = false;
 boolean listGroups = false;
-int testWorkers = 1;
+int testWorkers = 5;
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
@@ -41,7 +41,7 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
     testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
-    conMgr = new (testWorkers);
+    conMgr = new (100);
 
     if rerunFailed {
         error? err = parseRerunJson();
