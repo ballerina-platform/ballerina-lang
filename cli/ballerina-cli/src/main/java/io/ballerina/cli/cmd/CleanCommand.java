@@ -113,21 +113,11 @@ public class CleanCommand implements BLauncherCmd {
             return;
         }
         if (Files.notExists(generatedDir)) {
-            CommandUtil.printError(this.outStream,
-                    "generated directory '" + generatedDir + "' does not exist.",
-                    null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+            this.outStream.println("Existing generated directory was not found");
+        } else {
+            ProjectUtils.deleteDirectory(generatedDir);
+            this.outStream.println("Successfully deleted '" + generatedDir + "'.");
         }
-        if (!Files.isDirectory(generatedDir)) {
-            CommandUtil.printError(this.outStream,
-                    "generated path is not a directory.",
-                    null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        ProjectUtils.deleteDirectory(generatedDir);
-        this.outStream.println("Successfully deleted '" + generatedDir + "'.");
     }
     
     @Override
