@@ -223,8 +223,7 @@ public class Profiler {
                 if (mainClassPackage == null || className.contains("$gen$")) {
                     continue;
                 }
-                String mainClassPackagePart = mainClassPackage.split(Pattern.quote(File.separator))[0];
-                if (className.startsWith(mainClassPackagePart) || utilPaths.contains(className)) {
+                if (className.startsWith(mainClassPackage.split("/")[0]) || utilPaths.contains(className)) {
                     try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
                         String sourceClassName = className.replace(Constants.CLASS_SUFFIX, "");
                         byte[] code = profilerMethodWrapper.modifyMethods(inputStream, sourceClassName);
@@ -232,7 +231,7 @@ public class Profiler {
                         profilerMethodWrapper.printCode(className, code, getFileNameWithoutExtension(balJarName));
                     }
                 }
-                if (className.endsWith(File.separator + "$_init.class")) {
+                if (className.endsWith("/$_init.class")) {
                     moduleCount++;
                 }
             }
@@ -292,7 +291,7 @@ public class Profiler {
     private void updateInstrumentedFile(File fileEntry, String absolutePath) {
         String fileEntryString = fileEntry.getPath();
         if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
-            fileEntryString = fileEntryString.replaceAll(absolutePath, "");
+            fileEntryString = fileEntryString.replaceAll(Pattern.quote(absolutePath), "");
             int index = fileEntryString.lastIndexOf(File.separatorChar);
             fileEntryString = index == -1 ? "" : fileEntryString.substring(0, index);
             String[] fileEntryParts = fileEntryString.split(Pattern.quote(File.separator));
@@ -317,7 +316,7 @@ public class Profiler {
             for (String path : utilInitPaths) {
                 if (name.startsWith(path)) {
                     String subPath = name.substring(path.length());
-                    if (!subPath.contains(File.separator)) {
+                    if (subPath.indexOf('/') == -1) {
                         utilPaths.add(name);
                     }
                 }
@@ -328,7 +327,7 @@ public class Profiler {
     private void populateInitPaths(ArrayList<String> classNames) {
         for (String className : classNames) {
             if (className.endsWith("$_init.class")) {
-                String path = className.substring(0, className.lastIndexOf(File.separator) + 1);
+                String path = className.substring(0, className.lastIndexOf('/') + 1);
                 if (!utilInitPaths.contains(path)) {
                     utilInitPaths.add(path);
                 }

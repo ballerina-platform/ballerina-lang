@@ -21,8 +21,6 @@ package io.ballerina.runtime.profiler.codegen;
 import io.ballerina.runtime.profiler.util.ProfilerException;
 import org.objectweb.asm.ClassReader;
 
-import java.io.File;
-
 /**
  * This class is used as a class loader for the Ballerina profiler.
  *
@@ -46,6 +44,6 @@ public class ProfilerClassLoader extends ClassLoader {
     }
 
     public String readClassName(final byte[] byteCode) {
-        return new ClassReader(byteCode).getClassName().replace(File.separator, ".");
+        return new ClassReader(byteCode).getClassName().replace("/", ".");
     }
 }

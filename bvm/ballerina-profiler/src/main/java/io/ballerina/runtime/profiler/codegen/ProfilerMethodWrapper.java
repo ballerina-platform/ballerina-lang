@@ -81,7 +81,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
             URL manifestURL = manifestClassLoader.findResource("META-INF/MANIFEST.MF");
             Manifest manifest = new Manifest(manifestURL.openStream());
             Attributes attributes = manifest.getMainAttributes();
-            return attributes.getValue("Main-Class").replace(".$_init", "").replace(".", File.separator);
+            return attributes.getValue("Main-Class").replace(".$_init", "").replace(".", "/");
         } catch (Throwable throwable) {
             ERROR_STREAM.println(throwable + "%n");
             return null;
@@ -106,11 +106,11 @@ public class ProfilerMethodWrapper extends ClassLoader {
 
     // Print out the modified class code
     public void printCode(String className, byte[] code, String balJarName) {
-        int lastSlashIndex = className.lastIndexOf(File.separatorChar);
+        int lastSlashIndex = className.lastIndexOf('/');
         String output;
         if (lastSlashIndex == -1) {
             output = balJarName;
-            className = balJarName + File.separator + className;
+            className = balJarName + "/" + className;
         } else {
             output = className.substring(0, lastSlashIndex);
         }
