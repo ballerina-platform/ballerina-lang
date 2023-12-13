@@ -38,6 +38,8 @@ import static io.ballerina.projects.PackageManifest.Tool;
 
 /**
  * Task for running tools integrated with the build.
+ *
+ * @since 2201.8.0
  */
 public class RunBallerinaPreBuildToolsTask implements Task {
 
@@ -53,7 +55,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         boolean hasTomlErrors = project.currentPackage().manifest().diagnostics().hasErrors();
         if (hasTomlErrors) {
             toolDiagnostics.forEach(outStream::println);
-            throw createLauncherException("ballerina.toml validation for pre build tool execution contains errors");
+            throw createLauncherException("compilation contains errors");
         }
         List<Tool> tools = project.currentPackage().manifest().tools();
         ServiceLoader<BuildToolRunner> buildRunners = ServiceLoader.load(BuildToolRunner.class);
@@ -73,11 +75,11 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                         e.getMessage());
                 }
                 ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
-                targetTool.executeTool(toolContext);
-                targetTool.diagnostics().forEach(outStream::println);
-                for (Diagnostic d : targetTool.diagnostics()) {
+                targetTool.execute(toolContext);
+                toolContext.diagnostics().forEach(outStream::println);
+                for (Diagnostic d : toolContext.diagnostics()) {
                     if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                        throw new ProjectException("pre-build tool " + tool.getType() + " execution contains errors");
+                        throw new ProjectException("compilation contains errors");
                     }
                 }
             } catch (ProjectException e) {
@@ -88,7 +90,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
 
     private BuildToolRunner getTargetTool(String commandName, ServiceLoader<BuildToolRunner> buildRunners) {
         for (BuildToolRunner buildRunner : buildRunners) {
-            if (buildRunner.getToolName().equals(commandName)) {
+            if (buildRunner.toolName().equals(commandName)) {
                 return buildRunner;
             }
         }
@@ -103,7 +105,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         optionsToml.diagnostics().forEach(outStream::println);
         for (Diagnostic d : optionsToml.diagnostics()) {
             if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
-                throw new ProjectException("ballerina.toml validation for build tool execution contains errors");
+                throw new ProjectException("compilation contains errors");
             }
         }
     }

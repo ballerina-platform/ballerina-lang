@@ -18,36 +18,42 @@
 package io.ballerina.projects;
 
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TOOL_CACHE_DIR;
 
+/**
+ * Represents a build tool instance.
+ *
+ * @since 22201.9.0
+ */
 public class ToolContext {
 
-    Package packageInstance;
-    String toolType;
-    String toolId;
-    String filePath;
-    String targetModule;
+    private final Package currentPackage;
+    private final String toolType;
+    private final String toolId;
+    private final String filePath;
+    private final String targetModule;
+    private final TomlTableNode optionsTable;
+    private final Path cachePath;
+    private final Path outputPath;
+    private List<Diagnostic> diagnostics = new ArrayList<>();
 
-    TomlTableNode optionsTable;
-
-    Path cachePath;
-
-    Path outputPath;
-
-    ToolContext(Package packageInstance, String type, String toolId, String filePath,
+    ToolContext(Package currentPackage, String type, String toolId, String filePath,
                 String targetModule, TomlTableNode optionsTable) {
-        this.packageInstance = packageInstance;
+        this.currentPackage = currentPackage;
         this.toolType = type;
         this.toolId = toolId;
         this.filePath = filePath;
         this.targetModule = targetModule;
         this.optionsTable = optionsTable;
-        Path sourceRoot = packageInstance.project().sourceRoot();
+        Path sourceRoot = currentPackage.project().sourceRoot();
         this.cachePath = sourceRoot.resolve(TARGET_DIR_NAME).resolve(TOOL_CACHE_DIR).resolve(toolId);
         if (targetModule == null || targetModule.isEmpty()) {
             this.outputPath = sourceRoot.resolve(GENERATED_MODULES_ROOT);
@@ -56,8 +62,8 @@ public class ToolContext {
         }
     }
 
-    public static ToolContext from(PackageManifest.Tool tool, Package packageInstance) {
-        return new ToolContext(packageInstance, tool.getType(), tool.getId(),
+    public static ToolContext from(PackageManifest.Tool tool, Package currentPackage) {
+        return new ToolContext(currentPackage, tool.getType(), tool.getId(),
                 tool.getFilePath(), tool.getTargetModule(),
                 tool.getOptionsTable());
     }
@@ -90,8 +96,15 @@ public class ToolContext {
         return outputPath;
     }
 
-    public Package packageInstance() {
-        return packageInstance;
+    public Package currentPackage() {
+        return currentPackage;
+    }
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
+    }
+
+    public void reportDiagnostic(Diagnostic diagnostic) {
+        diagnostics.add(diagnostic);
     }
 }
 

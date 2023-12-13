@@ -38,8 +38,8 @@ public class SampleToolRunner implements BuildToolRunner {
     List<Diagnostic> diagnostics = new ArrayList<>();
 
     @Override
-    public void executeTool(ToolContext toolContext) {
-        Path absFilePath = toolContext.packageInstance().project().sourceRoot().resolve(toolContext.filePath());
+    public void execute(ToolContext toolContext) {
+        Path absFilePath = toolContext.currentPackage().project().sourceRoot().resolve(toolContext.filePath());
         if (!absFilePath.toFile().exists()) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo("001", "The provided filePath does not exist", DiagnosticSeverity.ERROR);
             diagnostics.add(new ToolDiagnostic(diagnosticInfo, diagnosticInfo.messageFormat()));
@@ -49,12 +49,7 @@ public class SampleToolRunner implements BuildToolRunner {
     }
 
     @Override
-    public String getToolName() {
+    public String toolName() {
         return "openapi";
-    }
-
-    @Override
-    public List<Diagnostic> diagnostics() {
-        return this.diagnostics;
     }
 }

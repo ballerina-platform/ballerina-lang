@@ -19,14 +19,24 @@
 package io.ballerina.cli.tool;
 
 import io.ballerina.projects.ToolContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.util.List;
-
+/**
+ * {@code BuildToolRunner} represents a Ballerina build tool.
+ *
+ * @since 2201.9.0
+ */
 public interface BuildToolRunner {
-    void executeTool(ToolContext toolContext);
+    /**
+     * Execute the command.
+     *
+     * @param  toolContext the {@link ToolContext} of the build tool
+     */
+    void execute(ToolContext toolContext);
 
-    String getToolName();
-
-    List<Diagnostic> diagnostics();
+    /**
+     * Retrieve the tool name.
+     *
+     * @return the name of the tool.
+     */
+    String toolName();
 }
