@@ -40,8 +40,8 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean testReport = parseBooleanInput(inReport, "test-report");
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
-    testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
-    conMgr = new (100);
+    testWorkers = 100;
+    conMgr = new (testWorkers);
 
     if rerunFailed {
         error? err = parseRerunJson();
