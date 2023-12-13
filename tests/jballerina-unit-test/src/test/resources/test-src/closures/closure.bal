@@ -813,6 +813,47 @@ function test30() {
     assert(y, 117);
 }
 
+type School record {|
+    string name;
+    string country;
+|};
+
+type Doctor record {
+    string name;
+    string category;
+    School school;
+};
+
+function testClosureWithStructuredBindingTypeParams() {
+    string[] categories = ["Orthopedic", "Dentist"];
+    string[] schools = [];
+    Doctor doctor = {name: "Dr. Smith", category: "Cardiologist", school: {name: "Medical College", country: "United States"}};
+    var {category, school: {name}} = doctor;
+    var f = function () {
+        categories.push(category);
+    };
+    var g = function () {
+        schools.push(name);
+    };
+    if !categories.some(existingCategory => existingCategory == category) {
+        f();
+    }
+    if !schools.some(existingSchool => existingSchool == name) {
+        g();
+    }
+    assert(categories, ["Orthopedic", "Dentist", "Cardiologist"]);
+    assert(schools, ["Medical College"]);
+}
+
+function testClosureWithTupleBindingTypeParams() {
+    [int, [string, string]] [id, [firstname, _]] = [1,["John", "Doe"]];
+    var increment = function() returns int {
+        int len = firstname.length();
+        return id + len;
+    };
+    assert(increment(), 5);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
             return;

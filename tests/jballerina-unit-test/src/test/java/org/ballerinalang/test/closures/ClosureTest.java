@@ -271,6 +271,17 @@ public class ClosureTest {
     public void forEachWithClosure() {
         BRunUtil.invoke(compileResult, "test30");
     }
+
+    @Test(description = "Test closure with a referenced param of structured binding type")
+    public void testClosureWithStructuredBindingTypeParams() {
+        BRunUtil.invoke(compileResult, "testClosureWithStructuredBindingTypeParams");
+    }
+
+    @Test(description = "Test closure with a referenced param of tuple binding type")
+    public void testClosureWithTupleBindingTypeParams() {
+        BRunUtil.invoke(compileResult, "testClosureWithTupleBindingTypeParams");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

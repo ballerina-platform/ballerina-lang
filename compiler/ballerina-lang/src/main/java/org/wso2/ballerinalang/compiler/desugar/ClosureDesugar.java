@@ -691,7 +691,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        blockClosureMapCount++;
+         if (!blockNode.internal) {
+            blockClosureMapCount++;
+         }
         rewriteStmts(blockNode.stmts, blockEnv);
 
         // Add block map to the 0th position if a block map symbol is there.
@@ -746,7 +748,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @return assignment statement created
      */
     private BLangAssignment createAssignmentToClosureMap(BLangSimpleVariableDef varDefNode) {
-        BVarSymbol mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
+        BVarSymbol mapSymbol;
+        BLangNode node = env.node;
+        if (node.getKind() == NodeKind.BLOCK && node.internal) {
+            mapSymbol = createMapSymbolIfAbsent(node.parent, blockClosureMapCount);
+        } else {
+            mapSymbol = createMapSymbolIfAbsent(node, blockClosureMapCount);
+        }
 
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
@@ -2217,4 +2225,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             nodeList.set(i, rewriteExpr(nodeList.get(i)));
         }
     }
+
+    
 }
