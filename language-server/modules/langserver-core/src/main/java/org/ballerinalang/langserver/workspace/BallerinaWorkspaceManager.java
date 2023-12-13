@@ -610,12 +610,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (packageCompilation.isEmpty()) {
             return Optional.empty();
         }
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_17);
-        for (Module module : pkg.modules()) {
-            for (DocumentId id : module.documentIds()) {
-                module.document(id).modify().apply();
-            }
-        }
+
+        JBallerinaBackend jBallerinaBackend = execBackend(projectContext, packageCompilation.get());
         Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
             String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
@@ -651,6 +647,23 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             Process ps = pb.start();
             projectContext.setProcess(ps);
             return Optional.of(ps);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private static JBallerinaBackend execBackend(ProjectContext projectContext,
+                                                 PackageCompilation packageCompilation) {
+        Lock lock = projectContext.lockAndGet();
+        try {
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+            Package pkg = projectContext.project.currentPackage();
+            for (Module module : pkg.modules()) {
+                for (DocumentId id : module.documentIds()) {
+                    module.document(id).modify().apply();
+                }
+            }
+            return jBallerinaBackend;
         } finally {
             lock.unlock();
         }
