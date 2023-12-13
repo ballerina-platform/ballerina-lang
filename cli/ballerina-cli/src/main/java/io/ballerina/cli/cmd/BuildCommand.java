@@ -177,9 +177,6 @@ public class BuildCommand implements BLauncherCmd {
             hidden = true)
     private Boolean exportComponentModel;
 
-    @CommandLine.Option(names = "--x", description = "",
-            hidden = true)
-    private String x;
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
