@@ -266,7 +266,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1632,7 +1631,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
             analyzeNode(expr, env);
-            if (!(expr instanceof BLangListConstructorExpr.BLangListConstructorSpreadOpExpr)){
+            if (!(expr instanceof BLangListConstructorExpr.BLangListConstructorSpreadOpExpr)) {
                 addToListConstructorExprs(expr);
             }
         }
@@ -2463,7 +2462,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                             continue;
                         }
                         BType argBType = Types.getReferredType(
-                                ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr)argExpr).expr.getBType());
+                                ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) argExpr).expr.getBType());
                         int size = 0;
                         if (argBType.getKind() == TypeKind.ARRAY) {
                             size = ((BArrayType) argBType).getSize();
