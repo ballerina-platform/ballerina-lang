@@ -69,7 +69,7 @@ public function startSuite() returns int {
 function executeTests() returns error? {
     decimal startTime = currentTimeInMillis();
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        _ = testFunction.parallelizable ? conMgr.addParallelTest(testFunction) : conMgr.addSerialTest(testFunction);
+        _ = testFunction.parallelizable ? conMgr.addInitialParallelTest(testFunction) : conMgr.addInitialSerialTest(testFunction);
     }
 
     while !conMgr.isExecutionDone() {
@@ -148,6 +148,7 @@ function executeTest(TestFunction testFunction) returns error? {
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
+    println(testFunction.name + " on execution");
     if shouldSkipDependents {
         testFunction.dependents.forEach(function(TestFunction dependent) {
             lock {
@@ -352,7 +353,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
         TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
         if afterGroupFunctions != () && groupStatusRegistry.lastExecuted('group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                getShouldSkip() || groupStatusRegistry.getSkipAfterGroup('group));
+                    getShouldSkip() || groupStatusRegistry.getSkipAfterGroup('group));
             if err is ExecutionError {
                 enableExit();
                 printExecutionError(err, "after test group function for the test");

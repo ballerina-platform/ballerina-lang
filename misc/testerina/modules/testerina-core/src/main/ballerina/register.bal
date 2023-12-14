@@ -66,6 +66,14 @@ class ConcurrentExecutionManager {
         self.serialTestExecutionList.push(testFunction);
     }
 
+    function addInitialParallelTest(TestFunction testFunction) {
+        self.parallelTestExecutionList.unshift(testFunction);
+    }
+
+    function addInitialSerialTest(TestFunction testFunction) {
+        self.serialTestExecutionList.unshift(testFunction);
+    }
+
     function addTestInExecution(TestFunction testFunction) {
         self.testsInExecution.push(testFunction);
     }
@@ -124,6 +132,7 @@ class ConcurrentExecutionManager {
     }
 
     function waitUntilEmptyQueueFilled() {
+        self.populateExecutionQueues();
         while self.parallelTestExecutionList.length() == 0 && self.serialTestExecutionList.length() == 0 {
             self.populateExecutionQueues();
             runtime:sleep(0.0001); // sleep is added to yield the strand
