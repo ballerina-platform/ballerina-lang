@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/lang.runtime;
 
 final TestRegistry testRegistry = new ();
@@ -120,7 +119,7 @@ class ConcurrentExecutionManager {
     }
 
     function getSerialTest() returns TestFunction {
-        return self.serialTestExecutionList.remove(0);
+        return self.serialTestExecutionList.pop();
 
     }
 
