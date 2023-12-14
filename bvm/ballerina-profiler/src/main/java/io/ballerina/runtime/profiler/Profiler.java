@@ -83,7 +83,7 @@ public class Profiler {
             try {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) -
                         profilerStartTime;
-                deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
+                Files.deleteIfExists(Paths.get(Constants.TEMP_JAR_FILE_NAME));
                 OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 JsonParser jsonParser = new JsonParser();
                 HttpServer httpServer = new HttpServer();
