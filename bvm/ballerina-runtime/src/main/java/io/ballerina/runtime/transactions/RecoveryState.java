@@ -12,8 +12,7 @@ package io.ballerina.runtime.transactions;
         COMMITTED("COMMITTED"),
         ABORTED("ABORTED"),
         MIXED("MIXED"),
-        HAZARD_COMMIT("HAZARD_COMMIT"),
-        HAZARD_ABORT("HAZARD_ABORT"),
+        HAZARD("HAZARD"),
         IN_DOUBT("IN_DOUBT"),
         // done record
         TERMINATED("TERMINATED");
