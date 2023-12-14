@@ -978,4 +978,20 @@ type F5 record {|
 
 function testInvalidAnnotationAttachmentOnField() {
     [@UndefinedAnnotation int, int] [first, second] = [1, 2];
+    [@UndefinedAnnotation int, int, int] [a, b, c] = [1, 2, 3];
+    [[@UndefinedAnnotation int, int], int] [[a1, b1], c1] = [[1, 2], 3];
+    record {|@annot string fname; string lname;|} {fname, lname} = getPerson();
 }
+
+type Person record {|
+    string fname;
+    string lname;
+|};
+
+function getPerson() returns Person {
+    Person person = {fname: "Anne", lname: "Frank"};
+    return person;
+}
+
+[@UndefinedAnnotation int, int] [w, e] = [1, 2];
+
