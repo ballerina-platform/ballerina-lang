@@ -13218,21 +13218,23 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
-                return createQualifiedReceiveField(identifier);
+                return createReceiveField(identifier);
             default:
                 recover(peek(), ParserRuleContext.RECEIVE_FIELD);
                 return parseReceiveField();
         }
     }
 
-    private STNode createQualifiedReceiveField(STNode identifier) {
+    private STNode createReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
+        identifier = STNodeFactory.createSimpleNameReferenceNode(identifier);
         STNode colon = parseColon();
         STNode peerWorker = parsePeerWorkerIdentifier();
-        return createQualifiedNameReferenceNode(identifier, colon, peerWorker);
+        peerWorker = STNodeFactory.createSimpleNameReferenceNode(peerWorker);
+        return STNodeFactory.createReceiveFieldNode(identifier, colon, peerWorker);
     }
 
     /**
