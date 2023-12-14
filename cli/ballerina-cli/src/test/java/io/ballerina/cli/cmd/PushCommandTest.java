@@ -101,12 +101,13 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse(args);
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(RepoUtils::readSettings).thenReturn(readSettings(testResources.resolve("custom-repo")
-                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()));
+                    .resolve("Settings.toml"), mockRepo.toAbsolutePath().toString()
+                    .replace("\\", "/")));
             pushCommand.execute();
         }
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual.replace("\\", "/"), expected);
         String artifact = packageName + "-" + version + BALA_EXTENSION;
         String pomFile = packageName + "-" + version + POM_EXTENSION;
         String pushPullPath = mockRepo.resolve(org).resolve(packageName).resolve(version).toAbsolutePath().toString();

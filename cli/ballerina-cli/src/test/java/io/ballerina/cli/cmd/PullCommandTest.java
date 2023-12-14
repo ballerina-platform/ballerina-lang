@@ -147,7 +147,7 @@ public class PullCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Pull a package from custom remote repository")
-    public void testPullCustom() throws  SettingsTomlException {
+    public void testPullCustom() throws SettingsTomlException, IOException {
 
         Path customrRepoPath = Paths.get("src", "test", "resources", "test-resources", "custom-repo",
                 "repositories", "repo-push-pull");
@@ -160,7 +160,7 @@ public class PullCommandTest extends BaseCommandTest {
         try (MockedStatic<RepoUtils> repoUtils = Mockito.mockStatic(RepoUtils.class, Mockito.CALLS_REAL_METHODS)) {
             repoUtils.when(RepoUtils::createAndGetHomeReposPath).thenReturn(mockBallerinaHome);
             repoUtils.when(RepoUtils::readSettings).thenReturn(readMockSettings(settingsTomlPath,
-                    customrRepoPath.toAbsolutePath().toString()));
+                    customrRepoPath.toAbsolutePath().toString().replace("\\", "/")));
             pullCommand.execute();
         }
          Path pulledCacheDir = mockBallerinaHome.resolve("repositories").resolve("repo-push-pull")
