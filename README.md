@@ -60,7 +60,6 @@ You can use the following resources to learn Ballerina.
   - Ballerina library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-library</a> repo
   - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security-policy/">security policy</a>.
 
-
 ## Contribute to Ballerina
 
 As an open-source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.

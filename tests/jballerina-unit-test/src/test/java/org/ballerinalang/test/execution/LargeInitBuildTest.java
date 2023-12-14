@@ -19,6 +19,7 @@
 package org.ballerinalang.test.execution;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -32,9 +33,14 @@ public class LargeInitBuildTest {
     @Test
     public void testFileWithLargeInitMethod() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/large_init.bal");
-
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         Assert.assertEquals(compileResult.getWarnCount(), 0);
+    }
+
+    @Test
+    public void testSplittingLargeInitMethod() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/execution/large-init");
+        BRunUtil.invoke(compileResult, "main");
     }
 }
 

@@ -361,6 +361,437 @@ function getErrorDetailNestedMatch([int, string] dataEntry) returns string {
     return str;
 }
 
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+string testMessage = "";
+int testErrorCode = 0;
+string testErrorReason = "";
+string matchString = "fail";
+string matchRes = "";
+
+function testSimpleOnFailWithErrorBP() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error("error!");
+        }
+    } on fail error error(msg) {
+        testMessage = msg;
+    }
+     assertEquals(testMessage, "error!");
+}
+
+function testSimpleOnFailWithErrorBPWithVar() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error("error!");
+        }
+    } on fail var error(msg) {
+        testMessage = msg;
+    }
+     assertEquals(testMessage, "error!");
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithError() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail error error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquals(testMessage, "error!");
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithVar() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail var error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquals(testMessage, "error!");
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedType() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail SampleError error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquals(testMessage, "error!");
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail error<SampleErrorData> error(msg, code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+        testMessage = msg;
+    }
+    assertEquals(testMessage, "error!");
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail error<record {int code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail error<record {int code;}> error(code = errCode, reason = errReason) {
+        testErrorCode = errCode;
+        testErrorReason = errReason;
+    }
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testErrorReason is string, true);
+}
+
+function testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleError("error!", code = 20, reason = "deadlock condition");
+        }
+    } on fail error<record {int|string code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+}
+
+function testOnFailWithErrorBPHavingAnonDetailRecord() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            error<record {int code;}> errVar = error("error", code = 34);
+            fail errVar;
+        }
+    } on fail error<record {int code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquals(testErrorCode, 34);
+    assertEquals(testErrorCode is int, true);
+}
+
+function testOnFailWithErrorBPHavingAnonDetailRecordWithVar() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            error<record {int code;}> errVar = error("error", code = 34);
+            fail errVar;
+        }
+    } on fail var error(msg, code = errCode) {
+        testErrorCode = errCode;
+        testErrorReason = msg;
+    }
+    assertEquals(testErrorCode, 34);
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testErrorReason is string, true);
+    assertEquals(testErrorReason, "error");
+}
+
+function testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            error<record {int code;}> errVar = error("error", code = 34);
+            fail errVar;
+        }
+    } on fail error<record {int|string code;}> error(code = errCode) {
+        testErrorCode = errCode;
+    }
+    assertEquals(testErrorCode, 34);
+    assertEquals(testErrorCode is int, true);
+}
+
+type SampleComplexErrorData record {|
+    error cause;
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+
+int testErrorPosRow = 0;
+int testErrorPosCol = 0;
+string testErrorMoreInfo = "";
+
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP1() {
+    string causeMsg;
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+    } on fail SampleComplexError error(_, cause = errCause, code = errCode, pos = errorPos, infoDetails = errInfo) {
+        testErrorCode = errCode;
+        testErrorPosRow = errorPos[0];
+        testErrorPosCol = errorPos[1];
+        testErrorMoreInfo = errInfo.moreInfo;
+        causeMsg = errCause.message();
+    }
+    assertEquals(testErrorPosRow, 30);
+    assertEquals(testErrorPosRow is int, true);
+    assertEquals(testErrorPosCol, 45);
+    assertEquals(testErrorPosCol is int, true);
+    assertEquals(testErrorMoreInfo, "deadlock condition");
+    assertEquals(testErrorMoreInfo is string,  true);
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+    assertEquals(causeMsg, "Database Error");
+    assertEquals(causeMsg is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP2() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+    } on fail SampleComplexError error(message, cause = error(msg), code = errCode, pos = errorPos, infoDetails = errInfo) {
+        testErrorCode = errCode;
+        testErrorPosRow = errorPos[0];
+        testErrorPosCol = errorPos[1];
+        testErrorMoreInfo = errInfo.moreInfo;
+        testMessage = msg;
+    }
+    assertEquals(testErrorPosRow, 30);
+    assertEquals(testErrorPosRow is int, true);
+    assertEquals(testErrorPosCol, 45);
+    assertEquals(testErrorPosCol is int, true);
+    assertEquals(testErrorMoreInfo, "deadlock condition");
+    assertEquals(testErrorMoreInfo is string,  true);
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testMessage, "Database Error");
+    assertEquals(testMessage is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP3() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+    } on fail SampleComplexError error(message, cause = error(msg), code = errCode, pos = [row, col], infoDetails = errInfo) {
+        testErrorCode = errCode;
+        testErrorPosRow = row;
+        testErrorPosCol = col;
+        testErrorMoreInfo = errInfo.moreInfo;
+        testMessage = msg;
+    }
+    assertEquals(testErrorPosRow, 30);
+    assertEquals(testErrorPosRow is int, true);
+    assertEquals(testErrorPosCol, 45);
+    assertEquals(testErrorPosCol is int, true);
+    assertEquals(testErrorMoreInfo, "deadlock condition");
+    assertEquals(testErrorMoreInfo is string,  true);
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testMessage, "Database Error");
+    assertEquals(testMessage is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP4() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+    } on fail SampleComplexError error(_, cause = error(msg), code = errCode, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
+        testErrorCode = errCode;
+        testErrorPosRow = row;
+        testErrorPosCol = col;
+        testErrorMoreInfo = errInfo;
+        testMessage = msg;
+    }
+    assertEquals(testErrorPosRow, 30);
+    assertEquals(testErrorPosRow is int, true);
+    assertEquals(testErrorPosCol, 45);
+    assertEquals(testErrorPosCol is int, true);
+    assertEquals(testErrorMoreInfo, "deadlock condition");
+    assertEquals(testErrorMoreInfo is string,  true);
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testMessage, "Database Error");
+    assertEquals(testMessage is string, true);
+}
+
+function testOnFailWithErrorBPWithErrorArgsHavingBP5() {
+    match matchString {
+        12 => {
+            matchRes = "12";
+        }
+        "fail" => {
+            fail error SampleComplexError("Transaction Failure", cause = error("Database Error"), code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+    } on fail var error(_, cause = error(msg), code = errCode, pos = [row, col], infoDetails = {moreInfo: errInfo}) {
+        testErrorCode = errCode;
+        testErrorPosRow = row;
+        testErrorPosCol = col;
+        testErrorMoreInfo = errInfo;
+        testMessage = msg;
+    }
+    assertEquals(testErrorPosRow, 30);
+    assertEquals(testErrorPosRow is int, true);
+    assertEquals(testErrorPosCol, 45);
+    assertEquals(testErrorPosCol is int, true);
+    assertEquals(testErrorMoreInfo, "deadlock condition");
+    assertEquals(testErrorMoreInfo is string,  true);
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorCode is int, true);
+    assertEquals(testMessage, "Database Error");
+    assertEquals(testMessage is string, true);
+}
+
+function testMultiLevelOnFailWithErrorBP() {
+    int i = 2;
+    string str = "";
+
+    while i <= 2 {
+        match matchString {
+            12 => {
+                matchRes = "12";
+            }
+            "fail" => {
+                str += " -> Iteration " + i.toString() + ", ";
+                fail error SampleError("error!", code = 30, reason = "deadlock condition");
+            }
+        } on fail var error(msg1, code = errCode1, reason = errReason1) {
+                str += " -> On Fail #" + i.toString();
+                testMessage = msg1;
+                testErrorCode = errCode1;
+                testErrorReason = errReason1;
+        }
+        i = i + 1;
+        fail error SampleError("database error!", code = 20, reason = "database connection error");
+    } on fail SampleError error(msg2, code = errCode2, reason = errReason2) {
+            str += " -> On Fail Final";
+    }
+
+    assertEquals(" -> Iteration 2,  -> On Fail #2 -> On Fail Final", str);
+    assertEquals(testErrorCode, 30);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testMessage, "error!");
+}
+
+function testMultiLevelOnFailWithoutErrorInOneLevel() {
+    int i = 2;
+    string str = "";
+
+    while i <= 2 {
+        match matchString {
+            12 => {
+                matchRes = "12";
+            }
+            "fail" => {
+                str += " -> Iteration " + i.toString() + ", ";
+                fail error SampleError("error!", code = 20, reason = "deadlock condition");
+            }
+        } on fail var error(msg1, code = errCode1, reason = errReason1) {
+                str += " -> On Fail #" + i.toString();
+                testMessage = msg1;
+                testErrorCode = errCode1;
+                testErrorReason = errReason1;
+        }
+        i = i + 1;
+    } on fail SampleError error(msg2, code = errCode2, reason = errReason2) {
+            str += " -> On Fail Final";
+    }
+
+    assertEquals(" -> Iteration 2,  -> On Fail #2", str);
+    assertEquals(testErrorCode, 20);
+    assertEquals(testErrorReason, "deadlock condition");
+    assertEquals(testMessage, "error!");
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
