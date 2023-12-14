@@ -7,167 +7,231 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RecoveryManager {
     private static final Logger log = LoggerFactory.getLogger(RecoveryManager.class);
-    private Map<String, TransactionLogRecord> failedTransactionsToRecover;
-    List<XAResource> resourcesToRecover = new ArrayList<>();
+    private Map<String, TransactionLogRecord> transactionsToRecover;
+//    private Map<String, TransactionLogRecord> failedParticipantsToRecover; // needed later?
+    private Map<XAResource, ArrayList<TransactionLogRecord>> failedToRecoverResources;
 
     public RecoveryManager() {
-        this.failedTransactionsToRecover = new HashMap<>();
-    }
-
-    public void addXAResourceToBeRecovered(XAResource xaResource) {
-        resourcesToRecover.add(xaResource);
-
+        this.transactionsToRecover = new HashMap<>();
+        this.failedToRecoverResources = new HashMap<>();
     }
 
     public void recoverXAResource(XAResource xaResource) {
-        failedTransactionsToRecover = TransactionResourceManager.getFileRecoveryLog().getPendingLogs();
-        if (failedTransactionsToRecover == null) {
-            System.out.println("No failed transactions to recover.");
+        transactionsToRecover = TransactionResourceManager.getFileRecoveryLog().getPendingLogs();
+        if (transactionsToRecover == null) {
             return;
         }
-        if (failedTransactionsToRecover.isEmpty()) {
-            System.out.println("No failed transactions to recover.");
+        if (transactionsToRecover.isEmpty()) {
             return;
         }
-        Iterable<TransactionLogRecord> iterablePLogs = failedTransactionsToRecover.values();
 
-        boolean recoverComplete = false;
+        Iterable<TransactionLogRecord> iterablePLogs = transactionsToRecover.values();
+        boolean recoverSuccessful = false;
         try {
-            Map<String, Xid> recoveredXids = recoverXids(xaResource);
+            Map<String, Xid> recoveredXids = retrievePreparedXids(xaResource);
             if (recoveredXids.isEmpty()) {
                 System.out.println("No in-doubt transactions in XA Resource.");
                 return;
             }
             for (TransactionLogRecord pLog : iterablePLogs) {
-                Xid currentXid = recoveredXids.get(pLog.getCombinedId());
-                if (currentXid == null) {
-                    System.out.println("No in-doubt transaction in XA Resource for transaction id: " + pLog.getTransactionId());
-                    continue;
-                }
-                switch (pLog.getTransactionStatus()) {
-                    case STARTING:
-                        // no vote has been sent yet
-                        // all RMs will abort or are already unilaterally aborted
-                        // no need to send any requests
-                        break;
-                    case PREPARING:
-                        // since no decision has been made yet, decide to abort
-                        // resource managers should abort unilaterally
-                        recoverComplete = abortTransaction(xaResource, currentXid);
-                        notifyAbortToUser(pLog, currentXid, xaResource);
-                        break;
+                Xid currentXid = XIDGenerator.createXID(pLog.getCombinedId());
+                switch (pLog.getTransactionState()) {
                     case COMMITTING:
-                        // some RMs may be in-doubt
-                        // send the decision to commit to all RMs
-                        // the participants that are not in-doubt should ignore this request.
-                        recoverComplete = replayCommit(xaResource, currentXid);
+                        recoverSuccessful = replayCommit(xaResource, currentXid);
                         break;
                     case ABORTING:
-                        // same as committing case, but send abort decision
-                        recoverComplete = handleAbort(xaResource, currentXid);
+                        recoverSuccessful = handleAbort(xaResource, currentXid);
                         break;
                     case COMMITTED, ABORTED:
-                        // transaction has already ended
-                        xaResource.end(currentXid, XAResource.TMSUCCESS);
-                        xaResource.forget(currentXid);
+                        forgetXidInXaResource(currentXid, xaResource);
+                        recoverSuccessful = true;
                         break;
-                    case TERMINATED:
-                        // transaction has already ended
+                    case MIXED:
+                        System.out.println("Transaction" + pLog.getCombinedId() + " in mixed state. " +
+                                "Should be handled.");
+                        break;
+                    case HAZARD:
+                        System.out.println("Transaction" + pLog.getCombinedId() + " in hazard state. " +
+                                "Check your data for consistency.");
                         break;
                     default:
-                        log.error("Invalid transaction state: " + pLog.getTransactionStatus());
+                        log.error("Transaction" + pLog.getCombinedId() + " in invalid state: " + pLog.getTransactionState());
+                        //TODO: handle properly
                 }
-                if (!recoverComplete) {
+                if (recoverSuccessful){
 
+//                    if (failedToRecoverResources.containsKey(xaResource)) {
+//                        if (failedToRecoverResources.get(xaResource).contains(pLog)) {
+//                            failedToRecoverResources.get(xaResource).remove(pLog);
+//                            if (failedToRecoverResources.get(xaResource).isEmpty()) {
+//                                failedToRecoverResources.remove(xaResource);
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    if (!failedToRecoverResources.containsKey(xaResource)) {
+//                        failedToRecoverResources.put(xaResource, new ArrayList<>());
+//                    }
+//                    failedToRecoverResources.get(xaResource).add(pLog);
                 }
-            }
-            if (recoverComplete) {
-                forgetLogs();
             }
         } catch (XAException ex) {
+            System.out.println("Error while recovering XA Resource: " + ex.getMessage());
             log.error("Error while recovering XA Resource: " + ex.getMessage());
         }
     }
 
-    private void notifyAbortToUser(TransactionLogRecord pLog, Xid currentXid, XAResource xaResource) {
-
+    public void markAsTerminated() {
+        if (transactionsToRecover.isEmpty() && failedToRecoverResources.isEmpty()) {
+            return;
+        }
+        for (TransactionLogRecord pLog : transactionsToRecover.values()) {
+            if (failedToRecoverResources.containsKey(pLog)) {
+                System.out.println("Transaction " + pLog.getCombinedId() + " could not be recovered. " +
+                        "Will retry recovery on next startup/request.");
+                continue;
+            }
+            TransactionLogRecord terminatedRecord = new TransactionLogRecord(pLog.getTransactionId(),
+                    pLog.getTransactionBlockId(), RecoveryState.TERMINATED);
+            TransactionResourceManager.getFileRecoveryLog().put(terminatedRecord);
+        }
     }
 
-    private void forgetLogs() {
-        TransactionResourceManager.getFileRecoveryLog().cleanUpAfterRecovery();
-    }
-
-    private Map<String, Xid> recoverXids(XAResource xaResource) throws XAException {
+    private Map<String, Xid> retrievePreparedXids(XAResource xaResource) throws XAException {
+        Map<String, Xid> retrievedXids = new HashMap<>();
+        ArrayList<Xid> recoverdXidsFromScan = new ArrayList<>();
+        
         Xid[] xidsFromScan = null;
-        Map<String, Xid> recoveredXids = new HashMap<>();
-
         xidsFromScan = xaResource.recover(XAResource.TMSTARTRSCAN);
-        if (xidsFromScan != null) {
-            for (Xid xid : xidsFromScan) {
+        while (xidsFromScan != null && xidsFromScan.length > 0) {
+            recoverdXidsFromScan.addAll(List.of(xidsFromScan));
+            xidsFromScan = (xaResource.recover(XAResource.TMNOFLAGS));
+        }
+        xidsFromScan = xaResource.recover(XAResource.TMENDRSCAN);
+        if (xidsFromScan != null && xidsFromScan.length > 0) {
+            recoverdXidsFromScan.addAll(List.of(xidsFromScan));
+        }
+
+        if (!recoverdXidsFromScan.isEmpty()) {
+            for (Xid xid : recoverdXidsFromScan) {
                 if (xid == null) {
                     continue;
                 }
                 String globalTransactionIdStr = new String(xid.getGlobalTransactionId());
-                if (recoveredXids.containsKey(globalTransactionIdStr)) {
+                String branchQualifierStr = new String(xid.getBranchQualifier());
+                String combinedIdStr = globalTransactionIdStr + ":" + branchQualifierStr;
+                if (retrievedXids.containsKey(combinedIdStr)) {
                     continue;
                 }
-                recoveredXids.put(globalTransactionIdStr, xid);
+                retrievedXids.put(combinedIdStr, xid);
             }
         }
-        return recoveredXids;
+        return retrievedXids;
     }
 
 
     private boolean replayCommit(XAResource xaResource, Xid xid) {
-        boolean forgetInLog = false;
+        boolean ret = false;
         try {
             xaResource.commit(xid, false);
-            forgetInLog = true;
+            ret = true;
         } catch (XAException e) {
             switch (e.errorCode){
-                case XAException.XA_HEURCOM, XAException.XA_HEURHAZ, XAException.XA_HEURMIX, XAException.XA_HEURRB:
-                    log.error("Transaction was heuristically terminated : " + xid + " " + e.getMessage());
-                    // handle heuristic termination by resource
-                    forgetInLog = true;
+                // case: transaction already heuristically terminated by resource
+                case XAException.XA_HEURCOM,
+                        XAException.XA_HEURHAZ,
+                        XAException.XA_HEURMIX,
+                        XAException.XA_HEURRB:
+                    System.out.println("Transaction was heuristically terminated : " + xid + " " + e.getMessage());
+                    ret = handleHeuristicTermination(xid, xaResource, e, true);
                     break;
+                // case : transaction terminated in resource by a concurrent commit; xid no longer know by resource
                 case XAException.XAER_NOTA, XAException.XAER_INVAL:
-                    log.error("Invalid Xid: " + xid + " " + e.getMessage());
-                    forgetInLog = true;
+                    System.out.println("Invalid Xid: " + xid + " " + e.getMessage());
+                    ret = true;
                     break;
+                default:
+                    log.error("Error while replaying commit for transaction: " + xid + " " + e.getMessage());
             }
-            log.error("Error while replaying commit for transaction: " + xid + " " + e.getMessage());
         }
-        return forgetInLog;
+        return ret;
     }
 
 
     private boolean handleAbort(XAResource xaResource, Xid xid) {
-        boolean forgetInLog = false;
+        boolean ret = false;
         try {
             xaResource.rollback(xid);
-            forgetInLog = true;
+            ret = true;
         } catch (XAException e) {
             switch (e.errorCode){
-                case XAException.XA_HEURCOM, XAException.XA_HEURHAZ, XAException.XA_HEURMIX, XAException.XA_HEURRB:
-                    log.error("Transaction was heuristically terminated: " + xid + " " + e.getMessage());
-                    // handle heuristic termination by resource
+                // case: transaction already heuristically terminated by resource
+                case XAException.XA_HEURCOM,
+                        XAException.XA_HEURHAZ,
+                        XAException.XA_HEURMIX,
+                        XAException.XA_HEURRB:
+                    System.out.println("Transaction was heuristically terminated: " + xid + " " + e.getMessage());
+                    ret = handleHeuristicTermination(xid, xaResource, e, false);
                     break;
+                // case : transaction terminated in resource by a concurrent rollback; xid no longer know by resource
                 case XAException.XAER_NOTA, XAException.XAER_INVAL:
-                    log.error("Forgetting transaction. Invalid Xid: " + xid + " " + e.getMessage());
-                    forgetInLog = true;
+                    System.out.println("Forgetting transaction. Invalid Xid: " + xid + " " + e.getMessage());
+                    ret = true;
                     break;
+                default:
+                    System.out.println("Error while replaying abort for transaction: " + xid + " " + e.getMessage());
             }
-            log.error("Error while replaying commit for transaction: " + xid + " " + e.getMessage());
-            forgetInLog = false;
         }
-        return forgetInLog;
+        return ret;
+    }
+
+    private boolean handleHeuristicTermination(Xid xid,
+                                                         XAResource xaResource, XAException e, boolean decisionCommit) {
+        boolean canForget = true;
+        switch (e.errorCode) {
+            case XAException.XA_HEURHAZ:
+                System.out.println("Transaction in hazard state: " + xid + " " + e.getMessage());
+                canForget = false;
+                break;
+            case XAException.XA_HEURCOM:
+                if(!decisionCommit){
+                    System.out.println("Transaction was heuristically committed: " + xid + " " + e.getMessage());
+                    canForget = false;
+                }
+                forgetXidInXaResource(xid, xaResource);
+                break;
+            case XAException.XA_HEURMIX:
+                System.out.println("Transaction was heuristically mixed: " + xid + " " + e.getMessage());
+                forgetXidInXaResource(xid, xaResource);
+                // TODO : handle mixed state recovery
+                break;
+            case XAException.XA_HEURRB:
+                if(decisionCommit) {
+                    System.out.println("Transaction was heuristically rolled back: " + xid + " " + e.getMessage());
+                    canForget = false;
+                }
+                forgetXidInXaResource(xid, xaResource);
+                break;
+            default:
+                break;
+        }
+        return canForget;
+    }
+
+    private void forgetXidInXaResource(Xid xid, XAResource xaResource) {
+        try {
+            xaResource.forget(xid);
+        } catch (XAException e) {
+            System.out.println("Unexpected error during forget" + e + "ignoring");
+            // ignore: worst case, heuristic xid is presented again on next recovery scan
+
+        }
     }
 
 }
