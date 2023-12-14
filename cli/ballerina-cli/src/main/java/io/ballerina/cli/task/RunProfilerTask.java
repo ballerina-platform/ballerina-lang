@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
@@ -51,6 +52,8 @@ public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String CURRENT_DIR_KEY = "current.dir";
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
@@ -92,6 +95,11 @@ public class RunProfilerTask implements Task {
             int exitValue = process.exitValue();
             if (exitValue != 0) {
                 throw new RuntimePanicException(exitValue);
+            }
+            if (isWindows) {
+                new ProcessBuilder("cmd", "/C", "del", targetPath.toString()).inheritIO().start().waitFor();
+            } else {
+                Files.deleteIfExists(targetPath);
             }
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("error occurred while running the profiler ", e);
