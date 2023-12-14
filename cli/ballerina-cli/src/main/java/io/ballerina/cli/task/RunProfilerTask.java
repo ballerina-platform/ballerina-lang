@@ -78,8 +78,6 @@ public class RunProfilerTask implements Task {
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("--file");
             commands.add(getPackageJarName(project, projectKind));
-            commands.add("--target");
-            commands.add(targetPath.toString());
             commands.add("--source-root");
             commands.add(getProjectPath(project).toString());
             if (isInProfileDebugMode()) {

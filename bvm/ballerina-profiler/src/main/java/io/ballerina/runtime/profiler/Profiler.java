@@ -60,7 +60,6 @@ public class Profiler {
     private final long profilerStartTime;
     private String balJarArgs = null;
     private String balJarName = null;
-    private String targetDir = null;
     private String sourceRoot = null;
     private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
@@ -97,8 +96,6 @@ public class Profiler {
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);
-            } finally {
-                deleteFileIfExists(targetDir);
             }
         }));
     }
@@ -139,10 +136,6 @@ public class Profiler {
                 }
                 case "--args" -> {
                     this.balJarArgs = extractBalJarArgs(args[i + 1]);
-                    addToUsedArgs(args, usedArgs, i);
-                }
-                case "--target" -> {
-                    this.targetDir = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
                 case "--source-root" -> {
