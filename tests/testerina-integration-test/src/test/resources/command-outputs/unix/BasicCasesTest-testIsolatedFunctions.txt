@@ -7,8 +7,8 @@ Running Tests with Coverage
 
 		Test execution time :*****ms
 
-		[pass] testFunc
 		[pass] testCallingIsolatedFunction
+		[pass] testFunc
 		[pass] testIsolatedTestFunction
 
 
