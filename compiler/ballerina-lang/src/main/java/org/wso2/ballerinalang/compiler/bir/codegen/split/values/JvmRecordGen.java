@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.values;
 
+import org.ballerinalang.model.types.TypeKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -44,6 +45,8 @@ import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -55,6 +58,7 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
@@ -62,11 +66,14 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.castToJavaString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_SIMPLE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
@@ -83,6 +90,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LINKED_H
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES_WITH_COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_DOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_LONG;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_SAME_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_GET;
@@ -108,9 +122,15 @@ public class JvmRecordGen {
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
 
     private final BType booleanType;
+    private final BType intType;
+    private final BType floatType;
+    private final BType stringType;
 
     public JvmRecordGen(SymbolTable symbolTable) {
         this.booleanType = symbolTable.booleanType;
+        this.intType = symbolTable.intType;
+        this.floatType = symbolTable.floatType;
+        this.stringType = symbolTable.stringType;
     }
 
     public void createAndSplitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -139,6 +159,15 @@ public class JvmRecordGen {
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "get", className);
         mv.visitEnd();
         splitGetMethod(cw, fields, className, jvmCastGen);
+
+        createBooleanGetMethod(cw, fields, className, jvmCastGen);
+        createFloatGetMethod(cw, fields, className, jvmCastGen);
+        createIntGetMethod(cw, fields, className, jvmCastGen);
+        createStringGetMethod(cw, fields, className, jvmCastGen);
+
+        createUnboxedBooleanGetMethod(cw, fields, className, jvmCastGen);
+        createUnboxedFloatGetMethod(cw, fields, className, jvmCastGen);
+        createUnboxedIntGetMethod(cw, fields, className, jvmCastGen);
     }
 
     private void splitGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -865,5 +894,121 @@ public class JvmRecordGen {
             default:
                 return true;
         }
+    }
+
+    void createUnboxedIntGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                   JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.INT, "getUnboxedIntValue",
+                PASS_B_STRING_RETURN_UNBOXED_LONG, false, "");
+    }
+
+    void createUnboxedFloatGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                     JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, "getUnboxedFloatValue",
+                PASS_B_STRING_RETURN_UNBOXED_DOUBLE, false, "");
+    }
+
+    void createUnboxedBooleanGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                       JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, "getUnboxedBooleanValue",
+                PASS_B_STRING_RETURN_UNBOXED_BOOLEAN, false, "");
+    }
+
+    void createIntGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                            JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.INT, "getIntValue",
+                PASS_B_STRING_RETURN_LONG, true, LONG_VALUE);
+    }
+
+    void createFloatGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                              JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, "getFloatValue",
+                PASS_B_STRING_RETURN_DOUBLE, true, DOUBLE_VALUE);
+    }
+
+    void createBooleanGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, "getBooleanValue",
+                PASS_B_STRING_RETURN_BOOLEAN, true, BOOLEAN_VALUE);
+    }
+
+    void createStringGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                               JvmCastGen jvmCastGen) {
+        createBasicTypeGetMethod(cw, fields, className, jvmCastGen, TypeKind.STRING, "getStringValue",
+                PASS_B_STRING_RETURN_BSTRING, true, B_STRING_VALUE);
+    }
+
+    private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                          JvmCastGen jvmCastGen, TypeKind basicType, String methodName,
+                                          String methodDesc, boolean boxed, String boxedTypeDesc) {
+        List<BField> sortedFields = fields.values().stream()
+                .filter(field -> field.type.getKind() == basicType &&
+                        !isOptionalRecordField(field)) // optional fields will be handled by the default get method
+                .limit(MAX_FIELDS_PER_SPLIT_METHOD) // rest will go through the default get method
+                .sorted(FIELD_NAME_HASH_COMPARATOR)
+                .toList();
+        if (sortedFields.isEmpty()) {
+            return;
+        }
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, methodDesc, null, null);
+        mv.visitCode();
+
+        final int selfRegister = 0;
+        final int fieldNameBStringReg = 1;
+        final int fieldNameStringReg = 2;
+
+        castToJavaString(mv, fieldNameBStringReg, fieldNameStringReg);
+        Label defaultCaseLabel = new Label();
+        List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, fieldNameStringReg, sortedFields,
+                0, sortedFields.size(), defaultCaseLabel);
+        List<Label> targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, fieldNameStringReg, sortedFields,
+                0, sortedFields.size(), labels, defaultCaseLabel);
+        final int returnIns = boxed ? ARETURN :
+                switch (basicType) {
+                    case INT -> LRETURN;
+                    case FLOAT -> DRETURN;
+                    case BOOLEAN -> IRETURN;
+                    default -> throw new IllegalArgumentException("Unexpected unboxed type: " + basicType);
+                };
+        for (int i = 0; i < sortedFields.size(); i++) {
+            BField field = sortedFields.get(i);
+            Label targetLabel = targetLabels.get(i);
+            mv.visitLabel(targetLabel);
+            String fieldName = field.name.value;
+
+            mv.visitVarInsn(ALOAD, selfRegister);
+            BType fieldType = field.type;
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(fieldType));
+            if (boxed) {
+                jvmCastGen.addBoxInsn(mv, fieldType);
+            }
+
+            mv.visitInsn(returnIns);
+        }
+        // This could happen when we access the rest field, having more than 500 fields or optional field,
+        // in which case we will simply call the default get method
+        mv.visitLabel(defaultCaseLabel);
+
+        mv.visitVarInsn(ALOAD, selfRegister);
+        mv.visitVarInsn(ALOAD, fieldNameBStringReg);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", PASS_OBJECT_RETURN_OBJECT,
+                false);
+
+        if (boxed) {
+            mv.visitTypeInsn(CHECKCAST, boxedTypeDesc);
+        } else {
+            BType targetType = switch (basicType) {
+                case INT -> intType;
+                case FLOAT -> floatType;
+                case BOOLEAN -> booleanType;
+                default -> throw new IllegalArgumentException("Unexpected unboxed type: " + basicType);
+            };
+            jvmCastGen.addUnboxInsn(mv, targetType);
+        }
+
+        mv.visitInsn(returnIns);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, className);
+        mv.visitEnd();
     }
 }

@@ -22,6 +22,7 @@ import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -157,6 +158,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_I
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_SELF_INSTANCE;
@@ -239,6 +241,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.JSON_SET
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_STREAM_RANGE_CLOSED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_DUPLICATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
@@ -1470,16 +1476,13 @@ public class JvmInstructionGen {
 
         // visit key_expr
         this.loadVar(mapLoadIns.keyOp.variableDcl);
-
+        BType targetType = mapLoadIns.lhsOp.variableDcl.type;
+        this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        boolean shouldUnbox = true;
         if (varRefType.tag == TypeTags.JSON) {
-
             if (mapLoadIns.optionalFieldAccess) {
-                this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
-                                        JSON_GET_ELEMENT,
-                                        false);
+                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil", JSON_GET_ELEMENT, false);
             } else {
-                this.mv.visitTypeInsn(CHECKCAST , B_STRING_VALUE);
                 this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement", JSON_GET_ELEMENT, false);
             }
         } else {
@@ -1487,15 +1490,48 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
                         PASS_OBJECT_RETURN_OBJECT, true);
             } else {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-                        PASS_OBJECT_RETURN_OBJECT, true);
+                shouldUnbox = generateMapGet(varRefType, targetType);
             }
         }
 
         // store in the target reg
-        BType targetType = mapLoadIns.lhsOp.variableDcl.type;
-        jvmCastGen.addUnboxInsn(this.mv, targetType);
+        if (shouldUnbox) {
+            jvmCastGen.addUnboxInsn(this.mv, targetType);
+        }
         this.storeToVar(mapLoadIns.lhsOp.variableDcl);
+    }
+
+    boolean generateMapGet(BType mapType, BType expectedType) {
+        if (mapType.getKind() != TypeKind.RECORD) {
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get", PASS_OBJECT_RETURN_OBJECT, true);
+            return true;
+        }
+        return switch (expectedType.getKind()) {
+            case INT -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getUnboxedIntValue",
+                        PASS_B_STRING_RETURN_UNBOXED_LONG, false);
+                yield false;
+            }
+            case FLOAT -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getUnboxedFloatValue",
+                        PASS_B_STRING_RETURN_UNBOXED_DOUBLE, false);
+                yield false;
+            }
+            case STRING -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getStringValue", PASS_B_STRING_RETURN_BSTRING,
+                        false);
+                yield true;
+            }
+            case BOOLEAN -> {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE_IMPL, "getUnboxedBooleanValue",
+                        PASS_B_STRING_RETURN_UNBOXED_BOOLEAN, false);
+                yield false;
+            }
+            default -> {
+                this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get", PASS_OBJECT_RETURN_OBJECT, true);
+                yield true;
+            }
+        };
     }
 
     void generateObjectLoadIns(BIRNonTerminator.FieldAccess objectLoadIns) {

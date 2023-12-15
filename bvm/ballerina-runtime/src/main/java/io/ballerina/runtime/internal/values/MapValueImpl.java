@@ -128,7 +128,23 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     public Long getIntValue(BString key) {
-        return (Long) get(key);
+        Object value = get(key);
+        if (value instanceof Integer) { // field is an int subtype
+            return ((Integer) value).longValue();
+        }
+        return (Long) value;
+    }
+
+    public long getUnboxedIntValue(BString key) {
+        return getIntValue(key);
+    }
+
+    public double getUnboxedFloatValue(BString key) {
+        return getFloatValue(key);
+    }
+
+    public boolean getUnboxedBooleanValue(BString key) {
+        return getBooleanValue(key);
     }
 
     public Double getFloatValue(BString key) {
