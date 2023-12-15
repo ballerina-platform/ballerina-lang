@@ -2225,6 +2225,4 @@ public class ClosureDesugar extends BLangNodeVisitor {
             nodeList.set(i, rewriteExpr(nodeList.get(i)));
         }
     }
-
-    
 }

@@ -282,6 +282,11 @@ public class ClosureTest {
         BRunUtil.invoke(compileResult, "testClosureWithTupleBindingTypeParams");
     }
 
+    @Test(description = "Test closure with a param having a default value of a binding type")
+    public void testClosureWithBindingPatternDefaultValues() {
+        BRunUtil.invoke(compileResult, "testClosureWithBindingPatternDefaultValues");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

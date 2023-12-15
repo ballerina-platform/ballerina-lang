@@ -354,6 +354,10 @@ public class WorkerTest {
     public void testWorkerWithQuery() {
         BRunUtil.invoke(result, "testWorkerWithQuery", new Object[0]);
     }
+    
+    public void testBindingPatternVariablesInWorker() {
+        BRunUtil.invoke(result, "testBindingPatternVariablesInWorker");
+    }
 
     @AfterClass
     public void tearDown() {

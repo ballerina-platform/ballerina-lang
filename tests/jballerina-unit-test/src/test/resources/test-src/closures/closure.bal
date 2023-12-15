@@ -815,7 +815,6 @@ function test30() {
 
 type School record {|
     string name;
-    string country;
 |};
 
 type Doctor record {
@@ -827,7 +826,7 @@ type Doctor record {
 function testClosureWithStructuredBindingTypeParams() {
     string[] categories = ["Orthopedic", "Dentist"];
     string[] schools = [];
-    Doctor doctor = {name: "Dr. Smith", category: "Cardiologist", school: {name: "Medical College", country: "United States"}};
+    Doctor doctor = {name: "Dr. Smith", category: "Cardiologist", school: {name: "Medical College"}};
     var {category, school: {name}} = doctor;
     var f = function () {
         categories.push(category);
@@ -852,6 +851,16 @@ function testClosureWithTupleBindingTypeParams() {
         return id + len;
     };
     assert(increment(), 5);
+}
+
+function testClosureWithBindingPatternDefaultValues() {
+    record {|string nt;|} r = {nt: "nt"};
+    [string] [i] = ["i"];
+    var {nt} = r;
+    var f = function(string s = i) returns string {
+        return i + nt;
+    };
+    assert(f(), "int");
 }
 
 function assert(anydata actual, anydata expected) {
