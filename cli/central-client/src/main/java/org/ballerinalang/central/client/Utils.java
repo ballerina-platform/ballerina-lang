@@ -59,6 +59,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_
 import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
 import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
@@ -442,7 +444,7 @@ public class Utils {
         byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
 
         // If the hash value is not matching , throw an exception.
-        if (!("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
+        if (Objects.equals((SHA256 + bytesToHex(hashInBytes)), trueDigest)) {
             StringBuilder warning = new StringBuilder(
                     String.format("*************************************************************%n" +
                             "* WARNING: Some packages may not be from original source. *%n" +
@@ -453,7 +455,6 @@ public class Utils {
             if (outStream != null) {
                 outStream.println(warning.toString());
             }
-
         }
 
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {

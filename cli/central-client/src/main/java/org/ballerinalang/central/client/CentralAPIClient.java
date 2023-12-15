@@ -90,6 +90,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.PLATFORM;
+import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -166,7 +167,7 @@ public class CentralAPIClient {
 
     public CentralAPIClient(String baseUrl, Proxy proxy, String proxyUsername, String proxyPassword,
             String accessToken, int connectionTimeout, int readTimeout, int writeTimeout,
-                            int callTimeout) {
+            int callTimeout) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
         this.proxy = proxy;
@@ -393,7 +394,7 @@ public class CentralAPIClient {
                     packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             byte[] hashInBytes = checkHash(balaPath.toString(), "SHA-256");
-            String digestVal = "sha-256=" + bytesToHex(hashInBytes);
+            String digestVal = SHA256 + bytesToHex(hashInBytes);
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                     .addHeader(DIGEST, digestVal)
@@ -790,8 +791,7 @@ public class CentralAPIClient {
      * @throws CentralClientException Central Client exception.
      */
     public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
-            String supportedPlatform, String ballerinaVersion)
-            throws CentralClientException {
+            String supportedPlatform, String ballerinaVersion) throws CentralClientException {
 
         String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_MODULES;
 
@@ -985,7 +985,7 @@ public class CentralAPIClient {
 
                     // If error occurred at remote repository
                     if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
-                        searchResponse.code() == HTTP_UNAVAILABLE) {
+                            searchResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(searchResponseBody, Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +

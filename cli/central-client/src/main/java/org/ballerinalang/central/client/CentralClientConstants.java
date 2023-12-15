@@ -58,5 +58,6 @@ public class CentralClientConstants {
     public static final int BYTES_FOR_KB = 1024;
     public static final int PROGRESS_BAR_BYTE_THRESHOLD = 5;
     public static final int UPDATE_INTERVAL_MILLIS = 1000;
+    public static final String SHA256 = "sha-256=";
 
 }
