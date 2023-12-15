@@ -215,29 +215,54 @@ function testXmlNavigationWithUnionType() {
     assert(x6/<m>, xml `<m><n></n></m>`);
 }
 
-function testXmlNavigationWithDefaultNamespaceDefinedLater() {
+function testXmlNavigationWithDefaultNamespaceDefinedAfter() {
     xml[] results = [];
     xml x1 = xml `<a>a<b>b<c>c</c></b><d>d</d></a><f/>`;
     results.push(x1.<a>, (x1/*), (x1/<b>), (x1/<*>), (x1/**/<c>));
 
-    xml x2 = xml `<e>e<f><g>f</g></f><h>h</h></e><j/>`;
-    xmlns "http://example.com/";
-    results.push(x2.<e>, (x2/*), (x2/<f>), (x2/<*>), (x2/**/<g>));
+    xmlns "http://example2.com/" as p1;
+    xml x2 = xml `<l>l<m>m<n>n</n></m><p1:q>q1</p1:q><q>q2</q></l>`;
+    {
+        xmlns "http://example2.com/";
+    }
+    results.push(x2.<l>, (x2/<m>), (x2/<q>), (x2/**/<n>));
 
-    assertXmlNavigationWithDefaultNamespaceDefinedLater(results);
+    {
+        xmlns "http://example2.com/";
+        {
+            results.push(x2.<l>, (x2/<q>));
+        }
+    }
+    xmlns "http://example.com/" as p2;
+    xml x3 = xml `<e>no-ns</e><f/><p2:e>with-ns</p2:e>`;
+    results.push(x3.<e>);
+
+    xml x4 = xml `<e>e<f><g>f</g></f><h>h</h></e><j/>`;
+    xmlns "http://example.com/";
+    results.push(x3.<e>, x4.<e>, (x4/*), (x4/<f>), (x4/<*>), (x4/**/<g>));
+
+    assertXmlNavigationWithDefaultNamespaceDefinedAfter(results);
 }
 
-function assertXmlNavigationWithDefaultNamespaceDefinedLater(xml[] results) {
+function assertXmlNavigationWithDefaultNamespaceDefinedAfter(xml[] results) {
     assert(results[0], xml `<a>a<b>b<c>c</c></b><d>d</d></a>`);
     assert(results[1], xml `a<b>b<c>c</c></b><d>d</d>`);
     assert(results[2], xml `<b>b<c>c</c></b>`);
     assert(results[3], xml `<b>b<c>c</c></b><d>d</d>`);
     assert(results[4], xml `<c>c</c>`);
-    assert(results[5], xml ``);
-    assert(results[6], xml `e<f><g>f</g></f><h>h</h>`);
-    assert(results[7], xml ``);
-    assert(results[8], xml `<f><g>f</g></f><h>h</h>`);
+    assert(results[5], xml `<l>l<m>m<n>n</n></m><p1:q xmlns:p1="http://example2.com/">q1</p1:q><q>q2</q></l>`);
+    assert(results[6], xml `<m>m<n>n</n></m>`);
+    assert(results[7], xml `<q>q2</q>`);
+    assert(results[8], xml `<n>n</n>`);
     assert(results[9], xml ``);
+    assert(results[10], xml `<p1:q xmlns:p1="http://example2.com/">q1</p1:q>`);
+    assert(results[11], xml `<e>no-ns</e>`);
+    assert(results[12], xml `<p2:e xmlns:p2="http://example.com/">with-ns</p2:e>`);
+    assert(results[13], xml ``);
+    assert(results[14], xml `e<f><g>f</g></f><h>h</h>`);
+    assert(results[15], xml ``);
+    assert(results[16], xml `<f><g>f</g></f><h>h</h>`);
+    assert(results[17], xml ``);
 }
 
 function assert(anydata actual, anydata expected) {

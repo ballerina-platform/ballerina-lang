@@ -284,8 +284,8 @@ public class XMLAccessTest {
     }
 
     @Test
-    public void testXmlNavigationWithDefaultNamespaceDefinedLater() {
-        BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedLater");
+    public void testXmlNavigationWithDefaultNamespaceDefinedAfter() {
+        BRunUtil.invoke(navigation, "testXmlNavigationWithDefaultNamespaceDefinedAfter");
     }
 
     @Test
