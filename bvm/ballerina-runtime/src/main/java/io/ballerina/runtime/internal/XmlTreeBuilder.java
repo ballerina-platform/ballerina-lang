@@ -104,9 +104,16 @@ public class XmlTreeBuilder {
     }
 
     public BXml parse() {
+        boolean readNext = false;
+        int next;
         try {
             while (xmlStreamReader.hasNext()) {
-                int next = xmlStreamReader.next();
+                if (readNext) {
+                    readNext = false;
+                    next = xmlStreamReader.getEventType();
+                } else {
+                    next = xmlStreamReader.next();
+                }
                 switch (next) {
                     case START_ELEMENT:
                         readElement(xmlStreamReader);
@@ -121,8 +128,11 @@ public class XmlTreeBuilder {
                         readComment(xmlStreamReader);
                         break;
                     case CDATA:
+                        readCData(xmlStreamReader);
+                        break;
                     case CHARACTERS:
                         readText(xmlStreamReader);
+                        readNext = true;
                         break;
                     case END_DOCUMENT:
                         return buildDocument();
@@ -150,8 +160,17 @@ public class XmlTreeBuilder {
         siblingDeque.peek().add(xmlItem);
     }
 
-    private void readText(XMLStreamReader xmlStreamReader) {
+    private void readCData(XMLStreamReader xmlStreamReader) {
         siblingDeque.peek().add(new XmlText(xmlStreamReader.getText()));
+    }
+
+    private void readText(XMLStreamReader xmlStreamReader) throws XMLStreamException {
+        StringBuilder textBuilder = new StringBuilder();
+        while (xmlStreamReader.getEventType() == CHARACTERS) {
+            textBuilder.append(xmlStreamReader.getText());
+            xmlStreamReader.next();
+        }
+        siblingDeque.peek().add(new XmlText(textBuilder.toString()));
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {

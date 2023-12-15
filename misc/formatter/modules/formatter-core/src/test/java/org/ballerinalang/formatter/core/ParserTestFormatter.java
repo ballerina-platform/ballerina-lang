@@ -191,7 +191,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal",
                 "query_expr_source_101.bal", "query_expr_source_105.bal", "query_expr_source_94.bal",
                 "query_expr_source_116.bal", "query_expr_source_117.bal", "query_expr_source_118.bal",
-                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal"
+                "query_expr_source_119.bal", "query_expr_source_103.bal", "query_expr_source_115.bal",
+                "transaction_stmt_source_09.bal"
         );
     }
 

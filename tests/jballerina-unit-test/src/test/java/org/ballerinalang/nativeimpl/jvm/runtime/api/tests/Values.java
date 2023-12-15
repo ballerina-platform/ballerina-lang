@@ -54,6 +54,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -63,7 +64,9 @@ import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.jetbrains.annotations.Nullable;
+import org.testng.Assert;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -186,7 +189,7 @@ public class Values {
 
     public static BArray getConstituentTypes(BArray array) {
         Optional<IntersectionType> arrayType = ((IntersectableReferenceType) array.getType()).getIntersectionType();
-        assert arrayType.isPresent();
+        Assert.assertTrue(arrayType.isPresent());
         List<Type> constituentTypes = arrayType.get().getConstituentTypes();
         int size = constituentTypes.size();
         BArray arrayValue =
@@ -372,8 +375,8 @@ public class Values {
                 return ErrorCreator.createError(
                         StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
             }
-            AnnotatableType eType = (AnnotatableType) ((ReferenceType) (((BArrayType)
-                    TypeUtils.getImpliedType(describingType)).getElementType())).getReferredType();
+            AnnotatableType eType = (AnnotatableType) ((ReferenceType) ((BArrayType) ((ReferenceType) describingType)
+                    .getReferredType()).getElementType()).getReferredType();
             annotations = eType.getAnnotations();
             if (!annotations.containsKey(intAnnotation)) {
                 return constraintError;
@@ -396,12 +399,12 @@ public class Values {
     @Nullable
     private static BError validateFunctionType(FunctionType functionType) {
         Parameter[] parameters = functionType.getParameters();
-        assert parameters[0].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;
+        Assert.assertEquals(parameters[0].type.getTag(), TypeTags.TYPE_REFERENCED_TYPE_TAG);
         AnnotatableType annotatableType = (AnnotatableType) parameters[0].type;
         if (annotatableType.getAnnotation(intAnnotation) == null) {
             return constraintError;
         }
-        assert parameters[1].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;
+        Assert.assertEquals(parameters[1].type.getTag(), TypeTags.TYPE_REFERENCED_TYPE_TAG);
         annotatableType = (AnnotatableType) parameters[1].type;
         if (annotatableType.getAnnotation(intAnnotation) == null) {
             return constraintError;
@@ -420,7 +423,7 @@ public class Values {
     }
 
     public static BArray getIntArray(BTypedesc typedesc) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         BArray arrayValue = ValueCreator.createArrayValue(arrayType);
         arrayValue.add(0, 1L);
         arrayValue.add(1, 2L);
@@ -429,7 +432,7 @@ public class Values {
     }
 
     public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
-        BArrayType arrayType = (BArrayType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -439,7 +442,7 @@ public class Values {
     }
 
     public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
-        BTupleType tupleType = (BTupleType) TypeUtils.getImpliedType(typedesc.getDescribingType());
+        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
         int size = array.size();
         BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
         for (int i = 0; i < size; i++) {
@@ -500,10 +503,29 @@ public class Values {
         BString errorMsg = StringUtils.fromString("error message!");
         BError bError = ErrorCreator.createError(errorModule, errorTypeName.getValue(), errorTypeName,
                 ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
-        // TODO: fix https://github.com/ballerina-platform/ballerina-lang/issues/41025
-        String typeName = errorTypeName.getValue().equals("ResourceDispatchingError") ?
-                "RequestDispatchingError" : errorTypeName.getValue();
-        assert bError.getType().getName().equals(typeName);
+        Assert.assertEquals(bError.getType().getName(), errorTypeName.getValue());
         return bError;
+    }
+
+    public static BXml getXMLValueFromString1() {
+        return ValueCreator.createXmlValue("<book>The Lost World</book>");
+    }
+
+    public static BXml getXMLValueFromString2() {
+        return ValueCreator.createXmlValue("<reservationID>12345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789012345678901234567890aaaaaa</reservationID>");
+    }
+
+    public static BXml getXMLValueFromInputStream1() {
+        return ValueCreator.createXmlValue(new ByteArrayInputStream("<book>The Lost World</book>".getBytes()));
+    }
+
+    public static BXml getXMLValueFromInputStream2() {
+        String xmlString = "<Reservation>\n" +
+                "<reservationID>1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "12345678901234567890123456789exceeding100chars</reservationID>\n" +
+                "    <confirmationID>RPFABE</confirmationID>\n" +
+                "</Reservation>";
+        return ValueCreator.createXmlValue(new ByteArrayInputStream(xmlString.getBytes()));
     }
 }

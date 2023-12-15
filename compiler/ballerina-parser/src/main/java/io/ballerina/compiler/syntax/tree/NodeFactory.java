@@ -3081,11 +3081,27 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stGroupingKeyVarDeclarationNode.createUnlinkedFacade();
     }
 
+    /**
+     * @deprecated Use {@link #createOnFailClauseNode(Token, Token, TypedBindingPatternNode, BlockStatementNode)}
+     * instead.
+     */
+    @Deprecated
     public static OnFailClauseNode createOnFailClauseNode(
             Token onKeyword,
             Token failKeyword,
             TypeDescriptorNode typeDescriptor,
             IdentifierToken failErrorName,
+            BlockStatementNode blockStatement) {
+        return createOnFailClauseNode(onKeyword, failKeyword,
+                                      createTypedBindingPatternNode(typeDescriptor,
+                                                                    createCaptureBindingPatternNode(failErrorName)),
+                                      blockStatement);
+    }
+
+    public static OnFailClauseNode createOnFailClauseNode(
+            Token onKeyword,
+            Token failKeyword,
+            TypedBindingPatternNode typedBindingPattern,
             BlockStatementNode blockStatement) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
@@ -3094,8 +3110,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stOnFailClauseNode = STNodeFactory.createOnFailClauseNode(
                 onKeyword.internalNode(),
                 failKeyword.internalNode(),
-                getOptionalSTNode(typeDescriptor),
-                getOptionalSTNode(failErrorName),
+                getOptionalSTNode(typedBindingPattern),
                 blockStatement.internalNode());
         return stOnFailClauseNode.createUnlinkedFacade();
     }

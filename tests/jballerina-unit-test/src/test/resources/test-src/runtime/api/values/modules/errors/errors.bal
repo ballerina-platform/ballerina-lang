@@ -34,6 +34,12 @@ public function validateAPI() {
 
     errorVar = getErrorValue("ResourceNotFoundError");
     test:assertTrue(errorVar is ResourceNotFoundError);
+
+    errorVar = getErrorValue("RequestDispatchingError");
+    test:assertTrue(errorVar is RequestDispatchingError);
+
+    errorVar = getErrorValue("StatusCodeError");
+    test:assertTrue(errorVar is StatusCodeError);
 }
 
 function getErrorValue(string errorTypeName) returns error = @java:Method {

@@ -30,9 +30,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}
 
-      - name: Check for Standard Library related issue
-        if: ${{ contains(github.event.issue.body, '-> Standard Library') }}
-        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-standard-library"
+      - name: Check for Ballerina Library related issue
+        if: ${{ contains(github.event.issue.body, '-> Ballerina Library') }}
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-library"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}
@@ -78,7 +78,7 @@ jobs:
 
       - name: Check for GRPC Tool related issue
         if: ${{ contains(github.event.issue.body, '-> gRPC Tool') }}
-        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-standard-library"
+        run: gh issue transfer $ISSUE "ballerina-platform/ballerina-library"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ISSUE: ${{ github.event.issue.number }}

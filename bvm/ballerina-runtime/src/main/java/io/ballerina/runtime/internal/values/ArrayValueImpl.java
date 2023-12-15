@@ -39,7 +39,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 
 import java.io.IOException;
@@ -1058,25 +1057,20 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             default:
                 if (arrayType.hasFillerValue()) {
-                    if (elementTypedescValue != null) {
-                        extractRecordFillerValues(index);
-                    } else {
-                        extractComplexFillerValues(index);
-                    }
+                    extractComplexFillerValues(index);
                 }
         }
     }
 
     private void extractComplexFillerValues(int index) {
         for (int i = size; i < index; i++) {
-            this.refValues[i] = this.elementType.getZeroValue();
+            this.refValues[i] = getElementZeroValue();
         }
     }
 
-    private void extractRecordFillerValues(int index) {
-        for (int i = size; i < index; i++) {
-            this.refValues[i] = elementTypedescValue.instantiate(Scheduler.getStrand());
-        }
+    private Object getElementZeroValue() {
+        return this.elementTypedescValue == null ? this.elementType.getZeroValue() :
+                this.elementTypedescValue.getDescribingType().getZeroValue();
     }
 
     @Override

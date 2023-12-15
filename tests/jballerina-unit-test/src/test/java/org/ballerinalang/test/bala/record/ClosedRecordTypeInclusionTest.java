@@ -51,7 +51,7 @@ public class ClosedRecordTypeInclusionTest {
         compileResult = BCompileUtil.compile("test-src/record/closed_record_type_inclusion.bal");
     }
 
-    @Test(description = "Negative tests" , groups = {"disableOnOldParser"})
+    @Test(description = "Negative tests")
     public void negativeTests() {
         CompileResult negative = BCompileUtil.compile("test-src/record/closed_record_type_inclusion_negative.bal");
         int index = 0;
