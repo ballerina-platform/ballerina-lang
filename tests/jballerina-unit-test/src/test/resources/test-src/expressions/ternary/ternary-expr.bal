@@ -417,6 +417,42 @@ function testTernaryWithQueryForTwoVariables() {
     assertEquals([2, 2], elseResult);
 }
 
+function testTernaryWithQueryWithFunctionPointers() {
+    int? i = 3;
+    var k = function() returns int? {
+        return i;
+    };
+
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where k() + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where k() + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+function testTernaryWithQueryWithFunctionAsClosure() {
+    ()|function() returns int fn = function() returns int {
+        return 3;
+    };
+    int|int[] thenResult = fn !is () ?
+        from var _ in [1, 2]
+        where fn() + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = fn is () ? 2 :
+        from var _ in [1, 2]
+        where fn() + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
 boolean cond2 = true;
 int i1 =10;
 byte j1 = 100;

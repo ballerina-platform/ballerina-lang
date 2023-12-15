@@ -418,6 +418,16 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryWithQueryForTwoVariables");
     }
 
+    @Test
+    public void testTernaryWithQueryWithFunctionPointers() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryWithFunctionPointers");
+    }
+
+    @Test
+    public void testTernaryWithQueryWithFunctionAsClosure() {
+        BRunUtil.invoke(compileResult, "testTernaryWithQueryWithFunctionAsClosure");
+    }
+
     @Test(description = "Test type narrowing for ternary expression")
     public void testTernaryTypeNarrow() {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow.bal");

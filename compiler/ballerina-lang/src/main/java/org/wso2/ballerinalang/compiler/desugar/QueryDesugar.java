@@ -1908,7 +1908,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             result = bLangSimpleVarRef;
             return;
         }
-        if (symbol.kind == SymbolKind.VARIABLE) {
+        if (symbol.kind == SymbolKind.VARIABLE || symbol.kind == SymbolKind.FUNCTION) {
             BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
             if (originalSymbol != null) {
                 symbol = originalSymbol;
@@ -1965,14 +1965,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
             }
-        } else if (resolvedSymbol != symTable.notFoundSymbol) {
+        } else if (!resolvedSymbol.closure && resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
-            // When there's a type guard, there can be a enclSymbol before type narrowing.
-            // So, we have to mark that as a closure as well.
-            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol);
-            if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
-                enclSymbol.closure = true;
-            }
         }
         result = bLangSimpleVarRef;
     }
