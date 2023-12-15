@@ -499,7 +499,7 @@ public class JvmSignatures {
     public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
     public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
             ";)L" + TOML_DETAILS + ";";
-    public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";L" + LIST + ";)L" + OBJECT + ";";
+    public static final String ALT_RECEIVE_CALL = "(L" + STRAND_CLASS + ";[L" + STRING_VALUE + ";)L" + OBJECT + ";";
 
     private JvmSignatures() {
     }

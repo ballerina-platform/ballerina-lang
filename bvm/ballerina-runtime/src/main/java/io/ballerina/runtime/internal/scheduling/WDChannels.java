@@ -51,34 +51,40 @@ public class WDChannels {
         return channel;
     }
 
-    public Object tryTakeData(Strand strand, List<String> channels) throws Throwable {
+    public Object tryTakeData(Strand strand, String[] channels) throws Throwable {
         Object result = null;
         boolean allChannelsClosed = true;
         for (String channelName : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelName);
-            if (channel.isClosed()) {
+            if (!channel.isClosed()) {
+                allChannelsClosed = false;
+                result = channel.tryTakeData(strand, true);
+                if (result != null) {
+                    result = handleNonNullResult(channels, result, channel);
+                }
+            } else {
                 if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
                     errors.add((ErrorValue) ErrorUtils.createNoMessageError(channelName));
                 }
-                continue;
             }
-            allChannelsClosed = false;
-            result = channel.tryTakeData(strand, true);
-            if (result != null) {
-                if (result instanceof ErrorValue) {
-                    errors.add((ErrorValue) result);
-                    channel.close();
-                    result = null;
-                    continue;
-                } else {
-                    closeChannels(channels);
-                }
-                break;
-            }
-
         }
+        return processResulAndError(strand, channels, result, allChannelsClosed);
+    }
+
+    private Object handleNonNullResult(String[] channels, Object result, WorkerDataChannel channel) {
+        if (result instanceof ErrorValue errorValue) {
+            errors.add(errorValue);
+            channel.close();
+            result = null;
+        } else {
+            closeChannels(channels);
+        }
+        return result;
+    }
+
+    private Object processResulAndError(Strand strand, String[] channels, Object result, boolean allChannelsClosed) {
         if (result == null) {
-            if (errors.size() == channels.size()) {
+            if (errors.size() == channels.length) {
                 result = errors.get(errors.size() - 1);
             } else if (!allChannelsClosed) {
                 strand.setState(BLOCK_AND_YIELD);
@@ -87,7 +93,7 @@ public class WDChannels {
         return result;
     }
 
-    private void closeChannels(List<String> channels) {
+    private void closeChannels(String[] channels) {
         for (String channelName : channels) {
             WorkerDataChannel channel = getWorkerDataChannel(channelName);
             channel.close();

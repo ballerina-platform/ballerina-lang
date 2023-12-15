@@ -189,7 +189,10 @@ public class ErrorUtils {
     }
 
     public static BError createNoMessageError(String chnlName) {
+        String[] splitWorkers = chnlName.split(":")[0].split("->");
+        String sender = splitWorkers[0];
+        String receiver = splitWorkers[1];
         return createError(ErrorReasons.NO_MESSAGE_ERROR, ErrorHelper.getErrorDetails(ErrorCodes.NO_MESSAGE_ERROR,
-                StringUtils.fromString(chnlName.split(":")[0])));
+                StringUtils.fromString(sender), StringUtils.fromString(receiver)));
     }
 }

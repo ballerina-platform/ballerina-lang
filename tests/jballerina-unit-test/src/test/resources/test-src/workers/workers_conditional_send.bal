@@ -73,7 +73,7 @@ function sameWorkerSendTest() {
         test:assertTrue(b is error);
         error e = <error> b;
         test:assertEquals(e.message(), "NoMessageError", "Invalid error message");
-        test:assertEquals(e.detail().toString(), "{\"message\":\"no worker message received for channel 'w1->w2'\"}", "Invalid error detail");
+        test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w2'\"}", "Invalid error detail");
     }
 
     _ = wait {a: w1, b: w2};
@@ -408,7 +408,7 @@ function multipleReceiveConditional() {
     test:assertTrue(mapResult["c"] is error, "Expected error result");
     error e = <error>mapResult["c"];
     test:assertEquals(e.message(), "NoMessageError", "Invalid error message");
-    test:assertEquals(e.detail().toString(), "{\"message\":\"no worker message received for channel 'w1->w3'\"}", "Invalid error detail");
+    test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w3'\"}", "Invalid error detail");
 }
 
 function multipleReceiveWithNonConditionalSend() {
@@ -421,7 +421,7 @@ function multipleReceiveWithNonConditionalSend() {
         test:assertTrue(y is error, "Invalid error result");
         error e = <error>y;
         test:assertEquals(e.message(), "NoMessageError", "Invalid error message");
-        test:assertEquals(e.detail().toString(), "{\"message\":\"no worker message received for channel 'w1->w3'\"}", "Invalid error detail");
+        test:assertEquals(e.detail().toString(), "{\"message\":\"no message received from worker 'w1' to worker 'w3'\"}", "Invalid error detail");
         test:assertEquals(z, 4, "Invalid int result");
      }
 

@@ -45,12 +45,12 @@ public class WorkerDataChannel {
     private int receiverCounter;
     private boolean reschedule;
 
-    private Lock channelLock;
+    private final Lock channelLock;
 
-    public String chnlName;
+    private String chnlName;
 
     @SuppressWarnings("rawtypes")
-    private Queue<WorkerResult> channel = new LinkedList<>();
+    private final Queue<WorkerResult> channel = new LinkedList<>();
     private State state;
 
     public WorkerDataChannel() {

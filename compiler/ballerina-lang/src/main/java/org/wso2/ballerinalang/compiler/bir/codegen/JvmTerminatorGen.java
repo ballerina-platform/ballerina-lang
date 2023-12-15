@@ -144,6 +144,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_PO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_CONCAT_FACTORY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ANYDATA_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
@@ -1203,20 +1204,19 @@ public class JvmTerminatorGen {
         BIRNode.BIRVariableDcl listVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("channels"),
                 VarScope.FUNCTION, VarKind.LOCAL);
         int channelIndex = this.getJVMIndexOfVarRef(listVar);
-        this.mv.visitTypeInsn(NEW, ARRAY_LIST);
-        this.mv.visitInsn(DUP);
-        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
-
+        int channelSize = ins.channels.size();
+        this.mv.visitIntInsn(BIPUSH, channelSize);
+        this.mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
         int i = 0;
-        while (i < ins.channels.size()) {
+        while (i < channelSize) {
             this.mv.visitInsn(DUP);
+            this.mv.visitIntInsn(BIPUSH, i);
             this.mv.visitVarInsn(ILOAD, invocationVarIndex);
             this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
                     new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
                             HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
                     ins.channels.get(i) + START_OF_HEADING_WITH_SEMICOLON);
-            this.mv.visitMethodInsn(INVOKEINTERFACE, LIST, ADD_METHOD, ANY_TO_JBOOLEAN, true);
-            this.mv.visitInsn(POP);
+            this.mv.visitInsn(AASTORE);
             i += 1;
         }
         this.mv.visitVarInsn(ASTORE, channelIndex);

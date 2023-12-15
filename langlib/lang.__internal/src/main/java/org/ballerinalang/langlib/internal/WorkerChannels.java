@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.scheduling.WorkerDataChannel;
  *
  * @since 2201.9.0
  */
-public class AutoCloseChannels {
+public class WorkerChannels {
 
     /**
      * Auto-closes the specified worker channels if they exist; otherwise, closes them upon creation.
@@ -38,12 +38,8 @@ public class AutoCloseChannels {
         Strand parent = Scheduler.getStrand().parent;
         for (BString channelId : channelIds) {
             String channelName = channelId.getValue() + ":" + (parent.functionInvocation - 1);
-            autoCloseChannel(channelName, parent);
+            WorkerDataChannel workerDataChannel = parent.wdChannels.getWorkerDataChannel(channelName);
+            workerDataChannel.autoClose();
         }
-    }
-
-    private static void autoCloseChannel(String channelId, Strand parent) {
-        WorkerDataChannel workerDataChannel = parent.wdChannels.getWorkerDataChannel(channelId);
-        workerDataChannel.autoClose();
     }
 }
