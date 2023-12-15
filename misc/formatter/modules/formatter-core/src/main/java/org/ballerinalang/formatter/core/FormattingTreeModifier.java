@@ -3008,14 +3008,19 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ReceiveFieldsNode transform(ReceiveFieldsNode receiveFieldsNode) {
-        int trailingNL = shouldExpand(receiveFieldsNode) ? 1 : 0;
+        boolean preserveIndent = env.preserveIndentation;
+        preserveIndentation(false);
+        boolean isMultiline = shouldExpand(receiveFieldsNode);
+        int trailingNL = isMultiline ? 1 : 0;
+        int trailingWS = isMultiline ? 0 : 1;
         Token openBrace = formatToken(receiveFieldsNode.openBrace(), 0, trailingNL);
         indent();
         SeparatedNodeList<Node> receiveFields =
-                formatSeparatedNodeList(receiveFieldsNode.receiveFields(), 0, 0, 1 - trailingNL, trailingNL, 0,
+                formatSeparatedNodeList(receiveFieldsNode.receiveFields(), 0, 0, trailingWS, trailingNL, 0,
                         trailingNL);
         unindent();
         Token closeBrace = formatToken(receiveFieldsNode.closeBrace(), env.trailingWS, env.trailingNL);
+        preserveIndentation(preserveIndent);
         return receiveFieldsNode.modify()
                 .withOpenBrace(openBrace)
                 .withReceiveFields(receiveFields)

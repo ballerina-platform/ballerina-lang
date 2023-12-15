@@ -44,3 +44,12 @@ function foz() {
          tooLengthyWorkerName};
     }
 }
+
+function foooz() {
+    do {
+        _ = <-
+{
+a: w1,b: w2
+};
+    }
+}

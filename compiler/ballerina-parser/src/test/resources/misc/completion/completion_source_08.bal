@@ -27,7 +27,7 @@ function foo6() {
 function foo7() {
     <- {
         a:     }
-}
+    }
 
 function foo8() {
     flush

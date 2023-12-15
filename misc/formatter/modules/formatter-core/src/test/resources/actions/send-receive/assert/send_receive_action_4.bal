@@ -55,3 +55,13 @@ function foz() {
         };
     }
 }
+
+function foooz() {
+    do {
+        _ = <-
+        {
+            a: w1,
+            b: w2
+        };
+    }
+}
