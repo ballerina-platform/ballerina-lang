@@ -151,7 +151,7 @@ class ConcurrentExecutionManager {
                 isExecutionDone = testInProgress.isExecutionDone;
             }
             if isExecutionDone {
-                testInProgress.dependents.forEach(dependent => self.checkExecutionReadiness(dependent));
+                testInProgress.dependents.reverse().forEach(dependent => self.checkExecutionReadiness(dependent));
                 _ = self.testsInExecution.remove(i);
             } else {
                 i = i + 1;

@@ -148,7 +148,6 @@ function executeTest(TestFunction testFunction) returns error? {
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
-    println(testFunction.name + " on execution");
     if shouldSkipDependents {
         testFunction.dependents.forEach(function(TestFunction dependent) {
             lock {
