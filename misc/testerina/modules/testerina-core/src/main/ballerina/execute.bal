@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/lang.'error as langError;
 
 boolean shouldSkip = false;
@@ -54,9 +53,11 @@ public function startSuite() returns int {
 }
 
 function executeTests() {
+    decimal startTime = currentTimeInMillis();
     foreach TestFunction testFunction in testRegistry.getFunctions() {
         executeTest(testFunction);
     }
+    println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
 }
 
 function executeTest(TestFunction testFunction) {
@@ -245,7 +246,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
         TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
         if afterGroupFunctions != () && groupStatusRegistry.lastExecuted('group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                shouldSkip || groupStatusRegistry.getSkipAfterGroup('group));
+                    shouldSkip || groupStatusRegistry.getSkipAfterGroup('group));
             if err is ExecutionError {
                 exitCode = 1;
                 printExecutionError(err, "after test group function for the test");
