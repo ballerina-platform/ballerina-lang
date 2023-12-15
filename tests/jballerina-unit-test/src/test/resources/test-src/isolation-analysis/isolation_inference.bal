@@ -773,6 +773,81 @@ function testIsolatedObjectsWithNonInitializationSelfAccessInInitMethod() {
     assertTrue(<any> z is isolated object {});
 }
 
+class ObjectWithSelfAccessInLocksInAnonFunctions {
+    private int[][] arr = [];
+
+    function init(int[] node) {
+        function _ = function () {
+            lock {
+                self.arr.push(node.clone());
+            }
+        };
+    }
+
+    function f1(int[] node) {
+        function _ = function () returns int[] {
+            lock {
+                return self.arr[0].cloneReadOnly();
+            }
+        };
+    }
+
+    function f2(int[] node) returns object {} {
+        lock {
+            var fn = function () returns object {} {
+                return isolated object {
+                    private int[][] innerArr = [];
+
+                    function innerF(int[] innerNode) {
+                        function _ = function () {
+                            lock {
+                                self.innerArr.push(innerNode.clone());
+                            }
+                        };
+                    }
+                };
+            };
+            return fn();
+        }
+    }
+}
+
+class ObjectWithSelfAccessOutsideLocksInAnonFunctions {
+    private int[][] arr = [];
+
+    function f1(int[] node) {
+        function _ = function () returns int[] {
+            return self.arr[0].cloneReadOnly();
+        };
+    }
+}
+
+class ObjectWithInvalidTransferInAnonFunctions {
+    private int[][] arr = [];
+
+    function f1(int[] node) {
+        function _ = function () returns int[] {
+            lock {
+                return self.arr[0];
+            }
+        };
+    }
+}
+
+function testIsolatedInferenceWithAnonFunctions() {
+    ObjectWithSelfAccessInLocksInAnonFunctions a = new ([]);
+    assertTrue(<any> a is isolated object {});
+
+    object {} b = a.f2([]);
+    assertTrue(<any> b is isolated object {});
+
+    any c = new ObjectWithSelfAccessOutsideLocksInAnonFunctions();
+    assertFalse(c is isolated object {});
+
+    any d = new ObjectWithInvalidTransferInAnonFunctions();
+    assertFalse(d is isolated object {});
+}
+
 isolated function assertTrue(anydata actual) => assertEquality(true, actual);
 
 isolated function assertFalse(anydata actual) => assertEquality(false, actual);
