@@ -327,13 +327,15 @@ public class PackageDependencyGraphBuilder {
                 rawGraphBuilder.add(resolvedPkgDep);
             }
             // Update the scope of dependencies
-            for (Vertex depVertex : depGraph.get(vertex)) {
-                DependencyNode dependencyNode = vertices.get(depVertex);
-                DependencyNode newDependencyNode = new DependencyNode(dependencyNode.pkgDesc(), resolvedPkgDep.scope(),
-                        dependencyNode.resolutionType());
-                vertices.put(depVertex, newDependencyNode);
-                if (resolutionOptions.dumpRawGraphs()) {
-                    rawGraphBuilder.addDependency(resolvedPkgDep, newDependencyNode);
+            if (resolvedPkgDep.scope() == PackageDependencyScope.DEFAULT) {
+                for (Vertex depVertex : depGraph.get(vertex)) {
+                    DependencyNode dependencyNode = vertices.get(depVertex);
+                    DependencyNode newDependencyNode = new DependencyNode(dependencyNode.pkgDesc(), resolvedPkgDep.scope(),
+                            dependencyNode.resolutionType());
+                    vertices.put(depVertex, newDependencyNode);
+                    if (resolutionOptions.dumpRawGraphs()) {
+                        rawGraphBuilder.addDependency(resolvedPkgDep, newDependencyNode);
+                    }
                 }
             }
         }
