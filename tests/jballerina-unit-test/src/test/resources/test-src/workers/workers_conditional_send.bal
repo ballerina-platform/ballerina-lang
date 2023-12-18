@@ -272,81 +272,144 @@ function sameWorkerSendMultiplePath2() {
 }
 
 // TODO: Enable these tests when it is compiling
-// function sameWorkerSendMultiplePathError1() {
-//     boolean foo = false;
+function sameWorkerSendMultiplePathError1() {
+    boolean foo = false;
 
-//     worker w1 returns error? {
-//         int value = 10;
-//         if foo {
-//             if value == 10 {
-//                 return error("Error in worker 1");
-//             }
-//             1 -> w2;
-//         } 
-//         2 -> w2;  
-//     }
+    worker w1 returns error? {
+        int value = 10;
+        if foo {
+            if value == 10 {
+                return error("Error in worker 1");
+            }
+            1 -> w2;
+        } 
+        2 -> w2;  
+    }
 
-//     worker w2 returns int|error {
-//         int|error a = <- w1 | w1;
-//         return a;
-//     }
+    worker w2 returns int|error? {
+        int|error a = <- w1 | w1;
+        return a;
+    }
 
-//     map<error|int?> mapResult = wait { a : w1, b: w2};
-//     test:assertTrue(mapResult["a"] is error, "Invalid error result");
-//     test:assertEquals(mapResult["b"], 2, "Invalid int result");
-// }
+    map<error|int?> mapResult = wait { a : w1, b: w2};
+    test:assertTrue(mapResult["a"] is (), "Invalid nil result");
+    test:assertEquals(mapResult["b"], 2, "Invalid int result");
+}
 
-// function sameWorkerSendMultiplePathError2() {
-//     boolean foo = false;
+function sameWorkerSendMultiplePathError2() {
+    boolean foo = false;
 
-//     worker w1 returns error? {
-//         int value = 10;
-//         if foo {
-//             1 -> w2;
-//         } 
-//         if value == 10 {
-//             return error("Error in worker 1");
-//         }
-//         2 -> w2;  
-//     }
+    worker w1 returns error? {
+        int value = 10;
+        if foo {
+            1 -> w2;
+        } 
+        if value == 10 {
+            return error("Error in worker 1");
+        }
+        2 -> w2;  
+    }
 
-//     worker w2 returns int|error {
-//         int|error a = <- w1 | w1;
-//         return a;
-//     }
+    worker w2 returns int|error {
+        int|error a = <- w1 | w1;
+        return a;
+    }
 
-//     map<error|int?> mapResult = wait { a : w1, b: w2};
-//     test:assertTrue(mapResult["a"] is error, "Invalid error result");
-//     test:assertEquals(mapResult["b"], 1, "Invalid int result");
-// }
+    map<error|int?> mapResult = wait { a : w1, b: w2};
+    test:assertTrue(mapResult["a"] is error, "Invalid error result");
+    test:assertTrue(mapResult["b"] is error, "Invalid error result");
+    error e = <error> mapResult["a"];
+    test:assertEquals(e.message(), "Error in worker 1", "Invalid error message");
+    e = <error> mapResult["b"];
+    test:assertEquals(e.message(), "Error in worker 1", "Invalid error message");
+}
 
-// function multipleReceiveConditional() {
-//     boolean foo = true;
-//     worker w1 returns int {
-//         if (foo) {
-//             2 -> w2;
-//             int y =  <- w3;
-//             return y;
-//         } else {
-//             2-> w3;
-//         }
-//         return 0;
-//     }
+function sameWorkerSendMultiplePathError3() {
+    boolean foo = true;
+
+    worker w1 returns error? {
+        int value = 10;
+        if foo {
+            if value == 10 {
+                return error("Error in worker 1");
+            }
+            1 -> w2;
+        } 
+        2 -> w2;  
+    }
+
+    worker w2 returns int|error? {
+        int|error a = <- w1 | w1;
+        return a;
+    }
     
-//     worker w2 returns int {
-//         int y = <- w1;
-//         return y;
-//     }
+    map<error|int?> mapResult = wait { a : w1, b: w2};
+    test:assertTrue(mapResult["a"] is error, "Invalid error result");
+    test:assertTrue(mapResult["b"] is error, "Invalid error result");
+    error e = <error> mapResult["a"];
+    test:assertEquals(e.message(), "Error in worker 1", "Invalid error message");
+    e = <error> mapResult["b"];
+    test:assertEquals(e.message(), "Error in worker 1", "Invalid error message");
+}
 
-//     worker w3 returns int {
-//         int y = <- w1;
-//         3 -> w1;
-//         return y;
-//     }
+function sameWorkerSendMultiplePathError4() {
+    boolean foo = true;
 
-//     map<int|error?> mapResult = wait {a: w1, b: w2, c: w3};
-//     test:assertEquals(mapResult["a"], 3, "Invalid int result");
-// }
+    worker w1 returns error? {
+        int value = 10;
+        if foo {
+            1 -> w2;
+        } 
+        if value == 10 {
+            return error("Error in worker 1");
+        }
+        2 -> w2;  
+    }
+
+    worker w2 returns int|error {
+        int|error a = <- w1 | w1;
+        return a;
+    }
+
+    map<error|int?> mapResult = wait { a : w1, b: w2};
+    error e = <error> mapResult["a"];
+    test:assertEquals(e.message(), "Error in worker 1", "Invalid error message");
+    test:assertEquals(mapResult["b"], 1, "Invalid int result");
+}
+
+function multipleReceiveConditional() {
+    boolean foo = true;
+    worker w1 returns int {
+        if (foo) {
+            int x = 2;
+            x -> w2;
+            return x;
+        } else {
+            2-> w3;
+        }
+        int y =  <- w3;
+        return y;
+    }
+    
+    worker w2 returns int {
+        int y = <- w1;
+        return y;
+    }
+
+    worker w3 returns int|error {
+        int|error y = trap <- w1;
+        3 -> w1;
+        return y;
+    }
+
+    map<int|error?> mapResult = wait {a: w1, b: w2, c: w3};
+    test:assertEquals(mapResult["a"], 2, "Invalid int result");
+    test:assertEquals(mapResult["b"], 2, "Invalid int result");
+    test:assertTrue(mapResult["c"] is error, "Expected error result");
+    error e = <error>mapResult["c"];
+    test:assertEquals(e.message(), "NoMessageError", "Invalid error message");
+    test:assertEquals(e.detail().toString(), "{\"message\":\"no worker message received for channel 'w1->w3'\"}", "Invalid error detail");
+}
 
 function multipleReceiveWithNonConditionalSend() {
     boolean foo = true;

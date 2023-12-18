@@ -58,10 +58,12 @@ public class WorkerConditionalSendTest {
                 "sameWorkerSendReceiverPanic",
                 "sameWorkerSendMultiplePath1",
                 "sameWorkerSendMultiplePath2",
-                // TODO: Enable these tests when it is compiling
-//                "sameWorkerSendMultiplePathError1",
-//                "sameWorkerSendMultiplePathError2",
-//                "multipleReceiveConditional"
+//                 TODO: Enable these tests when it is compiling
+                "sameWorkerSendMultiplePathError1",
+                "sameWorkerSendMultiplePathError2",
+                "sameWorkerSendMultiplePathError3",
+                "sameWorkerSendMultiplePathError4",
+                "multipleReceiveConditional",
                 "multipleReceiveWithNonConditionalSend"
         };
     }

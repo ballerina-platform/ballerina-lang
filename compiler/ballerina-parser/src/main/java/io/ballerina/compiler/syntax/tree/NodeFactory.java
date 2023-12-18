@@ -2417,7 +2417,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReceiveFieldsNode createReceiveFieldsNode(
             Token openBrace,
-            SeparatedNodeList<NameReferenceNode> receiveFields,
+            SeparatedNodeList<Node> receiveFields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(receiveFields, "receiveFields must not be null");
@@ -3621,6 +3621,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 typeDescriptor.internalNode());
         return stMemberTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ReceiveFieldNode createReceiveFieldNode(
+            SimpleNameReferenceNode fieldName,
+            Token colon,
+            SimpleNameReferenceNode peerWorker) {
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
+
+        STNode stReceiveFieldNode = STNodeFactory.createReceiveFieldNode(
+                fieldName.internalNode(),
+                colon.internalNode(),
+                peerWorker.internalNode());
+        return stReceiveFieldNode.createUnlinkedFacade();
     }
 }
 

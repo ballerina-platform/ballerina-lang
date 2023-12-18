@@ -83,8 +83,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "function"
+                          "kind": "FUNCTION_KEYWORD"
                         }
                       ]
                     }
@@ -367,18 +366,28 @@
                               ]
                             },
                             {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "kind": "RECEIVE_FIELD",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "b"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "c"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "c"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -468,18 +477,27 @@
                               ]
                             },
                             {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "kind": "RECEIVE_FIELD",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "b"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "b"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "function"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "FUNCTION_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             },

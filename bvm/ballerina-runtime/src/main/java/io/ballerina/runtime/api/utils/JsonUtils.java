@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
@@ -74,10 +73,6 @@ public class JsonUtils {
      * @throws BError for any parsing error
      */
     public static Object parse(InputStream in) throws BError {
-        return JsonParser.parse(in);
-    }
-
-    public static Object parse(InputStream in, BTypedesc td) throws BError {
         return JsonParser.parse(in);
     }
 

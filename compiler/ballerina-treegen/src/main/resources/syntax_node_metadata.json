@@ -138,5 +138,9 @@
     "SpreadMemberNode": {
         "createdYear": "2022",
         "since": "2201.1.0"
+    },
+    "ReceiveFieldNode": {
+        "createdYear": "2023",
+        "since": "2201.9.0"
     }
 }

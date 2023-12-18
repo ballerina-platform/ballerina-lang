@@ -952,6 +952,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(memberTypeDescriptorNode);
     }
 
+    public T transform(ReceiveFieldNode receiveFieldNode) {
+        return transformSyntaxNode(receiveFieldNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

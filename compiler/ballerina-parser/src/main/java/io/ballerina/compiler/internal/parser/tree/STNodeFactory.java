@@ -2719,5 +2719,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 annotations,
                 typeDescriptor);
     }
+
+    public static STNode createReceiveFieldNode(
+            STNode fieldName,
+            STNode colon,
+            STNode peerWorker) {
+
+        return new STReceiveFieldNode(
+                fieldName,
+                colon,
+                peerWorker);
+    }
 }
 
