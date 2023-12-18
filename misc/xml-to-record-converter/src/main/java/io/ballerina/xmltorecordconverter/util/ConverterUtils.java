@@ -20,6 +20,7 @@ package io.ballerina.xmltorecordconverter.util;
 
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -72,6 +73,45 @@ public class ConverterUtils {
     }
 
     /**
+     * This method returns the SyntaxToken corresponding to the JsonPrimitive.
+     *
+     * @param value JsonPrimitive that has to be classified.
+     * @return {@link Token} Classified Syntax Token.
+     */
+    public static Token getPrimitiveTypeName(String value) {
+        if (isBoolean(value)) {
+            return AbstractNodeFactory.createToken(SyntaxKind.BOOLEAN_KEYWORD);
+        } else if (isInteger(value)) {
+            return AbstractNodeFactory.createToken(SyntaxKind.INT_KEYWORD);
+        } else if (isDouble(value)) {
+            return AbstractNodeFactory.createToken(SyntaxKind.DECIMAL_KEYWORD);
+        }
+        return AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
+    }
+
+    /**
+     * This method extracts TypeDescriptorNodes within any UnionTypeDescriptorNodes or ParenthesisedTypeDescriptorNode.
+     *
+     * @param typeDescNodes List of Union and Parenthesised TypeDescriptorNodes
+     * @return {@link List<TypeDescriptorNode>} Extracted SimpleNameReferenceNodes.
+     */
+    public static List<TypeDescriptorNode> extractTypeDescriptorNodes(List<TypeDescriptorNode> typeDescNodes) {
+        List<TypeDescriptorNode> extractedTypeNames = new ArrayList<>();
+        for (TypeDescriptorNode typeDescNode : typeDescNodes) {
+            TypeDescriptorNode extractedTypeDescNode = extractParenthesisedTypeDescNode(typeDescNode);
+            if (extractedTypeDescNode instanceof UnionTypeDescriptorNode) {
+                List<TypeDescriptorNode> childTypeDescNodes =
+                        List.of(((UnionTypeDescriptorNode) extractedTypeDescNode).leftTypeDesc(),
+                                ((UnionTypeDescriptorNode) extractedTypeDescNode).rightTypeDesc());
+                addIfNotExist(extractedTypeNames, extractTypeDescriptorNodes(childTypeDescNodes));
+            } else {
+                addIfNotExist(extractedTypeNames, List.of(extractedTypeDescNode));
+            }
+        }
+        return extractedTypeNames;
+    }
+
+    /**
      * This method returns the sorted TypeDescriptorNode list.
      *
      * @param typeDescriptorNodes List of TypeDescriptorNodes has to be sorted.
@@ -82,6 +122,10 @@ public class ConverterUtils {
                 .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
         List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
                 .filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        List<TypeDescriptorNode> membersOfArrayNodes = arrayNodes.stream()
+                .map(node -> extractArrayTypeDescNode((ArrayTypeDescriptorNode) node)).toList();
+        nonArrayNodes.removeIf(node ->
+                membersOfArrayNodes.stream().map(Node::toSourceCode).toList().contains(node.toSourceCode()));
         nonArrayNodes.sort(Comparator.comparing(TypeDescriptorNode::toSourceCode));
         arrayNodes.sort((node1, node2) -> {
             ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
@@ -92,20 +136,6 @@ public class ConverterUtils {
                     getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
         });
         return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
-    }
-
-    /**
-     * This method returns the number of dimensions of an ArrayTypeDescriptorNode.
-     *
-     * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated.
-     * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode.
-     */
-    public static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
-        int totalDimensions = arrayNode.dimensions().size();
-        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
-            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
-        }
-        return totalDimensions;
     }
 
     /**
@@ -132,29 +162,42 @@ public class ConverterUtils {
         return extractedTypeDescNodes;
     }
 
+    /**
+     * This method returns the number of dimensions of an ArrayTypeDescriptorNode.
+     *
+     * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated.
+     * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode.
+     */
+    public static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
+        int totalDimensions = arrayNode.dimensions().size();
+        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
+            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
+        }
+        return totalDimensions;
+    }
+
+    private static TypeDescriptorNode extractArrayTypeDescNode(ArrayTypeDescriptorNode arrayTypeDescNode) {
+        if (arrayTypeDescNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
+            return extractArrayTypeDescNode((ArrayTypeDescriptorNode) arrayTypeDescNode.memberTypeDesc());
+        }
+        return arrayTypeDescNode.memberTypeDesc();
+    }
+
     private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
         if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
             return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
-        } else {
-            return typeDescNode;
         }
+        return typeDescNode;
     }
 
-    /**
-     * This method returns the SyntaxToken corresponding to the JsonPrimitive.
-     *
-     * @param value JsonPrimitive that has to be classified.
-     * @return {@link Token} Classified Syntax Token.
-     */
-    public static Token getPrimitiveTypeName(String value) {
-        if (isBoolean(value)) {
-            return AbstractNodeFactory.createToken(SyntaxKind.BOOLEAN_KEYWORD);
-        } else if (isInteger(value)) {
-            return AbstractNodeFactory.createToken(SyntaxKind.INT_KEYWORD);
-        } else if (isDouble(value)) {
-            return AbstractNodeFactory.createToken(SyntaxKind.DECIMAL_KEYWORD);
+    private static void addIfNotExist(List<TypeDescriptorNode> typeDescNodes,
+                                      List<TypeDescriptorNode> typeDescNodesToBeInserted) {
+        for (TypeDescriptorNode typeDescNodeToBeInserted : typeDescNodesToBeInserted) {
+            if (typeDescNodes.stream().noneMatch(typeDescNode -> typeDescNode.toSourceCode()
+                    .equals(typeDescNodeToBeInserted.toSourceCode()))) {
+                typeDescNodes.add(typeDescNodeToBeInserted);
+            }
         }
-        return AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
     }
 
     private static boolean isBoolean(String value) {
