@@ -91,9 +91,14 @@ public class RunProfilerTask implements Task {
             if (exitValue != 0) {
                 throw new RuntimePanicException(exitValue);
             }
-            Files.deleteIfExists(targetPath);
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("error occurred while running the profiler ", e);
+        } finally {
+            try {
+                Files.deleteIfExists(targetPath);
+            } catch (IOException e) {
+                err.println("error occurred while deleting the profiler.jar file");
+            }
         }
     }
 

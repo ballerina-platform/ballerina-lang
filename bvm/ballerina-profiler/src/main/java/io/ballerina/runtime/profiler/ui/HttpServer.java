@@ -36,8 +36,8 @@ import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 public class HttpServer {
 
     public void initializeHTMLExport(String sourceRoot) throws IOException {
-        OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
-                "%s" + File.separator + "ProfilerOutput.html" + Constants.ANSI_RESET + "%n", sourceRoot);
+        OUT_STREAM.printf("      Output: " + Constants.ANSI_YELLOW + "%s" + File.separator + "ProfilerOutput.html" +
+                Constants.ANSI_RESET + "%n", sourceRoot);
         String content = FileUtils.readFileAsString(PERFORMANCE_JSON);
         FrontEnd frontEnd = new FrontEnd();
         String htmlData = frontEnd.getSiteData(content);

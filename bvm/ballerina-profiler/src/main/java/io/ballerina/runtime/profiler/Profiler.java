@@ -90,7 +90,7 @@ public class Profiler {
                 String cpuFilePath = Paths.get(currentDir, CPU_PRE_JSON).toString();
                 jsonParser.initializeCPUParser(cpuFilePath);
                 deleteFileIfExists(cpuFilePath);
-                OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
+                OUT_STREAM.printf("      Execution time: %d seconds %n", profilerTotalTime / 1000);
                 httpServer.initializeHTMLExport(this.sourceRoot);
                 deleteFileIfExists(PERFORMANCE_JSON);
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
@@ -228,8 +228,8 @@ public class Profiler {
                     moduleCount++;
                 }
             }
-            OUT_STREAM.printf(" ○ Instrumented module count: %d%n", moduleCount);
-            OUT_STREAM.printf(" ○ Instrumented function count: %d%n", balFunctionCount);
+            OUT_STREAM.printf("      Instrumented module count: %d%n", moduleCount);
+            OUT_STREAM.printf("      Instrumented function count: %d%n", balFunctionCount);
             modifyJar();
         } catch (Throwable throwable) {
             throw new ProfilerException(throwable);
