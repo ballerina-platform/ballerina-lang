@@ -326,7 +326,7 @@ public class PackageDependencyGraphBuilder {
             if (resolutionOptions.dumpRawGraphs()) {
                 rawGraphBuilder.add(resolvedPkgDep);
             }
-            // Update the scope of dependencies
+            // Update the scope of dependencies only if rejected node scope is DEFAULT
             if (resolvedPkgDep.scope() == PackageDependencyScope.DEFAULT) {
                 for (Vertex depVertex : depGraph.get(vertex)) {
                     DependencyNode dependencyNode = vertices.get(depVertex);
