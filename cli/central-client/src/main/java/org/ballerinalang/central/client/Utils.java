@@ -70,6 +70,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
+import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
 import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
@@ -441,7 +442,7 @@ public class Utils {
             throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-        byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
+        byte[] hashInBytes = checkHash(balaFilePath.toString(), SHA256_ALGORITHM);
 
         // If the hash value is not matching , throw an exception.
         if (Objects.equals((SHA256 + bytesToHex(hashInBytes)), trueDigest)) {

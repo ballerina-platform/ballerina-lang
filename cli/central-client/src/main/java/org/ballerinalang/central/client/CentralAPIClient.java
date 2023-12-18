@@ -91,6 +91,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATI
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
+import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -393,7 +394,7 @@ public class CentralAPIClient {
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
-            byte[] hashInBytes = checkHash(balaPath.toString(), "SHA-256");
+            byte[] hashInBytes = checkHash(balaPath.toString(), SHA256_ALGORITHM);
             String digestVal = SHA256 + bytesToHex(hashInBytes);
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
