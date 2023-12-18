@@ -310,8 +310,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "function",
+                          "kind": "FUNCTION_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -407,8 +406,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "function",
+                          "kind": "FUNCTION_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",

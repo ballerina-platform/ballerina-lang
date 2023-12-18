@@ -242,8 +242,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "function"
+                          "kind": "FUNCTION_KEYWORD"
                         }
                       ]
                     }
@@ -324,8 +323,7 @@
                       "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "function"
+                          "kind": "FUNCTION_KEYWORD"
                         }
                       ]
                     }

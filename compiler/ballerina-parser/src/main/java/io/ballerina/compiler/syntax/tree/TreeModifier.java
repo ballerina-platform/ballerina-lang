@@ -2464,7 +2464,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveFieldsNode receiveFieldsNode) {
         Token openBrace =
                 modifyToken(receiveFieldsNode.openBrace());
-        SeparatedNodeList<NameReferenceNode> receiveFields =
+        SeparatedNodeList<Node> receiveFields =
                 modifySeparatedNodeList(receiveFieldsNode.receiveFields());
         Token closeBrace =
                 modifyToken(receiveFieldsNode.closeBrace());
@@ -3685,6 +3685,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return memberTypeDescriptorNode.modify(
                 annotations,
                 typeDescriptor);
+    }
+
+    @Override
+    public ReceiveFieldNode transform(
+            ReceiveFieldNode receiveFieldNode) {
+        SimpleNameReferenceNode fieldName =
+                modifyNode(receiveFieldNode.fieldName());
+        Token colon =
+                modifyToken(receiveFieldNode.colon());
+        SimpleNameReferenceNode peerWorker =
+                modifyNode(receiveFieldNode.peerWorker());
+        return receiveFieldNode.modify(
+                fieldName,
+                colon,
+                peerWorker);
     }
 
     // Tokens

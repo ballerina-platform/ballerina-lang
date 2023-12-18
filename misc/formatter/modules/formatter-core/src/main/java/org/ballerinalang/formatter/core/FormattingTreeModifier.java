@@ -165,6 +165,7 @@ import io.ballerina.compiler.syntax.tree.QueryConstructTypeNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import io.ballerina.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerina.compiler.syntax.tree.ReceiveFieldNode;
 import io.ballerina.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
@@ -3007,12 +3008,19 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ReceiveFieldsNode transform(ReceiveFieldsNode receiveFieldsNode) {
-        Token openBrace = formatToken(receiveFieldsNode.openBrace(), 0, 1);
+        boolean preserveIndent = env.preserveIndentation;
+        preserveIndentation(false);
+        boolean isMultiline = shouldExpand(receiveFieldsNode);
+        int trailingNL = isMultiline ? 1 : 0;
+        int trailingWS = isMultiline ? 0 : 1;
+        Token openBrace = formatToken(receiveFieldsNode.openBrace(), 0, trailingNL);
         indent();
-        SeparatedNodeList<NameReferenceNode> receiveFields = formatSeparatedNodeList(receiveFieldsNode.receiveFields(),
-                0, 1, 0, 1);
-        Token closeBrace = formatToken(receiveFieldsNode.closeBrace(), 0, 1);
+        SeparatedNodeList<Node> receiveFields =
+                formatSeparatedNodeList(receiveFieldsNode.receiveFields(), 0, 0, trailingWS, trailingNL, 0,
+                        trailingNL);
         unindent();
+        Token closeBrace = formatToken(receiveFieldsNode.closeBrace(), env.trailingWS, env.trailingNL);
+        preserveIndentation(preserveIndent);
         return receiveFieldsNode.modify()
                 .withOpenBrace(openBrace)
                 .withReceiveFields(receiveFields)
@@ -3026,6 +3034,19 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatSeparatedNodeList(alternateReceiveWorkerNode.workers(), 1, 0, env.trailingWS, env.trailingNL);
         return alternateReceiveWorkerNode.modify()
                 .withWorkers(workers)
+                .apply();
+    }
+
+    @Override
+    public ReceiveFieldNode transform(ReceiveFieldNode receiveFieldNode) {
+        SimpleNameReferenceNode fieldName = formatNode(receiveFieldNode.fieldName(), 0, 0);
+        Token colon = formatToken(receiveFieldNode.colon(), 1, 0);
+        SimpleNameReferenceNode peerWorker = formatNode(receiveFieldNode.peerWorker(), env.trailingWS, env.trailingNL);
+
+        return receiveFieldNode.modify()
+                .withFieldName(fieldName)
+                .withColon(colon)
+                .withPeerWorker(peerWorker)
                 .apply();
     }
 
@@ -4630,6 +4651,9 @@ public class FormattingTreeModifier extends TreeModifier {
             case LIST_CONSTRUCTOR:
                 ListConstructorExpressionNode listConstructorExpressionNode = (ListConstructorExpressionNode) node;
                 return listConstructorExpressionNode.toSourceCode().trim().contains(System.lineSeparator());
+            case RECEIVE_FIELDS:
+                ReceiveFieldsNode receiveFieldsNode = (ReceiveFieldsNode) node;
+                return receiveFieldsNode.toSourceCode().trim().contains(System.lineSeparator());
             default:
                 return false;
         }

@@ -180,6 +180,7 @@ import io.ballerina.compiler.syntax.tree.ReUnicodeGeneralCategoryNode;
 import io.ballerina.compiler.syntax.tree.ReUnicodePropertyEscapeNode;
 import io.ballerina.compiler.syntax.tree.ReUnicodeScriptNode;
 import io.ballerina.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerina.compiler.syntax.tree.ReceiveFieldNode;
 import io.ballerina.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
@@ -2548,18 +2549,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         ReceiveFieldsNode receiveFieldsNode = (ReceiveFieldsNode) receiveWorkers;
-        SeparatedNodeList<NameReferenceNode> receiveFields = receiveFieldsNode.receiveFields();
+        SeparatedNodeList<Node> receiveFields = receiveFieldsNode.receiveFields();
         List<BLangMultipleWorkerReceive.BLangReceiveField> fields = new ArrayList<>(receiveFields.size());
-        for (NameReferenceNode nameRef : receiveFields) {
+        for (Node receiveField : receiveFields) {
             BLangMultipleWorkerReceive.BLangReceiveField rvField = new BLangMultipleWorkerReceive.BLangReceiveField();
-            if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                Token name = ((SimpleNameReferenceNode) nameRef).name();
+            if (receiveField.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                Token name = ((SimpleNameReferenceNode) receiveField).name();
                 rvField.setKey(createIdentifier(name));
                 rvField.setWorkerReceive(createSimpleWorkerReceive(name));
             } else {
-                QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) nameRef;
-                rvField.setKey(createIdentifier(qualifiedNameRef.modulePrefix()));
-                rvField.setWorkerReceive(createSimpleWorkerReceive(qualifiedNameRef.identifier()));
+                ReceiveFieldNode receiveFieldNode = (ReceiveFieldNode) receiveField;
+                rvField.setKey(createIdentifier(receiveFieldNode.fieldName().name()));
+                rvField.setWorkerReceive(createSimpleWorkerReceive(receiveFieldNode.peerWorker().name()));
             }
             fields.add(rvField);
         }
