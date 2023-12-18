@@ -448,9 +448,9 @@ public class Utils {
         if (Objects.equals((SHA256 + bytesToHex(hashInBytes)), trueDigest)) {
             StringBuilder warning = new StringBuilder(
                     String.format("*************************************************************%n" +
-                            "* WARNING: Some packages may not be from original source. *%n" +
+                            "* WARNING: Certain packages may have originated from sources other than the official distributors. *%n" +
                             "*************************************************************%n%n" +
-                            "The following package was failed to verify the hash value %n" +
+                            "* Verification failed: The hash value of the following package could not be confirmed. %n" +
                             packageName +
                             "%n"));
             if (outStream != null) {
