@@ -268,6 +268,12 @@ public class JvmSignatures {
     public static final String HANDLE_ERROR_RETURN = "(L" + OBJECT + ";)V";
     public static final String HANDLE_FLUSH = "([L" + CHANNEL_DETAILS + ";)L" + ERROR_VALUE + ";";
     public static final String HANDLE_MAP_STORE = "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
+    public static final String HANDLE_MAP_STORE_INT =
+            "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";J)V";
+    public static final String HANDLE_MAP_STORE_BOOLEAN =
+            "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";Z)V";
+    public static final String HANDLE_MAP_STORE_FLOAT =
+            "(L" + MAP_VALUE + ";L" + B_STRING_VALUE + ";D)V";
     public static final String HANDLE_STOP_PANIC = "(L" + THROWABLE + ";)V";
     public static final String HANDLE_TABLE_STORE = "(L" + TABLE_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)V";
     public static final String HANDLE_THROWABLE = "(L" + JvmConstants.THROWABLE + ";)V";
@@ -387,6 +393,9 @@ public class JvmSignatures {
     public static final String PASS_B_STRING_RETURN_DOUBLE = "(L" + B_STRING_VALUE + ";)L" + DOUBLE_VALUE + ";";
     public static final String PASS_B_STRING_RETURN_UNBOXED_DOUBLE = "(L" + B_STRING_VALUE + ";)D";
     public static final String PASS_B_STRING_RETURN_BSTRING = "(L" + B_STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
+    public static final String INT_RECORD_PUT = "(L" + OBJECT + ";J)L" + OBJECT + ";";
+    public static final String BOOLEAN_RECORD_PUT = "(L" + OBJECT + ";Z)L" + OBJECT + ";";
+    public static final String DOUBLE_RECORD_PUT = "(L" + OBJECT + ";D)L" + OBJECT + ";";
     public static final String PASS_B_STRING_RETURN_BOOLEAN = "(L" + B_STRING_VALUE + ";)L" + BOOLEAN_VALUE + ";";
     public static final String PASS_B_STRING_RETURN_UNBOXED_BOOLEAN = "(L" + B_STRING_VALUE + ";)Z";
     public static final String PASS_OBJECT_RETURN_OBJECT = "(L" + OBJECT + ";)L" + OBJECT + ";";

@@ -52,10 +52,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -224,6 +226,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC_OF_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_MAP_STORE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_MAP_STORE_BOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_MAP_STORE_FLOAT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_MAP_STORE_INT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_TABLE_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_WITH_INITIAL_VALUES;
@@ -241,8 +246,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.JSON_SET
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LONG_STREAM_RANGE_CLOSED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_DUPLICATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_BSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_BOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_DOUBLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_B_STRING_RETURN_UNBOXED_LONG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
@@ -1454,21 +1459,84 @@ public class JvmInstructionGen {
         // visit value_expr
         BType valueType = mapStoreIns.rhsOp.variableDcl.type;
         this.loadVar(mapStoreIns.rhsOp.variableDcl);
-        jvmCastGen.addBoxInsn(this.mv, valueType);
 
         if (varRefType.tag == TypeTags.JSON) {
+            jvmCastGen.addBoxInsn(this.mv, valueType);
             this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
                                     JSON_SET_ELEMENT, false);
         } else if (mapStoreIns.onInitialization) {
             // We only reach here for stores in a record init function.
+            jvmCastGen.addBoxInsn(this.mv, valueType);
             this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "populateInitialValue",
                                     TWO_OBJECTS_ARGS, true);
         } else {
-            this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", HANDLE_MAP_STORE, false);
+            String methodDesc;
+            if (varRefType.tag == TypeTags.RECORD) {
+                methodDesc = switch (valueType.getKind()) {
+                    case INT -> HANDLE_MAP_STORE_INT;
+                    case BOOLEAN -> HANDLE_MAP_STORE_BOOLEAN;
+                    case FLOAT -> HANDLE_MAP_STORE_FLOAT;
+                    default -> {
+                        jvmCastGen.addBoxInsn(this.mv, valueType);
+                        yield HANDLE_MAP_STORE;
+                    }
+                };
+            } else {
+                jvmCastGen.addBoxInsn(this.mv, valueType);
+                methodDesc = HANDLE_MAP_STORE;
+            }
+            this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", methodDesc, false);
         }
     }
 
+    BType valueTypeHack(BType valueType) {
+        return switch (valueType.getKind()) {
+            case INT -> symbolTable.intType;
+            case UNION -> {
+                BUnionType unionType = (BUnionType) valueType;
+                LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
+                if (memberTypes.size() == 2 && memberTypes.contains(symbolTable.nilType) &&
+                        memberTypes.contains(symbolTable.intType)) {
+                    yield symbolTable.intType;
+                } else {
+                    yield valueType;
+                }
+            }
+            default -> valueType;
+        };
+    }
+
+    void generateDirectRecordLoadIns(BIRNonTerminator.RecordFieldAccess recordFieldAccess) {
+        // visit map_ref
+        this.loadVar(recordFieldAccess.rhsOp.variableDcl);
+        BType varRefType = JvmCodeGenUtil.getImpliedType(recordFieldAccess.rhsOp.variableDcl.type);
+        jvmCastGen.addUnboxInsn(this.mv, varRefType);
+
+        // visit key_expr
+        this.loadVar(recordFieldAccess.keyOp.variableDcl);
+        BType targetType = recordFieldAccess.lhsOp.variableDcl.type;
+        this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        boolean shouldUnbox;
+        if (recordFieldAccess.fillingRead) {
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
+                    PASS_OBJECT_RETURN_OBJECT, true);
+            shouldUnbox = true;
+        } else {
+            shouldUnbox = generateMapGet(varRefType, targetType);
+        }
+
+        // store in the target reg
+        if (shouldUnbox) {
+            jvmCastGen.addUnboxInsn(this.mv, targetType);
+        }
+        this.storeToVar(recordFieldAccess.lhsOp.variableDcl);
+    }
+
     void generateMapLoadIns(BIRNonTerminator.FieldAccess mapLoadIns) {
+        if (mapLoadIns instanceof BIRNonTerminator.RecordFieldAccess) {
+            generateDirectRecordLoadIns((BIRNonTerminator.RecordFieldAccess) mapLoadIns);
+            return;
+        }
         // visit map_ref
         this.loadVar(mapLoadIns.rhsOp.variableDcl);
         BType varRefType = JvmCodeGenUtil.getImpliedType(mapLoadIns.rhsOp.variableDcl.type);

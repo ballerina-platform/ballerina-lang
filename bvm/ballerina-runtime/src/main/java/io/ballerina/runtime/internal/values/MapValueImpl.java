@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -583,6 +584,26 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public IteratorValue getIterator() {
         return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
+    }
+
+    @Override
+    public V put(K key, long value) {
+        return put(key, (V) Long.valueOf(value));
+    }
+
+    @Override
+    public V put(K key, double value) {
+        return put(key, (V) Double.valueOf(value));
+    }
+
+    @Override
+    public V put(K key, boolean value) {
+        return put(key, (V) Boolean.valueOf(value));
+    }
+
+    @Override
+    public boolean isReadonly() {
+        return TypeUtils.getImpliedType(getType()).isReadOnly();
     }
 
     /**

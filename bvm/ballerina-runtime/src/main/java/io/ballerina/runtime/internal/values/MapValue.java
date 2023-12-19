@@ -34,4 +34,11 @@ import io.ballerina.runtime.api.values.BMap;
  */
 public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
+    V put(K key, long value);
+
+    V put(K key, double value);
+
+    V put(K key, boolean value);
+
+    boolean isReadonly();
 }

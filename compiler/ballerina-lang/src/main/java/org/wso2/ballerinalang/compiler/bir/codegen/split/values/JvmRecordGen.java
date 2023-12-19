@@ -46,6 +46,7 @@ import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
@@ -53,11 +54,13 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
@@ -83,9 +86,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOOLEAN_RECORD_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COLLECTION_OP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CONTAINS_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DOUBLE_RECORD_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FROM_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_RECORD_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LINKED_HASH_SET_OP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES;
@@ -285,6 +291,10 @@ public class JvmRecordGen {
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "putValue", className);
         mv.visitEnd();
         splitSetMethod(cw, fields, className, jvmCastGen);
+
+        createIntPutMethod(cw, fields, className, jvmCastGen);
+        createBooleanPutMethod(cw, fields, className, jvmCastGen);
+        createFloatPutMethod(cw, fields, className, jvmCastGen);
     }
 
     private void splitSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -938,6 +948,103 @@ public class JvmRecordGen {
                 PASS_B_STRING_RETURN_BSTRING, true, B_STRING_VALUE);
     }
 
+    void createIntPutMethod(ClassWriter cw, Map<String, BField> fields, String className, JvmCastGen jvmCastGen) {
+        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.INT, intType, "put", INT_RECORD_PUT,
+                "(TK;J)TV;");
+    }
+
+    void createBooleanPutMethod(ClassWriter cw, Map<String, BField> fields, String className, JvmCastGen jvmCastGen) {
+        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, booleanType, "put",
+                BOOLEAN_RECORD_PUT, "(TK;Z)TV;");
+    }
+
+    void createFloatPutMethod(ClassWriter cw, Map<String, BField> fields, String className, JvmCastGen jvmCastGen) {
+        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, floatType, "put",
+                DOUBLE_RECORD_PUT, "(TK;D)TV;");
+    }
+
+    // TODO: handle unboxed values
+    private void createBasicTypePutMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                          JvmCastGen jvmCastGen, TypeKind basicType, BType boxedType, String methodName,
+                                          String methodDesc, String signature) {
+        List<BField> sortedFields = fields.values().stream()
+                .filter(field -> field.type.getKind() == basicType &&
+                        !isOptionalRecordField(field)) // optional fields will be handled by the default get method
+                .limit(MAX_FIELDS_PER_SPLIT_METHOD) // rest will go through the default get method
+                .sorted(FIELD_NAME_HASH_COMPARATOR)
+                .toList();
+        if (sortedFields.isEmpty()) {
+            return;
+        }
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, methodName, methodDesc, signature, null);
+        mv.visitCode();
+
+        final int selfRegister = 0;
+        final int fieldNameBStringReg = 1;
+        final int valueReg = 2;
+        final int fieldNameStringReg = basicType == TypeKind.BOOLEAN ? 3 : 4; // long/double occupies 2 "slots"
+
+        Label notReadonly = new Label();
+        mv.visitVarInsn(ALOAD, selfRegister);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "isReadonly", "()Z", false);
+        mv.visitJumpInsn(IFEQ, notReadonly);
+        // if it is readonly we'll simply call the super method which will construct the error for us
+        mv.visitVarInsn(ALOAD, selfRegister);
+        mv.visitVarInsn(ALOAD, fieldNameBStringReg);
+        int loadIns = switch (basicType) {
+            case INT -> LLOAD;
+            case FLOAT -> DLOAD;
+            case BOOLEAN -> ILOAD;
+            default -> throw new IllegalArgumentException("Unexpected unboxed type: " + basicType);
+        };
+        mv.visitVarInsn(loadIns, valueReg);
+        jvmCastGen.addBoxInsn(mv, boxedType);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "put", MAP_PUT, false);
+        mv.visitInsn(ARETURN);
+        mv.visitLabel(notReadonly);
+        castToJavaString(mv, fieldNameBStringReg, fieldNameStringReg);
+        Label defaultCaseLabel = new Label();
+        List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, fieldNameStringReg, sortedFields,
+                0, sortedFields.size(), defaultCaseLabel);
+        List<Label> targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, fieldNameStringReg, sortedFields,
+                0, sortedFields.size(), labels, defaultCaseLabel);
+
+        for (int i = 0; i < sortedFields.size(); i++) {
+            BField field = sortedFields.get(i);
+            Label targetLabel = targetLabels.get(i);
+            BType fieldType = field.type;
+            mv.visitLabel(targetLabel);
+            String fieldName = field.name.value;
+
+            mv.visitVarInsn(ALOAD, selfRegister);
+
+            // return value
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(fieldType));
+            jvmCastGen.addBoxInsn(mv, fieldType);
+
+            mv.visitVarInsn(ALOAD, selfRegister);
+            mv.visitVarInsn(loadIns, valueReg);
+            mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(fieldType));
+
+            mv.visitInsn(ARETURN);
+        }
+
+        // This could happen when we access the rest field, having more than 500 fields or optional field,
+        // in which case we will simply call the default putValue method
+        mv.visitLabel(defaultCaseLabel);
+        // pr:
+        // mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ALOAD, selfRegister);
+        mv.visitVarInsn(ALOAD, fieldNameStringReg);
+        mv.visitVarInsn(ALOAD, fieldNameBStringReg);
+        mv.visitVarInsn(loadIns, valueReg);
+        jvmCastGen.addBoxInsn(mv, boxedType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "putValue", RECORD_PUT, false);
+        mv.visitInsn(ARETURN);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "put", className);
+        mv.visitEnd();
+    }
+
     private void createBasicTypeGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                           JvmCastGen jvmCastGen, TypeKind basicType, String methodName,
                                           String methodDesc, boolean boxed, String boxedTypeDesc) {
@@ -992,8 +1099,7 @@ public class JvmRecordGen {
 
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitVarInsn(ALOAD, fieldNameBStringReg);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", PASS_OBJECT_RETURN_OBJECT,
-                false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "get", PASS_OBJECT_RETURN_OBJECT, false);
 
         if (boxed) {
             mv.visitTypeInsn(CHECKCAST, boxedTypeDesc);

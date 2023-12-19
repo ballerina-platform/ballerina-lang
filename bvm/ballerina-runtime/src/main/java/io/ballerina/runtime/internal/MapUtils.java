@@ -52,6 +52,17 @@ public class MapUtils {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
 
+    public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, long value) {
+        updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
+    }
+
+    public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, boolean value) {
+        updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
+    }
+
+    public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, double value) {
+        updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
+    }
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
         if (TypeChecker.checkIsType(value, mapType.getConstrainedType())) {
             return;
@@ -83,7 +94,6 @@ public class MapUtils {
                         ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,
                                                              fieldName, mapValue.getType()));
             }
-
             // If it can be updated, use it.
             recFieldType = recField.getFieldType();
             if (value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)
@@ -160,5 +170,41 @@ public class MapUtils {
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 updateMapValue(((BTypeReferenceType) mapType).getReferredType(), mapValue, fieldName, value);
         }
+    }
+
+    private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
+                                       long value) {
+        if (mapType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new IllegalArgumentException("Typed record store is only supported for records");
+        }
+        if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+            mapValue.put(fieldName, value);
+            return;
+        }
+        mapValue.remove(fieldName);
+    }
+
+    private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
+                                       boolean value) {
+        if (mapType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new IllegalArgumentException("Typed record store is only supported for records");
+        }
+        if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+            mapValue.put(fieldName, value);
+            return;
+        }
+        mapValue.remove(fieldName);
+    }
+
+    private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
+                                       double value) {
+        if (mapType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new IllegalArgumentException("Typed record store is only supported for records");
+        }
+        if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+            mapValue.put(fieldName, value);
+            return;
+        }
+        mapValue.remove(fieldName);
     }
 }
