@@ -204,7 +204,6 @@ public class PushCommandTest extends BaseCommandTest {
         } catch (ProjectException e) {
             Assert.fail(e.getMessage());
         }
-
     }
 
     @Test(description = "Push a tool to local repository")

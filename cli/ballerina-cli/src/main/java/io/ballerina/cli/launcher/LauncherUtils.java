@@ -110,7 +110,7 @@ public class LauncherUtils {
         StringBuilder helpBuilder = new StringBuilder();
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
 
-        Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(Path.of(CONFIG_DIR, BAL_TOOLS_TOML));
+        Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(CONFIG_DIR).resolve(BAL_TOOLS_TOML);
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
         Map<String, String> activeToolsVsRepos = new HashMap<>();

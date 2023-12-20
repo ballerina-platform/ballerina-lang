@@ -9,7 +9,7 @@ OPTIONS
            Print the usage details of tool pull command.
 
        --repository
-           Pull a tool from a custom repository.
+           Pull a tool from local repository.
 
 DESCRIPTION
        Fetch a given tool from the Ballerina Central and install it
