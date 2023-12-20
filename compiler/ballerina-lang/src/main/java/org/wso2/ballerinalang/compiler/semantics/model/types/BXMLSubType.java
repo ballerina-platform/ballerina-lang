@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.BTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -61,6 +62,11 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
     public void accept(TypeVisitor visitor) {
 
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
+        analyzer.visit(this, data);
     }
 
     @Override
