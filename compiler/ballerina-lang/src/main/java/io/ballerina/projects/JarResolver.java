@@ -25,6 +25,8 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
@@ -35,6 +37,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -125,9 +129,92 @@ public class JarResolver {
         return jarFiles;
     }
 
+    public Collection<JarLibrary> getJarFilePathsRequiredForOptimizedExecution(HashSet<PackageId> unusedPackageIds,
+                                                                               Set<ModuleId> unusedModuleIds,
+                                                                               HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths) {
+        // 1) Add this root package related jar files
+        Set<JarLibrary> jarFiles = new HashSet<>();
+        addOptimizedCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles,
+                unusedModuleIds);
+        addUsedPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles, pkgWiseUsedNativeClassPaths);
+
+        // 2) Get all the dependencies of the root package including transitives.
+        // Filter out PackageDependencyScope.TEST_ONLY scope dependencies and lang libs
+        pkgResolution.allDependencies()
+                .stream()
+                .filter(pkgDep -> pkgDep.scope() != PackageDependencyScope.TEST_ONLY)
+                .filter(pkgDep -> !pkgDep.packageInstance().descriptor().isLangLibPackage())
+                .filter(pkgDep -> !unusedPackageIds.contains(pkgDep.packageId()))
+                .map(pkgDep -> pkgDep.packageInstance().packageContext())
+                .forEach(pkgContext -> {
+                    // Add generated thin jar of every module in the package represented by the packageContext
+                    addCodeGeneratedLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT, jarFiles);
+                    // All platform-specific libraries(specified in Ballerina.toml) having the default scope
+                    addUsedPlatformLibraryPaths(pkgContext, PlatformLibraryScope.DEFAULT,jarFiles , pkgWiseUsedNativeClassPaths);
+                });
+
+        // 3) Add the runtime library path
+        jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
+                PlatformLibraryScope.DEFAULT,
+                getPackageName(rootPackageContext)));
+
+        // TODO: Move to a compiler extension once Compiler revamp is complete
+        // 4) Add the Observability Symbols Jar
+        if (rootPackageContext.compilationOptions().observabilityIncluded()) {
+            try {
+                // Generating an empty Jar which can be used by the Observability Symbol Collector
+                String packageName = rootPackageContext.packageOrg().value() + "-"
+                        + rootPackageContext.packageName().value();
+                Path observabilityJarPath = ProjectUtils.generateObservabilitySymbolsJar(packageName);
+
+                // Writing the Syntax Tree to the Jar
+                CompilerContext compilerContext = rootPackageContext.project().projectEnvironmentContext()
+                        .getService(CompilerContext.class);
+                ObservabilitySymbolCollector observabilitySymbolCollector
+                        = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
+                observabilitySymbolCollector.writeToExecutable(observabilityJarPath, rootPackageContext.project());
+                // Cache observability jar in target
+                Path observeJarCachePath = rootPackageContext.project().targetDir()
+                        .resolve(CACHES_DIR_NAME)
+                        .resolve(rootPackageContext.packageOrg().value())
+                        .resolve(rootPackageContext.packageName().value())
+                        .resolve(rootPackageContext.packageVersion().value().toString())
+                        .resolve("observe")
+                        .resolve(rootPackageContext.packageOrg().value() + "-"
+                                + rootPackageContext.packageName().value()
+                                + "-observability-symbols.jar");
+                Path observeCachePath = Optional.of(observeJarCachePath.getParent()).orElseThrow();
+                Files.createDirectories(observeCachePath);
+                Files.copy(observabilityJarPath, observeJarCachePath, StandardCopyOption.REPLACE_EXISTING);
+
+                jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
+                        getPackageName(rootPackageContext)));
+            } catch (IOException e) {
+                err.println("\twarning: Failed to add Observability information to Jar due to: " + e.getMessage());
+            }
+        }
+
+        // TODO Filter out duplicate jar entries
+        return jarFiles;
+    }
+
+
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
                                               Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
+            ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+            PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
+                    packageContext.packageId(), moduleContext.moduleName());
+            libraryPaths.add(new JarLibrary(generatedJarLibrary.path(), scope, getPackageName(packageContext)));
+        }
+    }
+
+    private void addOptimizedCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
+                                              Set<JarLibrary> libraryPaths, Set<ModuleId> unusedModuleIds) {
+        for (ModuleId moduleId : packageContext.moduleIds()) {
+            if (unusedModuleIds.contains(moduleId)) {
+                continue;
+            }
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
                     packageContext.packageId(), moduleContext.moduleName());
@@ -184,6 +271,87 @@ public class JarResolver {
                     newEntry.groupId().orElseThrow(),
                     newEntry.version().orElseThrow(),
                     newEntry.packageName().orElseThrow()));
+        }
+    }
+
+    private void addUsedPlatformLibraryPaths(PackageContext packageContext,
+                                         PlatformLibraryScope scope,
+                                         Set<JarLibrary> libraryPaths, HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths) {
+        // Add all the jar library dependencies of current package (packageId)
+        Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
+                packageContext.packageId(), scope);
+
+        HashSet<String> usedNativeClassPaths = pkgWiseUsedNativeClassPaths.get(packageContext.packageId());
+
+        for (PlatformLibrary otherJarDependency : otherJarDependencies) {
+            JarLibrary newEntry = (JarLibrary) otherJarDependency;
+
+            if (otherJarDependencies.size() < 3 && !isUsedDependency(newEntry, usedNativeClassPaths)) {
+                continue;
+            }
+
+            if (newEntry.groupId().isEmpty() || newEntry.artifactId().isEmpty() || newEntry.version().isEmpty()) {
+                libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+                continue;
+            }
+            if (libraryPaths.contains(newEntry)) {
+                JarLibrary existingEntry = libraryPaths.stream().filter(jarLibrary1 ->
+                        jarLibrary1.equals(newEntry)).findAny().orElseThrow();
+                if (existingEntry.groupId().isEmpty() || existingEntry.artifactId().isEmpty() ||
+                        existingEntry.version().isEmpty()) {
+                    continue;
+                }
+                ComparableVersion existingVersion = new ComparableVersion(existingEntry.version().orElseThrow());
+                ComparableVersion newVersion = new ComparableVersion(newEntry.version().get());
+
+                if (existingVersion.compareTo(newVersion) >= 0) {
+                    if (existingVersion.compareTo(newVersion) != 0) {
+                        reportDiagnostic(newEntry, existingEntry);
+                    }
+                    continue;
+                }
+                reportDiagnostic(existingEntry, newEntry);
+                libraryPaths.remove(existingEntry);
+            }
+            libraryPaths.add(new JarLibrary(
+                    newEntry.path(),
+                    scope,
+                    newEntry.artifactId().orElseThrow(),
+                    newEntry.groupId().orElseThrow(),
+                    newEntry.version().orElseThrow(),
+                    newEntry.packageName().orElseThrow()));
+        }
+    }
+
+    private boolean isUsedDependency(JarLibrary otherJarDependency, HashSet<String> usedNativeClassPaths) {
+        if (otherJarDependency.packageName().get().equals("ballerina/observe") ||
+                otherJarDependency.packageName().get().equals("ballerinai/observe")) {
+
+            return true;
+        }
+
+        if (otherJarDependency.artifactId().isPresent() && otherJarDependency.artifactId().get().contains("netty")) {
+            return true;
+        }
+
+        if (usedNativeClassPaths == null) {
+            return false;
+        }
+
+        try {
+            ZipFile zipFile = new ZipFile(otherJarDependency.path().toFile());
+            Enumeration<ZipArchiveEntry> zipArchiveEntries = zipFile.getEntriesInPhysicalOrder();
+
+            while (zipArchiveEntries.hasMoreElements()) {
+                if (usedNativeClassPaths.contains(zipArchiveEntries.nextElement().getName())) {
+                    zipFile.close();
+                    return true;
+                }
+            }
+            zipFile.close();
+            return false;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

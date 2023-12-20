@@ -380,6 +380,10 @@ public class JvmCreateTypeGen {
             return;
         }
 
+        if (!immutableType.get().isUsed) {
+            return;
+        }
+
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType.get());
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);

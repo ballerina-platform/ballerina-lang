@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.projects.UsedBIRNodeAnalyzer;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
@@ -24,7 +25,8 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer_ASM_Approach;
+import org.wso2.ballerinalang.compiler.bir.DeadBIRNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -67,6 +69,7 @@ public class BPackageSymbol extends BTypeSymbol {
     public HashSet<BInvokableSymbol> deadFunctions = new HashSet<>();
     public BIRDeadNodeAnalyzer_ASM_Approach.InvocationData invocationData_OLD;
     public DeadBIRNodeAnalyzer.InvocationData invocationData = new DeadBIRNodeAnalyzer.InvocationData();
+    public UsedBIRNodeAnalyzer.InvocationData invocationData2 = new UsedBIRNodeAnalyzer.InvocationData();
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);

@@ -916,9 +916,6 @@ public abstract class BIRNode {
 
             if (this.usedState == UsedState.USED) {
                 // It is possible to omit unused modules from codegen if they are identified in the analyzer phase
-                if (!isSamePackageAsParent(childNode)) {
-
-                }
                 childNode.markSelfAndChildrenAsUsed();
             }
         }
@@ -934,8 +931,23 @@ public abstract class BIRNode {
             }
         }
 
-        public boolean isSamePackageAsParent(BIRDocumentableNode childNode) {
-            return (this.getPackageID() == childNode.getPackageID());
+        public boolean isInSamePkg(BIRDocumentableNode otherNode) {
+            PackageID otherNodePkgId = otherNode.getPackageID();
+
+            // PkgID is null only for desugared constructs. And desugared constructs cannot be called from another pkg
+            if (this.getPackageID() == null || otherNodePkgId == null) {
+                return true;
+            }
+
+            return this.getPackageID() == otherNodePkgId;
+        }
+
+        public boolean isInSamePkg(PackageID analyzedPkgID) {
+            if (this.getPackageID() == null) {
+                return true;
+            }
+
+            return this.getPackageID() == analyzedPkgID;
         }
 
         public abstract PackageID getPackageID();
