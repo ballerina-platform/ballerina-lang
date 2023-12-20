@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 20,
+    "character": 27
+  },
+  "source": "fill_record_fields_source16.bal",
+  "description": "Fill record fields in object field",
+  "expected": [
+    {
+      "title": "Fill 'Baz' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 20,
+              "character": 27
+            },
+            "end": {
+              "line": 20,
+              "character": 27
+            }
+          },
+          "newText": ",id: 0"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

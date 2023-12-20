@@ -41,11 +41,12 @@ import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -75,11 +76,11 @@ public class JvmAnnotationsGen {
 
     public void generateAnnotationsClass(Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, annotationsClass, null, OBJECT, null);
+        cw.visit(V17, ACC_PUBLIC + ACC_SUPER, annotationsClass, null, OBJECT, null);
         generateProcessAnnotationsMethod(cw, module.typeDefs, module.packageID);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(annotationsClass + ".class", bytes);
+        jarEntries.put(annotationsClass + CLASS_FILE_SUFFIX, bytes);
     }
 
     private void generateProcessAnnotationsMethod(ClassWriter cw, List<BIRNode.BIRTypeDefinition> typeDefs,

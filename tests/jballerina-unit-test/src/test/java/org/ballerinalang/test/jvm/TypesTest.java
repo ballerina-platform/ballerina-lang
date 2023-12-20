@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -818,7 +817,7 @@ public class TypesTest {
         returnType = (UnionType) ((FunctionType) typedescValue.getDescribingType()).getReturnType();
         originalMemberTypes = returnType.getOriginalMemberTypes();
         Assert.assertEquals(originalMemberTypes.size(), 2);
-        memType1 = ((ReferenceType) originalMemberTypes.get(0)).getReferredType();
+        memType1 = TypeUtils.getImpliedType(originalMemberTypes.get(0));
         Assert.assertEquals(memType1.getTag(), TypeTags.UNION_TAG);
         memUnionType = (UnionType) memType1;
         Assert.assertFalse(SymbolFlags.isFlagOn(memUnionType.getFlags(), SymbolFlags.ENUM));

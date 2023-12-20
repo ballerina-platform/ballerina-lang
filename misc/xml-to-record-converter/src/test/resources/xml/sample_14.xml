@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<root:root xmlns:root="http://example.com/root" xmlns:main="http://example.com/main" xmlns:child="http://example.com/child">
+    <main:mainElement>
+        <child:childElement>Value 1</child:childElement>
+        <child:childElement>Value 2</child:childElement>
+    </main:mainElement>
+</root:root>

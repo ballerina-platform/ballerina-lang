@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -82,29 +83,37 @@ public class TypeConverter {
      */
     JsonObject getType(BType type) {
         JsonObject typeNode = new JsonObject();
+        type = Types.getReferredType(type);
         if (TypeTags.isSimpleBasicType(type.tag)) {
             String typeVal = getSimpleType(type);
             typeNode.addProperty(TYPE, typeVal);
         } else {
             if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
-                BType effectiveType = ((BIntersectionType) type).getEffectiveType();
+                BType effectiveType = Types.getImpliedType(type);
+                if (TypeTags.isSimpleBasicType(effectiveType.tag)) {
+                    String typeVal = getSimpleType(effectiveType);
+                    typeNode.addProperty(TYPE, typeVal);
+                    return typeNode;
+                }
+                
                 VisitedType visitedType = getVisitedType(effectiveType.toString());
                 if (visitedType != null) {
                     if (visitedType.isCompleted()) {
                         return visitedType.getTypeNode();
-                    } else {
-                        JsonObject nullType = new JsonObject();
-                        nullType.addProperty(TYPE, "null");
-                        return nullType;
                     }
+
+                    JsonObject nullType = new JsonObject();
+                    nullType.addProperty(TYPE, "null");
+                    return nullType;
                 } else {
                     visitedTypeMap.put(effectiveType.toString(), new VisitedType());
                 }
+
                 if (TypeTags.ARRAY == effectiveType.tag && effectiveType instanceof BArrayType) {
                     generateArrayType(typeNode, (BArrayType) effectiveType);
                 }
                 if (TypeTags.RECORD == effectiveType.tag && effectiveType instanceof BRecordType) {
-                    typeNode = generateRecordType((BRecordType) effectiveType);
+                    typeNode = generateRecordType((BRecordType) effectiveType, (BIntersectionType) type);
                 }
                 if (TypeTags.MAP == effectiveType.tag && effectiveType instanceof BMapType) {
                     generateMapType(typeNode, (BMapType) effectiveType);
@@ -154,7 +163,7 @@ public class TypeConverter {
      * @param effectiveType BRecordType with record details
      * @return JsonObject with record details
      */
-    private JsonObject generateRecordType(BRecordType effectiveType) {
+    private JsonObject generateRecordType(BRecordType effectiveType, BIntersectionType intersectionType) {
         JsonObject typeNode;
         LinkedHashMap<String, BField> fieldLinkedHashMap = effectiveType.getFields();
         JsonObject effectiveTypeNode = new JsonObject();
@@ -173,14 +182,13 @@ public class TypeConverter {
             typeNode.add("required", requiredFields);
         }
         // Get record type and set the type name as a property
-        if (effectiveType.getIntersectionType().isPresent()) {
-            for (BType bType : effectiveType.getIntersectionType().get().getConstituentTypes()) {
-                // Does not consider anonymous records
-                if (bType instanceof BTypeReferenceType) {
-                    typeNode.addProperty("name", bType.toString().trim());
-                }
+        for (BType bType : intersectionType.getConstituentTypes()) {
+            // Does not consider anonymous records
+            if (bType.tag == TypeTags.TYPEREFDESC) {
+                typeNode.addProperty("name", bType.toString().trim());
             }
         }
+
         return typeNode;
     }
 

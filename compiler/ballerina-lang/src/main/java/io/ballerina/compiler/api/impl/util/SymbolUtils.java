@@ -31,6 +31,13 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.identifier.Utils;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Optional;
 
@@ -77,6 +84,34 @@ public class SymbolUtils {
                 return Optional.of((TypeSymbol) symbol);
             default:
                 return Optional.empty();
+        }
+    }
+
+    /**
+     * Retrieves the type parameter's bound type based on the kind of the input BType.
+     *
+     * @param type The input BType for which the bound type is to be retrieved.
+     * @return The bound type based on the kind of the input BType. Returns null if the kind is not supported.
+     */
+     public static BType getTypeParamBoundType(BType type) {
+        switch (type.getKind()) {
+            case MAP:
+                return ((BMapType) type).constraint;
+            case ARRAY:
+                return ((BArrayType) type).eType;
+            case TABLE:
+                return ((BTableType) type).constraint;
+            case STREAM:
+                return ((BStreamType) type).constraint;
+            case XML:
+                if (type.tag == TypeTags.XML) {
+                    return ((BXMLType) type).constraint;
+                }
+                return type;
+            // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
+            case ERROR:
+            default:
+                return null;
         }
     }
 }

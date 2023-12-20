@@ -93,6 +93,16 @@ public client class Client {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "postResource"
     } external;
+
+    
+    # Sample resource function to return a stream of objects
+    # 
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - A stream of targetType and/or ClientError
+    isolated resource function get responses(TargetType2 targetType = <>) returns stream<targetType, ClientError?> = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "responses"
+    } external;
 }
 
 # Represents a response.

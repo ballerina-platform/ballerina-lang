@@ -18,8 +18,8 @@
 package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -394,7 +394,7 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
         Assert.assertEquals(
-                ((ReferenceType) ((BMapType) mapValue.getType()).getConstrainedType()).getReferredType().getClass(),
+                TypeUtils.getImpliedType(((BMapType) mapValue.getType()).getConstrainedType()).getClass(),
                 BRecordType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getName(), "Teacher");
         Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("a"))).getName(), "Teacher");

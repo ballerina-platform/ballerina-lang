@@ -71,7 +71,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
         if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION
-                || isUnionCompErrorTyped((UnionTypeSymbol) typeDescriptor.get())) {
+                || isCompilationErrorTyped((UnionTypeSymbol) typeDescriptor.get())) {
             return Collections.emptyList();
         }
 

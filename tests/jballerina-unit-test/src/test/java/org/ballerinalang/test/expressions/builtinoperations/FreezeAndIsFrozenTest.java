@@ -525,7 +525,7 @@ public class FreezeAndIsFrozenTest {
                 "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
                         "(int|Department|PersonObj)'", 113, 42);
         validateError(semanticsNegativeResult, index,
-                "incompatible types: expected 'anydata', found '((anydata & readonly)|error)'", 120, 19);
+                "incompatible types: expected 'anydata', found '((anydata|error) & readonly)'", 120, 19);
     }
 
     @Test

@@ -37,7 +37,7 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<id1>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -157,7 +157,7 @@
       ]
     },
     {
-      "label": "/<path>/path2",
+      "label": "/<id1>/path2",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -221,7 +221,7 @@
       }
     },
     {
-      "label": "/<path>/path2/<path>.post(string b, string... ids2)",
+      "label": "/<id1>/path2/<ids>.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {

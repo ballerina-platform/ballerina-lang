@@ -33,6 +33,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANTS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
@@ -73,7 +74,7 @@ public class JvmBallerinaConstantsGen {
         // Create static initializer which will call previously generated module init methods.
         generateConstantInitPublicMethod(cw);
         cw.visitEnd();
-        jarEntries.put(constantClass + ".class", cw.toByteArray());
+        jarEntries.put(constantClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     private void generateConstantsInits(ClassWriter cw) {

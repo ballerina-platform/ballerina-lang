@@ -334,6 +334,125 @@ function testTernaryWithLangValueMethodCalls() {
     assertEquals("a", b48);
 }
 
+function testTernaryWithQueryWithLocalVariable() {
+    int? i = 3;
+
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+function testTernaryWithQueryWithFunctionParameter() {
+    int? x = 3;
+    ternaryWithQueryWithFunctionParameter(x);
+}
+
+function ternaryWithQueryWithFunctionParameter(int? i) {
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+int? i = 3;
+function testTernaryWithQueryWithModuleVariable() {
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where i + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+type A int?;
+A a = 3;
+function testTernaryWithQueryWithTypeDef() {
+    int|int[] thenResult = a is int ?
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = a is () ? 2 :
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+function testTernaryWithQueryForTwoVariables() {
+    int? a = 3;
+    int? b = ();
+
+    int|int[] thenResult = a != b ?
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2 : 2;
+    assertEquals([2, 2], thenResult);
+
+    int|int[] elseResult = a == b ? 2 :
+        from var _ in [1, 2]
+        where a + 2 == 5
+        select 2;
+    assertEquals([2, 2], elseResult);
+}
+
+function testTernaryWithQueryWithFunctionPointers() {
+    int? i = 3;
+    var k = function() returns int? {
+        return i;
+    };
+
+    int|int[] thenResult = i is int ?
+        from var _ in [1, 2]
+        where k() + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = i is () ? 2 :
+        from var _ in [1, 2]
+        where k() + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
+function testTernaryWithQueryWithFunctionAsClosure() {
+    ()|function() returns int fn = function() returns int {
+        return 3;
+    };
+    int|int[] thenResult = fn !is () ?
+        from var _ in [1, 2]
+        where fn() + 2 == 5
+        select 2 : 2;
+    assertEquals([2,2], thenResult);
+
+    int|int[] elseResult = fn is () ? 2 :
+        from var _ in [1, 2]
+        where fn() + 2 == 5
+        select 2;
+    assertEquals([2,2], elseResult);
+}
+
 boolean cond2 = true;
 int i1 =10;
 byte j1 = 100;

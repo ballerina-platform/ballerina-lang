@@ -437,7 +437,7 @@ public function testQueryStreamWithDifferentCompletionTypes() {
 
     stream<int, error?> numberStream5 = new (numGen1);
 
-    var oddNumberList5 = from int num in numberStream5
+    var oddNumberList5 = stream from int num in numberStream5
         where (num % 2 == 1)
         select num;
 

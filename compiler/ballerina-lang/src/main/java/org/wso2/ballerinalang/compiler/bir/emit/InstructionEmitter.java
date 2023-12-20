@@ -50,6 +50,8 @@ import static org.wso2.ballerinalang.compiler.bir.emit.TypeEmitter.emitTypeRef;
  */
 class InstructionEmitter {
 
+    private static final byte INITIAL_VALUE_COUNT = 10;
+
     private InstructionEmitter() {}
 
     static String emitInstructions(List<? extends BIRInstruction> instructions, int tabs) {
@@ -85,6 +87,8 @@ class InstructionEmitter {
                 return emitInsNewError((BIRNonTerminator.NewError) ins, tabs);
             case FP_LOAD:
                 return emitInsFPLoad((BIRNonTerminator.FPLoad) ins, tabs);
+            case RECORD_DEFAULT_FP_LOAD:
+                return emitInsRecordDefaultFpLoad((BIRNonTerminator.RecordDefaultFPLoad) ins, tabs);
             case MAP_LOAD:
             case MAP_STORE:
             case ARRAY_LOAD:
@@ -134,6 +138,23 @@ class InstructionEmitter {
         }
     }
 
+    private static String emitInsRecordDefaultFpLoad(BIRNonTerminator.RecordDefaultFPLoad ins, int tabs) {
+        String anonLoadIns = "";
+        anonLoadIns += emitTabs(tabs);
+        anonLoadIns += "_";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "=";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += emitTypeRef(ins.enclosedType, tabs);
+        anonLoadIns += " Default => ";
+        anonLoadIns += ins.fieldName;
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "<";
+        anonLoadIns += emitVarRef(ins.lhsOp);
+        anonLoadIns += ">";
+        return anonLoadIns;
+    }
+
     private static String emitBIRInstruction(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs) {
         String str = "";
         str += emitTabs(tabs);
@@ -174,8 +195,31 @@ class InstructionEmitter {
         nMapStr += "NewMap";
         nMapStr += emitSpaces(1);
         nMapStr += emitVarRef(ins.rhsOp);
+        nMapStr += "{";
+        nMapStr += emitMapValues(ins.initialValues);
+        nMapStr += "}";
         nMapStr += ";";
         return nMapStr;
+    }
+
+    private static String emitMapValues(List<BIRNode.BIRMappingConstructorEntry> initialValues) {
+        if (initialValues.isEmpty()) {
+            return "";
+        }
+        StringBuilder outStr = new StringBuilder();
+        for (int i = 0; i < Math.min(initialValues.size(), INITIAL_VALUE_COUNT); i++) {
+            BIRNode.BIRMappingConstructorEntry mappingEntry = initialValues.get(i);
+            if (mappingEntry instanceof BIRNode.BIRMappingConstructorKeyValueEntry) {
+                BIRNode.BIRMappingConstructorKeyValueEntry entry =
+                        (BIRNode.BIRMappingConstructorKeyValueEntry) mappingEntry;
+                outStr.append(emitVarRef(entry.keyOp)).append(":").append(emitVarRef(entry.valueOp)).append(",");
+            } else {
+                outStr.append(emitVarRef(((BIRNode.BIRMappingConstructorSpreadFieldEntry) mappingEntry).exprOp))
+                        .append(",");
+            }
+        }
+        return initialValues.size() > INITIAL_VALUE_COUNT ? outStr.append("...").toString()
+                : outStr.substring(0, outStr.length() - 1);
     }
 
     private static String emitInsNewTable(BIRNonTerminator.NewTable ins, int tabs) {
@@ -228,7 +272,7 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += "newArray";
         str += emitSpaces(1);
-        BType type = Types.getReferredType(ins.type);
+        BType type = Types.getImpliedType(ins.type);
         if (type.tag == TypeTags.TUPLE) {
             str += emitVarRef(ins.typedescOp);
         } else {
@@ -237,8 +281,21 @@ class InstructionEmitter {
         str += "[";
         str += emitVarRef(ins.sizeOp);
         str += "]";
+        str += "{";
+        str += emitArrayValues(ins.values);
+        str += "}";
         str += ";";
         return str;
+    }
+
+    private static String emitArrayValues(List<BIRNode.BIRListConstructorEntry> values) {
+        int operandArraySize = Math.min(INITIAL_VALUE_COUNT, values.size());
+        BIROperand[] valueOperands = new BIROperand[operandArraySize];
+        for (int i = 0; i < operandArraySize; i++) {
+            valueOperands[i] = values.get(i).exprOp;
+        }
+        String result = emitVarRefs(valueOperands);
+        return values.size() > INITIAL_VALUE_COUNT ? result + ",..." : result;
     }
 
     private static String emitInsNewError(BIRNonTerminator.NewError ins, int tabs) {
@@ -609,8 +666,28 @@ class InstructionEmitter {
             case WAIT_ALL:
                 return emitWaitAll((BIRTerminator.WaitAll) term, tabs);
             default:
-                throw new IllegalStateException("Not a terminator instruction");
+                return emitBIRTerminator(term.getClass().getSimpleName(), term.lhsOp, term.getRhsOperands(), tabs,
+                        term.thenBB);
         }
+    }
+
+    private static String emitBIRTerminator(String ins, BIROperand lhsOp, BIROperand[] rhsOperands, int tabs,
+                                            BIRNode.BIRBasicBlock thenBB) {
+        String str = "";
+        str += emitTabs(tabs);
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += ins;
+        str += emitSpaces(1);
+        str += emitVarRefs(rhsOperands);
+        str += emitSpaces(1);
+        str += "->";
+        str += emitSpaces(1);
+        str += emitBasicBlockRef(thenBB);
+        str += ";";
+        return str;
     }
 
     private static String emitWait(BIRTerminator.Wait term, int tabs) {

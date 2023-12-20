@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `Product`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CD",
       "filterText": "findByName",
       "insertText": "findByName(${1})",
       "insertTextFormat": "Snippet",
@@ -34,7 +34,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `Product[]`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CE",
       "filterText": "listAll",
       "insertText": "listAll()",
       "insertTextFormat": "Snippet"
@@ -49,7 +49,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CF",
       "filterText": "countByName",
       "insertText": "countByName(${1})",
       "insertTextFormat": "Snippet",
@@ -68,7 +68,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "AC",
+      "sortText": "AG",
       "filterText": "getVersion",
       "insertText": "getVersion()",
       "insertTextFormat": "Snippet"

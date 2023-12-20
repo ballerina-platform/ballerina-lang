@@ -112,16 +112,18 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
         super.nameReferenceEvaluationTest();
 
         // Todo - move to common evaluation test suite after fixing the value string
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
-                "(debug_test_resources/evaluation_tests:0:$anonType$nameMap$_0 & readonly)",
-                "record");
+        // TODO: enable after #40896
+//        debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
+//                "(debug_test_resources/evaluation_tests:0:$anonType$nameMap$_0 & readonly)",
+//                "record");
 
         // qualified variable references (i.e. imported modules)
         debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "other:publicModuleVariable", "\"public\"", "string");
-        debugTestRunner.assertExpression(context, "other:constMap",
-                "(debug_test_resources/evaluation_tests.other:0:$anonType$constMap$_0 & readonly)",
-                "record");
+        // TODO: enable after #40896
+//        debugTestRunner.assertExpression(context, "other:constMap",
+//                "(debug_test_resources/evaluation_tests.other:0:$anonType$constMap$_0 & readonly)",
+//                "record");
 
         // other simple name references (i.e. types)
         debugTestRunner.assertExpression(context, "Student", "evaluation_tests:Student", "typedesc");

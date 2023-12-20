@@ -58,8 +58,8 @@ class DocumentContext {
     private NodeCloner nodeCloner;
     private final DocumentId documentId;
     private final String name;
-    private final String content;
-    private boolean disableSyntaxTree = false;
+    private String content;
+    private final boolean disableSyntaxTree;
 
     private DocumentContext(DocumentId documentId, String name, String content, boolean disableSyntaxTree) {
         this.documentId = documentId;
@@ -82,14 +82,14 @@ class DocumentContext {
     }
 
     SyntaxTree parse() {
-        if (syntaxTree != null) {
-            return syntaxTree;
+        if (this.syntaxTree != null) {
+            return this.syntaxTree;
         }
-        if (!disableSyntaxTree) {
-            syntaxTree = SyntaxTree.from(this.textDocument(), name);
-            return syntaxTree;
+        if (!this.disableSyntaxTree) {
+            this.syntaxTree = SyntaxTree.from(this.textDocument(), this.name);
+            return this.syntaxTree;
         }
-        return SyntaxTree.from(this.textDocument(), name);
+        return SyntaxTree.from(this.textDocument(), this.name);
     }
 
     SyntaxTree syntaxTree() {
@@ -97,25 +97,29 @@ class DocumentContext {
     }
 
     TextDocument textDocument() {
-        if (this.textDocument == null) {
-            this.textDocument = TextDocuments.from(this.content);
+        if (this.textDocument != null) {
+            return this.textDocument;
         }
-        return this.textDocument;
+        if (!this.disableSyntaxTree) {
+            this.textDocument = TextDocuments.from(this.content);
+            return this.textDocument;
+        }
+        return TextDocuments.from(this.content);
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
         BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
-        SyntaxTree syntaxTree = syntaxTree();
-        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
+        SyntaxTree synTree = syntaxTree();
+        reportSyntaxDiagnostics(pkgID, synTree, dlog);
 
-        nodeCloner = NodeCloner.getInstance(compilerContext);
-        if (compilationUnit != null) {
-            return nodeCloner.cloneCUnit(compilationUnit);
+        this.nodeCloner = NodeCloner.getInstance(compilerContext);
+        if (this.compilationUnit != null) {
+            return this.nodeCloner.cloneCUnit(this.compilationUnit);
         }
         BLangNodeBuilder bLangNodeBuilder = new BLangNodeBuilder(compilerContext, pkgID, this.name);
-        compilationUnit = (BLangCompilationUnit) bLangNodeBuilder.accept(syntaxTree.rootNode()).get(0);
-        compilationUnit.setSourceKind(sourceKind);
-        return nodeCloner.cloneCUnit(compilationUnit);
+        this.compilationUnit = (BLangCompilationUnit) bLangNodeBuilder.accept(synTree.rootNode()).get(0);
+        this.compilationUnit.setSourceKind(sourceKind);
+        return this.nodeCloner.cloneCUnit(this.compilationUnit);
     }
 
     Set<ModuleLoadRequest> moduleLoadRequests(ModuleDescriptor currentModuleDesc, PackageDependencyScope scope) {
@@ -129,10 +133,10 @@ class DocumentContext {
 
     private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleDescriptor currentModuleDesc,
                                                          PackageDependencyScope scope) {
-        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
+        Set<ModuleLoadRequest> moduleLoadRequestSet = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
-            moduleLoadRequests.add(getModuleLoadRequest(importDcl, scope));
+            moduleLoadRequestSet.add(getModuleLoadRequest(importDcl, scope));
         }
 
         // TODO This is a temporary solution for SLP6 release
@@ -145,9 +149,9 @@ class DocumentContext {
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
                     moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
-            moduleLoadRequests.add(ballerinaiLoadReq);
+            moduleLoadRequestSet.add(ballerinaiLoadReq);
         }
-        return moduleLoadRequests;
+        return moduleLoadRequestSet;
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
@@ -186,5 +190,12 @@ class DocumentContext {
 
     DocumentContext duplicate() {
         return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode(), false);
+    }
+
+    void shrink() {
+        if (this.compilationUnit != null) {
+            this.compilationUnit.topLevelNodes.clear();
+        }
+        this.content = null;
     }
 }

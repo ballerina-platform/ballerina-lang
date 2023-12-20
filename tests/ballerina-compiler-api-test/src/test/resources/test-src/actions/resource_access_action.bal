@@ -36,11 +36,82 @@ client class Foo {
    }
 }
 
-public function main() {
+const x = 1;
+
+public function testResourceMethods() {
    Foo fooClient = new();
    Person|error wVal = fooClient->/foo/bar/["3"](x, 2);
    int xVal = fooClient->/foo/["3"](1, 2);
    string yVal = fooClient->/bar/["3"].post("myname");
 }
 
-const x = 1;
+client class Bar {
+   resource function get [string s1]/[string s2]() {}
+}
+
+client class Baz {
+   resource function get [string... ss]() {}
+}
+
+client class Qux {
+   resource function get path1/path2() {}
+
+   resource function get . () {}
+}
+
+public function testResourceAccessActionPath() {
+   Bar barCl = new;
+   Baz bazCl = new;
+   Qux quxCl = new;
+
+   barCl->/seg1/seg2();
+   barCl->/[...["seg1", "seg2"]]();
+   barCl->/["seg1"]/["seg2"]();
+
+   bazCl->/seg1/seg2();
+   bazCl->/[...["seg1", "seg2"]]();
+   bazCl->/["seg1"]/["seg2"]();
+
+   quxCl->/path1/path2();
+   quxCl->/[...["path1", "path2"]]();
+   quxCl->/["path1"]/["path2"]();
+
+   quxCl->/(); // Root path
+}
+
+client class Bam {
+   resource function post path1/path2() {
+   }
+
+   resource function post [string p1]/[string p2]() {
+   }
+}
+
+public function testPathSegmentOfAmbiguousResourceFunction() {
+   Bam bam = new;
+   bam->/path1/path2.post();
+}
+
+client class Resc {
+    resource function post user() {}
+
+    resource function post [string name]() {}
+
+    resource function get sports/[string name]() {}
+
+    resource function get pets/[int id]() {}
+
+    resource function get sports/[string name]/info () {}
+}
+
+function testTypeOfResourceSegments() {
+    Resc cl = new;
+    string myString = "";
+    int myInt = 0;
+    cl->/user.post();
+    cl->/sports/[myString]();
+    cl->/sports/["A"]();
+    cl->/pets/[myInt]();
+    cl->/pets/[1]();
+    cl->/sports/[myString]/
+}

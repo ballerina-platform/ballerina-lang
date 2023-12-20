@@ -4,6 +4,7 @@
     "character": 0
   },
   "source": "annotation_decl/source/source21.bal",
+  "description": "",
   "items": [
     {
       "label": "type",
@@ -360,11 +361,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -384,11 +385,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -408,11 +409,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -432,11 +433,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -456,11 +457,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -520,11 +521,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -544,11 +545,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -568,11 +569,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -592,11 +593,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },
@@ -659,11 +660,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 2,
               "character": 0
             }
           },

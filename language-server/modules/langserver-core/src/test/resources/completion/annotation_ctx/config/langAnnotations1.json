@@ -197,11 +197,11 @@
     {
       "label": "...()",
       "kind": "Function",
-      "detail": "object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};}",
+      "detail": "isolated object {public isolated function iterator() returns isolated object {public isolated function next() returns record {|int value;|}?;};}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.annotations:0.0.0_  \n  \n  \n  \n  \n**Return** `object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};}`   \n  \n"
+          "value": "**Package:** _ballerina/lang.annotations:0.0.0_  \n  \n  \n  \n  \n**Return** `isolated object {public isolated function iterator() returns isolated object {public isolated function next() returns record {|int value;|}?;};}`   \n  \n"
         }
       },
       "sortText": "A",
@@ -212,11 +212,11 @@
     {
       "label": "..<()",
       "kind": "Function",
-      "detail": "object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};}",
+      "detail": "isolated object {public isolated function iterator() returns isolated object {public isolated function next() returns record {|int value;|}?;};}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.annotations:0.0.0_  \n  \n  \n  \n  \n**Return** `object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};}`   \n  \n"
+          "value": "**Package:** _ballerina/lang.annotations:0.0.0_  \n  \n  \n  \n  \n**Return** `isolated object {public isolated function iterator() returns isolated object {public isolated function next() returns record {|int value;|}?;};}`   \n  \n"
         }
       },
       "sortText": "A",

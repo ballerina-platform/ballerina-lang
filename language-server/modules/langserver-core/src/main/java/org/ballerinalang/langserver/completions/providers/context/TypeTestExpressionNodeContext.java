@@ -23,7 +23,10 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.projects.Module;
@@ -38,6 +41,7 @@ import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -68,6 +72,9 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+        } else if (isValidTypeName(node.typeDescriptor()) && 
+                context.getCursorPosition().getCharacter() > node.typeDescriptor().lineRange().endLine().offset()) {
+            return CompletionUtil.route(context, node.parent());
         } else {
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.addAll(getModuleTypeDescCompletionsForExpression(context, node));
@@ -75,6 +82,13 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+    
+    private boolean isValidTypeName(Node node) {
+        if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return !((SimpleNameReferenceNode) node).name().text().isEmpty();
+        }
+        return true;
     }
 
     private List<LSCompletionItem> getModuleTypeDescCompletionsForExpression(BallerinaCompletionContext context,

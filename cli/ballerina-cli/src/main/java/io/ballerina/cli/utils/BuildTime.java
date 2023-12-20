@@ -37,6 +37,7 @@ public class BuildTime {
     public long codeGenDuration;
     public long emitArtifactDuration;
     public long testingExecutionDuration;
+    public long runningExecutableDuration;
     public long totalDuration;
 
     private BuildTime() {

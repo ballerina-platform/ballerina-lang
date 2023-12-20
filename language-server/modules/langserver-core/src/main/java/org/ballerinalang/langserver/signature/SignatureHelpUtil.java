@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
@@ -526,9 +525,7 @@ public class SignatureHelpUtil {
                     continue;
                 } else if (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER
                         || segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
-                    TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
-                            ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
-                                    .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
+                    TypeSymbol typeSymbol = ((PathParameterSymbol) segment).typeDescriptor();
                     if (evalNode.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
                         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
                         if (semanticModel.isEmpty()) {

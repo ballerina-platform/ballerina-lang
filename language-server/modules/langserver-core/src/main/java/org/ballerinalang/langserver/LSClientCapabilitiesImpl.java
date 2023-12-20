@@ -163,6 +163,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
         initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
 
+        Object memoryUsageMonitor = initOptions.get(InitializationOptions.KEY_ENABLE_MEMORY_USAGE_MONITOR);
+        boolean enableMemoryUsageMonitor = memoryUsageMonitor != null &&
+                Boolean.parseBoolean(String.valueOf(memoryUsageMonitor));
+        initializationOptions.setEnableMemoryUsageMonitor(enableMemoryUsageMonitor);
+
         return initializationOptions;
     }
 
@@ -214,6 +219,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
         private boolean enableInlayHints = false;
+        private boolean enableMemoryUsageMonitor = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -266,6 +272,15 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setEnableInlayHints(boolean enableInlayHints) {
             this.enableInlayHints = enableInlayHints;
+        }
+
+        @Override
+        public boolean isEnableMemoryUsageMonitor() {
+            return enableMemoryUsageMonitor;
+        }
+
+        public void setEnableMemoryUsageMonitor(boolean enableMemoryUsageMonitor) {
+            this.enableMemoryUsageMonitor = enableMemoryUsageMonitor;
         }
     }
 }

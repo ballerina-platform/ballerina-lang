@@ -66,6 +66,6 @@ public class BLangResourcePathSegment extends BLangNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.RESOURCE_FUNC;
+        return this.kind;
     }
 }

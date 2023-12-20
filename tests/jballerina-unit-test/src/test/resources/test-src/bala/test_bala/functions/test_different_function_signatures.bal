@@ -326,6 +326,41 @@ function testMethodVarargEvaluationCount() {
     assertValueEquality(1, counter);
 }
 
+type Func isolated function ();
+
+public isolated function f1() {
+    json|error res = foo:testFunc("f1");
+}
+
+final readonly & map<Func> func = {
+    "f1": f1
+};
+
+public isolated function testFunc() {
+    Func? f = func["f1"];
+    if f is () {
+        return ();
+    }
+    _ = f();
+}
+
+public function f2() returns int {
+    json|error res = foo:testFunc("f2");
+    if res is error {
+        return -1;
+    }
+    return 1;
+}
+
+final readonly & map<int> func1 = {
+    "f1": f2()
+};
+
+function testCyclicFuncCallWhenFuncDefinedInModuleWithSameName() {
+    assertValueEquality((), testFunc());
+    assertValueEquality(1, func1["f1"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

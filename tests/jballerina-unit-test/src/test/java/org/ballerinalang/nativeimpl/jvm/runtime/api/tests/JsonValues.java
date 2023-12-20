@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -53,5 +54,9 @@ public class JsonValues {
 
     public static BString convertJSONToString(Object jValue) {
         return StringUtils.fromString(StringUtils.getJsonString(jValue));
+    }
+
+    public static Object convertStringToJson(BString str) {
+        return JsonUtils.parse(str);
     }
 }

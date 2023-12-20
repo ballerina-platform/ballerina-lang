@@ -36,7 +36,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Tests cases for testing typeOf() with query expressions.
+ * Tests cases for testing typeOf() in call statements.
  */
 public class TypeOfInCallStatementsTest {
 

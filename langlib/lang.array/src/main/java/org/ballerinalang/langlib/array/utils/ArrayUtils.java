@@ -70,20 +70,24 @@ public class ArrayUtils {
     }
 
     public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
-        switch (arrType.getTag()) {
+        switch (TypeUtils.getImpliedType(arrType).getTag()) {
             case TypeTags.ARRAY_TAG:
                 return BArray::get;
             case TypeTags.TUPLE_TAG:
                 return BArray::getRefValue;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getElementAccessFunction(TypeUtils.getReferredType(arrType), funcName);
             default:
                 throw createOpNotSupportedError(arrType, funcName);
         }
     }
 
     public static void checkIsArrayOnlyOperation(Type arrType, String op) {
-        if (arrType.getTag() != TypeTags.ARRAY_TAG) {
+        if (TypeUtils.getImpliedType(arrType).getTag() != TypeTags.ARRAY_TAG) {
+            throw createOpNotSupportedError(arrType, op);
+        }
+    }
+
+    public static void checkIsClosedArray(ArrayType arrType, String op) {
+        if (arrType.getState() == ArrayType.ArrayState.CLOSED) {
             throw createOpNotSupportedError(arrType, op);
         }
     }
@@ -95,7 +99,7 @@ public class ArrayUtils {
     }
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         TupleType tupleType = (TupleType) arrType;
         List<Type> memTypes = new ArrayList<>();
         List<Type> tupleTypes = tupleType.getTupleTypes();

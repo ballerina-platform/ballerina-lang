@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -55,7 +56,7 @@ public class TypeUtils {
     }
 
     public static boolean isValueType(Type type) {
-        Type referredType = TypeUtils.getReferredType(type);
+        Type referredType = TypeUtils.getImpliedType(type);
         switch (referredType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
@@ -151,11 +152,27 @@ public class TypeUtils {
      * @return the referred type if provided with a type reference type, else returns the original type
      */
     public static Type getReferredType(Type type) {
-        Type constraint = type;
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            constraint = getReferredType(((ReferenceType) type).getReferredType());
+            return getReferredType(((ReferenceType) type).getReferredType());
         }
-        return constraint;
+        return type;
     }
 
+    /**
+     * Retrieve the referred type if a given type is a type reference type or
+     * retrieve the effective type if the given type is an intersection type.
+     *
+     * @param type type to retrieve the implied type
+     * @return the implied type if provided with a type reference type or an intersection type,
+     * else returns the original type
+     */
+    public static Type getImpliedType(Type type) {
+        type = getReferredType(type);
+
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return getImpliedType(((IntersectionType) type).getEffectiveType());
+        }
+
+        return type;
+    }
 }

@@ -38,7 +38,9 @@ import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.internal.repositories.CustomPkgRepositoryContainer;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
+import io.ballerina.projects.internal.repositories.MavenPackageRepository;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -57,6 +59,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -92,7 +95,8 @@ public class PackageResolution {
         this.resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
+        this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext,
+                this.resolutionOptions.offline());
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
@@ -478,10 +482,12 @@ public class PackageResolution {
     }
 
     private BlendedManifest createBlendedManifest(PackageContext rootPackageContext,
-                                                  ProjectEnvironment projectEnvContext) {
+                                                  ProjectEnvironment projectEnvContext, boolean offline) {
+        Map<String, MavenPackageRepository> customPackageRepositoryMap =
+                projectEnvContext.getService(CustomPkgRepositoryContainer.class).getCustomPackageRepositories();
         return BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),
-                projectEnvContext.getService(LocalPackageRepository.class));
+                projectEnvContext.getService(LocalPackageRepository.class), customPackageRepositoryMap, offline);
     }
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,

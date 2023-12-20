@@ -2510,14 +2510,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STOnFailClauseNode onFailClauseNode) {
         STNode onKeyword = modifyNode(onFailClauseNode.onKeyword);
         STNode failKeyword = modifyNode(onFailClauseNode.failKeyword);
-        STNode typeDescriptor = modifyNode(onFailClauseNode.typeDescriptor);
-        STNode failErrorName = modifyNode(onFailClauseNode.failErrorName);
+        STNode typedBindingPattern = modifyNode(onFailClauseNode.typedBindingPattern);
         STNode blockStatement = modifyNode(onFailClauseNode.blockStatement);
         return onFailClauseNode.modify(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 

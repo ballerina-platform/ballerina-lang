@@ -38,14 +38,16 @@ public class Constants {
     public static final String SKIP_TESTS = "false";
 
     public static final int INIT_METHOD_SPLIT_SIZE = 50;
+    public static final int INIT_FUNC_COUNT_PER_CLASS = 100;
     public static final int MAX_LISTENER_COUNT_PER_METHOD = 25;
 
     public static final int MIN_UNICODE = 0xD800;
     public static final int MIDDLE_LIMIT_UNICODE = 0xDFFF;
     public static final int MAX_UNICODE = 0x10FFFF;
-
     public static final String REMOVE = "remove()";
-
     public static final String STRING_TYPE = "string";
+    public static final String UNDERSCORE = "_";
+    public static final char DOLLAR = '$';
+    public static final String RECORD_DELIMITER = DOLLAR + "rec" + DOLLAR;
 
 }

@@ -5409,6 +5409,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
                 endContext();
                 return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
+            case ON_FAIL_CLAUSE:
+                return ParserRuleContext.BLOCK_STMT;
             default:
                 return getNextRuleForMatchPattern();
         }

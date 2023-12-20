@@ -179,7 +179,7 @@ public class BalRuntime extends Runtime {
         try {
             validateArgs(object, methodName);
             ObjectValue objectVal = (ObjectValue) object;
-            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectVal.getType());
+            ObjectType objectType = (ObjectType) TypeUtils.getImpliedType(objectVal.getType());
             boolean isIsolated = objectType.isIsolated() && objectType.isIsolated(methodName);
             FutureValue future = scheduler.createFuture(null, callback, properties, returnType, strandName, metadata);
             AsyncUtils.getArgsWithDefaultValues(scheduler, objectVal, methodName, new Callback() {

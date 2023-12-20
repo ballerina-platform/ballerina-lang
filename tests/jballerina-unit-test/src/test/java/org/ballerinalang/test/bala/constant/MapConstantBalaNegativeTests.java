@@ -47,10 +47,9 @@ public class MapConstantBalaNegativeTests {
         validateError(compileResult, i++, "incompatible types: expected 'record \\{\\| 1 a; \\|\\}', " +
                 "found 'testorg\\/foo\\:1\\.0\\.0\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$ECONST\\$_0 " +
                         "& readonly\\)'", 20, 27);
-        validateError(compileResult, i++, "incompatible types: expected 'record \\{\\| readonly \\(" +
-                "record \\{\\| 1 a; 2 b; \\|\\} & readonly\\) a; readonly \\(record \\{\\| 3 a; \\|\\} & readonly\\) " +
-                "b; \\|\\} & readonly', found 'testorg\\/foo\\:1\\.0\\.0\\:\\(testorg\\/foo\\:1\\:" +
-                "\\$anonType\\$FCONST\\$_0 & readonly\\)'", 21, 80);
+        validateError(compileResult, i++, "incompatible types: expected '\\(record \\{\\| record \\{\\|" +
+                " 1 a; 2 b; \\|\\} a; record \\{\\| 3 a; \\|\\} b; \\|\\} & readonly\\)', found 'testorg/foo\\:1" +
+                "\\.0\\.0\\:\\(testorg/foo\\:1\\:\\$anonType\\$FCONST\\$_0 & readonly\\)'", 21, 80);
         validateError(compileResult, i++, "cannot update 'readonly' value of type " +
                 "'testorg\\/foo\\:1\\.0\\.0\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$ECONST\\$_0 & readonly\\)'",
                       26, 5);

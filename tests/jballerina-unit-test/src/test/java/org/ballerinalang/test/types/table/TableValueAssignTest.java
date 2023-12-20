@@ -53,7 +53,8 @@ public class TableValueAssignTest {
                 "testAssignKeylessTableValueToAny",
                 "testAssignKeylessTableValueToVar",
                 "testAssignKeylessTableValueToTableType",
-                "testTableVlueAssignmentToAny"
+                "testTableValueAssignmentToAny",
+                "testTableValueReturnFromFunction"
         };
     }
 

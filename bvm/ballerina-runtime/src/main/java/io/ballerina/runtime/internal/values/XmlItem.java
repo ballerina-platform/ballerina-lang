@@ -382,9 +382,9 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
-        XmlPi lastChild = (XmlPi) leftList.get(leftList.size() - 1);
-        String firstChildContent = ((XmlPi) appendingList.get(0)).getData();
-        String mergedTextContent = lastChild.getData() + firstChildContent;
+        XmlText lastChild = (XmlText) leftList.get(leftList.size() - 1);
+        String firstChildContent = appendingList.get(0).getTextValue();
+        String mergedTextContent = lastChild.getTextValue() + firstChildContent;
         XmlText text = new XmlText(mergedTextContent);
         leftList.set(leftList.size() - 1, text);
         for (int i = 1; i < appendingList.size(); i++) {

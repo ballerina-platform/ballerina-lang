@@ -58,8 +58,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -626,6 +628,56 @@ public class DependencyGraphTests extends BaseTest {
         Assert.assertEquals(packageMetadataResponse.resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(packageMetadataResponse.resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
+    }
+
+    @Test
+    public void testGetAllDependents() {
+        // Create a sample DependencyGraph with String nodes
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put("A", new LinkedHashSet<>() {{
+                add("B");
+                add("C");
+            }});
+            put("B", new LinkedHashSet<>() {{
+                add("D");
+            }});
+            put("C", new LinkedHashSet<>());
+            put("D", new LinkedHashSet<>());
+            put("E", new LinkedHashSet<>() {{
+                add("F");
+            }});
+            put("F", new LinkedHashSet<>());
+        }});
+
+        Collection<String> allDependents = dependencyGraph.getAllDependents("D");
+        Set<String> expectedDependents = new HashSet<>(Arrays.asList("A", "B"));
+
+        Assert.assertEquals(expectedDependents, allDependents);
+    }
+
+    @Test
+    public void testGetAllDependencies() {
+        // Create a sample DependencyGraph with String nodes
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put("A", new LinkedHashSet<>() {{
+                add("B");
+                add("C");
+            }});
+            put("B", new LinkedHashSet<>() {{
+                add("D");
+            }});
+            put("C", new LinkedHashSet<>());
+            put("D", new LinkedHashSet<>());
+            put("E", new LinkedHashSet<>() {{
+                add("F");
+            }});
+            put("F", new LinkedHashSet<>());
+        }});
+
+        Collection<String> allDependencies = dependencyGraph.getAllDependencies("A");
+        Set<String> expectedDependencies = new HashSet<>(Arrays.asList("B", "C", "D"));
+
+        Assert.assertEquals(expectedDependencies, allDependencies);
     }
 
     @Test

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 27,
+    "character": 23
+  },
+  "source": "source1.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 27,
+              "character": 4
+            },
+            "end": {
+              "line": 27,
+              "character": 4
+            }
+          },
+          "newText": "stream<targetType, module1:ClientError?> streamResult = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

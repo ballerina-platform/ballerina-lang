@@ -117,13 +117,13 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
     private boolean isCompilationErrorTyped(TypeSymbol typeSymbol) {
 
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-            return isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol);
+            return isCompilationErrorTyped((UnionTypeSymbol) typeSymbol);
         }
 
         return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR;
     }
 
-    protected boolean isUnionCompErrorTyped(UnionTypeSymbol unionTypeSymbol) {
+    protected boolean isCompilationErrorTyped(UnionTypeSymbol unionTypeSymbol) {
 
         return unionTypeSymbol.memberTypeDescriptors().stream()
                 .anyMatch(tSymbol -> tSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR);

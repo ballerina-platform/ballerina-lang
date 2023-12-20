@@ -145,4 +145,10 @@
             <class name="org.ballerinalang.test.semver.SemverValidatorNegativeTest"/>
         </classes>
     </test>
+    <test name="ballerina-profiler-tests">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.profiler.ProfilerTest"/>
+        </classes>
+    </test>
 </suite>

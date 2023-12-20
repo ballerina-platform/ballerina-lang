@@ -303,7 +303,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        Type firstMemberType = TypeUtils.getReferredType(memberTypes.get(0));
+        Type firstMemberType = TypeUtils.getImpliedType(memberTypes.get(0));
         if (firstMemberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return TypeChecker.getType(
                     ((BFiniteType) firstMemberType).getValueSpace().iterator().next()).getZeroValue();
@@ -317,7 +317,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
             return null;
         }
-        Type firstMemberType = TypeUtils.getReferredType(memberTypes.get(0));
+        Type firstMemberType = TypeUtils.getImpliedType(memberTypes.get(0));
         if (firstMemberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return TypeChecker.getType(
                     ((BFiniteType) firstMemberType).getValueSpace().iterator().next()).getEmptyValue();
@@ -441,7 +441,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         for (Type member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
-                if (TypeUtils.getReferredType(arrayType.getElementType()) == unionType) {
+                if (TypeUtils.getImpliedType(arrayType.getElementType()) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, this.readonly);
                     this.addMember(newArrayType);
                     continue;

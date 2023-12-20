@@ -1095,8 +1095,12 @@ public class ProjectUtils {
                 if (buildJson != null
                         && buildJson.getLastModifiedTime() != null
                         && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
-                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                    Long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
                             .get(project.currentPackage().packageName().value());
+                    if (defaultModuleLastModifiedTime == null) {
+                        // package name has changed
+                        return true;
+                    }
                     return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
                 }
             } catch (IOException e) {

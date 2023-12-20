@@ -165,19 +165,10 @@ public class Strand {
         }
     }
 
-    /**
-     * @deprecated use Environment#getStrandLocal()
-     */
-    @Deprecated
     public Object getProperty(String key) {
         return this.globalProps.get(key);
     }
 
-    /**
-     *
-     * @deprecated use Environment#setStrandLocal()
-     */
-    @Deprecated
     public void setProperty(String key, Object value) {
         this.globalProps.put(key, value);
     }

@@ -92,6 +92,20 @@ public class MavenSupportTest extends BindgenCommandBaseTest {
                 Paths.get(testResources.toString(), "assert-files", "Ballerina.toml").toString()));
     }
 
+    @Test(description = "Test the maven support with multiple java platforms in the Bindgen tool to see if the " +
+            "Ballerina.toml is updated")
+    public void testBindgenMvnTomlMultipleJavaPlatforms() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "multipleJavaPlatformsBalProject").toString();
+        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=" + projectDir,
+                "org.apache.commons.logging.LogFactory"};
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        Assert.assertTrue(isTomlUpdated(Paths.get(projectDir, "Ballerina.toml").toString(),
+                Paths.get(testResources.toString(), "assert-files", "MultipleJavaPlatformsBallerina.toml").toString()));
+    }
+
     @Test(description = "Test the error given for a maven library that is unavailable")
     public void testUnavailableMvnLibrary() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();

@@ -56,6 +56,11 @@ public class JIConstructorCall extends JTerminator {
     }
 
     @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        this.args = List.of(operands);
+    }
+
+    @Override
     public BIRBasicBlock[] getNextBasicBlocks() {
         return new BIRBasicBlock[0];
     }

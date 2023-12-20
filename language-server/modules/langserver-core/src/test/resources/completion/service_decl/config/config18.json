@@ -4,6 +4,7 @@
     "character": 1
   },
   "source": "service_decl/source/source18.bal",
+  "description": "",
   "items": [
     {
       "label": "type",
@@ -368,11 +369,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -392,11 +393,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -416,11 +417,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -440,11 +441,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -464,11 +465,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -562,11 +563,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -586,11 +587,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -610,11 +611,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -634,11 +635,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },
@@ -667,11 +668,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 2,
               "character": 0
             }
           },

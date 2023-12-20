@@ -18,24 +18,21 @@
 
 package io.ballerina.compiler.api.impl.symbols.resourcepath.util;
 
+import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
  * Represents an implementation of a named path segment.
  *
  * @since 2.0.0
  */
-public class BallerinaNamedPathSegment implements NamedPathSegment {
+public class BallerinaNamedPathSegment extends BallerinaSymbol implements NamedPathSegment {
 
-    private final String name;
-
-    public BallerinaNamedPathSegment(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String name() {
-        return this.name;
+    public BallerinaNamedPathSegment(BResourcePathSegmentSymbol pathSegmentSymbol, CompilerContext context) {
+        super(pathSegmentSymbol.getName().getValue(), SymbolKind.PATH_NAME_SEGMENT, pathSegmentSymbol, context);
     }
 
     @Override
@@ -46,5 +43,11 @@ public class BallerinaNamedPathSegment implements NamedPathSegment {
     @Override
     public String signature() {
         return this.name();
+    }
+
+    @Override
+    @Deprecated
+    public String name() {
+        return this.getName().orElse("");
     }
 }

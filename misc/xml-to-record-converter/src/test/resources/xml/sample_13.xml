@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<company>
+    <name>ABC Corporation</name>
+    <employees>
+        <employee>
+            <id>001</id>
+            <name>John Doe</name>
+            <position>Software Engineer</position>
+            <phone>0771234565</phone>
+            <projects>
+                <project>
+                    <id>P001</id>
+                    <name>Project A</name>
+                    <tasks>
+                        <task>
+                            <id>T001</id>
+                            <description>Implement feature X</description>
+                        </task>
+                        <task>
+                            <id>T002</id>
+                            <description>Test feature Y</description>
+                        </task>
+                    </tasks>
+                </project>
+                <project>
+                    <id>P002</id>
+                    <name>Project B</name>
+                </project>
+            </projects>
+            <manager>
+                <id>M001</id>
+                <name>Manager One</name>
+            </manager>
+        </employee>
+        <employee>
+            <id>002</id>
+            <name>Jane Smith</name>
+            <position>UX Designer</position>
+            <dob>1995-Jan-01</dob>
+            <projects>
+                <project>
+                    <id>P003</id>
+                    <name>Project C</name>
+                    <tasks>
+                        <task name="Test Task">
+                            <id>T005</id>
+                            <description>Create wireframes for new feature</description>
+                        </task>
+                    </tasks>
+                </project>
+            </projects>
+        </employee>
+    </employees>
+    <departments>
+        <department>
+            <id>D001</id>
+            <name>Development</name>
+            <teams>
+                <team>
+                    <id>DT001</id>
+                    <name>Frontend Team</name>
+                    <members>
+                        <member>John Doe</member>
+                        <member>Jane Smith</member>
+                    </members>
+                </team>
+                <team>
+                    <id>DT002</id>
+                    <name>Backend Team</name>
+                    <members>
+                        <member>Another Employee</member>
+                    </members>
+                </team>
+            </teams>
+        </department>
+        <department>
+            <id>D002</id>
+            <name>Design</name>
+            <teams>
+                <team>
+                    <id>DT003</id>
+                    <name>UX Team</name>
+                    <members>
+                        <member>John Doe</member>
+                        <member>Jane Smith</member>
+                    </members>
+                </team>
+            </teams>
+        </department>
+    </departments>
+</company>

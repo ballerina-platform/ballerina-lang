@@ -48,6 +48,11 @@ public class LangLibFunctionBinder {
         this.context = context;
     }
 
+    public LangLibFunctionBinder(CompilerContext context) {
+        this.types = Types.getInstance(context);
+        this.context = context;
+    }
+
     /**
      * Given a lang lib function symbol, this method will create a new instance of the symbol if it's a, function that
      * can be called using a method call expr. i.e., first param's type kind is the same as the lang library the

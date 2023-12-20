@@ -1,0 +1,9 @@
+{
+  "position": {
+    "line": 2,
+    "character": 26
+  },
+  "source": "expression_context/source/lang_lib_func_expr_ctx_source9.bal",
+  "description": "Test completions in array lang lib function with named arg",
+  "items": []
+}

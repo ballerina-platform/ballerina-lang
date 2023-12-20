@@ -154,7 +154,7 @@ public class TesterinaUtils {
     private static int getTestExecutionState(Class<?> initClazz) {
         try {
             final Method method = initClazz.getDeclaredMethod(GET_TEST_EXEC_STATE);
-            return (int) method.invoke(null);
+            return Math.toIntExact((long) method.invoke(null));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
                     formatErrorMessage(e), e);

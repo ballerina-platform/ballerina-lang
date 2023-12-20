@@ -1,0 +1,70 @@
+{
+  "position": {
+    "line": 16,
+    "character": 14
+  },
+  "source": "action_node_context/source/client_resource_access_action_source35.bal",
+  "description": "Test completions in multiple singleton resource access functions, and accessing with a label",
+  "items": [
+    {
+      "label": ".accessor",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `\"A31\"` a"
+        }
+      },
+      "sortText": "C",
+      "filterText": "accessor",
+      "insertText": ".accessor",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 13
+            },
+            "end": {
+              "line": 16,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": ".put",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `\"A31\"|\"A32\"` a"
+        }
+      },
+      "sortText": "C",
+      "filterText": "put",
+      "insertText": ".put",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 13
+            },
+            "end": {
+              "line": 16,
+              "character": 14
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

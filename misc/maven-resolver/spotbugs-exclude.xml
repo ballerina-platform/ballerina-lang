@@ -2,4 +2,7 @@
     <Match>
         <Package name="org.ballerinalang.maven" />
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.maven.bala.client" />
+    </Match>
 </FindBugsFilter>

@@ -140,6 +140,14 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.createdTypeDefinitions.clear();
     }
 
+    private void reset() {
+        unresolvedConstants.clear();
+        constantMap.clear();
+        resolvingConstants.clear();
+        unresolvableConstants.clear();
+        createdTypeDefinitions.clear();
+    }
+
     @Override
     public void visit(BLangConstant constant) {
         if (!unresolvedConstants.containsKey(constant.symbol)) {
@@ -370,7 +378,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBitWiseOp(BLangConstantValue lhs, BLangConstantValue rhs,
                                                   BiFunction<Long, Long, Long> func) {
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
                 Long val = func.apply((Long) lhs.value, (Long) rhs.value);
                 return new BLangConstantValue(val, this.currentConstSymbol.type);
@@ -383,7 +391,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateAddition(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -412,7 +420,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateSubtract(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -438,7 +446,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateMultiplication(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -464,7 +472,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateDivision(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 if ((Long) lhs.value == Long.MIN_VALUE && (Long) rhs.value == -1) {
@@ -490,7 +498,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateMod(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        switch (Types.getImpliedType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) ((Long) lhs.value % (Long) rhs.value);
@@ -531,7 +539,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
         BType constSymbolValType = value.type;
-        int constSymbolValTypeTag = constSymbolValType.tag;
+        int constSymbolValTypeTag = Types.getImpliedType(constSymbolValType).tag;
 
         switch (constSymbolValTypeTag) {
             case TypeTags.INT:
@@ -550,7 +558,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
         Object result = null;
-        if (Types.getReferredType(this.currentConstSymbol.type).tag == TypeTags.INT) {
+        if (Types.getImpliedType(this.currentConstSymbol.type).tag == TypeTags.INT) {
             result = ~((Long) (value.value));
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
@@ -558,7 +566,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
         Object result = null;
-        if (Types.getReferredType(this.currentConstSymbol.type).tag == TypeTags.BOOLEAN) {
+        if (Types.getImpliedType(this.currentConstSymbol.type).tag == TypeTags.BOOLEAN) {
             result = !((Boolean) (value.value));
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
@@ -585,6 +593,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         updateConstantType(constantSymbol, expression, env);
         Optional.ofNullable(isSourceOnlyAnon ? createdTypeDefinitions.get(constantSymbol.type.tsymbol) : null)
                 .ifPresent(typeDefinition -> typeDefinition.symbol.flags |= Flags.SOURCE_ANNOTATION);
+        reset();
         return value;
     }
 
@@ -646,19 +655,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BConstantSymbol symbol = constant.symbol;
         updateConstantType(symbol, constant.expr, symEnv);
 
-        BType resolvedType = symbol.type;
+        BType resolvedType = Types.getReferredType(symbol.type);
 
         if (resolvedType.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) resolvedType;
 
-            if (intersectionType.effectiveType.tag == TypeTags.RECORD) {
+            if (Types.getImpliedType(intersectionType.effectiveType).tag == TypeTags.RECORD) {
                 addAssociatedTypeDefinition(constant, intersectionType);
             }
         }
     }
 
     private void updateConstantType(BConstantSymbol symbol, BLangExpression expr, SymbolEnv env) {
-        BType type = Types.getReferredType(symbol.type);
+        BType type = Types.getImpliedType(symbol.type);
         if (type.getKind() == TypeKind.FINITE) {
             return;
         }
@@ -712,7 +721,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return ((BLangSimpleVarRef) expr).symbol.type; // Already type resolved constant
         }
 
-        type = Types.getReferredType(type);
+        type = Types.getImpliedType(type);
 
         switch (type.tag) {
             case TypeTags.INT:
@@ -787,8 +796,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
-                env, pkgID, null, 0, false);
+        TypeDefBuilderHelper.populateStructureFieldsAndTypeInclusions(types, symTable, null, names,
+                recordTypeNode, type, type, pos, env, pkgID, null, 0, false);
         recordTypeNode.sealed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
@@ -983,7 +992,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
             if (memberExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = ((BLangSimpleVarRef) memberExpr).symbol.type;
-                int tag = type.tag;
+                int tag = Types.getReferredType(type).tag;
 
                 if (tag == TypeTags.FINITE) {
                     // https://github.com/ballerina-platform/ballerina-lang/issues/35127
@@ -1008,11 +1017,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType);
             tupleTypes.add(new BTupleMember(newType, varSymbol));
 
-            if (newType.tag != TypeTags.FINITE) {
+            if (Types.getImpliedType(newType).tag != TypeTags.FINITE) {
                 // https://github.com/ballerina-platform/ballerina-lang/issues/35127
                 memberConstValue.type = newType;
-                memberExpr.setBType(newType.tag == TypeTags.INTERSECTION ?
-                                            ((BIntersectionType) newType).effectiveType : newType);
+                memberExpr.setBType(newType);
             }
         }
 

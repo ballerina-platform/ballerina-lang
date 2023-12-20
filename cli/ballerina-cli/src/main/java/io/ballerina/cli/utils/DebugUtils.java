@@ -3,6 +3,7 @@ package io.ballerina.cli.utils;
 import java.io.PrintStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_PROFILE_DEBUG;
 
 /**
  * Utilities related to ballerina program debugging.
@@ -33,11 +34,26 @@ public class DebugUtils {
      * @return debug arguments as a string
      */
     public static String getDebugArgs(PrintStream errorStream) {
+        validateJavaVersion(errorStream);
+        return String.format("%s,address=*:%s", DEBUG_ARGS_JAVA, System.getProperty(SYSTEM_PROP_BAL_DEBUG));
+    }
+
+    public static String getProfileDebugArg(PrintStream errorStream) {
+        validateJavaVersion(errorStream);
+        return String.format("%s,address=*:%s", DEBUG_ARGS_JAVA, System.getProperty(SYSTEM_PROP_PROFILE_DEBUG));
+    }
+
+    private static void validateJavaVersion(PrintStream errorStream) {
         String javaVersion = System.getProperty(JAVA_VERSION_PROP);
         if (javaVersion != null && !javaVersion.startsWith(COMPATIBLE_JRE_VERSION)) {
             errorStream.printf("WARNING: Incompatible JRE version '%s' found. Ballerina program debugging supports " +
                     "on JRE version '%s'%n", javaVersion, COMPATIBLE_JRE_VERSION);
         }
-        return String.format("%s,address=*:%s", DEBUG_ARGS_JAVA, System.getProperty(SYSTEM_PROP_BAL_DEBUG));
     }
+
+    public static boolean isInProfileDebugMode() {
+        return System.getProperty(SYSTEM_PROP_PROFILE_DEBUG) != null &&
+                !System.getProperty(SYSTEM_PROP_PROFILE_DEBUG).isEmpty();
+    }
+
 }

@@ -2,7 +2,7 @@ module io.ballerina.shell.cli {
     requires io.ballerina.shell;
     requires io.ballerina.parser;
     requires io.ballerina.lang;
-    requires jline;
+    requires org.jline;
     requires com.google.gson;
     requires io.ballerina.tools.api;
 

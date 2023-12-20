@@ -4,7 +4,7 @@
     "character": 18
   },
   "source": "import_decl/source/import_decl_with_ballerinax_org.bal",
-  "description": "",
+  "description": "Test completions for ballerinax packages",
   "items": [
     {
       "label": "azure.ad",

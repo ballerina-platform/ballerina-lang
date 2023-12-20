@@ -160,7 +160,8 @@ function testNeverFieldTypeCheck() {
     assertEquality(true, r7 is record {never x?;});
 
     record {|never?...; |} r8 = {};
-    assertEquality(true, r8 is record {never x?;});
+    assertEquality(false, r8 is record {never x?;});
+    assertEquality(true, r8 is record {never? x?;});
 
     record {|int?...; |} r9 = {};
     assertEquality(false, r9 is record {never x?;});
@@ -190,10 +191,6 @@ function testNeverFieldTypeCheck() {
     record {|never...; |} x1 = {};
     record {never i?;} y1 = x1;
     assertEquality(true, y1 is record {|never...; |});
-
-    record {|never?...; |} x2 = {};
-    record {never i?;} y2 = x2;
-    assertEquality(true, y2 is record {|never?...; |});
 
     record {||} x3 = {};
     record {never i?;} y3 = x3;

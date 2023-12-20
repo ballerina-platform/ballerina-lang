@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -33,10 +33,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaPathRestParam implements PathRestParam {
 
     private final CompilerContext context;
-    private final BVarSymbol internalSymbol;
+    private final BSymbol internalSymbol;
     private PathParameterSymbol pathParam;
+    private final String name;
 
-    public BallerinaPathRestParam(BVarSymbol internalSymbol, CompilerContext context) {
+    public BallerinaPathRestParam(String name, BSymbol internalSymbol, CompilerContext context) {
+        this.name = name;
         this.internalSymbol = internalSymbol;
         this.context = context;
     }
@@ -48,7 +50,8 @@ public class BallerinaPathRestParam implements PathRestParam {
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.pathParam = symbolFactory.createPathParamSymbol(this.internalSymbol, PathSegment.Kind.PATH_REST_PARAMETER);
+        this.pathParam = symbolFactory.createPathParamSymbol(this.name, this.internalSymbol,
+                PathSegment.Kind.PATH_REST_PARAMETER);
         return this.pathParam;
     }
 

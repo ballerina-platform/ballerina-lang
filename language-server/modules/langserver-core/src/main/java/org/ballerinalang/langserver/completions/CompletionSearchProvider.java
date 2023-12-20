@@ -70,10 +70,11 @@ public class CompletionSearchProvider {
      * @param moduleName    module name.
      * @param stringList    list of words.
      */
-    public void indexModule(ModuleID moduleName, List<String> stringList, List<String> namesWithModulePrefix) {
+    public void indexModuleAndModuleSymbolNames(ModuleID moduleName, List<String> stringList,
+                                                List<String> namesWithModulePrefix) {
         indexedModules.add(moduleName);
-        stringList.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
-        namesWithModulePrefix.forEach((s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH))));
+        indexNames(stringList);
+        indexNames(namesWithModulePrefix);
     }
 
     /**
@@ -84,5 +85,14 @@ public class CompletionSearchProvider {
      */
     public boolean checkModuleIndexed(ModuleID moduleName) {
         return indexedModules.contains(moduleName);
+    }
+
+    /**
+     * Add names to the trie.
+     *
+     * @param names    list of names.
+     */
+    public void indexNames(List<String> names) {
+        names.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
     }
 }

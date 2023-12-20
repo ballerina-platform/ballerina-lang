@@ -245,6 +245,10 @@ class ModuleContext {
         return getBLangPackageOrThrow();
     }
 
+    protected void cleanBLangPackage() {
+        this.bLangPackage = null;
+    }
+
     ModuleCompilationState compilationState() {
         return moduleCompState;
     }
@@ -306,10 +310,6 @@ class ModuleContext {
 
     void setCompilationState(ModuleCompilationState moduleCompState) {
         this.moduleCompState = moduleCompState;
-    }
-
-    void parse() {
-        currentCompilationState().parse(this);
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
@@ -506,12 +506,8 @@ class ModuleContext {
         if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
             return true;
         }
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
-                && moduleContext.project().buildOptions().enableCache()) {
-            return true;
-        }
-
-        return false;
+        return moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
+                && moduleContext.project().buildOptions().enableCache();
     }
 
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
@@ -558,6 +554,10 @@ class ModuleContext {
 
     static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
         // TODO implement
+    }
+
+    static void shrinkDocuments(ModuleContext moduleContext) {
+        moduleContext.srcDocContextMap.values().forEach(DocumentContext::shrink);
     }
 
     Optional<MdDocumentContext> moduleMdContext() {

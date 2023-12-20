@@ -286,6 +286,11 @@ public class InstanceMethodTest {
         };
     }
 
+    @Test
+    public void testInteropCallToAbstractClassMethod() {
+        BRunUtil.invoke(result, "testInteropCallToAbstractClassMethod");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

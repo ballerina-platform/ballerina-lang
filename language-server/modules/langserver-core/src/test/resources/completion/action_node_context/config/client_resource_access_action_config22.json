@@ -37,7 +37,7 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {

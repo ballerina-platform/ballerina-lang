@@ -79,27 +79,28 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION
-                || isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
+                || isCompilationErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
-        boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
-                .anyMatch(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR);
+        List<TypeSymbol> errorMemberTypes = unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> CommonUtil.getRawType(member).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
         long nonErrorNonNilMemberCount = unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR
                         && member.typeKind() != TypeDescKind.NIL)
                 .count();
-        if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
+        if (errorMemberTypes.isEmpty() || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        List<TextEdit> edits = new ArrayList<>();
-        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context, importsAcceptor);
-        edits.addAll(modifiedTextEdits.edits);
-        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, 
+                positionDetails, typeSymbol.get(), context, importsAcceptor);
+        List<TextEdit> edits = new ArrayList<>(modifiedTextEdits.edits);
+        List<TextEdit> addCheckTextEdits = CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
-                positionDetails.matchedNode(), context));
+                positionDetails.matchedNode(), context, errorMemberTypes, importsAcceptor);
+        edits.addAll(addCheckTextEdits);
         edits.addAll(importsAcceptor.getNewImportTextEdits());
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,

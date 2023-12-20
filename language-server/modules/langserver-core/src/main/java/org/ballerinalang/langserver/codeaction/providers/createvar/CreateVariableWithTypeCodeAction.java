@@ -261,7 +261,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
                     : getRawType(symbol, context).signature());
             return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), moduleQualifiedName, context);
         }
-        return symbol.signature();
+        return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), symbol.signature(), context);
     }
 
     private boolean isLangAnnotationModule(ModuleID moduleID) {

@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
@@ -45,9 +46,12 @@ import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
+import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -56,6 +60,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
@@ -88,7 +93,7 @@ public class ValueConverter {
                     ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
         }
 
-        Type sourceType = TypeUtils.getReferredType(TypeChecker.getType(value));
+        Type sourceType = TypeUtils.getImpliedType(TypeChecker.getType(value));
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
@@ -105,7 +110,7 @@ public class ValueConverter {
         }
 
         Object newValue;
-        Type matchingType = TypeUtils.getReferredType(convertibleType);
+        Type matchingType = TypeUtils.getImpliedType(convertibleType);
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -164,7 +169,7 @@ public class ValueConverter {
     }
 
     private static Type getTargetFromTypeDesc(Type targetType) {
-        Type referredType = TypeUtils.getReferredType(targetType);
+        Type referredType = TypeUtils.getImpliedType(targetType);
         if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
             return ((TypedescType) referredType).getConstraint();
         }
@@ -208,6 +213,12 @@ public class ValueConverter {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
+        }
+        Optional<IntersectionType> intersectionType = ((BRecordType) TypeUtils.getImpliedType(recordRefType))
+                .getIntersectionType();
+        if (recordRefType.isReadOnly() && intersectionType.isPresent() && !map.getType().isReadOnly()) {
+            Type mutableType = ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
+            return ValueCreator.createReadonlyRecordValue(mutableType.getPackage(), mutableType.getName(), valueMap);
         }
         return ValueCreator.createRecordValue(recordRefType.getPackage(), recordRefType.getName(), valueMap);
     }
@@ -262,15 +273,28 @@ public class ValueConverter {
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
                                        Type targetRefType, Set<TypeValuePair> unresolvedValues) {
         TableType tableType = (TableType) targetType;
+        Optional<IntersectionType> intersectionType = tableType.getIntersectionType();
+        if (targetRefType.isReadOnly() && intersectionType.isPresent() && !bTable.getType().isReadOnly()) {
+            tableType = (TableType) ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
+            TableValueImpl<?, ?> tableValue = getTableValue(bTable, unresolvedValues, tableType, tableType);
+            tableValue.freezeDirect();
+            return tableValue;
+        }
+        return  getTableValue(bTable, unresolvedValues, tableType, targetRefType);
+    }
+
+    private static TableValueImpl<?, ?> getTableValue(BTable<?, ?> bTable, Set<TypeValuePair> unresolvedValues,
+                                                      TableType tableType, Type targetRefType) {
         Object[] tableValues = new Object[bTable.size()];
         int count = 0;
         for (Object tableValue : bTable.values()) {
             BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(), unresolvedValues);
             tableValues[count++] = bMap;
         }
-        BArray data = ValueCreator.createArrayValue(tableValues,
-                TypeCreator.createArrayType(tableType.getConstrainedType()));
+        BArray data = ValueCreator.createArrayValue(tableValues, TypeCreator.createArrayType(
+                tableType.getConstrainedType()));
         BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-        return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
+        return new TableValueImpl<>(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
+
 }

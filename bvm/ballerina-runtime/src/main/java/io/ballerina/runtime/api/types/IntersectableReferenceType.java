@@ -25,6 +25,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
+@Deprecated
 public interface IntersectableReferenceType extends ReferenceType {
 
     /**

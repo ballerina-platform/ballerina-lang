@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.launcher.RuntimePanicException;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -68,12 +69,19 @@ public class RunExecutableTask implements Task {
 
     @Override
     public void execute(Project project) {
+        long start = 0;
+        if (project.buildOptions().dumpBuildTime()) {
+            start = System.currentTimeMillis();
+        }
 
         out.println();
         out.println("Running executable");
         out.println();
 
         this.runGeneratedExecutable(project.currentPackage().getDefaultModule(), project);
+        if (project.buildOptions().dumpBuildTime()) {
+            BuildTime.getInstance().runningExecutableDuration = System.currentTimeMillis() - start;
+        }
     }
 
     private void runGeneratedExecutable(Module executableModule, Project project) {

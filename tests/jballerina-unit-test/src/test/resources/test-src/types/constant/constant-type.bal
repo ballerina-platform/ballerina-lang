@@ -233,21 +233,21 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         a["a"] = 1;
     };
     error? res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type '(record {| 1 a; 2 b; |} & readonly)'");
 
     record {| 1 a; 2 b; |} b = C.a;
     fn = function () {
         b.b = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type '(record {| 1 a; 2 b; |} & readonly)'");
 
     map<map<int>> c = C;
     fn = function () {
         c["a"]["a"] = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type '(record {| 1 a; 2 b; |} & readonly)'");
 
     fn = function () {
         c["c"] = {};
@@ -260,8 +260,8 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {|" +
-        " readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type '(record {|" +
+        " (record {| 1 a; 2 b; |} & readonly) a; record {| 3 a; |} b; |} & readonly)'");
 }
 
 type AA boolean;
@@ -316,6 +316,58 @@ function testResolvingConstValForConstantsOfUserDefinedTypes() {
     assertEqual(n, -61);
     assertEqual(p, 60);
     assertEqual(q, -60);
+}
+
+const byte[] data1 = base16 `55 EE 66`;
+const byte[] data2 = base64 `ABCD pqrs`;
+
+const byte[3] data3 = base16 `55 EE 66`;
+const byte[6] data4 = base64 `ABCD pqrs`;
+
+const data5 = base16 `55 EE 66`;
+const data6 = base64 `ABCD pqrs`;
+
+const byte[*] data7 = base16 `55 EE 66`;
+const byte[*] data8 = base64 `ABCD pqrs`;
+
+const [170] data9 = base16 `aa`;
+const [170, 187] data10 = base16 `aabb`;
+
+function testConstByteArrLiteral() {
+    assertEqual(data1.length(), 3);
+    assertEqual(data2.length(), 6);
+    assertEqual(data1[0], 0x55);
+    assertEqual(data1[1], 0xEE);
+    assertEqual(data1[2], 0x66);
+    assertEqual(data2[0], 0);
+    assertEqual(data2[1], 16);
+    assertEqual(data2[2], 131);
+    assertEqual(data2[3], 166);
+    assertEqual(data2[4], 170);
+    assertEqual(data2[5], 236);
+
+    assertEqual(data3.length(), 3);
+    assertEqual(data4.length(), 6);
+    assertEqual(data3[1], 0xEE);
+    assertEqual(data4[2], 131);
+
+    assertEqual(data5.length(), 3);
+    assertEqual(data6.length(), 6);
+    assertEqual(data5[1], 0xEE);
+    assertEqual(data6[2], 131);
+
+    assertEqual(data5.length(), 3);
+    assertEqual(data6.length(), 6);
+    assertEqual(data5[1], 0xEE);
+    assertEqual(data6[2], 131);
+
+    assertEqual(data7.length(), 3);
+    assertEqual(data8.length(), 6);
+    assertEqual(data7[1], 0xEE);
+    assertEqual(data8[2], 131);
+
+    assertEqual(data9[0], 170);
+    assertEqual(data10[1], 187);
 }
 
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {

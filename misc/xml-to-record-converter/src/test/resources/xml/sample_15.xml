@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Comprehensive XML Example -->
+<root:root xmlns:root="http://example.com/root" xmlns:main="http://example.com/main" version="1.0">
+    <!-- Main Section -->
+    <main:companyInfo>
+        <main:name>ABC Corporation</main:name>
+        <main:location>
+            <main:city>New York</main:city>
+            <main:state>NY</main:state>
+        </main:location>
+    </main:companyInfo>
+
+    <!-- Employees Section -->
+    <employees>
+        <!-- Employee 1 -->
+        <employee id="001">
+            <name>John Doe</name>
+            <position>Engineer</position>
+            <project name="Project A">
+                <task>Implement feature X</task>
+                <task>Test feature Y</task>
+            </project>
+            <project name="Project B">
+                <!-- No tasks for this project -->
+            </project>
+            <manager id="M001" name="Manager One"/>
+        </employee>
+
+        <!-- Employee 2 -->
+        <employee id="002">
+            <name>Jane Smith</name>
+            <position>UI/UX</position>
+            <project name="Project C">
+                <task>Create wireframes for new feature</task>
+                <task>Conduct user testing sessions</task>
+            </project>
+        </employee>
+
+        <!-- Employee 3 -->
+        <employee>
+            <name>Jane Smith</name>
+            <project name="Project C">
+                <task>Conduct user testing sessions</task>
+            </project>
+        </employee>
+    </employees>
+
+    <!-- Additional Information -->
+    <!-- This is a comment -->
+    <?processing-instruction target="value"?>
+
+    <!-- Mixed Content -->
+    <mixed>
+        This is <b>bold</b> and <i>italic</i>.
+    </mixed>
+
+    <!-- CDATA Section -->
+    <![CDATA[This is CDATA content <with special characters & symbols>.]]>
+
+</root:root>

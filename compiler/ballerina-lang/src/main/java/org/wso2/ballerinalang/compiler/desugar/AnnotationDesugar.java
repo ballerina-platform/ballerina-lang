@@ -840,7 +840,7 @@ public class AnnotationDesugar {
 
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, pkgID, owner);
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(function, lambdaFunctionSymbol, env);
-        lambdaFunction.capturedClosureEnv = env.createClone();
+        lambdaFunction.capturedClosureEnv = env;
 
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);
@@ -869,7 +869,7 @@ public class AnnotationDesugar {
                 // // Adds
                 // { ..., v1: true, ... }
                 addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, isLocalObjectCtor);
-            } else if (attachedType.tag != TypeTags.ARRAY) {
+            } else if (Types.getImpliedType(attachedType).tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
                 // @v1 {
                 //     value: 1
@@ -1103,7 +1103,7 @@ public class AnnotationDesugar {
     }
 
     private boolean hasTypeSymbol(BTypeSymbol symbol, BType type) {
-        BType bType = Types.getReferredType(type);
+        BType bType = Types.getImpliedType(type);
         if (bType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (hasTypeSymbol(symbol, memberType)) {

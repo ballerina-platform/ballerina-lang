@@ -131,6 +131,12 @@ public class ConstantAssignmentTest {
                 "'record {| (record {| \"a\" a; |} & readonly) x; int i; |}'", 24, 55);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
                 26, 14);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string[]', found '[170,187]'", 28, 20);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected '[string,int]', found '[170,187]'", 30, 26);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected '[170]', found '[170,187]'", 32, 19);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

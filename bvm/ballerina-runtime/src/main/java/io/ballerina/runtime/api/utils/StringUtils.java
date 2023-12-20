@@ -236,7 +236,7 @@ public class StringUtils {
     public static String getJsonString(Object value) {
         Object jsonValue = JsonUtils.convertToJson(value);
 
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(jsonValue));
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(jsonValue));
         switch (type.getTag()) {
             case TypeTags.NULL_TAG:
                 return "null";

@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -233,6 +234,10 @@ public class ReadOnlyUtils {
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
                         origRecordType.typeFlags);
+                for (Map.Entry<String, BFunctionPointer<Object, ?>> field : origRecordType.getDefaultValues()
+                        .entrySet()) {
+                    immutableRecordType.setDefaultValue(field.getKey(), field.getValue());
+                }
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 
@@ -362,8 +367,8 @@ public class ReadOnlyUtils {
      */
     public static Type getMutableType(BIntersectionType intersectionType) {
         for (Type type : intersectionType.getConstituentTypes()) {
-            Type referredType = TypeUtils.getReferredType(type);
-            if (intersectionType.getEffectiveType().getTag() == referredType.getTag()) {
+            Type referredType = TypeUtils.getImpliedType(type);
+            if (TypeUtils.getImpliedType(intersectionType.getEffectiveType()).getTag() == referredType.getTag()) {
                 return referredType;
             }
         }

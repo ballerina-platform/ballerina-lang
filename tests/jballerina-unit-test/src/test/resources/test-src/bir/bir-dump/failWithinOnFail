@@ -35,7 +35,7 @@ failWithinOnFail function() -> string|error {
         %19 = newType map<ballerina/lang.value:0.0.0:Cloneable>;
         %21 = ConstLoad message;
         %22 = ConstLoad error value;
-        %20 = NewMap %19;
+        %20 = NewMap %19{%21:%22};
         %23 = cloneReadOnly(%20) -> bb3;
     }
     bb3 {

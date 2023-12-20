@@ -451,9 +451,74 @@ function testErrorSeq() {
     assertEquality("msg1", x[0].message());
 }
 
-function assertEquality(anydata expected, anydata actual) {
-    if expected == actual {
+class NumberGenerator {
+    int i = 0;
+    boolean resultError = false;
+    public isolated function next() returns record {|int value;|}|error? {
+        if self.i > 5 {
+            if self.resultError {
+                return error("Number exceed 5");
+            }
+            return ();
+        }
+        int value = self.i;
+        self.i += 1;
+        return {value};
+    }
+
+    function init(boolean resultError = false) {
+        self.resultError = resultError;
+    }
+}
+
+function testErrorCompletion() {
+    NumberGenerator numGenratorErrorResult = new(true);
+    stream<int, error?> numberStream1 = new (numGenratorErrorResult);
+    int|error collectResult1 = from int number in numberStream1
+        collect sum(number);
+    assertEquality(error("Number exceed 5"), collectResult1);
+
+    NumberGenerator numGenrator = new();
+    stream<int, error?> numberStream2 = new (numGenrator);
+    int|error collectResult2 = from int number in numberStream2
+        collect sum(number);
+    assertEquality(15, collectResult2);
+
+    int|error collectResult3 = from int num1 in 1...5
+        join int num2 in numberStream1
+        on num1 equals num2
+        collect sum(num1);
+    assertEquality(error("Number exceed 5"), collectResult3);
+
+    NumberGenerator numGenrator2 = new();
+    stream<int, error?> numberStream3 = new (numGenrator2);
+    (int|error)[] collectResult4 = from int number in 1...3
+        let int|error sum = from int i in numberStream3
+                              collect sum(i)
+        select sum;
+    assertTrue(collectResult4[0] is int);
+    assertEquality(15, collectResult4[0]);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(anydata|error expected, anydata|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
         return;
     }
-    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+
+    if expected is error && actual is error && expected.message() == actual.message(){
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+function assertTrue(boolean condition) {
+    if (!condition) {
+        panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
+    }
 }

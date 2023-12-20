@@ -138,6 +138,7 @@ public class ModuleStopMethodGen {
         String lambdaName = LAMBDA_PREFIX + "stopdynamic";
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
         mv.visitCode();
+        MethodGenUtils.callSetDaemonStrand(mv);
         generateCallSchedulerStopDynamicListeners(mv, lambdaName, initClass);
         return lambdaName;
     }

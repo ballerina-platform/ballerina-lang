@@ -2,4 +2,4 @@ Compiling source
 	wso2/emptyProjWithTool:0.1.0
 
 Creating bala
-	target/bala/wso2-emptyProjWithTool-any-0.1.0.bala
+	target/bala/wso2-emptyProjWithTool-java17-0.1.0.bala

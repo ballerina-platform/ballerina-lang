@@ -51,7 +51,7 @@
       "label": "...testFunction()",
       "kind": "Function",
       "detail": "record {|int field1; int field2; Record2 field3; anydata...;|}",
-      "sortText": "AC",
+      "sortText": "AD",
       "filterText": "testFunction",
       "insertText": "...testFunction()",
       "insertTextFormat": "Snippet"

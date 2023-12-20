@@ -45,7 +45,6 @@ public class RuntimeAPITest {
                 "invalid_values",
                 "async",
                 "utils",
-                "stop_handler",
                 "identifier_utils",
                 "environment"
         };

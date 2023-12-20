@@ -53,6 +53,24 @@ function testUndeclaredSpreadOpField() {
     Foo f = {s, i: 2, ...b};
 }
 
+function testFieldWithNeverType() {
+    record {|string s; string i; never x?;|} rec1 = {s: "a", i: "1023"};
+    Foo _ = {...rec1};
+
+    record {|string s; never x?;|} rec2 = {s: "b"};
+    Foo _ = {...rec2};
+
+    record {|string s; never i?;|} rec3 = {s: "c"};
+    Foo _ = {...rec3};
+
+    record {|string s; never|never i?;|} rec4 = {s: "d"};
+    Foo _ = {...rec4};
+
+    record {|string s;|} rec5 = {s: "e"};
+    record {|never age?;|} rec6 = {};
+    Foo _ = {...rec5, ...rec6};
+}
+
 ///////////////////////// Map Tests /////////////////////////
 
 function testMapSpreadOpFieldOfIncorrectType() {

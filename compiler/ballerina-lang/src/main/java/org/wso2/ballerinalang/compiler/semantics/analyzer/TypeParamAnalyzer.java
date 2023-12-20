@@ -260,28 +260,30 @@ public class TypeParamAnalyzer {
             case TypeTags.TYPEDESC:
                 return containsTypeParam(((BTypedescType) type).constraint, resolvedTypes);
             case TypeTags.TYPEREFDESC:
-                return containsTypeParam(Types.getReferredType(type), resolvedTypes);
+                return containsTypeParam(Types.getImpliedType(type), resolvedTypes);
             default:
                 return false;
         }
     }
 
     private BType createBuiltInType(BType type, Name name, long flags) {
+        BType referredType = Types.getImpliedType(type);
+        int tag = referredType.tag;
         // Handle built-in types.
-        switch (type.tag) {
+        switch (tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
             case TypeTags.BOOLEAN:
-                return new BType(type.tag, null, name, flags);
+                return new BType(tag, null, name, flags);
             case TypeTags.ANY:
-                return new BAnyType(type.tag, null, name, flags);
+                return new BAnyType(tag, null, name, flags);
             case TypeTags.ANYDATA:
-                return createAnydataType((BUnionType) type, name, flags);
+                return createAnydataType((BUnionType) referredType, name, flags);
             case TypeTags.READONLY:
-                return new BReadonlyType(type.tag, null, name, flags);
+                return new BReadonlyType(tag, null, name, flags);
         }
         // For others, we will use TSymbol.
         return type;
@@ -289,7 +291,7 @@ public class TypeParamAnalyzer {
 
     private BType createTypeParamType(BSymbol symbol, BType type, Name name, long flags) {
         // Handle built-in types.
-        BType refType = Types.getReferredType(type);
+        BType refType = Types.getImpliedType(type);
         switch (refType.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
@@ -390,8 +392,8 @@ public class TypeParamAnalyzer {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
             case TypeTags.XML:
-                if (!TypeTags.isXMLTypeTag(Types.getReferredType(actualType).tag)) {
-                    if (Types.getReferredType(actualType).tag == TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(Types.getImpliedType(actualType).tag)) {
+                    if (Types.getImpliedType(actualType).tag == TypeTags.UNION) {
                         dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
                     }
                     return;
@@ -524,7 +526,7 @@ public class TypeParamAnalyzer {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                visitType(expr, loc, Types.getReferredType(expType), actualType, env, resolvedTypes,
+                visitType(expr, loc, Types.getImpliedType(expType), actualType, env, resolvedTypes,
                         result, checkContravariance);
                 break;
         }
@@ -533,7 +535,7 @@ public class TypeParamAnalyzer {
                     result, checkContravariance);
         }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
-            visitType(expr, loc, expType, Types.getReferredType(actualType), env, resolvedTypes,
+            visitType(expr, loc, expType, Types.getImpliedType(actualType), env, resolvedTypes,
                     result, checkContravariance);
         }
     }
@@ -588,6 +590,7 @@ public class TypeParamAnalyzer {
         LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
         LinkedHashSet<BType> completionTypes = new LinkedHashSet<>();
         for (BType type : actualType.getMemberTypes()) {
+            type = Types.getImpliedType(type);
             if (type.tag == TypeTags.STREAM) {
                 constraintTypes.add(((BStreamType) type).constraint);
                 completionTypes.add(((BStreamType) type).completionType);
@@ -644,26 +647,26 @@ public class TypeParamAnalyzer {
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         for (BType type : actualType.getMemberTypes()) {
-            type = Types.getReferredType(type);
-            if (type.tag == TypeTags.ARRAY) {
-                members.add(((BArrayType) type).eType);
+            BType referredType = Types.getImpliedType(type);
+            if (referredType.tag == TypeTags.ARRAY) {
+                members.add(((BArrayType) referredType).eType);
             }
-            if (type.tag == TypeTags.MAP) {
-                members.add(((BMapType) type).constraint);
+            if (referredType.tag == TypeTags.MAP) {
+                members.add(((BMapType) referredType).constraint);
             }
-            if (TypeTags.isXMLTypeTag(type.tag)) {
-                if (type.tag == TypeTags.XML) {
-                    members.add(((BXMLType) type).constraint);
+            if (TypeTags.isXMLTypeTag(referredType.tag)) {
+                if (referredType.tag == TypeTags.XML) {
+                    members.add(((BXMLType) referredType).constraint);
                 }
                 members.add(type);
             }
-            if (type.tag == TypeTags.RECORD) {
-                for (BField field : ((BRecordType) type).fields.values()) {
+            if (referredType.tag == TypeTags.RECORD) {
+                for (BField field : ((BRecordType) referredType).fields.values()) {
                     members.add(field.type);
                 }
             }
-            if (type.tag == TypeTags.TUPLE) {
-                ((BTupleType) type).getTupleTypes().forEach(member -> members.add(member));
+            if (referredType.tag == TypeTags.TUPLE) {
+                ((BTupleType) referredType).getTupleTypes().forEach(member -> members.add(member));
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, members);
@@ -766,6 +769,7 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInError(Location loc, BErrorType expType, BType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        actualType = Types.getImpliedType(actualType);
         if (actualType.tag == TypeTags.ERROR) {
             findTypeParam(loc, expType.detailType, ((BErrorType) actualType).detailType, env, resolvedTypes,
                     result);
@@ -774,7 +778,7 @@ public class TypeParamAnalyzer {
             BUnionType errorUnion = (BUnionType) actualType;
             LinkedHashSet<BType> errorDetailTypes = new LinkedHashSet<>();
             for (BType errorType : errorUnion.getMemberTypes()) {
-                BType member = Types.getReferredType(errorType);
+                BType member = Types.getImpliedType(errorType);
                 errorDetailTypes.add(((BErrorType) member).detailType);
             }
             BUnionType errorDetailUnionType = BUnionType.create(null, errorDetailTypes);
@@ -874,7 +878,7 @@ public class TypeParamAnalyzer {
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             case TypeTags.TYPEREFDESC:
-                return getMatchingBoundType(Types.getReferredType(expType), env, resolvedTypes);
+                return getMatchingBoundType(Types.getImpliedType(expType), env, resolvedTypes);
             default:
                 return expType;
         }
@@ -885,7 +889,7 @@ public class TypeParamAnalyzer {
             return false;
         }
 
-        return Types.getReferredType(expType) != Types.getReferredType(boundType);
+        return Types.getImpliedType(expType) != Types.getImpliedType(boundType);
     }
 
     private BType getMatchingReadonlyIntersectionBoundType(BIntersectionType intersectionType, SymbolEnv env,
@@ -920,11 +924,8 @@ public class TypeParamAnalyzer {
             return symTable.semanticError;
         }
 
-        BIntersectionType boundIntersectionType =
-                ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
-
-        return boundIntersectionType.effectiveType;
+        return ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
+                matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
     }
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
@@ -966,7 +967,6 @@ public class TypeParamAnalyzer {
         recordSymbol.isTypeParamResolved = true;
         recordSymbol.typeParamTSymbol = expTSymbol;
         recordSymbol.scope = new Scope(recordSymbol);
-        recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField expField : expType.fields.values()) {

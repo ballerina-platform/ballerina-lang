@@ -109,10 +109,10 @@ public class DeclarativeAuthDesugar {
 
     boolean isDefinedInStdLibPackage(List<BType> expressionTypes, String packageName) {
         for (BType expressionType : expressionTypes) {
-            expressionType = Types.getReferredType(expressionType);
+            expressionType = Types.getImpliedType(expressionType);
             if (expressionType.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) expressionType).getMemberTypes()) {
-                    memberType = Types.getReferredType(memberType);
+                    memberType = Types.getImpliedType(memberType);
                     if (memberType.tag == TypeTags.OBJECT &&
                             isDefinedInStdLibPackage((BObjectType) memberType, packageName)) {
                         return true;

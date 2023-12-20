@@ -1,0 +1,19 @@
+<reservations>
+    <reservation>
+        <guest>
+            <firstName>Jimmy</firstName>
+            <lastName>Anderson</lastName>
+            <email>jimmy@neptide.com</email>
+            <phone>+1 (858) 495-3964</phone>
+        </guest>
+        <reservationDetails>
+            <location>CHIHR</location>
+            <hotelName>Grand Hyatt</hotelName>
+            <arrivalDate>2023-09-05</arrivalDate>
+            <departureDate>2023-09-16</departureDate>
+            <roomCount>2</roomCount>
+            <roomType>Deluxe Room</roomType>
+            <specialRequest>Champagne in room</specialRequest>
+        </reservationDetails>
+    </reservation>
+</reservations>

@@ -181,8 +181,7 @@ public class XMLIterationTest {
         Assert.assertEquals(((BXmlSequence) resArray.getRefValue(1)).getTextValue().toString(), authors[1][0]);
     }
 
-    @Test(groups = {"disableOnOldParser"},
-            description = "Test iterating over xml elements where some elements are characters")
+    @Test(description = "Test iterating over xml elements where some elements are characters")
     public void testXMLCompoundCharacterSequenceIteration() {
         Object results = BRunUtil.invoke(result, "xmlSequenceIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
@@ -190,8 +189,7 @@ public class XMLIterationTest {
         Assert.assertEquals(str, "<book>the book</book>\nbit of text\\u2702\\u2705\n");
     }
 
-    @Test(groups = {"disableOnOldParser"},
-            description = "Test iterating over xml sequence where all elements are character items")
+    @Test(description = "Test iterating over xml sequence where all elements are character items")
     public void testXMLCharacterSequenceIteration() {
         Object results = BRunUtil.invoke(result, "xmlCharItemIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);

@@ -13,7 +13,7 @@ Running Tests with Coverage
 				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
 				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 148
 				callableName: testMockInvalidStream moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 81
-				callableName: testMockInvalidStream$lambda6$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 9
+				callableName: testMockInvalidStream$lambda6$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 10
 			
 
 

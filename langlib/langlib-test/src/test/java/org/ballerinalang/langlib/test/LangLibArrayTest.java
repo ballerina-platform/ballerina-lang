@@ -600,7 +600,9 @@ public class LangLibArrayTest {
                 "testModificationWithinEvery",
                 "testArrSortWithNamedArgs1",
                 "testArrSortWithNamedArgs2",
-                "testArrSortWithNamedArgs3"
+                "testArrSortWithNamedArgs3",
+                "testArrayPop",
+                "testSetLengthNegative"
         };
     }
 }

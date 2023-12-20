@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -178,7 +179,7 @@ public class XMLLiteralWithNamespacesTest {
     public void xmlWithDefaultNamespaceToString() {
         Object returns = BRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
         Assert.assertEquals(returns.toString(),
-                "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company\">\n" +
+                "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company.nondefault\">\n" +
                         "        <OrderLines>\n" +
                         "            <OrderLine acme:lineNo=\"334\" itemCode=\"334-2\"/>\n" +
                         "        </OrderLines>\n" +
@@ -200,20 +201,24 @@ public class XMLLiteralWithNamespacesTest {
     }
 
     @Test
-    public void testXmlLiteralUsingXmlNamespacePrefix() {
-        BRunUtil.invoke(literalWithNamespacesResult, "testXmlLiteralUsingXmlNamespacePrefix");
-    }
-
-    @Test
     public void testXMLToString() {
         BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }
 
-    @Test
-    public void testXmlInterpolationWithQuery() {
-        BRunUtil.invoke(literalWithNamespacesResult, "testXmlInterpolationWithQuery");
+    @Test (dataProvider = "xmlValueFunctions")
+    public void testXmlStrings(String functionName) {
+        BRunUtil.invoke(literalWithNamespacesResult, functionName);
+    }
+
+    @DataProvider(name = "xmlValueFunctions")
+    private String[] xmlValueFunctions() {
+        return new String[]{
+                "testXmlLiteralUsingXmlNamespacePrefix",
+                "testXmlInterpolationWithQuery",
+                "testAddAttributeToDefaultNS"
+        };
     }
 
     @AfterClass

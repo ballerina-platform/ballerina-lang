@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 0,
+    "character": 20
+  },
+  "source": "import_decl/source/import_decl_with_ballerinax_org2.bal",
+  "description": "Test completions for ballerinax packages",
+  "items": [
+    {
+      "label": "azure.ad",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.ad",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "azure.qnamaker",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "D",
+      "insertText": "azure.qnamaker",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

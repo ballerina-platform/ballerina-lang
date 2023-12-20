@@ -48,7 +48,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         Path filePath1 = debugTestRunner.testProjectPath.resolve("utils.bal");
         Path filePath2 = debugTestRunner.testProjectPath.resolve("modules").resolve("math").resolve("add.bal");

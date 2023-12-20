@@ -20,6 +20,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -27,8 +28,10 @@ import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -40,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +63,7 @@ public class DiagnosticsHelper {
      */
     private final Map<Path, Map<String, List<Diagnostic>>> lastDiagnosticMap;
     private CompletableFuture<Boolean> latestScheduled = null;
+    private final Stack<String> cyclicDependencyErrors;
 
     public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
         DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
@@ -72,6 +77,7 @@ public class DiagnosticsHelper {
     private DiagnosticsHelper(LanguageServerContext serverContext) {
         serverContext.put(DIAGNOSTICS_HELPER_KEY, this);
         this.lastDiagnosticMap = new HashMap<>();
+        this.cyclicDependencyErrors = new Stack<>();
     }
 
     /**
@@ -123,26 +129,7 @@ public class DiagnosticsHelper {
             return;
         }
         Map<String, List<Diagnostic>> latestDiagnostics = getLatestDiagnostics(context);
-
-        // If the client is null, returns
-        if (client == null) {
-            return;
-        }
-        Map<String, List<Diagnostic>> lastProjectDiagnostics =
-                lastDiagnosticMap.getOrDefault(project.get().sourceRoot(), new HashMap<>());
-
-        // Clear old diagnostic entries of the project with an empty list
-        lastProjectDiagnostics.forEach((key, value) -> {
-            if (!latestDiagnostics.containsKey(key)) {
-                client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
-            }
-        });
-
-        // Publish diagnostics for the project
-        latestDiagnostics.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
-
-        // Replace old diagnostic map associated with the project
-        lastDiagnosticMap.put(project.get().sourceRoot(), latestDiagnostics);
+        sendDiagnostics(client, latestDiagnostics, project.get().sourceRoot());
     }
 
     /**
@@ -157,6 +144,11 @@ public class DiagnosticsHelper {
                                                         WorkspaceManager workspaceManager) {
         Map<String, List<Diagnostic>> diagnosticMap =
                 toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspaceManager);
+        sendDiagnostics(client, diagnosticMap, projectRoot);
+    }
+
+    private synchronized void sendDiagnostics(ExtendedLanguageClient client,
+                                              Map<String, List<Diagnostic>> diagnosticMap, Path projectRoot) {
         // If the client is null, returns
         if (client == null) {
             return;
@@ -173,6 +165,11 @@ public class DiagnosticsHelper {
 
         // Publish diagnostics for the project
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
+
+        // Show cyclic dependency error message if exists
+        while (!this.cyclicDependencyErrors.isEmpty()) {
+            CommandUtil.notifyClient(client, MessageType.Error, this.cyclicDependencyErrors.pop());
+        }
 
         // Replace old diagnostic map associated with the project
         lastDiagnosticMap.put(projectRoot, diagnosticMap);
@@ -203,6 +200,10 @@ public class DiagnosticsHelper {
                                                            Path projectRoot, WorkspaceManager workspaceManager) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
+            if (diag.diagnosticInfo().code()
+                    .equals(DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId())) {
+                this.cyclicDependencyErrors.push(diag.message());
+            }
             LineRange lineRange = diag.location().lineRange();
 
             int startLine = lineRange.startLine().line();

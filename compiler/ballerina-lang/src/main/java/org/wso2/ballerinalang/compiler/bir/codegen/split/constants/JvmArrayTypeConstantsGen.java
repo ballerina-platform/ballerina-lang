@@ -44,6 +44,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
@@ -153,7 +154,7 @@ public class JvmArrayTypeConstantsGen {
         genMethodReturn(mv);
         visitArrayTypeConstPopulateInitMethods();
         cw.visitEnd();
-        jarEntries.put(arrayConstantsClass + ".class", cw.toByteArray());
+        jarEntries.put(arrayConstantsClass + CLASS_FILE_SUFFIX, cw.toByteArray());
     }
 
     public String getArrayTypeConstantClass() {

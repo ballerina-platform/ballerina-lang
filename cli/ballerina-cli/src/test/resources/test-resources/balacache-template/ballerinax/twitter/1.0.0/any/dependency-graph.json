@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "org": "ballerinax",
+      "name": "twitter",
+      "version": "1.0.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "ballerinax",
+      "package_name": "twitter",
+      "version": "1.0.0",
+      "module_name": "twitter",
+      "dependencies": []
+    }
+  ]
+}

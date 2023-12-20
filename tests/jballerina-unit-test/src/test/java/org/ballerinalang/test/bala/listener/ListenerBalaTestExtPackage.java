@@ -20,8 +20,6 @@ package org.ballerinalang.test.bala.listener;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -29,22 +27,21 @@ import org.testng.annotations.Test;
  */
 public class ListenerBalaTestExtPackage {
 
-    private CompileResult compileResult;
-
-    @BeforeClass
-    public void setup() {
-        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_listener");
-        compileResult = BCompileUtil.compile("test-src/bala/test_bala/listener/external_packaged_listener_access.bal");
-    }
-
     @Test(description = "Test access listener in different package")
-    public void testListenerObjectDefinedInDifferentPackage() {
+    public void testListenerObjectDefinedInDifferentPackages() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_listener");
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/listener/external_packaged_listener_access.bal");
         BRunUtil.invoke(compileResult, "getStartAndAttachCount");
     }
 
-    @AfterClass
-    public void tearDown() {
-        compileResult = null;
+    @Test(description = "Test listeners defined only in a different package")
+    public void testListenerObjectDefinedOnlyInADifferentPackage() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_listener_non_default");
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/listener/external_packaged_listener_access_non_default_module.bal");
+        BRunUtil.invoke(compileResult, "main");
     }
+
 }
 

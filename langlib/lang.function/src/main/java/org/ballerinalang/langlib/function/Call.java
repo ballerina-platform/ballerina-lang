@@ -52,7 +52,7 @@ public class Call {
                                                                       "1.0.0", "call");
 
     public static Object call(BFunctionPointer<Object, Object> func, Object... args) {
-        BFunctionType functionType = (BFunctionType) TypeUtils.getReferredType(func.getType());
+        BFunctionType functionType = (BFunctionType) TypeUtils.getImpliedType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
         List<Object> argsList = new java.util.ArrayList<>();

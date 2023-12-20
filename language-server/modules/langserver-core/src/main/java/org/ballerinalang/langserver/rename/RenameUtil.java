@@ -109,7 +109,9 @@ public class RenameUtil {
         // Check if symbol at cursor is empty
         Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
         if (symbolAtCursor.isEmpty()
-                || symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD) {
+                || symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD
+                || symbolAtCursor.get().kind() == SymbolKind.PATH_PARAMETER
+                || symbolAtCursor.get().kind() == SymbolKind.PATH_NAME_SEGMENT) {
             return Optional.empty();
         }
         

@@ -9,7 +9,7 @@
       "label": "w3",
       "kind": "Variable",
       "detail": "worker",
-      "sortText": "CB",
+      "sortText": "CC",
       "insertText": "w3",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "CS",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"

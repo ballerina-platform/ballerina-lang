@@ -22,8 +22,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 /**
  * This class contains unit tests to cover AST to BIR lowering.
@@ -36,7 +34,5 @@ public class BIRModelTest {
     public void testBIRGen() {
         CompileResult result = BCompileUtil.compile("test-src/bir/bir_model.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-
-        BIRNode.BIRPackage birPackage = ((BLangPackage) result.getAST()).symbol.bir;
     }
 }

@@ -125,7 +125,8 @@ public class TestUtils {
                 .build();
 
         writeBalaFile(mockResponse, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
-                10000, System.out, new LogFormatter(), UTILS_TEST_RESOURCES);
+                10000, System.out, new LogFormatter(), UTILS_TEST_RESOURCES,
+                "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4");
 
         Assert.assertTrue(tempBalaCache.resolve("package.json").toFile().exists());
         Assert.assertTrue(tempBalaCache.resolve("bala.json").toFile().exists());
@@ -159,7 +160,7 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
-    
+
         Request mockRequest = new Request.Builder()
                 .get()
                 .url("https://localhost:9090/registry/packages/wso2/sf/*")
@@ -173,26 +174,26 @@ public class TestUtils {
                 .message("")
                 .body(ResponseBody.create(
                         MediaType.get(APPLICATION_JSON),
-                        Files.readAllBytes(balaFile)
-                ))
+                        Files.readAllBytes(balaFile)))
                 .build();
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         createBalaInHomeRepo(mockResponse, tempBalaCache.resolve("wso2").resolve("sf"),
-                "wso2", "sf", false, null, balaUrl, "", System.out, new LogFormatter());
+                "wso2", "sf", false, null, balaUrl, "", System.out, new LogFormatter(),
+                "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4");
 
         Assert.assertTrue(tempBalaCache.resolve("wso2").resolve("sf").resolve("1.3.5").toFile().exists());
         cleanBalaCache();
     }
 
-    @Test(description = "Test create bala when same bala exists in the given directory",
-            dependsOnMethods = "testCreateBalaInHomeRepo")
+    @Test(description = "Test create bala when same bala exists in the given directory", 
+          dependsOnMethods = "testCreateBalaInHomeRepo")
     public void testCreateBalaInHomeRepoWhenBalaExists() throws IOException {
         final String balaName = "sf-any.bala";
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
-    
+
         Request mockRequest = new Request.Builder()
                 .get()
                 .url("https://localhost:9090/registry/packages/wso2/sf/*")
@@ -206,22 +207,22 @@ public class TestUtils {
                 .message("")
                 .body(ResponseBody.create(
                         MediaType.get(APPLICATION_JSON),
-                        Files.readAllBytes(balaFile)
-                ))
+                        Files.readAllBytes(balaFile)))
                 .build();
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         try {
             createBalaInHomeRepo(mockResponse,
                     tempBalaCache.resolve("wso2").resolve("sf"), "wso2", "sf", false, null,
-                    balaUrl, "", System.out, new LogFormatter());
+                    balaUrl, "", System.out, new LogFormatter(),
+                    "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4");
         } catch (CentralClientException e) {
             Assert.assertTrue(e.getMessage().contains("package already exists in the home repository:"));
         } finally {
             cleanBalaCache();
         }
     }
-    
+
     @Test
     public void testJsonContentTypeChecker() {
         Assert.assertTrue(isApplicationJsonContentType(APPLICATION_JSON));

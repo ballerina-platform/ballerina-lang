@@ -41,8 +41,9 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERROR_TYPES_CLASS_NAME;
@@ -74,12 +75,12 @@ public class JvmErrorTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.errorTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.errorTypesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, errorTypesClass, null, OBJECT, null);
+        this.errorTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, errorTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
         errorTypesCw.visitEnd();
-        jarEntries.put(errorTypesClass + ".class", jvmPackageGen.getBytes(errorTypesCw, module));
+        jarEntries.put(errorTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(errorTypesCw, module));
     }
 
 

@@ -175,29 +175,26 @@ public class TestUtils {
             }
         }
 
-        Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
-                resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
-                resolve(REPORT_ZIP_NAME);
         // Dump the Testerina html report only if '--test-report' flag is provided
         if (project.buildOptions().testReport()) {
+            Path reportZipPath = getReportToolsPath();
             if (Files.exists(reportZipPath)) {
                 String content;
                 try {
                     try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
-                        CodeCoverageUtils.unzipReportResources(fileInputStream,
-                                reportDir.toFile());
+                        CodeCoverageUtils.unzipReportResources(fileInputStream, reportDir.toFile());
                     }
                     content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
                     content = content.replace(REPORT_DATA_PLACEHOLDER, json);
                 } catch (IOException e) {
-                    throw createLauncherException("error occurred while preparing test report: " + e.toString());
+                    throw createLauncherException("error occurred while preparing test report: " + e);
                 }
                 File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
                 try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
                     try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                         writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
                         out.println("\tView the test report at: " +
-                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize());
                     }
                 }
             } else {
@@ -208,6 +205,17 @@ public class TestUtils {
                         + reportToolsPath);
             }
         }
+    }
+
+    /**
+     * Get the path of the report tools template from Ballerina home.
+     *
+     * @return path of the report tools template
+     */
+    public static Path getReportToolsPath() {
+        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
+                resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
+                resolve(REPORT_ZIP_NAME);
     }
 
     /**
@@ -235,7 +243,7 @@ public class TestUtils {
             try {
                 Files.createDirectories(testsCachePath);
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test cache directories : " + e.toString());
+                throw LauncherUtils.createLauncherException("couldn't create test cache directories : " + e);
             }
         }
 
@@ -247,10 +255,10 @@ public class TestUtils {
                 String json = gson.toJson(testSuiteMap);
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+                throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e);
             }
         } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e);
         }
     }
 

@@ -254,7 +254,7 @@ public class BStreamValueTest {
                 "of 'object { public isolated function next() returns record {| int value; |}?; }', but found " +
                 "'string'", 381, 31);
         BAssertUtil.validateError(negativeResult, i++, "type 'readonly' not allowed here; " +
-                        "expected an 'error' or a subtype of 'error'.", 387, 31);
+                        "expected an 'error' or a subtype of 'error'", 387, 31);
         BAssertUtil.validateError(negativeResult, i++, "no stream constructor provided. " +
                 "expected a subtype of 'object { public isolated function next() " +
                 "returns (record {| int value; |}|error); }'", 389, 28);

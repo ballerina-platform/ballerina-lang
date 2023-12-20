@@ -63,6 +63,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.APPLICATIO
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.DIGEST;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
@@ -156,6 +157,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .code(HttpURLConnection.HTTP_MOVED_TEMP)
                     .addHeader(LOCATION, this.balaUrl)
                     .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .addHeader(DIGEST, "sha-256=47e043c80d516234b1e6bd93140f126c9d9e79b5c7c0600cc6316d12504c2cf4")
                     .message("")
                     .body(null)
                     .build();

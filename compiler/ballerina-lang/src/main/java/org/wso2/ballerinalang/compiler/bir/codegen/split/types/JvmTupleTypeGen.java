@@ -48,10 +48,11 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.V17;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TUPLE_TYPES_CLASS_NAME;
@@ -85,12 +86,12 @@ public class JvmTupleTypeGen {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
         this.tupleTypesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        this.tupleTypesCw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
+        this.tupleTypesCw.visit(V17, ACC_PUBLIC + ACC_SUPER, tupleTypesClass, null, OBJECT, null);
     }
 
     public void visitEnd(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module, Map<String, byte[]> jarEntries) {
         tupleTypesCw.visitEnd();
-        jarEntries.put(tupleTypesClass + ".class", jvmPackageGen.getBytes(tupleTypesCw, module));
+        jarEntries.put(tupleTypesClass + CLASS_FILE_SUFFIX, jvmPackageGen.getBytes(tupleTypesCw, module));
     }
 
     /**

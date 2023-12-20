@@ -152,7 +152,7 @@ public class LimitClauseTest {
         Assert.assertTrue((Boolean) values);
     }
 
-    @Test(description = "Test limit clause with incompatible types", groups = {"disableOnOldParser"})
+    @Test(description = "Test limit clause with incompatible types")
     public void testNegativeScenarios() {
         negativeResult = BCompileUtil.compile("test-src/query/limit-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);

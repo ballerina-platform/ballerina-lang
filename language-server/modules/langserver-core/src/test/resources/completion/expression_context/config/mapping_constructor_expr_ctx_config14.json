@@ -1,0 +1,36 @@
+{
+  "position": {
+    "line": 31,
+    "character": 24
+  },
+  "source": "expression_context/source/mapping_constructor_expr_ctx_source8.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill A Required Fields",
+      "kind": "Property",
+      "detail": "A",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "id: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "id",
+      "kind": "Field",
+      "detail": "A.id",
+      "sortText": "K",
+      "insertText": "id: ${1:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStringVal;
 
 /**
@@ -162,7 +164,7 @@ public class BalStringUtils {
                     break;
                 }
             }
-            String key = e.substring(1, colonIndex - 1);
+            String key = getMapKey(e, colonIndex);
             String value = e.substring(colonIndex + 1);
             Object val = parseExpressionStringVal(value, node);
             eleMap.put(StringUtils.fromString(key), val);
@@ -183,6 +185,17 @@ public class BalStringUtils {
             result.putAll(eleMap);
             return result;
         }
+    }
+
+    private static String getMapKey(String e, int colonIndex) {
+        String key = e.substring(0, colonIndex).trim();
+        if (key.startsWith("\"") && key.endsWith("\"")) {
+            key = key.substring(1, key.length() - 1);
+        } else {
+            throw ErrorCreator.createError(fromString("invalid expression style string value: " +
+                    "the map keys are not enclosed with '\"'."));
+        }
+        return key;
     }
 
     /**

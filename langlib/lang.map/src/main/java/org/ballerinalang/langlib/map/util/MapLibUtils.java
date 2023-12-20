@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -51,13 +50,12 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
 public class MapLibUtils {
 
     public static Type getFieldType(Type mapType, String funcName) {
+        mapType = TypeUtils.getImpliedType(mapType);
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 return ((MapType) mapType).getConstrainedType();
             case TypeTags.RECORD_TYPE_TAG:
                 return getCommonTypeForRecordField((RecordType) mapType);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getFieldType(((ReferenceType) mapType).getReferredType(), funcName);
             default:
                 throw createOpNotSupportedError(mapType, funcName);
         }
@@ -79,7 +77,7 @@ public class MapLibUtils {
     }
 
     public static void validateRecord(BMap m) {
-        Type type = TypeUtils.getReferredType(m.getType());
+        Type type = TypeUtils.getImpliedType(m.getType());
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
@@ -105,7 +103,7 @@ public class MapLibUtils {
     }
 
     public static void validateRequiredFieldForRecord(BMap m, String k) {
-        Type type = TypeUtils.getReferredType(m.getType());
+        Type type = TypeUtils.getImpliedType(m.getType());
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
         }

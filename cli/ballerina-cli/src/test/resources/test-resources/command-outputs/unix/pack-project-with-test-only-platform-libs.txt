@@ -1,0 +1,5 @@
+Compiling source
+	sameera/myproject:0.1.0
+
+Creating bala
+	target/bala/sameera-myproject-any-0.1.0.bala

@@ -159,6 +159,11 @@ public class ArrayInitializerExprTest {
         BRunUtil.invoke(compileResult, "testInferredArrayInitWithInGrpExpr");
     }
 
+    @Test
+    public void testArrayInitWithGlobalVars() {
+        BRunUtil.invoke(compileResult, "testArrayInitWithGlobalVars");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

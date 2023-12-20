@@ -67,7 +67,7 @@ public class JvmValueCreatorGen {
     public JvmValueCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
         this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID, jvmTypeGen);
         this.jvmObjectCreatorGen = new JvmObjectCreatorGen(this, packageID);
-        this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID);
+        this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID, jvmTypeGen);
         this.jvmFunctionCallsCreatorsGen = new JvmFunctionCallsCreatorsGen(packageID);
     }
 
@@ -82,7 +82,7 @@ public class JvmValueCreatorGen {
         List<BIRTypeDefinition> errorTypeDefList = new ArrayList<>();
 
         for (BIRTypeDefinition optionalTypeDef : module.typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getImpliedType(optionalTypeDef.type);
             if (bType.tag == TypeTags.RECORD) {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {

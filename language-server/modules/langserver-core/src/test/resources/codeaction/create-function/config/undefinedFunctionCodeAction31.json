@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 6,
+    "character": 22
+  },
+  "source": "createUndefinedFunction20.bal",
+  "expected": [
+    {
+      "title": "Create function 'foo(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 1
+            },
+            "end": {
+              "line": 7,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction foo(string letter) returns MyType {\n    return {value: \"\"};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction20.bal",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 19
+          },
+          "end": {
+            "line": 6,
+            "character": 30
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 6.0,
+              "character": 19.0
+            },
+            "end": {
+              "line": 6.0,
+              "character": 30.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

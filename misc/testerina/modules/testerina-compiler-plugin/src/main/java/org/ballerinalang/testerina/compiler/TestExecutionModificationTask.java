@@ -63,6 +63,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
         List<ModuleMemberDeclarationNode> functionsList = new ArrayList<>();
         List<StatementNode> statements = new ArrayList<>();
 
+        TesterinaCompilerPluginUtils.addExitCodeGlobalVariable(functionsList);
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
 
         // TODO: replace visitor in modifier with a simple statement addition

@@ -99,9 +99,99 @@ function testStructExpressionAsIndex () returns string {
     return dpt.employees[0].family.children[dpt.employees[0].family.noOfChildren - 1];
 }
 
-function testDefaultVal () returns [string, string, int] {
+type Mat record {
+    int x = fn();
+};
+
+type Bar2 record {
+    int x = xFn();
+    int y = yFn();
+};
+
+isolated int  gVal = 100;
+
+isolated function fn() returns int {
+    lock {
+        gVal = 15;
+    }
+    return 10;
+}
+
+isolated function getValue() returns int {
+    lock {
+        return gVal;
+    }
+}
+
+isolated function xFn() returns int {
+    return 101;
+}
+
+isolated function yFn() returns int {
+    return 102;
+}
+
+record {int a; int b = xFn();} gVal2 = {a: 10};
+
+record {int a; int b = xFn();} gVal3 = {a: 10, b: 25};
+
+type Bal record {
+    string[] x = ["foo", "bar"];
+};
+
+Bal gVal4 = {readonly x: ["bal"]};
+
+function testDefaultVal() {
     Person p = {};
-    return [p.name, p.lname, p.age];
+    Mat m = {x: 90};
+    Mat m2 = {x: 1};
+    record {
+        record {
+            int c = 10;
+        } b = {};
+    } a = {b: {}};
+    assert("default first name", p.name);
+    assert("", p.lname);
+    assert(999, p.age);
+    assert(90, m.x);
+    assert(100, getValue());
+    assert(1, m2.x);
+    assert(10, a.b.c);
+
+    Mat m3 = {};
+    assert(10, m3.x);
+    assert(15, getValue());
+
+    record {|int a = 10;|} l;
+    function() returns record {|int a = 10;|} f = function() returns record {|int a = 10;|} {
+        l = {};
+        assert(10, l.a);
+        l = {a: 25};
+        assert(25, l.a);
+        return l;
+    };
+
+    l = f();
+    assert(25, l.a);
+
+    assert(10, gVal2.a);
+    assert(101, gVal2.b);
+
+    assert(10, gVal3.a);
+    assert(25, gVal3.b);
+    assert("bal", gVal4.x[0]);
+    record {string[] x = ["foo", "bar"];} n = {readonly x: ["bal"]};
+    assert("bal", n.x[0]);
+    
+    function() returns record {| int x = 2; |} fn = function() returns record {| int x = 2; |} {
+        return {};
+    };
+    assert(2, fn().x);
+
+    var fn1 = function() returns record {| int x = 2; |} {
+        return {};
+    };
+    assert(2, fn1().x);
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {
@@ -531,6 +621,7 @@ function removeRest() {
 type Student record {
     int id;
     string name?;
+    Details details = {name: "chirans"};
 };
 
 type Grades record {
@@ -614,6 +705,43 @@ function testRecordsWithFieldsWithBuiltinNames() {
     assert("{\"error\":error(\"bam\",message=\"new error\"),\"json\":{\"s\":\"s\"},\"anydata\":3}", f.toString());
 }
 
+type Details record {
+    string name;
+    BirthDay birthDay = {};
+};
+
+type BirthDay record {
+    int year = 2000;
+};
+
+type Foo6 record {|
+    int[] z = [1, 2];
+|};
+
+type Foo5 record {|
+    *Foo6;
+    int[] x = [1];
+    int[] y = [];
+|};
+
+type Bar5 record {|
+    *Foo5;
+    int[] & readonly x = [2];
+|};
+
+function  testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
+    Student & readonly student = {id: 0};
+    assert(student.details.name, "chirans");
+    assert(student.details.birthDay.year, 2000);
+    Bar5 & readonly b1 = {};
+    assert(b1.x, [2]);
+    assert(true, b1.x is int[]);
+    assert(b1.y, []);
+    assert(true, b1.y is int[]);
+    assert(b1.z, [1, 2]);
+    assert(true, b1.z is int[]);
+}
+
 type DefaultableFieldsWithQuotedIdentifiersForTypeKeywords record {
     error? 'error = ();
     json 'json = 10;
@@ -657,4 +785,124 @@ function testLangFuncOnRecord() returns json{
     Teacher p = {};
     json toJsonResult = p.toJson();
     return toJsonResult;
+}
+
+type R0 record {
+    int|string f = 1;
+};
+
+type R1 record {
+    *R0;
+    string f;
+};
+
+type R2 record {
+    int|string h = 101;
+};
+
+type Foo1 record {|
+    int a = 1250;
+|};
+
+type Bar1 record {|
+    *Foo;
+    byte a = 100;
+|};
+
+type Bar3 record {|
+    *Foo;
+    *R2;
+    byte a = 100;
+|};
+
+type Foo3 record {
+    int x = 10;
+    int y = 20;
+};
+
+type Bar4 record {
+    int a = 30;
+    int b = 40;
+};
+
+type Baz2 record {
+    *Foo3;
+    *Bar4;
+};
+
+function testTypeInclusionWithOpenRecord() {
+    R1 r1 = {f : "hello"};
+    assert("hello", r1.f);
+    Bar1 b = {};
+    assert(100, b.a);
+
+    Bar3 b3 = {};
+    assert(100, b3.a);
+    assert(101, b3.h);
+}
+
+function testWithMultipleTypeInclusions() {
+    Baz2 baz = {};
+    assert(10, baz.x);
+    assert(20, baz.y);
+    assert(30, baz.a);
+    assert(40, baz.b);
+}
+
+type Foo4 record {
+    int x = 10;
+    int y = 10;
+};
+
+type Mat2 record {
+    int x = fn1();
+    int y;
+};
+
+isolated int  gVal5 = 145;
+
+isolated function fn1() returns int {
+    lock {
+        gVal5 = 150;
+    }
+    return 10;
+}
+
+isolated function getValue1() returns int {
+    lock {
+        return gVal5;
+    }
+}
+
+function testSpreadOperatorWithOpenRecord() {
+    record {int x; int y?;} r = {x: 14};
+    Foo4 f = { ...r};
+    assert(14, f.x);
+    assert(10, f.y);
+    record {int x; int y?;} r1 = {x: 14, y: 15};
+    Foo4 f1 = { ...r1};
+    assert(14, f1.x);
+    assert(15, f1.y);
+    record {int x?; int y?;} r2 = {};
+    Foo4 f2 = { ...r2};
+    assert(10, f2.x);
+    assert(10, f2.y);
+    record {|int x?;|} r3 = {x: 21};
+    Foo4 f3 = { ...r3, y: 12};
+    assert(21, f3.x);
+    assert(12, f3.y);
+    record {|int x?;|} r4 = {};
+    Foo4 f4 = { ...r4, y: 12};
+    assert(10, f4.x);
+    assert(12, f4.y);
+    record {|int y; int x?;|} r5 = {y: 12, x: 21};
+    Mat2 m1 = {...r5};
+    assert(21, m1.x);
+    assert(12, m1.y);
+    assert(145, getValue1());
+    record {|int y; int x?;|} r6 = {y: 12};
+    Mat2 m2 = {...r6};
+    assert(10, m2.x);
+    assert(12, m2.y);
+    assert(150, getValue1());
 }

@@ -1,0 +1,8 @@
+[package]
+org = "ballerina"
+name = "pkg2"
+version = "0.1.0"
+distribution = "2201.7.0"
+
+[build-options]
+observabilityIncluded = false

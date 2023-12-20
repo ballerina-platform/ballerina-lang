@@ -144,3 +144,22 @@ function myFunction(string arg1, string arg2, int arg3 = 101) {
 public function testLangLibFunctionCall() {
     any|error johnName = function:call();
 }
+
+function generateIterable(int a, int b) returns int[] {
+    return [a, b];
+}
+
+function testFunctionTypeTypeParam() {
+    string[] arr = ["a", "aa", "abb"];
+    map<int> mp = {"a": 1, "b": 2};
+    _ = arr.'map(func);
+    _ = arr.'map();
+    _ = arr.filter();
+    _ = arr.forEach();
+    _ = generateIterable(1, 2).'map(f);
+    _ = generateIterable(1, 2).filter();
+    _ = generateIterable(1, 2).reduce();
+    _ = mp.'map(f);
+    _ = mp.forEach();
+    _ = mp.reduce();
+}

@@ -39,12 +39,16 @@ public class JInstruction extends BIRNonTerminator {
 
     @Override
     public void accept(BIRVisitor visitor) {
-
         throw new UnsupportedOperationException();
     }
 
     @Override
     public BIROperand[] getRhsOperands() {
         return new BIROperand[0];
+    }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        // do nothing
     }
 }

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,6 +84,21 @@ public abstract class FormatterTest {
         }
     }
 
+    public void testWithCustomOptions(String source, String sourcePath, FormattingOptions formattingOptions)
+            throws IOException {
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
+        Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
+        String content = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(content);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        try {
+            SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
+            Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
+        } catch (FormatterException e) {
+            Assert.fail(e.getMessage(), e);
+        }
+    }
+
     /**
      * Test the formatting functionality for parser test cases.
      *
@@ -124,6 +140,16 @@ public abstract class FormatterTest {
      * @return Test scenarios for execution
      */
     public Object[][] testSubset() {
+        return new Object[0][];
+    }
+
+    /**
+     * Specify the file names to be tested with specific tests during the test execution.
+     *
+     * @return Test scenarios for execution
+     */
+    @DataProvider(name = "test-file-provider-custom")
+    public Object[][] dataProviderWithCustomTests(Method testName) {
         return new Object[0][];
     }
 

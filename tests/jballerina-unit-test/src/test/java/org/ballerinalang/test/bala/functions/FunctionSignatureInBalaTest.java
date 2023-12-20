@@ -362,6 +362,11 @@ public class FunctionSignatureInBalaTest {
     }
 
     @Test
+    public void testCyclicFuncCallWhenFuncDefinedInModuleWithSameName() {
+        BRunUtil.invoke(compileResult, "testCyclicFuncCallWhenFuncDefinedInModuleWithSameName");
+    }
+    
+    @Test
     public void testNegativeFunctionInvocations() {
         int i = 0;
         validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams()'",

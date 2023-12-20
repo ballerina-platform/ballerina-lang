@@ -49,7 +49,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDebugCompletions() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 71));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 79));

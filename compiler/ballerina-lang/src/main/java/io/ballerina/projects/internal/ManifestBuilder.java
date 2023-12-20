@@ -344,62 +344,52 @@ public class ManifestBuilder {
             if (platformNode.kind() == TomlType.TABLE) {
                 TomlTableNode platformTable = (TomlTableNode) platformNode;
                 Set<String> platformCodes = platformTable.entries().keySet();
-                if (platformCodes.size() != 1) {
-                    return platforms;
+                for (String platformCode : platformCodes) {
+                    TopLevelNode platformCodeNode = platformTable.entries().get(platformCode);
+
+                    if (platformCodeNode.kind() == TomlType.TABLE) {
+                        TomlTableNode platformCodeTable = (TomlTableNode) platformCodeNode;
+                        // Get graalvmCompatible value
+                        TopLevelNode graalvmCompatibleNode = platformCodeTable.entries().get(GRAALVM_COMPATIBLE);
+                        if (graalvmCompatibleNode != null && graalvmCompatibleNode.kind() != TomlType.NONE) {
+                            PackageManifest.Platform newPlatform =
+                                    getGraalvmCompatibilityPlatform(graalvmCompatibleNode);
+                            if (newPlatform != null) {
+                                if (platforms.get(platformCode) != null) {
+                                    newPlatform = new PackageManifest.Platform(platforms.
+                                            get(platformCode).dependencies(),
+                                            platforms.get(platformCode).repositories(),
+                                            newPlatform.graalvmCompatible());
+                                }
+                                platforms.put(platformCode, newPlatform);
+                            }
+                        }
+
+                        TopLevelNode topLevelNode = platformCodeTable.entries().get(DEPENDENCY);
+                        if (topLevelNode != null && topLevelNode.kind() != TomlType.NONE) {
+                            PackageManifest.Platform newPlatform = getDependencyPlatform(topLevelNode);
+                            if (newPlatform != null) {
+                                if (platforms.get(platformCode) != null) {
+                                    newPlatform = new PackageManifest.Platform(newPlatform.dependencies(),
+                                            platforms.get(platformCode).repositories(),
+                                            platforms.get(platformCode).graalvmCompatible());
+                                }
+                                platforms.put(platformCode, newPlatform);
+                            }
+                        }
+                        topLevelNode = platformCodeTable.entries().get(REPOSITORY);
+                        if (topLevelNode != null && topLevelNode.kind() != TomlType.NONE) {
+                            PackageManifest.Platform platform = getRepositoryPlatform(topLevelNode);
+                            if (platform != null) {
+                                if (platforms.get(platformCode) != null) {
+                                    platform = new PackageManifest.Platform(platforms.get(platformCode)
+                                            .dependencies(), platform.repositories(),
+                                            platforms.get(platformCode).graalvmCompatible());
+                                }
+                                platforms.put(platformCode, platform);
+                            }
+                        }
                 }
-
-                String platformCode = platformCodes.stream().findFirst().get();
-                TopLevelNode platformCodeNode = platformTable.entries().get(platformCode);
-
-                if (platformCodeNode.kind() == TomlType.TABLE) {
-                    TomlTableNode platformCodeTable = (TomlTableNode) platformCodeNode;
-                    // Get graalvmCompatible value
-                    TopLevelNode graalvmCompatibleNode = platformCodeTable.entries().get(GRAALVM_COMPATIBLE);
-                    if (graalvmCompatibleNode != null) {
-                        if (graalvmCompatibleNode.kind() == TomlType.NONE) {
-                            return platforms;
-                        }
-                        PackageManifest.Platform newPlatform = getGraalvmCompatibilityPlatform(graalvmCompatibleNode);
-                        if (newPlatform != null) {
-                            if (platforms.get(platformCode) != null) {
-                                newPlatform = new PackageManifest.Platform(platforms.get(platformCode).dependencies(),
-                                        platforms.get(platformCode).repositories(),
-                                        newPlatform.graalvmCompatible());
-                            }
-                            platforms.put(platformCode, newPlatform);
-                        }
-                    }
-
-                    TopLevelNode topLevelNode = platformCodeTable.entries().get(DEPENDENCY);
-                    if (topLevelNode != null) {
-                        if (topLevelNode.kind() == TomlType.NONE) {
-                            return platforms;
-                        }
-                        PackageManifest.Platform newPlatform = getDependencyPlatform(topLevelNode);
-                        if (newPlatform != null) {
-                            if (platforms.get(platformCode) != null) {
-                                newPlatform = new PackageManifest.Platform(newPlatform.dependencies(),
-                                        platforms.get(platformCode).repositories(),
-                                        platforms.get(platformCode).graalvmCompatible());
-                            }
-                            platforms.put(platformCode, newPlatform);
-                        }
-                    }
-                    topLevelNode = platformCodeTable.entries().get(REPOSITORY);
-                    if (topLevelNode != null) {
-                        if (topLevelNode.kind() == TomlType.NONE) {
-                            return platforms;
-                        }
-                        PackageManifest.Platform platform = getRepositoryPlatform(topLevelNode);
-                        if (platform != null) {
-                            if (platforms.get(platformCode) != null) {
-                                platform = new PackageManifest.Platform(platforms.get(platformCode)
-                                        .dependencies(), platform.repositories(),
-                                        platforms.get(platformCode).graalvmCompatible());
-                            }
-                            platforms.put(platformCode, platform);
-                        }
-                    }
                 }
             }
         }

@@ -41,7 +41,7 @@
       }
     },
     {
-      "label": "/path1/<path>/path2/<path>.post(string str, string... ids2)",
+      "label": "/path1/<id1>/path2/<ids>.post(string str, string... ids2)",
       "kind": "Function",
       "detail": "module1:Response",
       "documentation": {
@@ -143,7 +143,7 @@
       }
     },
     {
-      "label": "/path4/<path>(module1:TargetType targetType)",
+      "label": "/path4/<pathParam>(module1:TargetType targetType)",
       "kind": "Function",
       "detail": "targetType|module1:ClientError|error",
       "documentation": {
@@ -223,6 +223,40 @@
       "sortText": "C",
       "filterText": "post",
       "insertText": "/${1:path}.post(${2});",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 22
+            },
+            "end": {
+              "line": 5,
+              "character": 23
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/responses(module1:TargetType2 targetType)",
+      "kind": "Function",
+      "detail": "stream<targetType, module1:ClientError?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function to return a stream of objects\n  \n**Params**  \n- `module1:TargetType2` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `stream<targetType, module1:ClientError?>`   \n- A stream of targetType and/or ClientError  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "responses|get",
+      "insertText": "/responses(${1});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

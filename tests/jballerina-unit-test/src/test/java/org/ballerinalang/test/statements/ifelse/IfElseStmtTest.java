@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -285,6 +286,21 @@ public class IfElseStmtTest {
         Object returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
         
         Assert.assertEquals(returns.toString(), "ballerina");
+    }
+
+    @Test(dataProvider = "dataToTestSymbolsInIfElseStmt")
+    public void testSymbolsInIfElseStmt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestSymbolsInIfElseStmt() {
+        return new Object[]{
+                "testSymbolsInIfElse1",
+                "testSymbolsInIfElse2",
+                "testSymbolsInIfElse3",
+                "testSymbolsInIfElse4"
+        };
     }
 
     @AfterClass

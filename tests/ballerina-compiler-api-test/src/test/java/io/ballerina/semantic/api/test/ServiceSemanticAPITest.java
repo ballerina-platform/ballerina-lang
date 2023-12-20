@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -62,7 +61,7 @@ import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.ABSOLUTE_
 import static io.ballerina.compiler.api.symbols.ServiceAttachPointKind.STRING_LITERAL;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -236,8 +235,7 @@ public class ServiceSemanticAPITest {
         assertEquals(pathParams.get(0).getName().get(), "s");
 
         assertEquals(resourcePath.pathRestParameter().get().getName().get(), "r");
-        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
-                     TypeDescKind.ARRAY);
+        assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(), STRING);
 
         List<PathSegment> segments = resourcePath.list();
         assertEquals(segments.size(), 3);
@@ -257,7 +255,7 @@ public class ServiceSemanticAPITest {
 
         PathRestParam resourcePath = (PathRestParam) method.resourcePath();
         assertEquals(resourcePath.parameter().getName().get(), "rest");
-        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
+        assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), INT);
     }
 
     @Test

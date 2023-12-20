@@ -77,18 +77,17 @@ public class OpenRecordTest {
 
     @Test(description = "Test default value of a record field")
     public void testDefaultValue() {
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
+        BRunUtil.invoke(compileResult, "testDefaultVal");
+    }
 
-        // Check default value of a field where the default value is set
-        Assert.assertTrue(returns.get(0) instanceof BString);
-        Assert.assertEquals(returns.get(0).toString(), "default first name");
+    @Test
+    public void testWithMultipleTypeInclusions() {
+        BRunUtil.invoke(compileResult, "testWithMultipleTypeInclusions");
+    }
 
-        // Check the default value of a field where the default value is not set
-        Assert.assertTrue(returns.get(1) instanceof BString);
-        Assert.assertEquals(returns.get(1).toString(), "");
-
-        Assert.assertTrue(returns.get(2) instanceof Long);
-        Assert.assertEquals(returns.get(2), 999L);
+    @Test
+    public void testSpreadOperatorWithOpenRecord() {
+        BRunUtil.invoke(compileResult, "testSpreadOperatorWithOpenRecord");
     }
 
     @Test(description = "Test default value of a nested record field")
@@ -472,6 +471,11 @@ public class OpenRecordTest {
     }
 
     @Test
+    public void testTypeInclusionWithOpenRecord() {
+        BRunUtil.invoke(compileResult, "testTypeInclusionWithOpenRecord");
+    }
+
+    @Test
     public void testExprsAsRecordLiteralKeysSemanticsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_key_expr_semantics_negative" +
                 ".bal");
@@ -525,6 +529,11 @@ public class OpenRecordTest {
     @Test
     public void testScopingRules() {
         BRunUtil.invoke(compileResult, "testScopingRules");
+    }
+
+    @Test
+    public void testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
+        BRunUtil.invoke(compileResult, "testIntersectionOfReadonlyAndRecordTypeWithDefaultValues");
     }
 
     @Test

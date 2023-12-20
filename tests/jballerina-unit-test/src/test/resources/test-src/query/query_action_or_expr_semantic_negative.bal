@@ -318,3 +318,139 @@ function testQueryActionOrExprWithActionsInJoinClause() {
 }
 
 int[][] globalQuery = from var i in 1...3 select start f1();
+
+type T1 record {
+    T3[] t3s;
+};
+
+type T2 record {
+    T3[]|T4[] t3OrT4;
+};
+
+type T3 record {
+    string str;
+};
+
+type T4 record {
+    boolean foo;
+};
+
+function transformT1(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select t3sItem.str == ""
+        ? <T3>{
+           str: ""
+        } : <T4>{
+            foo: false
+        }
+};
+
+type FooType record {|
+    readonly int id;
+    string foo;
+|};
+
+type BarType record {|
+    readonly int id;
+    string bar;
+|};
+
+function testQueryExprWithUnionInSelectClause1() {
+    int[]|string[] _ = from var i in [1, 2, 3, 4] select i % 2 == 0 ? i : "odd";
+}
+
+function testQueryExprWithUnionInSelectClause2() {
+    int[]|string[] _ = from var i in [1, 2, 3, 4] select i % 2 == 0 ? i : false;
+}
+
+function testQueryExprWithUnionInSelectClause3() {
+    string[]|decimal[] _ = from var i in [1, 2, 3, 4] select i % 2 == 0 ? i : 1.0;
+}
+
+function testQueryExprWithUnionInSelectClause4() {
+    table<FooType>|table<BarType> _ = table key(id) from var i in [1, 2, 3, 4] 
+        select i % 2 == 0 ? <FooType>{foo: "Foo", id: i} : <BarType>{bar: "Bar", id: i};
+}
+
+function testQueryWithAmbiguousType2() {
+    string:Char[]|string _ = from var letter in ["a", "b", "c", "AA"] select letter == "B" ? letter : "L";
+}
+
+function transform(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select t3sItem.str == ""
+        ? <T3>{
+           str: ""
+        } ? <T4> {
+            foo: false
+        } : <T2>{
+            foo: false
+        }: <T1>{
+            foo: false
+        }
+};
+
+function transform2(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select t3sItem.str == ""
+        ? returnBool() ? <T4> {
+            foo: false
+        } : <T2>{
+            foo: false
+        }: <T1>{
+            foo: false
+        }
+};
+
+function returnBool() returns boolean => true;
+
+type Foo record {
+    Baz[] a;
+};
+
+type Bar record {
+    (Baz|Qux)[]|int[] b;
+};
+
+type Baz record {
+    string c;
+};
+
+type Qux record {
+    string c;
+    int d?;
+};
+
+type Baar record {
+    (Baz|Qux)[]|Quux[] b;
+};
+
+type Quux record {
+    string c;
+    int d;
+};
+
+type Xyz record {
+    boolean[]|float[] b;
+};
+
+function transformFoo1(Foo foo) returns Bar => {
+    b: from var _ in foo.a
+        select {
+           c: "str"
+        }
+};
+
+function transformFoo2(Foo foo) returns Baar => {
+    b: from var _ in foo.a
+        select {
+           c: "str"
+        }
+};
+
+function transformFoo3(Foo foo) returns Xyz => {
+    b: from var _ in foo.a
+        select {
+           c: "str"
+        }
+};

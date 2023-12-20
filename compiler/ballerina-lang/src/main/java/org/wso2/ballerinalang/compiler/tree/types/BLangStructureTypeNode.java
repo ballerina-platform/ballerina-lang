@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.types.StructureTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     // BLangNodes
     public List<BLangSimpleVariable> fields;
     public List<BLangType> typeRefs;
-    public BLangFunction initFunction;
 
     // Parser Flags and Data
     public boolean isAnonymous;

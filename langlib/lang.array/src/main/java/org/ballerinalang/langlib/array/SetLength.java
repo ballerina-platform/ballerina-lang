@@ -35,4 +35,6 @@ public class SetLength {
     public static void setLength(BArray arr, long i) {
         arr.setLength(i);
     }
+
+    private SetLength() {}
 }

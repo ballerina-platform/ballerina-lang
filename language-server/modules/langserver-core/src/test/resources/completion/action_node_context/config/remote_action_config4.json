@@ -102,7 +102,7 @@
       }
     },
     {
-      "label": "/path1/<path>/path2/<path>.post(string str, string... ids2)",
+      "label": "/path1/<id1>/path2/<ids>.post(string str, string... ids2)",
       "kind": "Function",
       "detail": "mod:Response",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "/path4/<path>(mod:TargetType targetType)",
+      "label": "/path4/<pathParam>(mod:TargetType targetType)",
       "kind": "Function",
       "detail": "targetType|mod:ClientError|error",
       "documentation": {
@@ -209,6 +209,25 @@
       "sortText": "CC",
       "filterText": "post",
       "insertText": "/${1:path}.post(${2});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/responses(mod:TargetType2 targetType)",
+      "kind": "Function",
+      "detail": "stream<targetType, mod:ClientError?>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function to return a stream of objects\n  \n**Params**  \n- `mod:TargetType2` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `stream<targetType, mod:ClientError?>`   \n- A stream of targetType and/or ClientError  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "responses|get",
+      "insertText": "/responses(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

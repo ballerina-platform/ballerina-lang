@@ -102,13 +102,15 @@ public class BalToolsToml {
     private String generateContent(BalToolsManifest balToolsManifest) {
         StringBuilder content = new StringBuilder();
         content.append(getAutoGenCode());
-        for (Map.Entry<String, BalToolsManifest.Tool> tool: balToolsManifest.tools().entrySet()) {
-            content.append("[[tool]]\n");
-            content.append("id = \"").append(tool.getValue().id()).append("\"\n");
-            content.append("org = \"").append(tool.getValue().org()).append("\"\n");
-            content.append("name = \"").append(tool.getValue().name()).append("\"\n");
-            if (tool.getValue().version() != null) {
-                content.append("version = \"").append(tool.getValue().version()).append("\"\n\n");
+        for (Map.Entry<String, Map<String, BalToolsManifest.Tool>> toolVersions: balToolsManifest.tools().entrySet()) {
+            for (Map.Entry<String, BalToolsManifest.Tool> tool : toolVersions.getValue().entrySet()) {
+                content.append("[[tool]]\n");
+                content.append("id = \"").append(tool.getValue().id()).append("\"\n");
+                content.append("org = \"").append(tool.getValue().org()).append("\"\n");
+                content.append("name = \"").append(tool.getValue().name()).append("\"\n");
+                content.append("version = \"").append(tool.getValue().version()).append("\"\n");
+                content.append("active = ").append(tool.getValue().active()).append("\n");
+                content.append("\n");
             }
         }
         return String.valueOf(content);

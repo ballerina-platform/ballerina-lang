@@ -197,10 +197,10 @@ function testFilteringNullElements() returns Person[] {
 
 function testMapWithArity() returns boolean {
     map<any> m = {a: "1A", b: "2B", c: "3C", d: "4D"};
-    var val = from var v in m
+    var val = map from var v in m
                    where <string> v == "1A"
-                   select <string>v;
-    return val == ["1A"];
+                   select ["a", v];
+    return val == {a: "1A"};
 }
 
 function testJSONArrayWithArity() returns boolean {
@@ -276,7 +276,7 @@ public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
     var numberStream = new stream<int, error?>(numGen);
 
-    var oddNumberList = from var num in numberStream
+    var oddNumberList = stream from var num in numberStream
                         where (num % 2 == 1)
                         select num;
     int[] result = [];

@@ -18,30 +18,32 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.INIT_FUNC_COUNT_PER_CLASS;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAX_LISTENER_COUNT_PER_METHOD;
 
@@ -88,15 +90,31 @@ public class LargeMethodSplitter {
         pkgNode.stopFunction = splitStopFunction(pkgNode, env);
     }
 
+    private static BLangDiagnosticLocation getNewFuncPos(Location packageNodePos, String packageFileName,
+                                                         int splitInitFuncClassCount) {
+        LineRange lineRange = packageNodePos.lineRange();
+        TextRange textRange = packageNodePos.textRange();
+        LinePosition startLine = lineRange.startLine();
+        LinePosition endLine = lineRange.endLine();
+        return new BLangDiagnosticLocation(packageFileName + "$" + splitInitFuncClassCount, startLine.line(),
+                endLine.line(), startLine.offset(), endLine.offset(), textRange.startOffset(), textRange.length());
+    }
+
     /**
-     * Split package init function into several smaller functions.
+     * Split package init function into several smaller functions and put them into multiple classes
+     * if the function count is very high.
      *
      * @param packageNode package node
      * @param env symbol environment
      * @return initial init function but trimmed in size
      */
     private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
-        int methodSize = INIT_METHOD_SPLIT_SIZE;
+        int splitInitFuncClassCount = 1;
+        int splitFuncCount = 0;
+        Location packageNodePos = packageNode.pos;
+        String packageFileName = packageNodePos.lineRange().fileName();
+        BLangDiagnosticLocation newFuncPos = getNewFuncPos(packageNodePos, packageFileName, splitInitFuncClassCount);
+        splitInitFuncClassCount++;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
         BLangFunction initFunction = packageNode.initFunction;
 
@@ -114,56 +132,22 @@ public class LargeMethodSplitter {
                 break;
             }
             varDefIndex++;
-            if (i > 0 && (i % methodSize == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
+            if (i > 0 && (i % INIT_METHOD_SPLIT_SIZE == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
-                newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
-            }
-            newFuncBody.stmts.add(stmts.get(i));
-        }
-
-        // from a varDef to a service constructor, those stmts should be within single method
-        List<BLangStatement> chunkStmts = new ArrayList<>();
-        for (int i = varDefIndex; i < stmts.size(); i++) {
-            BLangStatement stmt = stmts.get(i);
-            chunkStmts.add(stmt);
-            varDefIndex++;
-            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
-                    (newFuncBody.stmts.size() + chunkStmts.size() > methodSize)) {
-                // enf of current chunk
-                if (newFuncBody.stmts.size() + chunkStmts.size() > methodSize) {
-                    generatedFunctions.add(newFunc);
-                    newFunc = createIntermediateInitFunction(packageNode, env);
-                    newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                    symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
+                splitFuncCount++;
+                if (splitFuncCount % INIT_FUNC_COUNT_PER_CLASS == 0) {
+                    newFuncPos = getNewFuncPos(packageNodePos, packageFileName, splitInitFuncClassCount);
+                    splitInitFuncClassCount++;
                 }
-                newFuncBody.stmts.addAll(chunkStmts);
-                chunkStmts.clear();
-            } else if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).varRef instanceof BLangSimpleVarRef.BLangPackageVarRef) &&
-                    Symbols.isFlagOn(
-                            ((BLangSimpleVarRef.BLangPackageVarRef) ((BLangAssignment) stmt).varRef).varSymbol.flags,
-                            Flags.LISTENER)
-            ) {
-                // this is where listener registrations starts, they are independent stmts
-                break;
-            }
-        }
-        newFuncBody.stmts.addAll(chunkStmts);
-
-        // rest of the statements can be split without chunks
-        for (int i = varDefIndex; i < stmts.size(); i++) {
-            if (i > 0 && i % methodSize == 0) {
-                generatedFunctions.add(newFunc);
-                newFunc = createIntermediateInitFunction(packageNode, env);
+                newFunc.pos = newFuncPos;
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
                 symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
             newFuncBody.stmts.add(stmts.get(i));
         }
 
+        newFuncBody.stmts.addAll(stmts.subList(varDefIndex, stmts.size()));
         generatedFunctions.add(newFunc);
 
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
@@ -295,8 +279,9 @@ public class LargeMethodSplitter {
         newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
         generatedFunctions.add(newFunc);
 
-        // for the stop function, splitting is done same as the start function except here
-        // here just need only to call the next created stop function because the return value is () and not ()|error
+        // For the stop function, splitting is done the same as the start function except here.
+        // Here, it is only required to call the next created stop function
+        // because the return value is () and not ()|error.
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
 

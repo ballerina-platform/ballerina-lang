@@ -17,7 +17,7 @@
 import ballerina/jballerina.java;
 import ballerina/test;
 
-type OrderItemTargetType typedesc<int|string>;
+type OrderItemTargetType typedesc<anydata>;
 
 public client isolated class Client {
 
@@ -67,13 +67,13 @@ public client isolated class Client {
         paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BString"]
     } external;
 
-    isolated resource function get orderitem/[string orderId]/[string itemId](OrderItemTargetType targetType = <>) returns string = @java:Method {
+    isolated resource function get orderitem/[string orderId]/[string itemId](OrderItemTargetType targetType = <>) returns targetType = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResourceOne"
     } external;
 
 
-    isolated resource function get orderitem(OrderItemTargetType targetType = <>) returns string = @java:Method {
+    isolated resource function get orderitem(OrderItemTargetType targetType = <>) returns targetType = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResourceTwo"
     } external;

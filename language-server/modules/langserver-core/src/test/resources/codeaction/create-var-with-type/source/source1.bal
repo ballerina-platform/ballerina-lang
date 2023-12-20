@@ -23,3 +23,7 @@ function testRemoteMethodCallWithCheck() returns error? {
 function testRemoteMethodCallWithCheck2() returns error? {
     check 'client->/path4/["pathParam"];
 }
+
+function testResourceAccessOfStreamReturnType() returns error? {
+    'client->/responses
+}

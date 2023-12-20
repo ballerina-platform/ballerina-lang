@@ -94,7 +94,8 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check
      */
     private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
-        return targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType);
+        return JvmCodeGenUtil.getImpliedType(targetType).tag == TypeTags.NIL &&
+                types.isAssignable(targetType, sourceType);
     }
 
     /**
@@ -106,13 +107,14 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for null
      */
     private boolean canOptimizeNilUnionCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
         if (isInValidUnionType(sourceType)) {
             return false;
         }
         boolean foundNil = false;
         BType otherType = null;
         for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (bType.tag == TypeTags.NIL) {
+            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.NIL) {
                 foundNil = true;
             } else {
                 otherType = bType;
@@ -130,6 +132,8 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
+        targetType = JvmCodeGenUtil.getImpliedType(targetType);
         if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
             return false;
         }
@@ -154,13 +158,14 @@ public class JvmTypeTestGen {
      * @return whether instruction could be optimized using 'instanceof` check for BError
      */
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
+        sourceType = JvmCodeGenUtil.getImpliedType(sourceType);
         if (isInValidUnionType(sourceType)) {
             return false;
         }
         BType otherType = null;
         int foundError = 0;
         for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (JvmCodeGenUtil.getReferredType(bType).tag == TypeTags.ERROR) {
+            if (JvmCodeGenUtil.getImpliedType(bType).tag == TypeTags.ERROR) {
                 foundError++;
             } else {
                 otherType = bType;
@@ -180,7 +185,7 @@ public class JvmTypeTestGen {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, typeTestIns.rhsOp.variableDcl.type);
         Label ifLabel = new Label();
-        if (typeTestIns.type.tag == TypeTags.NIL) {
+        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag == TypeTags.NIL) {
             mv.visitJumpInsn(IFNONNULL, ifLabel);
         } else {
             mv.visitJumpInsn(IFNULL, ifLabel);
@@ -201,7 +206,7 @@ public class JvmTypeTestGen {
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (JvmCodeGenUtil.getReferredType(typeTestIns.type).tag != TypeTags.ERROR) {
+        if (JvmCodeGenUtil.getImpliedType(typeTestIns.type).tag != TypeTags.ERROR) {
             generateNegateBoolean();
         }
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);

@@ -262,6 +262,11 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisExprWithUnionWithFiniteTypeContainingNull");
     }
 
+    @Test
+    public void testElvisExprWithQuery() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithQuery");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         int index = 0;

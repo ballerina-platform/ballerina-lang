@@ -115,10 +115,26 @@ public class MockDesugar {
         // Get the Mock Function map from the pkgNode
         Map<String, String> mockFunctionMap = pkgNode.getTestablePkg().getMockFunctionNamesMap();
 
-        // Get the set of functions to generate
+        // Get all the imports symbols from the testable package
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
         ArrayList<String> importsList = new ArrayList<>();
         for (BLangImportPackage importPkg : pkgNode.getTestablePkg().getImports()) {
+            if (importPkg.symbol == null) {
+                continue;
+            }
+            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
+                importsList.add(importPkg.symbol.toString());
+            }
+        }
+
+        // Get all the imports from the current package
+        for (BLangImportPackage importPkg : pkgNode.getImports()) {
+            if (importPkg.symbol == null) {
+                continue;
+            }
+            if (importsList.contains(importPkg.symbol.toString())) {
+                continue;
+            }
             if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
                 importsList.add(importPkg.symbol.toString());
             }

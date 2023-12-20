@@ -44,6 +44,9 @@ class EmitterUtils {
     }
 
     static String emitVarRef(BIROperand ref) {
+        if (ref == null) {
+            return "null";
+        }
         return emitName(ref.variableDcl.name);
     }
 

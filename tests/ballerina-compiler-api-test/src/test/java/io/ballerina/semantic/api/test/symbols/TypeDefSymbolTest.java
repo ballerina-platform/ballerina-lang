@@ -108,7 +108,7 @@ public class TypeDefSymbolTest {
                 {70, 16, "readonlyType", TypeDescKind.READONLY},
                 {72, 16, "distinctObjType", TypeDescKind.OBJECT},
                 {76, 16, "unionType", TypeDescKind.UNION},
-                {78, 16, "interType", TypeDescKind.STRING},
+                {78, 16, "interType", TypeDescKind.INTERSECTION},
                 {80, 16, "optionalType", TypeDescKind.UNION},
                 {82, 16, "anyDataType", TypeDescKind.ANYDATA},
                 {84, 16, "jsonType", TypeDescKind.JSON},

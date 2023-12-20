@@ -154,6 +154,49 @@ function testTypeCheckingAgainstEffectiveType2() {
     assertEquality(BAR, farr[2]);
     assertEquality("bar", farr[3]);
 }
+public type TableMetadata record {|
+    isolated function () returns string query;
+    isolated function (string) returns string queryOne;
+|};
+
+public isolated client class InMemoryClient {
+    private final (isolated function () returns string) & readonly query;
+    private final (isolated function (string) returns string) & readonly queryOne;
+
+    public isolated function init(TableMetadata & readonly metadata) {
+        self.query = metadata.query;
+        self.queryOne = metadata.queryOne;
+    }
+
+    public isolated function runReadQuery() returns string {
+        return self.query();
+    }
+
+    public isolated function runReadByKeyQuery(string key) returns string {
+        return self.queryOne(key);
+    }
+}
+
+function testIsolatedFunctionReadonlyIntersection() {
+// This test is to test isolated qualifier in intersection type flags
+    TableMetadata & readonly tableMetadata = {
+        query: isolated function () returns string => "query",
+        queryOne: isolated function (string key) returns string => key
+    };
+
+    InMemoryClient myClient = new InMemoryClient(tableMetadata);
+
+    assertEquality(myClient.runReadQuery(), "query");
+    assertEquality(myClient.runReadByKeyQuery("1"), "1");
+}
+
+function testIntersectionWithUnionEffectiveTypeAsAMemberOfAUnion() {
+    (readonly & ([string]|int))? a = ["Ballerina"];
+    assertEquality(<[string]>["Ballerina"], a);
+
+    (readonly & ([string]|[int])|int)? b = ["Ballerina"];
+    assertEquality(<[string]>["Ballerina"], b);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

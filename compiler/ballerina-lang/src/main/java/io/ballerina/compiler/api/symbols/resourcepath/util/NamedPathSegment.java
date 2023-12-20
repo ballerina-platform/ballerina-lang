@@ -29,6 +29,8 @@ public interface NamedPathSegment extends PathSegment {
      * Returns the user specified string value for this particular segment of the resource path.
      *
      * @return The name of the segment
+     * @deprecated Use Symbol's getName() to retrieve the name of the path segment
      */
+    @Deprecated
     String name();
 }

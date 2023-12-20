@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -173,10 +174,6 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
                                                         DocumentServiceContext context) {
-        Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
-        Optional<ImportDeclarationNode> last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
-        int endLine = last.map(node -> node.lineRange().endLine().line()).orElse(0);
-        Position start = new Position(endLine, 0);
 
         StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
@@ -186,7 +183,38 @@ public class CommonUtil {
         }
         builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
 
-        return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
+        Position insertPos = getImportPosition(context);
+        return Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), builder.toString()));
+    }
+
+    public static Position getImportPosition(DocumentServiceContext context) {
+        // Calculate initial import insertion line
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
+        NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
+        // If there is already an import, add the new import after the last import
+        if (!imports.isEmpty()) {
+            ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
+            return new Position(lastImport.lineRange().endLine().line() + 1, 0);
+        }
+
+        // If the module part has no children, add the import at the beginning of the file
+        if (modulePartNode.members().isEmpty()) {
+            return new Position(0, 0);
+        }
+
+        Position insertPosition = new Position(0, 0);
+        for (Minutiae minutiae : modulePartNode.leadingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE
+                    && minutiae.lineRange().startLine().offset() == 0) {
+                // If we find a new line character with offset 0 (a blank line), add the import after that
+                // And no further processing is required
+                insertPosition = new Position(minutiae.lineRange().startLine().line(), 0);
+                break;
+            }
+        }
+
+        return insertPosition;
     }
 
     /**

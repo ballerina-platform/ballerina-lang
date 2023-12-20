@@ -23,16 +23,15 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
-import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -43,7 +42,7 @@ public class BPackageSymbol extends BTypeSymbol {
 
     public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol, testInitFunctionSymbol,
             testStartFunctionSymbol, testStopFunctionSymbol;
-    public List<BPackageSymbol> imports = new ArrayList<>();
+    public Set<BPackageSymbol> imports = new HashSet<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
     public Name compUnit;
@@ -55,9 +54,6 @@ public class BPackageSymbol extends BTypeSymbol {
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
     public BIRPackageFile birPackageFile;
-
-    // kep code generated jar binary content in memory
-    public CompiledJarFile compiledJarFile;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;

@@ -233,10 +233,11 @@ public class ResolutionEngine {
                     lockingMode = PackageLockingMode.SOFT;
                 }
             } else {
-                // If the user has specified the dependency from the local repo,
+                // If the user has specified the dependency from the local repo/custom repo,
                 // we must resolve the exact version provided for the dependency
                 dependency = blendedManifest.userSpecifiedDependency(pkgDesc.org(), pkgDesc.name());
-                if (dependency.isPresent() && dependency.get().isFromLocalRepository()) {
+                if (dependency.isPresent() && (dependency.get().isFromLocalRepository() ||
+                        dependency.get().isFromCustomRepository())) {
                     lockingMode = PackageLockingMode.HARD;
                 }
             }

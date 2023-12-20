@@ -54,4 +54,9 @@ public class StartActionTest extends AbstractActionTest {
     public void testStartActionWithInvalidExpr() {
         testFile("start-action/start_action_source_05.bal", "start-action/start_action_assert_05.json");
     }
+
+    @Test
+    public void testStartActionWithRemoteMtdRecovery() {
+        testFile("start-action/start_action_source_06.bal", "start-action/start_action_assert_06.json");
+    }
 }

@@ -1,0 +1,79 @@
+<university xmlns:u="http://example.com/university" xmlns:f="http://example.com/faculty" xmlns:d="http://example.com/department" xmlns:c="http://example.com/course" xmlns:p="http://example.com/professor">
+    <f:faculty>
+        <u:name>Engineering</u:name>
+        <d:department>
+            <u:name>Computer Science</u:name>
+            <c:course>
+                <u:name>Introduction to Programming</u:name>
+                <p:professor>Dr. Smith</p:professor>
+                <!-- Additional course content can go here -->
+            </c:course>
+            <c:course>
+                <u:name>Data Structures and Algorithms</u:name>
+                <p:professor>Dr. Johnson</p:professor>
+                <!-- Additional course content can go here -->
+            </c:course>
+            <d:subDepartment>
+                <d:name>ICE</d:name>
+                <c:course>
+                    <u:name>Introduction to Robotics</u:name>
+                    <p:professor>Dr. Chandana</p:professor>
+                </c:course>
+                <d:subDepartment>
+                    <d:name>Robotics</d:name>
+                    <d:subDepartment>
+                        <d:name>Field Robotics</d:name>
+                        <c:course>
+                            <u:name>Introduction to Field Robotics</u:name>
+                        </c:course>
+                    </d:subDepartment>
+                    <d:subDepartment>
+                        <d:name>Haptics</d:name>
+                        <c:course>
+                            <u:name>Introduction to Haptics</u:name>
+                            <p:professor>Dr. Moses</p:professor>
+                        </c:course>
+                        <c:course>
+                            <u:name>Advanced Haptics</u:name>
+                            <p:professor>Dr. Rajapaksha</p:professor>
+                        </c:course>
+                    </d:subDepartment>
+                </d:subDepartment>
+            </d:subDepartment>
+        </d:department>
+        <d:department>
+            <u:name>Electrical Engineering</u:name>
+            <c:course>
+                <u:name>Circuit Design</u:name>
+                <c:intake>50</c:intake>
+                <p:professor>Dr. Williams</p:professor>
+            </c:course>
+        </d:department>
+    </f:faculty>
+
+    <f:faculty>
+        <u:name>Business Administration</u:name>
+        <d:department>
+            <u:name>Marketing</u:name>
+            <c:course>
+                <u:name>Consumer Behavior</u:name>
+                <p:professor>Dr. Brown</p:professor>
+                <!-- Additional course content can go here -->
+            </c:course>
+            <c:course>
+                <u:name>Strategic Marketing</u:name>
+                <p:professor>Dr. Davis</p:professor>
+                <!-- Additional course content can go here -->
+            </c:course>
+        </d:department>
+        <d:department>
+            <u:name>Finance</u:name>
+            <c:course>
+                <u:name>Investment Management</u:name>
+                <p:professor>Dr. Miller</p:professor>
+                <!-- Additional course content can go here -->
+            </c:course>
+            <!-- Additional department content can go here -->
+        </d:department>
+    </f:faculty>
+</university>

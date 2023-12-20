@@ -12,7 +12,7 @@ Running Tests with Coverage
 		    error {ballerina/test:0}FunctionCallError ("no return value or action registered for function")
 				callableName: mockHandler moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 383
 				callableName: testFunctionMock3 moduleName: intg_tests.function_mocking$test.0.tests.tests fileName: tests/tests.bal lineNumber: 43
-				callableName: testFunctionMock3$lambda2$ moduleName: intg_tests.function_mocking$test.0.tests.test_execute-generated_*****lineNumber: 5
+				callableName: testFunctionMock3$lambda2$ moduleName: intg_tests.function_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
 			
 
 

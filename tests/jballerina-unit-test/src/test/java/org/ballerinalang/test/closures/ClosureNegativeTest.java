@@ -73,6 +73,10 @@ public class ClosureNegativeTest {
                 30, 25);
         BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '(int|string)' and 'int'",
                 31, 17);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '(int|string)'",
+                44, 17);
+        BAssertUtil.validateError(compileResult, index++,
+                "operator '+' not defined for '(int|string)' and '(int|boolean|error)'", 56, 21);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

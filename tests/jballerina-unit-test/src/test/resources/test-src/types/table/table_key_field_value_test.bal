@@ -583,6 +583,160 @@ function testKeyCollisionWithStringAndRegExpAsKeyValues() {
     assertEqual(tbl, tbl5);
 }
 
+type Row12 record {|
+    readonly string key1;
+    readonly string key2;
+    string a;
+|};
+
+function testStringAsKeyValue() {
+    Row12 expectedRec = {key1: "k1", key2: "k2", a: "n2"};
+
+    table<Row12> key(key1) tbl = table [
+        {key1: "k1", key2: "k2", a: "n1"}
+    ];
+    table<Row12> tbl2 = table [
+        {key1: "k1", key2: "k2", a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row12> tbl1 = from Row12 r in tbl
+        where r.key1 == "k1" && r.key2 == "k2"
+        select r;
+    assertEqual(tbl1, tbl2);
+
+    // Test the get method of the table
+    readonly & string keyString = "k1";
+    Row12 outputRec = tbl.get(keyString);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row12 removedRec = tbl.remove(keyString);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
+function testStringAsCompositeKeyValue() {
+    Row12 expectedRec = {key1: "k1", key2: "k2", a: "n2"};
+
+    table<Row12> key(key1, key2) tbl = table [
+        {key1: "k1", key2: "k2", a: "n1"}
+    ];
+    table<Row12> tbl2 = table [
+        {key1: "k1", key2: "k2", a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row12> tbl1 = from Row12 r in tbl
+        where r.key1 == "k1" && r.key2 == "k2"
+        select r;
+    assertEqual(tbl1, tbl2);
+
+    // Test the get method of the table
+    [string & readonly, string & readonly] keyTuple = ["k1", "k2"];
+    Row12 outputRec = tbl.get(keyTuple);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row12 removedRec = tbl.remove(keyTuple);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
+type Row13 record {|
+    readonly map<string> keys;
+    readonly map<int> values;
+    string a;
+|};
+
+function testMapAsCompositeKeyValue() {
+    Row13 expectedRec = {keys: {"k1": "v1", "k2": "v2"}, values: {"k1": 1, "k2": 2}, a: "n2"};
+
+    table<Row13> key(keys, values) tbl = table [
+        {keys: {"k1": "v1", "k2": "v2"}, values: {"k1": 1, "k2": 2}, a: "n1"}
+    ];
+    table<Row13> tbl2 = table [
+        {keys: {"k1": "v1", "k2": "v2"}, values: {"k1": 1, "k2": 2}, a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row13> tbl1 = from Row13 r in tbl
+        where r.keys == {"k1": "v1", "k2": "v2"} && r.values == {"k1": 1, "k2": 2}
+        select r;
+    assertEqual(tbl1, tbl2);
+
+    // Test the get method of the table
+    [map<string> & readonly, map<int> & readonly] keyTuple = [{"k1": "v1", "k2": "v2"}, {"k1": 1, "k2": 2}];
+    Row13 outputRec = tbl.get(keyTuple);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row13 removedRec = tbl.remove(keyTuple);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
+type Row14 record {|
+    readonly string[] keys;
+    readonly int[] values;
+    string a;
+|};
+
+function testArrayAsCompositeKeyValue() {
+    Row14 expectedRec = {keys: ["k1", "k2"], values: [1, 2], a: "n2"};
+
+    table<Row14> key(keys, values) tbl = table [
+        {keys: ["k1", "k2"], values: [1, 2], a: "n1"}
+    ];
+    table<Row14> tbl2 = table [
+        {keys: ["k1", "k2"], values: [1, 2], a: "n2"}
+    ];
+
+    // Test the put method of the table
+    tbl.put(expectedRec.clone());
+
+    table<Row14> tbl1 = from Row14 r in tbl
+        where r.keys == ["k1", "k2"] && r.values == [1, 2]
+        select r;
+    assertEqual(tbl1, tbl2);
+
+    // Test the get method of the table
+    [string[] & readonly, int[] & readonly] keyTuple = [["k1", "k2"], [1, 2]];
+    Row14 outputRec = tbl.get(keyTuple);
+    assertEqual(expectedRec, outputRec);
+
+    // Test the add method of the table
+    error? err = trap tbl.add(expectedRec);
+    assertEqual(err is error, true);
+    assertEqual((<error>err).message(), "{ballerina/lang.table}KeyConstraintViolation");
+
+    // Test the remove method of the table
+    Row14 removedRec = tbl.remove(keyTuple);
+    assertEqual(expectedRec, removedRec);
+    assertEqual(tbl.length(), 0);
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

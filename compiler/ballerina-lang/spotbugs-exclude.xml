@@ -17,6 +17,10 @@
   -->
 <FindBugsFilter>
     <Match>
+        <Class name="io.ballerina.projects.internal.repositories.MavenPackageRepository"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE, RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler" />
     </Match>
     <Match>
@@ -207,6 +211,10 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIRRecordValueOptimizer"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.ConstantPool"/>
@@ -463,5 +471,10 @@
     </Match>
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType" />
+        <Method name="getImpliedType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
 </FindBugsFilter>

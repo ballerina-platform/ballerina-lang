@@ -104,6 +104,8 @@ public class ForeachNegativeTests {
                 "mismatch with member type count", 342, 13);
         BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
                 "mismatch with member type count", 346, 18);
+        BAssertUtil.validateError(compile, index++, "invalid error variable; expecting an error type " +
+                "but found '(SampleComplexError|SampleError)' in type definition", 374, 15);
         Assert.assertEquals(compile.getErrorCount(), index);
     }
 

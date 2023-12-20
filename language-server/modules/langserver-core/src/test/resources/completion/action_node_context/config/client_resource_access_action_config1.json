@@ -16,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CD",
       "filterText": "remote1",
       "insertText": "remote1()",
       "insertTextFormat": "Snippet"
@@ -31,7 +31,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CE",
       "filterText": "path1|get",
       "insertText": "/path1;",
       "insertTextFormat": "Snippet"
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` a  \n- `int` b"
         }
       },
-      "sortText": "CC",
+      "sortText": "CF",
       "filterText": "post",
       "insertText": "/.post(${1});",
       "insertTextFormat": "Snippet",
@@ -65,13 +65,13 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "CC",
+      "sortText": "CG",
       "filterText": "get",
       "insertText": "/[${1:\"path\"}];",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -80,7 +80,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
         }
       },
-      "sortText": "CC",
+      "sortText": "CH",
       "filterText": "get",
       "insertText": "/${1:path};",
       "insertTextFormat": "Snippet"
@@ -95,13 +95,13 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
         }
       },
-      "sortText": "CC",
+      "sortText": "CI",
       "filterText": "path1|get",
       "insertText": "/path1/[${1:\"path\"}];",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "/path1/<path>",
+      "label": "/path1/<id1>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -110,7 +110,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
         }
       },
-      "sortText": "CC",
+      "sortText": "CJ",
       "filterText": "path1|get",
       "insertText": "/path1/${1:path};",
       "insertTextFormat": "Snippet"
@@ -125,13 +125,13 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CK",
       "filterText": "path1|path2|get",
       "insertText": "/path1/[${1:\"path\"}]/path2;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "/path1/<path>/path2",
+      "label": "/path1/<id1>/path2",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -140,7 +140,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "CL",
       "filterText": "path1|path2|get",
       "insertText": "/path1/${1:path}/path2;",
       "insertTextFormat": "Snippet"
@@ -155,7 +155,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "CC",
+      "sortText": "CM",
       "filterText": "path1|path2|post",
       "insertText": "/path1/[${1:\"path\"}]/path2/[${2:\"path\"}].post(${3});",
       "insertTextFormat": "Snippet",
@@ -165,7 +165,7 @@
       }
     },
     {
-      "label": "/path1/<path>/path2/<path>.post(string b, string... ids2)",
+      "label": "/path1/<id1>/path2/<ids>.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -174,7 +174,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
-      "sortText": "CC",
+      "sortText": "CN",
       "filterText": "path1|path2|post",
       "insertText": "/path1/${1:path}/path2/${2:path}.post(${3});",
       "insertTextFormat": "Snippet",
