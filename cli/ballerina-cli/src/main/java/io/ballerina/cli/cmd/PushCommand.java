@@ -57,6 +57,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -65,6 +66,7 @@ import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
+import static io.ballerina.projects.util.ProjectConstants.LOCAL_TOOLS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -78,6 +80,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
 @CommandLine.Command(name = PUSH_COMMAND, description = "Publish a package to Ballerina Central")
 public class PushCommand implements BLauncherCmd {
 
+    private static final String TOOL_DIR = "tool";
+    private static final String BAL_TOOL_JSON = "bal-tool.json";
+    private static final String TOOL_ID = "tool_id";
+    private static final String ORG = "org";
+    private static final String PACKAGE_NAME = "name";
     @CommandLine.Parameters (arity = "0..1")
     private Path balaPath;
 
@@ -394,10 +401,11 @@ public class PushCommand implements BLauncherCmd {
                 ProjectUtils.deleteDirectory(balaCachesPath);
             }
             ProjectUtils.extractBala(balaFilePath, balaDestPath);
-            handleLocalTools(balaDestPath, org, packageName, repoPath.resolve(ProjectConstants.BALA_DIR_NAME));
+            createLocalToolsJsonIfLocalTool(balaDestPath, org, packageName, repoPath.resolve(
+                    ProjectConstants.BALA_DIR_NAME));
         } catch (IOException e) {
             throw new ProjectException("error while pushing bala file '" + balaFilePath + "' to '"
-                    + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository. " + e.getMessage());
+                    + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository: " + e.getMessage());
         }
 
         Path relativePathToBalaFile;
@@ -410,9 +418,9 @@ public class PushCommand implements BLauncherCmd {
                 + " to '" + repositoryName + "' repository.");
     }
 
-    private void handleLocalTools(Path balaDestPath, String org, String packageName, Path localRepoBalaPath) {
-        Path balToolJsonPath = balaDestPath.resolve("tool").resolve("bal-tool.json");
-        String toolId = null;
+    private void createLocalToolsJsonIfLocalTool(Path balaDestPath, String org, String packageName,
+                                                 Path localRepoBalaPath) {
+        Path balToolJsonPath = balaDestPath.resolve(TOOL_DIR).resolve(BAL_TOOL_JSON);
         JsonObject balToolJson;
         JsonObject localToolJson;
         Gson gson = new Gson();
@@ -424,19 +432,17 @@ public class PushCommand implements BLauncherCmd {
         } catch (IOException e) {
             throw new ProjectException("Failed to read bal-tools.json file: " + e.getMessage());
         }
-        toolId = balToolJson.get("tool_id").getAsString();
-
-        if (toolId ==  null) {
+        Optional<String> optionalToolId = Optional.ofNullable(balToolJson.get(TOOL_ID).getAsString());
+        if (optionalToolId.isEmpty()) {
             return;
         }
-
+        String toolId = optionalToolId.get();
         JsonObject packageDesc = new JsonObject();
-        packageDesc.addProperty("org", org);
-        packageDesc.addProperty("name", packageName);
-        Path localToolJsonPath = localRepoBalaPath.resolve("local-tools.json");
+        packageDesc.addProperty(ORG, org);
+        packageDesc.addProperty(PACKAGE_NAME, packageName);
+        Path localToolJsonPath = localRepoBalaPath.resolve(LOCAL_TOOLS_JSON);
         if (localToolJsonPath.toFile().exists()) {
-            try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath,
-                    StandardCharsets.UTF_8)) {
+            try (BufferedReader bufferedReader = Files.newBufferedReader(localToolJsonPath, StandardCharsets.UTF_8)) {
                 localToolJson = gson.fromJson(bufferedReader, JsonObject.class);
                 if (localToolJson.has(toolId)) {
                     localToolJson.remove(toolId);

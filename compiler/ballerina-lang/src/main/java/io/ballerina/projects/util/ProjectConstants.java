@@ -129,4 +129,7 @@ public class ProjectConstants {
     public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
+    public static final String ORG = "org";
+    public static final String PACKAGE_NAME = "name";
+    public static final String LOCAL_TOOLS_JSON = "local-tools.json";
 }
