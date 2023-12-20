@@ -27,11 +27,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 
 /**
  * This class contains the JSON parser of the Ballerina profiler.
@@ -42,17 +41,19 @@ public class JsonParser {
 
     private static final String VALUE_KEY = "value";
 
-    public void initializeCPUParser(String skipFunctionString) {
-        ArrayList<String> skipList = new ArrayList<>();
-        skipList = skipFunctionString != null ? parseSkipFunctionStringToList(skipFunctionString) : skipList;
-        skipList.add("$gen");
-        skipList.add("getAnonType");
-        cpuParser(skipList);
-    }
-
-    private ArrayList<String> parseSkipFunctionStringToList(String skipFunctionString) {
-        String[] elements = skipFunctionString.replace("[", "").replace("]", "").split(", ");
-        return new ArrayList<>(Arrays.asList(elements));
+    public void initializeCPUParser(String cpuFilePath) {
+        try {
+            String jsonInput = FileUtils.readFileAsString(cpuFilePath);
+            List<StackTraceItem> input = populateStackTraceItems(jsonInput);
+            // Create a Data object to store the output
+            Data output = new Data("Root", input.get(0).time, new ArrayList<>());
+            for (StackTraceItem stackTraceItem : input) {
+                analyseStackTraceItems(stackTraceItem, output);
+            }
+            writeToValueJson(output);
+        } catch (Exception throwable) {
+            OUT_STREAM.println(throwable + "%n");
+        }
     }
 
     private int getTotalTime(JsonObject node) {
@@ -70,7 +71,7 @@ public class JsonParser {
 
     private void writePerformanceJson(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
-        try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
+        try (FileWriter myWriter = new FileWriter(PERFORMANCE_JSON, StandardCharsets.UTF_8)) {
             myWriter.write(parsedJson);
             myWriter.flush();
         } catch (IOException e) {
@@ -78,51 +79,10 @@ public class JsonParser {
         }
     }
 
-    private boolean containsAnySkipList(String str, List<String> arrayList) {
-        for (String s : arrayList) {
-            if (str.contains(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void cpuParser(ArrayList<String> skipList) {
-        try {
-            String jsonInput = FileUtils.readFileAsString(CPU_PRE_JSON);
-            StringBuilder jsonInputStringBuffer = new StringBuilder(jsonInput);
-            if (jsonInputStringBuffer.length() > 3) {
-                // Removes the trailing comma
-                jsonInputStringBuffer.deleteCharAt(jsonInputStringBuffer.length() - 3);
-            }
-            jsonInput = jsonInputStringBuffer.toString();
-            List<StackTraceItem> input = populateStackTraceItems(jsonInput);
-            // Create a Data object to store the output
-            Data output = new Data("Root", input.get(0).time, new ArrayList<>());
-            for (StackTraceItem stackTraceItem : input) {
-                if (stackTraceItem.stackTrace.size() == 1) {
-                    output.value = Math.max(output.value, stackTraceItem.time);
-                } else {
-                    analyseStackTraceItems(skipList, stackTraceItem, output);
-                }
-            }
-            writeToValueJson(output);
-        } catch (Exception throwable) {
-            OUT_STREAM.println(throwable + "%n");
-        }
-    }
-
-    private void analyseStackTraceItems(ArrayList<String> skipList, StackTraceItem stackTraceItem, Data output) {
+    private void analyseStackTraceItems(StackTraceItem stackTraceItem, Data output) {
         Data current = output;
         for (int i = 1; i < stackTraceItem.stackTrace.size(); i++) {
-            String name = stackTraceItem.stackTrace.get(i);
-            if (name.contains("$configureInit()")) {
-                removeChildrenByNodeName(output, name);
-                break;
-            }
-            if (!containsAnySkipList(name, skipList)) {
-                current = populateChildNodes(stackTraceItem, current, name);
-            }
+            current = populateChildNodes(stackTraceItem, current, stackTraceItem.stackTrace.get(i));
         }
     }
 
@@ -136,22 +96,16 @@ public class JsonParser {
         writePerformanceJson(jsonObject.toString());
     }
 
-    private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String name) {
-        boolean found = false;
+    private Data populateChildNodes(StackTraceItem stackTraceItem, Data current, String stackTrace) {
         for (Data child : current.children) {
-            if (child.name.equals(name)) {
+            if (child.name.equals(stackTrace)) {
                 child.value = Math.max(child.value, stackTraceItem.time);
-                current = child;
-                found = true;
-                break;
+                return child;
             }
         }
-        if (!found) {
-            Data newChild = new Data(name, stackTraceItem.time, new ArrayList<>());
-            current.children.add(newChild);
-            current = newChild;
-        }
-        return current;
+        Data newChild = new Data(stackTrace, stackTraceItem.time, new ArrayList<>());
+        current.children.add(newChild);
+        return newChild;
     }
 
     private List<StackTraceItem> populateStackTraceItems(String jsonInput) {
@@ -163,16 +117,6 @@ public class JsonParser {
             stackTraceItems.add(person);
         }
         return stackTraceItems;
-    }
-
-    private void removeChildrenByNodeName(Data node, String nodeName) {
-        if (node.name != null && node.name.equals(nodeName)) {
-            node.children.clear();
-            return;
-        }
-        for (Data child : node.children) {
-            removeChildrenByNodeName(child, nodeName);
-        }
     }
 
     /**

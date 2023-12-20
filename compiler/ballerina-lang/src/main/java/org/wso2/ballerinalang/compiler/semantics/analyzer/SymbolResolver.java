@@ -815,18 +815,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
      * Recursively analyse the symbol env to find the closure variable symbol that is being resolved.
      *
      * @param env       symbol env to analyse and find the closure variable.
-     * @param name      name of the symbol to lookup
-     * @param expSymTag symbol tag
+     * @param symbol    symbol to lookup
      * @return closure symbol wrapper along with the resolved count
      */
-    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, long expSymTag) {
-        ScopeEntry entry = env.scope.lookup(name);
+    public BSymbol lookupClosureVarSymbol(SymbolEnv env, BSymbol symbol) {
+        ScopeEntry entry = env.scope.lookup(symbol.name);
         while (entry != NOT_FOUND_ENTRY) {
-            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
-                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-                return entry.symbol;
-            }
-            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
+            if (entry.symbol == symbol) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -836,7 +831,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        return lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
+        return lookupClosureVarSymbol(env.enclEnv, symbol);
     }
 
     public BSymbol lookupMainSpaceSymbolInPackage(Location pos,
@@ -2428,7 +2423,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         BLangRecordTypeNode detailRecordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(),
                                                                                              detailRecord, pos);
-        TypeDefBuilderHelper.createInitFunctionForRecordType(detailRecordTypeNode, env, names, symTable);
         BLangTypeDefinition detailRecordTypeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(
                 detailRecord, detailRecordSymbol, detailRecordTypeNode, env);
         detailRecordTypeDefinition.pos = pos;

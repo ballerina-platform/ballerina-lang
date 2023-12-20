@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -512,8 +511,7 @@ public class JvmCreateTypeGen {
         // filter anon types and sorts them before generating switch case.
         Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(typeDefHashComparator);
         for (BIRTypeDefinition t : typeDefinitions) {
-            if (t.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX)
-                    || Symbols.isFlagOn(t.type.flags, Flags.ANONYMOUS)) {
+            if (Symbols.isFlagOn(t.type.flags, Flags.ANONYMOUS)) {
                 typeDefSet.add(t);
             }
         }
