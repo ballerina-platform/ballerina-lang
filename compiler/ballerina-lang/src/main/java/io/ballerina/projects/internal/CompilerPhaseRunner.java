@@ -166,7 +166,7 @@ public class CompilerPhaseRunner {
             return;
         }
 
-        deadBirNodeAnalyze(pkgNode);
+//        deadBirNodeAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.BIR_EMIT)) {
             return;
         }

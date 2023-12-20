@@ -42,9 +42,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.bir.BIRDeadNodeAnalyzer_ASM_Approach;
 import org.wso2.ballerinalang.compiler.bir.DeadBIRNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.CompiledJarFile;
@@ -53,15 +51,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.UsedState;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -88,7 +82,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -140,6 +133,10 @@ public class JBallerinaBackend extends CompilerBackend {
     private final HashMap<String, ByteArrayOutputStream> optimizedJarStreams = new HashMap<>();
     private final SymbolTable symbolTable;
     private static final HashSet<BIRNode.BIRDocumentableNode> reportedNodes = new HashSet<>();
+    private final HashSet<PackageID> unusedPackageIDs = new HashSet<>();
+    private final HashSet<PackageId> unusedPackageIds = new HashSet<>();
+    private final HashSet<ModuleId> unusedModuleIds = new HashSet<>();
+    private final HashMap<PackageId, HashSet<String>> pkgWiseUsedNativeClassPaths = new HashMap<>();
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         return from(packageCompilation, jdkVersion, true);
@@ -222,9 +219,56 @@ public class JBallerinaBackend extends CompilerBackend {
             }
         }
 
+        long startTime = System.currentTimeMillis();
+
+        UsedBIRNodeAnalyzer deadBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
+        for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
+            ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
+            // Default module is analyzed first to find its immediate dependencies
+            if (pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId()) {
+                deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+
+                if (pkgWiseUsedNativeClassPaths.containsKey(moduleContext.moduleId().packageId())) {
+                    pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
+                            .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
+                } else {
+                    pkgWiseUsedNativeClassPaths.put(moduleContext.moduleId().packageId(),
+                            moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
+                }
+
+                continue;
+            }
+            // Omitting the LangLibs and other modules that does not have BIRPkgNodes
+            // TODO find a way to get the BIRPkgNodes of langlibs as well
+            else if (moduleContext.currentCompilationState() != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
+                continue;
+            }
+            // Only analyzing used modules
+            if (moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
+                deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
+                if (pkgWiseUsedNativeClassPaths.containsKey(moduleContext.moduleId().packageId())) {
+                    pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
+                            .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
+                } else {
+                    pkgWiseUsedNativeClassPaths.put(moduleContext.moduleId().packageId(),
+                            moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
+                }
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Duration for dead code analysis : " + (endTime - startTime));
+
         // Generate optimized thin JAR byte streams
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            if (moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED && !moduleContext.moduleId().moduleName().contains("observe")) {
+            if (moduleContext.currentCompilationState() == ModuleCompilationState.PLATFORM_LIBRARY_GENERATED &&
+                    !moduleContext.moduleId().moduleName().contains("observe")) {
+                if (!moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
+                    unusedPackageIds.add(moduleContext.moduleId().packageId());
+                    unusedModuleIds.add(moduleContext.moduleId());
+                    unusedPackageIDs.add(moduleContext.bLangPackage().symbol.pkgID);
+                    continue;
+                }
                 performOptimizedCodeGen(moduleContext);
             }
         }
@@ -464,7 +508,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
     }
 
-    public void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
+    public void optimizeBirPackageOriginal(BPackageSymbol bPackageSymbol) {
         DeadBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData;
         BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
         birPackage.functions.removeAll(invocationData.deadFunctions);
@@ -494,8 +538,47 @@ public class JBallerinaBackend extends CompilerBackend {
         invocationData.fpDataPool.forEach(DeadBIRNodeAnalyzer.LambdaPointerData::deleteIfUnused);
     }
 
+    public void optimizeBirPackage(BPackageSymbol bPackageSymbol) {
+        UsedBIRNodeAnalyzer.InvocationData invocationData = bPackageSymbol.invocationData2;
+        BIRNode.BIRPackage birPackage = bPackageSymbol.bir;
+
+        // If the module is completely unused it should not be packed to the fat JAR at all.
+        if (!invocationData.moduleIsUsed) {
+            return;
+        }
+
+        bPackageSymbol.imports.removeIf(pkgSymbol -> unusedPackageIDs.contains(pkgSymbol.pkgID));
+        birPackage.importModules.removeIf(module -> unusedPackageIDs.contains(module.packageID));
+        birPackage.functions.removeIf(currentFunc -> currentFunc.usedState == UsedState.UNUSED);
+        birPackage.typeDefs.removeIf(typeDef -> typeDef.usedState == UsedState.UNUSED);
+        optimizeImmutableTypeDefs(invocationData);
+
+        // FP optimization for functions with default params
+        birPackage.globalVars.removeIf(gVar -> gVar.usedState == UsedState.UNUSED);
+        invocationData.fpDataPool.forEach(UsedBIRNodeAnalyzer.FunctionPointerData::deleteIfUnused);
+
+        // TODO Attached function optimization with polymorphism handling
+    }
+
+    private void optimizeImmutableTypeDefs(UsedBIRNodeAnalyzer.InvocationData invocationData) {
+        HashSet<BIRNode.BIRTypeDefinition> deadTypeDefs = new HashSet<>(invocationData.typeDefPool.values());
+        deadTypeDefs.removeAll(invocationData.usedTypeDefs);
+
+        deadTypeDefs.forEach(deadTypeDef -> {
+            if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
+                Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
+                        symbolTable.immutableTypeMaps.get(getPackageIdString(deadTypeDef.type.tsymbol.pkgID));
+                if (immutableTypeMap != null) {
+                    deadTypeDef.referencedTypes.forEach(immutableTypeMap::remove);
+                }
+            }
+        });
+    }
+
+    // This is the original code
     // Have to remove the immutableTypes from the SymbolTable because they are used in codeGen
-    private void optimizeImmutableTypeDefs(DeadBIRNodeAnalyzer.InvocationData invocationData, BPackageSymbol bPackageSymbol) {
+    private void optimizeImmutableTypeDefs(DeadBIRNodeAnalyzer.InvocationData invocationData,
+                                           BPackageSymbol bPackageSymbol) {
         invocationData.deadTypeDefs.forEach(deadTypeDef -> {
             if (Flags.unMask(deadTypeDef.type.flags).contains(Flag.READONLY)) {
                 Map<SelectivelyImmutableReferenceType, BIntersectionType> immutableTypeMap =
@@ -990,7 +1073,8 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private Path emitExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         Manifest manifest = createOptimizedFileManifest();
-        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution(unusedPackageIds, unusedModuleIds,
+                        pkgWiseUsedNativeClassPaths);
         // Add warning when provided platform dependencies are found
         addProvidedDependencyWarning(emitResultDiagnostics);
         try {

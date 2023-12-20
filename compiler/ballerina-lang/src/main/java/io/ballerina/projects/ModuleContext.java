@@ -456,11 +456,6 @@ class ModuleContext {
             return;
         }
 
-        // Eliminates dead BIR function nodes from BUILD_PROJECT
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-//            eliminateDeadFunctionsFromBIR(moduleContext);
-        }
-
         // Generate and write the thin JAR to the file system
 //        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
 
@@ -520,41 +515,6 @@ class ModuleContext {
     static void loadBirBytesInternal(ModuleContext moduleContext) {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
-
-    /**
-     * Removes the dead BIRFunction nodes from BIR of the package Symbol of the given context
-     * @param moduleContext Module context holding the bir
-     */
-    public static void eliminateDeadFunctionsFromBIR(ModuleContext moduleContext) {
-        HashSet<String> deadFunctionNames = new HashSet<>();
-        moduleContext.bLangPackage().symbol.deadFunctions.forEach((deadSymbol) -> {
-            deadFunctionNames.add(deadSymbol.getName().value);
-        });
-
-        // Filtering out the unused topLevel BIRFunctions
-        List<BIRNode.BIRFunction> deadBIRFunctions = new ArrayList<>();
-        Predicate<BIRNode.BIRFunction> isTopLevelDeadFunction = birFunction -> deadFunctionNames.contains(birFunction.originalName.getValue());
-        for (BIRNode.BIRFunction birFunction : moduleContext.bLangPackage().symbol.bir.functions) {
-            if (isTopLevelDeadFunction.test(birFunction)) {
-                deadBIRFunctions.add(birFunction);
-            }
-        }
-        moduleContext.bLangPackage().symbol.bir.functions.removeAll(deadBIRFunctions);
-
-        // Filtering out the unused classLevel BIRFunctions
-        List<BIRNode.BIRTypeDefinition> typeDefs = moduleContext.bLangPackage.symbol.bir.typeDefs;
-        for (BIRNode.BIRTypeDefinition typeDefinition : typeDefs) {
-            Predicate<BIRNode.BIRFunction> isClassLevelDeadFunction = birFunction -> deadFunctionNames.contains(typeDefinition.name.getValue() + "." + birFunction.originalName.getValue());
-            List<BIRNode.BIRFunction> classLevelDeadFunctions = new ArrayList<>();
-            for (BIRNode.BIRFunction birFunction : typeDefinition.attachedFuncs) {
-                if (isClassLevelDeadFunction.test(birFunction)) {
-                    classLevelDeadFunctions.add(birFunction);
-                }
-            }
-            typeDefinition.attachedFuncs.removeAll(classLevelDeadFunctions);
-        }
-    }
-
 
     static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
         // TODO implement

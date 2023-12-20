@@ -216,7 +216,7 @@ fi
 BALLERINA_CLASSPATH=$BALLERINA_CLASSPATH:$BALLERINA_CLASSPATH_EXT
 
 CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
-               -Xms256m -Xmx1024m \
+               -Xms256m -Xmx4096m \
                -XX:+HeapDumpOnOutOfMemoryError \
                $JAVA_OPTS \
                -classpath "$BALLERINA_CLASSPATH" \
