@@ -99,6 +99,11 @@ task copyCompilerPluginJars(type: Copy) {
     into "$buildDir/compiler-plugin-jars"
 }
 
+task copyProfilerResources(type: Copy) {
+    from project(':jballerina-tools').file('resources/profiler')
+    into "$buildDir/resources/profiler"
+}
+
 task createTestBre(type: Copy) {
     from configurations.balRt
     from configurations.testRt
@@ -111,6 +116,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
     dependsOn copyCompilerPluginJars
+    dependsOn copyProfilerResources
 
     systemProperty "ballerina.home", "$buildDir"
 
