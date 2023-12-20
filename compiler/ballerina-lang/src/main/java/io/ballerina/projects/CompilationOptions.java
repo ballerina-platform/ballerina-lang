@@ -39,6 +39,7 @@ public class CompilationOptions {
     Boolean exportComponentModel;
     Boolean enableCache;
     Boolean disableSyntaxTree;
+    Boolean optimizeJar = true;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
