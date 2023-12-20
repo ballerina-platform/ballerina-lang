@@ -28,7 +28,6 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
-import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
@@ -865,8 +864,7 @@ public class JvmTypeGen {
         boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) ||
-                Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
+        if (!samePackage && Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS)) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();

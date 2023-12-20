@@ -37,7 +37,7 @@
       ]
     },
     {
-      "label": "/<path>",
+      "label": "/<ids>",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -131,7 +131,7 @@
       }
     },
     {
-      "label": "/path2/<path>.post(string b, string... ids2)",
+      "label": "/path2/<ids>.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {

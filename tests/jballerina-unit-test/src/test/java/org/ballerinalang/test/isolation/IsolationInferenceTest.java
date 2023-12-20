@@ -87,7 +87,8 @@ public class IsolationInferenceTest {
                 "testFunctionsAccessingModuleLevelVarsIsolatedInference",
                 "testFunctionCallingFunctionWithIsolatedParamAnnotatedParam",
                 "testInferringIsolatedForAnonFuncArgForIsolatedParamAnnotatedParam",
-                "testIsolatedObjectsWithNonInitializationSelfAccessInInitMethod"
+                "testIsolatedObjectsWithNonInitializationSelfAccessInInitMethod",
+                "testIsolatedInferenceWithAnonFunctions"
         };
     }
 

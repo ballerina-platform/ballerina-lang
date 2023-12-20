@@ -180,4 +180,13 @@ public class QueryNegativeTests {
                 "type 'never' not allowed here", 48, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
+
+    @Test
+    public void testQueryExpressionWithMismatchedReturnType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query-with-mismatch-return.bal");
+        int index = 0;
+        validateError(compileResult, index++, "missing non-defaultable required record field 'y'", 39, 16);
+        validateError(compileResult, index++, "missing non-defaultable required record field 'x'", 47, 24);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
 }

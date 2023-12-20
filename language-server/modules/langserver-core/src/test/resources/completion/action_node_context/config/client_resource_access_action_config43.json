@@ -1,0 +1,70 @@
+{
+  "position": {
+    "line": 16,
+    "character": 12
+  },
+  "source": "action_node_context/source/client_resource_access_action_source36.bal",
+  "description": "Test completions in multiple resource access functions with subtypes of the expression",
+  "items": [
+    {
+      "label": ".accessor",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string:Char` a"
+        }
+      },
+      "sortText": "C",
+      "filterText": "accessor",
+      "insertText": ".accessor",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 11
+            },
+            "end": {
+              "line": 16,
+              "character": 12
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": ".put",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string:Char|int` a"
+        }
+      },
+      "sortText": "C",
+      "filterText": "put",
+      "insertText": ".put",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 11
+            },
+            "end": {
+              "line": 16,
+              "character": 12
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

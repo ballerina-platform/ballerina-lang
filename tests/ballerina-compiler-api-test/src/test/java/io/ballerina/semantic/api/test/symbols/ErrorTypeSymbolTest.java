@@ -110,17 +110,27 @@ public class ErrorTypeSymbolTest {
         assertModuleInfo(errorTypeSymbol.getModule().get());
     }
 
-    @Test
-    public void testErrorTypeRef() {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(32, 4));
+    @Test(dataProvider = "TypeRefErrorTypeProvider")
+    public void testErrorTypeRef(int line, int offset, String expectedErrorType) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, offset));
 
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.TYPE);
 
         TypeSymbol type = (TypeSymbol) symbol.get();
         assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(type.getName().get(), "SendError");
+        assertEquals(type.getName().get(), expectedErrorType);
         assertModuleInfo(type.getModule().get());
+    }
+
+    @DataProvider(name = "TypeRefErrorTypeProvider")
+    public Object[][] getTypeRefErrorType() {
+        return new Object[][]{
+                {40, 4, "SendError"},
+                {41, 4, "EmailError"},
+                {42, 4, "CancelledError"},
+                {43, 4, "IntersectionError"}
+        };
     }
 
     private void assertModuleInfo(ModuleSymbol module) {

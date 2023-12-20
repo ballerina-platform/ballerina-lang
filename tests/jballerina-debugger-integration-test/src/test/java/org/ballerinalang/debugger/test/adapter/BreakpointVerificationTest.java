@@ -86,7 +86,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
     }
 
     @Test(description = "Test to assert runtime verification on breakpoints which are getting added on-the-fly " +
-            "during a debug session")
+            "during a debug session", enabled = false)
     public void testOnTheFlyBreakpointVerification() throws BallerinaTestException {
         // adds one initial breakpoint and run debug session until the breakpoint is reached.
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));

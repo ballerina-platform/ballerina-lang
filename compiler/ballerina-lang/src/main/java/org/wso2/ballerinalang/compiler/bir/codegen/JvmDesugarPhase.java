@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -59,28 +58,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_G
  */
 public class JvmDesugarPhase {
 
-    public static void addDefaultableBooleanVarsToSignature(BIRFunction func, BType booleanType) {
+    private JvmDesugarPhase() {
+    }
 
+    public static void addDefaultableBooleanVarsToSignature(BIRFunction func) {
         func.type = new BInvokableType(func.type.paramTypes, func.type.restType,
                                        func.type.retType, func.type.tsymbol);
         BInvokableType type = func.type;
         func.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(func.type.paramTypes,
-                                                                         type.restType, booleanType);
-    }
-
-    public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, InitMethodGen initMethodGen) {
-        int k = 1;
-        List<BIRFunctionParameter> functionParams = new ArrayList<>();
-        List<BIRVariableDcl> localVars = currentFunc.localVars;
-        while (k < localVars.size()) {
-            BIRVariableDcl localVar = localVars.get(k);
-            if (localVar instanceof BIRFunctionParameter) {
-                functionParams.add((BIRFunctionParameter) localVar);
-            }
-            k += 1;
-        }
-
-        initMethodGen.resetIds();
+                                                                         type.restType);
     }
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
@@ -94,11 +80,8 @@ public class JvmDesugarPhase {
         return initMethodGen.incrementAndGetNextId();
     }
 
-    private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType,
-                                                                         BType booleanType) {
-
+    private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType) {
         List<BType> paramTypes = new ArrayList<>();
-
         int counter = 0;
         int size = funcParams == null ? 0 : funcParams.size();
         while (counter < size) {
@@ -158,17 +141,6 @@ public class JvmDesugarPhase {
             index += 1;
         }
         func.localVars = updatedLocalVars;
-    }
-
-    private static BIRFunctionParameter getFunctionParam(BIRFunctionParameter localVar) {
-        if (localVar == null) {
-            throw new BLangCompilerException("Invalid function parameter");
-        }
-
-        return localVar;
-    }
-
-    private JvmDesugarPhase() {
     }
 
     static HashMap<String, String> encodeModuleIdentifiers(BIRNode.BIRPackage module) {
@@ -276,9 +248,6 @@ public class JvmDesugarPhase {
     private static void encodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
                                                         HashMap<String, String> encodedVsInitialIds) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar == null) {
-                continue;
-            }
             globalVar.name = Names.fromString(encodeNonFunctionIdentifier(globalVar.name.value, encodedVsInitialIds));
         }
     }
@@ -295,7 +264,6 @@ public class JvmDesugarPhase {
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
-        replaceEncodedImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
         replaceEncodedFunctionIdentifiers(module.functions, encodedVsInitialIds);
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
@@ -337,12 +305,6 @@ public class JvmDesugarPhase {
                                                           HashMap<String, String> encodedVsInitialIds) {
         for (BIRFunction function : functions) {
             function.name = getInitialIdString(function.name, encodedVsInitialIds);
-            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
-                if (localVar.metaVarName == null) {
-                    continue;
-                }
-                localVar.metaVarName = getInitialIdString(localVar.metaVarName, encodedVsInitialIds);
-            }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
@@ -384,16 +346,6 @@ public class JvmDesugarPhase {
     private static void replaceEncodedGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars,
                                                                 HashMap<String, String> encodedVsInitialIds) {
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar == null) {
-                continue;
-            }
-            globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
-        }
-    }
-
-    private static void replaceEncodedImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars,
-                                                                        HashMap<String, String> encodedVsInitialIds) {
-        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
             globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
         }
     }
@@ -414,14 +366,6 @@ public class JvmDesugarPhase {
         String encodedString = Utils.encodeNonFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
-    }
-
-    private static String getInitialIdString(String encodedIdString, HashMap<String, String> encodedVsInitialIds) {
-        String initialString = encodedVsInitialIds.get(encodedIdString);
-        if (initialString != null) {
-            return initialString;
-        }
-        return encodedIdString;
     }
 
     private static Name getInitialIdString(Name encodedIdString, HashMap<String, String> encodedVsInitialIds) {

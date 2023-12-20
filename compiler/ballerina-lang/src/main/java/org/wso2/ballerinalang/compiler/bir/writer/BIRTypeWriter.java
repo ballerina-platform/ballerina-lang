@@ -424,18 +424,13 @@ public class BIRTypeWriter implements TypeVisitor {
                     getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
-        BAttachedFunction initializerFunc = tsymbol.initializerFunc;
-        if (initializerFunc == null) {
-            buff.writeByte(0);
-            return;
-        }
-
-        buff.writeByte(1);
-        buff.writeInt(addStringCPEntry(initializerFunc.funcName.value));
-        buff.writeLong(initializerFunc.symbol.flags);
-        writeTypeCpIndex(initializerFunc.type);
-
         writeTypeInclusions(bRecordType.typeInclusions);
+
+        buff.writeInt(tsymbol.defaultValues.size());
+        tsymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            writeSymbolOfClosure(v);
+        });
     }
 
     @Override

@@ -481,8 +481,8 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             }
             errorTypes.forEach(expType -> {
-                checkExpr(selectExp, env, expType, data);
                 selectExp.typeChecked = false;
+                checkExpr(selectExp, env, expType, data);
             });
             selectExp.typeChecked = true;
         }
