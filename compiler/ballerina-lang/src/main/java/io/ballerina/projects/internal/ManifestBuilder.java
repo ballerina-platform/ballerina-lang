@@ -863,7 +863,7 @@ public class ManifestBuilder {
         Set<String> targetModuleSet = new HashSet<>();
         for (String toolId: toolIds) {
             if (!toolIdsSet.add(toolId)) {
-                reportDiagnostic(tomlTableNode, "recurring tool id " + toolId + " found in Ballerina.toml. " +
+                reportDiagnostic(tomlTableNode, "recurring tool id '" + toolId + "' found in Ballerina.toml. " +
                                 "Tool id must be unique for each tool",
                         ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
                         DiagnosticSeverity.ERROR);
@@ -872,7 +872,7 @@ public class ManifestBuilder {
         }
         for (String targetModule: targetModules) {
             if (!targetModuleSet.add(targetModule)) {
-                reportDiagnostic(tomlTableNode, "recurring target module " + targetModule + " found in " +
+                reportDiagnostic(tomlTableNode, "recurring target module '" + targetModule + "' found in " +
                                 "Ballerina.toml. Target module must be unique for each tool",
                         ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
                         DiagnosticSeverity.ERROR);
