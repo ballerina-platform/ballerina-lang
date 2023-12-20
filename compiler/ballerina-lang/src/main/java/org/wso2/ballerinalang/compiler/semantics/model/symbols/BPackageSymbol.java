@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -48,7 +49,7 @@ public class BPackageSymbol extends BTypeSymbol {
 
     public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol, testInitFunctionSymbol,
             testStartFunctionSymbol, testStopFunctionSymbol;
-    public List<BPackageSymbol> imports = new ArrayList<>();
+    public Set<BPackageSymbol> imports = new HashSet<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
     public Name compUnit;

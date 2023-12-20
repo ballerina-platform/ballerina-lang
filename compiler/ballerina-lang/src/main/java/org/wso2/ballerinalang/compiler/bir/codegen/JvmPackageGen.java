@@ -100,6 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLASS_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
@@ -134,7 +135,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    private static Unifier unifier;
+    private static final Unifier unifier = new Unifier();
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
@@ -160,8 +161,6 @@ public class JvmPackageGen {
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
-        unifier = new Unifier();
-
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
 
@@ -425,7 +424,7 @@ public class JvmPackageGen {
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
-            jarEntries.put(moduleClass + ".class", bytes);
+            jarEntries.put(moduleClass + CLASS_FILE_SUFFIX, bytes);
         });
     }
 
@@ -435,7 +434,7 @@ public class JvmPackageGen {
     }
 
     /**
-     * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
+     * Java Class will be generated for each source file. This method add class mappings to globalVar and filters the
      * functions based on their source file name and then returns map of associated java class contents.
      *
      * @param module           bir module
@@ -605,11 +604,10 @@ public class JvmPackageGen {
                                                      BIRFunction birFunc, String birModuleClassName) {
         BIRFunctionWrapper birFuncWrapperOrError;
         if (isExternFunc(birFunc) && isEntry) {
-            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID,
-                                                                  birModuleClassName, this);
+            birFuncWrapperOrError = createExternalFunctionWrapper(isEntry, birFunc, packageID, birModuleClassName);
         } else {
             if (isEntry && birFunc.receiver == null) {
-                addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc);
             }
             birFuncWrapperOrError = getFunctionWrapper(birFunc, packageID, birModuleClassName);
         }
@@ -760,7 +758,7 @@ public class JvmPackageGen {
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
-        valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
+        valueGen.generateValueClasses(jarEntries, jvmConstantsGen, jvmTypeGen);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
@@ -814,12 +812,10 @@ public class JvmPackageGen {
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
         if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
             return true;
-        } else {
-            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
-                if (importPkgSymbol == null) {
-                    continue;
-                }
-                return listenerDeclarationFound(importPkgSymbol);
+        }
+        for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+            if (importPkgSymbol != null && listenerDeclarationFound(importPkgSymbol)) {
+                return true;
             }
         }
         return false;

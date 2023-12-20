@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 
 import java.util.List;
 
@@ -38,6 +39,11 @@ public class JMethodCallInstruction extends JInstruction {
     public JMethodCallInstruction(Location pos) {
         super(pos);
         jKind = JInsKind.CALL;
+    }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
