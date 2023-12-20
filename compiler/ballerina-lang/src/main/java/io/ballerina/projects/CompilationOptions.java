@@ -41,6 +41,7 @@ public class CompilationOptions {
     Boolean disableSyntaxTree;
     Boolean remoteManagement;
     Boolean optimizeDependencyCompilation;
+    Boolean optimizeJar = true;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
