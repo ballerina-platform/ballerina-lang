@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.BTypeAnalyzer;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -29,6 +30,11 @@ public class BSequenceType extends BType {
     public BSequenceType(BType elementType) {
         super(TypeTags.SEQUENCE, null);
         this.elementType = elementType;
+    }
+
+    @Override
+    public <T> void accept(BTypeAnalyzer<T> analyzer, T data) {
+        analyzer.visit(this, data);
     }
 
     @Override
