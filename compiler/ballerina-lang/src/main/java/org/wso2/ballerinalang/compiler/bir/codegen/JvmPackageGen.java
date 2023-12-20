@@ -818,10 +818,8 @@ public class JvmPackageGen {
                     return true;
                 }
             }
-        } else {
-            if (packageSymbol.bir.isListenerAvailable) {
-                return true;
-            }
+        } else if (packageSymbol.bir.isListenerAvailable) {
+            return true;
         }
         for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
             if (importPkgSymbol != null && listenerDeclarationFound(importPkgSymbol)) {
