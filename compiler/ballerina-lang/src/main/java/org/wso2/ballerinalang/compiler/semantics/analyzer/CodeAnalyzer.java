@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -262,6 +263,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
@@ -1511,15 +1513,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangDo doNode, AnalyzerData data) {
         boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
-        boolean previousWithinDoBlock = data.withinWorkerTopLevelDo;
-        data.withinWorkerTopLevelDo = isTopLevel(data.env) && isInWorker(data.env);
         if (onFailExists) {
             data.failureHandled = true;
         }
         analyzeNode(doNode.body, data);
         data.failureHandled = failureHandled;
         analyseOnFailClause(onFailExists, doNode.onFailClause, data);
-        data.withinWorkerTopLevelDo = previousWithinDoBlock;
     }
 
 
@@ -1953,21 +1952,41 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(expr, data);
     }
 
-    private boolean isTopLevel(SymbolEnv env) {
-        return env.enclInvokable.body == env.node;
-    }
-
     private boolean isInWorker(SymbolEnv env) {
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isReceiveAllowedLocation(SymbolEnv env) {
-        return isTopLevel(env);
+    private boolean isSendAllowedLocation(BLangFunctionBody enclInvokableBody, BLangNode node) {
+        return isCommunicationAllowedContext(enclInvokableBody, node, this::isSendAllowedContext);
     }
 
-    private boolean isSendAllowedLocation(SymbolEnv env) {
-        return true;
-//        return isTopLevel(env) || env.node.parent.getKind() == NodeKind.IF; // TODO: fix properly
+    private boolean isReceiveAllowedLocation(BLangFunctionBody enclInvokableBody, BLangNode node) {
+        return isCommunicationAllowedContext(enclInvokableBody, node, this::isReceiveAllowedContext);
+    }
+
+    private boolean isSendAllowedContext(BLangNode bLangNode) {
+        return isReceiveAllowedContext(bLangNode) || bLangNode.getKind() == NodeKind.IF;
+    }
+
+    private boolean isReceiveAllowedContext(BLangNode bLangNode) {
+        return switch (bLangNode.getKind()) {
+            case BLOCK_FUNCTION_BODY, BLOCK, ON_FAIL, DO_STMT -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isCommunicationAllowedContext(BLangFunctionBody enclInvokableBody, BLangNode node,
+                                                  Predicate<BLangNode> contextChecker) {
+        if (enclInvokableBody == node) {
+            return true;
+        }
+
+        BLangNode parentNode = node.parent;
+        if (contextChecker.test(parentNode)) {
+            return isCommunicationAllowedContext(enclInvokableBody, parentNode, contextChecker);
+        }
+
+        return false;
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2011,8 +2030,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
-        if (!data.withinWorkerTopLevelDo && (data.withinQuery  ||
-                (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
+        if (data.withinQuery || (!isSendAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
+                !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2071,8 +2090,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        if (!data.withinWorkerTopLevelDo && (data.withinQuery ||
-                (!isSendAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt))) {
+        if (data.withinQuery || (!isSendAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
+                !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2123,7 +2142,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (data.withinQuery || (!isReceiveAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
+        if (data.withinQuery || (!isReceiveAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
+                !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -4274,7 +4294,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean loopAlterNotAllowed;
         // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
-        boolean withinWorkerTopLevelDo;
         int workerSystemMovementSequence;
         Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
