@@ -63,7 +63,8 @@ public class WorkerConditionalSendTest {
                 "sameWorkerSendMultiplePathError3",
                 "sameWorkerSendMultiplePathError4",
                 "multipleReceiveConditional",
-                "multipleReceiveWithNonConditionalSend"
+                "multipleReceiveWithNonConditionalSend",
+                "testNonTopLevelSend"
         };
     }
 

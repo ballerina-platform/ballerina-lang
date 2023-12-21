@@ -435,3 +435,25 @@ function multipleReceiveWithNonConditionalSend() {
    }
    wait w3;
 }
+
+function testNonTopLevelSend() {
+  worker w1 returns boolean {
+      int i = 2;
+      if (0 > 1) {
+           return true;
+      }
+      i -> w2;
+      return false;
+    }
+
+    worker w2 returns int {
+      int j = 25;
+      j = <- w1;
+      return j;
+    }
+
+    map<boolean|int> mapResult = wait {a: w1, b: w2};
+    test:assertEquals(mapResult["a"], false, "Invalid boolean result");
+    test:assertEquals(mapResult["b"], 2, "Invalid int result");
+}
+
