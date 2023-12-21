@@ -119,8 +119,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("BCE2082", "worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("BCE2083", "worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("BCE2084", "worker.interactions.only.allowed.between.peers"),
-    WORKER_SEND_AFTER_RETURN("BCE2085", "worker.send.after.return"),
-    WORKER_RECEIVE_AFTER_RETURN("BCE2086", "worker.receive.after.return"),
+    // VACANT_ERROR("BCE2085", ""),
+    // VACANT_ERROR("BCE2086", ""),
     EXPLICIT_WORKER_CANNOT_BE_DEFAULT("BCE2087", "explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("BCE2088", "worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("BCE2089", "incompatible.type.reference"),
@@ -584,9 +584,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // Worker receive and send related error codes
     INVALID_TYPE_FOR_RECEIVE("BCE3840", "invalid.type.for.receive"),
     INVALID_TYPE_FOR_SEND("BCE3841", "invalid.type.for.send"),
-
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("BCE3842", "invalid.usage.of.receive.expression"),
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("BCE3843", "invalid.use.of.experimental.feature"),
+    MULTIPLE_RECEIVE_COMPATIBLE_TYPE_NOT_FOUND("BCE3844", "multiple.receive.compatible.type.not.found"),
+    DUPLICATE_KEY_IN_MULTIPLE_RECEIVE("BCE3845", "duplicate.key.in.multiple.receive"),
 
     // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("BCE3900", "type.param.outside.lang.module"),
