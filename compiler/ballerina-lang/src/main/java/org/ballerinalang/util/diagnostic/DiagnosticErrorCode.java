@@ -584,9 +584,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // Worker receive and send related error codes
     INVALID_TYPE_FOR_RECEIVE("BCE3840", "invalid.type.for.receive"),
     INVALID_TYPE_FOR_SEND("BCE3841", "invalid.type.for.send"),
-
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("BCE3842", "invalid.usage.of.receive.expression"),
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("BCE3843", "invalid.use.of.experimental.feature"),
+    MULTIPLE_RECEIVE_COMPATIBLE_TYPE_NOT_FOUND("BCE3844", "multiple.receive.compatible.type.not.found"),
+    DUPLICATE_KEY_IN_MULTIPLE_RECEIVE("BCE3845", "duplicate.key.in.multiple.receive"),
 
     // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("BCE3900", "type.param.outside.lang.module"),
