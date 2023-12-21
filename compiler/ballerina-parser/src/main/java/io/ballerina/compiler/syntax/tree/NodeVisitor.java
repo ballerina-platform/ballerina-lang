@@ -951,6 +951,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(memberTypeDescriptorNode);
     }
 
+    public void visit(ReceiveFieldNode receiveFieldNode) {
+        visitSyntaxNode(receiveFieldNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -941,6 +941,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(memberTypeDescriptorNode);
     }
 
+    public void visit(STReceiveFieldNode receiveFieldNode) {
+        visitSyntaxNode(receiveFieldNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

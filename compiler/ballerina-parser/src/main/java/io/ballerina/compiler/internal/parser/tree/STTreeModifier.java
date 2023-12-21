@@ -2925,6 +2925,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 typeDescriptor);
     }
 
+    @Override
+    public STReceiveFieldNode transform(
+            STReceiveFieldNode receiveFieldNode) {
+        STNode fieldName = modifyNode(receiveFieldNode.fieldName);
+        STNode colon = modifyNode(receiveFieldNode.colon);
+        STNode peerWorker = modifyNode(receiveFieldNode.peerWorker);
+        return receiveFieldNode.modify(
+                fieldName,
+                colon,
+                peerWorker);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
