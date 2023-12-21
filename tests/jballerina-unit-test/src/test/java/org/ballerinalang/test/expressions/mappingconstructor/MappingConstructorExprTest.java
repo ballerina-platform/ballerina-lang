@@ -150,12 +150,10 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "incompatible types: expected 'int' for field 'i', found 'boolean'", 41, 29);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| boolean i; anydata...; |}' that " +
-                        "may have rest fields to construct a closed record",
-                41, 29);
+                        "may have rest fields to construct a closed record", 41, 29);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| int i; boolean x; anydata...; |}' " +
-                        "that may have rest fields to construct a closed record",
-                49, 29);
+                        "that may have rest fields to construct a closed record", 49, 29);
         validateError(result, i++, "undefined field 'x' in record 'Foo'", 49, 29);
         validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 53, 26);
         validateError(result, i++, "undefined symbol 'b'", 53, 26);
