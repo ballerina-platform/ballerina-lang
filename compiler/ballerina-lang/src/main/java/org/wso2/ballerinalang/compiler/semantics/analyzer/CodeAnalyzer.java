@@ -2042,14 +2042,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        asyncSendExpr.sendType =
-                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.pos, asyncSendExpr.expr.getBType(), data);
+        asyncSendExpr.sendType = createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.expr.getBType(), data);
         was.addWorkerAction(asyncSendExpr);
         analyzeExpr(asyncSendExpr.expr, data);
         validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingReceive(Location pos, BType exprType, AnalyzerData data) {
+    private BType createAccumulatedErrorTypeForMatchingReceive(BType exprType, AnalyzerData data) {
         Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>() {
             {
@@ -2057,11 +2056,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         };
         for (BType returnType : returnTypesUpToNow) {
-            if (onlyContainErrors(returnType)) {
-                returnTypeAndSendType.add(returnType);
-            } else {
-//                this.dlog.error(pos, DiagnosticErrorCode.WORKER_SEND_AFTER_RETURN); TODO: fix
-            }
+            returnTypeAndSendType.addAll(getErrorTypes(returnType));
         }
         returnTypeAndSendType.add(exprType);
         if (returnTypeAndSendType.size() > 1) {
@@ -2102,8 +2097,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
-        syncSendExpr.sendType =
-                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data);
+        syncSendExpr.sendType = createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.expr.getBType(), data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
@@ -2196,11 +2190,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
         for (BType returnType : returnTypesUpToNow) {
-            if (onlyContainErrors(returnType)) {
-                returnTypeAndSendType.add(returnType);
-            } else {
-//                this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.WORKER_RECEIVE_AFTER_RETURN); TODO: fix
-            }
+            returnTypeAndSendType.addAll(getErrorTypes(returnType));
         }
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
@@ -2210,27 +2200,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private boolean onlyContainErrors(BType returnType) {
+    private LinkedHashSet<BType> getErrorTypes(BType returnType) {
+        LinkedHashSet<BType> errorTypes = new LinkedHashSet<>();
         if (returnType == null) {
-            return false;
+            return errorTypes;
         }
 
-        returnType = types.getTypeWithEffectiveIntersectionTypes(returnType);
-        returnType = Types.getImpliedType(returnType);
-        if (returnType.tag == TypeTags.ERROR) {
-            return true;
-        }
-
-        if (returnType.tag == TypeTags.UNION) {
+        BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
+        if (effType.tag == TypeTags.ERROR) {
+            errorTypes.add(returnType);
+        } else if (returnType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
                 BType t = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(memberType));
-                if (t.tag != TypeTags.ERROR) {
-                    return false;
+                if (t.tag == TypeTags.ERROR) {
+                    errorTypes.add(memberType);
                 }
             }
-            return true;
         }
-        return false;
+
+        return errorTypes;
     }
 
     @Override

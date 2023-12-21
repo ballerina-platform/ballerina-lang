@@ -2857,6 +2857,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangWorkerReceive bLangWorkerReceive : altWorkerReceive.getWorkerReceives()) {
             bLangWorkerReceive.accept(this, data);
         }
+        altWorkerReceive.setBType(data.expType);
+        data.resultType = data.expType;
     }
 
     @Override
@@ -2867,6 +2869,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
+        multipleWorkerReceive.setBType(compatibleType);
         data.resultType = compatibleType;
 
         if (TypeTags.RECORD == compatibleType.tag) {
