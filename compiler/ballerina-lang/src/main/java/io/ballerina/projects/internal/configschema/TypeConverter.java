@@ -181,14 +181,18 @@ public class TypeConverter {
         if (!requiredFields.isEmpty()) {
             typeNode.add("required", requiredFields);
         }
-        // Get record type and set the type name as a property
-        for (BType bType : intersectionType.getConstituentTypes()) {
-            // Does not consider anonymous records
-            if (bType.tag == TypeTags.TYPEREFDESC) {
-                typeNode.addProperty("name", bType.toString().trim());
+        // The tsymbol name is empty for anon intersection type created due to inferred readonly
+        if (!intersectionType.tsymbol.name.value.isEmpty()) {
+            typeNode.addProperty("name", intersectionType.tsymbol.toString().trim());
+        } else {
+            // Get record type and set the type name as a property
+            for (BType bType : intersectionType.getConstituentTypes()) {
+                // Does not consider anonymous records
+                if (bType.tag == TypeTags.TYPEREFDESC) {
+                    typeNode.addProperty("name", bType.toString().trim());
+                }
             }
         }
-
         return typeNode;
     }
 
