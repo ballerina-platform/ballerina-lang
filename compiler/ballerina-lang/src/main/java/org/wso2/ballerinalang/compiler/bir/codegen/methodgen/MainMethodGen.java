@@ -441,18 +441,17 @@ public class MainMethodGen {
     private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction) {
         mv.visitVarInsn(ALOAD, indexMap.get(INIT_FUTURE_VAR));
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD, GET_THROWABLE);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
 
         // handle any runtime errors
         Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
         if (isTestFunction) {
-            mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD, GET_THROWABLE);
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_STOP_PANIC_METHOD, HANDLE_THROWABLE, false);
             mv.visitInsn(LCONST_1);
             mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "J");
         } else {
-            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, GET_THROWABLE);
             mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, HANDLE_THROWABLE, false);
         }
         mv.visitInsn(RETURN);
