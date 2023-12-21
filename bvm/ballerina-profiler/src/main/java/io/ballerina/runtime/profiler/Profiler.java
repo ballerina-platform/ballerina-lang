@@ -60,7 +60,6 @@ public class Profiler {
     private final long profilerStartTime;
     private String balJarArgs = null;
     private String balJarName = null;
-    private String sourceRoot = null;
     private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
@@ -91,7 +90,7 @@ public class Profiler {
                 jsonParser.initializeCPUParser(cpuFilePath);
                 deleteFileIfExists(cpuFilePath);
                 OUT_STREAM.printf("      Execution time: %d seconds %n", profilerTotalTime / 1000);
-                httpServer.initializeHTMLExport(this.sourceRoot);
+                httpServer.initializeHTMLExport();
                 deleteFileIfExists(PERFORMANCE_JSON);
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
@@ -136,10 +135,6 @@ public class Profiler {
                 }
                 case "--args" -> {
                     this.balJarArgs = extractBalJarArgs(args[i + 1]);
-                    addToUsedArgs(args, usedArgs, i);
-                }
-                case "--source-root" -> {
-                    this.sourceRoot = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
                 case "--profiler-debug" -> {

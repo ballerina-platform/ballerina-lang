@@ -20,6 +20,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -1903,19 +1904,23 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
+        if (symbol == null) {
+            result = bLangSimpleVarRef;
+            return;
+        }
+        if (symbol.kind == SymbolKind.VARIABLE || symbol.kind == SymbolKind.FUNCTION) {
+            BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+            if (originalSymbol != null) {
+                symbol = originalSymbol;
+            }
+        }
+        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol);
         String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
                 String.valueOf(bLangSimpleVarRef.variableName);
-        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
-                Names.fromString(identifier), SymTag.VARIABLE);
+
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
-        if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (symbol instanceof BVarSymbol) {
-                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
-                if (originalSymbol != null) {
-                    symbol = originalSymbol;
-                }
-            }
+        if (symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
             if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
@@ -1960,15 +1965,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
             }
-        } else if (resolvedSymbol != symTable.notFoundSymbol && symbol != null) {
+        } else if (!resolvedSymbol.closure && resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
-            // When there's a type guard, there can be a enclSymbol before type narrowing.
-            // So, we have to mark that as a closure as well.
-            BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
-                    Names.fromString(identifier), SymTag.VARIABLE);
-            if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
-                enclSymbol.closure = true;
-            }
         }
         result = bLangSimpleVarRef;
     }
@@ -2591,8 +2589,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     void updateIdentifiers(SymbolEnv env) {
         for (Map.Entry<String, BSymbol> identifier : identifiers.entrySet()) {
-            BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()),
-                    SymTag.SEQUENCE);
+            BSymbol symbol =
+                    symResolver.lookupSymbolInGivenScope(env, Names.fromString(identifier.getKey()), SymTag.SEQUENCE);
             if (symbol != symTable.notFoundSymbol && !identifier.getValue().closure) {
                     identifiers.put(identifier.getKey(), symbol);
             }
