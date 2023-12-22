@@ -23,9 +23,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/maxcdn_bootstrap_min.css">
     <link rel="stylesheet" type="text/css"
-          href="https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@2.0.3/dist/d3-flamegraph.css">
+          href="css/flamegraph.css">
 
     <style>
         #profilerLogo{
@@ -40,8 +40,7 @@
               }
 
               .container {
-                 padding-left: 0px;
-                 margin-left: 40px;
+                 width: 100%
               }
               .btn {
                  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
@@ -51,6 +50,7 @@
                  color: #1B2024;
                  font-weight: bold;
                  font-family: pragmatica, sans-serif;
+                 margin-right: 10px;
               }
 
               .btn:hover {
@@ -71,10 +71,7 @@
               }
 
               .header {
-                 margin-left: -40px;
-                 box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
-                 padding-right: 40px;
-                 width: 1920px;
+                 width: auto;
                  background-color: #fbfbfd;
                  padding-bottom: 25px;
               }
@@ -109,10 +106,11 @@
         .d3-flame-graph-tip {
                  visibility: hidden !important;
               }.balLogo {
-                 padding-left: 20px !important;
+                 padding-left: 50px !important;
                  padding-top: 25px !important;
-                 width: 200px !important;
-                 height: 50px !important;
+                 object-fit: contain; !important;
+                 width: 500px !important;
+                 height: auto !important;
               }
 
         #chart {
@@ -120,14 +118,13 @@
                  margin-top: 40px;
                  margin-bottom: 40px;
                  max-height: 780px;
-                 width: 1840px;
+                 width: auto;
                  border-radius: 20px;
                  overflow-y: auto;
                  overflow-x: auto;
                  background-color: #fbfbfd;
               }#details{
                  color: black;
-                 padding: 20px;
                  position: absolute;
                  left: 50%;
                  font-weight: bold;
@@ -144,7 +141,8 @@
               }
 
     </style>
-    <title>b7a-flamegraph</title>
+    <title>Ballerina Flame Graph</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
@@ -157,34 +155,35 @@
                         <input placeholder="Search..." id="searchBox" type="text" class="form-control" id="term">
                     </div>
                     <a class="btn btn-primary" href="javascript: search();">Search</a>
-                    <a class="btn" href="javascript: resetZoom();">Reset zoom</a>
                     <a class="btn" href="javascript: clearSearch();">Clear</a>
+                    <a class="btn" href="javascript: resetZoom();">Reset zoom</a>
                 </form>
             </div>
         </nav>
-        <img class="balLogo" src="https://ballerina.io/images/ballerina-logo.svg" alt="B7A"/>
-        <div id="profilerLogo"> Profiler</div>
+        <img class="balLogo" src="ballerina-profiler-report-logo.svg" alt="B7A"/>
+        <div id="profilerLogo"></div>
     </div>
     <div id="chart"></div>
     <div id="details"></div>
 </div>
-<script type="text/javascript" src="https://d3js.org/d3.v7.js"></script>
+<script type="text/javascript" src="js/d3js_v7.js"></script>
 <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@2.0.3/dist/d3-flamegraph.min.js"></script>
+        src="js/cdn_flamegraph_min.js"></script>
 <script type="text/javascript">
 
 
     ${profile_data}
     var flameGraph = d3.flamegraph()
-        .width(1840)
-        .selfValue(false)
+        .width(window.innerWidth - 40)
         .cellHeight(18)
         .transitionDuration(750)
         .minFrameSize(5)
         .transitionEase(d3.easeCubic)
-        .sort(false)
+        .sort(true)
+        .title("")
         .onClick(onClick)
-        .differential(false);
+        .differential(false)
+        .selfValue(false);
 
           var details = document.getElementById("details");
           flameGraph.setDetailsElement(details);

@@ -48,9 +48,14 @@ public interface InitializationOptions {
     String KEY_ENABLE_LIGHTWEIGHT_MODE = "enableLightWeightMode";
 
     /**
-     * Where the client supports inlay hints.
+     * Whether the client supports inlay hints.
      */
     String KEY_ENABLE_INLAY_HINTS = "enableInlayHints";
+
+    /**
+     * Whether the client supports memory usage monitor.
+     */
+    String KEY_ENABLE_MEMORY_USAGE_MONITOR = "enableMemoryUsageMonitor";
 
     /**
      * Return if the client support bala URI scheme.
@@ -92,4 +97,11 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableInlayHints();
+
+    /**
+     * Returns if the client supports memory usage monitor.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableMemoryUsageMonitor();
 }

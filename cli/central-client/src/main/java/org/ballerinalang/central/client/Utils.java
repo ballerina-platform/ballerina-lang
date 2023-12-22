@@ -56,8 +56,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -67,7 +69,12 @@ import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_
 import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.central.client.CentralClientConstants.SHA256;
+import static org.ballerinalang.central.client.CentralClientConstants.SHA256_ALGORITHM;
 import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.BYTES_FOR_KB;
+import static org.ballerinalang.central.client.CentralClientConstants.PROGRESS_BAR_BYTE_THRESHOLD;
+import static org.ballerinalang.central.client.CentralClientConstants.UPDATE_INTERVAL_MILLIS;
 
 /**
  * Utils class for this package.
@@ -276,9 +283,9 @@ public class Utils {
                             logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
                 }
                 try {
-                    extractBala(balaPath, Optional.of(balaPath.getParent()).get(), trueDigest, fullPkgName);
+                    extractBala(balaPath, Optional.of(balaPath.getParent()).get(), trueDigest, fullPkgName, outStream);
                     Files.delete(balaPath);
-                } catch (Exception e) {
+                } catch (IOException | CentralClientException e) {
                     throw new CentralClientException(
                             logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
                 }
@@ -430,46 +437,27 @@ public class Utils {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 
-    private static byte[] checkHash(String filePath, String algorithm) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(algorithm);
-            InputStream is = new FileInputStream(filePath);
-            DigestInputStream dis = new DigestInputStream(is, md);
-            while (dis.read() != -1) { // empty loop to clear the data
-
-            }
-            md = dis.getMessageDigest();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-        return md.digest();
-
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
-
-    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName) 
-    throws Exception {
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath, String trueDigest, String packageName,
+            PrintStream outStream)
+            throws IOException, CentralClientException {
         Files.createDirectories(balaFileDestPath);
         URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
-        byte[] hashInBytes = checkHash(balaFilePath.toString(), "SHA-256");
+        byte[] hashInBytes = checkHash(balaFilePath.toString(), SHA256_ALGORITHM);
 
         // If the hash value is not matching , throw an exception.
-        if (("sha-256=" + bytesToHex(hashInBytes)).equals(trueDigest)) {
-            BuildLogFormatter logFormatter = null;
-            String errorMessage = ERR_CANNOT_PULL_PACKAGE + "'" + packageName +
-                    "'. BALA content download process failed due to hash mismatch.";
-            throw new CentralClientException(errorMessage);
+        if (Objects.equals((SHA256 + bytesToHex(hashInBytes)), trueDigest)) {
+            StringBuilder warning = new StringBuilder(
+                    String.format("*************************************************************%n" +
+        "* WARNING: Certain packages may have originated from sources other than the official distributors. *%n" +
+        "*************************************************************%n%n" +
+        "* Verification failed: The hash value of the following package could not be confirmed. %n" +
+        packageName +
+        "%n"));
+            if (outStream != null) {
+                outStream.println(warning.toString());
+            }
+        }
 
-        } 
-        
         try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path packageRoot = zipFileSystem.getPath("/");
             List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
@@ -482,6 +470,35 @@ public class Utils {
                 Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
             }
         }
+    }
+
+    public static byte[] checkHash(String filePath, String algorithm) {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        try (InputStream is = new FileInputStream(filePath);
+                DigestInputStream dis = new DigestInputStream(is, md)) {
+            while (dis.read() != -1) {
+            }
+            md = dis.getMessageDigest();
+            return md.digest();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     static String getBearerToken(String accessToken) {
@@ -519,18 +536,20 @@ public class Utils {
             long byteConverter;
             String unitName;
 
-            if (totalBytes < 1024 * 5) { // use bytes for progress bar if payload is less than 5 KB
+            if (totalBytes < BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) {
+                // use bytes for progress bar if payload is less than 5 KB
                 byteConverter = 1;
                 unitName = " B";
-            } else if (totalBytes < 1024 * 1024 * 5) { // use kilobytes for progress bar if payload is less than 5 MB
-                byteConverter = 1024;
+            } else if (totalBytes < BYTES_FOR_KB * BYTES_FOR_KB * PROGRESS_BAR_BYTE_THRESHOLD) {
+                // use kilobytes for progress bar if payload is less than 5 MB
+                byteConverter = BYTES_FOR_KB;
                 unitName = " KB";
             } else { // else use megabytes for progress bar.
-                byteConverter = 1024 * 1024;
+                byteConverter = BYTES_FOR_KB * BYTES_FOR_KB;
                 unitName = " MB";
             }
 
-            ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out,
+            ProgressBar progressBar = new ProgressBar(task, contentLength(), UPDATE_INTERVAL_MILLIS, out,
                     ProgressBarStyle.ASCII, unitName, byteConverter);
             CountingSink countingSink = new CountingSink(sink, progressBar);
             BufferedSink progressSink = Okio.buffer(countingSink);

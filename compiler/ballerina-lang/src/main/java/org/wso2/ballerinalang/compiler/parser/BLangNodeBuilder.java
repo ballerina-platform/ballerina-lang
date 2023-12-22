@@ -1517,6 +1517,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         addReadOnlyQualifier(recordFieldNode.readonlyKeyword(), simpleVar);
 
         simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
+        simpleVar.flagSet.add(Flag.FIELD);
         return simpleVar;
     }
 
@@ -5116,7 +5117,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         switch (kind) {
             case SIMPLE_NAME_REFERENCE:
                 SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;
-                elementName = simpleNameReferenceNode.name().text();
+                elementName = Utils.unescapeBallerina(simpleNameReferenceNode.name().text());
                 elemNamePos = getPosition(simpleNameReferenceNode);
                 break;
             case QUALIFIED_NAME_REFERENCE:
@@ -5128,7 +5129,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 break;
             case XML_ATOMIC_NAME_PATTERN:
                 XMLAtomicNamePatternNode atomicNamePatternNode = (XMLAtomicNamePatternNode) node;
-                elementName = atomicNamePatternNode.name().text();
+                elementName = Utils.unescapeBallerina(atomicNamePatternNode.name().text());
                 elemNamePos = getPosition(atomicNamePatternNode.name());
                 ns = atomicNamePatternNode.prefix().text();
                 nsPos = getPosition(atomicNamePatternNode.prefix());
