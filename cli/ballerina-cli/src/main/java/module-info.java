@@ -1,4 +1,5 @@
 module io.ballerina.cli {
+    uses io.ballerina.cli.BLauncherCmd;
     exports io.ballerina.cli;
     exports io.ballerina.cli.launcher;
     exports io.ballerina.cli.utils;
@@ -21,4 +22,5 @@ module io.ballerina.cli {
     requires io.ballerina.toml;
     requires io.ballerina.identifier;
     requires org.objectweb.asm;
+    requires org.apache.commons.io;
 }

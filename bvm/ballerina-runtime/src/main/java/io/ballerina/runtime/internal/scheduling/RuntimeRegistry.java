@@ -17,6 +17,7 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
@@ -91,7 +92,8 @@ public class RuntimeRegistry {
         BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
         StopHandlerCallback callback = new StopHandlerCallback(strand, scheduler);
         final FutureValue future = scheduler.createFuture(strand, callback, null,
-                ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
+                ((BFunctionType) TypeUtils.getImpliedType(bFunctionPointer.getType())).retType, null,
+                strand.getMetadata());
         scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
     }
 

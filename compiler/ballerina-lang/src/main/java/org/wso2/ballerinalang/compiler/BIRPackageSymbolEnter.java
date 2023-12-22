@@ -29,7 +29,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -270,11 +269,11 @@ public class BIRPackageSymbolEnter {
 
     private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            BType referredStructureTypeSymbol = Types.getReferredType(structureTypeSymbol.type);
+            BType referredStructureTypeSymbol = Types.getImpliedType(structureTypeSymbol.type);
             if (referredStructureTypeSymbol.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) referredStructureTypeSymbol;
                 for (BType ref : objectType.typeInclusions) {
-                    BType typeRef = Types.getReferredType(ref);
+                    BType typeRef = Types.getImpliedType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -413,9 +412,9 @@ public class BIRPackageSymbolEnter {
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         boolean isResourceFunction = dataInStream.readBoolean();
-        
+
         if (this.currentStructure != null) {
-            BType attachedType = Types.getReferredType(this.currentStructure.type);
+            BType attachedType = Types.getImpliedType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -454,8 +453,8 @@ public class BIRPackageSymbolEnter {
                     }
 
                     Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
-                    
-                    BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
+
+                    BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName),
                             invokableSymbol, funcType, accessor, pathParams, restPathParam, symTable.builtinPos);
 
                     // If it is a resource function, attached type should be an object
@@ -482,9 +481,9 @@ public class BIRPackageSymbolEnter {
                             new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                     symTable.builtinPos);
                     BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                    if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
-                            || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                        structureTypeSymbol.initializerFunc = attachedFunc;
+                    if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName) ||
+                            funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+                        ((BObjectTypeSymbol) structureTypeSymbol).initializerFunc = attachedFunc;
                     } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
                         ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
                     } else {
@@ -819,7 +818,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.INTERSECTION:
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
-                return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
+                return readConstLiteralValue(Types.getImpliedType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
@@ -878,13 +877,13 @@ public class BIRPackageSymbolEnter {
 
         // Create variable symbol
         BType varType = readBType(dataInStream);
+        BType referredVarType = Types.getImpliedType(varType);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
-        if (varType.tag == TypeTags.INVOKABLE) {
-            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) varType.tsymbol;
+        if (referredVarType.tag == TypeTags.INVOKABLE) {
+            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) referredVarType.tsymbol;
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
-                                             this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
-                                             toOrigin(origin));
+                    this.env.pkgSymbol.pkgID, referredVarType, enclScope.owner, symTable.builtinPos, toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
             if (bInvokableTypeSymbol != null) {
@@ -997,6 +996,7 @@ public class BIRPackageSymbolEnter {
             return;
         }
 
+        type = Types.getImpliedType(type);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
                 BParameterizedType varType = (BParameterizedType) type;
@@ -1305,27 +1305,12 @@ public class BIRPackageSymbolEnter {
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
 
-                    boolean isInitAvailable = inputStream.readByte() == 1;
-                    if (isInitAvailable) {
-                        // read record init function
-                        String recordInitFuncName = getStringCPEntryValue(inputStream);
-                        var recordInitFuncFlags = inputStream.readLong();
-                        BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
-                        Name initFuncName = names.fromString(recordInitFuncName);
-                        boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
-                        BInvokableSymbol recordInitFuncSymbol =
-                                Symbols.createFunctionSymbol(recordInitFuncFlags, initFuncName,
-                                                             initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
-                                                             env.pkgSymbol, isNative, symTable.builtinPos,
-                                                             COMPILED_SOURCE);
-                        recordInitFuncSymbol.retType = recordInitFuncType.retType;
-                        // Define resource function
-                        recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
-                                                                             recordInitFuncType, symTable.builtinPos);
-                        recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
-                    }
-
                     recordType.typeInclusions = readTypeInclusions();
+
+                    int defaultValues = inputStream.readInt();
+                    for (int i = 0; i < defaultValues; i++) {
+                        recordSymbol.defaultValues.put(getStringCPEntryValue(inputStream), getSymbolOfClosure());
+                    }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
@@ -1524,7 +1509,7 @@ public class BIRPackageSymbolEnter {
                         constituentTypes.add(readTypeFromCp());
                     }
 
-                    IntersectableReferenceType effectiveType = (IntersectableReferenceType) readTypeFromCp();
+                    BType effectiveType = readTypeFromCp();
                     return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType, flags);
                 case TypeTags.PACKAGE:
                     // TODO fix

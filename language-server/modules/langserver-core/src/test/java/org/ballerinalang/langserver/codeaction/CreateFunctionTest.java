@@ -175,6 +175,17 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"create_function_in_local_var1.json"},
                 {"create_function_in_local_var2.json"},
                 {"create_function_in_start_action1.json"},
+
+                {"undefinedFunctionCodeAction25.json"},
+                {"undefinedFunctionCodeAction26.json"},
+                {"undefinedFunctionCodeAction27.json"},
+                {"undefinedFunctionCodeAction28.json"},
+                {"undefinedFunctionCodeAction29.json"},
+                {"undefinedFunctionCodeAction30.json"},
+                {"undefinedFunctionCodeAction31.json"},
+
+                {"create_function_in_anonymous_function1.json"},
+                {"create_function_in_anonymous_function2.json"},
         };
     }
 

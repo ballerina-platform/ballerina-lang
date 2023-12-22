@@ -29,6 +29,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -1268,10 +1269,22 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Check GraalVM compatibility of build project")
-    public void testGraalVMCompatibilityOfJavaProject() throws IOException {
+    @DataProvider(name = "validProjectWithPlatformLibs")
+    public Object[][] provideValidProjectWithPlatformLibs() {
+        String notVerifiedWaring = "WARNING: Package is not verified with GraalVM";
+        String notCompatibleWarning = "WARNING: Package is not compatible with GraalVM";
+        return new Object[][]{
+                {"validProjectWithPlatformLibs1", notVerifiedWaring},
+                {"validProjectWithPlatformLibs2", notCompatibleWarning},
+                {"validProjectWithPlatformLibs3", notCompatibleWarning},
+                {"validProjectWithPlatformLibs4", notVerifiedWaring}
+        };
+    }
+    @Test(description = "Check GraalVM compatibility of build project",
+            dataProvider = "validProjectWithPlatformLibs")
+    public void testGraalVMCompatibilityOfJavaProject(String projectName, String warning) throws IOException {
         // Project contains platform Java dependencies
-        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        Path projectPath = this.testResources.resolve(projectName);
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
@@ -1282,7 +1295,7 @@ public class BuildCommandTest extends BaseCommandTest {
             String buildLog = readOutput(true);
             Assert.assertTrue(buildLog.contains("Compiling source") &&
                     buildLog.contains("sameera/myproject:0.1.0") &&
-                    buildLog.contains("WARNING: Package is not verified with GraalVM"));
+                    buildLog.contains(warning));
         }
     }
 

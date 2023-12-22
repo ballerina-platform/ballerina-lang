@@ -418,18 +418,18 @@ public function testInvalidInputType() {
 }
 
 function testIncompatibleSelectType(stream<string, error?> clientStream) returns error? {
-    return from string num in clientStream select {a: 1};
+    return stream from string num in clientStream select {a: 1};
 }
 
 function testMapBindingPatternsAnydataType() {
     map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
 function testMapBindingPatternsAnyType() {
     map<any> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 

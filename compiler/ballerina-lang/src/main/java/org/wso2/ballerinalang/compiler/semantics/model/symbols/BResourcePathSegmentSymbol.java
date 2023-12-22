@@ -61,4 +61,9 @@ public class BResourcePathSegmentSymbol extends BSymbol {
     public BResourceFunction getResourceMethod() {
         return resourceMethod;
     }
+
+    @Override
+    public SymbolKind getKind() {
+        return this.kind;
+    }
 }

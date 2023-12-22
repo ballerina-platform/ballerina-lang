@@ -248,17 +248,20 @@ function testNeverFieldTypeBinding() {
 }
 
 function testNeverRestFieldType() {
-    record {|never...; |} a = {};
+    record {|never...;|} a = {};
     record {|int x;|} copy = a;
 
     record {|int x?;|} a1 = {};
     record {|never...; |} copy2 = a1;
 
-    record {|int x;never?...; |} a2 = {x: 12};
+    record {|int x;never?...;|} a2 = {x: 12};
     record {||} copy3 = a2;
 
     record {||} a3 = {};
-    record {|int x;never...; |} copy4 = a3;
+    record {|int x;never...;|} copy4 = a3;
+
+    record {|never?...;|} a4 = {};
+    record {never i?;} _ = a4;
 }
 
 never N = check error("Error"); // error

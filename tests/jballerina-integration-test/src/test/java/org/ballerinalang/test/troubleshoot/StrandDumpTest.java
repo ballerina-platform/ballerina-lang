@@ -112,7 +112,7 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath);
     }
 
-    private static void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
+    private void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
                                            Path expectedStrandDumpFilePath, Path steadyStateOutputFilePath)
             throws BallerinaTestException {
         if (Utils.isWindowsOS()) {
@@ -134,10 +134,9 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath, true);
     }
 
-    private static void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder,
-                                                        Map<String, String> envProperties,
-                                                        Path expectedOutputFilePath, Path steadyStateOutputFilePath,
-                                                        boolean isJar) throws BallerinaTestException {
+    private void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder, Map<String, String> envProperties,
+                                                 Path expectedOutputFilePath, Path steadyStateOutputFilePath,
+                                                 boolean isJar) throws BallerinaTestException {
 
         Map<String, String> env = processBuilder.environment();
         for (Map.Entry<String, String> entry : envProperties.entrySet()) {
@@ -152,12 +151,12 @@ public class StrandDumpTest extends BaseTest {
             List<LogLeecher> strandDumpLeechers = new ArrayList<>();
             populateLeechers(strandDumpLeechers, expectedOutputFilePath, serverInfoLogReader);
             serverInfoLogReader.start();
-            waitForLeechers(steadyStateLeechers);
+            bMainInstance.waitForLeechers(steadyStateLeechers, TIMEOUT);
             Thread.sleep(1000);
             long balProcessID = isJar ? process.pid()
                     : process.children().findFirst().get().children().findFirst().get().pid();
             Runtime.getRuntime().exec("kill -SIGTRAP " + balProcessID);
-            waitForLeechers(strandDumpLeechers);
+            bMainInstance.waitForLeechers(strandDumpLeechers, TIMEOUT);
             Runtime.getRuntime().exec("kill -SIGINT " + balProcessID);
             process.waitFor();
             serverInfoLogReader.stop();
@@ -174,12 +173,6 @@ public class StrandDumpTest extends BaseTest {
             LogLeecher leecher = new LogLeecher(str, true, LogLeecher.LeecherType.INFO);
             leecherList.add(leecher);
             serverInfoLogReader.addLeecher(leecher);
-        }
-    }
-
-    private static void waitForLeechers(List<LogLeecher> logLeechers) throws BallerinaTestException {
-        for (LogLeecher leecher : logLeechers) {
-            leecher.waitForText(TIMEOUT);
         }
     }
 

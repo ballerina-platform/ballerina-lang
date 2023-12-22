@@ -20,3 +20,13 @@ type VAL true;
 type trueArray VAL[];
 
 annotation trueArray v2 on type;
+
+annotation record {| Foo f; |} v3 on type;
+
+class Foo {
+    int i = 0;
+}
+
+annotation map<object {}> v4 on field;
+
+annotation record {| Foo...; |} v5 on type;

@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -60,6 +61,7 @@ import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -596,12 +598,12 @@ public class StaticMethods {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
-            assert false;
+            Assert.fail(e.getMessage());
         }
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getImpliedType(TypeChecker.getType(value));
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
@@ -813,5 +815,13 @@ public class StaticMethods {
         output.put(StringUtils.fromString("age"), age);
         output.put(StringUtils.fromString("results"), results);
         balFuture.complete(output);
+    }
+
+    public static BString testOverloadedMethods(Environment env, BArray arr, BString str) {
+        return str;
+    }
+
+    public static BString testOverloadedMethods(ArrayValue obj, BString str) {
+        return str;
     }
 }

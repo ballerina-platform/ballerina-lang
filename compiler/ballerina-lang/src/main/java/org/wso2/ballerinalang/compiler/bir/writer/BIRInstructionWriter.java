@@ -21,6 +21,9 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeArrayInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JLargeMapInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -45,6 +48,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -89,13 +93,18 @@ public class BIRInstructionWriter extends BIRVisitor {
     void writeScopes(BIRNonTerminator instruction) {
         this.instructionOffset++;
         BirScope currentScope = instruction.scope;
-
+        if (currentScope == null) {
+            return;
+        }
         writeScope(currentScope);
     }
 
     void writeScope(BIRTerminator terminator) {
         if (terminator.kind != InstructionKind.RETURN) {
             BirScope currentScope = terminator.scope;
+            if (currentScope == null) {
+                return;
+            }
             writeScope(currentScope);
         }
     }
@@ -317,7 +326,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
-        switch (type.tag) {
+        switch (Types.getImpliedType(type).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:
@@ -480,7 +489,13 @@ public class BIRInstructionWriter extends BIRVisitor {
             writeType(param.type);
             buf.writeInt(addStringCPEntry(param.name.value));
         });
+    }
 
+    @Override
+    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+        recordDefaultFPLoad.lhsOp.accept(this);
+        writeType(recordDefaultFPLoad.enclosedType);
+        buf.writeInt(addStringCPEntry(recordDefaultFPLoad.fieldName));
     }
 
     public void visit(BIRTerminator.Panic birPanic) {
@@ -632,6 +647,30 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.NewReFlagOnOff reFlagsOnOff) {
         reFlagsOnOff.lhsOp.accept(this);
         reFlagsOnOff.flags.accept(this);
+    }
+
+    @Override
+    public void visit(JMethodCallInstruction jMethodCallInstruction) {
+        for (BIROperand arg : jMethodCallInstruction.args) {
+            arg.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(JLargeArrayInstruction jLargeArrayInstruction) {
+        jLargeArrayInstruction.lhsOp.accept(this);
+        jLargeArrayInstruction.sizeOp.accept(this);
+        jLargeArrayInstruction.values.accept(this);
+        if (jLargeArrayInstruction.typedescOp != null) {
+            jLargeArrayInstruction.typedescOp.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(JLargeMapInstruction jLargeMapInstruction) {
+        jLargeMapInstruction.lhsOp.accept(this);
+        jLargeMapInstruction.rhsOp.accept(this);
+        jLargeMapInstruction.initialValues.accept(this);
     }
 
     // Positions

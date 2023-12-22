@@ -51,7 +51,7 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        TableType tableType = (TableType) TypeUtils.getReferredType(tbl.getType());
+        TableType tableType = (TableType) TypeUtils.getImpliedType(tbl.getType());
         BTable newTable =
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));

@@ -252,8 +252,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.sortImportDeclarations;
 
 /**
  * A formatter implementation that updates the minutiae of a given tree according to the ballerina formatting
@@ -284,7 +286,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ModulePartNode transform(ModulePartNode modulePartNode) {
-        NodeList<ImportDeclarationNode> imports = formatNodeList(modulePartNode.imports(), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> imports = sortAndGroupImportDeclarationNodes(modulePartNode.imports());
         NodeList<ModuleMemberDeclarationNode> members = formatModuleMembers(modulePartNode.members());
         Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
         return modulePartNode.modify(imports, members, eofToken);
@@ -363,10 +365,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, parenTrailingNL);
 
         // Start a new indentation of two tabs for the parameters.
-        indent(2);
+        indent(options.getContinuationIndent());
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0, 0, 0, true);
-        unindent(2);
+        unindent(options.getContinuationIndent());
 
         Token closePara;
         ReturnTypeDescriptorNode returnTypeDesc = null;
@@ -643,7 +645,10 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
+        boolean prevPreservedNewLine = env.hasPreservedNewline;
+        setPreserveNewline(false);
         Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
+        setPreserveNewline(prevPreservedNewLine);
         boolean hasPrefix = importDeclarationNode.prefix().isPresent();
         ImportOrgNameNode orgName = formatNode(importDeclarationNode.orgName().orElse(null), 0, 0);
         SeparatedNodeList<IdentifierToken> moduleNames = formatSeparatedNodeList(importDeclarationNode.moduleName(),
@@ -1025,16 +1030,15 @@ public class FormattingTreeModifier extends TreeModifier {
     public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
         Token onKeyword = formatToken(onFailClauseNode.onKeyword(), 1, 0);
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
-        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor().orElse(null), 1, 0);
-        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName().orElse(null), 1, 0);
+        TypedBindingPatternNode typeBindingPattern =
+                formatNode(onFailClauseNode.typedBindingPattern().orElse(null), 1, 0);
         BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
 
         return onFailClauseNode.modify()
                 .withOnKeyword(onKeyword)
                 .withFailKeyword(failKeyword)
-                .withTypeDescriptor(typeDescriptor)
-                .withFailErrorName(failErrorName)
+                .withTypedBindingPattern(typeBindingPattern)
                 .withBlockStatement(blockStatement)
                 .apply();
     }
@@ -1057,8 +1061,15 @@ public class FormattingTreeModifier extends TreeModifier {
     public FunctionCallExpressionNode transform(FunctionCallExpressionNode functionCallExpressionNode) {
         NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 0, 0);
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0, 0);
+        int prevIndentation = env.currentIndentation;
+        if (functionCallExpressionNode.arguments().size() > 0) {
+            if (!isScopedFunctionArgument(functionCallExpressionNode.arguments().get(0))) {
+                indent(options.getContinuationIndent());
+            }
+        }
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
-                .arguments(), 0, 0, 0, 0);
+                .arguments(), 0, 0, 0, 0, true);
+        env.currentIndentation = prevIndentation;
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
                 env.trailingWS, env.trailingNL);
 
@@ -1831,6 +1842,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
+        if (env.lineLength != 0 && isScopedFunctionArgument(positionalArgumentNode)) {
+            env.currentIndentation = env.lineLength;
+        }
         ExpressionNode expression = formatNode(positionalArgumentNode.expression(), env.trailingWS, env.trailingNL);
         return positionalArgumentNode.modify()
                 .withExpression(expression)
@@ -4283,6 +4297,11 @@ public class FormattingTreeModifier extends TreeModifier {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
+        if (leadingMinutiae.size() > 0 &&
+                leadingMinutiae.get(leadingMinutiae.size() - 1).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
+            leadingMinutiae.add(getNewline());
+        }
+
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
         preserveIndentation(false);
         return newLeadingMinutiaeList;
@@ -4462,10 +4481,14 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private int getPreservedIndentation(Token token) {
         int position = token.lineRange().startLine().offset();
-        int offset = position % 4;
+        int tabSize = options.getTabSize();
+        int offset = position % tabSize;
+        if (env.currentIndentation % tabSize == 0 && env.currentIndentation > position) {
+            return env.currentIndentation;
+        }
         if (offset != 0) {
             if (offset > 2) {
-                position = position + 4 - offset;
+                position = position + tabSize - offset;
             } else {
                 position = position - offset;
             }
@@ -4658,6 +4681,57 @@ public class FormattingTreeModifier extends TreeModifier {
     private boolean hasTrailingNL(Token token) {
         for (Minutiae minutiae : token.trailingMinutiae()) {
             if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private NodeList<ImportDeclarationNode> sortAndGroupImportDeclarationNodes(
+            NodeList<ImportDeclarationNode> importDeclarationNodes) {
+        // moduleImports would collect only module level imports if grouping is enabled,
+        // and would collect all imports otherwise
+        List<ImportDeclarationNode> moduleImports = new ArrayList<>();
+        List<ImportDeclarationNode> stdLibImports = new ArrayList<>();
+        List<ImportDeclarationNode> thirdPartyImports = new ArrayList<>();
+
+        for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
+            if (importDeclarationNode.orgName().isEmpty() || !options.getImportFormattingOptions().getGroupImports()) {
+                moduleImports.add(importDeclarationNode);
+            } else {
+                if (List.of("ballerina", "ballerinax")
+                        .contains(importDeclarationNode.orgName().get().orgName().text())) {
+                    stdLibImports.add(importDeclarationNode);
+                } else {
+                    thirdPartyImports.add(importDeclarationNode);
+                }
+            }
+        }
+        if (options.getImportFormattingOptions().getSortImports()) {
+            sortImportDeclarations(moduleImports);
+            sortImportDeclarations(stdLibImports);
+            sortImportDeclarations(thirdPartyImports);
+        }
+
+        NodeList<ImportDeclarationNode> moduleImportNodes =
+                formatNodeList(NodeFactory.createNodeList(moduleImports), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> stdLibImportNodes =
+                formatNodeList(NodeFactory.createNodeList(stdLibImports), 0, 1, 0, 2);
+        NodeList<ImportDeclarationNode> thirdPartyImportNodes =
+                formatNodeList(NodeFactory.createNodeList(thirdPartyImports), 0, 1, 0, 2);
+
+        List<ImportDeclarationNode> imports = new ArrayList<>();
+        imports.addAll(moduleImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
+        imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
+        return NodeFactory.createNodeList(imports);
+    }
+
+    private boolean isScopedFunctionArgument(FunctionArgumentNode functionArgumentNode) {
+        if (functionArgumentNode.parent().kind() == SyntaxKind.FUNCTION_CALL &&
+                functionArgumentNode.children().size() > 0) {
+            SyntaxKind kind = functionArgumentNode.children().get(0).kind();
+            if (kind == SyntaxKind.OBJECT_CONSTRUCTOR || kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 return true;
             }
         }

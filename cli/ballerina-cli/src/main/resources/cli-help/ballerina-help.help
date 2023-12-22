@@ -49,4 +49,6 @@ COMMANDS
         persist         Manage data persistence
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL [Experimental]
+        tool            Manage Ballerina CLI tools
         version         Print the Ballerina version
+        profile         Start Ballerina Profiler [Experimental]

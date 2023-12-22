@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 
 import java.util.List;
 
@@ -41,7 +42,17 @@ public class JMethodCallInstruction extends JInstruction {
     }
 
     @Override
+    public void accept(BIRVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public BIROperand[] getRhsOperands() {
         return args.toArray(new BIROperand[0]);
+    }
+
+    @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        this.args = List.of(operands);
     }
 }

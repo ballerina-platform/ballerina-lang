@@ -20,7 +20,6 @@ package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
@@ -133,7 +132,7 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
 
                     assertEquals(resourcePath.pathRestParameter().get().getName().get(), "rest");
                     assertEquals(resourcePath.pathRestParameter().get().typeDescriptor().typeKind(),
-                                 TypeDescKind.ARRAY);
+                                 TypeDescKind.STRING);
 
                     List<PathSegment> segments = resourcePath.list();
                     assertEquals(segments.size(), 5);
@@ -174,9 +173,8 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
                         return;
                     case "rest":
                         assertPathParam(pathParam, pathParamName, PathSegment.Kind.PATH_REST_PARAMETER,
-                                        TypeDescKind.ARRAY, "[string... rest]");
-                        assertEquals(((ArrayTypeSymbol) pathParam.typeDescriptor()).memberTypeDescriptor().typeKind(),
-                                     TypeDescKind.STRING);
+                                        TypeDescKind.STRING, "[string... rest]");
+                        assertEquals(pathParam.typeDescriptor().typeKind(), TypeDescKind.STRING);
                         return;
                 }
 

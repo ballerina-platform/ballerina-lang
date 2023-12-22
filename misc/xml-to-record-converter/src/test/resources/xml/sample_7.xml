@@ -1,0 +1,37 @@
+<library>
+    <catalog>
+        <book>
+            <title>The Lord of the Rings</title>
+            <author>J.R.R. Tolkien</author>
+            <genre>Fantasy</genre>
+            <published_year>1954</published_year>
+            <isbn>978-0-618-00221-1</isbn>
+        </book>
+        <book>
+            <title>To Kill a Mockingbird</title>
+            <author>Harper Lee</author>
+            <genre>Classic</genre>
+            <published_year>1960</published_year>
+            <isbn>978-0-06-112008-4</isbn>
+        </book>
+        <book>
+            <title>1984</title>
+            <author>George Orwell</author>
+            <genre>Dystopian</genre>
+            <published_year>1949</published_year>
+            <isbn>978-0-452-28423-4</isbn>
+        </book>
+    </catalog>
+    <library_info>
+        <name>Grand Central Library</name>
+        <location>New York City, NY</location>
+        <opening_hours>
+            <weekday>Monday - Friday</weekday>
+            <hours>9:00 AM - 8:00 PM</hours>
+        </opening_hours>
+        <opening_hours>
+            <weekday>Saturday - Sunday</weekday>
+            <hours>10:00 AM - 6:00 PM</hours>
+        </opening_hours>
+    </library_info>
+</library>

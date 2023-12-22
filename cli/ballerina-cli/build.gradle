@@ -58,6 +58,7 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
+    implementation 'commons-io:commons-io'
 
     testImplementation "org.testng:testng:${project.testngVersion}"
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
@@ -72,6 +73,7 @@ dependencies {
 
     testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
+    testRt project(':ballerina-profiler')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
     testRuntimeOnly project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
@@ -82,6 +84,8 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-modifier')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-generator')
     compilerPluginJar project(':project-api-test-artifact:log-creator-pkg-provided-code-analyzer')
+    compilerPluginJar project(':project-api-test-artifact:init-function-code-modify-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
 }
 
 task createTestDistributionCache(type: Copy) {
@@ -93,6 +97,11 @@ task createTestDistributionCache(type: Copy) {
 task copyCompilerPluginJars(type: Copy) {
     from configurations.compilerPluginJar
     into "$buildDir/compiler-plugin-jars"
+}
+
+task copyProfilerResources(type: Copy) {
+    from project(':jballerina-tools').file('resources/profiler')
+    into "$buildDir/resources/profiler"
 }
 
 task createTestBre(type: Copy) {
@@ -107,6 +116,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
     dependsOn copyCompilerPluginJars
+    dependsOn copyProfilerResources
 
     systemProperty "ballerina.home", "$buildDir"
 

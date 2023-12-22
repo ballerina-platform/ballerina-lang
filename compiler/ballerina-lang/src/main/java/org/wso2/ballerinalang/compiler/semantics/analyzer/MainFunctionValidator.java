@@ -89,7 +89,7 @@ public class MainFunctionValidator extends BLangNodeVisitor {
     private void detectArrayRelatedErrors(List<BLangSimpleVariable> requiredParams) {
         boolean firstArrayFound = false;
         for (BLangSimpleVariable param : requiredParams) {
-            if (Types.getReferredType(param.getBType()).tag == TypeTags.ARRAY && !firstArrayFound) {
+            if (Types.getImpliedType(param.getBType()).tag == TypeTags.ARRAY && !firstArrayFound) {
                 firstArrayFound = true;
             } else {
                 validateWithFoundArrayType(param);
@@ -99,13 +99,15 @@ public class MainFunctionValidator extends BLangNodeVisitor {
 
     private BLangSimpleVariable handleSuccessfulVisit(MainParameterVisitor mainParameterVisitor,
                                                       BLangSimpleVariable foundOperand, BLangSimpleVariable param) {
-        if (mainParameterVisitor.isOperandType(param.getBType()) && param.expr == null && foundOperand != null) {
+        BType paramType = param.getBType();
+        BType referredParamType = Types.getImpliedType(paramType);
+        if (mainParameterVisitor.isOperandType(paramType) && param.expr == null && foundOperand != null) {
             dLog.error(param.pos, DiagnosticErrorCode.OPTIONAL_OPERAND_PRECEDES_OPERAND, foundOperand.name,
-                       foundOperand.getBType(), param.name, param.getBType());
+                       foundOperand.getBType(), param.name, paramType);
         } else if (foundUnion(param)) {
             foundOperand = param;
-        } else if (param.getBType().tag == TypeTags.ARRAY && foundArrayType == null) {
-            foundArrayType = ((BArrayType) param.getBType()).eType;
+        } else if (referredParamType.tag == TypeTags.ARRAY && foundArrayType == null) {
+            foundArrayType = ((BArrayType) referredParamType).eType;
         }
         return foundOperand;
     }
@@ -136,7 +138,7 @@ public class MainFunctionValidator extends BLangNodeVisitor {
         if (foundArrayType == null) {
             return;
         }
-        if (Types.getReferredType(param.getBType()).tag == TypeTags.ARRAY) {
+        if (Types.getImpliedType(param.getBType()).tag == TypeTags.ARRAY) {
             dLog.error(param.pos, DiagnosticErrorCode.SAME_ARRAY_TYPE_AS_MAIN_PARAMETER);
         } else if (param.expr != null) { // defaultable
             dLog.error(param.pos, DiagnosticErrorCode.VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM, param.name,
@@ -148,17 +150,17 @@ public class MainFunctionValidator extends BLangNodeVisitor {
     }
 
     private boolean foundUnion(BLangSimpleVariable param) {
-        return Types.getReferredType(param.getBType()).tag == TypeTags.UNION;
+        return Types.getImpliedType(param.getBType()).tag == TypeTags.UNION;
     }
 
     private boolean isIncludedRecord(BLangSimpleVariable param) {
-        return Types.getReferredType(param.getBType()).tag == TypeTags.RECORD
+        return Types.getImpliedType(param.getBType()).tag == TypeTags.RECORD
                 && param.getFlags().contains(Flag.INCLUDED);
     }
 
     private void validateOptionParams(BLangSimpleVariable lastVar) {
         MainParameterVisitor mainParameterVisitor = new MainParameterVisitor(true);
-        BRecordType recordType = (BRecordType) Types.getReferredType(lastVar.getBType());
+        BRecordType recordType = (BRecordType) Types.getImpliedType(lastVar.getBType());
         recordType.getFields().forEach(
                 (name, field) -> {
                     if (!mainParameterVisitor.visit(field.type)) {

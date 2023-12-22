@@ -157,3 +157,26 @@ function testQueryActionOrExprWithSingleReceiveAction() {
         j -> w5;
     }
 }
+
+function testQueryActionOrExprAsyncSendActionInSelectClause() {
+    worker w1 {
+        _ = from var i in [1]
+            select i -> w2;
+    }
+
+    worker w2 {
+        _ = <- w1;
+    }
+}
+
+function testQueryActionOrExprAsyncSendActionInLetClause() {
+    worker w1 {
+        _ = from var i in [1]
+            let int? _ = i -> w2
+            select i;
+    }
+
+    worker w2 {
+        _ = <- w1;
+    }
+}

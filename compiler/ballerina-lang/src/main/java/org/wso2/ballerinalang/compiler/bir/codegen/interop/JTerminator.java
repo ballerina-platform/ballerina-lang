@@ -47,6 +47,11 @@ public class JTerminator extends BIRTerminator {
     }
 
     @Override
+    public void setRhsOperands(BIROperand[] operands) {
+        // do nothing
+    }
+
+    @Override
     public BIRBasicBlock[] getNextBasicBlocks() {
         return new BIRBasicBlock[0];
     }

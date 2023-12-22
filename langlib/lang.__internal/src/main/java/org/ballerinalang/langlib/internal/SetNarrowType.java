@@ -38,7 +38,7 @@ import java.util.HashMap;
 public class SetNarrowType {
 
     public static BMap setNarrowType(BTypedesc td, BMap value) {
-        RecordType recordType = (RecordType) TypeUtils.getReferredType(value.getType());
+        RecordType recordType = (RecordType) TypeUtils.getImpliedType(value.getType());
         RecordType newRecordType =
                 TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
                                              recordType.isSealed(), recordType.getTypeFlags());

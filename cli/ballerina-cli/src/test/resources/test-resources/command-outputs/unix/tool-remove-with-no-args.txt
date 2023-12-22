@@ -1,4 +1,4 @@
-ballerina: no tool id given.
+ballerina: tool id is not provided.
 
 USAGE:
     bal tool remove <tool-id>:[<version>]

@@ -59,6 +59,7 @@ public class TypeConstants {
     public static final String FINITE_TNAME = "finite";
     public static final String FUNCTION_TNAME = "function";
     public static final String READONLY_TNAME = "readonly";
+    public static final String INTERSECTION_TNAME = "intersection";
 
     // SubTypes
     public static final String SIGNED32 = "Signed32";

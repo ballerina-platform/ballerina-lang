@@ -1,0 +1,8 @@
+{
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "createVariableInQueryAction4.bal",
+  "expected": []
+}

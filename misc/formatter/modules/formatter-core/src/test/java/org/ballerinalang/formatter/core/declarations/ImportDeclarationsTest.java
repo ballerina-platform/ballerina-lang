@@ -16,10 +16,13 @@
 package org.ballerinalang.formatter.core.declarations;
 
 import org.ballerinalang.formatter.core.FormatterTest;
+import org.ballerinalang.formatter.core.FormattingOptions;
+import org.ballerinalang.formatter.core.ImportFormattingOptions;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 
 /**
@@ -29,15 +32,50 @@ import java.nio.file.Paths;
  */
 public class ImportDeclarationsTest extends FormatterTest {
 
-    @Test(dataProvider = "test-file-provider")
+    @Test(dataProvider = "test-file-provider-custom")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
+    }
+
+    @Test(dataProvider = "test-file-provider-custom")
+    public void testWithCustomOptions(String source, String sourcePath, FormattingOptions formattingOptions)
+            throws IOException {
+        super.testWithCustomOptions(source, sourcePath, formattingOptions);
     }
 
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
+        return new Object[0][];
+    }
+
+    @DataProvider(name = "test-file-provider-custom")
+    @Override
+    public Object[][] dataProviderWithCustomTests(Method testName) {
+        switch (testName.getName()) {
+            case "test":
+                return new Object[][] {
+                        {"import_declaration_1.bal", this.getTestResourceDir()},
+                        {"import_declaration_2.bal", this.getTestResourceDir()}
+                };
+            case "testWithCustomOptions":
+                FormattingOptions optionWithNoGrouping = FormattingOptions.builder()
+                        .setImportFormattingOptions(ImportFormattingOptions.builder().setGroupImports(false).build())
+                        .build();
+                FormattingOptions optionWithNoSorting = FormattingOptions.builder()
+                        .setImportFormattingOptions(ImportFormattingOptions.builder().setSortImports(false).build())
+                        .build();
+                FormattingOptions optionWithNoGroupingAndSorting = FormattingOptions.builder()
+                        .setImportFormattingOptions(
+                                ImportFormattingOptions.builder().setGroupImports(false).setSortImports(false).build())
+                        .build();
+                return new Object[][] {
+                        {"import_declaration_3.bal", this.getTestResourceDir(), optionWithNoGrouping},
+                        {"import_declaration_4.bal", this.getTestResourceDir(), optionWithNoSorting},
+                        {"import_declaration_5.bal", this.getTestResourceDir(), optionWithNoGroupingAndSorting}
+                };
+        }
+        return null;
     }
 
     @Override

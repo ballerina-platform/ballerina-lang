@@ -14,7 +14,7 @@ Running Tests
 				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
 				callableName: assertTrue moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 61
 				callableName: testMain moduleName: testerina_report.foo$test.0.tests.main_test fileName: tests/main_test.bal lineNumber: 24
-				callableName: testMain$lambda0$ moduleName: testerina_report.foo$test.0.tests.test_execute-generated_*****lineNumber: 3
+				callableName: testMain$lambda0$ moduleName: testerina_report.foo$test.0.tests.test_execute-generated_*****lineNumber: 4
 			
 
 
@@ -38,4 +38,4 @@ Running Tests
 		2 passing
 		0 failing
 		0 skipped
-error: there are test failures
+error: there are test failures

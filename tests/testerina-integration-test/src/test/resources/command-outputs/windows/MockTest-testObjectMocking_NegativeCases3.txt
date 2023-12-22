@@ -13,7 +13,7 @@ Running Tests with Coverage
 				callableName: validateFieldNameExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 337
 				callableName: getMember moduleName: ballerina.test.0.MockObject fileName: mock.bal lineNumber: 95
 				callableName: testDefaultMockInvalidFieldName moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 65
-				callableName: testDefaultMockInvalidFieldName$lambda4$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 7
+				callableName: testDefaultMockInvalidFieldName$lambda4$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 8
 			
 
 
@@ -23,4 +23,4 @@ Running Tests with Coverage
 
 Generating Test Report*****project-based-tests\object-mocking-tests\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

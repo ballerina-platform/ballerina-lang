@@ -41,7 +41,7 @@ dependencies {
     testImplementation project(':ballerina-parser')
     testImplementation project(':language-server:language-server-commons')
     testImplementation project(':language-server:language-server-core')
-    testImplementation 'com.google.code.gson:gson:"${project.gsonVersion}"'
+    testImplementation "com.google.code.gson:gson:${project.gsonVersion}"
     testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
     testImplementation (group: 'net.javacrumbs.json-unit', name: 'json-unit-assertj', version: '2.28.0')
     testImplementation (group: 'net.javacrumbs.json-unit', name: 'json-unit-json-path', version: '2.28.0')

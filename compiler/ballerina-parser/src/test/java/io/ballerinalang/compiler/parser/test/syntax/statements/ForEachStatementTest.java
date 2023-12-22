@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.syntax.statements;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -90,6 +91,69 @@ public class ForEachStatementTest extends AbstractStatementTest {
     public void testForEachStmtWithOnFailClauseWithoutVariable() {
         testFile("forEach-stmt/forEach_stmt_source_26.bal",
                 "forEach-stmt/forEach_stmt_assert_26.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithVar() {
+        testFile("forEach-stmt/forEach_stmt_source_27.bal", "forEach-stmt/forEach_stmt_assert_27.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithType() {
+        testFile("forEach-stmt/forEach_stmt_source_28.bal", "forEach-stmt/forEach_stmt_assert_28.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithUserDefinedError() {
+        testFile("forEach-stmt/forEach_stmt_source_29.bal", "forEach-stmt/forEach_stmt_assert_29.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithUserDefinedErrorWithVar() {
+        testFile("forEach-stmt/forEach_stmt_source_30.bal", "forEach-stmt/forEach_stmt_assert_30.json");
+    }
+
+    @DataProvider(name = "onFailClauseOtherBPTestDataProvider")
+    public Object[][] onFailClauseOtherBPTestDataProvider() {
+        return new Object[][]{
+                {"forEach-stmt/forEach_stmt_source_35.bal", "forEach-stmt/forEach_stmt_assert_35.json"},
+                {"forEach-stmt/forEach_stmt_source_36.bal", "forEach-stmt/forEach_stmt_assert_36.json"},
+                {"forEach-stmt/forEach_stmt_source_37.bal", "forEach-stmt/forEach_stmt_assert_37.json"},
+                {"forEach-stmt/forEach_stmt_source_38.bal", "forEach-stmt/forEach_stmt_assert_38.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseOtherBPTestDataProvider")
+    public void testForEachOnFailClauseWithOtherBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "onFailClauseErrorBPWithFieldBPTestDataProvider")
+    public Object[][] onFailClauseErrorBPWithFieldBPTestDataProvider() {
+        return new Object[][]{
+                {"forEach-stmt/forEach_stmt_source_39.bal", "forEach-stmt/forEach_stmt_assert_39.json"},
+                {"forEach-stmt/forEach_stmt_source_40.bal", "forEach-stmt/forEach_stmt_assert_40.json"},
+                {"forEach-stmt/forEach_stmt_source_41.bal", "forEach-stmt/forEach_stmt_assert_41.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseErrorBPWithFieldBPTestDataProvider")
+    public void testForEachOnFailClausHavingErrorBPWithFieldBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "onFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public Object[][] onFailClauseErrorBPWithOtherTypeDescTestDataProvider() {
+        return new Object[][]{
+                {"forEach-stmt/forEach_stmt_source_42.bal", "forEach-stmt/forEach_stmt_assert_42.json"},
+                {"forEach-stmt/forEach_stmt_source_43.bal", "forEach-stmt/forEach_stmt_assert_43.json"},
+                {"forEach-stmt/forEach_stmt_source_44.bal", "forEach-stmt/forEach_stmt_assert_44.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public void testForEachOnFailClausHavingErrorBPWithOtherTypeDesc(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
     }
 
     // Recovery tests
@@ -178,8 +242,20 @@ public class ForEachStatementTest extends AbstractStatementTest {
                 "forEach-stmt/forEach_stmt_assert_23.json");
     }
 
-    @Test
-    public void testForEachOnFailClauseRecovery() {
-        testFile("forEach-stmt/forEach_stmt_source_25.bal", "forEach-stmt/forEach_stmt_assert_25.json");
+    @DataProvider(name = "onFailClauseRecoveryTestDataProvider")
+    public Object[][] onFailClauseRecoveryTestDataProvider() {
+        return new Object[][]{
+                {"forEach-stmt/forEach_stmt_source_25.bal", "forEach-stmt/forEach_stmt_assert_25.json"},
+                {"forEach-stmt/forEach_stmt_source_31.bal", "forEach-stmt/forEach_stmt_assert_31.json"},
+                {"forEach-stmt/forEach_stmt_source_32.bal", "forEach-stmt/forEach_stmt_assert_32.json"},
+                {"forEach-stmt/forEach_stmt_source_33.bal", "forEach-stmt/forEach_stmt_assert_33.json"},
+                {"forEach-stmt/forEach_stmt_source_34.bal", "forEach-stmt/forEach_stmt_assert_34.json"},
+                {"forEach-stmt/forEach_stmt_source_45.bal", "forEach-stmt/forEach_stmt_assert_45.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseRecoveryTestDataProvider")
+    public void testForEachOnFailClauseRecovery(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
     }
 }

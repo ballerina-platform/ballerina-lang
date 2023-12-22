@@ -44,7 +44,7 @@ public class ToBase64 {
             .fromString("toBase64() is only supported on 'byte[]'");
 
     public static BString toBase64(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,

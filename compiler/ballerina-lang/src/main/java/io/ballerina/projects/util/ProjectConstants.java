@@ -25,7 +25,11 @@ package io.ballerina.projects.util;
  */
 public class ProjectConstants {
 
+    private ProjectConstants() {}
+
     public static final String BLANG_SOURCE_EXT = ".bal";
+    public static final String BALA_EXTENSION = ".bala";
+    public static final String PLATFORM = "platform";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
@@ -121,9 +125,11 @@ public class ProjectConstants {
     public static final String REPOSITORIES_DIR = "repositories";
     public static final String LOCAL_REPOSITORY_NAME = "local";
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
+    public static final String MAVEN_REPOSITORY_CACHE_NAME = "maven";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
     public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
+    public static final String PROFILER_DIR_NAME = "profiler";
 }

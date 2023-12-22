@@ -13,7 +13,7 @@ Running Tests with Coverage
 				callableName: validateArgumentsExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 346
 				callableName: withArguments moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 132
 				callableName: testDefaultIncompatibleArgs moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 56
-				callableName: testDefaultIncompatibleArgs$lambda3$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
+				callableName: testDefaultIncompatibleArgs$lambda3$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 7
 			
 
 

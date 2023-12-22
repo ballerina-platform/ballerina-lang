@@ -58,6 +58,8 @@ public class BCompileUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
+    private BCompileUtil() {}
+
     public static Project loadProject(String sourceFilePath) {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return loadProject(sourceFilePath, buildOptionsBuilder.build());

@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -318,8 +319,25 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<LSPackageLoader.ModuleInfo> moduleList =
-                LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
+        List<LSPackageLoader.ModuleInfo> moduleList;
+
+        if (orgName.equals("ballerinax")) {
+            List<String> packageList = new ArrayList<>();
+            String prefix = node.moduleName().stream().filter(identifierToken -> !identifierToken.isMissing())
+                    .map(IdentifierToken::text)
+                    .collect(Collectors.joining("."));
+
+            moduleList = LSPackageLoader.getInstance(serverContext).getCentralPackages(serverContext);
+            moduleList.forEach(ballerinaPackage -> packageList.add(ballerinaPackage.packageName().value()));
+            List<String> filteredPackageNames = getFilteredPackages(packageList, prefix, context);
+            for (String filteredPackage : filteredPackageNames) {
+                LSCompletionItem completionItem = getImportCompletion(context, filteredPackage, filteredPackage);
+                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                completionItems.add(completionItem);
+            }
+            return completionItems;
+        }
+        moduleList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
         moduleList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
@@ -332,7 +350,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     insertText = packageName;
                 }
                 addedPkgNames.add(packageName);
-                // Do not add the semi colon at the end of the insert text since the user might type the as keyword
+                // Do not add the semicolon at the end of the insert text since the user might type the as keyword
                 LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
                 completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
                 completionItems.add(completionItem);
@@ -340,6 +358,15 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         });
 
         return completionItems;
+    }
+
+
+    private static List<String> getFilteredPackages(List<String> packageList, String prefix,
+                                                   BallerinaCompletionContext context) {
+        CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
+                .getInstance(context.languageServercontext());
+        completionSearchProvider.indexNames(packageList);
+        return completionSearchProvider.getSuggestions(prefix);
     }
 
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ImportDeclarationNode node) {

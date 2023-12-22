@@ -366,10 +366,10 @@ public class TypeNarrower extends BLangNodeVisitor {
             BVarSymbol symbolInScope = (BVarSymbol) env.scope.entries.get(symbol.name).symbol;
             BType typeInScope = symbolInScope.type;
             if (!types.isAssignable(symbol.type, typeInScope)) {
-                return Types.getReferredType(typeInScope);
+                return Types.getImpliedType(typeInScope);
             }
         }
-        return Types.getReferredType(symbol.type);
+        return Types.getImpliedType(symbol.type);
     }
 
     private BType getTypeUnion(BType currentType, BType targetType) {

@@ -1,0 +1,5 @@
+Compiling source
+	foo/package_a:0.1.0
+
+Generating executable
+	target/bin/package_a.jar

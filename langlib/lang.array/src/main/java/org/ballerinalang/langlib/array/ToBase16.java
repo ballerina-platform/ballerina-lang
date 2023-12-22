@@ -42,7 +42,7 @@ public class ToBase16 {
     private static final BString NOT_SUPPORTED_ERROR_DETAIL = StringUtils.fromString("toBase16() is only supported " +
                                                                                                "on 'byte[]'");
     public static BString toBase16(BArray arr) {
-        Type arrType = TypeUtils.getReferredType(arr.getType());
+        Type arrType = TypeUtils.getImpliedType(arr.getType());
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,

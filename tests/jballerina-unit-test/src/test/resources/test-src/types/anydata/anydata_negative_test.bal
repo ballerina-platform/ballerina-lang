@@ -187,3 +187,12 @@ public function testInvalidJsonInvocation() {
 
    json _ = tb.toJson();
 }
+
+function testInvalidAssignmentToReadonlyAnydata() {
+    anydata a = [];
+    map<anydata> a1 = {};
+
+    anydata & readonly b = a;
+    anydata[] & readonly c = a;
+    b = a1;
+}

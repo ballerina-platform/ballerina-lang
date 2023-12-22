@@ -56,7 +56,7 @@ public class Errors {
     }
 
     public static BArray getTypeIds(BError error) {
-        List<TypeId> typeIds = ((ErrorType) TypeUtils.getReferredType(error.getType())).getTypeIdSet().getIds();
+        List<TypeId> typeIds = ((ErrorType) TypeUtils.getImpliedType(error.getType())).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size));

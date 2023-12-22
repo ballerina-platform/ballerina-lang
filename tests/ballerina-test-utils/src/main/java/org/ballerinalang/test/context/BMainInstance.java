@@ -87,16 +87,15 @@ public class BMainInstance implements BMain {
     /**
      * Initialize the server instance with properties.
      *
-     * @throws BallerinaTestException when an exception is thrown while initializing the server
      */
-    private void initialize() throws BallerinaTestException {
+    private void initialize() {
         configureAgentArgs();
     }
 
-    private void configureAgentArgs() throws BallerinaTestException {
+    private void configureAgentArgs() {
         // add jacoco agent
         String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
-                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar") + "=destfile=" +
                 Paths.get(System.getProperty("user.dir"))
                         .resolve("build").resolve("jacoco").resolve("test.exec");
         agentArgs = jacocoArgLine + " ";
@@ -208,7 +207,7 @@ public class BMainInstance implements BMain {
                 envProperties, clientArgs, leechers, sourceRoot);
     }
 
-    public synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    public synchronized void addJavaAgents(Map<String, String> envProperties) {
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
@@ -217,10 +216,14 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
-        if ("".equals(javaOpts)) {
+        if (javaOpts.isEmpty()) {
             return;
         }
         envProperties.put(JAVA_OPTS, javaOpts);
+    }
+
+    public String getBalServerHome() {
+        return Paths.get(balServer.getServerHome()).toString();
     }
 
     /**
@@ -290,6 +293,48 @@ public class BMainInstance implements BMain {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
+        }
+    }
+
+
+    /**
+     * Executing the sh or bat file to start the server and return the PID for service handling.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environment properties to be appended to the environment
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    public Process runCommandAndGetProcess(String command, String[] args, Map<String, String> envProperties,
+                                           String commandDir) throws BallerinaTestException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        try {
+            if (Utils.isWindowsOS()) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return processBuilder.start();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing bal command", e);
+        }
+    }
+
+    public void waitForLeechers(List<LogLeecher> logLeechers, int timeout) throws BallerinaTestException {
+        for (LogLeecher leecher : logLeechers) {
+            leecher.waitForText(timeout);
         }
     }
 

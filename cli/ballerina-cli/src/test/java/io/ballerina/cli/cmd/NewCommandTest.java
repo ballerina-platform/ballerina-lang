@@ -115,7 +115,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -158,7 +167,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -201,7 +219,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -332,7 +359,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -382,7 +418,16 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\ngenerated\n" +
+        String expectedGitignoreContent = "# Ballerina generates this directory during the compilation of a package. " +
+                "\n# It contains compiler-generated artifacts and the final executable if this is an application " +
+                "package.\ntarget/\n" +
+                "\n" +
+                "# Ballerina maintains the compiler-generated source code here.\n" +
+                "# Remove this if you want to commit generated sources.\n" +
+                "generated/\n" +
+                "\n" +
+                "# Contains configuration values used during development time.\n" +
+                "# See https://ballerina.io/learn/provide-values-to-configurable-variables/ for more details.\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -579,7 +624,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertEquals(packBuildLog.replaceAll("\r", ""), getOutput("pack-tool-template.txt"));
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
-                        .resolve("testuserorg-tool_sample-any-0.1.0.bala").toFile().exists());
+                        .resolve("testuserorg-tool_sample-java17-0.1.0.bala").toFile().exists());
     }
 
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
@@ -668,7 +713,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertEquals(packBuildLog.replaceAll("\r", ""), getOutput("pack-central-tool.txt"));
         Assert.assertTrue(
                 packageDir.resolve("target").resolve("bala")
-                        .resolve("testorg-sample_tool_template-any-1.0.0.bala").toFile().exists());
+                        .resolve("testorg-sample_tool_template-java17-1.0.0.bala").toFile().exists());
     }
 
     @Test(description = "Test new command with central template in the local cache")
@@ -849,10 +894,9 @@ public class NewCommandTest extends BaseCommandTest {
         String templateArg = "ballerinax/twitter";
         Path packageDir = tmpDir.resolve("sample_pull_twitter");
         String[] args = {packageDir.toString(), "-t", templateArg};
-        NewCommand newCommand = new NewCommand(printStream, false);
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
-
         Assert.assertTrue(readOutput().contains("unable to create the package: specified package is not a template"));
     }
 

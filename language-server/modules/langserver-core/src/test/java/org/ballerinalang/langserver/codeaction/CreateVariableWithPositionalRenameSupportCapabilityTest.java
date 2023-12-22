@@ -128,6 +128,10 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableForOptionalFieldAccess1.json"},
                 {"createVariableForOptionalFieldAccess2.json"},
                 {"createVariableWithTypeDesc.json"},
+                {"createVariableInQueryAction1.json"},
+                {"createVariableInQueryAction2.json"},
+                {"createVariableInQueryAction3.json"},
+                {"createVariableInQueryAction4.json"},
 
                 // Tuple related
                 {"createVariableWithTuple1.json"},
@@ -166,7 +170,8 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"createVariableNegative1.json"},
                 {"createVariableNegative2.json"},
                 {"createVariableNegative3.json"},
-                {"createVariableNegative4.json"}
+                {"createVariableNegative4.json"},
+                {"createVariableInQueryActionNegative.json"}
         };
     }
 }

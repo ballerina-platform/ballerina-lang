@@ -73,6 +73,9 @@ class BIRGenEnv {
     // A function can have only one basic block that has a return instruction.
     BIRBasicBlock returnBB;
 
+    // This is to hold whether a NewArray or NewStructure instruction is being constructed
+    int isInArrayOrStructure = 0;
+
     BIRGenEnv(BIRPackage birPkg) {
         this.enclPkg = birPkg;
     }

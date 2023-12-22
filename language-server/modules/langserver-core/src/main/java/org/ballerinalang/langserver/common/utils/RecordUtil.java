@@ -186,7 +186,7 @@ public class RecordUtil {
     public static Map<String, RecordFieldSymbol> getRecordFields(RawTypeSymbolWrapper<RecordTypeSymbol> wrapper,
                                                                  List<String> existingFields) {
         return wrapper.getRawType().fieldDescriptors().entrySet().stream()
-                .filter(e -> !existingFields.contains(e.getKey()))
+                .filter(e -> !existingFields.contains(e.getValue().getName().get()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 

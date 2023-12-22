@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -41,6 +42,7 @@ import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -63,7 +65,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
@@ -109,13 +111,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public MapValueImpl(Type type) {
         super();
         this.type = type;
-        this.referredType = getReferredType(type);
+        this.referredType = getImpliedType(type);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
         this.type = type;
-        this.referredType = getReferredType(type);
+        this.referredType = getImpliedType(type);
         populateInitialValues(initialValues);
     }
 
@@ -266,7 +268,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
 
         String errMessage = "";
-        switch (getType().getTag()) {
+        switch (getImpliedType(getType()).getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 errMessage = "Invalid update of record field: ";
                 break;
@@ -281,19 +283,34 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
+        Map<String, BFunctionPointer<Object, ?>> defaultValues = new HashMap<>();
+        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            defaultValues.putAll(((BRecordType) type).getDefaultValues());
+        }
+
         for (BMapInitialValueEntry initialValue : initialValues) {
             if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
                         (MappingInitialValueEntry.KeyValueEntry) initialValue;
-                populateInitialValue((K) keyValueEntry.key, (V) keyValueEntry.value);
+                Object mapKey = keyValueEntry.key;
+                defaultValues.remove(mapKey.toString());
+                populateInitialValue((K) mapKey, (V) keyValueEntry.value);
                 continue;
             }
 
             MapValueImpl<K, V> values =
                     (MapValueImpl<K, V>) ((MappingInitialValueEntry.SpreadFieldEntry) initialValue).values;
             for (Map.Entry<K, V> entry : values.entrySet()) {
-                populateInitialValue(entry.getKey(), entry.getValue());
+                K entryKey = entry.getKey();
+                defaultValues.remove(entryKey.toString());
+                populateInitialValue(entryKey, entry.getValue());
             }
+        }
+
+        for (Map.Entry<String, BFunctionPointer<Object, ?>> entry : defaultValues.entrySet()) {
+            String key = entry.getKey();
+            BFunctionPointer<Object, ?> value = entry.getValue();
+            populateInitialValue((K) new BmpStringValue(key), (V) value.call(new Object[]{Scheduler.getStrand()}));
         }
     }
 

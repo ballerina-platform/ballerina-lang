@@ -235,7 +235,8 @@ function hashCode(handle receiver) returns int = @java:Method {
 } external;
 
 function newByte(int val) returns handle = @java:Constructor {
-   'class: "java.lang.Byte"
+   'class: "java.lang.Byte",
+   paramTypes: ["byte"]
 } external;
 
 function getStringFromFutureResult(handle receiver) returns string = @java:Method {
@@ -266,6 +267,21 @@ public function testBalEnvAcceptingMethodRetType(handle receiver) {
     map<any> mapResult = getMapFromFutureResult(receiver);
     test:assertEquals(mapResult, {"a":10,"b":12.5});
 }
+
+public function testInteropCallToAbstractClassMethod() {
+    handle receiver = getConstructor();
+    string message = getMessage(receiver);
+    test:assertEquals(message, "Hello from Java!");
+}
+
+function getMessage(handle receiver) returns string = @java:Method {
+    name: "getMessage",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/AbstractClass"
+} external;
+
+function getConstructor() returns handle = @java:Constructor {
+   'class: "org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor"
+} external;
 
 function assertEquals(anydata|error expected, anydata|error actual) {
     if isEqual(actual, expected) {

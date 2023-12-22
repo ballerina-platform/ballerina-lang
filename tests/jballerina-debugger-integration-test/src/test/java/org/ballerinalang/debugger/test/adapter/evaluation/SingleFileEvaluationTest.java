@@ -56,8 +56,9 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
         debugTestRunner.assertExpression(context, "AnonPerson", "AnonPerson", "typedesc");
 
         // Todo - move to common evaluation test suite after fixing the value string
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly \"John\" name; |} & readonly",
-                "record");
+        // TODO: enable after #40896
+//        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly \"John\" name; |} & readonly",
+//                "record");
     }
 
     @Override
