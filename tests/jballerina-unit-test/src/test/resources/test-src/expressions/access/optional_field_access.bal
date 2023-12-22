@@ -40,11 +40,52 @@ type Bar record {
     decimal c;
 };
 
+type R1 record {
+    int a?;
+    float b?;
+    string c?;
+    boolean d?;
+    decimal e?;
+};
+
+type R2 record {
+    int a;
+    R1 r1?;
+};
+
 function testOptionalFieldAccessOnRequiredRecordField() returns boolean {
     string s = "Anne";
     Employee e = { name: s, id: 100 };
     string name = e?.name;
     return name == s;
+}
+
+function testOptionalFieldRemovalBasicType() returns boolean {
+    R1 r = { a: 1, b: 2.0, c: "test", d: true, e: 3.0 };
+    r.a = ();
+    r.b = ();
+    r.c = ();
+    r.d = ();
+    r.e = ();
+    return r.hasKey("a") || r.hasKey("b") || r.hasKey("c") || r.hasKey("d") || r.hasKey("e");
+}
+
+function testOptionalFieldRemovalIndirect() returns boolean {
+    R2 r = { a: 1, r1: { a: 1, b: 2.0, c: "test" } };
+    r.r1.a = ();
+    r.r1.b = ();
+    r.r1.c = ();
+    R1? r1 = r.r1;
+    if r1 is () {
+        return true;
+    }
+    return r1.hasKey("a") || r1.hasKey("b") || r1.hasKey("c");
+}
+
+function testOptionalFieldRemovalComplex() returns boolean {
+    R2 r = { a: 1, r1: { a: 1, b: 2.0, c: "test" } };
+    r.r1 = ();
+    return r.hasKey("r1");
 }
 
 function testOptionalFieldAccessOnRequiredRecordFieldInRecordUnion() returns boolean {
