@@ -53,8 +53,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
     public void execute(Project project) {
         Collection<Diagnostic> toolDiagnostics = project.currentPackage().manifest().diagnostics().diagnostics();
         boolean hasTomlErrors = project.currentPackage().manifest().diagnostics().hasErrors();
-        toolDiagnostics.forEach(outStream::println);
         if (hasTomlErrors) {
+            toolDiagnostics.forEach(outStream::println);
             throw createLauncherException("compilation contains errors");
         }
         List<Tool> tools = project.currentPackage().manifest().tools();
