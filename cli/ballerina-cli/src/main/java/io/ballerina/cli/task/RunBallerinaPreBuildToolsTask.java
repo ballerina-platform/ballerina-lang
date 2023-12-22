@@ -18,7 +18,7 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.cli.tool.BuildToolRunner;
+import io.ballerina.cli.tool.CodeGeneratorTool;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
@@ -39,7 +39,7 @@ import static io.ballerina.projects.PackageManifest.Tool;
 /**
  * Task for running tools integrated with the build.
  *
- * @since 2201.8.0
+ * @since 2201.9.0
  */
 public class RunBallerinaPreBuildToolsTask implements Task {
 
@@ -53,16 +53,16 @@ public class RunBallerinaPreBuildToolsTask implements Task {
     public void execute(Project project) {
         Collection<Diagnostic> toolDiagnostics = project.currentPackage().manifest().diagnostics().diagnostics();
         boolean hasTomlErrors = project.currentPackage().manifest().diagnostics().hasErrors();
+        toolDiagnostics.forEach(outStream::println);
         if (hasTomlErrors) {
-            toolDiagnostics.forEach(outStream::println);
             throw createLauncherException("compilation contains errors");
         }
         List<Tool> tools = project.currentPackage().manifest().tools();
-        ServiceLoader<BuildToolRunner> buildRunners = ServiceLoader.load(BuildToolRunner.class);
+        ServiceLoader<CodeGeneratorTool> buildRunners = ServiceLoader.load(CodeGeneratorTool.class);
         for (Tool tool : tools) {
             try {
                 String commandName = tool.getType();
-                BuildToolRunner targetTool = getTargetTool(commandName, buildRunners);
+                CodeGeneratorTool targetTool = getTargetTool(commandName, buildRunners);
                 if (targetTool == null) {
                     // TODO: Install tool if not found
                     outStream.println("Command not found: " + commandName);
@@ -71,7 +71,7 @@ public class RunBallerinaPreBuildToolsTask implements Task {
                 try {
                     validateOptionsToml(tool.getOptionsToml(), commandName);
                 } catch (IOException e) {
-                    outStream.println("WARNING: Skipping the validation of tool options due to : " +
+                    outStream.println("WARNING: Skipping the validation of tool options due to: " +
                         e.getMessage());
                 }
                 ToolContext toolContext = ToolContext.from(tool, project.currentPackage());
@@ -88,8 +88,8 @@ public class RunBallerinaPreBuildToolsTask implements Task {
         }
     }
 
-    private BuildToolRunner getTargetTool(String commandName, ServiceLoader<BuildToolRunner> buildRunners) {
-        for (BuildToolRunner buildRunner : buildRunners) {
+    private CodeGeneratorTool getTargetTool(String commandName, ServiceLoader<CodeGeneratorTool> buildRunners) {
+        for (CodeGeneratorTool buildRunner : buildRunners) {
             if (buildRunner.toolName().equals(commandName)) {
                 return buildRunner;
             }

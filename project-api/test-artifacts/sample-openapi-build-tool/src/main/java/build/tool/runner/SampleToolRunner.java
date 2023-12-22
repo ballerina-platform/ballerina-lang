@@ -18,7 +18,7 @@
 
 package build.tool.runner;
 
-import io.ballerina.cli.tool.BuildToolRunner;
+import io.ballerina.cli.tool.CodeGeneratorTool;
 import io.ballerina.projects.ToolContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -35,7 +35,7 @@ import java.nio.file.Path;
  *
  * @since 2201.9.0
  */
-public class SampleToolRunner implements BuildToolRunner {
+public class SampleToolRunner implements CodeGeneratorTool {
     @Override
     public void execute(ToolContext toolContext) {
         Path absFilePath = toolContext.currentPackage().project().sourceRoot().resolve(toolContext.filePath());
