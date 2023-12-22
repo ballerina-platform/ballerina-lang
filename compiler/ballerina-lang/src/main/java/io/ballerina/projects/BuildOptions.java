@@ -35,9 +35,11 @@ public class BuildOptions {
     private Boolean exportComponentModel;
     private String graalVMBuildOptions;
 
+    private Boolean sigstoreSign;
+
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions) {
+                 Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions, Boolean sigstoreSign) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -48,6 +50,7 @@ public class BuildOptions {
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
+        this.sigstoreSign = sigstoreSign;
 
     }
 
@@ -78,6 +81,12 @@ public class BuildOptions {
 
     public boolean disableSyntaxTree() {
         return this.compilationOptions.disableSyntaxTree();
+    }
+
+    public boolean sigstoreSign() {
+        // By default, the tests will be skipped
+        return toBooleanDefaultIfNull(this.sigstoreSign);
+
     }
 
     /**
@@ -264,6 +273,7 @@ public class BuildOptions {
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
 
+        private Boolean sigstoreSign;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -311,6 +321,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
             graalVMBuildOptions = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSigstoreSign(Boolean value) {
+            sigstoreSign = value;
             return this;
         }
 
@@ -390,7 +405,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
-                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions);
+                    targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions, sigstoreSign);
         }
     }
 }

@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
+import static io.ballerina.cli.cmd.Constants.SIGN_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -38,19 +38,19 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = PACK_COMMAND, description = "Create distribution format of the current package")
-public class PackCommand implements BLauncherCmd {
+@CommandLine.Command(name = SIGN_COMMAND, description = "Create distribution format of the current package")
+public class SignCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
     private final boolean exitWhenFinish;
     private final boolean skipCopyLibsFromDist;
 
-    @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
+    @CommandLine.Option(names = { "--offline" }, description = "Build/Compile offline without downloading " +
             "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Parameters (arity = "0..1")
+    @CommandLine.Parameters(arity = "0..1")
     private final Path projectPath;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
@@ -65,7 +65,7 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
     private boolean dumpRawGraphs;
 
-    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
 
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
@@ -90,9 +90,10 @@ public class PackCommand implements BLauncherCmd {
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
 
-    @CommandLine.Option(names = "--s", hidden = true)
+    @CommandLine.Option(names = "--sigstore", hidden = true)
     private Boolean sigstoreSign;
-    public PackCommand() {
+
+    public SignCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
@@ -101,7 +102,7 @@ public class PackCommand implements BLauncherCmd {
         this.sigstoreSign = false;
     }
 
-    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    SignCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        boolean skipCopyLibsFromDist) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -112,7 +113,7 @@ public class PackCommand implements BLauncherCmd {
         this.sigstoreSign = false;
     }
 
-    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    SignCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        boolean skipCopyLibsFromDist, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -130,7 +131,7 @@ public class PackCommand implements BLauncherCmd {
         boolean isSingleFileBuild = false; // Packing cannot be done for single files
 
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PACK_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(SIGN_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
         }
@@ -169,7 +170,7 @@ public class PackCommand implements BLauncherCmd {
         if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty() &&
                 project.currentPackage().balToolToml().isEmpty()) {
             CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
-                        false);
+                    false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -236,7 +237,8 @@ public class PackCommand implements BLauncherCmd {
 
         }
 
-        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
+        // Sets the debug port as a system property, which will be used when setting up
+        // debug args before running tests.
         if (!project.buildOptions().skipTests() && this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
@@ -256,7 +258,7 @@ public class PackCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
-                .addTask(new SigstoreSignTask(outStream,buildOptions.sigstoreSign()))
+                .addTask(new SigstoreSignTask(outStream, buildOptions.sigstoreSign()))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -290,18 +292,18 @@ public class PackCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return PACK_COMMAND;
+        return SIGN_COMMAND;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append(BLauncherCmd.getCommandUsageInfo(PACK_COMMAND));
+        out.append(BLauncherCmd.getCommandUsageInfo(SIGN_COMMAND));
 
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal pack [--offline] \\n\" +\n" + "            \"       [<package-path>]");
+        out.append("  bal sign [--offline] \\n\" +\n" + "            \"       [<package-path>]");
     }
 
     @Override

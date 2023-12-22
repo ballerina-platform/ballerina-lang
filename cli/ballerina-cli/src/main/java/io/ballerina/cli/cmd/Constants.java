@@ -44,6 +44,7 @@ public class Constants {
     public static final String BINDGEN_COMMAND = "bindgen";
     public static final String SHELL_COMMAND = "shell";
     public static final String PACK_COMMAND = "pack";
+    public static final String SIGN_COMMAND = "sign";
     public static final String GRAPH_COMMAND = "graph";
     public static final String DEPRECATE_COMMAND = "deprecate";
     public static final String TOOL_COMMAND = "tool";
@@ -59,6 +60,7 @@ public class Constants {
     public static final String VERSION_OPTION = "--version";
     public static final String HELP_OPTION = "--help";
     public static final String DEBUG_OPTION = "--debug";
+    public static final String SIGSTORE_SIGN = "--sigstore";
     public static final String VERSION_SHORT_OPTION = "-v";
     public static final String HELP_SHORT_OPTION = "-h";
 }

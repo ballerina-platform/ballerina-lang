@@ -14,7 +14,9 @@
  * limitations under the License.
  *
  */
-
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
@@ -30,6 +32,15 @@ configurations {
     balRt
     testRt
     testCore
+
+    runtimeClasspath {
+        exclude group: 'info.picocli', module: 'picocli'
+        exclude group: 'org.apache.commons', module: '*'
+        exclude group: 'javax.annotation', module: 'javax.annotation-api'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+
+    }
+
 }
 
 dependencies {
@@ -59,6 +70,8 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
     implementation 'commons-io:commons-io'
+    implementation 'dev.sigstore:sigstore-java:0.6.0'
+
 
     testImplementation "org.testng:testng:${project.testngVersion}"
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
@@ -134,7 +147,80 @@ compileJava {
         classpath = files()
     }
 }
-
-
 tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
 tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')
+
+
+def excludedDependenciesGroups = [
+        // gradle is buggy with poms, scope provided and optional I think
+//        'com.google.code.findbugs',
+        'com.google.guava',
+        'com.google.errorprone',
+        'org.slf4j',
+        'javax.annotation',
+        'info.picocli',
+        'org.apache.commons',
+        'org.checkerframework',
+        'picocli'
+]
+//
+//// then cxf+tomee specific dependencies so we need to be more precise than the group
+//// to not exclude everything
+def excludedDependenciesArtifacts = [
+        'commons-lang3',
+        'commons-test',
+        'commons-compress',
+        'cxf-rt-frontend-jaxws',
+        'cxf-rt-frontend-simple',
+        'cxf-rt-security-saml',
+        'cxf-rt-ws-addr',
+        'cxf-rt-wsdl',
+        'cxf-rt-ws-policy',
+        'cxf-rt-ws-security',
+        'openejb-cxf',
+        'openejb-webservices',
+        'tomee-webservices',
+        'geronimo-connector',
+        'geronimo-javamail_1.6_mail',
+        'javax.annotation-api',
+        'picocli',
+        'org'
+]
+shadowJar {
+    manifest {
+        attributes 'Main-Class': 'io.ballerina.cli.launcher.Main'
+    }
+//    minimize()
+//    archiveBaseName = 'ballerina-cli'
+//
+//    exclude 'org.checkerframework.checker.qual'
+////        exclude 'info.picocli'
+//    exclude 'com.google.code.findbugs'
+//    exclude 'com.google.j2objc'
+//    exclude 'com.google.errorprone'
+//    exclude 'org.apache.commons'
+//    exclude 'info.picocli'
+//    exclude 'picocli'
+//    exclude 'picocli/**'
+//    exclude 'info.picocli:picocli'
+//    dependencies {
+//        exclude 'info.picocli:picocli'
+//    }
+
+    configurations = [project.configurations.runtimeClasspath]
+//    configurations.removeIf {
+//        it.group == 'info.picocli' && it.name == 'picocli'
+//
+//    }
+
+
+
+//    exclude 'picocli.**'
+}
+
+
+// Optional: Exclude the default JAR task
+jar.enabled = false
+build.dependsOn(shadowJar)
+
+
