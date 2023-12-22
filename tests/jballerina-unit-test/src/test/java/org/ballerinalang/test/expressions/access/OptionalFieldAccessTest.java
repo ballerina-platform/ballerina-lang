@@ -167,6 +167,21 @@ public class OptionalFieldAccessTest {
         BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 
+    @Test(dataProvider = "optionalFieldRemovalFunctions")
+    public void testOptionalFieldRemoval(String function) {
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertFalse((Boolean) returns);
+    }
+
+    @DataProvider(name = "optionalFieldRemovalFunctions")
+    public Object[][] optionalFieldRemovalFunctions() {
+        return new Object[][]{
+                {"testOptionalFieldRemovalBasicType"},
+                {"testOptionalFieldRemovalIndirect"},
+                {"testOptionalFieldRemovalComplex"}
+        };
+    }
+
     @Test
     public void testNestedOptionalFieldAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");

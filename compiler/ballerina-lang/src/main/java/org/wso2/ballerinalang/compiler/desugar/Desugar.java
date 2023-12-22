@@ -2475,7 +2475,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        boolean isOptionalFieldAssignment = isOptionalFieldAssignment(assignNode);
+        boolean isOptionalFieldAssignment = isOptionalBasicTypeFieldAssignment(assignNode);
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         BType castingType = assignNode.varRef.getBType();
@@ -2486,7 +2486,7 @@ public class Desugar extends BLangNodeVisitor {
         result = assignNode;
     }
 
-    private boolean isOptionalFieldAssignment(BLangAssignment assignNode) {
+    private boolean isOptionalBasicTypeFieldAssignment(BLangAssignment assignNode) {
         if (assignNode.varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
             return false;
         }
@@ -2497,10 +2497,14 @@ public class Desugar extends BLangNodeVisitor {
         }
         BRecordType recordType = (BRecordType) targetType;
         BField field = recordType.fields.get(fieldAccessNode.field.value);
-        if (field == null) {
+        if (field == null || (field.symbol.flags & Flags.OPTIONAL) != Flags.OPTIONAL) {
             return false;
         }
-        return (field.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
+        BType fieldType = field.getType();
+        return switch (fieldType.getKind()) {
+            case BOOLEAN, FLOAT, STRING, DECIMAL -> true;
+            default -> TypeTags.isIntegerTypeTag(fieldType.tag);
+        };
     }
 
     @Override
