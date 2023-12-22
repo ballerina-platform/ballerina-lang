@@ -748,13 +748,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @return assignment statement created
      */
     private BLangAssignment createAssignmentToClosureMap(BLangSimpleVariableDef varDefNode) {
-        BVarSymbol mapSymbol;
         BLangNode node = env.node;
-        if (node.getKind() == NodeKind.BLOCK && node.internal) {
-            mapSymbol = createMapSymbolIfAbsent(node.parent, blockClosureMapCount);
-        } else {
-            mapSymbol = createMapSymbolIfAbsent(node, blockClosureMapCount);
-        }
+        BLangNode inputNode = node.getKind() == NodeKind.BLOCK && node.internal ? node.parent : node;
+        BVarSymbol mapSymbol = createMapSymbolIfAbsent(inputNode, blockClosureMapCount);
 
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
