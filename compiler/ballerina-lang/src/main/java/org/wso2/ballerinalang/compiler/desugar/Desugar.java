@@ -2468,15 +2468,32 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        boolean fieldAccessLVExpr = assignNode.varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR;
+        boolean isOptionalFieldAssignment = isOptionalFieldAssignment(assignNode);
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         BType castingType = assignNode.varRef.getBType();
-        if (fieldAccessLVExpr) {
+        if (isOptionalFieldAssignment) {
             castingType = types.addNilForNillableAccessType(castingType);
         }
         assignNode.expr = types.addConversionExprIfRequired(rewriteExpr(assignNode.expr), castingType);
         result = assignNode;
+    }
+
+    private boolean isOptionalFieldAssignment(BLangAssignment assignNode) {
+        if (assignNode.varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) assignNode.varRef;
+        BType targetType = Types.getImpliedType(fieldAccessNode.expr.getBType());
+        if (targetType.getKind() != TypeKind.RECORD) {
+            return false;
+        }
+        BRecordType recordType = (BRecordType) targetType;
+        BField field = recordType.fields.get(fieldAccessNode.field.value);
+        if (field == null) {
+            return false;
+        }
+        return (field.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
 
     @Override
