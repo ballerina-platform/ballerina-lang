@@ -79,6 +79,14 @@ type Street record {|
     string street;
 |};
 
+type Foz record {|
+    string s;
+    int i;
+    int j;
+    boolean b;
+    string...;
+|};
+
 function testSpreadOfOpenRecordToCreateClosedRecord() {
     Address address1 = {street: "Main Street"};
     record {|string street;|} _ = {...address1};
@@ -98,6 +106,12 @@ function testSpreadOfOpenRecordToCreateClosedRecord() {
     record {string s;} foo1 = {s: "S"};
     record {int i;} foo2 = {i: 2};
     Foo _ = {...foo1, ...foo2};
+
+    record {|string s;|} foz1 = {s: "s"};
+    record {|int i;|} foz2 = {i: 1};
+    record {int j;} foz3 = {j: 2};
+    record {boolean b;} foz4 = {b: true};
+    Foz _ =  {...foz1, ...foz2, ...foz3, ...foz4};
 }
 
 type Country record {|

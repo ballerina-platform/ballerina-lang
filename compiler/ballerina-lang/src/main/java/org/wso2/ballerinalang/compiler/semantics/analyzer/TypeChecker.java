@@ -7665,7 +7665,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                          } else if (!types.isAssignable(spreadRecordType.restFieldType,
                                  mappingRecordType.restFieldType)) {
                              dlog.error(spreadExpr.pos,
-                                     DiagnosticErrorCode.MISMATCHING_REST_TYPE_DESCRIPTOR_IN_SPREAD_FIELD,
+                                     DiagnosticErrorCode.INVALID_SPREAD_FIELD_REST_FIELD_MISMATCH,
                                      mappingRecordType, mappingRecordType.restFieldType,
                                      spreadRecordType.restFieldType);
                              errored = true;
