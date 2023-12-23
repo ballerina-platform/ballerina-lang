@@ -216,10 +216,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return;
         }
-        //Initialize Service Template Generator.
-        ServiceTemplateGenerator.getInstance(this.serverContext);
-        CentralPackageDescriptorLoader.getInstance(this.serverContext)
-                .loadBallerinaxPackagesFromCentral(this.serverContext);
+        ServiceTemplateGenerator.getInstance(serverContext);
 
         if (lsClientCapabilities.getInitializationOptions().isEnableMemoryUsageMonitor()) {
             MemoryUsageMonitor.getInstance(this.serverContext).start(client);
