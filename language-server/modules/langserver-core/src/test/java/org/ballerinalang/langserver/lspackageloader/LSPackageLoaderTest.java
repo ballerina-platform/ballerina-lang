@@ -87,10 +87,10 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         LSPackageLoader lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
         setLsPackageLoader(lsPackageLoader);
         this.getLanguageServer().getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, getLSPackageLoader());
-        Mockito.when(lsPackageLoader.getRemoteRepoPackages(Mockito.any()))
+        Mockito.when(lsPackageLoader.getLocalRepoModules())
                 .thenAnswer(invocation -> getRemoteRepoPackages());
-        Mockito.when(lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(getLocalPackages());
-        Mockito.when(lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
+        Mockito.when(lsPackageLoader.getLocalRepoModules()).thenReturn(getLocalPackages());
+        Mockito.when(lsPackageLoader.getDistributionRepoModules()).thenCallRealMethod();
         Mockito.when(lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
         Mockito.doAnswer(invocation -> {
@@ -117,7 +117,7 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         BallerinaUserHome ballerinaUserHome = BallerinaUserHome
                 .from(project.get().projectEnvironmentContext().environment());
         PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        return getLSPackageLoader().getRemoteRepoPackages(remoteRepository);
+        return getLSPackageLoader().getRemoteRepoModules();
     }
 
     @DataProvider(name = "data-provider")
