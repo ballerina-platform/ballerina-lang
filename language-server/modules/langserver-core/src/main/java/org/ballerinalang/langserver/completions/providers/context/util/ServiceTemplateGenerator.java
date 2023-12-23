@@ -78,6 +78,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -93,14 +94,14 @@ public class ServiceTemplateGenerator {
 
     private final Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
 
-    private boolean isInitialized;
+    private boolean isInitialized = false;
     private boolean isUserHomePackagesLoaded;
     private static final String TITLE_SERVICE_TEMPLATE_GENERATOR = "Service Template Generator";
 
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
         this.moduleListenerMetaDataMap = new ConcurrentHashMap<>();
-        loadListeners(context);
+        this.loadListenersFromDistribution(context);
     }
 
     /**
@@ -118,68 +119,6 @@ public class ServiceTemplateGenerator {
         return serviceTemplateGenerator;
     }
 
-
-    /**
-     * Loads listeners from distribution concurrently at the initialization of te LS.
-     *
-     * @param lsContext Language Server Context.
-     */
-    private void loadListeners(LanguageServerContext lsContext) {
-        String taskId = UUID.randomUUID().toString();
-        ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
-        LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
-        CompletableFuture.runAsync(() -> {
-            if (languageClient != null) {
-                // Initialize progress notification
-                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-                workDoneProgressCreateParams.setToken(taskId);
-                languageClient.createProgress(workDoneProgressCreateParams);
-
-                // Start progress
-                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-                beginNotification.setTitle(TITLE_SERVICE_TEMPLATE_GENERATOR);
-                beginNotification.setCancellable(false);
-                beginNotification.setMessage("Initializing...");
-                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                        Either.forLeft(beginNotification)));
-            }
-        }).thenRunAsync(() -> {
-            this.loadListenersFromDistribution(lsContext);
-        }).thenRunAsync(() -> {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Initialized Successfully!");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(endNotification)));
-        }).exceptionally(e -> {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Initialization Failed!");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(endNotification)));
-            clientLogger.logTrace("Failed loading listener symbols from BallerinaUserHome due to "
-                    + e.getMessage());
-            return null;
-        });
-    }
-
-    /**
-     * Loads listeners from the Ballerina user home.
-     *
-     * @param lsContext LanguageServer context
-     * @param context   DocumentService context
-     */
-    private void loadListeners(LanguageServerContext lsContext, DocumentServiceContext context) {
-        LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
-        CompletableFuture.runAsync(() -> {
-            try {
-                this.loadListenersFromBallerinaUserHome(context, lsContext);
-            } catch (Throwable e) {
-                //ignore
-                clientLogger.logTrace("Failed loading listener symbols from the  BallerinaUserHome due to "
-                        + e.getMessage());
-            }
-        });
-    }
-
     /**
      * Loads listener symbols from the distribution.
      *
@@ -187,34 +126,20 @@ public class ServiceTemplateGenerator {
      */
     private void loadListenersFromDistribution(LanguageServerContext context) {
         if (!this.initialized()) {
-            //Load distribution repo packages
-            LSClientLogger clientLogger = LSClientLogger.getInstance(context);
-            clientLogger.logTrace("Loading packages from the distribution");
-            List<LSPackageLoader.ModuleInfo> modules = LSPackageLoader.getInstance(context)
-                    .getDistributionRepoPackages();
-            loadListenersFromPackages(modules, context);
             this.isInitialized = true;
-            clientLogger.logTrace("Finished loading packages from the distribution");
-        }
-    }
-
-    /**
-     * Loads Listeners from the BallerinaUserHome.
-     *
-     * @param context   Document Service context
-     * @param lsContext Language Server context.
-     */
-    private void loadListenersFromBallerinaUserHome(DocumentServiceContext context,
-                                                    LanguageServerContext lsContext) {
-        if (!this.userHomePackagesLoaded()) {
-            this.isUserHomePackagesLoaded = true;
-            //Load packages from BallerinaUserHome
-            LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
-            clientLogger.logTrace("Loading modules from the BallerinaUserHome");
-            List<LSPackageLoader.ModuleInfo> modules = LSPackageLoader.getInstance(lsContext)
-                    .getPackagesFromBallerinaUserHome(context);
-            loadListenersFromPackages(modules, lsContext);
-            clientLogger.logTrace("Finished loading listener symbols from the  BallerinaUserHome");
+            LSClientLogger clientLogger = LSClientLogger.getInstance(context);
+            CompletableFuture.runAsync(() -> {
+                try {
+                    //Load distribution repo packages
+                    clientLogger.logTrace("Service template generator initializing");
+                    List<LSPackageLoader.ModuleInfo> modules =
+                            LSPackageLoader.getInstance(context).initializeAndGetModules(context).get();
+                    loadListenersFromPackages(modules, context);
+                    clientLogger.logTrace("Initialization successful");
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 
@@ -294,9 +219,6 @@ public class ServiceTemplateGenerator {
      * @return {@link List<LSCompletionItem>} List of completion items.
      */
     public List<LSCompletionItem> getServiceTemplates(BallerinaCompletionContext ctx) {
-        if (!userHomePackagesLoaded()) {
-            loadListeners(ctx.languageServercontext(), ctx);
-        }
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Set<String> processedModuleList = new HashSet<>();
 
@@ -345,7 +267,7 @@ public class ServiceTemplateGenerator {
             processedModuleList.add(moduleHash);
         });
 
-        //Generate service templates for listeners from the distribution
+        //Generate service templates for listeners from the local, remote and distribution repos
         this.moduleListenerMetaDataMap.forEach((key, items) -> {
             String moduleName = key.getLeft();
             String orgName = key.getRight();
