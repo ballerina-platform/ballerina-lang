@@ -410,6 +410,24 @@ function testMatchClauseWithTypeGuard12() {
     assertEquals("Pattern1 Pattern4 with error retry count:5 Pattern5 with reason:Connection failure", matched);
 }
 
+function testMatchClauseWithQuery() {
+    int|string i = 3;
+    int|int[] result;
+
+    match i {
+        var _ if i is int => {
+            result = from var _ in [1, 2]
+                where i + 2 == 5
+                select 2;
+        }
+        _ => {
+            result = 2;
+        }
+    }
+
+    assertEquals([2, 2], result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
