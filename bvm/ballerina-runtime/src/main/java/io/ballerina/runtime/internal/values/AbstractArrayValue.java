@@ -89,7 +89,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
         if (arrayValue.size() != this.size()) {
             return false;
         }
-
         for (int i = 0; i < this.size(); i++) {
             if (!isEqual(this.get(i), arrayValue.get(i), visitedValues)) {
                 return false;

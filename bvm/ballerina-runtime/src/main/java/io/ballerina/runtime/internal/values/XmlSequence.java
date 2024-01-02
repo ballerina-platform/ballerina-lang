@@ -686,7 +686,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (lhsList.size() != rhsList.size()) {
             return false;
         }
-
         for (int i = 0; i < lhsList.size(); i++) {
             if (!isEqual(lhsList.get(i), rhsList.get(i))) {
                 return false;
