@@ -2870,7 +2870,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         multipleWorkerReceive.setBType(compatibleType);
-        data.resultType = compatibleType;
 
         if (TypeTags.RECORD == compatibleType.tag) {
             BRecordType recordType = (BRecordType) compatibleType;
@@ -2899,6 +2898,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangMultipleWorkerReceive.BLangReceiveField receiveFiled : multipleWorkerReceive.getReceiveFields()) {
             checkExpr(receiveFiled.getWorkerReceive(), receiveFieldExpType, data);
         }
+        data.resultType = compatibleType;
     }
 
     private BType validateAndGetMultipleReceiveCompatibleType(BType bType,
