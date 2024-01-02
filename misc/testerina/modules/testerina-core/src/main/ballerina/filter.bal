@@ -41,7 +41,7 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
     testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
-    conMgr = new (testWorkers);
+    conMgr.setIntialWorkers(testWorkers);
 
     if rerunFailed {
         error? err = parseRerunJson();

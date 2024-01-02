@@ -19,7 +19,7 @@ import ballerina/lang.runtime;
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
-ConcurrentExecutionManager conMgr = new (1);
+isolated final ConcurrentExecutionManager conMgr = new ();
 
 public function startSuite() returns int {
     // exit if setTestOptions has failed
@@ -105,9 +105,9 @@ function executeTests() returns error? {
 }
 
 function executeTest(TestFunction testFunction) returns error? {
-    if !testFunction.enabled {
+    if !conMgr.isEnabled(testFunction.name) {
         lock {
-            testFunction.isExecutionDone = true;
+            conMgr.setExecutionDone(testFunction.name);
         }
         conMgr.releaseWorker();
         return;
@@ -121,7 +121,7 @@ function executeTest(TestFunction testFunction) returns error? {
         }
         enableExit();
         lock {
-            testFunction.isExecutionDone = true;
+            conMgr.setExecutionDone(testFunction.name);
         }
         conMgr.releaseWorker();
         return;
@@ -131,7 +131,7 @@ function executeTest(TestFunction testFunction) returns error? {
     executeBeforeEachFunctions();
 
     boolean shouldSkipDependents = false;
-    if !testFunction.skip && !getShouldSkip() {
+    if !conMgr.isSkip(testFunction.name) && !getShouldSkip() {
         if (isDataDrivenTest(testFunction)) {
             check executeDataDrivenTestSet(testFunction);
         } else {
@@ -149,14 +149,14 @@ function executeTest(TestFunction testFunction) returns error? {
     executeAfterGroupFunctions(testFunction);
 
     if shouldSkipDependents {
-        testFunction.dependents.forEach(function(TestFunction dependent) {
+        conMgr.getDependents(testFunction.name).forEach(function(TestFunction dependent) {
             lock {
-                dependent.skip = true;
+                conMgr.setSkip(dependent.name);
             }
         });
     }
     lock {
-        testFunction.isExecutionDone = true;
+        conMgr.setExecutionDone(testFunction.name);
     }
     conMgr.releaseWorker();
 }
@@ -245,7 +245,7 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
     boolean failed = false;
     boolean beforeFailed = executeBeforeFunction(testFunction);
     if (beforeFailed) {
-        testFunction.skip = true;
+        conMgr.setSkip(testFunction.name);
         lock {
             reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
         }
@@ -308,7 +308,7 @@ function executeAfterEachFunctions() {
 
 function executeBeforeFunction(TestFunction testFunction) returns boolean {
     boolean failed = false;
-    if testFunction.before is function && !getShouldSkip() && !testFunction.skip {
+    if testFunction.before is function && !getShouldSkip() && !conMgr.isSkip(testFunction.name) {
         ExecutionError? err = executeFunction(<function>testFunction.before);
         if err is ExecutionError {
             enableExit();
@@ -321,7 +321,7 @@ function executeBeforeFunction(TestFunction testFunction) returns boolean {
 
 function executeAfterFunction(TestFunction testFunction) returns boolean {
     boolean failed = false;
-    if testFunction.after is function && !getShouldSkip() && !testFunction.skip {
+    if testFunction.after is function && !getShouldSkip() && !conMgr.isSkip(testFunction.name) {
         ExecutionError? err = executeFunction(<function>testFunction.after);
         if err is ExecutionError {
             enableExit();
@@ -338,7 +338,7 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
         if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
             ExecutionError? err = executeFunctions(beforeGroupFunctions, getShouldSkip());
             if err is ExecutionError {
-                testFunction.skip = true;
+                conMgr.setSkip(testFunction.name);
                 groupStatusRegistry.setSkipAfterGroup('group);
                 enableExit();
                 printExecutionError(err, "before test group function for the test");
@@ -366,7 +366,7 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
     if (!hasFilteredTests) {
         return false;
     }
-    TestFunction[] dependents = testFunction.dependents;
+    TestFunction[] dependents = conMgr.getDependents(functionName);
 
     // if a dependent in a below level is enabled, this test should run
     if (dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents)) {
@@ -484,7 +484,7 @@ function orderTests() returns error? {
     string[] descendants = [];
 
     foreach TestFunction testFunction in testRegistry.getDependentFunctions() {
-        if !testFunction.visited && testFunction.enabled {
+        if !conMgr.isVisited(testFunction.name) && conMgr.isEnabled(testFunction.name) {
             check restructureTest(testFunction, descendants);
         }
     }
@@ -506,7 +506,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             return error(errMsg);
         }
 
-        dependsOnTestFunction.dependents.push(testFunction);
+        conMgr.addDependent(dependsOnTestFunction.name, testFunction);
 
         // Contains cyclic dependencies
         int? startIndex = descendants.indexOf(dependsOnTestFunction.name);
@@ -514,13 +514,13 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             string[] newCycle = descendants.slice(startIndex);
             newCycle.push(dependsOnTestFunction.name);
             return error("Cyclic test dependencies detected: " + string:'join(" -> ", ...newCycle));
-        } else if !dependsOnTestFunction.visited {
+        } else if !conMgr.isVisited(dependsOnTestFunction.name) {
             check restructureTest(dependsOnTestFunction, descendants);
         }
     }
 
-    testFunction.enabled = true;
-    testFunction.visited = true;
+    conMgr.setEnabled(testFunction.name);
+    conMgr.setVisited(testFunction.name);
     _ = descendants.pop();
 }
 
@@ -540,10 +540,10 @@ function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boo
     }
     TestFunction[] queue = [];
     foreach TestFunction dependent in dependents {
-        if (dependent.enabled) {
+        if (conMgr.isEnabled(dependent.name)) {
             return true;
         }
-        dependent.dependents.forEach((superDependent) => queue.push(superDependent));
+        conMgr.getDependents(dependent.name).forEach((superDependent) => queue.push(superDependent));
     }
     return nestedEnabledDependentsAvailable(queue);
 }

@@ -53,7 +53,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated;
         string[] reasonToSerialExecution = [];
 
-        DataProviderReturnType? params = ();
+        DataProviderReturnType? & readonly params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
             var providerFn = config.dataProvider;
@@ -63,7 +63,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
                 isTestFunctionParamSafe = isFunctionParamConcurrencySafe(f);
                 isSatisfiedParallelizableConditions = isTestFunctionIsolated && isDataProviderIsolated && isTestFunctionParamSafe;
                 DataProviderReturnType providerOutput = providerFn();
-                params = providerOutput;
+                params = <DataProviderReturnType & readonly>providerOutput;
             } else {
                 diagnostics = error("Failed to execute the data provider");
             }
@@ -92,9 +92,9 @@ function processConfigAnnotation(string name, function f) returns boolean {
         config.groups.forEach('group => groupStatusRegistry.incrementTotalTest('group, enabled));
 
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
-            after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            enabled = enabled, dependsOnCount = config.dependsOn.length(), parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (testWorkers > 1)), config = config);
-        return true;
+            after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics, dependsOn = config.dependsOn.cloneReadOnly(),
+            parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (testWorkers > 1)), config = config.cloneReadOnly());
+        conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(), enabled = enabled);
     }
     return false;
 }

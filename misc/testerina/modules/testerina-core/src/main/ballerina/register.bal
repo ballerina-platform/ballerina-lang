@@ -28,74 +28,189 @@ final GroupStatusRegistry groupStatusRegistry = new ();
 type TestFunction record {|
     string name;
     function executableFunction;
-    boolean enabled = true;
     DataProviderReturnType? params = ();
     function? before = ();
     function? after = ();
     boolean alwaysRun = false;
     string[] groups = [];
-    boolean skip = false;
     error? diagnostics = ();
     function[] dependsOn = [];
+    boolean parallelizable = true;
+    TestConfig? config = ();
+|} & readonly;
+
+type TestFunctionMetaData record {|
+    boolean enabled = true;
+    boolean skip = false;
     int dependsOnCount = 0;
     TestFunction[] dependents = [];
     boolean visited = false;
     boolean isInExecutionQueue = false;
-    boolean parallelizable = true;
-    TestConfig? config = ();
     boolean isExecutionDone = false;
 |};
 
-class ConcurrentExecutionManager {
+isolated class ConcurrentExecutionManager {
     private TestFunction[] parallelTestExecutionList = [];
     private TestFunction[] serialTestExecutionList = [];
     private TestFunction[] testsInExecution = [];
     private int unAllocatedTestWorkers = 1;
-    private final int intialWorkers;
+    private int intialWorkers = 1;
+    private final map<TestFunctionMetaData> testMetaData = {};
 
-    function init(int workers) {
-        self.intialWorkers = workers;
-        self.unAllocatedTestWorkers = workers;
+    isolated function createTestFunctionMetaData(string functionName, *TestFunctionMetaData intialMetaData) {
+        lock {
+            self.testMetaData[functionName] = intialMetaData.clone();
+        }
     }
 
-    function addParallelTest(TestFunction testFunction) {
-        self.parallelTestExecutionList.push(testFunction);
+    isolated function setExecutionDone(string functionName) {
+        lock {
+            self.testMetaData[functionName].isExecutionDone = true;
+        }
     }
 
-    function addSerialTest(TestFunction testFunction) {
-        self.serialTestExecutionList.push(testFunction);
+    isolated function setDisabled(string functionName) {
+        lock {
+            self.testMetaData[functionName].enabled = false;
+        }
     }
 
-    function addInitialParallelTest(TestFunction testFunction) {
-        self.parallelTestExecutionList.unshift(testFunction);
+    isolated function setEnabled(string functionName) {
+        lock {
+            self.testMetaData[functionName].enabled = true;
+        }
     }
 
-    function addInitialSerialTest(TestFunction testFunction) {
-        self.serialTestExecutionList.unshift(testFunction);
+    isolated function isEnabled(string functionName) returns boolean {
+        lock {
+            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
+            if unionResult is TestFunctionMetaData {
+                return unionResult.enabled;
+            } else {
+                return false;
+            }
+
+        }
     }
 
-    function addTestInExecution(TestFunction testFunction) {
-        self.testsInExecution.push(testFunction);
+    isolated function setVisited(string functionName) {
+        lock {
+            self.testMetaData[functionName].visited = true;
+        }
     }
 
-    function getConfiguredWorkers() returns int {
-        return self.intialWorkers;
+    isolated function isVisited(string functionName) returns boolean {
+        lock {
+            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
+            if unionResult is TestFunctionMetaData {
+                return unionResult.visited;
+            } else {
+                return false;
+            }
+
+        }
     }
 
-    function getSerialQueueLength() returns int {
-        return self.serialTestExecutionList.length();
+    isolated function isSkip(string functionName) returns boolean {
+        lock {
+            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
+            if unionResult is TestFunctionMetaData {
+                return unionResult.skip;
+            } else {
+                return false;
+            }
+
+        }
     }
 
-    function getParallelQueueLength() returns int {
-        return self.parallelTestExecutionList.length();
+    isolated function setSkip(string functionName) {
+        lock {
+            self.testMetaData[functionName].skip = true;
+        }
     }
 
-    function isExecutionDone() returns boolean {
-        return self.parallelTestExecutionList.length() == 0 &&
-                self.getAvailableWorkers() == testWorkers &&
+    isolated function addDependent(string functionName, TestFunction dependent) {
+        lock {
+            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
+            if unionResult is TestFunctionMetaData {
+                unionResult.dependents.push(dependent);
+            }
+        }
+    }
+
+    isolated function getDependents(string functionName) returns TestFunction[] {
+        lock {
+            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
+            if unionResult is TestFunctionMetaData {
+                return unionResult.dependents.clone();
+            } else {
+                return [];
+            }
+        }
+    }
+
+    isolated function setIntialWorkers(int workers) {
+        lock {
+            self.intialWorkers = workers;
+            self.unAllocatedTestWorkers = workers;
+        }
+    }
+
+    isolated function addParallelTest(TestFunction testFunction) {
+        lock {
+            self.parallelTestExecutionList.push(testFunction);
+        }
+    }
+
+    isolated function addSerialTest(TestFunction testFunction) {
+        lock {
+            self.serialTestExecutionList.push(testFunction);
+        }
+    }
+
+    isolated function addInitialParallelTest(TestFunction testFunction) {
+        lock {
+            self.parallelTestExecutionList.unshift(testFunction);
+        }
+    }
+
+    isolated function addInitialSerialTest(TestFunction testFunction) {
+        lock {
+            self.serialTestExecutionList.unshift(testFunction);
+        }
+    }
+
+    isolated function addTestInExecution(TestFunction testFunction) {
+        lock {
+            self.testsInExecution.push(testFunction);
+        }
+    }
+
+    isolated function getConfiguredWorkers() returns int {
+        lock {
+            return self.intialWorkers;
+        }
+    }
+
+    isolated function getSerialQueueLength() returns int {
+        lock {
+            return self.serialTestExecutionList.length();
+        }
+    }
+
+    isolated function getParallelQueueLength() returns int {
+        lock {
+            return self.parallelTestExecutionList.length();
+        }
+    }
+
+    isolated function isExecutionDone() returns boolean {
+        lock {
+            return self.parallelTestExecutionList.length() == 0 &&
+                self.getAvailableWorkers() == self.intialWorkers &&
                 self.serialTestExecutionList.length() == 0 &&
                 self.testsInExecution.length() == 0;
-
+        }
     }
 
     isolated function allocateWorker() {
@@ -122,18 +237,27 @@ class ConcurrentExecutionManager {
         }
     }
 
-    function getParallelTest() returns TestFunction {
-        return self.parallelTestExecutionList.remove(0);
+    isolated function getParallelTest() returns TestFunction {
+        lock {
+            return self.parallelTestExecutionList.remove(0);
+        }
     }
 
-    function getSerialTest() returns TestFunction {
-        return self.serialTestExecutionList.pop();
-
+    isolated function getSerialTest() returns TestFunction {
+        lock {
+            return self.serialTestExecutionList.pop();
+        }
     }
 
-    function waitUntilEmptyQueueFilled() {
+    isolated function waitUntilEmptyQueueFilled() {
+        int parallelQueueLength = 0;
+        int serialQueueLength = 0;
         self.populateExecutionQueues();
-        while self.parallelTestExecutionList.length() == 0 && self.serialTestExecutionList.length() == 0 {
+        lock {
+            parallelQueueLength = self.parallelTestExecutionList.length();
+            serialQueueLength = self.serialTestExecutionList.length();
+        }
+        while parallelQueueLength == 0 && serialQueueLength == 0 {
             self.populateExecutionQueues();
             runtime:sleep(0.0001); // sleep is added to yield the strand
             if self.isExecutionDone() {
@@ -142,28 +266,38 @@ class ConcurrentExecutionManager {
         }
     }
 
-    function populateExecutionQueues() {
-        int i = 0;
-        boolean isExecutionDone = false;
-        while i < self.testsInExecution.length() {
-            TestFunction testInProgress = self.testsInExecution[i];
-            lock {
-                isExecutionDone = testInProgress.isExecutionDone;
-            }
-            if isExecutionDone {
-                testInProgress.dependents.reverse().forEach(dependent => self.checkExecutionReadiness(dependent));
-                _ = self.testsInExecution.remove(i);
-            } else {
-                i = i + 1;
+    isolated function populateExecutionQueues() {
+        lock {
+            int i = 0;
+            boolean isExecutionDone = false;
+            while i < self.testsInExecution.length() {
+                TestFunction testInProgress = self.testsInExecution[i];
+                TestFunctionMetaData? inProgressTestMetaData = self.testMetaData[testInProgress.name];
+                if inProgressTestMetaData == () {
+                    return;
+                }
+                isExecutionDone = inProgressTestMetaData.isExecutionDone;
+                if isExecutionDone {
+                    inProgressTestMetaData.dependents.reverse().forEach(dependent => self.checkExecutionReadiness(dependent));
+                    _ = self.testsInExecution.remove(i);
+                } else {
+                    i = i + 1;
+                }
             }
         }
     }
 
-    private function checkExecutionReadiness(TestFunction testFunction) {
-        testFunction.dependsOnCount -= 1;
-        if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
-            testFunction.isInExecutionQueue = true;
-            _ = testFunction.parallelizable ? self.parallelTestExecutionList.push(testFunction) : self.serialTestExecutionList.push(testFunction);
+    private isolated function checkExecutionReadiness(TestFunction testFunction) {
+        lock {
+            TestFunctionMetaData? unionResult = self.testMetaData[testFunction.name];
+            if unionResult is TestFunctionMetaData {
+                unionResult.dependsOnCount -= 1;
+                if unionResult.dependsOnCount == 0 && unionResult.isInExecutionQueue != true {
+                    unionResult.isInExecutionQueue = true;
+                    _ = testFunction.parallelizable ? self.parallelTestExecutionList.push(testFunction) : self.serialTestExecutionList.push(testFunction);
+                }
+
+            }
         }
     }
 
