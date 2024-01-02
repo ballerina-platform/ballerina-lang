@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
@@ -182,13 +183,14 @@ public class TypeConverter {
             typeNode.add("required", requiredFields);
         }
         // The tsymbol name is empty for anon intersection type created due to inferred readonly
-        if (!intersectionType.tsymbol.name.value.isEmpty()) {
+        if (intersectionType.tsymbol.name != Names.EMPTY) {
             typeNode.addProperty("name", intersectionType.tsymbol.toString().trim());
         } else {
             // Get record type and set the type name as a property
             for (BType bType : intersectionType.getConstituentTypes()) {
                 // Does not consider anonymous records
                 if (bType.tag == TypeTags.TYPEREFDESC) {
+                    // Revisit with https://github.com/ballerina-platform/ballerina-lang/issues/24078
                     typeNode.addProperty("name", bType.toString().trim());
                 }
             }
