@@ -21,22 +21,10 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.api.types.ParameterizedType;
-import io.ballerina.runtime.api.types.StreamType;
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.types.*;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BIterator;
-import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.*;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -137,7 +125,6 @@ public class ObjectMock {
      * @param mockObject ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFunctionName(functionName,
@@ -150,6 +137,88 @@ public class ObjectMock {
                     null,
                     new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
         }
+        return null;
+    }
+
+    private static void validateClientObject(GenericMockObjectValue genericMock) {
+        if (!(genericMock.getType() instanceof BClientType)) {
+            String detail = "mock object type should be a client type";
+            throw ErrorCreator.createError(
+                    MockConstants.TEST_PACKAGE_ID,
+                    MockConstants.INVALID_MOCK_OBJECT_ERROR,
+                    StringUtils.fromString(detail),
+                    null,
+                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+        }
+    }
+
+    /**
+     * Validates the member resource function name provided to register mock cases.
+     *
+     * @param pathName function name provided
+     * @param mockObject ballerina object that contains information about the case to register
+     * @return an optional error if a validation fails
+     */
+    public static BError validateResourcePath(String pathName, BObject mockObject) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
+        // TODO: Separate out to a new validation function
+        if (!validateResourcePath(pathName,
+                ((BClientType) genericMock.getType()).getResourceMethods())) {
+            String detail = "invalid resource path '" + pathName + "' provided";
+            throw ErrorCreator.createError(
+                    MockConstants.TEST_PACKAGE_ID,
+                    MockConstants.FUNCTION_NOT_FOUND_ERROR,
+                    StringUtils.fromString(detail),
+                    null,
+                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+        }
+        return null;
+    }
+
+    public static BError validateResourceMethod(BObject caseObj) {
+        GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
+                StringUtils.fromString("mockObject"));
+        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
+        String accessor = caseObj.getStringValue(StringUtils.fromString("accessor")).toString();
+        if (!validateAccessor(functionName, accessor,
+                ((BClientType) genericMock.getType()).getResourceMethods())) {
+            String detail = "invalid accessor method '" + accessor + "' provided";
+            throw ErrorCreator.createError(
+                    MockConstants.TEST_PACKAGE_ID,
+                    MockConstants.FUNCTION_NOT_FOUND_ERROR,
+                    StringUtils.fromString(detail),
+                    null,
+                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+        }
+        return null;
+    }
+
+    private static boolean validateAccessor(String resourcePath, String accessor, ResourceMethodType[] resourceMethods) {
+        String functionPattern = getFunctionNameForResourcePath(resourcePath);
+        for (ResourceMethodType attachedFunction : resourceMethods) {
+            if (attachedFunction.getName().endsWith(functionPattern)) {
+                return attachedFunction.getAccessor().equals(accessor);
+            }
+        }
+        return false;
+    }
+
+    public static BError validatePathParams(BObject caseObj) {
+        String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
+
+
+//
+//        String accessor = caseObj.getStringValue(StringUtils.fromString("accessor")).toString();;
+//        if (!validateAccessor(functionName, accessor,
+//                ((BClientType) caseObj.getType()).getResourceMethods())) {
+//            String detail = "invalid accessor method '" + accessor + "' provided";
+//            throw ErrorCreator.createError(
+//                    MockConstants.TEST_PACKAGE_ID,
+//                    MockConstants.FUNCTION_NOT_FOUND_ERROR,
+//                    StringUtils.fromString(detail),
+//                    null,
+//                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+//        }
         return null;
     }
 
@@ -269,19 +338,36 @@ public class ObjectMock {
         if (functionName != null) {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
-            if (!validateReturnValue(functionName, returnVal, objectType.getMethods())) {
-                String detail =
-                        "return value provided does not match the return type of function '" + functionName + "()'";
-                return ErrorCreator.createError(
-                        MockConstants.TEST_PACKAGE_ID,
-                        MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                        StringUtils.fromString(detail),
-                        null,
-                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+            if (objectType instanceof BClientType) {
+                String functionPattern = getFunctionNameForResourcePath(functionName);
+                if (!validateReturnValueForResourcePath(functionPattern, returnVal,
+                        ((BClientType) objectType).getResourceMethods())) {
+                    String detail =
+                            "return value provided does not match the return type of the resource path '" + functionName + "'";
+                    return ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+                // Default accessor is `get`
+                String resourceFunctionPattern = "$get$" + functionPattern;
+                MockRegistry.getInstance().registerCase(mockObj, resourceFunctionPattern, args, returnVal);
+            } else {
+                if (!validateReturnValue(functionName, returnVal, objectType.getMethods())) {
+                    String detail =
+                            "return value provided does not match the return type of function '" + functionName + "()'";
+                    return ErrorCreator.createError(
+                            MockConstants.TEST_PACKAGE_ID,
+                            MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            StringUtils.fromString(detail),
+                            null,
+                            new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+                }
+                MockRegistry.getInstance().registerCase(mockObj, functionName, args, returnVal);
             }
-            MockRegistry.getInstance().registerCase(mockObj, functionName, args, returnVal);
         } else {
-
             // register return value for member field
             String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
             if (!validateFieldAccessIsPublic(objectType, fieldName)) {
@@ -355,6 +441,37 @@ public class ObjectMock {
             }
         }
         return false;
+    }
+
+    /**
+     * Validates the resource function name provided when a default mock object is used.
+     *
+     * @param resourcePath function name
+     * @param attachedFunctions functions available in the mocked type
+     * @return whether the function name is valid
+     */
+    private static boolean validateResourcePath(String resourcePath, ResourceMethodType[] attachedFunctions) {
+        for (ResourceMethodType attachedFunction : attachedFunctions) {
+            // Function name for a resource function contains the accessor and `^` representing path params
+            // Each accessor, path is separated by $
+            // e.g. For the resource function => get [string path2]/posts/[string path1]()
+            // functionName => $get$^$posts$^
+            String functionPattern = getFunctionNameForResourcePath(resourcePath);
+            if (attachedFunction.getName().endsWith(functionPattern)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String getFunctionNameForResourcePath(String path) {
+        String[] components = path.split("/");
+        for (int i = 0; i < components.length; i++) {
+            if (components[i].startsWith(":")) {
+                components[i] = "^";
+            }
+        }
+        return String.join("$", components);
     }
 
     /**
@@ -433,21 +550,35 @@ public class ObjectMock {
             String functionName, Object returnVal, MethodType[] attachedFunctions) {
         for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
-                Type functionReturnType = TypeUtils.getImpliedType(
-                        attachedFunction.getType().getReturnParameterType());
-                switch (functionReturnType.getTag()) {
-                    case TypeTags.UNION_TAG:
-                        return validateUnionValue(returnVal, (UnionType) functionReturnType);
-                    case TypeTags.STREAM_TAG:
-                        return validateStreamValue(returnVal, (StreamType) functionReturnType);
-                    case TypeTags.PARAMETERIZED_TYPE_TAG:
-                        return validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
-                    default:
-                        return TypeChecker.checkIsType(returnVal, functionReturnType);
-                }
+                return isValidReturnValue(returnVal, attachedFunction);
             }
         }
         return false;
+    }
+
+    private static boolean validateReturnValueForResourcePath(
+            String functionPattern, Object returnVal, MethodType[] attachedFunctions) {
+        for (MethodType attachedFunction : attachedFunctions) {
+            if (attachedFunction.getName().endsWith(functionPattern)) {
+                return isValidReturnValue(returnVal, attachedFunction);
+            }
+        }
+        return false;
+    }
+
+    private static boolean isValidReturnValue(Object returnVal, MethodType attachedFunction) {
+        Type functionReturnType = TypeUtils.getImpliedType(
+                attachedFunction.getType().getReturnParameterType());
+        switch (functionReturnType.getTag()) {
+            case TypeTags.UNION_TAG:
+                return validateUnionValue(returnVal, (UnionType) functionReturnType);
+            case TypeTags.STREAM_TAG:
+                return validateStreamValue(returnVal, (StreamType) functionReturnType);
+            case TypeTags.PARAMETERIZED_TYPE_TAG:
+                return validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
+            default:
+                return TypeChecker.checkIsType(returnVal, functionReturnType);
+        }
     }
 
     /**

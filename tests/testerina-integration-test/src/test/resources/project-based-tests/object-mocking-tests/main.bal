@@ -26,6 +26,13 @@ function doGet() returns string {
     return result;
 }
 
+function doGetResource() returns string {
+    string result = clientEndpoint->/news/mytest;
+    result = clientEndpoint->post("sjsjkd");
+    return result;
+}
+
+
 function doGetRepeat() returns string {
     string result = clientEndpoint->get("/path2");
 

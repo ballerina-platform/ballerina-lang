@@ -36,6 +36,14 @@ public client class HttpClient {
         stream<AttributeDAO, Error?> attributeDAOStream = new (new DAOStreamImplementor());
         return attributeDAOStream;
     }
+
+    resource function get [string path2]/mytest(string name="me") returns string {
+        return "test " + name;
+    }
+
+        remote function post(string name="me") returns string {
+        return "test " + name;
+    }
 }
 
 class DAOStreamImplementor {
