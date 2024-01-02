@@ -76,6 +76,7 @@ import io.ballerina.shell.snippet.types.VariableDeclarationSnippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A factory that will create snippets from given nodes.
@@ -154,7 +155,13 @@ public class BasicSnippetFactory extends SnippetFactory {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
 
-            if (((VariableDeclarationNode) node).initializer().get().kind().toString().endsWith("_ACTION")) {
+            Optional<ExpressionNode> varInitNode = varNode.initializer();
+            if (varInitNode.isEmpty()) {
+                return null;
+            }
+
+            SyntaxKind nodeKind = varInitNode.get().kind();
+            if (isSupportedAction(nodeKind)) {
                 TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
                 TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
                 BindingPatternNode bindingPatternNode = typedBindingPatternNode.bindingPattern();
@@ -165,9 +172,8 @@ public class BasicSnippetFactory extends SnippetFactory {
                     return null;
                 }
 
-                boolean hasCheck =
-                        ((VariableDeclarationNode) node).initializer().get().kind() == SyntaxKind.CHECK_ACTION;
-                String functionBody = varNode.initializer().get().toString();
+                boolean hasCheck = nodeKind == SyntaxKind.CHECK_ACTION;
+                String functionBody = varInitNode.get().toString();
                 String functionDefinition = (hasCheck ? "function() returns error|" :
                         "function() returns ") + typeDescriptorNode;
                 String functionName = ParserConstants.WRAPPER_PREFIX + varFunctionCount;
@@ -277,5 +283,26 @@ public class BasicSnippetFactory extends SnippetFactory {
         }
 
         return false;
+    }
+
+    private boolean isSupportedAction(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case REMOTE_METHOD_CALL_ACTION:
+            case BRACED_ACTION:
+            case CHECK_ACTION:
+            case START_ACTION:
+            case TRAP_ACTION:
+            case FLUSH_ACTION:
+            case ASYNC_SEND_ACTION:
+            case SYNC_SEND_ACTION:
+            case RECEIVE_ACTION:
+            case WAIT_ACTION:
+            case QUERY_ACTION:
+            case COMMIT_ACTION:
+            case CLIENT_RESOURCE_ACCESS_ACTION:
+                return true;
+            default:
+                return false;
+        }
     }
 }
