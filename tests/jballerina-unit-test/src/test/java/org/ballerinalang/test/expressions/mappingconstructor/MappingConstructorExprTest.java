@@ -70,23 +70,35 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 14);
-        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
-        validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
-        validateError(result, 2,
-                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
-        validateError(result, 3, "ambiguous type '(map<int>|map<string>)'", 45, 31);
-        validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
-        validateError(result, 5, "unknown type 'NoRecord'", 55, 5);
-        validateError(result, 6, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
-        validateError(result, 7, "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
-                " member access to access a field that may have been specified as a rest field", 55, 41);
-        validateError(result, 8, "undefined symbol 'c'", 55, 55);
-        validateError(result, 9, "unknown type 'Foo'", 59, 5);
-        validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
-        validateError(result, 11, "unknown type 'Foo'", 60, 5);
-        validateError(result, 12, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
-        validateError(result, 13, "ambiguous type '(any|map)'", 64, 22);
+        int index = 0;
+        validateError(result, index++, "incompatible mapping constructor expression for type '(string|Person)'", 33,
+                23);
+        validateError(result, index++, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
+        validateError(result, index++,
+                "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
+        validateError(result, index++, "ambiguous type '(map<int>|map<string>)'", 45, 31);
+        validateError(result, index++, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
+        validateError(result, index++, "unknown type 'NoRecord'", 55, 5);
+        validateError(result, index++, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
+        validateError(result, index++,
+                "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
+                        " member access to access a field that may have been specified as a rest field", 55, 41);
+        validateError(result, index++, "undefined symbol 'c'", 55, 55);
+        validateError(result, index++, "unknown type 'Foo'", 59, 5);
+        validateError(result, index++, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
+        validateError(result, index++, "unknown type 'Foo'", 60, 5);
+        validateError(result, index++, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
+        validateError(result, index++, "ambiguous type '(any|map)'", 64, 22);
+        validateError(result, index++, "incompatible mapping constructor expression for type 'map<string>?'", 68,
+                22);
+        validateError(result, index++, "undefined symbol 'NAME'", 68, 24);
+        validateError(result, index++, "incompatible mapping constructor expression for type 'map<string>?'", 69,
+                22);
+        validateError(result, index++, "undefined symbol 'NAME'", 69, 24);
+        validateError(result, index++, "undefined symbol 'NAME'", 69, 32);
+        validateError(result, index++, "missing non-defaultable required record field 'name'", 70, 34);
+        validateError(result, index++, "undefined symbol 'NAME'", 70, 44);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
@@ -467,30 +479,6 @@ public class MappingConstructorExprTest {
                 "spread operator '...recVar1'", 34, 37);
         validateError(compileResult, index++, "invalid map constructor: duplicate key 'field('", 37, 28);
 
-        Assert.assertEquals(compileResult.getErrorCount(), index);
-    }
-
-    @Test
-    public void testInaccesibleModuleDefinitionsInMappingConstructor() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/expressions/mappingconstructor/test_project");
-        int index = 0;
-
-        validateError(compileResult, index++, "incompatible mapping constructor expression for type 'map<string>?'", 8,
-                22);
-        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 8, 24);
-        validateError(compileResult, index++, "undefined symbol 'NAME'", 8, 24);
-        validateError(compileResult, index++, "incompatible mapping constructor expression for type 'map<string>?'", 9,
-                22);
-        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 9, 24);
-        validateError(compileResult, index++, "undefined symbol 'NAME'", 9, 24);
-        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 9, 35);
-        validateError(compileResult, index++, "undefined symbol 'NAME'", 9, 35);
-        validateError(compileResult, index++, "missing non-defaultable required record field 'name'", 10, 14);
-        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 10, 16);
-        validateError(compileResult, index++, "undefined symbol 'NAME'", 10, 16);
-        validateError(compileResult, index++, "attempt to refer to non-accessible symbol 'NAME'", 10, 27);
-        validateError(compileResult, index++, "undefined symbol 'NAME'", 10, 27);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

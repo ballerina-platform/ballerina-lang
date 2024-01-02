@@ -2556,9 +2556,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 dlog.resetErrorCount();
-                BLangRecordLiteral clonedMappingConstructor = nodeCloner.cloneNode(mappingConstructor);
-                BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
-                        clonedMappingConstructor, data);
+                BType memCompatibiltyType =
+                        checkMappingConstructorCompatibility(listCompatibleMemType, mappingConstructor, data);
 
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
@@ -7901,12 +7900,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
                 break;
-            case TypeTags.SEMANTIC_ERROR:
-                if (keyValueField) {
-                    BLangRecordKeyValueField keyValField = (BLangRecordKeyValueField) field;
-                    BLangRecordKey key = keyValField.key;
-                    checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey, data);
-                }
+           case TypeTags.SEMANTIC_ERROR:
+               if (keyValueField) {
+                   BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
+                   checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey, data);
+               }
         }
 
 
@@ -8032,7 +8030,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, AnalyzerData data) {
         if (computedKey) {
-            checkExpr(keyExpr, symTable.stringType, data);
+            exprIncompatible(symTable.stringType, keyExpr, data);
 
             if (keyExpr.getBType() == symTable.semanticError) {
                 return false;
