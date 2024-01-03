@@ -60,32 +60,35 @@ function testOptionalFieldAccessOnRequiredRecordField() returns boolean {
     return name == s;
 }
 
-function testOptionalFieldRemovalBasicType() returns boolean {
-    R1 r = { a: 1, b: 2.0, c: "test", d: true, e: 3.0 };
+function testOptionalFieldRemovalBasicType() {
+    R1 r = {a: 1, b: 2.0, c: "test", d: true, e: 3.0};
     r.a = ();
     r.b = ();
     r.c = ();
     r.d = ();
     r.e = ();
-    return r.hasKey("a") || r.hasKey("b") || r.hasKey("c") || r.hasKey("d") || r.hasKey("e");
+    assertFalse(r.hasKey("a"));
+    assertFalse(r.hasKey("b"));
+    assertFalse(r.hasKey("c"));
+    assertFalse(r.hasKey("d"));
+    assertFalse(r.hasKey("e"));
 }
 
-function testOptionalFieldRemovalIndirect() returns boolean {
-    R2 r = { a: 1, r1: { a: 1, b: 2.0, c: "test" } };
+function testOptionalFieldRemovalIndirect() {
+    R2 r = {a: 1, r1: {a: 1, b: 2.0, c: "test"}};
     r.r1.a = ();
     r.r1.b = ();
     r.r1.c = ();
-    R1? r1 = r.r1;
-    if r1 is () {
-        return true;
-    }
-    return r1.hasKey("a") || r1.hasKey("b") || r1.hasKey("c");
+    R1 r1 = <R1>r.r1;
+    assertFalse(r1.hasKey("a"));
+    assertFalse(r1.hasKey("b"));
+    assertFalse(r1.hasKey("c"));
 }
 
-function testOptionalFieldRemovalComplex() returns boolean {
-    R2 r = { a: 1, r1: { a: 1, b: 2.0, c: "test" } };
+function testOptionalFieldRemovalComplex() {
+    R2 r = {a: 1, r1: {a: 1, b: 2.0, c: "test"}};
     r.r1 = ();
-    return r.hasKey("r1");
+    assertFalse(r.hasKey("r1"));
 }
 
 function testOptionalFieldAccessOnRequiredRecordFieldInRecordUnion() returns boolean {
@@ -613,6 +616,10 @@ public function testNestedOptionalFieldAccessOnIntersectionTypes() {
 
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(anydata expected, anydata actual) {
