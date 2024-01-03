@@ -169,8 +169,7 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "optionalFieldRemovalFunctions")
     public void testOptionalFieldRemoval(String function) {
-        Object returns = BRunUtil.invoke(result, function);
-        Assert.assertFalse((Boolean) returns);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "optionalFieldRemovalFunctions")

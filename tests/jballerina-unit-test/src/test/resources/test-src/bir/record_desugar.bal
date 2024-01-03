@@ -11,17 +11,17 @@ type R3 record {|
 |};
 
 function setRequiredField() {
-    R1 r1 = { x: 1 };
+    R1 r1 = {x: 1};
     r1.x = 2;
 }
 
 function setNillableField() {
-    R2 r2 = { x: 1 };
+    R2 r2 = {x: 1};
     r2.x = 2;
     r2.x = ();
 }
 
 function setOptionalField() {
-    R3 r3 = { };
+    R3 r3 = {};
     r3.x = 2;
 }
