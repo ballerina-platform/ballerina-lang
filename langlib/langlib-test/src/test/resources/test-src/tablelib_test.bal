@@ -355,6 +355,38 @@ function testHashCollisionHandlingScenarios() {
 
 }
 
+function testHashCollisionInQuery() {
+    table<record {readonly int|string|float? k;}> key(k) tbl1 = table [{k: "10"}];
+    table<record {readonly int|string|float? k;}> tbl2 = table [{k: 0}];
+
+    tbl1.add({k: 5});
+    tbl1.add({k: ()});
+    tbl1.add({k: -31});
+    tbl1.add({k: 0});
+    tbl1.add({k: 100.05});
+    tbl1.add({k: 30});
+    table<record {|readonly int|string|float? k; anydata...;|}> tbl3 =
+        from var tid in tbl1
+            where tid["k"] == 0
+            select tid;
+    assertEquals(tbl2, tbl3);
+
+    _ = tbl1.remove(());
+    table<record {|readonly int|string|float? k; anydata...;|}> tbl4 =
+        from var tid in tbl1
+            where tid["k"] == 0
+            select tid;
+    assertEquals(tbl2, tbl4);
+}
+
+public function testGetKeysOfHashCollidedKeys() {
+    table<record {readonly int? k;}> key(k) tbl1 = table [
+        {k: 5}, {k: 0}, {k: ()}, {k: 2}
+    ];
+
+    assertEquals(tbl1.keys(), [5, 0, (), 2]);
+}
+
 function testGetKeyList() returns any[] {
     return tab.keys();
 }

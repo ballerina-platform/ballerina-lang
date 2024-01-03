@@ -31,3 +31,7 @@ function testOverloadedMethods(int[] arr, string str) returns string = @java:Met
     'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name: "testOverloadedMethods"
 } external;
+
+function getPrice(handle val) returns handle = @java:Method {
+    'class: "org.ballerinalang.test.javainterop.overloading.pkg.SportsCar"
+} external;

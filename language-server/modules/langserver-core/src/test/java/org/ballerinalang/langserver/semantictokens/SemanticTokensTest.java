@@ -124,7 +124,8 @@ public class SemanticTokensTest {
                 {new String[]{"project", "tests", "test.bal"}, "tests_expected.json"},
                 {new String[]{"single-file", "main.bal"}, "single-file_expected.json"},
                 {new String[]{"service", "main.bal"}, "service_expected.json"},
-                {new String[]{"single-file", "check.bal"}, "check_expected.json"}
+                {new String[]{"single-file", "check.bal"}, "check_expected.json"},
+                {new String[]{"single-file", "record.bal"}, "record_expected.json"}
         };
     }
 }

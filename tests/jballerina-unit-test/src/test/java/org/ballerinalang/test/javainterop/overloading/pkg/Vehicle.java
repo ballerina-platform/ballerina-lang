@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class Vehicle {
 
-    private String name;
+    private final String name;
 
     public Vehicle(String name) {
 

@@ -1,0 +1,2 @@
+ERROR [Ballerina.toml:(10:1,10:20)] missing required field 'mode'
+ERROR [Ballerina.toml:(10:17,10:20)] incompatible type for key 'limit': expected 'INTEGER', found 'STRING'

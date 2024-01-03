@@ -33,6 +33,7 @@ velocity.log
 /composer/modules/web/dist-electron
 extractedDistribution
 misc/testerina/modules/report-tools/node_modules/
+tests/jballerina-integration-test/src/test/resources/profiler/profiler
 
 # gradle
 .gradle

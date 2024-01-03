@@ -1,0 +1,4 @@
+ERROR [Ballerina.toml:(6:1,10:24)] recurring target module 'delivery' found in Ballerina.toml. Target module must be unique for each tool
+ERROR [Ballerina.toml:(6:1,10:24)] recurring tool id 'generate-delivery-client' found in Ballerina.toml. Tool id must be unique for each tool
+WARNING [Ballerina.toml:(12:1,15:24)] missing key '[targetModule]' in table '[tool.openapi]'. Default module will be taken as target module.
+WARNING [Ballerina.toml:(17:1,20:26)] tool options validation skipped due to: Schema file not found: grpc-options-schema.json
