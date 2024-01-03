@@ -54,7 +54,8 @@ function (int a, int... b) testModuleLevelRestParamFinal = function (int i, int.
     };
 
 public function testLocalLevelRestParamFinal() {
+    int[] arr = [];
     function (int a, int... b) func = function (int i, int... b) {
-        b = [];
+        b = arr;
     };
 }

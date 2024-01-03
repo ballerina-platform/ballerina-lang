@@ -497,9 +497,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // TODO: Shouldn't this be done in symbol enter?
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
-        
-        if (funcNode.symbol.restParam != null) {
-            funcNode.symbol.restParam.flags |= Flags.FUNCTION_FINAL;
+
+        BVarSymbol restParamSym = funcNode.symbol.restParam;
+        if (restParamSym != null) {
+            restParamSym.flags |= Flags.FUNCTION_FINAL;
         }
 
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
