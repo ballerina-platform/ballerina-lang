@@ -110,8 +110,8 @@ public class Utils {
     }
 
     private static String getFormattedStringForQuotedIdentifiers(char c) {
-        if (c == '&') {
-            return "0038";
+        if (c == '$') {
+            return "0036";
         }
         return getFormattedStringForJvmReservedSet(c);
     }
