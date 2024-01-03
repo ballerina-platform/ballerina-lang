@@ -284,8 +284,8 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  */
 public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerData> {
 
-    private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
-            new CompilerContext.Key<>();
+    private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY = new CompilerContext.Key<>();
+    private static final String NO_MESSAGE_ERROR_TYPE = "NoMessageError";
 
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
@@ -1989,6 +1989,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return false;
     }
 
+    private boolean withinIf(BLangFunctionBody enclInvokableBody, BLangNode node) {
+        if (enclInvokableBody == node) {
+            return false;
+        }
+
+        BLangNode parentNode = node.parent;
+        if (parentNode.getKind() == NodeKind.IF) {
+            return true;
+        }
+
+        return withinIf(enclInvokableBody, parentNode);
+    }
+
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
         return workerIdentifier.equals(DEFAULT_WORKER_NAME);
     }
@@ -2029,36 +2042,53 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(asyncSendExpr.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
         }
 
-        String workerName = asyncSendExpr.workerIdentifier.getValue();
-        if (data.withinQuery || (!isSendAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
-                !data.inInternallyDefinedBlockStmt)) {
+        boolean invalidSendPos = data.withinQuery ||
+                (!isSendAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
+                        !data.inInternallyDefinedBlockStmt);
+        if (invalidSendPos) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
+        String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (!this.workerExists(asyncSendExpr.workerType, workerName, data.env)
                 || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
-        asyncSendExpr.sendType = createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.expr.getBType(), data);
+        boolean withinIf = !invalidSendPos && withinIf(data.env.enclInvokable.body, data.env.node);
+        asyncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.expr.getBType(), withinIf, data);
         was.addWorkerAction(asyncSendExpr);
         analyzeExpr(asyncSendExpr.expr, data);
         validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingReceive(BType exprType, AnalyzerData data) {
+    private BType createAccumulatedErrorTypeForMatchingReceive(BType exprType, boolean withinIf, AnalyzerData data) {
         Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>() {
             {
                 Comparator.comparing(BType::toString);
             }
         };
+
+        boolean hasNonErrorReturn = false;
         for (BType returnType : returnTypesUpToNow) {
-            returnTypeAndSendType.addAll(getErrorTypes(returnType));
+            addErrorTypesToSet(returnType, returnTypeAndSendType);
+            if (hasNonErrorType(returnType)) {
+                hasNonErrorReturn = true;
+            }
         }
         returnTypeAndSendType.add(exprType);
+
+        if (withinIf || hasNonErrorReturn) {
+            // There is a possibility that the send action may not be executed, thus adding NoMessageError type.
+            BSymbol noMsgErrSymbol = symTable.langErrorModuleSymbol.scope.
+                    lookup(Names.fromString(NO_MESSAGE_ERROR_TYPE)).symbol;
+            returnTypeAndSendType.add(noMsgErrSymbol.getType());
+        }
+
         if (returnTypeAndSendType.size() > 1) {
             return BUnionType.create(null, returnTypeAndSendType);
         } else {
@@ -2085,8 +2115,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        if (data.withinQuery || (!isSendAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
-                !data.inInternallyDefinedBlockStmt)) {
+        boolean invalidSendPos = data.withinQuery ||
+                (!isSendAllowedLocation(data.env.enclInvokable.body, data.env.node) &&
+                        !data.inInternallyDefinedBlockStmt);
+        if (invalidSendPos) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2097,7 +2129,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
-        syncSendExpr.sendType = createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.expr.getBType(), data);
+        boolean withinIf = !invalidSendPos && withinIf(data.env.enclInvokable.body, data.env.node);
+        syncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.expr.getBType(), withinIf, data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
@@ -2147,7 +2181,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode, data);
+        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(data);
         was.addWorkerAction(workerReceiveNode);
     }
 
@@ -2185,12 +2219,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode,
-                                                               AnalyzerData data) {
-        Set<BType> returnTypesUpToNow = data.returnTypes.peek();
+    public BType createAccumulatedErrorTypeForMatchingSyncSend(AnalyzerData data) {
+        LinkedHashSet<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
         for (BType returnType : returnTypesUpToNow) {
-            returnTypeAndSendType.addAll(getErrorTypes(returnType));
+            addErrorTypesToSet(returnType,  returnTypeAndSendType);
         }
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
@@ -2200,25 +2233,44 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private LinkedHashSet<BType> getErrorTypes(BType returnType) {
-        LinkedHashSet<BType> errorTypes = new LinkedHashSet<>();
+    private void addErrorTypesToSet(BType returnType, LinkedHashSet<BType> errorTypes) {
         if (returnType == null) {
-            return errorTypes;
+            return;
         }
 
         BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
         if (effType.tag == TypeTags.ERROR) {
             errorTypes.add(returnType);
-        } else if (returnType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
+        } else if (effType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) effType).getMemberTypes()) {
                 BType t = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(memberType));
                 if (t.tag == TypeTags.ERROR) {
                     errorTypes.add(memberType);
                 }
             }
         }
+    }
 
-        return errorTypes;
+    private boolean hasNonErrorType(BType returnType) {
+        if (returnType == null) {
+            return false;
+        }
+
+        BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
+        if (effType.tag == TypeTags.ERROR) {
+            return false;
+        }
+
+        if (effType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
+                if (hasNonErrorType(memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
     }
 
     @Override
