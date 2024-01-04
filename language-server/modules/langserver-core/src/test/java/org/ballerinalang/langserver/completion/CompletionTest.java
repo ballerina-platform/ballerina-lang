@@ -189,19 +189,6 @@ public abstract class CompletionTest extends AbstractLSTest {
 //                "Failed Test for: " + configJsonPath);
     }
 
-    protected void preLoadAndInit() throws InterruptedException {
-
-        ServiceTemplateGenerator serviceTemplateGenerator =
-                ServiceTemplateGenerator.getInstance(getLanguageServer().getServerContext());
-        long initTime = System.currentTimeMillis();
-        while (!serviceTemplateGenerator.initialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
-            Thread.sleep(2000);
-        }
-        if (!serviceTemplateGenerator.initialized()) {
-            Assert.fail("Service template generator initialization failed!");
-        }
-    }
-
     @Override
     public boolean loadMockedPackages() {
         return true;

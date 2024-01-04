@@ -45,11 +45,4 @@ public class AnnotationDeclarationTest extends CompletionTest {
     public List<String> skipList() {
         return Collections.singletonList("config6.json");
     }
-
-    @BeforeClass
-    @Override
-    public void init() throws Exception {
-        super.init();
-        preLoadAndInit();
-    }
 }
