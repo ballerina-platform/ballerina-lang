@@ -319,8 +319,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Node> relativeResourcePath = formatNodeList(functionDefinitionNode.relativeResourcePath(), 0, 0, 0, 0);
         int trailingNL = options.braceFormattingOptions().methodBraceStyle() == BraceStyle.NewLine ? 1 : 0;
         FunctionSignatureNode functionSignatureNode =
-                formatNode(functionDefinitionNode.functionSignature(), 1 - trailingNL,
-                        trailingNL);
+                formatNode(functionDefinitionNode.functionSignature(), invert(trailingNL), trailingNL);
         FunctionBodyNode functionBodyNode =
                 formatNode(functionDefinitionNode.functionBody(), env.trailingWS, env.trailingNL);
 
@@ -455,10 +454,10 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         int trailingNL = openBraceTrailingNLs(options.wrappingFormattingOptions(), functionBodyBlockNode);
-        Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 1 - trailingNL, trailingNL);
+        Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), invert(trailingNL), trailingNL);
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements =
-                formatNodeList(functionBodyBlockNode.statements(), 0, 1, 1 - trailingNL, trailingNL);
+                formatNodeList(functionBodyBlockNode.statements(), 0, 1, invert(trailingNL), trailingNL);
         NamedWorkerDeclarator namedWorkerDeclarator =
                 formatNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null), 0, 1);
 
@@ -573,7 +572,7 @@ public class FormattingTreeModifier extends TreeModifier {
         boolean preserveIndent = env.preserveIndentation;
         preserveIndentation(blockStatementNode.openBraceToken().isMissing() && preserveIndent);
         int trailingNL = openBraceTrailingNLs(options.wrappingFormattingOptions(), blockStatementNode);
-        int trailingWS = 1 - trailingNL;
+        int trailingWS = invert(trailingNL);
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), trailingWS, trailingNL);
         preserveIndentation(preserveIndent);
         indent(); // start an indentation
@@ -3490,8 +3489,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Token> classTypeQualifiers = formatNodeList(classDefinitionNode.classTypeQualifiers(), 1, 0, 1, 0);
         Token classKeyword = formatToken(classDefinitionNode.classKeyword(), 1, 0);
         int trailingNL = options.braceFormattingOptions().classBraceStyle() == BraceStyle.NewLine ? 1 : 0;
-        Token className = formatToken(classDefinitionNode.className(), 1 - trailingNL,
-                trailingNL);
+        Token className = formatToken(classDefinitionNode.className(), invert(trailingNL), trailingNL);
         Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
 
         indent();
@@ -4819,5 +4817,10 @@ public class FormattingTreeModifier extends TreeModifier {
         imports.addAll(stdLibImportNodes.stream().collect(Collectors.toList()));
         imports.addAll(thirdPartyImportNodes.stream().collect(Collectors.toList()));
         return NodeFactory.createNodeList(imports);
+    }
+
+    private int invert(int val) {
+        int inverted = 1 - val;
+        return inverted >= 0 ? inverted : 0;
     }
 }

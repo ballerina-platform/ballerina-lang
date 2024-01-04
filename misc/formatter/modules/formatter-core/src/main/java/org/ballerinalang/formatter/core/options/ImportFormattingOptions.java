@@ -89,15 +89,9 @@ public class ImportFormattingOptions {
             for (Map.Entry<String, Object> importEntry : configs.entrySet()) {
                 String importKey = importEntry.getKey();
                 switch (importKey) {
-                    case SORT_IMPORTS:
-                        setSortImports((Boolean) importEntry.getValue());
-                        break;
-                    case GROUP_IMPORTS:
-                        setGroupImports((Boolean) importEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid import formatting option: " + importKey);
-                        break;
+                    case SORT_IMPORTS -> setSortImports((Boolean) importEntry.getValue());
+                    case GROUP_IMPORTS -> setGroupImports((Boolean) importEntry.getValue());
+                    default -> warning("Invalid import formatting option: " + importKey);
                 }
             }
             return build();

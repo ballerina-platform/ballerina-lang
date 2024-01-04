@@ -192,36 +192,19 @@ public class FormattingOptions {
                 Map<String, Object> configs = (Map<String, Object>) value;
                 FormatSection section = FormatSection.fromString(key);
                 switch (section) {
-                    case INDENT:
-                        indentFormattingOptions = IndentFormattingOptions.builder().build(configs);
-                        break;
-                    case WRAPPING:
-                        wrappingFormattingOptions = WrappingFormattingOptions.builder().build(configs);
-                        break;
-                    case BRACES:
-                        braceFormattingOptions = BraceFormattingOptions.builder().build(configs);
-                        break;
-                    case METHOD_DECLARATION:
-                        functionDeclFormattingOptions = FunctionDeclFormattingOptions.builder().build(configs);
-                        break;
-                    case METHOD_CALL:
-                        functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(configs);
-                        break;
-                    case IF_STATEMENT:
-                        ifStatementFormattingOptions = IfStatementFormattingOptions.builder().build(configs);
-                        break;
-                    case QUERY:
-                        queryFormattingOptions = QueryFormattingOptions.builder().build(configs);
-                        break;
-                    case SPACING:
-                        spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
-                        break;
-                    case IMPORT:
-                        importFormattingOptions = ImportFormattingOptions.builder().build(configs);
-                        break;
-                    default:
-                        warning("Invalid formatting option section : " + section);
-                        break;
+                    case INDENT -> indentFormattingOptions = IndentFormattingOptions.builder().build(configs);
+                    case WRAPPING -> wrappingFormattingOptions = WrappingFormattingOptions.builder().build(configs);
+                    case BRACES -> braceFormattingOptions = BraceFormattingOptions.builder().build(configs);
+                    case METHOD_DECLARATION ->
+                            functionDeclFormattingOptions = FunctionDeclFormattingOptions.builder().build(configs);
+                    case METHOD_CALL ->
+                            functionCallFormattingOptions = FunctionCallFormattingOptions.builder().build(configs);
+                    case IF_STATEMENT ->
+                            ifStatementFormattingOptions = IfStatementFormattingOptions.builder().build(configs);
+                    case QUERY -> queryFormattingOptions = QueryFormattingOptions.builder().build(configs);
+                    case SPACING -> spacingFormattingOptions = SpacingFormattingOptions.builder().build(configs);
+                    case IMPORT -> importFormattingOptions = ImportFormattingOptions.builder().build(configs);
+                    default -> warning("Invalid formatting option section : " + section);
                 }
             }
             return build();
