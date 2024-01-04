@@ -25,14 +25,18 @@ import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
-import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.projects.util.FileUtils;
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.validator.TomlValidator;
+import io.ballerina.toml.validator.schema.Schema;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.ballerinalang.formatter.core.options.FormatSection;
 import org.ballerinalang.formatter.core.options.WrappingFormattingOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,6 +44,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -56,14 +61,15 @@ import java.util.stream.Collectors;
  * Class that contains the util functions used by the formatting tree modifier.
  */
 public class FormatterUtils {
-
-    private static Logger logger = LoggerFactory.getLogger("Formatter");
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
     static final String FORMAT_FILE_FIELD = "configPath";
     static final String FORMAT_OPTION_FILE_EXT = ".toml";
     static final String DEFAULT_FORMAT_OPTION_FILE = "Format.toml";
     static final String TARGET_DIR = "target";
     static final String FORMAT = "format";
+    static final String FORMAT_TOML_SCHEMA = "format-toml-schema.json";
+    private static final PrintStream errStream = System.err;
+
     public static final ResourceBundle DEFAULTS = ResourceBundle.getBundle("formatter", Locale.getDefault());
 
     private FormatterUtils() {
@@ -86,7 +92,7 @@ public class FormatterUtils {
     }
 
     public static void warning(String message) {
-        logger.warn(message);
+        errStream.println(message);
     }
 
     public static String getFormattingFilePath(Object formatSection, String root) {
@@ -101,16 +107,8 @@ public class FormatterUtils {
             }
         }
 
-        File directory = new File(root);
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile() && file.getName().equals(DEFAULT_FORMAT_OPTION_FILE)) {
-                    return file.getAbsolutePath();
-                }
-            }
-        }
-        return null;
+        Path defaultFile = Path.of(root, DEFAULT_FORMAT_OPTION_FILE);
+        return Files.exists(defaultFile) ? defaultFile.toString() : null;
     }
 
     public static Map<String, Object> getFormattingConfigurations(Path root, String path) throws FormatterException {
@@ -146,19 +144,17 @@ public class FormatterUtils {
         try {
             URL url = new URL(fileUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
             int responseCode = connection.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        fileContent.append(line).append(NEWLINE_SYMBOL);
-                    }
-                }
-            } else {
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                connection.disconnect();
                 throw new FormatterException("Failed to retrieve remote file. HTTP response code: " + responseCode);
+            }
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    fileContent.append(line).append(NEWLINE_SYMBOL);
+                }
             }
             connection.disconnect();
         } catch (IOException e) {
@@ -170,30 +166,51 @@ public class FormatterUtils {
     }
 
     private static void cacheRemoteConfigurationFile(Path root, String content) throws FormatterException {
-        if (Files.exists(root.resolve(TARGET_DIR))) {
-            if (!Files.exists(root.resolve(TARGET_DIR).resolve(FORMAT))) {
-                try {
-                    Files.createDirectories(root.resolve(TARGET_DIR).resolve(FORMAT));
-                } catch (IOException e) {
-                    throw new FormatterException("Failed to create format configuration cache directory");
-                }
-            }
-            String filePath = root.resolve(TARGET_DIR).resolve(FORMAT).resolve(DEFAULT_FORMAT_OPTION_FILE)
-                    .toString();
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
-                writer.write(content);
+        Path targetDir = root.resolve(TARGET_DIR);
+        if (!Files.exists(targetDir)) {
+            return;
+        }
+        Path formatDir = targetDir.resolve(FORMAT);
+        if (!Files.exists(formatDir)) {
+            try {
+                Files.createDirectories(formatDir);
             } catch (IOException e) {
-                throw new FormatterException("Failed to write format configuration cache file");
+                throw new FormatterException("Failed to create format configuration cache directory");
             }
+        }
+        String filePath = formatDir.resolve(DEFAULT_FORMAT_OPTION_FILE).toString();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8))) {
+            writer.write(content);
+        } catch (IOException e) {
+            throw new FormatterException("Failed to write format configuration cache file");
         }
     }
 
-    public static Map<String, Object> parseConfigurationToml(TomlDocument document) {
-        TomlTableNode tomlAstNode = document.toml().rootNode();
-        if (!tomlAstNode.entries().isEmpty()) {
-            return document.toml().toMap();
+    public static Map<String, Object> parseConfigurationToml(TomlDocument document) throws FormatterException {
+        Toml toml = document.toml();
+        if (toml.rootNode().entries().isEmpty()) {
+            return new HashMap<>();
         }
-        return new HashMap<>();
+        TomlValidator formatTomlValidator;
+        try {
+            formatTomlValidator = new TomlValidator(Schema.from(FileUtils.readFileAsString(FORMAT_TOML_SCHEMA)));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the Format.toml validator schema file.");
+        }
+        formatTomlValidator.validate(toml);
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        boolean hasErrors = false;
+        for (Diagnostic d: diagnostics) {
+            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                errStream.println(d.message());
+                hasErrors = true;
+            }
+        }
+        if (hasErrors) {
+            throw new FormatterException("Invalid Format.toml file");
+        }
+        return toml.toMap();
     }
 
     static boolean isInlineRange(Node node, LineRange lineRange) {

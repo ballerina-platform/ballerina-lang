@@ -77,15 +77,9 @@ public class BraceFormattingOptions {
                 String bracesKey = bracesEntry.getKey();
                 BraceStyle style = BraceStyle.fromString((String) bracesEntry.getValue());
                 switch (bracesKey) {
-                    case CLASS_BRACE_STYLE:
-                        setClassBraceStyle(style);
-                        break;
-                    case METHOD_BRACE_STYLE:
-                        setMethodBraceStyle(style);
-                        break;
-                    default:
-                        warning("Invalid Brace Option: " + bracesKey);
-                        break;
+                    case CLASS_BRACE_STYLE -> setClassBraceStyle(style);
+                    case METHOD_BRACE_STYLE -> setMethodBraceStyle(style);
+                    default -> warning("Invalid Brace Option: " + bracesKey);
                 }
             }
             return build();

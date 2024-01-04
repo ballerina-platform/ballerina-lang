@@ -103,19 +103,13 @@ public class WrappingFormattingOptions {
             for (Map.Entry<String, Object> wrappingEntry : configs.entrySet()) {
                 String wrappingKey = wrappingEntry.getKey();
                 switch (wrappingKey) {
-                    case MAX_LINE_LENGTH:
+                    case MAX_LINE_LENGTH -> {
                         setMaxLineLength(((Number) wrappingEntry.getValue()).intValue());
                         setLineWrap(true);
-                        break;
-                    case SIMPLE_BLOCKS_IN_ONE_LINE:
-                        setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());
-                        break;
-                    case SIMPLE_METHODS_IN_ONE_LINE:
-                        setSimpleMethodsInOneLine((Boolean) wrappingEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid wrapping formatting option: " + wrappingKey);
-                        break;
+                    }
+                    case SIMPLE_BLOCKS_IN_ONE_LINE -> setSimpleBlocksInOneLine((Boolean) wrappingEntry.getValue());
+                    case SIMPLE_METHODS_IN_ONE_LINE -> setSimpleMethodsInOneLine((Boolean) wrappingEntry.getValue());
+                    default -> warning("Invalid wrapping formatting option: " + wrappingKey);
                 }
             }
             return build();
