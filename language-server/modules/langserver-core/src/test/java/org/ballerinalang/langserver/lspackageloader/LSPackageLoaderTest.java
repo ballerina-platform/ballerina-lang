@@ -16,8 +16,6 @@
 package org.ballerinalang.langserver.lspackageloader;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.PackageRepository;
-import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -87,12 +85,12 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         LSPackageLoader lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
         setLsPackageLoader(lsPackageLoader);
         this.getLanguageServer().getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, getLSPackageLoader());
-        Mockito.when(lsPackageLoader.getLocalRepoModules())
-                .thenAnswer(invocation -> getRemoteRepoPackages());
         Mockito.when(lsPackageLoader.getLocalRepoModules()).thenReturn(getLocalPackages());
-        Mockito.when(lsPackageLoader.getDistributionRepoModules()).thenCallRealMethod();
+        Mockito.when(lsPackageLoader.getDistributionRepoModules()).thenReturn(getDistributionPackages());
+        Mockito.when(lsPackageLoader.getRemoteRepoModules()).thenReturn(this.remoteRepoPackages);
         Mockito.when(lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
+        Mockito.doNothing().when(lsPackageLoader).loadModules(Mockito.any());
         Mockito.doAnswer(invocation -> {
             invocation.getArguments();
             Object[] arguments = invocation.getArguments();
@@ -114,9 +112,6 @@ public class LSPackageLoaderTest extends AbstractLSTest {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
         return getLSPackageLoader().getRemoteRepoModules();
     }
 

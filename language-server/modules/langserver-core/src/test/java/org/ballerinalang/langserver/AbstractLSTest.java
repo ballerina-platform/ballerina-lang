@@ -63,6 +63,7 @@ public abstract class AbstractLSTest {
     private static final List<LSPackageLoader.ModuleInfo> REMOTE_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> LOCAL_PACKAGES = new ArrayList<>();
     private static final List<LSPackageLoader.ModuleInfo> CENTRAL_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.ModuleInfo> DISTRIBUTION_PACKAGES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
 
@@ -83,6 +84,7 @@ public abstract class AbstractLSTest {
             LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
+            DISTRIBUTION_PACKAGES.addAll(mockDistRepoPackages(LSPackageLoader.getInstance(context)));
             mockCentralPackages();
         } catch (Exception e) {
             //ignore
@@ -128,35 +130,36 @@ public abstract class AbstractLSTest {
 
     public void setUp() {
         this.lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
-        this.descriptorLoader = Mockito.mock(CentralPackageDescriptorLoader.class, Mockito.withSettings().stubOnly());
-        languageServer.getServerContext().put(
-                CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, descriptorLoader);
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
         Mockito.when(this.lsPackageLoader.getRemoteRepoModules()).thenReturn(REMOTE_PACKAGES);
         Mockito.when(this.lsPackageLoader.getLocalRepoModules()).thenReturn(LOCAL_PACKAGES);
         Mockito.when(this.lsPackageLoader.getCentralPackages()).thenReturn(CENTRAL_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getDistributionRepoModules()).thenReturn(DISTRIBUTION_PACKAGES);
         Mockito.when(this.lsPackageLoader.checkAndResolvePackagesFromRepository(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenCallRealMethod();
-        Mockito.when(this.lsPackageLoader.initializeAndGetModules(Mockito.any())).thenReturn(
-                mockInitializeAndGetModules(this.lsPackageLoader));
-        Mockito.when(this.lsPackageLoader.getDistributionRepoModules()).thenCallRealMethod();
+        Mockito.doNothing().when(this.lsPackageLoader).loadModules(Mockito.any());
         Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
     }
 
-    private static CompletableFuture<List<LSPackageLoader.ModuleInfo>> mockInitializeAndGetModules(LSPackageLoader lsPackageLoader) {
+    private static CompletableFuture<List<LSPackageLoader.ModuleInfo>> mockInitializeAndGetModules(
+            LSPackageLoader lsPackageLoader) {
         return CompletableFuture.supplyAsync(() -> {
             List<LSPackageLoader.ModuleInfo> modules = new ArrayList<>();
             modules.addAll(REMOTE_PACKAGES);
             modules.addAll(LOCAL_PACKAGES);
-            Environment environment = EnvironmentBuilder.getBuilder().build();
-            BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
-            PackageRepository packageRepository = ballerinaDistribution.packageRepository();
-            List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
-            modules.addAll(lsPackageLoader.checkAndResolvePackagesFromRepository(packageRepository,
-                    skippedLangLibs, Collections.emptySet()));
+            modules.addAll(mockDistRepoPackages(lsPackageLoader));
             return modules;
         });
+    }
+
+    private static List<LSPackageLoader.ModuleInfo> mockDistRepoPackages(LSPackageLoader lsPackageLoader) {
+        Environment environment = EnvironmentBuilder.getBuilder().build();
+        BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
+        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
+        List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
+        return lsPackageLoader.checkAndResolvePackagesFromRepository(packageRepository,
+                skippedLangLibs, Collections.emptySet());
     }
 
     protected static List<Package> getPackages(Map<String, String> projects,
@@ -213,5 +216,9 @@ public abstract class AbstractLSTest {
 
     public static List<LSPackageLoader.ModuleInfo> getRemotePackages() {
         return REMOTE_PACKAGES;
+    }
+
+    public static List<LSPackageLoader.ModuleInfo> getDistributionPackages() {
+        return DISTRIBUTION_PACKAGES;
     }
 }
