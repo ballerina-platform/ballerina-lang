@@ -29,8 +29,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
