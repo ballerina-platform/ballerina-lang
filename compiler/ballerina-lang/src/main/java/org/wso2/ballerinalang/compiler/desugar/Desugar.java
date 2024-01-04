@@ -2487,24 +2487,22 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isOptionalBasicTypeFieldAssignment(BLangAssignment assignNode) {
-        if (assignNode.varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+        BLangNode varRef = assignNode.varRef;
+        if (varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
             return false;
         }
-        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) assignNode.varRef;
+        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) varRef;
         BType targetType = Types.getImpliedType(fieldAccessNode.expr.getBType());
-        if (targetType.getKind() != TypeKind.RECORD) {
+        if (targetType.tag != TypeTags.RECORD) {
             return false;
         }
         BRecordType recordType = (BRecordType) targetType;
         BField field = recordType.fields.get(fieldAccessNode.field.value);
-        if (field == null || (field.symbol.flags & Flags.OPTIONAL) != Flags.OPTIONAL) {
+        if (field == null || !Symbols.isOptional(field.symbol)) {
             return false;
         }
-        BType fieldType = field.getType();
-        return switch (fieldType.getKind()) {
-            case BOOLEAN, FLOAT, STRING, DECIMAL -> true;
-            default -> TypeTags.isIntegerTypeTag(fieldType.tag);
-        };
+        BType fieldType = Types.getImpliedType(field.getType());
+        return TypeTags.isSimpleBasicType(fieldType.tag);
     }
 
     @Override
