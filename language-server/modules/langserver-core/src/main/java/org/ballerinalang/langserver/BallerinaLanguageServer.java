@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;

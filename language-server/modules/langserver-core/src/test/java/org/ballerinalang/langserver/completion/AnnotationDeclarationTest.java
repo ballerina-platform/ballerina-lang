@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completion;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 
 import java.util.Collections;
