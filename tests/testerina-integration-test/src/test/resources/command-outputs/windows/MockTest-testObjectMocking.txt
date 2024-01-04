@@ -7,16 +7,13 @@ Running Tests with Coverage
 
 	object_mocking
 
-testDefaultMockInvalidFieldName has failed.
-
-
-testMockInvalidStream has failed.
-
-
 testDefaultIncompatibleArgs has failed.
 
 
 testDefaultInvalidMemberReturnValue has failed.
+
+
+testDefaultMockInvalidFieldName has failed.
 
 
 testDefaultMockInvalidReturnValue has failed.
@@ -26,6 +23,9 @@ testDefaultMockWrongAction has failed.
 
 
 testDefaultTooManyArgs has failed.
+
+
+testMockInvalidStream has failed.
 
 
 		Test execution time :*****ms
@@ -39,24 +39,6 @@ testDefaultTooManyArgs has failed.
 		[pass] testProvideAReturnValueBasedOnInput
 		[pass] testProvideErrorReturnValue
 		[pass] testUserDefinedMockObject
-
-		[fail] testDefaultMockInvalidFieldName:
-
-		    error {ballerina/test:0}InvalidMemberFieldError ("invalid field name 'invalidField' provided")
-				callableName: validateFieldNameExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 337
-				callableName: getMember moduleName: ballerina.test.0.MockObject fileName: mock.bal lineNumber: 95
-				callableName: testDefaultMockInvalidFieldName moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 65
-				callableName: testDefaultMockInvalidFieldName$lambda4$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 8
-			
-
-		[fail] testMockInvalidStream:
-
-		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get_stream()'")
-				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
-				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 148
-				callableName: testMockInvalidStream moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 81
-				callableName: testMockInvalidStream$lambda6$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 10
-			
 
 		[fail] testDefaultIncompatibleArgs:
 
@@ -74,6 +56,15 @@ testDefaultTooManyArgs has failed.
 				callableName: thenReturn moduleName: ballerina.test.0.MemberVariableStub fileName: mock.bal lineNumber: 212
 				callableName: testDefaultInvalidMemberReturnValue moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 74
 				callableName: testDefaultInvalidMemberReturnValue$lambda5$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 9
+			
+
+		[fail] testDefaultMockInvalidFieldName:
+
+		    error {ballerina/test:0}InvalidMemberFieldError ("invalid field name 'invalidField' provided")
+				callableName: validateFieldNameExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 337
+				callableName: getMember moduleName: ballerina.test.0.MockObject fileName: mock.bal lineNumber: 95
+				callableName: testDefaultMockInvalidFieldName moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 65
+				callableName: testDefaultMockInvalidFieldName$lambda4$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 8
 			
 
 		[fail] testDefaultMockInvalidReturnValue:
@@ -103,6 +94,15 @@ testDefaultTooManyArgs has failed.
 				callableName: testDefaultTooManyArgs$lambda2$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 6
 			
 
+		[fail] testMockInvalidStream:
+
+		    error {ballerina/test:0}FunctionSignatureMismatchError ("return value provided does not match the return type of function 'get_stream()'")
+				callableName: thenReturnExt moduleName: ballerina.test.0 fileName: mock.bal lineNumber: 355
+				callableName: thenReturn moduleName: ballerina.test.0.MemberFunctionStub fileName: mock.bal lineNumber: 148
+				callableName: testMockInvalidStream moduleName: intg_tests.object_mocking$test.0.tests.main_error_test fileName: tests/main_error_test.bal lineNumber: 81
+				callableName: testMockInvalidStream$lambda6$ moduleName: intg_tests.object_mocking$test.0.tests.test_execute-generated_*****lineNumber: 10
+			
+
 
 		9 passing
 		7 failing
@@ -111,4 +111,4 @@ testDefaultTooManyArgs has failed.
 Generating Test Report
 	object-mocking-tests\target\report\test_results.json
 
-error: there are test failures
+error: there are test failures

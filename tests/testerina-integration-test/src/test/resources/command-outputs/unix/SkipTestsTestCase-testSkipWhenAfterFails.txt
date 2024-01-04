@@ -19,7 +19,7 @@ Running Tests
 	    error {ballerina/test:0}TestError ("Assertion Failed!
 		 
 		expected: 'beforetestafterEachtestafterEach'
-		actual	: 'beforetestafterEachtestafterEachafterEach'
+		actual	: 'beforetestafterEachafterEachtestafterEach'
 		 
 		Diff	:
 		
@@ -28,7 +28,7 @@ Running Tests
 		 
 		 @@ -1,1 +1,1 @@ 
 		 
-		 -beforetestafterEachtestafterEachafterEach
+		 -beforetestafterEachafterEachtestafterEach
 		+beforetestafterEachtestafterEach
 		")
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41

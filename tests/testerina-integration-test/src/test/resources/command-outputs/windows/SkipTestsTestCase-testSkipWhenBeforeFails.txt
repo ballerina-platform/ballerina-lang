@@ -19,7 +19,7 @@ Running Tests
 	    error {ballerina/test:0}TestError ("Assertion Failed!
 		 
 		expected: 'beforetest3afterEach'
-		actual	: 'beforeafterEachtest3afterEachafterEach'
+		actual	: 'beforeafterEachafterEachtest3afterEach'
 		 
 		Diff	:
 		
@@ -28,7 +28,7 @@ Running Tests
 		 
 		 @@ -1,1 +1,1 @@ 
 		 
-		 -beforeafterEachtest3afterEachafterEach
+		 -beforeafterEachafterEachtest3afterEach
 		+beforetest3afterEach
 		")
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
@@ -42,4 +42,4 @@ Running Tests
 		1 passing
 		0 failing
 		2 skipped
-error: there are test failures
+error: there are test failures
