@@ -31,13 +31,6 @@ import java.io.IOException;
  */
 public class ModulePartNodeContextTest extends CompletionTest {
 
-    @BeforeClass
-    @Override
-    public void init() throws Exception {
-        super.init();
-        preLoadAndInit();
-    }
-
     @Test(dataProvider = "completion-data-provider")
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {

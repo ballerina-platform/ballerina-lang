@@ -15,14 +15,18 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageRepository;
@@ -30,11 +34,17 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.eclipse.lsp4j.*;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
+import org.eclipse.lsp4j.ProgressParams;
+import org.eclipse.lsp4j.WorkDoneProgressBegin;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
+import org.eclipse.lsp4j.WorkDoneProgressReport;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -102,16 +112,8 @@ public class LSPackageLoader {
      *
      * @param context language server context.
      */
-    private CompletableFuture<List<ModuleInfo>> loadModules(LanguageServerContext context) {
-        return CompletableFuture.supplyAsync(() -> {
+    public void loadModules(LanguageServerContext context) {
             LSClientLogger lsClientLogger = LSClientLogger.getInstance(context);
-            if (isInitialized()) {
-                List<ModuleInfo> packages = new ArrayList<>();
-                packages.addAll(getLocalRepoModules());
-                packages.addAll(getRemoteRepoModules());
-                packages.addAll(getDistributionRepoModules());
-                return packages;
-            }
             String taskId = UUID.randomUUID().toString();
             notificationTaskId = taskId;
             Map<String, ModuleInfo> packagesList = new HashMap<>();
@@ -202,12 +204,6 @@ public class LSPackageLoader {
             });
 
             this.initialized = true;
-            return packagesList.values().stream().toList();
-        });
-    }
-
-    public CompletableFuture<List<ModuleInfo>> initializeAndGetModules(LanguageServerContext context) {
-        return loadModules(context);
     }
 
     /**
@@ -268,7 +264,7 @@ public class LSPackageLoader {
             Package packageInstance = module.packageInstance();
             ModuleInfo moduleInfo = new ModuleInfo(PackageOrg.from(""), packageInstance.packageName(),
                     packageInstance.packageVersion(), packageInstance.project().sourceRoot());
-
+            moduleInfo.setModuleFromCurrentPackage(true);
             Optional<Module> currentModule = ctx.currentModule();
             String packageName = moduleInfo.packageName().value();
             String moduleName = module.descriptor().name().moduleNamePart();
@@ -369,6 +365,10 @@ public class LSPackageLoader {
 
         private String moduleIdentifier;
 
+        private boolean isModuleFromCurrentPackage = false;
+
+        private final List<ServiceTemplateGenerator.ListenerMetaData> listenerMetaData = new ArrayList<>();
+
         public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
             this.packageOrg = packageOrg;
             this.packageName = packageName;
@@ -384,6 +384,23 @@ public class LSPackageLoader {
             this.packageVersion = pkg.packageVersion();
             this.sourceRoot = pkg.project().sourceRoot();
             this.moduleIdentifier = packageOrg.toString() + "/" + packageName.toString();
+            addServiceTemplateMetaData();
+        }
+
+        public List<ServiceTemplateGenerator.ListenerMetaData> getListenerMetaData() {
+            return listenerMetaData;
+        }
+
+        public String getModuleIdentifier() {
+            return moduleIdentifier;
+        }
+
+        public boolean isModuleFromCurrentPackage() {
+            return isModuleFromCurrentPackage;
+        }
+
+        public void setModuleFromCurrentPackage(boolean moduleFromCurrentPackage) {
+            isModuleFromCurrentPackage = moduleFromCurrentPackage;
         }
 
         public PackageName packageName() {
@@ -404,6 +421,24 @@ public class LSPackageLoader {
 
         public String packageIdentifier() {
             return moduleIdentifier;
+        }
+
+        private void addServiceTemplateMetaData() {
+            String orgName = ModuleUtil.escapeModuleName(this.packageOrg().value());
+            Project project = ProjectLoader.loadProject(this.sourceRoot());
+            //May take some time as we are compiling projects.
+            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            Module module = project.currentPackage().getDefaultModule();
+
+            String moduleName = module.descriptor().name().toString();
+            String version = module.packageInstance().descriptor().version().value().toString();
+            ModuleID moduleID = CodeActionModuleId.from(orgName, moduleName, version);
+
+            SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
+            semanticModel.moduleSymbols().stream().filter(ServiceTemplateGenerator.listenerPredicate())
+                    .forEach(listener ->
+                            ServiceTemplateGenerator.generateServiceSnippetMetaData(listener, moduleID)
+                                    .ifPresent(listenerMetaData::add));
         }
     }
 }

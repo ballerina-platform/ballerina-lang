@@ -33,13 +33,6 @@ import java.util.List;
  */
 public class ImportDeclarationTest extends CompletionTest {
 
-    @BeforeClass
-    @Override
-    public void init() throws Exception {
-        super.init();
-        preLoadAndInit();
-    }
-
     @Test(dataProvider = "completion-data-provider")
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {

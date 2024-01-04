@@ -46,10 +46,7 @@ public class PullModuleSubscriber implements EventSubscriber {
     @Override
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
                         LanguageServerContext languageServerContext) {
-        List<LSPackageLoader.ModuleInfo> moduleInfos =
-                LSPackageLoader.getInstance(languageServerContext).updatePackageMap(context);
-        ServiceTemplateGenerator.getInstance(context.languageServercontext())
-                .updateListenerMetaDataMap(moduleInfos, context.languageServercontext());
+        LSPackageLoader.getInstance(languageServerContext).updatePackageMap(context);
     }
 
     @Override
