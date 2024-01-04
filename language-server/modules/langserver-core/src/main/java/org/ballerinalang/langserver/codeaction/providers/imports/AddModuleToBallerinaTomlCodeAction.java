@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
@@ -131,8 +130,8 @@ public class AddModuleToBallerinaTomlCodeAction implements DiagnosticBasedCodeAc
     
     private List<PackageVersion> getAvailablePackageVersionsFromLocalRepo(
             LSPackageLoader lsPackageLoader, Project project, String orgName, String pkgName) {
-        BallerinaUserHome ballerinaUserHome = 
-                BallerinaUserHome.from(project.projectEnvironmentContext().environment());
+//        BallerinaUserHome ballerinaUserHome =
+//                BallerinaUserHome.from(project.projectEnvironmentContext().environment());
         List<ModuleInfo> modules = lsPackageLoader.getLocalRepoModules();
         List<PackageVersion> versions = new ArrayList<>();
         for (ModuleInfo mod : modules) {
