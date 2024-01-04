@@ -288,6 +288,14 @@ function testSpreadFieldWithRecordTypeHavingRestDescriptor() {
     assertEquality("s", recA.s);
     assertEquality("m", recA.m);
     assertEquality("e", (<error>recA["e"]).message());
+
+    record {|int i; int...;|} r1 = {i: 1};
+    record {|int i; string|int...;|} r2 = {...r1};
+    assertEquality(1, r2.i);
+
+    record {|string s; never...;|} r3 = {s: "s"};
+    record {|string s; int...;|} r4 = {...r3};
+    assertEquality("s", r4.s);
 }
 
 function assertEquality(any|error expected, any|error actual) {

@@ -91,17 +91,11 @@ function testSpreadOfOpenRecordToCreateClosedRecord() {
     Address address1 = {street: "Main Street"};
     record {|string street;|} _ = {...address1};
 
-    Address address2 = {street: "Pine Street", "number": 40};
-    record {|string street;|} _ = {...address2};
+    Address address2 = {street: "Maple street" };
+    Street _ = {...address2};
 
-    Address address3 = {street: "Maple street" };
+    record {string street;} address3 = {street: "Jump Street"};
     Street _ = {...address3};
-
-    record {string street;} address4 = {street: "Jump Street"};
-    Street _ = {...address4};
-
-    record {string street;} address5 = {street: "Willow Street", "number": 60};
-    Street _ = {...address5};
 
     record {string s;} foo1 = {s: "S"};
     record {int i;} foo2 = {i: 2};
@@ -129,6 +123,12 @@ function testSpreadOpFieldOfMismatchingRestType() {
 
     record {string name;} country3 = {name: "India"};
     Country _ = {continent: "Asia", ...country3};
+
+     record {|string name; string continent; string...;|} country4 = {name: "Sri Lanka", continent: "Asia"};
+     record {|string name; string continent; int...;|} _ = {...country4};
+
+     record {|string name; string continent; error...;|} country5 = {name: "India", continent: "Asia"};
+     record {|string name; string continent;|} _ = {...country5};
 }
 
 ///////////////////////// Map Tests /////////////////////////

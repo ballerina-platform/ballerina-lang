@@ -167,39 +167,40 @@ public class MappingConstructorExprTest {
                         "construct a closed record", 92, 39);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'Address', that may have rest fields, to " +
-                        "construct a closed record", 95, 39);
-        validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Address', that may have rest fields, to " +
-                        "construct a closed record", 98, 20);
+                        "construct a closed record", 95, 20);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| string street; anydata...; |}', " +
-                        "that may have rest fields, to construct a closed record", 101, 20);
-        validateError(result, i++,
-                "invalid usage of spread field with open record of type 'record {| string street; anydata...; |}', " +
-                        "that may have rest fields, to construct a closed record", 104, 20);
+                        "that may have rest fields, to construct a closed record", 98, 20);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| string s; anydata...; |}', that " +
-                        "may have rest fields, to construct a closed record", 108, 17);
+                        "may have rest fields, to construct a closed record", 102, 17);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'record {| int i; anydata...; |}', that may " +
-                        "have rest fields, to construct a closed record", 108, 26);
+                        "have rest fields, to construct a closed record", 102, 26);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'Foz', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 114, 36);
+                        "'string', to construct a record that allows only 'anydata' rest fields", 108, 36);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'Foz', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 114, 45);
+                        "'string', to construct a record that allows only 'anydata' rest fields", 108, 45);
         validateError(result, i++,
-                "incompatible types: expected 'string' for field 'population', found 'int'", 125, 21);
-        validateError(result, i++,
-                "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 125, 21);
+                "incompatible types: expected 'string' for field 'population', found 'int'", 119, 21);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 128, 21);
+                        "'string', to construct a record that allows only 'anydata' rest fields", 119, 21);
         validateError(result, i++,
                 "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
-                        "'string', to construct a record that allows only 'anydata' rest fields", 131, 40);
+                        "'string', to construct a record that allows only 'anydata' rest fields", 122, 21);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'Country', that may have rest fields of type " +
+                        "'string', to construct a record that allows only 'anydata' rest fields", 125, 40);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; int" +
+                        "...; |}', that may have rest fields of type 'int', to construct a record that allows only " +
+                        "'string' rest fields", 128, 64);
+        validateError(result, i++,
+                "invalid usage of spread field with open record of type 'record {| string name; string continent; " +
+                        "error...; |}', that may have rest fields, to construct a closed record", 131, 56);
         validateError(result, i++, "incompatible types: expected a map or a record, found 'int'", 138, 28);
         validateError(result, i++, "incompatible types: expected 'string', found '(int|float)'", 146, 25);
         validateError(result, i++, "incompatible types: expected 'string', found 'anydata'", 146, 39);
