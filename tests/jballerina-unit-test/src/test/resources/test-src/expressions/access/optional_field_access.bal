@@ -40,12 +40,16 @@ type Bar record {
     decimal c;
 };
 
+type MyString string;
+
 type R1 record {
     int a?;
     float b?;
     string c?;
     boolean d?;
     decimal e?;
+    string:Char f?;
+    MyString g?;
 };
 
 type R2 record {
@@ -61,17 +65,21 @@ function testOptionalFieldAccessOnRequiredRecordField() returns boolean {
 }
 
 function testOptionalFieldRemovalBasicType() {
-    R1 r = {a: 1, b: 2.0, c: "test", d: true, e: 3.0};
+    R1 r = {a: 1, b: 2.0, c: "test", d: true, e: 3.0, f:"c", g: "test"};
     r.a = ();
     r.b = ();
     r.c = ();
     r.d = ();
     r.e = ();
+    r.f = ();
+    r.g = ();
     assertFalse(r.hasKey("a"));
     assertFalse(r.hasKey("b"));
     assertFalse(r.hasKey("c"));
     assertFalse(r.hasKey("d"));
     assertFalse(r.hasKey("e"));
+    assertFalse(r.hasKey("f"));
+    assertFalse(r.hasKey("g"));
 }
 
 function testOptionalFieldRemovalIndirect() {
