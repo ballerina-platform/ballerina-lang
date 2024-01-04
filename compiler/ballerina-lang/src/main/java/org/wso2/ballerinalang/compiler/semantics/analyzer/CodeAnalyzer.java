@@ -2072,12 +2072,17 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 Comparator.comparing(BType::toString);
             }
         };
+
+        boolean hasNonErrorReturn = false;
         for (BType returnType : returnTypesUpToNow) {
-            returnTypeAndSendType.addAll(getErrorTypes(returnType));
+            addErrorTypesToSet(returnType, returnTypeAndSendType);
+            if (hasNonErrorType(returnType)) {
+                hasNonErrorReturn = true;
+            }
         }
         returnTypeAndSendType.add(exprType);
 
-        if (withinIf || !returnTypesUpToNow.isEmpty()) {
+        if (withinIf || hasNonErrorReturn) {
             // There is a possibility that the send action may not be executed, thus adding NoMessageError type.
             BSymbol noMsgErrSymbol = symTable.langErrorModuleSymbol.scope.
                     lookup(Names.fromString(NO_MESSAGE_ERROR_TYPE)).symbol;
@@ -2176,7 +2181,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode, data);
+        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(data);
         was.addWorkerAction(workerReceiveNode);
     }
 
@@ -2214,12 +2219,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode,
-                                                               AnalyzerData data) {
-        Set<BType> returnTypesUpToNow = data.returnTypes.peek();
+    public BType createAccumulatedErrorTypeForMatchingSyncSend(AnalyzerData data) {
+        LinkedHashSet<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
         for (BType returnType : returnTypesUpToNow) {
-            returnTypeAndSendType.addAll(getErrorTypes(returnType));
+            addErrorTypesToSet(returnType,  returnTypeAndSendType);
         }
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
@@ -2229,25 +2233,44 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private LinkedHashSet<BType> getErrorTypes(BType returnType) {
-        LinkedHashSet<BType> errorTypes = new LinkedHashSet<>();
+    private void addErrorTypesToSet(BType returnType, LinkedHashSet<BType> errorTypes) {
         if (returnType == null) {
-            return errorTypes;
+            return;
         }
 
         BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
         if (effType.tag == TypeTags.ERROR) {
             errorTypes.add(returnType);
-        } else if (returnType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
+        } else if (effType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) effType).getMemberTypes()) {
                 BType t = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(memberType));
                 if (t.tag == TypeTags.ERROR) {
                     errorTypes.add(memberType);
                 }
             }
         }
+    }
 
-        return errorTypes;
+    private boolean hasNonErrorType(BType returnType) {
+        if (returnType == null) {
+            return false;
+        }
+
+        BType effType = Types.getImpliedType(types.getTypeWithEffectiveIntersectionTypes(returnType));
+        if (effType.tag == TypeTags.ERROR) {
+            return false;
+        }
+
+        if (effType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) returnType).getMemberTypes()) {
+                if (hasNonErrorType(memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
     }
 
     @Override
