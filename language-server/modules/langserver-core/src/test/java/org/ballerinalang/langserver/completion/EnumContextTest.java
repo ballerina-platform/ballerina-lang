@@ -27,13 +27,6 @@ import org.testng.annotations.DataProvider;
  */
 public class EnumContextTest extends CompletionTest {
     
-    @BeforeClass
-    @Override
-    public void init() throws Exception {
-        super.init();
-        preLoadAndInit();
-    }
-    
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

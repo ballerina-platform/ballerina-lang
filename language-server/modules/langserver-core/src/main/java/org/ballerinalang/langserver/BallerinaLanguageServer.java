@@ -216,7 +216,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return;
         }
-        ServiceTemplateGenerator.getInstance(serverContext);
+        LSPackageLoader.getInstance(this.serverContext).loadModules(this.serverContext);
     }
 
     /**
