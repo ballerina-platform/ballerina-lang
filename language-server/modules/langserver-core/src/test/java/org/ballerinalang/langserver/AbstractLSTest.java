@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -140,17 +139,6 @@ public abstract class AbstractLSTest {
         Mockito.doNothing().when(this.lsPackageLoader).loadModules(Mockito.any());
         Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
-    }
-
-    private static CompletableFuture<List<LSPackageLoader.ModuleInfo>> mockInitializeAndGetModules(
-            LSPackageLoader lsPackageLoader) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<LSPackageLoader.ModuleInfo> modules = new ArrayList<>();
-            modules.addAll(REMOTE_PACKAGES);
-            modules.addAll(LOCAL_PACKAGES);
-            modules.addAll(mockDistRepoPackages(lsPackageLoader));
-            return modules;
-        });
     }
 
     private static List<LSPackageLoader.ModuleInfo> mockDistRepoPackages(LSPackageLoader lsPackageLoader) {
