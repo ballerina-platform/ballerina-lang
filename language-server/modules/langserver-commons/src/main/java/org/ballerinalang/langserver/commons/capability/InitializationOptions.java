@@ -53,6 +53,11 @@ public interface InitializationOptions {
     String KEY_ENABLE_INLAY_HINTS = "enableInlayHints";
 
     /**
+     * Whether the LS should index packages from BallerinaUserHome.
+     */
+    String KEY_ENABLE_INDEX_PACKAGES = "enableIndexPackages";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -92,4 +97,11 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableInlayHints();
+
+    /**
+     * Returns if the LS has indexed BallerinaUserHome.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isEnableIndexPackages();
 }
