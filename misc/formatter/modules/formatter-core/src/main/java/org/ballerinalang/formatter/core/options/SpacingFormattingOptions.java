@@ -87,18 +87,11 @@ public class SpacingFormattingOptions {
             for (Map.Entry<String, Object> spacingEntry : configs.entrySet()) {
                 String spacingKey = spacingEntry.getKey();
                 switch (spacingKey) {
-                    case AFTER_TYPE_CAST:
-                        setAfterTypeCast((Boolean) spacingEntry.getValue());
-                        break;
-                    case AROUND_RECORD_BRACES:
-                        setAroundRecordBraces((Boolean) spacingEntry.getValue());
-                        break;
-                    case ALIGN_CONSECUTIVE_DEFINITIONS:
-                        setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid spacing formatting option: " + spacingKey);
-                        break;
+                    case AFTER_TYPE_CAST -> setAfterTypeCast((Boolean) spacingEntry.getValue());
+                    case AROUND_RECORD_BRACES -> setAroundRecordBraces((Boolean) spacingEntry.getValue());
+                    case ALIGN_CONSECUTIVE_DEFINITIONS ->
+                            setAlignConsecutiveDefinitions((Boolean) spacingEntry.getValue());
+                    default -> warning("Invalid spacing formatting option: " + spacingKey);
                 }
             }
             return build();

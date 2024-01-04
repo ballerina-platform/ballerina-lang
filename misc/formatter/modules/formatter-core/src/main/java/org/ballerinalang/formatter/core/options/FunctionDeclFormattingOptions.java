@@ -107,21 +107,14 @@ public class FunctionDeclFormattingOptions {
             for (Map.Entry<String, Object> methodDeclarationEntry : configs.entrySet()) {
                 String methodDeclarationKey = methodDeclarationEntry.getKey();
                 switch (methodDeclarationKey) {
-                    case PARAMETERS_WRAP:
-                        setParametersWrap(WrappingMethod.fromString((String) methodDeclarationEntry.getValue()));
-                        break;
-                    case ALIGN_MULTILINE_PARAMETERS:
-                        setAlignMultilineParameters((Boolean) methodDeclarationEntry.getValue());
-                        break;
-                    case NEWLINE_AFTER_LEFT_PAREN:
-                        setNewLineAfterLeftParen((Boolean) methodDeclarationEntry.getValue());
-                        break;
-                    case RIGHT_PAREN_ON_NEWLINE:
-                        setRightParenOnNewLine((Boolean) methodDeclarationEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid function declaration formatting option: " + methodDeclarationKey);
-                        break;
+                    case PARAMETERS_WRAP ->
+                            setParametersWrap(WrappingMethod.fromString((String) methodDeclarationEntry.getValue()));
+                    case ALIGN_MULTILINE_PARAMETERS ->
+                            setAlignMultilineParameters((Boolean) methodDeclarationEntry.getValue());
+                    case NEWLINE_AFTER_LEFT_PAREN ->
+                            setNewLineAfterLeftParen((Boolean) methodDeclarationEntry.getValue());
+                    case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) methodDeclarationEntry.getValue());
+                    default -> warning("Invalid function declaration formatting option: " + methodDeclarationKey);
                 }
             }
             return build();

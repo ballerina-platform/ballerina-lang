@@ -82,15 +82,10 @@ public class IndentFormattingOptions {
             for (Map.Entry<String, Object> indentEntry : configs.entrySet()) {
                 String indentKey = indentEntry.getKey();
                 switch (indentKey) {
-                    case INDENT_SIZE:
-                        setIndentSize(((Number) indentEntry.getValue()).intValue());
-                        break;
-                    case CONTINUATION_INDENT_SIZE:
-                        setContinuationIndentSize(((Number) indentEntry.getValue()).intValue());
-                        break;
-                    default:
-                        warning("Invalid indent formatting option: " + indentKey);
-                        break;
+                    case INDENT_SIZE -> setIndentSize(((Number) indentEntry.getValue()).intValue());
+                    case CONTINUATION_INDENT_SIZE ->
+                            setContinuationIndentSize(((Number) indentEntry.getValue()).intValue());
+                    default -> warning("Invalid indent formatting option: " + indentKey);
                 }
             }
             return build();

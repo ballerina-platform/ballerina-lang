@@ -58,13 +58,10 @@ public class QueryFormattingOptions {
         public QueryFormattingOptions build(Map<String, Object> configs) {
             for (Map.Entry<String, Object> queryStatementEntry : configs.entrySet()) {
                 String queryStatementKey = queryStatementEntry.getKey();
-                switch (queryStatementKey) {
-                    case ALIGN_MULTILINE_QUERIES:
-                        setAlignMultiLineQueries((Boolean) queryStatementEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid query formatting option: " + queryStatementKey);
-                        break;
+                if (queryStatementKey.equals(ALIGN_MULTILINE_QUERIES)) {
+                    setAlignMultiLineQueries((Boolean) queryStatementEntry.getValue());
+                } else {
+                    warning("Invalid query formatting option: " + queryStatementKey);
                 }
             }
             return build();

@@ -110,24 +110,15 @@ public class FunctionCallFormattingOptions {
         }
 
         public FunctionCallFormattingOptions build(Map<String, Object> configs) throws FormatterException {
-            for (Map.Entry<String, Object> methodCallEntry : configs.entrySet()) {
-                String methodCallKey = methodCallEntry.getKey();
-                switch (methodCallKey) {
-                    case PARAMETERS_WRAP:
-                        setParametersWrap(WrappingMethod.fromString((String) methodCallEntry.getValue()));
-                        break;
-                    case ALIGN_MULTILINE_PARAMETERS:
-                        setAlignMultilineParameters((Boolean) methodCallEntry.getValue());
-                        break;
-                    case NEWLINE_AFTER_LEFT_PAREN:
-                        setNewLineAfterLeftParen((Boolean) methodCallEntry.getValue());
-                        break;
-                    case RIGHT_PAREN_ON_NEWLINE:
-                        setRightParenOnNewLine((Boolean) methodCallEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid function call formatting option: " + methodCallKey);
-                        break;
+            for (Map.Entry<String, Object> funcCallEntry : configs.entrySet()) {
+                String funcCallKey = funcCallEntry.getKey();
+                switch (funcCallKey) {
+                    case PARAMETERS_WRAP ->
+                            setParametersWrap(WrappingMethod.fromString((String) funcCallEntry.getValue()));
+                    case ALIGN_MULTILINE_PARAMETERS -> setAlignMultilineParameters((Boolean) funcCallEntry.getValue());
+                    case NEWLINE_AFTER_LEFT_PAREN -> setNewLineAfterLeftParen((Boolean) funcCallEntry.getValue());
+                    case RIGHT_PAREN_ON_NEWLINE -> setRightParenOnNewLine((Boolean) funcCallEntry.getValue());
+                    default -> warning("Invalid function call formatting option: " + funcCallKey);
                 }
             }
             return build();

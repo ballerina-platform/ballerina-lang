@@ -58,13 +58,10 @@ public class IfStatementFormattingOptions {
         public IfStatementFormattingOptions build(Map<String, Object> configs) {
             for (Map.Entry<String, Object> ifStatementEntry : configs.entrySet()) {
                 String ifStatementKey = ifStatementEntry.getKey();
-                switch (ifStatementKey) {
-                    case ELSE_ON_NEW_LINE:
-                        setElseOnNewLine((Boolean) ifStatementEntry.getValue());
-                        break;
-                    default:
-                        warning("Invalid if statement formatting option: " + ifStatementKey);
-                        break;
+                if (ifStatementKey.equals(ELSE_ON_NEW_LINE)) {
+                    setElseOnNewLine((Boolean) ifStatementEntry.getValue());
+                } else {
+                    warning("Invalid if statement formatting option: " + ifStatementKey);
                 }
             }
             return build();
