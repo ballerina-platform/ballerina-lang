@@ -83,7 +83,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         }
 
         // If the test function is not parallelizable, then print the reason for serial execution.
-        if !isSatisfiedParallelizableConditions && !config.serialExecution && (testWorkers > 1) {
+        if !isSatisfiedParallelizableConditions && !config.serialExecution && (conMgr.getConfiguredWorkers() > 1) {
             println("WARNING: Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
         }
 
@@ -93,7 +93,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
 
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics, dependsOn = config.dependsOn.cloneReadOnly(),
-            parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (testWorkers > 1)), config = config.cloneReadOnly());
+            parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (conMgr.getConfiguredWorkers() > 1)), config = config.cloneReadOnly());
         conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(), enabled = enabled);
     }
     return false;
@@ -164,12 +164,12 @@ function hasGroup(string[] groups, string[] filter) returns boolean {
     return false;
 }
 
-function hasTest(string name) returns boolean {
-    if hasFilteredTests {
+isolated function hasTest(string name) returns boolean {
+    if testOptions.getHasFilteredTests() {
         string testName = name;
-        int? testIndex = filterTests.indexOf(testName);
+        int? testIndex = testOptions.getFilterTestIndex(testName);
         if testIndex == () {
-            foreach string filter in filterTests {
+            foreach string filter in testOptions.getFilterTests() {
                 if (filter.includes(WILDCARD)) {
                     boolean|error wildCardMatch = matchWildcard(testName, filter);
                     if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
@@ -186,7 +186,7 @@ function hasTest(string name) returns boolean {
     return true;
 }
 
-function matchModuleName(string testName) returns boolean {
-    string? filterModule = filterTestModules[testName];
+isolated function matchModuleName(string testName) returns boolean {
+    string? filterModule = testOptions.getFilterTestModule(testName);
     return filterModule == () ? true : filterModule == getFullModuleName();
 }

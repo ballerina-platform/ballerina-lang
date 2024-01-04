@@ -15,7 +15,7 @@
 // under the License.` `
 import ballerina/jballerina.java;
 
-handle outStreamObj = outStream();
+isolated handle outStreamObj = outStream();
 
 isolated function print(handle printStream, any|error obj) = @java:Method {
     name: "print",
@@ -23,11 +23,13 @@ isolated function print(handle printStream, any|error obj) = @java:Method {
     paramTypes: ["java.lang.Object"]
 } external;
 
-function println(any|error... objs) {
-    foreach var obj in objs {
-        print(outStreamObj, obj);
+isolated function println(anydata|error... objs) {
+    lock {
+        foreach var obj in objs.clone() {
+            print(outStreamObj, obj);
+        }
+        print(outStreamObj, "\n");
     }
-    print(outStreamObj, "\n");
 }
 
 isolated function outStream() returns handle = @java:FieldGet {

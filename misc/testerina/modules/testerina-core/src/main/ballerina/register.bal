@@ -1,3 +1,4 @@
+import ballerina/lang.array;
 // Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,15 +16,15 @@
 // under the License.
 import ballerina/lang.runtime;
 
-final TestRegistry testRegistry = new ();
-final TestRegistry beforeSuiteRegistry = new ();
-final TestRegistry afterSuiteRegistry = new ();
-final TestRegistry beforeEachRegistry = new ();
-final TestRegistry afterEachRegistry = new ();
+isolated final TestRegistry testRegistry = new ();
+isolated final TestRegistry beforeSuiteRegistry = new ();
+isolated final TestRegistry afterSuiteRegistry = new ();
+isolated final TestRegistry beforeEachRegistry = new ();
+isolated final TestRegistry afterEachRegistry = new ();
 
-final GroupRegistry beforeGroupsRegistry = new ();
-final GroupRegistry afterGroupsRegistry = new ();
-final GroupStatusRegistry groupStatusRegistry = new ();
+isolated final GroupRegistry beforeGroupsRegistry = new ();
+isolated final GroupRegistry afterGroupsRegistry = new ();
+isolated final GroupStatusRegistry groupStatusRegistry = new ();
 
 type TestFunction record {|
     string name;
@@ -303,23 +304,166 @@ isolated class ConcurrentExecutionManager {
 
 }
 
-class TestRegistry {
-    private final TestFunction[] rootRegistry = [];
-    private final TestFunction[] dependentRegistry = [];
+isolated class TestOptions {
+    private string moduleName = "";
+    private string packageName = "";
+    private string targetPath = "";
+    private map<string?> filterTestModules = {};
+    private boolean hasFilteredTests = false;
+    private string[] filterTests = [];
+    private map<string[]> filterSubTests = {};
 
-    function addFunction(*TestFunction functionDetails) {
-        if functionDetails.dependsOn == [] {
-            self.rootRegistry.push(functionDetails);
-        } else {
-            self.dependentRegistry.push(functionDetails);
+    isolated function isFilterSubTestsContains(string key) returns boolean {
+        lock {
+            return self.filterSubTests.hasKey(key);
         }
     }
 
-    function getTestFunction(function f) returns TestFunction|error {
+    isolated function getFilterSubTest(string key) returns string[] {
+        lock {
+            string[]? nullOrSubTests = self.filterSubTests[key];
+            if nullOrSubTests is string[] {
+                return nullOrSubTests.clone();
+            }
+            return [];
+        }
+    }
+
+    isolated function addFilterSubTest(string key, string[] subTests) {
+        lock {
+            self.filterSubTests[key] = subTests.clone();
+        }
+    }
+
+    isolated function setFilterSubTests(map<string[]> filterSubTests) {
+        lock {
+            self.filterSubTests = filterSubTests.clone();
+        }
+    }
+
+    isolated function setFilterTests(string[] filterTests) {
+        lock {
+            self.filterTests = filterTests.clone();
+        }
+    }
+
+    isolated function addFilterTest(string filterTest) {
+        lock {
+            self.filterTests.push(filterTest);
+        }
+    }
+
+    isolated function getFilterTestSize() returns int {
+        lock {
+            return self.filterTests.length();
+        }
+    }
+
+    isolated function getFilterTestIndex(string testName) returns int? {
+        lock {
+            return self.filterTests.indexOf(testName);
+        }
+    }
+
+    isolated function getFilterTests() returns string[] {
+        lock {
+            return self.filterTests.clone();
+        }
+    }
+
+    isolated function setModuleName(string moduleName) {
+        lock {
+            self.moduleName = moduleName;
+        }
+    }
+
+    isolated function setPackageName(string packageName) {
+        lock {
+            self.packageName = packageName;
+        }
+    }
+
+    isolated function getModuleName() returns string {
+        lock {
+            return self.moduleName;
+        }
+    }
+
+    isolated function getPackageName() returns string {
+        lock {
+            return self.packageName;
+        }
+    }
+
+    isolated function setTargetPath(string targetPath) {
+        lock {
+            self.targetPath = targetPath;
+        }
+    }
+
+    isolated function getTargetPath() returns string {
+        lock {
+            return self.targetPath;
+        }
+    }
+
+    isolated function setFilterTestModules(map<string?> filterTestModulesMap) {
+        lock {
+            self.filterTestModules = filterTestModulesMap.clone();
+        }
+    }
+
+    isolated function getFilterTestModule(string name) returns string? {
+        lock {
+            return self.filterTestModules[name];
+        }
+    }
+
+    isolated function setFilterTestModule(string key, string? value) {
+        lock {
+            self.filterTestModules[key] = value;
+        }
+    }
+
+    isolated function setHasFilteredTests(boolean hasFilteredTests) {
+        lock {
+            self.hasFilteredTests = hasFilteredTests;
+        }
+    }
+
+    isolated function getHasFilteredTests() returns boolean {
+        lock {
+            return self.hasFilteredTests;
+        }
+    }
+
+}
+
+isolated class TestRegistry {
+    private final TestFunction[] rootRegistry = [];
+    private final TestFunction[] dependentRegistry = [];
+
+    isolated function addFunction(*TestFunction functionDetails) {
+        if functionDetails.dependsOn == [] {
+            lock {
+                self.rootRegistry.push(functionDetails);
+            }
+        } else {
+            lock {
+                self.dependentRegistry.push(functionDetails);
+            }
+        }
+    }
+
+    isolated function getTestFunction(function f) returns TestFunction|error {
         TestFunction[] filter;
-        filter = self.rootRegistry.filter(testFunction => f === testFunction.executableFunction);
+        lock {
+            filter = self.rootRegistry.filter(testFunction => f === testFunction.executableFunction).clone();
+        }
         if filter.length() == 0 {
-            filter = self.dependentRegistry.filter(testFunction => f === testFunction.executableFunction);
+            lock {
+                filter = self.dependentRegistry.filter(testFunction => f === testFunction.executableFunction).clone();
+            }
             if filter.length() == 0 {
                 //TODO: need to obtain the function name form the variable
                 return error(string `The dependent test function is either disabled or not included.`);
@@ -328,28 +472,42 @@ class TestRegistry {
         return filter.pop();
     }
 
-    function getFunctions() returns TestFunction[] => self.rootRegistry.sort(key = testFunctionsSort);
-
-    function getDependentFunctions() returns TestFunction[] => self.dependentRegistry;
-
-}
-
-class GroupRegistry {
-    private final map<TestFunction[]> registry = {};
-
-    function addFunction(string 'group, *TestFunction testFunction) {
-        if self.registry.hasKey('group) {
-            self.registry.get('group).push(testFunction);
-        } else {
-            self.registry['group] = [testFunction];
+    isolated function getFunctions() returns TestFunction[] {
+        lock {
+            return self.rootRegistry.sort(array:ASCENDING, (item) => item.name).cloneReadOnly();
         }
     }
 
-    function getFunctions(string 'group) returns TestFunction[]? {
-        if self.registry.hasKey('group) {
-            return self.registry.get('group);
+    isolated function getDependentFunctions() returns TestFunction[] {
+        lock {
+            return self.dependentRegistry.clone();
         }
-        return;
+
+    }
+
+}
+
+isolated class GroupRegistry {
+    private final map<TestFunction[]> registry = {};
+
+    function addFunction(string 'group, *TestFunction testFunction) {
+        lock {
+            if self.registry.hasKey('group) {
+                self.registry.get('group).push(testFunction);
+            } else {
+                self.registry['group] = [testFunction];
+            }
+        }
+    }
+
+    isolated function getFunctions(string 'group) returns TestFunction[]? {
+        lock {
+            if self.registry.hasKey('group) {
+                return self.registry.get('group).cloneReadOnly();
+            }
+            return;
+
+        }
     }
 }
 
@@ -421,6 +579,3 @@ isolated class GroupStatusRegistry {
 }
 
 isolated function testFunctionsSort(TestFunction testFunction) returns string => testFunction.name;
-
-function isDataDrivenTest(TestFunction testFunction) returns boolean =>
-    testFunction.params is map<AnyOrError[]> || testFunction.params is AnyOrError[][];

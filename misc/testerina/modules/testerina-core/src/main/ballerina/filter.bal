@@ -16,31 +16,23 @@
 
 string[] filterGroups = [];
 string[] filterDisableGroups = [];
-string[] filterTests = [];
-map<string?> filterTestModules = {};
-map<string[]> filterSubTests = {};
-string moduleName = "";
-string packageName = "";
-boolean hasFilteredTests = false;
-string targetPath = "";
 boolean terminate = false;
 boolean listGroups = false;
-int testWorkers = 1;
+isolated final TestOptions testOptions = new ();
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
         string inListGroups, string inTestWorkers) {
-
-    targetPath = inTargetPath;
-    packageName = inPackageName;
-    moduleName = inModuleName;
+    testOptions.setModuleName(inModuleName);
+    testOptions.setPackageName(inPackageName);
+    testOptions.setTargetPath(inTargetPath);
     filterGroups = parseStringArrayInput(inGroups);
     filterDisableGroups = parseStringArrayInput(inDisableGroups);
     boolean rerunFailed = parseBooleanInput(inRerunFailed, "rerun-failed");
     boolean testReport = parseBooleanInput(inReport, "test-report");
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
-    testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
+    int testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
     conMgr.setIntialWorkers(testWorkers);
 
     if rerunFailed {
@@ -50,11 +42,11 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
             enableExit();
             return;
         }
-        hasFilteredTests = true;
+        testOptions.setHasFilteredTests(true);
     } else {
         string[] singleExecTests = parseStringArrayInput(inTests);
-        filterKeyBasedTests(inPackageName, moduleName, singleExecTests);
-        hasFilteredTests = filterTests.length() > 0;
+        filterKeyBasedTests(inPackageName, inModuleName, singleExecTests);
+        testOptions.setHasFilteredTests(testOptions.getFilterTestSize() > 0);
     }
 
     if testReport || codeCoverage {
@@ -77,16 +69,16 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
             string suffix = updatedName.substring(separatorIndex + 1);
             string testPart = updatedName.substring(0, separatorIndex);
-            if (filterSubTests.hasKey(updatedName) && filterSubTests[updatedName] is string[]) {
-                string[] subTestList = <string[]>filterSubTests[testPart];
+            if (testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName) is string[]) {
+                string[] subTestList = <string[]>testOptions.getFilterSubTest(testPart);
                 subTestList.push(suffix);
             } else {
-                filterSubTests[testPart] = [suffix];
+                testOptions.addFilterSubTest(testPart, [suffix]);
             }
             updatedName = testPart;
         }
-        filterTests.push(updatedName);
-        filterTestModules[updatedName] = prefix;
+        testOptions.addFilterTest(updatedName);
+        testOptions.setFilterTestModule(updatedName, prefix);
     }
 }
 
@@ -111,7 +103,7 @@ function parseIntegerInput(string input, string variableName) returns int {
 }
 
 function parseRerunJson() returns error? {
-    string rerunJsonFilePath = targetPath + "/" + RERUN_JSON_FILE;
+    string rerunJsonFilePath = testOptions.getTargetPath() + "/" + RERUN_JSON_FILE;
 
     // if there are no previous `bal test`` runs
     if !fileExists(rerunJsonFilePath) {
@@ -126,17 +118,17 @@ function parseRerunJson() returns error? {
         // but they are abstracted from the user
         return error("error while running failed tests : Invalid failed test data. Please run `bal test` command.");
     }
-    ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
+    ModuleRerunJson? moduleRerunJson = rerunJson[testOptions.getModuleName()];
     if moduleRerunJson is () {
         return error("error while running failed tests : Invalid failed test data. Please run `bal test` command.");
     }
-    filterTests = moduleRerunJson.testNames;
-    filterTestModules = moduleRerunJson.testModuleNames;
-    filterSubTests = moduleRerunJson.subTestNames;
+    testOptions.setFilterTests(moduleRerunJson.testNames);
+    testOptions.setFilterTestModules(moduleRerunJson.testModuleNames);
+    testOptions.setFilterSubTests(moduleRerunJson.subTestNames);
 }
 
-function readRerunJson() returns map<ModuleRerunJson>|error {
-    string|error content = trap readContent(targetPath + "/" + RERUN_JSON_FILE);
+isolated function readRerunJson() returns map<ModuleRerunJson>|error {
+    string|error content = trap readContent(testOptions.getTargetPath() + "/" + RERUN_JSON_FILE);
     if content is error {
         return content;
     }
@@ -169,6 +161,7 @@ function isPrefixInCorrectFormat(string packageName, string moduleName, string t
     return prefix.includes(packageName) || prefix.includes(packageName + DOT + moduleName);
 }
 
-function getFullModuleName() returns string {
-    return packageName == moduleName ? packageName : packageName + DOT + moduleName;
+isolated function getFullModuleName() returns string {
+    return testOptions.getPackageName() == testOptions.getModuleName() ? testOptions.getPackageName()
+        : testOptions.getPackageName() + DOT + testOptions.getModuleName();
 }
