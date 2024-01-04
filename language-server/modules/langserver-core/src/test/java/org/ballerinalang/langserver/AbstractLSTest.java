@@ -119,7 +119,8 @@ public abstract class AbstractLSTest {
             setUp();
         }
         TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
-                .withLanguageServer(languageServer);
+                .withLanguageServer(languageServer)
+                .withInitOption(LSClientCapabilitiesImpl.InitializationOptionsImpl.KEY_ENABLE_INDEX_PACKAGES, true);
         setupLanguageServer(builder);
         this.serviceEndpoint = builder.build();
     }

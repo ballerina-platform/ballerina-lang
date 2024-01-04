@@ -163,6 +163,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(inlayHintsSupport));
         initializationOptions.setEnableInlayHints(enableInlayHintsSupport);
 
+        //Enable indexing user home by default
+        Object indexPackages = initOptions.get(InitializationOptions.KEY_ENABLE_INDEX_PACKAGES);
+        boolean enableIndexPackages = indexPackages == null || Boolean.parseBoolean(String.valueOf(indexPackages));
+        initializationOptions.setEnableIndexPackages(enableIndexPackages);
+
         return initializationOptions;
     }
 
@@ -214,6 +219,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
         private boolean enableInlayHints = false;
+        private boolean enableIndexPackages = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -264,8 +270,16 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
             return enableInlayHints;
         }
 
+        @Override
+        public boolean isEnableIndexPackages() {
+            return enableIndexPackages;
+        }
+
         public void setEnableInlayHints(boolean enableInlayHints) {
             this.enableInlayHints = enableInlayHints;
+        }
+        public void setEnableIndexPackages(boolean enableIndexPackages) {
+            this.enableIndexPackages = enableIndexPackages;
         }
     }
 }
