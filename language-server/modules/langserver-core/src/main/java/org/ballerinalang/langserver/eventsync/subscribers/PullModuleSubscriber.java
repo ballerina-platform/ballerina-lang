@@ -24,9 +24,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
-import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
-
-import java.util.List;
 
 /**
  * Updates the package map in LSPackage loader.

@@ -126,8 +126,4 @@ public class LSPackageLoaderTest extends AbstractLSTest {
     public boolean loadMockedPackages() {
         return true;
     }
-
-    public List<LSPackageLoader.ModuleInfo> getRemoteRepoPackages() {
-        return remoteRepoPackages;
-    }
 }

@@ -87,8 +87,6 @@ public class LSPackageLoader {
 
     private CentralPackageDescriptorLoader centralPackageDescriptorLoader;
 
-//    private Path userHome;
-
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
         if (lsPackageLoader == null) {
