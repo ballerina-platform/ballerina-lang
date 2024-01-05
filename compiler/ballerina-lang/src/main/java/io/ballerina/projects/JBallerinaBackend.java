@@ -242,6 +242,35 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, new DefaultDiagnosticResult(emitResultDiagnostics), generatedArtifact);
     }
 
+    public EmitResult emit(OutputType outputType, Path filePath, ModuleName moduleName) {
+        Path generatedArtifact = null;
+
+        if (diagnosticResult.hasErrors()) {
+            return new EmitResult(false, diagnosticResult, generatedArtifact);
+        }
+
+        if(outputType == OutputType.TEST) {
+            generatedArtifact = emitTest(filePath, moduleName);
+        }
+        else{
+            throw new RuntimeException("Unexpected output type: " + outputType);
+        }
+
+        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+        List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
+        if (!pluginDiagnostics.isEmpty()) {
+            diagnostics.addAll(pluginDiagnostics);
+        }
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+
+        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        jarResolver().diagnosticResult().diagnostics().stream().forEach(
+                diagnostic -> allDiagnostics.add(diagnostic));
+
+        // TODO handle the EmitResult properly
+        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
+    }
+
     private Path emitBala(Path filePath) {
         JBallerinaBalaWriter writer = new JBallerinaBalaWriter(this);
         return writer.write(filePath);
@@ -462,6 +491,28 @@ public class JBallerinaBackend extends CompilerBackend {
         return manifest;
     }
 
+    private Manifest createTestManifest(ModuleName moduleName){
+        // Getting the jarFileName of the root module of this executable
+        PlatformLibrary rootModuleJarFile = codeGeneratedTestLibrary(packageContext.packageId(), moduleName);
+
+        String mainClassName;
+        //mainClassName = "org.ballerinalang.test.runtime.BTestMain";
+        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
+            Manifest mf = jarStream.getManifest();
+            mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
+        } catch (IOException e) {
+            throw new RuntimeException("Generated jar file cannot be found for the module: " +
+                    packageContext.defaultModuleContext().moduleName());
+        }
+
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        //System.out.println(mainClassName);
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
+        return manifest;
+    }
+
     /**
      * Copies a given jar file into the executable fat jar.
      *
@@ -563,6 +614,19 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
+    private Path emitTest(Path executableFilePath, ModuleName moduleName) {
+        Manifest manifest = createTestManifest(moduleName);
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
+
+        try {
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
+        } catch (IOException e) {
+            throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
+        }
+        return executableFilePath;
+    }
+    
     private Path emitGraalExecutable(Path executableFilePath, List<Diagnostic> emitResultDiagnostics) {
         // Run create executable
         emitExecutable(executableFilePath, emitResultDiagnostics);
@@ -745,7 +809,8 @@ public class JBallerinaBackend extends CompilerBackend {
     public enum OutputType {
         EXEC("exec"),
         BALA("bala"),
-        GRAAL_EXEC("graal_exec")
+        GRAAL_EXEC("graal_exec"),
+        TEST("test")
         ;
 
         private String value;

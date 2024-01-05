@@ -35,6 +35,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -198,96 +199,117 @@ public class RunTestsTask implements Task {
             Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
-            TestSuite suite;
-            try {
-                suite = testProcessor.testSuite(module).orElse(null);
-            } catch (ProjectException e) {
-                throw createLauncherException(e.getMessage());
-            }
-            if (suite == null) {
+            //get the created uber jar files for each module in CreateTestExecutableTask
+            Path testExecutablePath = target.path().resolve("bin").resolve("tests")
+                        .resolve(moduleName.toString() + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
+
+            out.println("test executable path: " + testExecutablePath.toString());
+            if (!Files.exists(testExecutablePath)) {
+                out.println("\t" + moduleName + ": no tests found");
                 continue;
             }
 
-            //Set 'hasTests' flag if there are any tests available in the package
-            if (!hasTests) {
-                hasTests = true;
-            }
-
-            if (!isRerunTestExecution) {
-                clearFailedTestsJson(target.path());
-            }
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
-            }
-            suite.setReportRequired(report || coverage);
-            String resolvedModuleName =
-                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
-            testSuiteMap.put(resolvedModuleName, suite);
-            moduleNamesList.add(resolvedModuleName);
-            Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
-            for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
-                String key = entry.getKey();
-                String functionToMockClassName;
-                // Find the first delimiter and compare the indexes
-                // The first index should always be a delimiter. Which ever one that is denotes the mocking type
-                if (!key.contains(MOCK_LEGACY_DELIMITER)) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                } else if (!key.contains(MOCK_FN_DELIMITER)) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                } else {
-                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
-                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                    } else {
-                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                    }
-                }
-                mockClassNames.add(functionToMockClassName);
-            }
-        }
-
-        writeToTestSuiteJson(testSuiteMap, testsCachePath);
-
-        if (hasTests) {
-            int testResult;
+            List<String> cmdArgs = getInitialCmdArgs();
+            cmdArgs.add("-jar");
+            cmdArgs.add(testExecutablePath.toString());
+            cmdArgs.addAll(getTestRunnerCmdArgs());
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
+            Process proc;
             try {
-                Set<String> exclusionClassList = new HashSet<>();
-                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
-                             exclusionClassList);
-
-                if (report || coverage) {
-                    for (String moduleName : moduleNamesList) {
-                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
-                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-                        if (moduleStatus == null) {
-                            continue;
-                        }
-
-                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
-                        }
-                        testReport.addModuleStatus(moduleName, moduleStatus);
-                    }
-                    try {
-                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
-                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
-                        generateTesterinaReports(project, testReport, this.out, target);
-                    } catch (IOException e) {
-                        cleanTempCache(project, cachesRoot);
-                        throw createLauncherException("error occurred while generating test report :", e);
-                    }
-                }
-            } catch (IOException | InterruptedException | ClassNotFoundException e) {
-                cleanTempCache(project, cachesRoot);
+                proc = processBuilder.start();
+                proc.waitFor();
+            } catch (IOException | InterruptedException e) {
                 throw createLauncherException("error occurred while running tests", e);
             }
 
-            if (testResult != 0) {
-                cleanTempCache(project, cachesRoot);
+            if (proc.exitValue() != 0) {
                 throw createLauncherException("there are test failures");
             }
-        } else {
-            out.println("\tNo tests found");
+//            TestSuite suite = testProcessor.testSuite(module).orElse(null);
+//            if (suite == null) {
+//                continue;
+//            }
+//
+//            //Set 'hasTests' flag if there are any tests available in the package
+//            if (!hasTests) {
+//                hasTests = true;
+//            }
+//
+//            if (!isRerunTestExecution) {
+//                clearFailedTestsJson(target.path());
+//            }
+//            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+//                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+//            }
+//            suite.setReportRequired(report || coverage);
+//            String resolvedModuleName =
+//                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
+//            testSuiteMap.put(resolvedModuleName, suite);
+//            moduleNamesList.add(resolvedModuleName);
+//            Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
+//            for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
+//                String key = entry.getKey();
+//                String functionToMockClassName;
+//                // Find the first delimiter and compare the indexes
+//                // The first index should always be a delimiter. Which ever one that is denotes the mocking type
+//                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+//                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+//                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+//                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+//                } else {
+//                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+//                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+//                    } else {
+//                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+//                    }
+//                }
+//                mockClassNames.add(functionToMockClassName);
+//            }
         }
+
+//        writeToTestSuiteJson(testSuiteMap, testsCachePath);
+//
+//        if (hasTests) {
+//            int testResult;
+//            try {
+//                Set<String> exclusionClassList = new HashSet<>();
+//                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
+//                             exclusionClassList);
+//
+//                if (report || coverage) {
+//                    for (String moduleName : moduleNamesList) {
+//                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
+//                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+//                        if (moduleStatus == null) {
+//                            continue;
+//                        }
+//
+//                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+//                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+//                        }
+//                        testReport.addModuleStatus(moduleName, moduleStatus);
+//                    }
+//                    try {
+//                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+//                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
+//                        generateTesterinaReports(project, testReport, this.out, target);
+//                    } catch (IOException e) {
+//                        cleanTempCache(project, cachesRoot);
+//                        throw createLauncherException("error occurred while generating test report :", e);
+//                    }
+//                }
+//            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+//                cleanTempCache(project, cachesRoot);
+//                throw createLauncherException("error occurred while running tests", e);
+//            }
+//
+//            if (testResult != 0) {
+//                cleanTempCache(project, cachesRoot);
+//                throw createLauncherException("there are test failures");
+//            }
+//        } else {
+//            out.println("\tNo tests found");
+//        }
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
@@ -308,8 +330,8 @@ public class RunTestsTask implements Task {
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
-        String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+        String jacocoAgentJarPath = getJacocoAgentJarPath();
+
         if (coverage) {
             if (!mockClassNames.isEmpty()) {
                 // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
@@ -365,6 +387,35 @@ public class RunTestsTask implements Task {
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
+    }
+
+    private String getJacocoAgentJarPath() {
+        return Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+    }
+
+    private List<String> getInitialCmdArgs() {
+        List<String> cmdArgs = new ArrayList<>();
+        cmdArgs.add(System.getProperty("java.command"));
+        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
+        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        return cmdArgs;
+    }
+
+    private List<String> getTestRunnerCmdArgs(){
+        List<String> cmdArgs = new ArrayList<>();
+        //cmdArgs.add(getJacocoAgentJarPath());
+        cmdArgs.add(Boolean.toString(report));
+        cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.add(this.groupList != null ? this.groupList : "");
+        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
+        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
+        cmdArgs.add(Boolean.toString(isRerunTestExecution));
+        cmdArgs.add(Boolean.toString(listGroups));
+        cliArgs.forEach((arg) -> {
+            cmdArgs.add(arg);
+        });
+        return cmdArgs;
     }
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
