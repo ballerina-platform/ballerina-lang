@@ -135,12 +135,7 @@ public class Target {
         if (outputPath != null) {
             return outputPath;
         }
-        String name;
-        if(module.moduleName().moduleNamePart() == null){
-            name = module.moduleName().packageName().value();
-        } else {
-            name = module.moduleName().moduleNamePart();
-        }
+        String name = module.moduleName().toString();
         return getTestBinPath().resolve(name + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
     }
 
