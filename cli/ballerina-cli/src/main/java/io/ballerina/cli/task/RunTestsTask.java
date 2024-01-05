@@ -53,14 +53,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -212,7 +205,8 @@ public class RunTestsTask implements Task {
             List<String> cmdArgs = getInitialCmdArgs();
             cmdArgs.add("-jar");
             cmdArgs.add(testExecutablePath.toString());
-            cmdArgs.addAll(getTestRunnerCmdArgs());
+            cmdArgs.addAll(getTestRunnerCmdArgs(target, project.currentPackage().packageName().toString(),
+                    moduleName.toString()));
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
             Process proc;
             try {
@@ -402,8 +396,11 @@ public class RunTestsTask implements Task {
         return cmdArgs;
     }
 
-    private List<String> getTestRunnerCmdArgs(){
+    private List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName){
         List<String> cmdArgs = new ArrayList<>();
+        cmdArgs.add(target.path().toString());
+        cmdArgs.add(packageName);
+        cmdArgs.add(moduleName);
         //cmdArgs.add(getJacocoAgentJarPath());
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
