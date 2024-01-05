@@ -112,6 +112,8 @@ public class ProjectConstants {
     // Test framework related constants
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
     public static final String TEST_CORE_JAR_PREFIX = "testerina-core-";
+    public static final String TEST_UBER_JAR_SUFFIX = "-testable";
+
     public static final String TEST_SUITE = "test_suite";
 
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.10.jar";

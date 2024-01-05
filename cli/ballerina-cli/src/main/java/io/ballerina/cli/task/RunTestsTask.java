@@ -53,14 +53,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,12 +69,7 @@ import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -196,35 +184,30 @@ public class RunTestsTask implements Task {
         List<String> mockClassNames = new ArrayList<>();
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            int testResult = 0;
             Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
-
             //get the created uber jar files for each module in CreateTestExecutableTask
             Path testExecutablePath = target.path().resolve("bin").resolve("tests")
-                        .resolve(moduleName.toString() + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
+                    .resolve(moduleName.toString() + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
-            out.println("test executable path: " + testExecutablePath.toString());
+            //out.println("test executable path: " + testExecutablePath.toString());
             if (!Files.exists(testExecutablePath)) {
                 out.println("\t" + moduleName + ": no tests found");
-                continue;
+            }
+            else{
+                try {
+                    testResult = runTestModule(project, testExecutablePath, moduleDescriptor);
+                } catch (IOException | InterruptedException | ClassNotFoundException  e) {
+                    throw createLauncherException("error occurred while running tests", e);
+                }
+
+                if (testResult != 0) {
+                    throw createLauncherException("there are test failures");
+                }
             }
 
-            List<String> cmdArgs = getInitialCmdArgs();
-            cmdArgs.add("-jar");
-            cmdArgs.add(testExecutablePath.toString());
-            cmdArgs.addAll(getTestRunnerCmdArgs());
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
-            Process proc;
-            try {
-                proc = processBuilder.start();
-                proc.waitFor();
-            } catch (IOException | InterruptedException e) {
-                throw createLauncherException("error occurred while running tests", e);
-            }
 
-            if (proc.exitValue() != 0) {
-                throw createLauncherException("there are test failures");
-            }
 //            TestSuite suite = testProcessor.testSuite(module).orElse(null);
 //            if (suite == null) {
 //                continue;
@@ -318,6 +301,26 @@ public class RunTestsTask implements Task {
         }
     }
 
+    private int runTestModule(Project project,Path testExecutablePath, ModuleDescriptor moduleDescriptor) throws IOException, InterruptedException, ClassNotFoundException {
+
+        List<String> cmdArgs = getInitialCmdArgs();
+        cmdArgs.add("-jar");
+        cmdArgs.add(testExecutablePath.toString()); //this will start the jar file which has the BTestMain as the initial main class in the manifest
+
+        String testPackageID = TestProcessor.getTestModuleName(project.currentPackage().module(moduleDescriptor.name()));
+        String org = moduleDescriptor.org().toString();
+        String version = moduleDescriptor.version().toString();
+
+        cmdArgs.add(testPackageID);
+        cmdArgs.add(org);
+        cmdArgs.add(version);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
+        Process proc = processBuilder.start();
+
+        return proc.waitFor();
+    }
+
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
                              List<String> mockClassNames, Set<String> exclusionClassList) throws IOException,
             InterruptedException, ClassNotFoundException {
@@ -399,12 +402,21 @@ public class RunTestsTask implements Task {
         cmdArgs.add(System.getProperty("java.command"));
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+
+        if (isInDebugMode()) {
+            cmdArgs.add(getDebugArgs(this.err));
+        }
+
         return cmdArgs;
     }
 
-    private List<String> getTestRunnerCmdArgs(){
+    public List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName){
         List<String> cmdArgs = new ArrayList<>();
-        //cmdArgs.add(getJacocoAgentJarPath());
+        cmdArgs.add(getJacocoAgentJarPath());
+
+        cmdArgs.add(target.path().toString());
+        cmdArgs.add(packageName);
+        cmdArgs.add(moduleName);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
         cmdArgs.add(this.groupList != null ? this.groupList : "");
