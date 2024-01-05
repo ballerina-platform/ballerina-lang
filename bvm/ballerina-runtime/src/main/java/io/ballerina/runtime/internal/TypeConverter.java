@@ -55,6 +55,7 @@ import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -275,7 +276,7 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 return getConvertibleTypeInTargetUnionType(inputValue, (BUnionType) targetType, varName,
-                        errors, unresolvedValues, allowNumericConversion);
+                        errors, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors,
                         allowNumericConversion)) {
@@ -358,22 +359,21 @@ public class TypeConverter {
 
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
                                                            String varName, List<String> errors,
-                                                           Set<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
         List<Type> memberTypes = targetUnionType.getMemberTypes();
         if (TypeChecker.isStructuredType(getType(inputValue))) {
             return getConvertibleStructuredTypeInUnion(inputValue, varName, errors,
-                    unresolvedValues, allowNumericConversion, memberTypes);
+                    allowNumericConversion, memberTypes);
         }
 
         for (Type memType : memberTypes) {
             if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                return getConvertibleType(inputValue, memType, varName, unresolvedValues, errors, false);
+                return getConvertibleType(inputValue, memType, varName, new HashSet<>(), errors, false);
             }
         }
         for (Type memType : memberTypes) {
             Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                    unresolvedValues, errors, allowNumericConversion);
+                    new HashSet<>(), errors, allowNumericConversion);
             if (convertibleTypeInUnion != null) {
                 return convertibleTypeInUnion;
             }
@@ -382,7 +382,6 @@ public class TypeConverter {
     }
 
     private static Type getConvertibleStructuredTypeInUnion(Object inputValue, String varName, List<String> errors,
-                                                            Set<TypeValuePair> unresolvedValues,
                                                             boolean allowNumericConversion, List<Type> memberTypes) {
         int initialErrorCount;
         errors.add(ERROR_MESSAGE_UNION_START);
@@ -391,7 +390,7 @@ public class TypeConverter {
         for (Type memType : memberTypes) {
             initialErrorCount = errors.size();
             Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                    unresolvedValues, errors, allowNumericConversion);
+                    new HashSet<>(), errors, allowNumericConversion);
             currentErrorListSize = errors.size();
             if (convertibleTypeInUnion != null) {
                 errors.subList(initialErrorListSize - 1, currentErrorListSize).clear();

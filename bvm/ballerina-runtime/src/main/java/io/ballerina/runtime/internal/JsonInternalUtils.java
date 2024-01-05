@@ -339,7 +339,7 @@ public class JsonInternalUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 matchingType = TypeConverter.getConvertibleTypeInTargetUnionType(jsonValue,
-                        (BUnionType) targetType, null, new ArrayList<>(), new HashSet<>(), true);
+                        (BUnionType) targetType, null, new ArrayList<>(), true);
                 if (matchingType == null) {
                     throw ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
