@@ -24,4 +24,5 @@ function setNillableField() {
 function setOptionalField() {
     R3 r3 = {};
     r3.x = 2;
+    r3.x = ();
 }

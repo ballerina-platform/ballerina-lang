@@ -6376,7 +6376,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(checkedExpr, actualType, data.expType);
     }
 
-    private void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
+    protected void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
         expr.impConversionExpr = null;
         types.setImplicitCastExpr(expr, actualType, targetType);
     }
