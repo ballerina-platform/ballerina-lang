@@ -186,7 +186,7 @@ public class WorkerDataChannel {
         try {
             acquireChannelLock();
             if (isClosed()) {
-                throw ErrorUtils.createNoMessageError(chnlName);
+                return ErrorUtils.createNoMessageError(chnlName);
             }
             WorkerResult result = this.channel.peek();
             if (result != null) {

@@ -21,6 +21,7 @@ package org.ballerinalang.test.worker;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -36,10 +37,10 @@ public class WorkerConditionalSendTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/workers_conditional_send.bal");
-//        Assert.assertEquals(result.getErrorCount(), 0); // TODO: Fix for NoMessageError
+        Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test(dataProvider = "functionProvider", enabled = false)
+    @Test(dataProvider = "functionProvider")
     public void workerConditionalSendTest(String funcName) {
         BRunUtil.invoke(result, funcName, new Object[0]);
     }
@@ -63,7 +64,8 @@ public class WorkerConditionalSendTest {
                 "sameWorkerSendMultiplePathError4",
                 "multipleReceiveConditional",
                 "multipleReceiveWithNonConditionalSend",
-                "testNonTopLevelSend"
+                "testNonTopLevelSend",
+                "testSendWithEarlyReturnError"
         };
     }
 
