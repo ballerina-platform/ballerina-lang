@@ -1357,8 +1357,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private BTupleType createNewTupleType(Location pos, List<BType> memberTypes, AnalyzerData data) {
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, 0, Names.EMPTY,
-                data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, pos, SOURCE);
+        BTypeSymbol tupleTypeSymbol =
+                Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, data.constantSymbol.flags, Names.EMPTY,
+                        data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, pos, SOURCE);
         List<BTupleMember> members = new ArrayList<>();
         memberTypes.forEach(m ->
                 members.add(new BTupleMember(m, Symbols.createVarSymbolForTupleMember(m))));
