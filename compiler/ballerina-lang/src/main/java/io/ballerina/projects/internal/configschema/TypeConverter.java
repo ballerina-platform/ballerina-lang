@@ -20,6 +20,7 @@ package io.ballerina.projects.internal.configschema;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -182,9 +183,10 @@ public class TypeConverter {
         if (!requiredFields.isEmpty()) {
             typeNode.add("required", requiredFields);
         }
-        // The tsymbol name is empty for anon intersection type created due to inferred readonly
-        if (intersectionType.tsymbol.name != Names.EMPTY) {
-            typeNode.addProperty("name", intersectionType.tsymbol.toString().trim());
+        BTypeSymbol intersectionSymbol = intersectionType.tsymbol;
+        // The tsymbol name is implicitly empty
+        if (intersectionSymbol.name != Names.EMPTY) {
+            typeNode.addProperty("name", intersectionSymbol.toString().trim());
         } else {
             // Get record type and set the type name as a property
             for (BType bType : intersectionType.getConstituentTypes()) {
