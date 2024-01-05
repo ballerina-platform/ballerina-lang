@@ -1461,7 +1461,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ComputedNameFieldNode transform(ComputedNameFieldNode computedNameFieldNode) {
         Token openBracket = formatToken(computedNameFieldNode.openBracket(), 0, 0);
         ExpressionNode fieldNameExpr = formatNode(computedNameFieldNode.fieldNameExpr(), 0, 0);
-        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 1, 0);
+        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 0, 0);
         Token colonToken = formatToken(computedNameFieldNode.colonToken(), 1, 0);
         ExpressionNode valueExpr = formatNode(computedNameFieldNode.valueExpr(), env.trailingWS, env.trailingNL);
 
