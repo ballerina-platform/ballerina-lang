@@ -17,6 +17,11 @@
 */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -49,6 +54,42 @@ public class WDChannels {
             this.wDChannels.put(name, channel);
         }
         return channel;
+    }
+
+    public Object takeMultipleChannelData(Strand strand, ReceiveField[] receiveFields, Type targetType)
+            throws Throwable {
+        if (strand.mapResult == null) {
+            strand.mapResult = ValueCreator.createMapValue(targetType);
+        }
+        for (ReceiveField field : receiveFields) {
+            WorkerDataChannel channel = getWorkerDataChannel(field.getChannelName());
+            if (!channel.isClosed()) {
+                Object result = channel.tryTakeData(strand, true);
+                if (result != null) {
+                    if (result instanceof ErrorValue errorValue) {
+                        errors.add(errorValue);
+                        channel.close();
+                    } else {
+                        strand.mapResult.populateInitialValue(StringUtils.fromString(field.getFieldName()), result);
+                        channel.close();
+                    }
+                    ++strand.channelCount;
+                } else {
+                    strand.setState(BLOCK_AND_YIELD);
+                }
+            } else {
+                if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
+                    errors.add((ErrorValue) ErrorUtils.createNoMessageError(field.getChannelName()));
+                }
+            }
+        }
+        if (strand.channelCount == receiveFields.length) {
+            BMap<BString, Object> map = strand.mapResult;
+            strand.mapResult = null;
+            strand.channelCount = 0;
+            return map;
+        }
+        return null;
     }
 
     public Object tryTakeData(Strand strand, String[] channels) throws Throwable {

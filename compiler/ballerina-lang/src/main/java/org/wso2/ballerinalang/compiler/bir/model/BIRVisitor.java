@@ -146,6 +146,9 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.WorkerMultipleReceive multipleReceive) {
+        throw new AssertionError();
+    }
 
     // Non-terminating instructions
 

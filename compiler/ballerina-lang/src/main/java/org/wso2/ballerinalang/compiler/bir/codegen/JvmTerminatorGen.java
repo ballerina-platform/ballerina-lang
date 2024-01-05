@@ -132,6 +132,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
@@ -179,6 +180,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_W
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ANYDATA_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV_WITH_FUNC_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RECEIVE_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
@@ -186,6 +188,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ARR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_JOBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MULTIPLE_RECEIVE_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
@@ -389,6 +392,10 @@ public class JvmTerminatorGen {
                 return;
             case WK_ALT_RECEIVE:
                 this.genWorkerAlternateReceiveIns((BIRTerminator.WorkerAlternateReceive) terminator, localVarOffset,
+                        invocationVarIndex);
+                return;
+            case WK_MULTIPLE_RECEIVE:
+                this.genWorkerMultipleReceiveIns((BIRTerminator.WorkerMultipleReceive) terminator, localVarOffset,
                         invocationVarIndex);
                 return;
             case FLUSH:
@@ -1229,6 +1236,45 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, channelIndex);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "tryTakeData", ALT_RECEIVE_CALL, false);
 
+        generateReceiveResultStore(ins.lhsOp);
+    }
+
+
+    private void genWorkerMultipleReceiveIns(BIRTerminator.WorkerMultipleReceive ins, int localVarOffset,
+                                              int invocationVarIndex) {
+        BIRNode.BIRVariableDcl listVar = new BIRNode.BIRVariableDcl(symbolTable.anyType, new Name("channels"),
+                VarScope.FUNCTION, VarKind.LOCAL);
+        int channelIndex = this.getJVMIndexOfVarRef(listVar);
+        int channelSize = ins.receiveFields.size();
+        this.mv.visitIntInsn(BIPUSH, channelSize);
+        this.mv.visitTypeInsn(ANEWARRAY, RECEIVE_FIELD);
+        int i = 0;
+        while (i < channelSize) {
+            BIRTerminator.WorkerMultipleReceive.ReceiveField receiveField = ins.receiveFields.get(i);
+            this.mv.visitInsn(DUP);
+            this.mv.visitIntInsn(BIPUSH, i);
+            this.mv.visitTypeInsn(NEW, RECEIVE_FIELD);
+            this.mv.visitInsn(DUP);
+            this.mv.visitLdcInsn(receiveField.key);
+            this.mv.visitVarInsn(ILOAD, invocationVarIndex);
+            this.mv.visitInvokeDynamicInsn(MAKE_CONCAT_WITH_CONSTANTS, INT_TO_STRING,
+                    new Handle(H_INVOKESTATIC, STRING_CONCAT_FACTORY, MAKE_CONCAT_WITH_CONSTANTS,
+                            HANDLE_DESCRIPTOR_FOR_STRING_CONCAT, false),
+                    receiveField.workerReceive + START_OF_HEADING_WITH_SEMICOLON);
+            this.mv.visitMethodInsn(INVOKESPECIAL, RECEIVE_FIELD, JVM_INIT_METHOD, INIT_RECEIVE_FIELD, false);
+            this.mv.visitInsn(AASTORE);
+            i += 1;
+        }
+        this.mv.visitVarInsn(ASTORE, channelIndex);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        if (!ins.isSameStrand) {
+            this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "parent", GET_STRAND);
+        }
+        this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        this.mv.visitVarInsn(ALOAD, channelIndex);
+        jvmTypeGen.loadType(this.mv, ins.targetType);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "takeMultipleChannelData", MULTIPLE_RECEIVE_CALL, false);
         generateReceiveResultStore(ins.lhsOp);
     }
 

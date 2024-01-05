@@ -1055,7 +1055,9 @@ public class NodeCloner extends BLangNodeVisitor {
             BLangMultipleWorkerReceive.BLangReceiveField clonedRvField =
                     new BLangMultipleWorkerReceive.BLangReceiveField();
             clonedRvField.setKey(clone(rvField.getKey()));
-            clonedRvField.setWorkerReceive(clone(rvField.getWorkerReceive()));
+            BLangWorkerReceive workerReceiveClone = clone(rvField.getWorkerReceive());
+            workerReceiveClone.parent = clone;
+            clonedRvField.setWorkerReceive(workerReceiveClone);
             cloneFields.add(clonedRvField);
         }
 
