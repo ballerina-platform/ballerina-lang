@@ -2884,6 +2884,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
                 checkExpr(receiveFiled.getWorkerReceive(), receiveFieldExpType, data);
             }
+            data.resultType = compatibleType;
             return;
         }
 
