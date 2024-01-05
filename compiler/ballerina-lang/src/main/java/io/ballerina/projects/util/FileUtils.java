@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,6 +121,9 @@ public class FileUtils {
      */
     public static String readFileAsString(String path) throws IOException {
         InputStream is = FileUtils.class.getClassLoader().getResourceAsStream(path);
+        if (is == null) {
+            throw new FileNotFoundException("Schema file not found: " + path);
+        }
         InputStreamReader inputStreamReader = null;
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
