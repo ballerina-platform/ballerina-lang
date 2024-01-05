@@ -1,4 +1,20 @@
-function executeTest(TestFunction testFunction) returns error? {
+// Copyright (c) 2023 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+function executeTest(TestFunction testFunction) {
     if !conMgr.isEnabled(testFunction.name) {
         conMgr.setExecutionDone(testFunction.name);
         conMgr.releaseWorker();
@@ -21,7 +37,7 @@ function executeTest(TestFunction testFunction) returns error? {
     boolean shouldSkipDependents = false;
     if !conMgr.isSkip(testFunction.name) && !getShouldSkip() {
         if (isDataDrivenTest(testFunction)) {
-            check executeDataDrivenTestSet(testFunction);
+            executeDataDrivenTestSet(testFunction);
         } else {
             shouldSkipDependents = executeNonDataDrivenTest(testFunction);
         }
@@ -67,7 +83,7 @@ function executeBeforeEachFunctions() {
     }
 }
 
-function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
+function executeDataDrivenTestSet(TestFunction testFunction) {
     DataProviderReturnType? params = testFunction.params;
     string[] keys = [];
     AnyOrError[][] values = [];
@@ -87,35 +103,12 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
         }
     }
 
-    boolean isIntialJob = true;
-
     while keys.length() != 0 {
-
-        if isIntialJob || conMgr.getAvailableWorkers() > 0 {
-            string key = keys.remove(0);
-            AnyOrError[] value = values.remove(0);
-
-            if !isIntialJob {
-                conMgr.allocateWorker();
-            }
-
-            future<()> serialWaiter = start prepareDataDrivenTest(testFunction, key, value, testType);
-
-            if !testFunction.parallelizable {
-                any _ = check wait serialWaiter;
-            }
-
-        }
-
-        isIntialJob = false;
-        conMgr.waitForWorkers();
+        string key = keys.remove(0);
+        AnyOrError[] value = values.remove(0);
+        prepareDataDrivenTest(testFunction, key, value, testType);
     }
 
-    conMgr.waitForWorkers();
-
-    if !isIntialJob {
-        conMgr.allocateWorker();
-    }
 }
 
 function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
@@ -182,7 +175,6 @@ function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError
         executeDataDrivenTest(testFunction, key, testType, value);
         var _ = executeAfterFunction(testFunction);
     }
-    conMgr.releaseWorker();
 }
 
 function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
@@ -196,7 +188,6 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
                 + "]\n" + getErrorMessage(err), testType = testType);
         println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
         enableExit();
-
     }
 }
 

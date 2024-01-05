@@ -81,20 +81,17 @@ function executeTests() returns error? {
                 TestFunction testFunction = conMgr.getSerialTest();
                 conMgr.addTestInExecution(testFunction);
                 conMgr.allocateWorker();
-                future<error?> serialWaiter = start executeTest(testFunction);
-                any _ = check wait serialWaiter;
-
+                executeTest(testFunction);
             }
 
             else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
                 TestFunction testFunction = conMgr.getParallelTest();
                 conMgr.addTestInExecution(testFunction);
                 conMgr.allocateWorker();
-                future<(error?)> parallelWaiter = start executeTest(testFunction);
+                future<(error?)> parallelWaiter = start executeTestIso(testFunction);
                 if isDataDrivenTest(testFunction) {
                     any _ = check wait parallelWaiter;
                 }
-
             }
 
         }

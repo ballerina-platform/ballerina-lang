@@ -72,6 +72,7 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             if (testOptions.isFilterSubTestsContains(updatedName) && testOptions.getFilterSubTest(updatedName) is string[]) {
                 string[] subTestList = <string[]>testOptions.getFilterSubTest(testPart);
                 subTestList.push(suffix);
+                testOptions.addFilterSubTest(testPart, subTestList);
             } else {
                 testOptions.addFilterSubTest(testPart, [suffix]);
             }
