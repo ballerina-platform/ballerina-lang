@@ -622,6 +622,88 @@ public function testNestedOptionalFieldAccessOnIntersectionTypes() {
     assertEquality((), v5);
 }
 
+type MyInt int;
+type Rxx record {
+    int val;
+};
+type Rxy record {
+    int val;
+    float otherVal;
+};
+type Rx record {|
+    int a?;
+    MyInt b?;
+    Rxx c?;
+|};
+
+function testSubtypeAssignment() {
+    int:Signed16 init = 2;
+    Rx r = {a:init, b:init};
+    int:Signed32 val = 5;
+    r.a = val;
+    assertEquality(val, r.a);
+    r.a = ();
+    assertFalse(r.hasKey("a"));
+    r.b = val;
+    assertEquality(val, r.b);
+    r.b = ();
+    assertFalse(r.hasKey("b"));
+    Rxy c = {val: 5, otherVal: 10.0};
+    r.c = c;
+    assertEquality(c, r.c);
+    r.c = ();
+    assertFalse(r.hasKey("b"));
+}
+
+function testNullableAssignment() {
+    Rx r = {};
+    int? val = 12;
+    r.a = val;
+    assertEquality(val, r.a);
+    int? b = ();
+    r.a = b;
+    assertFalse(r.hasKey("a"));
+    Rxy? c = {val: 5, otherVal: 10.0};
+    r.c = c;
+    assertEquality(c, r.c);
+    c = ();
+    r.c = c;
+    assertFalse(r.hasKey("c"));
+}
+
+type MyUnion int|float|string;
+type Ry record {|
+    int|float|string a?;
+    MyUnion b?;
+    int|Rxx c?;
+|};
+
+function testUnionAssignment() {
+    int init = 5;
+    Ry r = {a:init, b:init};
+    int:Signed32 val = 5;
+    r.a = val;
+    assertEquality(val, r.a);
+    int|float val2 = 10;
+    r.a = val2;
+    assertEquality(val2, r.a);
+    r.a = ();
+    assertFalse(r.hasKey("a"));
+
+    r.b = val;
+    assertEquality(val, r.b);
+    r.b = val2;
+    assertEquality(val2, r.b);
+    r.b = ();
+    assertFalse(r.hasKey("b"));
+
+    Rxx c = {val: 5};
+    r.c = c;
+    assertEquality(c, r.c);
+    r.c = ();
+    assertFalse(r.hasKey("b"));
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

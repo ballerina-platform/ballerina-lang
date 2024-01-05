@@ -110,7 +110,10 @@ public class OptionalFieldAccessTest {
                 { "testUnavailableFinalAccessInNestedAccess" },
                 { "testAvailableFinalAccessInNestedAccess" },
                 { "testUnavailableIntermediateAccessInNestedAccess" },
-                { "testNilValuedFinalAccessInNestedAccess" }
+                { "testNilValuedFinalAccessInNestedAccess" },
+                { "testSubtypeAssignment" },
+                { "testUnionAssignment" },
+                { "testNullableAssignment" }
         };
     }
 

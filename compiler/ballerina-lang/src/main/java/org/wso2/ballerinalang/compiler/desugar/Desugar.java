@@ -337,6 +337,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createState
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.isOptionalFieldAssignment;
 import static org.wso2.ballerinalang.compiler.util.Names.GENERATED_INIT_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -2468,32 +2469,26 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        boolean isOptionalFieldAssignment = isOptionalBasicTypeFieldAssignment(assignNode);
+        boolean addNilToCastingType = shouldWidenExpressionTypeWithNil(assignNode);
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         BType castingType = assignNode.varRef.getBType();
-        if (isOptionalFieldAssignment) {
+        if (addNilToCastingType) {
             castingType = types.addNilForNillableAccessType(castingType);
         }
         assignNode.expr = types.addConversionExprIfRequired(rewriteExpr(assignNode.expr), castingType);
         result = assignNode;
     }
 
-    private boolean isOptionalBasicTypeFieldAssignment(BLangAssignment assignNode) {
-        BLangNode varRef = assignNode.varRef;
-        if (varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+    private static boolean shouldWidenExpressionTypeWithNil(BLangAssignment assignNode) {
+        BType exprType = assignNode.expr.getBType(); // This could be null for some std libs
+        if ((exprType != null && !exprType.isNullable()) || !isOptionalFieldAssignment(assignNode)) {
             return false;
         }
-        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) varRef;
-        BType targetType = Types.getImpliedType(fieldAccessNode.expr.getBType());
-        if (targetType.tag != TypeTags.RECORD) {
-            return false;
-        }
-        BRecordType recordType = (BRecordType) targetType;
+        // If we are assigning to an optional field we have a field based access on a record
+        BLangFieldBasedAccess fieldAccessNode = (BLangFieldBasedAccess) assignNode.varRef;
+        BRecordType recordType = (BRecordType) Types.getImpliedType(fieldAccessNode.expr.getBType());
         BField field = recordType.fields.get(fieldAccessNode.field.value);
-        if (field == null || !Symbols.isOptional(field.symbol)) {
-            return false;
-        }
         BType fieldType = Types.getImpliedType(field.getType());
         return TypeTags.isSimpleBasicType(fieldType.tag);
     }
