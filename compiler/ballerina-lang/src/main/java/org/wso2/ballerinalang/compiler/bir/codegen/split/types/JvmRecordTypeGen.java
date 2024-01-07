@@ -176,16 +176,6 @@ public class JvmRecordTypeGen {
 
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD, RECORD_TYPE_IMPL_INIT, false);
-
-        mv.visitInsn(DUP);
-        String packageName = JvmCodeGenUtil.getPackageName(recordType.tsymbol.pkgID);
-        String className = getTypeDescClassName(packageName, toNameString(recordType));
-        mv.visitTypeInsn(NEW, className);
-        mv.visitInsn(DUP_X1);
-        mv.visitInsn(SWAP);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
-        mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, jvmTypeGen.getTypedescFieldName(internalName), GET_TYPEDESC);
     }
 
     private String getFullName(BRecordType recordType) {
