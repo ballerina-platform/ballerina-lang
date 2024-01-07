@@ -66,7 +66,6 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DADD;
 import static org.objectweb.asm.Opcodes.DCMPL;
@@ -230,7 +229,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_AT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC_OF_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_MAP_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_TABLE_STORE;
@@ -2033,54 +2031,19 @@ public class JvmInstructionGen {
     }
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
-        List<BIROperand> closureVars = newTypeDesc.closureVars;
-        if (isNonReferredRecord(newTypeDesc.type)) {
-            BType type = JvmCodeGenUtil.getImpliedType(newTypeDesc.type);
-            PackageID packageID = type.tsymbol.pkgID;
-            String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-            String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
-            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
-        } else {
-            generateNewTypedescCreate(newTypeDesc.type, closureVars, newTypeDesc.annotations);
-        }
-        this.storeToVar(newTypeDesc.lhsOp.variableDcl);
-    }
-
-    private boolean isNonReferredRecord(BType type) {
-        if (type.tag != TypeTags.TYPEREFDESC) {
-            return false;
-        }
-        BType referredType = ((BTypeReferenceType) type).referredType;
-        return referredType.tag == TypeTags.RECORD &&
-                type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
-    }
-
-    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
-        BType type = JvmCodeGenUtil.getImpliedType(btype);
         String className = TYPEDESC_VALUE_IMPL;
-        if (type.tag == TypeTags.RECORD) {
-            className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));
-        }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        jvmTypeGen.loadType(this.mv, btype);
-
-        mv.visitIntInsn(BIPUSH, closureVars.size());
-        mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);
-        for (int i = 0; i < closureVars.size(); i++) {
-            BIROperand closureVar = closureVars.get(i);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, i);
-            this.loadVar(closureVar.variableDcl);
-            mv.visitInsn(AASTORE);
-        }
+        jvmTypeGen.loadType(this.mv, newTypeDesc.type);
+        BIROperand annotations = newTypeDesc.annotations;
         if (annotations != null) {
             this.loadVar(annotations.variableDcl);
             this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
-                                    false);
+                    false);
         } else {
             this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
         }
+        this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {
