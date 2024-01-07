@@ -841,32 +841,6 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
-        for (BLangConstant constant : pkgNode.constants) {
-            BType constType = Types.getReferredType(constant.symbol.type);
-            if (constType.tag != TypeTags.INTERSECTION) {
-                continue;
-            }
-            for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
-                BLangType typeNode;
-                switch (Types.getImpliedType(memberType).tag) {
-                    case TypeTags.RECORD:
-                        typeNode = constant.associatedTypeDefinition.typeNode;
-                        break;
-                    case TypeTags.TUPLE:
-                        typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-                        break;
-                    default:
-                        continue;
-                }
-                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                constant.expr = rewrite(constant.expr,
-                        SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env));
-                BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
-                        constant.expr);
-                initFnBody.stmts.add(constInit);
-            }
-        }
     private void desugarConstants(BLangConstant constant, BLangBlockFunctionBody initFnBody,
                                   SymbolEnv initFunctionEnv) {
         BType constType = Types.getReferredType(constant.symbol.type);
@@ -879,6 +853,19 @@ public class Desugar extends BLangNodeVisitor {
         initFnBody.stmts.add(constInit);
         constant.expr = null;
     }
+
+    private void createTypedescVariableDef(BLangType typeNode) {
+        Name name = new Name(TYPEDESC + typedescCount++);
+        Location pos = typeNode.pos;
+        BType type = typeNode.getBType();
+        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
+        BSymbol owner = this.env.scope.owner;
+        BVarSymbol varSymbol  = new BVarSymbol(0, name, owner.pkgID, typedescType, owner, pos, VIRTUAL);
+        BLangTypedescExpr typedescExpr = ASTBuilderUtil.createTypedescExpr(pos, typedescType, type);
+        typedescExpr.typeNode = typeNode;
+        BLangSimpleVariableDef simpleVariableDef = createSimpleVariableDef(pos, name.value, typedescType, typedescExpr,
+                                                                           varSymbol);
+        typedescList.add(simpleVariableDef);
     }
 
     private BLangSimpleVariableDef createSimpleVariableDef(Location pos, String name, BType type, BLangExpression expr,
