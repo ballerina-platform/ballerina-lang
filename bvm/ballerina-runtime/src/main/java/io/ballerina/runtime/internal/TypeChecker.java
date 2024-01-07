@@ -543,6 +543,10 @@ public class TypeChecker {
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
         }
+        MapValue annotations =  ((TypedescValueImpl) typedescValue).annotations;
+        if (annotations != null) {
+            return annotations.get(annotTag);
+        }
         return ((BAnnotatableType) describingType).getAnnotation(annotTag);
     }
 
