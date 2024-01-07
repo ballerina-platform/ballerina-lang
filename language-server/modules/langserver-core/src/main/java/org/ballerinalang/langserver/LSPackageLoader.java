@@ -119,12 +119,12 @@ public class LSPackageLoader {
             Map<String, ModuleInfo> packagesList = new HashMap<>();
             CompletableFuture.runAsync(() -> {
                 this.languageClient = context.get(ExtendedLanguageClient.class);
-                this.languageClient.showMessage(
-                        new MessageParams(MessageType.Info, "Indexing Ballerina packages: " +
-                                "some completions may not be available until indexing is complete."));
                 if (languageClient == null) {
                     return;
                 }
+                this.languageClient.showMessage(
+                        new MessageParams(MessageType.Info, "Indexing Ballerina packages: " +
+                                "some completions may not be available until indexing is complete."));
                 // Initialize progress notification
                 WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
                 workDoneProgressCreateParams.setToken(taskId);
