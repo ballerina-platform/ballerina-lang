@@ -213,7 +213,7 @@ public class WorkerDataChannel {
                     this.flushSender.waitingStrand.flushDetail.flushLock.unlock();
                     this.flushSender = null;
                 }
-                return result.value;
+                return isMultiple ? result : result.value;
             } else if (this.panic != null && this.senderCounter == this.receiverCounter + 1) {
                 this.receiverCounter++;
                 throw this.panic;

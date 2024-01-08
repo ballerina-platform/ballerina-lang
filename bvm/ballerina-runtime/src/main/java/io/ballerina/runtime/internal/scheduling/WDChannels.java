@@ -77,6 +77,7 @@ public class WDChannels {
 
     private void checkAndPopulateResult(Strand strand, ReceiveField field, Object result, WorkerDataChannel channel) {
         if (result != null) {
+            result = getResultValue(result);
             if (result instanceof ErrorValue errorValue) {
                 errors.add(errorValue);
             } else {
@@ -120,12 +121,20 @@ public class WDChannels {
     }
 
     private Object handleNonNullResult(String[] channels, Object result, WorkerDataChannel channel) {
-        if (result instanceof ErrorValue errorValue) {
+        Object resultValue = getResultValue(result);
+        if (resultValue instanceof ErrorValue errorValue) {
             errors.add(errorValue);
             channel.close();
             result = null;
         } else {
             closeChannels(channels);
+        }
+        return result;
+    }
+
+    private static Object getResultValue(Object result) {
+        if (result instanceof WorkerDataChannel.WorkerResult workerResult) {
+            return workerResult.value;
         }
         return result;
     }
@@ -138,7 +147,7 @@ public class WDChannels {
                 strand.setState(BLOCK_AND_YIELD);
             }
         }
-        return result;
+        return getResultValue(result);
     }
 
     private void closeChannels(String[] channels) {
