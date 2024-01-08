@@ -2382,10 +2382,10 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRNonTerminator.NewStructure createNewStructureInst(List<BIRNode.BIRMappingConstructorEntry> fields,
                                                                  BIROperand toVarRef, BType type, Location pos) {
         if (getTypedescVariable(type) != null) {
-            return new BIRNonTerminator.NewStructure(pos, toVarRef, new BIROperand(getTypedescVariable(type)), fields, type);
+            return new BIRNonTerminator.NewStructure(pos, toVarRef, new BIROperand(getTypedescVariable(type)), fields);
         } else {
             createNewTypedescInst(type, type, pos);
-            return new BIRNonTerminator.NewStructure(pos, toVarRef, this.env.targetOperand, fields, type);
+            return new BIRNonTerminator.NewStructure(pos, toVarRef, this.env.targetOperand, fields);
         }
     }
 
@@ -2421,7 +2421,8 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BIRVariableDcl createTempVariable(BType type) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(type, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(type, this.env.nextLocalVarId(names), VarScope.FUNCTION,
+                                                       VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         return tempVarDcl;
     }
