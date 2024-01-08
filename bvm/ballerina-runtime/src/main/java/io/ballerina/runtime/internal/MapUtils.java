@@ -35,7 +35,11 @@ import io.ballerina.runtime.internal.values.MapValue;
 
 import java.util.List;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.utils.TypeUtils.getImpliedType;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -48,6 +52,7 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class MapUtils {
 
+    // FIXME: may be shouldn't overload this instead use named functions
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
@@ -77,37 +82,61 @@ public class MapUtils {
                                                                                expType, valuesType));
     }
 
+    private static Type updatableRecordFieldType(BRecordType recordType, BString fieldName, Type inherentType,
+                                                 boolean initialValue) {
+        Field recField = recordType.getFields().get(fieldName.getValue());
+        if (recField == null && recordType.restFieldType == null) {
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, ErrorHelper.getErrorDetails(
+                    ErrorCodes.INVALID_RECORD_FIELD_ACCESS, fieldName, inherentType));
+        } else if (recField == null) {
+            return recordType.restFieldType;
+        }
+        if (!initialValue && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.READONLY)) {
+            throw ErrorCreator.createError(
+                    getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,
+                            fieldName, inherentType));
+        }
+        return recField.getFieldType();
+
+    }
+
+    // TODO: ideally we should check if basic type
+    // - may be add that to name?
+    private static boolean handleInherentTypeViolatingRecordUpdateSimple(MapValue mapValue, BString fieldName,
+                                                                         Type sourceType, BRecordType recType) {
+        Type recFieldType = updatableRecordFieldType(recType, fieldName, mapValue.getType(), false);
+
+        // FIXME: I think this is always true validate by assertion
+        if (checkIsBasicType(sourceType, recFieldType)) {
+            return true;
+        }
+        throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                        INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                ErrorHelper.getErrorDetails(
+                        ErrorCodes.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, sourceType));
+    }
+
+    // FIXME: move this to TypeChecker
+    public static boolean checkIsBasicType(Type basicType, Type targetType) {
+        targetType = getImpliedType(targetType);
+
+        if (basicType == targetType || (basicType.getTag() == targetType.getTag() && basicType.equals(targetType))) {
+            return true;
+        }
+
+        // FIXME: can this ever happen (we setting based on the field type being int)
+        return targetType.getTag() == TypeTags.ANY_TAG;
+    }
+
     public static boolean handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
                                                                   BRecordType recType, boolean initialValue) {
         Field recField = recType.getFields().get(fieldName.getValue());
-        Type recFieldType;
+        Type recFieldType = updatableRecordFieldType(recType, fieldName, mapValue.getType(), initialValue);
 
-        if (recField != null) {
-            // If there is a corresponding field in the record, check if it can be updated.
-            // i.e., it is not a `readonly` field or this is an insertion on creation.
-            // `initialValue` is only true if this is an update for a field provided in the mapping constructor
-            // expression.
-            if (!initialValue && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.READONLY)) {
-
-                throw ErrorCreator.createError(
-                        getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,
-                                                             fieldName, mapValue.getType()));
-            }
-            // If it can be updated, use it.
-            recFieldType = recField.getFieldType();
-            if (value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)
-                    && !containsNilType(recFieldType)) {
-                return false;
-            }
-        } else if (recType.restFieldType != null) {
-            // If there isn't a corresponding field, but there is a rest field, use it
-            recFieldType = recType.restFieldType;
-        } else {
-            // If both of the above conditions fail, the implication is that this is an attempt to insert a
-            // value to a non-existent field in a closed record.
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, ErrorHelper.getErrorDetails(
-                    ErrorCodes.INVALID_RECORD_FIELD_ACCESS, fieldName, mapValue.getType()));
+        if (recField != null && value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)
+                && !containsNilType(recFieldType)) {
+            return false;
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
@@ -175,9 +204,9 @@ public class MapUtils {
     private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
                                        long value) {
         if (mapType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new IllegalArgumentException("Typed record store is only supported for records");
+            throw new IllegalArgumentException("Unboxed store is only supported for records");
         }
-        if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+        if (handleInherentTypeViolatingRecordUpdateSimple(mapValue, fieldName, TYPE_INT, (BRecordType) mapType)) {
             mapValue.put(fieldName, value);
             return;
         }
@@ -187,9 +216,9 @@ public class MapUtils {
     private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
                                        boolean value) {
         if (mapType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new IllegalArgumentException("Typed record store is only supported for records");
+            throw new IllegalArgumentException("Unboxed store is only supported for records");
         }
-        if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+        if (handleInherentTypeViolatingRecordUpdateSimple(mapValue, fieldName, TYPE_BOOLEAN, (BRecordType) mapType)) {
             mapValue.put(fieldName, value);
             return;
         }
@@ -199,9 +228,9 @@ public class MapUtils {
     private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
                                        double value) {
         if (mapType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new IllegalArgumentException("Typed record store is only supported for records");
+            throw new IllegalArgumentException("Unboxed store is only supported for records");
         }
-        if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+        if (handleInherentTypeViolatingRecordUpdateSimple(mapValue, fieldName, TYPE_FLOAT, (BRecordType) mapType)) {
             mapValue.put(fieldName, value);
             return;
         }

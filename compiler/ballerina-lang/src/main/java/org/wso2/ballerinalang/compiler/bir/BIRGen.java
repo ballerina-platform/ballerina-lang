@@ -211,12 +211,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
-import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.createBIRAnnotationAttachment;
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
@@ -2832,18 +2830,10 @@ public class BIRGen extends BLangNodeVisitor {
             } else {
                 insKind = InstructionKind.MAP_LOAD;
             }
-            BIRNonTerminator.FieldAccess ins;
-            if (astIndexBasedAccessExpr.indexExpr.getKind() == LITERAL) {
-                BLangLiteral literal = (BLangLiteral) astIndexBasedAccessExpr.indexExpr;
-                ins = new BIRNonTerminator.RecordFieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef,
-                        keyRegIndex,
-                        varRefRegIndex, except,
-                        astIndexBasedAccessExpr.isLValue && !astIndexBasedAccessExpr.leafNode, (String) literal.value);
-            } else {
-                ins = new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
-                        varRefRegIndex, except, astIndexBasedAccessExpr.isLValue && !astIndexBasedAccessExpr.leafNode);
-            }
-            setScopeAndEmit(ins);
+            setScopeAndEmit(
+                    new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
+                            varRefRegIndex, except,
+                            astIndexBasedAccessExpr.isLValue && !astIndexBasedAccessExpr.leafNode));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
