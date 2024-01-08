@@ -293,28 +293,24 @@ public class GlobalVariableRefAnalyzer {
 
     private Map<BSymbol, TopLevelNode> collectAssociateSymbolsWithTopLevelNodes() {
         Map<BSymbol, TopLevelNode> varMap = new LinkedHashMap<>();
+
         for (TopLevelNode topLevelNode : this.pkgNode.topLevelNodes) {
-            switch (topLevelNode.getKind()) {
-                case VARIABLE:
-                case RECORD_VARIABLE:
-                case TUPLE_VARIABLE:
-                case ERROR_VARIABLE:
-                    if (((BLangVariable) topLevelNode).symbol != null) {
-                        varMap.put(((BLangVariable) topLevelNode).symbol, topLevelNode);
-                    }
-                    continue;
-                case TYPE_DEFINITION:
-                    if (((BLangTypeDefinition) topLevelNode).symbol.type.tsymbol != null) {
-                        varMap.put(((BLangTypeDefinition) topLevelNode).symbol.type.tsymbol, topLevelNode);
-                    }
-                    continue;
-                case CONSTANT:
-                    if (((BLangConstant) topLevelNode).symbol != null) {
-                        varMap.put(((BLangConstant) topLevelNode).symbol, topLevelNode);
-                    }
+            BSymbol symbol = getSymbolFromTopLevelNode(topLevelNode);
+            if (symbol != null) {
+                varMap.put(symbol, topLevelNode);
             }
         }
+
         return varMap;
+    }
+
+    private BSymbol getSymbolFromTopLevelNode(TopLevelNode topLevelNode) {
+        return switch (topLevelNode.getKind()) {
+            case VARIABLE, RECORD_VARIABLE, TUPLE_VARIABLE, ERROR_VARIABLE -> ((BLangVariable) topLevelNode).symbol;
+            case TYPE_DEFINITION -> ((BLangTypeDefinition) topLevelNode).symbol.type.tsymbol;
+            case CONSTANT -> ((BLangConstant) topLevelNode).symbol;
+            default -> null;
+        };
     }
 
     private int analyzeProvidersRecursively(NodeInfo node) {

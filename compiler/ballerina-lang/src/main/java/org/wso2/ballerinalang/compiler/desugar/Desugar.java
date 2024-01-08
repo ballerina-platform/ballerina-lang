@@ -972,7 +972,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
         SymbolEnv initFunctionEnv =
                 SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
-        for (int i =0; i < pkgNode.topLevelNodes.size(); i++) {
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode topLevelNode = pkgNode.topLevelNodes.get(i);
             switch (topLevelNode.getKind()) {
                 case TUPLE_VARIABLE:

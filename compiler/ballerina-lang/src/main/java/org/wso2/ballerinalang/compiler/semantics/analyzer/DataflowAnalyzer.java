@@ -2472,7 +2472,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(bLangRecordVariable.typeNode, env);
         populateUnusedVariableMapForNonSimpleBindingPatternVariables(this.unusedLocalVariables, bLangRecordVariable);
         this.currDependentSymbolDeque.push(bLangRecordVariable.symbol);
-        for(BLangRecordVariable.BLangRecordVariableKeyValue recordVariableKeyValue : bLangRecordVariable.variableList) {
+        for (BLangRecordVariable.BLangRecordVariableKeyValue recordVariableKeyValue :
+                                                                                bLangRecordVariable.variableList) {
             symbolOwner.put(recordVariableKeyValue.valueBindingPattern.symbol, bLangRecordVariable.symbol);
         }
         analyzeNode(bLangRecordVariable.expr, env);
