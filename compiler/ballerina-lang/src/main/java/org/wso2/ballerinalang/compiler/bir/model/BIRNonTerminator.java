@@ -442,17 +442,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
-    public static class RecordFieldAccess extends FieldAccess {
-
-        final String fieldName;
-
-        public RecordFieldAccess(Location pos, InstructionKind kind, BIROperand lhsOp, BIROperand keyOp,
-                                 BIROperand rhsOp, boolean optionalFieldAccess, boolean fillingRead, String fieldName) {
-            super(pos, kind, lhsOp, keyOp, rhsOp, optionalFieldAccess, fillingRead);
-            this.fieldName = fieldName;
-        }
-    }
-
     /**
      * An error constructor expression.
      * <p>

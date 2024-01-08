@@ -1489,54 +1489,7 @@ public class JvmInstructionGen {
         }
     }
 
-    BType valueTypeHack(BType valueType) {
-        return switch (valueType.getKind()) {
-            case INT -> symbolTable.intType;
-            case UNION -> {
-                BUnionType unionType = (BUnionType) valueType;
-                LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
-                if (memberTypes.size() == 2 && memberTypes.contains(symbolTable.nilType) &&
-                        memberTypes.contains(symbolTable.intType)) {
-                    yield symbolTable.intType;
-                } else {
-                    yield valueType;
-                }
-            }
-            default -> valueType;
-        };
-    }
-
-    void generateDirectRecordLoadIns(BIRNonTerminator.RecordFieldAccess recordFieldAccess) {
-        // visit map_ref
-        this.loadVar(recordFieldAccess.rhsOp.variableDcl);
-        BType varRefType = JvmCodeGenUtil.getImpliedType(recordFieldAccess.rhsOp.variableDcl.type);
-        jvmCastGen.addUnboxInsn(this.mv, varRefType);
-
-        // visit key_expr
-        this.loadVar(recordFieldAccess.keyOp.variableDcl);
-        BType targetType = recordFieldAccess.lhsOp.variableDcl.type;
-        this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-        boolean shouldUnbox;
-        if (recordFieldAccess.fillingRead) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
-                    PASS_OBJECT_RETURN_OBJECT, true);
-            shouldUnbox = true;
-        } else {
-            shouldUnbox = generateMapGet(varRefType, targetType);
-        }
-
-        // store in the target reg
-        if (shouldUnbox) {
-            jvmCastGen.addUnboxInsn(this.mv, targetType);
-        }
-        this.storeToVar(recordFieldAccess.lhsOp.variableDcl);
-    }
-
     void generateMapLoadIns(BIRNonTerminator.FieldAccess mapLoadIns) {
-        if (mapLoadIns instanceof BIRNonTerminator.RecordFieldAccess) {
-            generateDirectRecordLoadIns((BIRNonTerminator.RecordFieldAccess) mapLoadIns);
-            return;
-        }
         // visit map_ref
         this.loadVar(mapLoadIns.rhsOp.variableDcl);
         BType varRefType = JvmCodeGenUtil.getImpliedType(mapLoadIns.rhsOp.variableDcl.type);
