@@ -86,6 +86,22 @@ public abstract class BIRNode {
             this.serviceDecls = new ArrayList<>();
         }
 
+        public BIRPackage(Location pos, PackageID packageID, String sourceRoot, boolean skipTest, boolean isTestPkg) {
+            super(pos);
+            this.packageID = packageID;
+            this.packageID.sourceRoot = sourceRoot;
+            this.packageID.skipTests = skipTest;
+            this.packageID.isTestPkg = isTestPkg;
+            this.importModules = new ArrayList<>();
+            this.typeDefs = new ArrayList<>();
+            this.globalVars = new ArrayList<>();
+            this.importedGlobalVarsDummyVarDcls = new HashSet<>();
+            this.functions = new ArrayList<>();
+            this.annotations = new ArrayList<>();
+            this.constants = new ArrayList<>();
+            this.serviceDecls = new ArrayList<>();
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -525,6 +541,15 @@ public abstract class BIRNode {
             super(null);
             this.number = number;
             this.id = new Name(idPrefix + number);
+            this.instructions = new ArrayList<>();
+            this.terminator = null;
+        }
+
+        public BIRBasicBlock(String id) {
+            super(null);
+            // Splitting and reading the number part
+            this.number = Integer.parseInt(id.split("(?<=\\D)(?=\\d)")[1]);
+            this.id = new Name(id);
             this.instructions = new ArrayList<>();
             this.terminator = null;
         }
