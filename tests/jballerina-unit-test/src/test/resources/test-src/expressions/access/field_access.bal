@@ -552,6 +552,32 @@ isolated function isEqual(anydata|error val1, anydata|error val2) returns boolea
     }
 }
 
+type FloatSingletonRecord record {|
+    0.1|0.2 value;
+|};
+
+function testFieldAccessOnFloatSingleton() {
+    FloatSingletonRecord r = { value: 0.1 };
+    r.value = 0.2;
+    assertEquals(r.value, 0.2);
+    record { float value; } r2 = r;
+    r2.value = 0.1;
+    assertEquals(r.value, 0.1);
+}
+
+type IntSingletonRecord record {|
+    1|2 value;
+|};
+
+function testFieldAccessOnIntSingleton() {
+    IntSingletonRecord r = { value: 1 };
+    r.value = 2;
+    assertEquals(r.value, 2);
+    record { int value; } r2 = r;
+    r2.value = 1;
+    assertEquals(r.value, 1);
+}
+
 function assertTrue(boolean actual) {
     assertEquals(actual, true);
 }

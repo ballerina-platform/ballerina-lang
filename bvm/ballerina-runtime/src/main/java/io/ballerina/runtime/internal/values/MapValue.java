@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BMap;
  */
 public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
-    // FIXME: may be we shouldn't overload put
     void putInt(K key, long value);
 
     void putFloat(K key, double value);

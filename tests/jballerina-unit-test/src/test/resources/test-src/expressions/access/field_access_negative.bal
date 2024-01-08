@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.test as test;
+
 type Employee record {
     string name;
     Employee? employer = ();
@@ -412,4 +414,22 @@ function testInvalidXMLMapFieldAccess6() returns error? {
 function testInvalidXMLMapFieldAccess7() returns error? {
     map<xml> m = {a: xml `foo`};
     xml x = m?.b; // error
+}
+
+function testFieldAccessOnFloatSingleton() {
+    record {|0.1|0.2 value;|} r = {value: 0.1};
+    record {|float value;|} r2 = r;
+    var updateFn = function() { r2.value = 0.7; };
+    test:assertError(trap updateFn());
+}
+
+type IntSingletonRecord record {|
+    1|2 value;
+|};
+
+function testFieldAccessOnIntSingleton() {
+    record {|1|2 value;|} r = {value: 1};
+    record {int value;} r2 = r;
+    var updateFn = function() { r2.value = 7; };
+    test:assertError(trap updateFn());
 }
