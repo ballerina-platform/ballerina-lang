@@ -56,7 +56,7 @@ public class WDChannels {
         return channel;
     }
 
-    public Object takeMultipleChannelData(Strand strand, ReceiveField[] receiveFields, Type targetType)
+    public Object receiveDataMultipleChannels(Strand strand, ReceiveField[] receiveFields, Type targetType)
             throws Throwable {
         if (strand.mapResult == null) {
             strand.mapResult = ValueCreator.createMapValue(targetType);
@@ -65,24 +65,31 @@ public class WDChannels {
             WorkerDataChannel channel = getWorkerDataChannel(field.getChannelName());
             if (!channel.isClosed()) {
                 Object result = channel.tryTakeData(strand, true);
-                if (result != null) {
-                    if (result instanceof ErrorValue errorValue) {
-                        errors.add(errorValue);
-                        channel.close();
-                    } else {
-                        strand.mapResult.populateInitialValue(StringUtils.fromString(field.getFieldName()), result);
-                        channel.close();
-                    }
-                    ++strand.channelCount;
-                } else {
-                    strand.setState(BLOCK_AND_YIELD);
-                }
+                checkAndPopulateResult(strand, field, result, channel);
             } else {
                 if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
                     errors.add((ErrorValue) ErrorUtils.createNoMessageError(field.getChannelName()));
                 }
             }
         }
+        return clearResultCache(strand, receiveFields);
+    }
+
+    private void checkAndPopulateResult(Strand strand, ReceiveField field, Object result, WorkerDataChannel channel) {
+        if (result != null) {
+            if (result instanceof ErrorValue errorValue) {
+                errors.add(errorValue);
+            } else {
+                strand.mapResult.populateInitialValue(StringUtils.fromString(field.getFieldName()), result);
+            }
+            channel.close();
+            ++strand.channelCount;
+        } else {
+            strand.setState(BLOCK_AND_YIELD);
+        }
+    }
+
+    private Object clearResultCache(Strand strand, ReceiveField[] receiveFields) {
         if (strand.channelCount == receiveFields.length) {
             BMap<BString, Object> map = strand.mapResult;
             strand.mapResult = null;
@@ -92,7 +99,7 @@ public class WDChannels {
         return null;
     }
 
-    public Object tryTakeData(Strand strand, String[] channels) throws Throwable {
+    public Object receiveDataAlternateChannels(Strand strand, String[] channels) throws Throwable {
         Object result = null;
         boolean allChannelsClosed = true;
         for (String channelName : channels) {

@@ -1234,7 +1234,7 @@ public class JvmTerminatorGen {
         this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "wdChannels", GET_WD_CHANNELS);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitVarInsn(ALOAD, channelIndex);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "tryTakeData", ALT_RECEIVE_CALL, false);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "receiveDataAlternateChannels", ALT_RECEIVE_CALL, false);
 
         generateReceiveResultStore(ins.lhsOp);
     }
@@ -1274,7 +1274,8 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitVarInsn(ALOAD, channelIndex);
         jvmTypeGen.loadType(this.mv, ins.targetType);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "takeMultipleChannelData", MULTIPLE_RECEIVE_CALL, false);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "receiveDataMultipleChannels",
+                MULTIPLE_RECEIVE_CALL, false);
         generateReceiveResultStore(ins.lhsOp);
     }
 
