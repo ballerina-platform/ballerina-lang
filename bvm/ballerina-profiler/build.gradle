@@ -24,12 +24,14 @@ dependencies {
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "commons-io:commons-io:${project.commonsIoVersion}"
     implementation project(':identifier-util')
+    implementation project(':ballerina-runtime')
 }
 
 version = 1.0
 
 jar {
     dependsOn(':identifier-util:jar')
+    dependsOn(':ballerina-runtime:jar')
     from(sourceSets.main.output)
     from(sourceSets.main.java) {
         include "**/*.java"
@@ -43,11 +45,6 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes 'Implementation-Title': 'Foobar',
-                'Implementation-Version': '',
-                'Built-By': System.getProperty('user.name'),
-                'Built-Date': new Date(),
-                'Built-JDK': System.getProperty('java.version'),
-                'Main-Class': 'io.ballerina.runtime.profiler.Main'
+        attributes 'Main-Class': 'io.ballerina.runtime.profiler.Main'
     }
 }

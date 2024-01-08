@@ -31,25 +31,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.ballerina.runtime.profiler.util.Constants.CPU_PRE_JSON;
+import static io.ballerina.runtime.profiler.util.Constants.CURRENT_DIR_KEY;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
+import static io.ballerina.runtime.profiler.util.Constants.PERFORMANCE_JSON;
 
 /**
  * This class is used to as the driver class of the Ballerina profiler.
@@ -59,11 +58,8 @@ import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 public class Profiler {
 
     private final long profilerStartTime;
-    private String skipFunctionString = null;
     private String balJarArgs = null;
     private String balJarName = null;
-    private String targetDir = null;
-    private String sourceRoot = null;
     private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
@@ -72,10 +68,12 @@ public class Profiler {
     private int balFunctionCount = 0;
     private int moduleCount = 0;
     private final ProfilerMethodWrapper profilerMethodWrapper;
+    private final String currentDir;
 
     public Profiler(long profilerStartTime) {
         this.profilerStartTime = profilerStartTime;
         this.profilerMethodWrapper = new ProfilerMethodWrapper();
+        this.currentDir = System.getenv(CURRENT_DIR_KEY);
     }
 
     private void addShutdownHookAndCleanup() {
@@ -84,22 +82,19 @@ public class Profiler {
             try {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) -
                         profilerStartTime;
-                deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
+                Files.deleteIfExists(Paths.get(Constants.TEMP_JAR_FILE_NAME));
                 OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 JsonParser jsonParser = new JsonParser();
                 HttpServer httpServer = new HttpServer();
-                jsonParser.initializeCPUParser(skipFunctionString);
-                deleteFileIfExists("usedPathsList.txt");
-                deleteFileIfExists(CPU_PRE_JSON);
-                OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
-                deleteTempData();
-                httpServer.initializeHTMLExport(this.sourceRoot);
-                deleteFileIfExists("performance_report.json");
+                String cpuFilePath = Paths.get(currentDir, CPU_PRE_JSON).toString();
+                jsonParser.initializeCPUParser(cpuFilePath);
+                deleteFileIfExists(cpuFilePath);
+                OUT_STREAM.printf("      Execution time: %d seconds %n", profilerTotalTime / 1000);
+                httpServer.initializeHTMLExport();
+                deleteFileIfExists(PERFORMANCE_JSON);
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);
-            } finally {
-                deleteFileIfExists(targetDir);
             }
         }));
     }
@@ -113,18 +108,6 @@ public class Profiler {
             Files.delete(Paths.get(filePath));
         } catch (IOException e) {
             throw new ProfilerException("Failed to delete file: " + filePath + "%n", e);
-        }
-    }
-
-    private void deleteTempData() {
-        String filePrefix = "jartmp";
-        File[] files = new File(System.getProperty("user.dir")).listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.getName().startsWith(filePrefix)) {
-                    FileUtils.deleteQuietly(file);
-                }
-            }
         }
     }
 
@@ -154,19 +137,7 @@ public class Profiler {
                     this.balJarArgs = extractBalJarArgs(args[i + 1]);
                     addToUsedArgs(args, usedArgs, i);
                 }
-                case "--skip" -> {
-                    this.skipFunctionString = extractSkipFunctionString(args[i + 1]);
-                    addToUsedArgs(args, usedArgs, i);
-                }
-                case "--target" -> {
-                    this.targetDir = args[i + 1];
-                    addToUsedArgs(args, usedArgs, i);
-                }
-                case "--sourceroot" -> {
-                    this.sourceRoot = args[i + 1];
-                    addToUsedArgs(args, usedArgs, i);
-                }
-                case "--profilerDebug" -> {
+                case "--profiler-debug" -> {
                     this.profilerDebugArg = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
                 }
@@ -189,13 +160,6 @@ public class Profiler {
         return value.substring(1, value.length() - 1);
     }
 
-    private String extractSkipFunctionString(String value) {
-        if (value == null || !value.matches("\\[.*\\]")) {
-            throw new ProfilerException("Invalid skip functions found: " + value);
-        }
-        return value.substring(1, value.length() - 1);
-    }
-
     private void handleUnrecognizedArgument(String argument, List<String> usedArgs) {
         if (!usedArgs.contains(argument)) {
             throw new ProfilerException("Unrecognized argument found: " + argument);
@@ -210,7 +174,8 @@ public class Profiler {
     private void extractProfiler() throws ProfilerException {
         OUT_STREAM.printf("%s[1/6] Initializing...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try {
-            new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime").start().waitFor();
+            Path profilerRuntimePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            new ProcessBuilder("jar", "xvf", "Profiler.jar", profilerRuntimePath.toString()).start().waitFor();
         } catch (IOException | InterruptedException exception) {
             throw new ProfilerException(exception);
         }
@@ -242,16 +207,15 @@ public class Profiler {
                     new File(balJarName).toURI().toURL()}));
             ProfilerClassLoader profilerClassLoader = new ProfilerClassLoader(new URLClassLoader(new URL[]{
                     new File(balJarName).toURI().toURL()}));
-            Set<String> usedPaths = new HashSet<>();
             for (String className : classNames) {
-                if (mainClassPackage == null) {
+                if (mainClassPackage == null || className.contains("$gen$")) {
                     continue;
                 }
                 if (className.startsWith(mainClassPackage.split("/")[0]) || utilPaths.contains(className)) {
                     try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
-                        byte[] code = profilerMethodWrapper.modifyMethods(inputStream);
+                        String sourceClassName = className.replace(Constants.CLASS_SUFFIX, "");
+                        byte[] code = profilerMethodWrapper.modifyMethods(inputStream, sourceClassName);
                         profilerClassLoader.loadClass(code);
-                        usedPaths.add(className.replace(Constants.CLASS_SUFFIX, "").replace("/", "."));
                         profilerMethodWrapper.printCode(className, code, getFileNameWithoutExtension(balJarName));
                     }
                 }
@@ -259,11 +223,8 @@ public class Profiler {
                     moduleCount++;
                 }
             }
-            OUT_STREAM.printf(" ○ Instrumented module count: %d%n", moduleCount);
-            try (PrintWriter printWriter = new PrintWriter("usedPathsList.txt", StandardCharsets.UTF_8)) {
-                printWriter.println(String.join(", ", usedPaths));
-            }
-            OUT_STREAM.printf(" ○ Instrumented function count: %d%n", balFunctionCount);
+            OUT_STREAM.printf("      Instrumented module count: %d%n", moduleCount);
+            OUT_STREAM.printf("      Instrumented function count: %d%n", balFunctionCount);
             modifyJar();
         } catch (Throwable throwable) {
             throw new ProfilerException(throwable);
@@ -281,7 +242,8 @@ public class Profiler {
             for (String instrumentedFilePath : instrumentedPaths) {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
-            FileUtils.deleteDirectory(new File("io/ballerina/runtime/profiler/runtime"));
+            Path filePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            FileUtils.deleteDirectory(new File(filePath.toString()));
             profilerMethodWrapper.invokeMethods(profilerDebugArg);
         }
     }
@@ -315,12 +277,12 @@ public class Profiler {
     }
 
     private void updateInstrumentedFile(File fileEntry, String absolutePath) {
-        String fileEntryString = String.valueOf(fileEntry);
+        String fileEntryString = fileEntry.getPath();
         if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
-            fileEntryString = fileEntryString.replaceAll(absolutePath, "");
-            int index = fileEntryString.lastIndexOf('/');
+            fileEntryString = fileEntryString.replaceAll(Pattern.quote(absolutePath), "");
+            int index = fileEntryString.lastIndexOf(File.separatorChar);
             fileEntryString = index == -1 ? "" : fileEntryString.substring(0, index);
-            String[] fileEntryParts = fileEntryString.split("/");
+            String[] fileEntryParts = fileEntryString.split(Pattern.quote(File.separator));
             instrumentedPaths.add(fileEntryParts[0]);
             instrumentedFiles.add(fileEntryString);
         }

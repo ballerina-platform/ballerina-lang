@@ -19,6 +19,8 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collections;
@@ -35,6 +37,7 @@ public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final CompilerPluginDescriptor compilerPluginDesc;
     private final Map<String, Platform> platforms;
+    private final List<Tool> tools;
     private final List<Dependency> dependencies;
     private final DiagnosticResult diagnostics;
     private final List<String> license;
@@ -73,6 +76,32 @@ public class PackageManifest {
         this.ballerinaVersion = "";
         this.visibility = "";
         this.icon = "";
+        this.tools = Collections.emptyList();
+    }
+
+    private PackageManifest(PackageDescriptor packageDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
+                            Map<String, Platform> platforms,
+                            List<Dependency> dependencies,
+                            Map<String, Object> otherEntries,
+                            List<Tool> tools,
+                            DiagnosticResult diagnostics) {
+        this.packageDesc = packageDesc;
+        this.compilerPluginDesc = compilerPluginDesc;
+        this.platforms = Collections.unmodifiableMap(platforms);
+        this.dependencies = Collections.unmodifiableList(dependencies);
+        this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = Collections.emptyList();
+        this.authors = Collections.emptyList();
+        this.keywords = Collections.emptyList();
+        this.exportedModules = Collections.emptyList();
+        this.includes = Collections.emptyList();
+        this.repository = "";
+        this.ballerinaVersion = "";
+        this.visibility = "";
+        this.icon = "";
+        this.tools = Collections.unmodifiableList(tools);
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -107,11 +136,48 @@ public class PackageManifest {
         this.visibility = visibility;
         this.template = template;
         this.icon = icon;
+        this.tools = Collections.emptyList();
     }
 
+    private PackageManifest(PackageDescriptor packageDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
+                            Map<String, Platform> platforms,
+                            List<Dependency> dependencies,
+                            Map<String, Object> otherEntries,
+                            DiagnosticResult diagnostics,
+                            List<String> license,
+                            List<String> authors,
+                            List<String> keywords,
+                            List<String> exportedModules,
+                            List<String> includes,
+                            String repository,
+                            String ballerinaVersion,
+                            String visibility,
+                            boolean template,
+                            String icon,
+                            List<Tool> tools) {
+        this.packageDesc = packageDesc;
+        this.compilerPluginDesc = compilerPluginDesc;
+        this.platforms = Collections.unmodifiableMap(platforms);
+        this.dependencies = Collections.unmodifiableList(dependencies);
+        this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = license;
+        this.authors = authors;
+        this.keywords = keywords;
+        this.exportedModules = getExport(packageDesc, exportedModules);
+        this.includes = includes;
+        this.repository = repository;
+        this.ballerinaVersion = ballerinaVersion;
+        this.visibility = visibility;
+        this.template = template;
+        this.icon = icon;
+        this.tools = tools;
+    }
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
-                                   Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
+                                   Collections.emptyMap(), Collections.emptyList(),
+                                    new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -119,7 +185,7 @@ public class PackageManifest {
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
-                new DefaultDiagnosticResult(Collections.emptyList()));
+                                    Collections.emptyList(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -137,9 +203,11 @@ public class PackageManifest {
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template,
-                                       String icon) {
+                                       String icon,
+                                       List<Tool> tools) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, include, repository, ballerinaVersion, visibility, template, icon);
+                license, authors, keywords, export, include, repository, ballerinaVersion, visibility,
+                template, icon, tools);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -187,6 +255,10 @@ public class PackageManifest {
     public Map<String, Platform> platforms() {
         return platforms;
     }
+    public List<Tool> tools() {
+        return tools;
+    }
+
 
     // TODO Do we need to custom key/value par mapping here
     public Object getValue(String key) {
@@ -341,6 +413,52 @@ public class PackageManifest {
         public Optional<Location> location() {
             return Optional.ofNullable(location);
         }
+    }
+
+    public static class Tool {
+        private final String id;
+        private final TomlTableNode optionsTable;
+
+        public String getId() {
+            return id;
+        }
+
+        public String getFilePath() {
+            return this.filePath;
+        }
+
+        public String getTargetModule() {
+            return this.targetModule;
+        }
+
+        public TomlTableNode getOptionsTable() {
+            return this.optionsTable;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        private final String filePath;
+        private final String targetModule;
+        private final String type;
+
+        public Toml getOptionsToml() {
+            return optionsToml;
+        }
+
+        private final Toml optionsToml;
+
+        public Tool(String type, String id, String filePath, String targetModule, Toml optionsToml,
+                    TomlTableNode optionsTable) {
+            this.type = type;
+            this.id = id;
+            this.filePath = filePath;
+            this.targetModule = targetModule;
+            this.optionsTable = optionsTable;
+            this.optionsToml = optionsToml;
+        }
+
     }
 
     private List<String> getExport(PackageDescriptor packageDesc, List<String> export) {

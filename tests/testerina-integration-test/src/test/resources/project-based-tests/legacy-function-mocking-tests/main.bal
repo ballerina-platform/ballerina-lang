@@ -13,7 +13,13 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import function_mocking_legacy.moduleB;
 
 function intAdd(int a, int b) returns int {
     return a + b;
+}
+
+public function intMul3Num(int a, int b, int c) returns int {
+    int result = moduleB:intMul(a, b);
+    return moduleB:intMul(result, c);
 }

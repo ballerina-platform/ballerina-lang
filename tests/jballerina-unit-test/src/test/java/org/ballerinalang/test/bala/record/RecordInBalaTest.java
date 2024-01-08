@@ -55,6 +55,9 @@ public class RecordInBalaTest {
                 "Interceptor & readonly)', found 'PersonInterceptor'", 26, 40);
         BAssertUtil.validateError(result, count++, "incompatible types: expected 'testorg/foo.records:1.0.0:Foo'" +
                 ", found '[Bar]'", 26, 71);
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'x'", 30, 33);
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'x'", 34, 33);
+        BAssertUtil.validateError(result, count++, "missing non-defaultable required record field 'y'", 34, 33);
         Assert.assertEquals(result.getErrorCount(), count);
     }
 
