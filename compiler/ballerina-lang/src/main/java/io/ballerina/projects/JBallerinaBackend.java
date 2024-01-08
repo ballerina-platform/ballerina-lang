@@ -217,25 +217,22 @@ public class JBallerinaBackend extends CompilerBackend {
             if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
                 moduleContext.cleanBLangPackage();
             }
+            if (shrink) {
+                ModuleContext.shrinkDocuments(moduleContext);
+            }
         }
 
         long startTime = System.currentTimeMillis();
 
         UsedBIRNodeAnalyzer deadBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(compilerContext);
+
+        // TODO Refactor the logic here
         for (int i = pkgResolution.topologicallySortedModuleList().size() - 1; i >= 0; i--) {
             ModuleContext moduleContext = pkgResolution.topologicallySortedModuleList().get(i);
             // Default module is analyzed first to find its immediate dependencies
             if (pkgResolution.packageContext().defaultModuleContext().moduleId() == moduleContext.moduleId()) {
                 deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
-
-                if (pkgWiseUsedNativeClassPaths.containsKey(moduleContext.moduleId().packageId())) {
-                    pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
-                            .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
-                } else {
-                    pkgWiseUsedNativeClassPaths.put(moduleContext.moduleId().packageId(),
-                            moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
-                }
-
+                updateNativeDependencyMap(moduleContext);
                 continue;
             }
             // Omitting the LangLibs and other modules that does not have BIRPkgNodes
@@ -246,13 +243,7 @@ public class JBallerinaBackend extends CompilerBackend {
             // Only analyzing used modules
             if (moduleContext.bLangPackage().symbol.invocationData2.moduleIsUsed) {
                 deadBIRNodeAnalyzer.analyze(moduleContext.bLangPackage());
-                if (pkgWiseUsedNativeClassPaths.containsKey(moduleContext.moduleId().packageId())) {
-                    pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
-                            .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
-                } else {
-                    pkgWiseUsedNativeClassPaths.put(moduleContext.moduleId().packageId(),
-                            moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
-                }
+                updateNativeDependencyMap(moduleContext);
             }
         }
 
@@ -271,6 +262,11 @@ public class JBallerinaBackend extends CompilerBackend {
                 }
                 performOptimizedCodeGen(moduleContext);
             }
+
+            // Moved the cleaning down because codegen was also moved down
+            if (moduleContext.project().kind() == ProjectKind.BALA_PROJECT) {
+                moduleContext.cleanBLangPackage();
+            }
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -283,6 +279,15 @@ public class JBallerinaBackend extends CompilerBackend {
         codeGenCompleted = true;
     }
 
+    private void updateNativeDependencyMap(ModuleContext moduleContext) {
+        if (pkgWiseUsedNativeClassPaths.containsKey(moduleContext.moduleId().packageId())) {
+            pkgWiseUsedNativeClassPaths.get(moduleContext.moduleId().packageId())
+                    .addAll(moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
+        } else {
+            pkgWiseUsedNativeClassPaths.put(moduleContext.moduleId().packageId(),
+                    moduleContext.bLangPackage().symbol.invocationData2.usedNativeClassPaths);
+        }
+    }
     private boolean hasErrors(List<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
@@ -555,7 +560,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // FP optimization for functions with default params
         birPackage.globalVars.removeIf(gVar -> gVar.usedState == UsedState.UNUSED);
-        invocationData.fpDataPool.forEach(UsedBIRNodeAnalyzer.FunctionPointerData::deleteIfUnused);
+        invocationData.getFpDataPool().forEach(UsedBIRNodeAnalyzer.FunctionPointerData::deleteIfUnused);
 
         // TODO Attached function optimization with polymorphism handling
     }
