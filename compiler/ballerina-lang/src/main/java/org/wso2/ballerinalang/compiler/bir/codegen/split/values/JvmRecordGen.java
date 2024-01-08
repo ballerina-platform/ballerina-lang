@@ -86,12 +86,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOOLEAN_RECORD_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_PUT_BOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COLLECTION_OP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CONTAINS_KEY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DOUBLE_RECORD_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_PUT_FLOAT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FROM_STRING;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_RECORD_PUT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_PUT_INT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LINKED_HASH_SET_OP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_VALUES;
@@ -949,21 +949,20 @@ public class JvmRecordGen {
     }
 
     void createIntPutMethod(ClassWriter cw, Map<String, BField> fields, String className, JvmCastGen jvmCastGen) {
-        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.INT, intType, "put", INT_RECORD_PUT,
-                "(TK;J)TV;");
+        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.INT, intType, "putInt", RECORD_PUT_INT,
+                "(TK;J)V");
     }
 
     void createBooleanPutMethod(ClassWriter cw, Map<String, BField> fields, String className, JvmCastGen jvmCastGen) {
-        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, booleanType, "put",
-                BOOLEAN_RECORD_PUT, "(TK;Z)TV;");
+        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.BOOLEAN, booleanType, "putBoolean",
+                RECORD_PUT_BOOLEAN, "(TK;Z)V");
     }
 
     void createFloatPutMethod(ClassWriter cw, Map<String, BField> fields, String className, JvmCastGen jvmCastGen) {
-        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, floatType, "put",
-                DOUBLE_RECORD_PUT, "(TK;D)TV;");
+        createBasicTypePutMethod(cw, fields, className, jvmCastGen, TypeKind.FLOAT, floatType, "putFloat",
+                RECORD_PUT_FLOAT, "(TK;D)V");
     }
 
-    // TODO: handle unboxed values
     private void createBasicTypePutMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                           JvmCastGen jvmCastGen, TypeKind basicType, BType boxedType, String methodName,
                                           String methodDesc, String signature) {
@@ -1000,7 +999,8 @@ public class JvmRecordGen {
         mv.visitVarInsn(loadIns, valueReg);
         jvmCastGen.addBoxInsn(mv, boxedType);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "put", MAP_PUT, false);
-        mv.visitInsn(ARETURN);
+        mv.visitInsn(POP);
+        mv.visitInsn(RETURN);
         mv.visitLabel(notReadonly);
         castToJavaString(mv, fieldNameBStringReg, fieldNameStringReg);
         Label defaultCaseLabel = new Label();
@@ -1017,31 +1017,24 @@ public class JvmRecordGen {
             String fieldName = field.name.value;
 
             mv.visitVarInsn(ALOAD, selfRegister);
-
-            // return value
-            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(fieldType));
-            jvmCastGen.addBoxInsn(mv, fieldType);
-
-            mv.visitVarInsn(ALOAD, selfRegister);
             mv.visitVarInsn(loadIns, valueReg);
             mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(fieldType));
 
-            mv.visitInsn(ARETURN);
+            mv.visitInsn(RETURN);
         }
 
         // This could happen when we access the rest field, having more than 500 fields or optional field,
         // in which case we will simply call the default putValue method
         mv.visitLabel(defaultCaseLabel);
-        // pr:
-        // mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitVarInsn(ALOAD, fieldNameStringReg);
         mv.visitVarInsn(ALOAD, fieldNameBStringReg);
         mv.visitVarInsn(loadIns, valueReg);
         jvmCastGen.addBoxInsn(mv, boxedType);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "putValue", RECORD_PUT, false);
-        mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMaxStackForMethod(mv, "put", className);
+        mv.visitInsn(POP);
+        mv.visitInsn(RETURN);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, className);
         mv.visitEnd();
     }
 

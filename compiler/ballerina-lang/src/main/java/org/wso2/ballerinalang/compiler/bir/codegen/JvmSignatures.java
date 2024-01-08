@@ -393,9 +393,9 @@ public class JvmSignatures {
     public static final String PASS_B_STRING_RETURN_DOUBLE = "(L" + B_STRING_VALUE + ";)L" + DOUBLE_VALUE + ";";
     public static final String PASS_B_STRING_RETURN_UNBOXED_DOUBLE = "(L" + B_STRING_VALUE + ";)D";
     public static final String PASS_B_STRING_RETURN_BSTRING = "(L" + B_STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
-    public static final String INT_RECORD_PUT = "(L" + OBJECT + ";J)L" + OBJECT + ";";
-    public static final String BOOLEAN_RECORD_PUT = "(L" + OBJECT + ";Z)L" + OBJECT + ";";
-    public static final String DOUBLE_RECORD_PUT = "(L" + OBJECT + ";D)L" + OBJECT + ";";
+    public static final String RECORD_PUT_INT = "(L" + OBJECT + ";J)V";
+    public static final String RECORD_PUT_BOOLEAN = "(L" + OBJECT + ";Z)V";
+    public static final String RECORD_PUT_FLOAT = "(L" + OBJECT + ";D)V";
     public static final String PASS_B_STRING_RETURN_BOOLEAN = "(L" + B_STRING_VALUE + ";)L" + BOOLEAN_VALUE + ";";
     public static final String PASS_B_STRING_RETURN_UNBOXED_BOOLEAN = "(L" + B_STRING_VALUE + ";)Z";
     public static final String PASS_OBJECT_RETURN_OBJECT = "(L" + OBJECT + ";)L" + OBJECT + ";";

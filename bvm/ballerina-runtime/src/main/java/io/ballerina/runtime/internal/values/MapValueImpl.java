@@ -587,18 +587,18 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public V put(K key, long value) {
-        return put(key, (V) Long.valueOf(value));
+    public void putInt(K key, long value) {
+        put(key, (V) Long.valueOf(value));
     }
 
     @Override
-    public V put(K key, double value) {
-        return put(key, (V) Double.valueOf(value));
+    public void putFloat(K key, double value) {
+        put(key, (V) Double.valueOf(value));
     }
 
     @Override
-    public V put(K key, boolean value) {
-        return put(key, (V) Boolean.valueOf(value));
+    public void putBoolean(K key, boolean value) {
+        put(key, (V) Boolean.valueOf(value));
     }
 
     @Override

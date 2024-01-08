@@ -52,11 +52,11 @@ import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixe
  */
 public class MapUtils {
 
-    // FIXME: may be shouldn't overload this instead use named functions
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
 
+    // We are monomorphizing handleMapStore and updateMapValue to avoid boxing when storing basic type values in records
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, long value) {
         updateMapValue(TypeUtils.getImpliedType(mapValue.getType()), mapValue, fieldName, value);
     }
@@ -207,7 +207,7 @@ public class MapUtils {
             throw new IllegalArgumentException("Unboxed store is only supported for records");
         }
         if (handleInherentTypeViolatingRecordUpdateSimple(mapValue, fieldName, TYPE_INT, (BRecordType) mapType)) {
-            mapValue.put(fieldName, value);
+            mapValue.putInt(fieldName, value);
             return;
         }
         mapValue.remove(fieldName);
@@ -219,7 +219,7 @@ public class MapUtils {
             throw new IllegalArgumentException("Unboxed store is only supported for records");
         }
         if (handleInherentTypeViolatingRecordUpdateSimple(mapValue, fieldName, TYPE_BOOLEAN, (BRecordType) mapType)) {
-            mapValue.put(fieldName, value);
+            mapValue.putBoolean(fieldName, value);
             return;
         }
         mapValue.remove(fieldName);
@@ -231,7 +231,7 @@ public class MapUtils {
             throw new IllegalArgumentException("Unboxed store is only supported for records");
         }
         if (handleInherentTypeViolatingRecordUpdateSimple(mapValue, fieldName, TYPE_FLOAT, (BRecordType) mapType)) {
-            mapValue.put(fieldName, value);
+            mapValue.putFloat(fieldName, value);
             return;
         }
         mapValue.remove(fieldName);
