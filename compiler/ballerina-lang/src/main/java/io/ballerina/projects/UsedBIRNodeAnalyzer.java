@@ -33,7 +33,9 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +51,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
     private static final HashMap<String, HashSet<String>> INTEROP_DEPENDENCIES = new HashMap<>();
     private static final HashSet<InstructionKind> ANALYZED_INSTRUCTION_KINDS =
             new HashSet<>(Arrays.asList(InstructionKind.NEW_TYPEDESC, InstructionKind.NEW_INSTANCE,
-                    InstructionKind.TYPE_CAST, InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST));
+                    InstructionKind.TYPE_CAST, InstructionKind.FP_LOAD, InstructionKind.TYPE_TEST,
+                    InstructionKind.RECORD_DEFAULT_FP_LOAD));
     private static final String EXTERNAL_METHOD_ANNOTATION_TAG = "Method";
     public PackageCache pkgCache;
     public UsedTypeDefAnalyzer usedTypeDefAnalyzer;
@@ -168,7 +171,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             rhsOperands.forEach(birOperand -> rhsVars.add(birOperand.variableDcl));
             rhsVars.retainAll(localFpHolders);
 
-            if (!rhsVars.isEmpty()) {
+            if (!rhsVars.isEmpty() && instruction.kind != InstructionKind.RECORD_DEFAULT_FP_LOAD) {
                 rhsVars.forEach(var -> {
                     FunctionPointerData fpData = currentInvocationData.getFPData(var);
                     visitNode(fpData.lambdaFunction);
@@ -196,31 +199,49 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
 
     @Override
     public void visit(BIRTerminator.Call call) {
+        // If function pointers are passed as parameters, they will be bound to the parent function
+        HashSet<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
+        call.args.forEach(birOperand -> argVars.add(birOperand.variableDcl));
+        argVars.retainAll(localFpHolders);
+        if (!argVars.isEmpty()) {
+            argVars.forEach(var -> {
+                currentParentFunction.childNodes.add(var);
+                var.parentNodes.add(currentParentFunction);
+                var.childNodes.forEach(this::visitNode);    // Function pointed by the FP
+            });
+        }
+
         BIRNode.BIRDocumentableNode childNode = lookupBirFunction(call);
         if (childNode == null) {
             return;
         }
         // Invoked function will also be visited
         addDependentFunctionAndVisit(currentParentFunction, childNode, call.calleePkg);
-
-        // If function pointers are passed as parameters, they will be bound to the parent function
-        HashSet<BIRNode.BIRVariableDcl> argVars = new HashSet<>();
-        call.args.forEach(birOperand -> argVars.add(birOperand.variableDcl));
-        argVars.retainAll(localFpHolders);
-
-        if (!argVars.isEmpty()) {
-            argVars.forEach(var -> {
-                currentParentFunction.addChildNode(var);
-                var.childNodes.forEach(func -> currentInvocationData.addToUsedPool(func));
-            });
-        }
     }
 
     @Override
     public void visit(BIRNonTerminator.FPLoad fpLoadInstruction) {
         FunctionPointerData fpData =
                 new FunctionPointerData(fpLoadInstruction, currentInstructionArr, currentInvocationData);
-        pkgCache.getInvocationData2(fpLoadInstruction.pkgId).fpDataPool.add(fpData);
+
+        pkgCache.getInvocationData2(fpLoadInstruction.pkgId).varDeclWiseFPDataPool.put(
+                fpLoadInstruction.lhsOp.variableDcl, fpData);
+
+    }
+
+    /*
+     recordDefaultFPLoad instructions can be "USED" without any reference to the "lhsOp".
+     Make sure to check weather the enclosed type is used before deleting the instructions.
+     */
+    @Override
+    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+        currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl).recordDefaultFPLoad =
+                recordDefaultFPLoad;
+
+        currentInvocationData.recordDefTypeWiseFPDataPool.putIfAbsent(recordDefaultFPLoad.enclosedType,
+                new HashSet<>());
+        currentInvocationData.recordDefTypeWiseFPDataPool.get(recordDefaultFPLoad.enclosedType)
+                .add(currentInvocationData.getFPData(recordDefaultFPLoad.lhsOp.variableDcl));
     }
 
     @Override
@@ -295,8 +316,7 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
             return;
         }
 
-        UsedBIRNodeAnalyzer.InvocationData childInvocationData =
-                pkgCache.getInvocationData2(childPkgId);
+        UsedBIRNodeAnalyzer.InvocationData childInvocationData = pkgCache.getInvocationData2(childPkgId);
 
         // Handling langLibs for now
         if (childInvocationData == null) {
@@ -316,8 +336,9 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         public final HashSet<BIRNode.BIRFunction> usedFunctions = new HashSet<>();
         public final HashMap<BType, BIRNode.BIRTypeDefinition> typeDefPool = new HashMap<>();
         public final HashSet<BIRNode.BIRTypeDefinition> usedTypeDefs = new HashSet<>();
-        public final HashSet<FunctionPointerData> fpDataPool = new HashSet<>();
-        public final HashSet<BIRNode.BIRDocumentableNode> startPointNodes = new HashSet<>();
+        private final HashMap<BIRNode.BIRVariableDcl, FunctionPointerData> varDeclWiseFPDataPool = new HashMap<>();
+        private final HashMap<BType, HashSet<FunctionPointerData>> recordDefTypeWiseFPDataPool = new HashMap<>();
+        public final ArrayList<BIRNode.BIRDocumentableNode> startPointNodes = new ArrayList<>();
         public final HashSet<PackageID> childPackages = new HashSet<>();
         public HashSet<String> interopDependencies = new HashSet<>();
         public HashSet<String> usedNativeClassPaths = new HashSet<>();
@@ -377,12 +398,15 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         }
 
         public FunctionPointerData getFPData(BIRNode.BIRVariableDcl variableDcl) {
-            for (FunctionPointerData fpData : this.fpDataPool) {
-                if (fpData.lambdaPointerVar == variableDcl) {
-                    return fpData;
-                }
-            }
-            return null;
+            return this.varDeclWiseFPDataPool.get(variableDcl);
+        }
+
+        public HashSet<FunctionPointerData> getFpData(BType bType) {
+            return this.recordDefTypeWiseFPDataPool.get(bType);
+        }
+
+        public Collection<FunctionPointerData> getFpDataPool() {
+            return this.varDeclWiseFPDataPool.values();
         }
     }
 
@@ -395,6 +419,8 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         // Can be deleted from the instruction array of either the parent function or init<> function
         public BIRNonTerminator.FPLoad fpLoadInstruction;
         public List<BIRNonTerminator> instructionArray;
+        // Holds a recordDefaultFPLoad instruction if the respective fpLoadInstruction has one
+        public BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad;
 
         public FunctionPointerData(BIRNonTerminator.FPLoad fpLoadInstruction,
                                    List<BIRNonTerminator> instructionArray,
@@ -420,8 +446,13 @@ public class UsedBIRNodeAnalyzer extends BIRVisitor {
         // If the FP_LOAD instruction is not removed its references will be used for CodeGen.
         // We need to prevent this from happening to fully clean the UNUSED functions.
         public void deleteIfUnused() {
+            // if the parent record is used, instructions should not be deleted
+            if (recordDefaultFPLoad != null && recordDefaultFPLoad.enclosedType.isUsed) {
+                return;
+            }
             if (lambdaPointerVar.usedState == UsedState.UNUSED) {
                 instructionArray.remove(fpLoadInstruction);
+                instructionArray.remove(recordDefaultFPLoad);
             }
         }
     }

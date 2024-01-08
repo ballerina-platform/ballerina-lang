@@ -16,12 +16,12 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
     private final HashMap<BType, BIRNode.BIRTypeDefinition> typeDefPool = new HashMap<>();
     public final HashSet<BType> visitedTypes = new HashSet<>();
     public PackageCache pkgCache;
-    public UsedBIRNodeAnalyzer deadBIRNodeAnalyzer;
+    public UsedBIRNodeAnalyzer usedBIRNodeAnalyzer;
 
     private UsedTypeDefAnalyzer(CompilerContext context) {
         context.put(BIR_TYPE_DEF_ANALYZER_KEY, this);
         this.pkgCache = PackageCache.getInstance(context);
-        this.deadBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(context);
+        this.usedBIRNodeAnalyzer = UsedBIRNodeAnalyzer.getInstance(context);
     }
 
     public static UsedTypeDefAnalyzer getInstance(CompilerContext context) {
@@ -52,14 +52,13 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
 
     @Override
     public void analyzeType(BType bType, UsedTypeDefAnalyzer.AnalyzerData data) {
-//        BIRNode.BIRDocumentableNode prevParentNode = data.currentParentNode;
-//        boolean prevShouldAnalyzeChildren = data.shouldAnalyzeChildren;
-//        addDependency(bType, data);
-//        if (data.shouldAnalyzeChildren) {
-//            visitType(bType, data);
-//        }
-//        data.currentParentNode = prevParentNode;
-//        data.shouldAnalyzeChildren = prevShouldAnalyzeChildren;
+        HashSet<UsedBIRNodeAnalyzer.FunctionPointerData> fpDataSet = usedBIRNodeAnalyzer.currentInvocationData.getFpData(bType);
+        if (fpDataSet != null) {
+            fpDataSet.forEach(fpData -> {
+                fpData.lambdaPointerVar.usedState = UsedState.USED;
+                fpData.lambdaFunction.accept(usedBIRNodeAnalyzer);
+            });
+        }
     }
 
     public void populateTypeDefPool(BIRNode.BIRPackage birPackage, HashSet<String> interopDependencies) {
@@ -116,14 +115,14 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
             childNode.parentNodes.add(data.currentParentNode);
         }
 
-        if (!childNode.isInSamePkg(deadBIRNodeAnalyzer.currentPkgID)) {
+        if (!childNode.isInSamePkg(usedBIRNodeAnalyzer.currentPkgID)) {
             pkgCache.getInvocationData2(childNode.getPackageID()).startPointNodes.add(childNode);
             visitedTypes.remove(bType);
             data.shouldAnalyzeChildren = false;
             return;
         }
 
-        deadBIRNodeAnalyzer.currentInvocationData.addToUsedPool(childNode);
+        usedBIRNodeAnalyzer.currentInvocationData.addToUsedPool(childNode);
         data.currentParentNode = childNode;
         childNode.usedState = UsedState.USED;   // TODO Remove this and find a better way
 
@@ -131,7 +130,7 @@ public class UsedTypeDefAnalyzer extends SimpleBTypeAnalyzer<UsedTypeDefAnalyzer
         childNode.attachedFuncs.forEach(attachedFunc -> {
             childNode.childNodes.add(attachedFunc);
             attachedFunc.parentNodes.add(childNode);
-            attachedFunc.accept(deadBIRNodeAnalyzer);
+            attachedFunc.accept(usedBIRNodeAnalyzer);
         });
     }
 
