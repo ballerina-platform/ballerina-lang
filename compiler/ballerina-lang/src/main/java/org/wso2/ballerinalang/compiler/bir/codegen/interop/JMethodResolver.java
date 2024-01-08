@@ -193,7 +193,7 @@ class JMethodResolver {
             return false;
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
-        if (count == reducedParamCount && paramTypes.length > 1 && isParamAssignableToBArray(paramTypes[0])) {
+        if (count == reducedParamCount && paramTypes.length > 0 && isParamAssignableToBArray(paramTypes[0])) {
             return true;
         } else if ((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
                 isParamAssignableToBArray(paramTypes[1])) {
