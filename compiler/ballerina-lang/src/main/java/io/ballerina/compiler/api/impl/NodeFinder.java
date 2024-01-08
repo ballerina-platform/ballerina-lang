@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAlternateWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -95,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMultipleWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -582,6 +584,24 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
         lookupNode(asyncSendExpr.expr);
         setEnclosingNode(asyncSendExpr, asyncSendExpr.workerIdentifier.pos);
+    }
+
+    @Override
+    public void visit(BLangAlternateWorkerReceive alternateWorkerReceive) {
+        for (BLangWorkerReceive workerReceive : alternateWorkerReceive.getWorkerReceives()) {
+            if (setEnclosingNode(alternateWorkerReceive, workerReceive.workerIdentifier.pos)) {
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangMultipleWorkerReceive multipleWorkerReceive) {
+        for (BLangMultipleWorkerReceive.BLangReceiveField receiveField : multipleWorkerReceive.getReceiveFields()) {
+            if (setEnclosingNode(multipleWorkerReceive, receiveField.getWorkerReceive().workerIdentifier.pos)) {
+                return;
+            }
+        }
     }
 
     @Override
