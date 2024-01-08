@@ -26,10 +26,13 @@ isolated final GroupRegistry beforeGroupsRegistry = new ();
 isolated final GroupRegistry afterGroupsRegistry = new ();
 isolated final GroupStatusRegistry groupStatusRegistry = new ();
 
+type ParallelExecutionArgs record {|
+    DataProviderReturnType? params;
+|};
+
 type TestFunction record {|
     string name;
     function executableFunction;
-    DataProviderReturnType? params = ();
     function? before = ();
     function? after = ();
     boolean alwaysRun = false;

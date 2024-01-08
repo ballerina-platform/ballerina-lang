@@ -18,7 +18,6 @@
 package org.ballerinalang.testerina.natives;
 
 import io.ballerina.runtime.api.types.FunctionType;
-import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
@@ -42,7 +41,7 @@ public class CommonUtils {
         Parameter[] functionParameters = functionType.getParameters();
         for (Parameter functionParameter : functionParameters) {
             Type parameterType = functionParameter.type;
-            if (isSubTypeOfReadOnlyOrIsolatedObjectUnion(parameterType)) {
+            if (isSubTypeOfReadOnly(parameterType)) {
                 continue;
             }
             return false;
@@ -50,13 +49,9 @@ public class CommonUtils {
         return true;
     }
 
-    private static boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(Type type) {
+    private static boolean isSubTypeOfReadOnly(Type type) {
         if (type.isReadOnly()) {
             return true;
-        }
-
-        if (type instanceof ObjectType) {
-            return ((ObjectType) type).isIsolated();
         }
 
         if (!(type instanceof UnionType)) {
@@ -64,7 +59,7 @@ public class CommonUtils {
         }
 
         for (Type memberType : ((UnionType) type).getMemberTypes()) {
-            if (!isSubTypeOfReadOnlyOrIsolatedObjectUnion(memberType)) {
+            if (!isSubTypeOfReadOnly(memberType)) {
                 return false;
             }
         }

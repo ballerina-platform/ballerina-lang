@@ -53,7 +53,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated;
         string[] reasonToSerialExecution = [];
 
-        DataProviderReturnType? & readonly params = ();
+        DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
             var providerFn = config.dataProvider;
@@ -63,7 +63,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
                 isTestFunctionParamSafe = isFunctionParamConcurrencySafe(f);
                 isSatisfiedParallelizableConditions = isTestFunctionIsolated && isDataProviderIsolated && isTestFunctionParamSafe;
                 DataProviderReturnType providerOutput = providerFn();
-                params = <DataProviderReturnType & readonly>providerOutput;
+                params = <DataProviderReturnType>providerOutput;
             } else {
                 diagnostics = error("Failed to execute the data provider");
             }
@@ -90,8 +90,8 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
             && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups)) && hasTest(name);
         config.groups.forEach('group => groupStatusRegistry.incrementTotalTest('group, enabled));
-
-        testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
+        dataDrivenTestParams[name] = params;
+        testRegistry.addFunction(name = name, executableFunction = f, before = config.before,
             after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics, dependsOn = config.dependsOn.cloneReadOnly(),
             parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (conMgr.getConfiguredWorkers() > 1)), config = config.cloneReadOnly());
         conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(), enabled = enabled);

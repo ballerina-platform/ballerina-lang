@@ -90,12 +90,12 @@ isolated class ReportData {
     }
     isolated function onFailed(*ResultData result) {
         lock {
-            self.passed.push(result);
+            self.failed.push(result);
         }
     }
     isolated function onSkipped(*ResultData result) {
         lock {
-            self.passed.push(result);
+            self.skipped.push(result);
         }
     }
 

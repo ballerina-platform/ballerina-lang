@@ -20,6 +20,7 @@ isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
 isolated final ConcurrentExecutionManager conMgr = new ();
+map<DataProviderReturnType?> dataDrivenTestParams = {};
 
 public function startSuite() returns int {
     // exit if setTestOptions has failed
@@ -71,12 +72,10 @@ function executeTests() returns error? {
     foreach TestFunction testFunction in testRegistry.getFunctions() {
         _ = testFunction.parallelizable ? conMgr.addInitialParallelTest(testFunction) : conMgr.addInitialSerialTest(testFunction);
     }
-
     while !conMgr.isExecutionDone() {
 
         if conMgr.getAvailableWorkers() != 0 {
             conMgr.waitUntilEmptyQueueFilled();
-
             if conMgr.getSerialQueueLength() != 0 && conMgr.getAvailableWorkers() == conMgr.getConfiguredWorkers() {
                 TestFunction testFunction = conMgr.getSerialTest();
                 conMgr.addTestInExecution(testFunction);
@@ -88,8 +87,9 @@ function executeTests() returns error? {
                 TestFunction testFunction = conMgr.getParallelTest();
                 conMgr.addTestInExecution(testFunction);
                 conMgr.allocateWorker();
-                future<(error?)> parallelWaiter = start executeTestIso(testFunction);
-                if isDataDrivenTest(testFunction) {
+                ParallelExecutionArgs parallelExecutionMetaData = {params: dataDrivenTestParams[testFunction.name]};
+                future<(error?)> parallelWaiter = start executeTestIso(testFunction, parallelExecutionMetaData);
+                if isDataDrivenTest(dataDrivenTestParams[testFunction.name]) {
                     any _ = check wait parallelWaiter;
                 }
             }
@@ -176,11 +176,10 @@ isolated function getErrorMessage(error err) returns string {
     return message + "\n" + accumulatedTrace;
 }
 
-isolated function getTestType(TestFunction testFunction) returns TestType {
-    DataProviderReturnType? params = testFunction.params;
-    if (params is map<AnyOrError[]>) {
+isolated function getTestType(DataProviderReturnType? params) returns TestType {
+    if (params is map<AnyOrErrorOrReadOnlyType[]>) {
         return DATA_DRIVEN_MAP_OF_TUPLE;
-    } else if (params is AnyOrError[][]) {
+    } else if (params is AnyOrErrorOrReadOnlyType[][]) {
         return DATA_DRIVEN_TUPLE_OF_TUPLE;
     }
     return GENERAL_TEST;
@@ -202,8 +201,8 @@ isolated function nestedEnabledDependentsAvailable(TestFunction[] dependents) re
     return nestedEnabledDependentsAvailable(queue);
 }
 
-isolated function isDataDrivenTest(TestFunction testFunction) returns boolean =>
-        testFunction.params is map<AnyOrError[]> || testFunction.params is AnyOrError[][];
+isolated function isDataDrivenTest(DataProviderReturnType? params) returns boolean =>
+        params is map<AnyOrErrorOrReadOnlyType[]> || params is AnyOrErrorOrReadOnlyType[][];
 
 isolated function enableShouldSkip() {
     lock {

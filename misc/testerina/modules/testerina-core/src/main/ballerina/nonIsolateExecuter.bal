@@ -23,7 +23,7 @@ function executeTest(TestFunction testFunction) {
 
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
-        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(dataDrivenTestParams[testFunction.name]));
         println("\n" + testFunction.name + " has failed.\n");
         enableExit();
         conMgr.setExecutionDone(testFunction.name);
@@ -36,13 +36,13 @@ function executeTest(TestFunction testFunction) {
 
     boolean shouldSkipDependents = false;
     if !conMgr.isSkip(testFunction.name) && !getShouldSkip() {
-        if (isDataDrivenTest(testFunction)) {
+        if (isDataDrivenTest(dataDrivenTestParams[testFunction.name])) {
             executeDataDrivenTestSet(testFunction);
         } else {
             shouldSkipDependents = executeNonDataDrivenTest(testFunction);
         }
     } else {
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
         shouldSkipDependents = true;
     }
 
@@ -84,19 +84,19 @@ function executeBeforeEachFunctions() {
 }
 
 function executeDataDrivenTestSet(TestFunction testFunction) {
-    DataProviderReturnType? params = testFunction.params;
+    DataProviderReturnType? params = dataDrivenTestParams[testFunction.name];
     string[] keys = [];
-    AnyOrError[][] values = [];
+    AnyOrErrorOrReadOnlyType[][] values = [];
     TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
-    if params is map<AnyOrError[]> {
-        foreach [string, AnyOrError[]] entry in params.entries() {
+    if params is map<AnyOrErrorOrReadOnlyType[]> {
+        foreach [string, AnyOrErrorOrReadOnlyType[]] entry in params.entries() {
             keys.push(entry[0]);
             values.push(entry[1]);
         }
-    } else if params is AnyOrError[][] {
+    } else if params is AnyOrErrorOrReadOnlyType[][] {
         testType = DATA_DRIVEN_TUPLE_OF_TUPLE;
         int i = 0;
-        foreach AnyOrError[] entry in params {
+        foreach AnyOrErrorOrReadOnlyType[] entry in params {
             keys.push(i.toString());
             values.push(entry);
             i += 1;
@@ -105,7 +105,7 @@ function executeDataDrivenTestSet(TestFunction testFunction) {
 
     while keys.length() != 0 {
         string key = keys.remove(0);
-        AnyOrError[] value = values.remove(0);
+        AnyOrErrorOrReadOnlyType[] value = values.remove(0);
         prepareDataDrivenTest(testFunction, key, value, testType);
     }
 
@@ -116,7 +116,7 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
     boolean beforeFailed = executeBeforeFunction(testFunction);
     if (beforeFailed) {
         conMgr.setSkip(testFunction.name);
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
         return true;
     }
     ExecutionError|boolean output = executeTestFunction(testFunction, "", GENERAL_TEST);
@@ -167,17 +167,17 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
+function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrErrorOrReadOnlyType[] value, TestType testType) {
     boolean beforeFailed = executeBeforeFunction(testFunction);
     if (beforeFailed) {
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
     } else {
         executeDataDrivenTest(testFunction, key, testType, value);
         var _ = executeAfterFunction(testFunction);
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
+function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[] params) {
     if (skipDataDrivenTest(testFunction, suffix, testType)) {
         return;
     }
@@ -204,7 +204,7 @@ function executeBeforeFunction(TestFunction testFunction) returns boolean {
     return failed;
 }
 
-function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
+function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
