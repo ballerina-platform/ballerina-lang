@@ -171,19 +171,16 @@ public class HoverObjectResolver {
         if (isResourceMethod) {
             ResourcePath resourcePath = ((ResourceMethodSymbol) functionSymbol).resourcePath();
             switch (resourcePath.kind()) {
-                case PATH_SEGMENT_LIST:
+                case PATH_SEGMENT_LIST -> {
                     PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
                     List<PathParameterSymbol> pathParameterSymbols = pathSegmentList.pathParameters();
                     parameterSymbols.addAll(pathParameterSymbols);
-                    if (pathSegmentList.pathRestParameter().isPresent()) {
-                        parameterSymbols.add(pathSegmentList.pathRestParameter().get());
-                    }
-                    break;
-                case PATH_REST_PARAM:
-                    parameterSymbols.add(((PathRestParam) resourcePath).parameter());
-                    break;
-                default:
+                    pathSegmentList.pathRestParameter().ifPresent(parameterSymbols::add);
+                }
+                case PATH_REST_PARAM -> parameterSymbols.add(((PathRestParam) resourcePath).parameter());
+                default -> {
                     // ignore
+                }
             }
         }
         Map<String, String> paramsMap = documentation.get().parameterMap();
