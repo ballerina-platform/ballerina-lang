@@ -39,7 +39,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.TypeChecker.checkIsType;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -85,7 +84,7 @@ public class MapUtils {
     }
 
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
-        if (checkIsType(value, mapType.getConstrainedType())) {
+        if (TypeChecker.checkIsType(value, mapType.getConstrainedType())) {
             return;
         }
 
@@ -129,7 +128,7 @@ public class MapUtils {
     // Note this will box the value
     private static void handleInherentTypeViolatingRecordUpdateFinish(Type inherentFieldType, BString fieldName,
                                                                       Object value) {
-        if (checkIsType(value, inherentFieldType)) {
+        if (TypeChecker.checkIsType(value, inherentFieldType)) {
             return;
         }
         Type valuesType = TypeChecker.getType(value);
@@ -154,7 +153,7 @@ public class MapUtils {
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         ErrorHelper.getErrorDetails(ErrorCodes.RECORD_INVALID_READONLY_FIELD_UPDATE,
-                                fieldName, mapValue.getType()));
+                                                             fieldName, mapValue.getType()));
             }
 
             // If it can be updated, use it.
@@ -173,16 +172,16 @@ public class MapUtils {
                     ErrorCodes.INVALID_RECORD_FIELD_ACCESS, fieldName, mapValue.getType()));
         }
 
-        if (checkIsType(value, recFieldType)) {
+        if (TypeChecker.checkIsType(value, recFieldType)) {
             return true;
         }
         Type valuesType = TypeChecker.getType(value);
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                        INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                ErrorHelper.getErrorDetails(
-                        ErrorCodes.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
-                        valuesType));
+                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                       ErrorHelper.getErrorDetails(
+                                                  ErrorCodes.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
+                                                  valuesType));
     }
 
     private static boolean containsNilType(Type type) {
@@ -234,5 +233,4 @@ public class MapUtils {
                 updateMapValue(((BTypeReferenceType) mapType).getReferredType(), mapValue, fieldName, value);
         }
     }
-
 }

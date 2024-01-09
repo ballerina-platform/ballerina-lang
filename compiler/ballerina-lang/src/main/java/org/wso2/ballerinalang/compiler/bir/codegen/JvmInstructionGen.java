@@ -1467,23 +1467,20 @@ public class JvmInstructionGen {
             jvmCastGen.addBoxInsn(this.mv, valueType);
             this.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "populateInitialValue",
                                     TWO_OBJECTS_ARGS, true);
-        } else {
-            String methodDesc;
-            if (varRefType.tag == TypeTags.RECORD) {
-                methodDesc = switch (valueType.getKind()) {
-                    case INT -> HANDLE_MAP_STORE_INT;
-                    case BOOLEAN -> HANDLE_MAP_STORE_BOOLEAN;
-                    case FLOAT -> HANDLE_MAP_STORE_FLOAT;
-                    default -> {
-                        jvmCastGen.addBoxInsn(this.mv, valueType);
-                        yield HANDLE_MAP_STORE;
-                    }
-                };
-            } else {
-                jvmCastGen.addBoxInsn(this.mv, valueType);
-                methodDesc = HANDLE_MAP_STORE;
-            }
+        } else if (varRefType.tag == TypeTags.RECORD) {
+            String methodDesc = switch (valueType.getKind()) {
+                case INT -> HANDLE_MAP_STORE_INT;
+                case BOOLEAN -> HANDLE_MAP_STORE_BOOLEAN;
+                case FLOAT -> HANDLE_MAP_STORE_FLOAT;
+                default -> {
+                    jvmCastGen.addBoxInsn(this.mv, valueType);
+                    yield HANDLE_MAP_STORE;
+                }
+            };
             this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", methodDesc, false);
+        } else {
+            jvmCastGen.addBoxInsn(this.mv, valueType);
+            this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", HANDLE_MAP_STORE, false);
         }
     }
 

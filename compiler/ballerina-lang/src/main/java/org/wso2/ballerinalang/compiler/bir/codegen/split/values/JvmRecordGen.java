@@ -968,8 +968,8 @@ public class JvmRecordGen {
                                           String methodDesc, String signature) {
         List<BField> sortedFields = fields.values().stream()
                 .filter(field -> field.type.getKind() == basicType &&
-                        !isOptionalRecordField(field)) // optional fields will be handled by the default get method
-                .limit(MAX_FIELDS_PER_SPLIT_METHOD) // rest will go through the default get method
+                        !isOptionalRecordField(field)) // optional fields will be handled by the default set method
+                .limit(MAX_FIELDS_PER_SPLIT_METHOD) // rest will go through the default set method
                 .sorted(FIELD_NAME_HASH_COMPARATOR)
                 .toList();
         if (sortedFields.isEmpty()) {
@@ -987,7 +987,7 @@ public class JvmRecordGen {
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "isReadonly", "()Z", false);
         mv.visitJumpInsn(IFEQ, notReadonly);
-        // if it is readonly we'll simply call the super method which will construct the error for us
+        // If it is readonly we'll call the super method which will construct the error for us
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitVarInsn(ALOAD, fieldNameBStringReg);
         int loadIns = switch (basicType) {
@@ -1024,7 +1024,7 @@ public class JvmRecordGen {
         }
 
         // This could happen when we access the rest field, having more than 500 fields or optional field,
-        // in which case we will simply call the default putValue method
+        // in which case we will call the default putValue method
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, selfRegister);
         mv.visitVarInsn(ALOAD, fieldNameStringReg);
