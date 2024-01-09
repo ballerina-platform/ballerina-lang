@@ -237,9 +237,13 @@ public class HoverObjectResolver {
 
                 StringBuilder restParamBuilder = new StringBuilder(MarkupUtils.quotedString(modifiedTypeName + "..."));
                 if (restParam.get().getName().isPresent()) {
+                    String paramName = paramsMap.get(restParam.get().getName().get());
+                    if (paramName == null) {
+                        paramName = "";
+                    }
                     restParamBuilder.append(" ")
                             .append(MarkupUtils.italicString(MarkupUtils.boldString(restParam.get().getName().get())))
-                            .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
+                            .append(" : ").append(paramName);
                 }
                 params.add(restParamBuilder.toString());
             }
