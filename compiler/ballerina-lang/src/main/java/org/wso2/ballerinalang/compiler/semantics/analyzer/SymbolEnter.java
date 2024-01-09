@@ -1166,14 +1166,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        String nsURI;
+        String nsURI = "";
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
-            if (missingNodesHelper.isMissingNode(varRef.variableName.value)) {
-                nsURI = "";
-            } else {
-                // TODO: handle const-ref (#24911)
-                nsURI = "";
+            if (!missingNodesHelper.isMissingNode(varRef.variableName.value)) {
+                if (Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
+                    nsURI = String.valueOf(((BConstantSymbol) varRef.symbol).value);
+                }
             }
         } else {
             nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
