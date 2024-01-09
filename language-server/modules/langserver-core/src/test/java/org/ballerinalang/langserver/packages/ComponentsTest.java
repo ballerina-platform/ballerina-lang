@@ -61,7 +61,6 @@ public class ComponentsTest {
         List<String> filePaths = new ArrayList<>();
         for (String project : projects) {
             Path path = configsPath.resolve(project).resolve("main.bal").toAbsolutePath();
-            TestUtil.openDocument(serviceEndpoint, path);
             filePaths.add(path.toString());
         }
 
@@ -133,7 +132,8 @@ public class ComponentsTest {
                 {new String[]{"project", "project-functions", "project-services", "single-file"},
                         "multiple-packages_expected.json"},
                 {new String[]{"single-file"}, "single-file-package_expected.json"},
-                {new String[]{"project-other"}, "project-other_expected.json"}
+                {new String[]{"project-other"}, "project-other_expected.json"},
+                {new String[]{"non-exist"}, "project-exception_expected.json"}
         };
     }
 }
