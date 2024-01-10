@@ -571,12 +571,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
 
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Long hash = TableUtils.hash(key, null);
 
             if (entries.containsKey(hash)) {
                 updateIndexKeyMappings(hash, key, data);
                 List<Map.Entry<K, V>> extEntries = entries.get(hash);
-                Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
                 extEntries.add(entry);
                 List<V> extValues = values.get(hash);
                 extValues.add(data);
@@ -585,7 +585,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             ArrayList<V> newData = new ArrayList<>();
             newData.add(data);
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             putData(key, data, newData, entry, hash);
         }
 
@@ -616,6 +615,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                         ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_IN_VALUE, key, data));
             }
 
+            if (entries.containsKey(hash)) {
+                return handleHashCollisionInPut(key, data, entry, hash);
+            }
+
             return putData(key, data, newData, entry, hash);
         }
 
@@ -632,13 +635,37 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             MapValue dataMap = (MapValue) data;
             checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
+            Long hash = TableUtils.hash(key, null);
+
+            if (entries.containsKey(hash)) {
+                return handleHashCollisionInPut(key, data, entry, hash);
+            }
 
             ArrayList<V> newData = new ArrayList<>();
             newData.add(data);
 
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
-            Long hash = TableUtils.hash(key, null);
             return putData((K) key, data, newData, entry, hash);
+        }
+
+        private V handleHashCollisionInPut(K key, V data, Map.Entry<K, V> entry, Long hash) {
+            updateIndexKeyMappings(hash, key, data);
+            List<Map.Entry<K, V>> entryList = entries.get(hash);
+            for (Map.Entry<K, V> extEntry: entryList) {
+                if (TypeChecker.isEqual(key, extEntry.getKey())) {
+                    entryList.remove(extEntry);
+                    entryList.add(entry);
+                    List<V> valueList = values.get(hash);
+                    valueList.remove(extEntry.getValue());
+                    valueList.add(data);
+                    return data;
+                }
+            }
+            List<Map.Entry<K, V>> extEntries = entries.get(hash);
+            extEntries.add(entry);
+            List<V> extValues = values.get(hash);
+            extValues.add(data);
+            return data;
         }
 
         public V remove(K key) {

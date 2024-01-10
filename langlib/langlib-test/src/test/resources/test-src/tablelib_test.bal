@@ -355,7 +355,7 @@ function testHashCollisionHandlingScenarios() {
 
 }
 
-function testHashCollisionInQuery() {
+function testHashCollisionInQueryWithAdd() {
     table<record {readonly int|string|float? k;}> key(k) tbl1 = table [{k: "10"}];
     table<record {readonly int|string|float? k;}> tbl2 = table [{k: 0}];
 
@@ -379,6 +379,46 @@ function testHashCollisionInQuery() {
     assertEquals(tbl2, tbl4);
 }
 
+function testHashCollisionInQueryWithPut() {
+    table<record {readonly int|string|float? k;}> key(k) tbl1 = table [{k: "10"}];
+    table<record {readonly int|string|float? k;}> tbl2 = table [{k: 0}];
+
+    tbl1.put({k: 5});
+    tbl1.put({k: ()});
+    tbl1.put({k: -31});
+    tbl1.put({k: 0});
+    tbl1.put({k: 100.05});
+    tbl1.put({k: 30});
+    table<record {|readonly int|string|float? k; anydata...;|}> tbl3 =
+        from var tid in tbl1
+            where tid["k"] == 0
+            select tid;
+    assertEquals(tbl2, tbl3);
+
+    _ = tbl1.remove(());
+    table<record {|readonly int|string|float? k; anydata...;|}> tbl4 =
+        from var tid in tbl1
+            where tid["k"] == 0
+            select tid;
+    assertEquals(tbl2, tbl4);
+}
+
+function testHashCollisionInFilter() {
+    table<record {readonly int|string|float? k;}> key(k) tbl1 = table [{k: "10"}];
+    table<record {readonly int|string|float? k;}> key(k) tbl2 = table [{k: ()}, {k: 0}];
+
+    tbl1.put({k: 5});
+    tbl1.put({k: ()});
+    tbl1.put({k: -31});
+    tbl1.put({k: 0});
+    tbl1.put({k: 100.05});
+    tbl1.put({k: 30});
+
+    table<record {readonly int|string|float? k;}> tbl3 = tbl1.filter(
+        function(record {readonly int|string|float? k;} tid) returns boolean 
+            => tid["k"] == 0 || tid["k"] == ());
+    assertEquals(tbl2, tbl3);
+}
 public function testGetKeysOfHashCollidedKeys() {
     table<record {readonly int? k;}> key(k) tbl1 = table [
         {k: 5}, {k: 0}, {k: ()}, {k: 2}

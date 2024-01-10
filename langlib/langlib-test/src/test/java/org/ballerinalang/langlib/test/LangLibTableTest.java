@@ -123,8 +123,18 @@ public class LangLibTableTest {
     }
 
     @Test
-    public void testHashCollisionInQuery() {
-        BRunUtil.invoke(compileResult, "testHashCollisionInQuery");
+    public void testHashCollisionInQueryWithAdd() {
+        BRunUtil.invoke(compileResult, "testHashCollisionInQueryWithAdd");
+    }
+
+    @Test
+    public void testHashCollisionInQueryWithPut() {
+        BRunUtil.invoke(compileResult, "testHashCollisionInQueryWithPut");
+    }
+
+    @Test
+    public void testHashCollisionInFilter() {
+        BRunUtil.invoke(compileResult, "testHashCollisionInFilter");
     }
 
     @Test
