@@ -354,20 +354,28 @@ public class TestCommand implements BLauncherCmd {
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
 
+        CleanTargetCacheDirTask cleanTargetCacheDirTask = new CleanTargetCacheDirTask();
+        ResolveMavenDependenciesTask resolveMavenDependenciesTask = new ResolveMavenDependenciesTask(outStream);
+        CompileTask compileTask = new CompileTask(outStream, errStream, false, false, isPackageModified,
+                buildOptions.enableCache());
+        RunTestsTask runTestsTask = new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
+                testList, includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, isParallelExecution);
+        CreateTestExecutableTask createTestExecutableTask = new CreateTestExecutableTask(outStream, this.output, runTestsTask);
+
+        RunNativeImageTestTask runNativeImageTestTask = new RunNativeImageTestTask(outStream, rerunTests, groupList,
+                disableGroupList, testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution);
+        DumpBuildTimeTask dumpBuildTimeTask = new DumpBuildTimeTask(outStream);
+
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
+                .addTask(resolveMavenDependenciesTask) // resolve maven dependencies in Ballerina.toml
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, false,
-                        isPackageModified, buildOptions.enableCache()))
+                .addTask(compileTask)
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new CreateTestExecutableTask(outStream, this.output)) // create the uber jars for test modules
-                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs, isParallelExecution),
-                        project.buildOptions().nativeImage())
-                .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups, isParallelExecution),
-                        !project.buildOptions().nativeImage())
-                .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                .addTask(createTestExecutableTask) // create the uber jars for test modules
+                .addTask(runTestsTask, project.buildOptions().nativeImage())
+                .addTask(runNativeImageTestTask, !project.buildOptions().nativeImage())
+                .addTask(dumpBuildTimeTask,!project.buildOptions().dumpBuildTime())
                 .build();
 
         taskExecutor.executeTasks(project);
