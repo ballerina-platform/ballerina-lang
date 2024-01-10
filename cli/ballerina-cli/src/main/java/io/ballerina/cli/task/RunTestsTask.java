@@ -36,7 +36,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.JacocoInstrumentUtils;
@@ -53,7 +52,14 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,14 +68,12 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
-import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
-import static io.ballerina.cli.utils.TestUtils.generateCoverage;
-import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
-import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
-import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.*;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -189,13 +193,14 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
             //get the created uber jar files for each module in CreateTestExecutableTask
             Path testExecutablePath = target.path().resolve("bin").resolve("tests")
-                    .resolve(moduleName.toString() + ProjectConstants.TEST_UBER_JAR_SUFFIX + ProjectConstants.BLANG_COMPILED_JAR_EXT);
+                    .resolve(moduleName.toString() +
+                            ProjectConstants.TEST_UBER_JAR_SUFFIX +
+                            ProjectConstants.BLANG_COMPILED_JAR_EXT);
 
             //out.println("test executable path: " + testExecutablePath.toString());
             if (!Files.exists(testExecutablePath)) {
                 out.println("\t" + moduleName + ": no tests found");
-            }
-            else{
+            } else {
                 try {
                     testResult = runTestModule(project, testExecutablePath, moduleDescriptor);
                 } catch (IOException | InterruptedException | ClassNotFoundException  e) {
@@ -268,7 +273,8 @@ public class RunTestsTask implements Task {
 //                        }
 //
 //                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-//                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+//                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName)
+//                            .toString();
 //                        }
 //                        testReport.addModuleStatus(moduleName, moduleStatus);
 //                    }
@@ -301,13 +307,17 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestModule(Project project,Path testExecutablePath, ModuleDescriptor moduleDescriptor) throws IOException, InterruptedException, ClassNotFoundException {
+    private int runTestModule(Project project, Path testExecutablePath, ModuleDescriptor moduleDescriptor)
+            throws IOException, InterruptedException, ClassNotFoundException {
 
         List<String> cmdArgs = getInitialCmdArgs();
         cmdArgs.add("-jar");
-        cmdArgs.add(testExecutablePath.toString()); //this will start the jar file which has the BTestMain as the initial main class in the manifest
+        cmdArgs.add(testExecutablePath.toString());
+        //this will start the jar file which has the BTestMain as the initial main class in the manifest
 
-        String testPackageID = TestProcessor.getTestModuleName(project.currentPackage().module(moduleDescriptor.name()));
+        String testPackageID = TestProcessor.getTestModuleName(
+                project.currentPackage().module(moduleDescriptor.name())
+        );
         String org = moduleDescriptor.org().toString();
         String version = moduleDescriptor.version().toString();
 
@@ -410,7 +420,7 @@ public class RunTestsTask implements Task {
         return cmdArgs;
     }
 
-    public List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName){
+    public List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(getJacocoAgentJarPath());
 

@@ -19,7 +19,14 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.*;
+import io.ballerina.cli.task.CleanTargetCacheDirTask;
+import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateTestExecutableTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunBuildToolsTask;
+import io.ballerina.cli.task.RunNativeImageTestTask;
+import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
@@ -375,7 +382,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(createTestExecutableTask) // create the uber jars for test modules
                 .addTask(runTestsTask, project.buildOptions().nativeImage())
                 .addTask(runNativeImageTestTask, !project.buildOptions().nativeImage())
-                .addTask(dumpBuildTimeTask,!project.buildOptions().dumpBuildTime())
+                .addTask(dumpBuildTimeTask, !project.buildOptions().dumpBuildTime())
                 .build();
 
         taskExecutor.executeTasks(project);
