@@ -558,10 +558,6 @@ public class JBallerinaBackend extends CompilerBackend {
                 return false;
             }
 
-            if(entryName.equals("ballerina/lang$0046error/0/$_init$SignalListener.class")){
-                System.out.println("copying the lang error class which is causing the conflict");
-            }
-
             // Skip already copied files or excluded extensions.
             if (isCopiedEntry(entryName, copiedEntries)) {
                 addConflictedJars(jarLibrary, copiedEntries, entryName);
