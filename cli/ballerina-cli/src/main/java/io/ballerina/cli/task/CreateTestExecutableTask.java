@@ -1,14 +1,19 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.projects.*;
+import io.ballerina.projects.EmitResult;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,7 +24,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 public class CreateTestExecutableTask extends CreateExecutableTask {
-    private RunTestsTask runTestsTask;
+    private final RunTestsTask runTestsTask;
 
     public CreateTestExecutableTask(PrintStream out, String output, RunTestsTask runTestsTask) {
         super(out, output);
@@ -34,7 +39,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
         Target target = getTarget(project);
         EmitResult emitResult;
 
-        try{
+        try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_17);
 
@@ -45,7 +50,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 start = System.currentTimeMillis();
             }
 
-            for(ModuleDescriptor moduleDescriptor :
+            for (ModuleDescriptor moduleDescriptor :
                     project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
 
                 Module module = project.currentPackage().module(moduleDescriptor.name());
@@ -86,8 +91,7 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                     diagnostics.forEach(d -> out.println("\n" + d.toString()));
                 }
             }
-        }
-        catch(ProjectException e) {
+        } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }
         // notify plugin
@@ -96,10 +100,9 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
     }
     private Path getTestExecutablePath(Target target, Module module) {
         Path executablePath;
-        try{
+        try {
             executablePath = target.getTestExecutablePath(module).toAbsolutePath().normalize();
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
         return executablePath;
