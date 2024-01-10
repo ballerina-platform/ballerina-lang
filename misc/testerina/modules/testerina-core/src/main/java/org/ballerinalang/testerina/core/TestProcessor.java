@@ -147,8 +147,7 @@ public class TestProcessor {
      * @return TestSuite
      */
     private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
-        PackageID packageID = module.descriptor().moduleTestCompilationId();
-        String testModuleName = packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
+        String testModuleName = getTestModuleName(module);
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
                 module.descriptor().packageName().toString(), module.descriptor().org().value(),
                 module.descriptor().version().toString(), getExecutePath(module));
@@ -169,6 +168,11 @@ public class TestProcessor {
         addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
+    }
+
+    public static String getTestModuleName(Module module) {
+        PackageID packageID = module.descriptor().moduleTestCompilationId();
+        return packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
     }
 
     /**
