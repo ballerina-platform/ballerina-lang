@@ -1169,10 +1169,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         String nsURI = "";
         if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
-            if (!missingNodesHelper.isMissingNode(varRef.variableName.value)) {
-                if (Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
-                    nsURI = String.valueOf(((BConstantSymbol) varRef.symbol).value);
-                }
+            if (!missingNodesHelper.isMissingNode(varRef.variableName.value) &&
+                    Symbols.isFlagOn(varRef.symbol.flags, Flags.CONSTANT)) {
+                nsURI = ((BConstantSymbol) varRef.symbol).value.toString();
             }
         } else {
             nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
