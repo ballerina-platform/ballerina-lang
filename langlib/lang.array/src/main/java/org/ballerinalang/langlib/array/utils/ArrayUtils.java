@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array.utils;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -121,6 +122,10 @@ public class ArrayUtils {
         }
         // Create an array of one type if the member-type-descriptors are the same
         if (isSameType) {
+            // Create an array with never type as element type if the `sameType` is null
+            if (sameType == null) {
+                return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_NEVER));
+            }
             ArrayType type = TypeCreator.createArrayType(sameType);
             return ValueCreator.createArrayValue(type);
         }
