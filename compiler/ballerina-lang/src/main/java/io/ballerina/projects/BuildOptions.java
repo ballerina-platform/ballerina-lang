@@ -36,10 +36,12 @@ public class BuildOptions {
     private Boolean exportComponentModel;
     private String graalVMBuildOptions;
 
+    private Boolean emitTestExecutable;
+
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
                  Boolean nativeImage, Boolean exportComponentModel, String graalVMBuildOptions,
-                 Boolean showDependencyDiagnostics) {
+                 Boolean showDependencyDiagnostics, Boolean emitTestExecutable) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -51,6 +53,8 @@ public class BuildOptions {
         this.exportComponentModel = exportComponentModel;
         this.graalVMBuildOptions = graalVMBuildOptions;
         this.showDependencyDiagnostics = showDependencyDiagnostics;
+        this.emitTestExecutable = emitTestExecutable;
+
     }
 
     public boolean testReport() {
@@ -135,6 +139,10 @@ public class BuildOptions {
 
     public boolean showDependencyDiagnostics() {
         return toBooleanDefaultIfNull(this.showDependencyDiagnostics);
+    }
+
+    public boolean emitTestExecutable() {
+        return toBooleanDefaultIfNull(this.emitTestExecutable);
     }
 
     /**
@@ -281,6 +289,7 @@ public class BuildOptions {
         private Boolean exportComponentModel;
         private String graalVMBuildOptions;
         private Boolean showDependencyDiagnostics;
+        private Boolean emitTestExecutable;
 
 
         private BuildOptionsBuilder() {
@@ -329,6 +338,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setGraalVMBuildOptions(String value) {
             graalVMBuildOptions = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setEmitTestExecutable(Boolean value) {
+            emitTestExecutable = value;
             return this;
         }
 
@@ -419,7 +433,7 @@ public class BuildOptions {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions,
                     targetPath, enableCache, nativeImage, exportComponentModel, graalVMBuildOptions,
-                    showDependencyDiagnostics);
+                    showDependencyDiagnostics, emitTestExecutable);
         }
     }
 }
