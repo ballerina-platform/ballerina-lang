@@ -249,10 +249,9 @@ public class JBallerinaBackend extends CompilerBackend {
             return new EmitResult(false, diagnosticResult, generatedArtifact);
         }
 
-        if(outputType == OutputType.TEST) {
+        if (outputType == OutputType.TEST) {
             generatedArtifact = emitTest(filePath, moduleName, cmdArgs);
-        }
-        else{
+        } else {
             throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
@@ -448,12 +447,12 @@ public class JBallerinaBackend extends CompilerBackend {
             }
 
             //create a txt file within the jar to store the main arguments if it is a test jar
-            if(cmdArgs != null){
+            if (cmdArgs != null) {
                 JarArchiveEntry e = new JarArchiveEntry(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
                 outStream.putArchiveEntry(e);
 
                 //write the arguments to the file
-                for(String arg : cmdArgs){
+                for (String arg : cmdArgs) {
                     outStream.write(arg.getBytes(StandardCharsets.UTF_8));
                     outStream.write("\n".getBytes(StandardCharsets.UTF_8));
                 }
@@ -491,10 +490,7 @@ public class JBallerinaBackend extends CompilerBackend {
         return manifest;
     }
 
-    private Manifest createTestManifest(ModuleName moduleName){
-        // Getting the jarFileName of the root module of this executable
-        PlatformLibrary rootModuleJarFile = codeGeneratedTestLibrary(packageContext.packageId(), moduleName);
-
+    private Manifest createTestManifest() {
         String mainClassName;
         mainClassName = "org.ballerinalang.test.runtime.BTestMain";
 //        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
@@ -507,7 +503,6 @@ public class JBallerinaBackend extends CompilerBackend {
 
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
-        //System.out.println(mainClassName);
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName);
         return manifest;
@@ -523,7 +518,8 @@ public class JBallerinaBackend extends CompilerBackend {
      * @throws IOException If jar file copying is failed.
      */
     private void copyJar(ZipArchiveOutputStream outStream, JarLibrary jarLibrary,
-                         HashMap<String, JarLibrary> copiedEntries, HashMap<String, StringBuilder> services) throws IOException {
+                         HashMap<String, JarLibrary> copiedEntries, HashMap<String,
+            StringBuilder> services) throws IOException {
 
         ZipFile zipFile = new ZipFile(jarLibrary.path().toFile());
         ZipArchiveEntryPredicate predicate = entry -> {
@@ -614,7 +610,7 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Path emitTest(Path executableFilePath, ModuleName moduleName, List<String> cmdArgs) {
-        Manifest manifest = createTestManifest(moduleName);
+        Manifest manifest = createTestManifest();
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
 
         try {
