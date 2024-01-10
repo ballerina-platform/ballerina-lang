@@ -19,9 +19,11 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 public class CreateTestExecutableTask extends CreateExecutableTask {
+    private RunTestsTask runTestsTask;
 
-    public CreateTestExecutableTask(PrintStream out, String output) {
+    public CreateTestExecutableTask(PrintStream out, String output, RunTestsTask runTestsTask) {
         super(out, output);
+        this.runTestsTask = runTestsTask;   //to use the getCmdArgs() method
     }
 
     @Override
@@ -48,7 +50,16 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
 
                 Module module = project.currentPackage().module(moduleDescriptor.name());
                 Path testExecutablePath = getTestExecutablePath(target, module);
-                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.TEST, testExecutablePath, module.moduleName());
+
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.TEST,
+                        testExecutablePath,
+                        module.moduleName(),
+                        this.runTestsTask.getTestRunnerCmdArgs(target,
+                                project.currentPackage().packageName().toString(),
+                                module.moduleName().toString()
+                        )
+                );
+
                 diagnostics.addAll(emitResult.diagnostics().diagnostics());
             }
 
