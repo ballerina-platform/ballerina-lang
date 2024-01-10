@@ -19,6 +19,7 @@ package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.ballerina.projects.Resource;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -33,15 +34,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -76,7 +69,58 @@ public class BTestMain {
         int exitStatus = 0;
         int result;
 
-        if (args.length >= 4) {
+        if(args.length == 3) {
+            List<String> mainArgs = new ArrayList<>();
+
+            try (InputStream in = BTestMain.class.getResourceAsStream(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE_DIR + ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
+                 //make sure that the path start with a leading slash (/)
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                // Use resource
+
+                //read just one line to get the jacoco agent jar path
+                String jacocoAgentJarPath = reader.readLine();
+
+                //read the rest of the lines to get the args
+                String line;
+                while((line = reader.readLine()) != null){
+                    mainArgs.add(line);
+                }
+
+                classLoader = createURLClassLoader(new ArrayList<String>());
+
+                String[] argsArr = mainArgs.toArray(new String[0]);
+                boolean report = Boolean.parseBoolean(argsArr[3]);
+                boolean coverage = Boolean.parseBoolean(argsArr[4]);
+
+                if(report || coverage) {
+                    testReport = new TestReport();
+                }
+
+                out.println();
+                out.print("Running Tests");
+                if (coverage) {
+                    out.print(" with Coverage");
+                }
+                out.println();
+
+                String packageName = argsArr[1];
+                String moduleName = argsArr[2];
+
+                out.println("\n\t" + (moduleName.equals(packageName) ?
+                        (moduleName.equals(TesterinaConstants.DOT) ? packageName : moduleName)
+                        : packageName + TesterinaConstants.DOT + moduleName));
+
+                result = startTestExecution(classLoader, argsArr, args[0], args[1], args[2]);
+
+                exitStatus = (result == 1) ? result : exitStatus;
+            }
+            catch(NullPointerException e){
+                System.out.println("no file found");
+                exitStatus = 1;
+            }
+            Runtime.getRuntime().exit(exitStatus);
+        }
+        else if (args.length >= 4) {
             Path targetPath = Paths.get(args[0]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
                     .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
@@ -149,6 +193,14 @@ public class BTestMain {
                                      String[] args) {
         try {
             return TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, out);
+        } catch (RuntimeException e) {
+            return 1;
+        }
+    }
+
+    private static  int startTestExecution(ClassLoader classLoader, String[] args,String packageID, String org, String version) {
+        try{
+            return TesterinaUtils.executeTests(packageID, org, version, classLoader, args, out);
         } catch (RuntimeException e) {
             return 1;
         }
