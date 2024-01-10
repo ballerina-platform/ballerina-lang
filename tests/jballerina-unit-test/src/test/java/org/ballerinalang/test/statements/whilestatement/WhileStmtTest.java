@@ -358,6 +358,14 @@ public class WhileStmtTest {
         Assert.assertTrue((Boolean) returns);
     }
 
+    @Test
+    public void testForeachSimple() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/foreachstatement/foreach-debug.bal");
+        Object returns = BRunUtil.invoke(result, "simpleIntArray");
+//        Object returns = BRunUtil.invoke(result, "simpleIntIter");
+        Assert.assertEquals(returns, 45L);
+    }
+
     @AfterClass
     public void tearDown() {
         positiveCompileResult = null;

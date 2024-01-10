@@ -709,6 +709,11 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testInvalidTypeCastJsonToMapOfAnydata");
     }
 
+    @Test
+    public void simpleTest() {
+        BRunUtil.invoke(result, "testCastOfReadonlyIntArrayToByteArrayNegative");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

@@ -84,10 +84,12 @@ import io.ballerina.runtime.internal.values.XmlValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -142,12 +144,20 @@ public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
     private static final String REG_EXP_TYPENAME = "RegExp";
+    private static final TypeCheckMemoTable<Boolean> typeCheckMemo = new TypeCheckMemoTable<>();
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
         Type sourceType = getImpliedType(getType(sourceVal));
+        TypeCheckMemoKey memoKey = new TypeCheckMemoKey(sourceType, targetType);
+        // FIXME: think about thread safety (maybe double synchronize) here
+        // We don't need to synchronize this as long as we don't care about the actual value being stored in the map
+        if (typeCheckMemo.containsKey(memoKey)) {
+            return sourceVal;
+        }
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
+            typeCheckMemo.put(memoKey, true);
             return sourceVal;
         }
 
@@ -3635,5 +3645,112 @@ public class TypeChecker {
     }
 
     private TypeChecker() {
+    }
+
+    // FIXME:
+    private static class TypeCheckMemoTable<V> implements Map<TypeCheckMemoKey, V> {
+
+        private static final int CACHE_SIZE = 100;
+        private final Map<TypeCheckMemoKey, V> cache;
+
+        private TypeCheckMemoTable() {
+            // NOTE: accessOrdered mean get is also a structural modification
+            this.cache = new LinkedHashMap<>(CACHE_SIZE, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<TypeCheckMemoKey, V> eldest) {
+                    return size() > CACHE_SIZE;
+                }
+            };
+        }
+
+        @Override
+        public int size() {
+            return cache.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return cache.isEmpty();
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return cache.containsKey(key);
+        }
+
+        @Override
+        public boolean containsValue(Object value) {
+            return cache.containsValue(value);
+        }
+
+        @Override
+        public V get(Object key) {
+            return cache.get(key);
+        }
+
+        @Override
+        public V put(TypeCheckMemoKey key, V value) {
+            // FIXME:
+            if (key.sourceType().isReadOnly() || key.destinationType().isReadOnly()) {
+                return value;
+            }
+            return cache.put(key, value);
+        }
+
+        @Override
+        public V remove(Object key) {
+            return cache.remove(key);
+        }
+
+        @Override
+        public void putAll(Map<? extends TypeCheckMemoKey, ? extends V> m) {
+            cache.putAll(m);
+        }
+
+        @Override
+        public void clear() {
+            cache.clear();
+        }
+
+        @Override
+        public Set<TypeCheckMemoKey> keySet() {
+            return cache.keySet();
+        }
+
+        @Override
+        public Collection<V> values() {
+            return cache.values();
+        }
+
+        @Override
+        public Set<Entry<TypeCheckMemoKey, V>> entrySet() {
+            return cache.entrySet();
+        }
+    }
+
+    /**
+     * @param sourceType TODO: better field names
+     */
+    private record TypeCheckMemoKey(Type sourceType, Type destinationType) {
+
+        // TODO: do something better
+        @Override
+        public int hashCode() {
+            return sourceType.hashCode() | destinationType.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof TypeCheckMemoKey other)) {
+                return false;
+            }
+            // We are not trying to do type checking here just checking if the same object
+            return this.sourceType == other.sourceType && this.destinationType == other.destinationType;
+        }
+
+        @Override
+        public String toString() {
+            return sourceType.toString() + ":" + destinationType.toString();
+        }
     }
 }
