@@ -242,7 +242,7 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
     }
 
-    public EmitResult emit(OutputType outputType, Path filePath, ModuleName moduleName) {
+    public EmitResult emit(OutputType outputType, Path filePath, ModuleName moduleName, List<String> cmdArgs) {
         Path generatedArtifact = null;
 
         if (diagnosticResult.hasErrors()) {
@@ -250,7 +250,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         if(outputType == OutputType.TEST) {
-            generatedArtifact = emitTest(filePath, moduleName);
+            generatedArtifact = emitTest(filePath, moduleName, cmdArgs);
         }
         else{
             throw new RuntimeException("Unexpected output type: " + outputType);
@@ -414,7 +414,8 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private void assembleExecutableJar(Path executableFilePath,
                                        Manifest manifest,
-                                       Collection<JarLibrary> jarLibraries) throws IOException {
+                                       Collection<JarLibrary> jarLibraries,
+                                       List<String> cmdArgs) throws IOException {
         // Used to prevent adding duplicated entries during the final jar creation.
         HashMap<String, JarLibrary> copiedEntries = new HashMap<>();
 
@@ -443,6 +444,20 @@ public class JBallerinaBackend extends CompilerBackend {
                 JarArchiveEntry e = new JarArchiveEntry(s);
                 outStream.putArchiveEntry(e);
                 outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+                outStream.closeArchiveEntry();
+            }
+
+            //create a txt file within the jar to store the main arguments if it is a test jar
+            if(cmdArgs != null){
+                JarArchiveEntry e = new JarArchiveEntry(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
+                outStream.putArchiveEntry(e);
+
+                //write the arguments to the file
+                for(String arg : cmdArgs){
+                    outStream.write(arg.getBytes(StandardCharsets.UTF_8));
+                    outStream.write("\n".getBytes(StandardCharsets.UTF_8));
+                }
+
                 outStream.closeArchiveEntry();
             }
         }
@@ -481,14 +496,14 @@ public class JBallerinaBackend extends CompilerBackend {
         PlatformLibrary rootModuleJarFile = codeGeneratedTestLibrary(packageContext.packageId(), moduleName);
 
         String mainClassName;
-        //mainClassName = "org.ballerinalang.test.runtime.BTestMain";
-        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
-            Manifest mf = jarStream.getManifest();
-            mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
-        } catch (IOException e) {
-            throw new RuntimeException("Generated jar file cannot be found for the module: " +
-                    packageContext.defaultModuleContext().moduleName());
-        }
+        mainClassName = "org.ballerinalang.test.runtime.BTestMain";
+//        try (JarInputStream jarStream = new JarInputStream(Files.newInputStream(rootModuleJarFile.path()))) {
+//            Manifest mf = jarStream.getManifest();
+//            mainClassName = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
+//        } catch (IOException e) {
+//            throw new RuntimeException("Generated jar file cannot be found for the module: " +
+//                    packageContext.defaultModuleContext().moduleName());
+//        }
 
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
@@ -543,6 +558,10 @@ public class JBallerinaBackend extends CompilerBackend {
                 return false;
             }
 
+            if(entryName.equals("ballerina/lang$0046error/0/$_init$SignalListener.class")){
+                System.out.println("copying the lang error class which is causing the conflict");
+            }
+
             // Skip already copied files or excluded extensions.
             if (isCopiedEntry(entryName, copiedEntries)) {
                 addConflictedJars(jarLibrary, copiedEntries, entryName);
@@ -590,7 +609,7 @@ public class JBallerinaBackend extends CompilerBackend {
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
 
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries, null);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
@@ -598,12 +617,12 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
-    private Path emitTest(Path executableFilePath, ModuleName moduleName) {
+    private Path emitTest(Path executableFilePath, ModuleName moduleName, List<String> cmdArgs) {
         Manifest manifest = createTestManifest(moduleName);
         Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
 
         try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries, cmdArgs);
         } catch (IOException e) {
             throw new ProjectException("error while creating the executable jar file for package '" +
                     this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
