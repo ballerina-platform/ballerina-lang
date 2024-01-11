@@ -328,6 +328,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
 
+        // Visiting after defining constants due to possible use of constants within xml namespaceURI.
+        for (int i = 0; i < topLevelNodes.size(); i++) {
+            TopLevelNode node = topLevelNodes.get(i);
+            if (node.getKind() == NodeKind.XMLNS) {
+                analyzeNode((BLangNode) node, data);
+            }
+        }
+
         validateEnumMemberMetadata(pkgNode.constants);
 
         // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
@@ -340,7 +348,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
             NodeKind kind = pkgLevelNode.getKind();
-            if (kind == NodeKind.CONSTANT) {
+            if (kind == NodeKind.CONSTANT || kind == NodeKind.XMLNS) {
                 continue;
             }
 
