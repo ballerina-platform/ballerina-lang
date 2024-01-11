@@ -58,17 +58,17 @@ public class WDChannels {
 
     public Object receiveDataMultipleChannels(Strand strand, ReceiveField[] receiveFields, Type targetType)
             throws Throwable {
-        if (strand.mapResult == null) {
-            strand.mapResult = ValueCreator.createMapValue(targetType);
+        if (strand.workerReceiveMap == null) {
+            strand.workerReceiveMap = ValueCreator.createMapValue(targetType);
         }
         for (ReceiveField field : receiveFields) {
-            WorkerDataChannel channel = getWorkerDataChannel(field.getChannelName());
+            WorkerDataChannel channel = getWorkerDataChannel(field.channelName);
             if (!channel.isClosed()) {
                 Object result = channel.tryTakeData(strand, true);
                 checkAndPopulateResult(strand, field, result, channel);
             } else {
                 if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
-                    errors.add((ErrorValue) ErrorUtils.createNoMessageError(field.getChannelName()));
+                    errors.add((ErrorValue) ErrorUtils.createNoMessageError(field.channelName));
                 }
             }
         }
@@ -78,7 +78,7 @@ public class WDChannels {
     private void checkAndPopulateResult(Strand strand, ReceiveField field, Object result, WorkerDataChannel channel) {
         if (result != null) {
             result = getResultValue(result);
-            strand.mapResult.populateInitialValue(StringUtils.fromString(field.getFieldName()), result);
+            strand.workerReceiveMap.populateInitialValue(StringUtils.fromString(field.fieldName), result);
             channel.close();
             ++strand.channelCount;
         } else {
@@ -88,8 +88,8 @@ public class WDChannels {
 
     private Object clearResultCache(Strand strand, ReceiveField[] receiveFields) {
         if (strand.channelCount == receiveFields.length) {
-            BMap<BString, Object> map = strand.mapResult;
-            strand.mapResult = null;
+            BMap<BString, Object> map = strand.workerReceiveMap;
+            strand.workerReceiveMap = null;
             strand.channelCount = 0;
             return map;
         }

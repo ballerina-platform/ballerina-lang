@@ -27,20 +27,12 @@ package io.ballerina.runtime.internal.scheduling;
  */
 public class ReceiveField {
 
-    private final String fieldName;
-    private final String channelName;
+    public final String fieldName;
+    public final String channelName;
 
     public ReceiveField(String fieldName, String channelName) {
         this.fieldName = fieldName;
         this.channelName = channelName;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public String getChannelName() {
-        return channelName;
     }
 
 }

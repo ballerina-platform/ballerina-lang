@@ -91,7 +91,7 @@ public class Strand {
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
-    public BMap<BString, Object> mapResult = null;
+    public BMap<BString, Object> workerReceiveMap = null;
     public int channelCount = 0;
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
