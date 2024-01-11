@@ -211,18 +211,8 @@ public class CodeCoverageUtils {
         final ZipInputStream zipStream = new ZipInputStream(source);
         ZipEntry nextEntry;
         while ((nextEntry = zipStream.getNextEntry()) != null) {
-
-            File zipFile = new File(REPORT_ZIP_DIRECTORY + nextEntry.getName());
-            String canonicalZipPath = zipFile.getCanonicalPath();
-
-            if (!canonicalZipPath.startsWith(REPORT_ZIP_DIRECTORY)) {
-                continue;
-            }
-            String name = canonicalZipPath.replace(REPORT_ZIP_DIRECTORY, "");
-
-            // only extract files
-            if (!nextEntry.getName().endsWith("/")) {
-                final File nextFile = new File(target, name);
+            if (!nextEntry.isDirectory()) {
+                final File nextFile = new File(target, nextEntry.getName());
 
                 // create directories
                 final File parent = nextFile.getParentFile();
@@ -234,7 +224,6 @@ public class CodeCoverageUtils {
                 try (OutputStream targetStream = new FileOutputStream(nextFile)) {
                     final int bufferSize = 4 * 1024;
                     final byte[] buffer = new byte[bufferSize];
-
                     int nextCount;
                     while ((nextCount = zipStream.read(buffer)) >= 0) {
                         targetStream.write(buffer, 0, nextCount);
