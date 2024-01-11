@@ -463,8 +463,8 @@ public class Package {
          * @return Package.Modifier which contains the updated package
          */
         public Modifier addDependenciesToml(DocumentConfig documentConfig) {
-            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
-            this.dependenciesTomlContext = tomlDocumentContext;
+            this.dependenciesTomlContext = TomlDocumentContext.from(documentConfig);
+            updateDependencyManifest();
             return this;
         }
 

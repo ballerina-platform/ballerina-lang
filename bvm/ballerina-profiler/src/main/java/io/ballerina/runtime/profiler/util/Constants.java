@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.ballerina.runtime.profiler.util;
 
 import java.io.PrintStream;
@@ -32,6 +50,11 @@ public class Constants {
             "(L" + STRAND_CLASS + ";L" + DATA_CLASS + ";)V";
     public static final String PROFILE_ANALYZER = "io/ballerina/runtime/profiler/runtime/ProfileAnalyzer";
     public static final String GET_INSTANCE_DESCRIPTOR = "()L" + PROFILE_ANALYZER + ";";
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String WORKING_DIRECTORY = "user.dir";
+    public static final String PROFILE_DATA = "${profile_data}";
+    public static final String HTML_TEMPLATE_FILE = "profiler_output.html";
+    public static final String HTML_PROFILER_REPORT = "ProfilerReport.html";
     public static final String CURRENT_DIR_KEY = "current.dir";
     public static final String USER_DIR = "user.dir";
 
