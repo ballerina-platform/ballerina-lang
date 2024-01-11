@@ -51,7 +51,11 @@ public class WorkerMultipleReceiveTest {
                 "workerMultipleReceiveTest1",
                 "workerMultipleReceiveTest2",
                 "workerMultipleReceiveTest3",
-                "workerMultipleReceiveWithUserDefinedRecord"
+                "workerMultipleReceiveWithUserDefinedRecord",
+                "workerMultipleReceiveWithErrorReturn",
+                "workerMultipleReceiveWithAllErrorReturn",
+                "workerMultipleReceiveWithPanic",
+                "workerMultipleReceiveWithAllPanic"
         };
     }
 

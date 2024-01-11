@@ -78,11 +78,7 @@ public class WDChannels {
     private void checkAndPopulateResult(Strand strand, ReceiveField field, Object result, WorkerDataChannel channel) {
         if (result != null) {
             result = getResultValue(result);
-            if (result instanceof ErrorValue errorValue) {
-                errors.add(errorValue);
-            } else {
-                strand.mapResult.populateInitialValue(StringUtils.fromString(field.getFieldName()), result);
-            }
+            strand.mapResult.populateInitialValue(StringUtils.fromString(field.getFieldName()), result);
             channel.close();
             ++strand.channelCount;
         } else {

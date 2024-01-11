@@ -111,3 +111,112 @@ function workerMultipleReceiveWithUserDefinedRecord() {
     test:assertEquals(mapResult["first"], {"firstValue":100,"secondValue":6}, "Invalid map result");
     test:assertEquals(mapResult["second"], {"firstValue":20,"secondValue":45}, "Invalid map result");
 }
+
+function workerMultipleReceiveWithErrorReturn() {
+    worker w1 returns error?{
+        int v = 10;
+        if v == 10 {
+            return error("Error in worker w1");
+        }
+        100 -> w2;
+    }
+
+    worker w2 returns map<int|error> {
+        map<int|error> m = <- { firstValue:w1, secondValue:w3 }; 
+        return m;
+    }
+
+    worker w3 {
+        6 -> w2;
+    }
+
+    map<int|error> mapResult = wait w2;
+    test:assertTrue(mapResult["firstValue"] is error, "Invalid map result");
+    error e = <error> mapResult["firstValue"];
+    test:assertEquals(e.message(), "Error in worker w1", "Invalid error message");
+    test:assertEquals(mapResult["secondValue"], 6, "Invalid int result");
+}
+
+function workerMultipleReceiveWithAllErrorReturn() {
+    worker w1 returns error?{
+        int v = 10;
+        if v == 10 {
+            return error("Error in worker w1");
+        }
+        100 -> w2;
+    }
+
+    worker w2 returns map<int|error> {
+        map<int|error> m = <- { firstValue:w1, secondValue:w3 }; 
+        return m;
+    }
+
+    worker w3 returns error?{ 
+        int v = 10;
+        if v == 10 {
+            return error("Error in worker w3");
+        }
+        6 -> w2;
+    }
+
+    map<int|error> mapResult = wait w2;
+    test:assertTrue(mapResult["firstValue"] is error, "Invalid map result");
+    error e = <error> mapResult["firstValue"];
+    test:assertEquals(e.message(), "Error in worker w1", "Invalid error message");
+    test:assertTrue(mapResult["secondValue"] is error, "Invalid map result");
+    e = <error> mapResult["secondValue"];
+    test:assertEquals(e.message(), "Error in worker w3", "Invalid error message");
+}
+
+function workerMultipleReceiveWithPanic() {
+    worker w1 {
+        int v = 10;
+        if v == 10 {
+            panic error("Error in worker w1");
+        }
+        100 -> w2;
+    }
+
+    worker w2 returns map<int> {
+        map<int> m = <- { firstValue:w1, secondValue:w3 }; 
+        return m;
+    }
+
+    worker w3 {
+        6 -> w2;
+    }
+
+    map<int>|error result = trap wait w2;
+    test:assertTrue(result is error, "Invalid map result");
+    error e = <error> result;
+    test:assertEquals(e.message(), "Error in worker w1", "Invalid error message");
+}
+
+function workerMultipleReceiveWithAllPanic() {
+    worker w1 {
+        runtime:sleep(2);
+        int v = 10;
+        if v == 10 {
+            panic error("Error in worker w1");
+        }
+        100 -> w2;
+    }
+
+    worker w2 returns map<int> {
+        map<int> m = <- { firstValue:w1, secondValue:w3 }; 
+        return m;
+    }
+
+    worker w3 {
+        int v = 10;
+        if v == 10 {
+            panic error("Error in worker w3");
+        }
+        6 -> w2;
+    }
+
+    map<int>|error result = trap wait w2;
+    test:assertTrue(result is error, "Invalid map result");
+    error e = <error> result;
+    test:assertEquals(e.message(), "Error in worker w3", "Invalid error message");
+}
