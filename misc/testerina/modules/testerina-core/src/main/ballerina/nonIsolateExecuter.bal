@@ -16,7 +16,7 @@
 
 function executeTest(TestFunction testFunction) {
     if !conMgr.isEnabled(testFunction.name) {
-        conMgr.setExecutionDone(testFunction.name);
+        conMgr.setExecutionSuspended(testFunction.name);
         conMgr.releaseWorker();
         return;
     }
@@ -26,11 +26,10 @@ function executeTest(TestFunction testFunction) {
         reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(dataDrivenTestParams[testFunction.name]));
         println("\n" + testFunction.name + " has failed.\n");
         enableExit();
-        conMgr.setExecutionDone(testFunction.name);
+        conMgr.setExecutionSuspended(testFunction.name);
         conMgr.releaseWorker();
         return;
     }
-
     executeBeforeGroupFunctions(testFunction);
     executeBeforeEachFunctions();
 
@@ -45,7 +44,6 @@ function executeTest(TestFunction testFunction) {
         reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
         shouldSkipDependents = true;
     }
-
     testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
@@ -108,7 +106,6 @@ function executeDataDrivenTestSet(TestFunction testFunction) {
         AnyOrErrorOrReadOnlyType[] value = values.remove(0);
         prepareDataDrivenTest(testFunction, key, value, testType);
     }
-
 }
 
 function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
@@ -124,9 +121,7 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
         failed = true;
         reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
         println("\n" + testFunction.name + " has failed.\n");
-    }
-
-    else if output {
+    } else if output {
         failed = true;
     }
     boolean afterFailed = executeAfterFunction(testFunction);

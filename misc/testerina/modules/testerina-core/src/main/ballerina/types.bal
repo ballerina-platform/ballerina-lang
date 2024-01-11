@@ -37,3 +37,9 @@ enum TestType {
     DATA_DRIVEN_TUPLE_OF_TUPLE,
     DATA_DRIVEN_MAP_OF_TUPLE
 }
+
+enum TestCompletionStatus {
+    YET_TO_COMPLETE,
+    SUSPENDED,
+    COMPLETED
+}

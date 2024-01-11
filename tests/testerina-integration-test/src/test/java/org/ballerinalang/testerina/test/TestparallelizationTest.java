@@ -123,7 +123,7 @@ public class TestparallelizationTest extends BaseTestCase {
 
     @Test
     public void testNonIsolatedTestFunction() throws BallerinaTestException, IOException {
-        String warningDiagnostics = "WARNING: Test function 'testAssertEquals*' cannot be parallelized due to " +
+        String warningDiagnostics = "WARNING: Test function 'testAssertEquals*' cannot be parallelized, reason: " +
                 "non-isolated test function";
         String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -146,7 +146,7 @@ public class TestparallelizationTest extends BaseTestCase {
 
     @Test
     public void testNonIsolatedTestParameter() throws BallerinaTestException, IOException {
-        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized due to " +
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "unsafe test parameters";
         String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-test-params"});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -166,7 +166,7 @@ public class TestparallelizationTest extends BaseTestCase {
 
     @Test
     public void testNonIsolatedDataProvider() throws BallerinaTestException, IOException {
-        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized due to " +
+        String warningDiagnostics = "WARNING: Test function 'mapDataProviderTest' cannot be parallelized, reason: " +
                 "non-isolated data-provider function";
         String[] args = mergeCoverageArgs(new String[]{"--workers=30", "non-isolated-data-provider"});
         String output = balClient.runMainAndReadStdOut("test", args,

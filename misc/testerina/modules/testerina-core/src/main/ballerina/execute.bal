@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'error as langError;
-import ballerina/lang.runtime;
 
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
@@ -44,7 +43,6 @@ public function startSuite() returns int {
             lock {
                 return exitCode;
             }
-
         }
 
         error? err = orderTests();
@@ -73,31 +71,31 @@ function executeTests() returns error? {
         _ = testFunction.parallelizable ? conMgr.addInitialParallelTest(testFunction) : conMgr.addInitialSerialTest(testFunction);
     }
     while !conMgr.isExecutionDone() {
-
         if conMgr.getAvailableWorkers() != 0 {
-            conMgr.waitUntilEmptyQueueFilled();
+            conMgr.populateExecutionQueues();
             if conMgr.getSerialQueueLength() != 0 && conMgr.getAvailableWorkers() == conMgr.getConfiguredWorkers() {
                 TestFunction testFunction = conMgr.getSerialTest();
                 conMgr.addTestInExecution(testFunction);
                 conMgr.allocateWorker();
                 executeTest(testFunction);
-            }
-
-            else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
+            } else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
                 TestFunction testFunction = conMgr.getParallelTest();
                 conMgr.addTestInExecution(testFunction);
                 conMgr.allocateWorker();
-                ParallelExecutionArgs parallelExecutionMetaData = {params: dataDrivenTestParams[testFunction.name]};
-                future<(error?)> parallelWaiter = start executeTestIso(testFunction, parallelExecutionMetaData);
+                DataProviderReturnType? testFunctionArgs = dataDrivenTestParams[testFunction.name];
+                if testFunctionArgs is map<readonly[]>|readonly[][] {
+                    testFunctionArgs = testFunctionArgs.cloneReadOnly();
+                }
+                future<()> parallelWaiter = start executeTestIso(testFunction, testFunctionArgs);
+
+                // For data driven tests, wait for the worker allocation to complete 
+                // before proceeding to the next test
                 if isDataDrivenTest(dataDrivenTestParams[testFunction.name]) {
                     any _ = check wait parallelWaiter;
                 }
             }
-
         }
-        runtime:sleep(0.0001); // sleep is added to yield the strand
     }
-
     println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
 }
 
@@ -121,7 +119,6 @@ function executeAfterSuiteFunctions() {
 
 function orderTests() returns error? {
     string[] descendants = [];
-
     foreach TestFunction testFunction in testRegistry.getDependentFunctions() {
         if !conMgr.isVisited(testFunction.name) && conMgr.isEnabled(testFunction.name) {
             check restructureTest(testFunction, descendants);
@@ -131,7 +128,6 @@ function orderTests() returns error? {
 
 function restructureTest(TestFunction testFunction, string[] descendants) returns error? {
     descendants.push(testFunction.name);
-
     foreach function dependsOnFunction in testFunction.dependsOn {
         TestFunction dependsOnTestFunction = check testRegistry.getTestFunction(dependsOnFunction);
 
@@ -144,7 +140,6 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             + string `but it is either disabled or not included.`;
             return error(errMsg);
         }
-
         conMgr.addDependent(dependsOnTestFunction.name, testFunction);
 
         // Contains cyclic dependencies
@@ -157,7 +152,6 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             check restructureTest(dependsOnTestFunction, descendants);
         }
     }
-
     conMgr.setEnabled(testFunction.name);
     conMgr.setVisited(testFunction.name);
     _ = descendants.pop();
@@ -168,7 +162,6 @@ isolated function printExecutionError(ExecutionError err, string functionSuffix)
 
 isolated function getErrorMessage(error err) returns string {
     string message = err.toBalString();
-
     string accumulatedTrace = "";
     foreach langError:StackFrame stackFrame in err.stackTrace() {
         accumulatedTrace = accumulatedTrace + "\t" + stackFrame.toString() + "\n";

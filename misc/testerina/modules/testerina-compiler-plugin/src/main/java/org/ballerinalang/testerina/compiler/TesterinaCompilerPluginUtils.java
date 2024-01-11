@@ -79,7 +79,7 @@ public class TesterinaCompilerPluginUtils {
                         getPositionalArg(TesterinaCompilerPluginConstants.TESTS_PARAMETER),
                         getPositionalArg(TesterinaCompilerPluginConstants.RERUN_FAILED_PARAMETER),
                         getPositionalArg(TesterinaCompilerPluginConstants.LIST_GROUPS_PARAMETER),
-                        getPositionalArg(TesterinaCompilerPluginConstants.TEST_PARALLEL_JOBS_PARAMETER)))));
+                        getPositionalArg(TesterinaCompilerPluginConstants.PARALLEL_TEST_JOB_COUNT_PARAMETER)))));
     }
 
     public static void addStartSuiteCall(List<StatementNode> statements) {
@@ -287,7 +287,7 @@ public class TesterinaCompilerPluginUtils {
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN),
                         getStringParameter(TesterinaCompilerPluginConstants.LIST_GROUPS_PARAMETER),
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN),
-                        getStringParameter(TesterinaCompilerPluginConstants.TEST_PARALLEL_JOBS_PARAMETER)),
+                        getStringParameter(TesterinaCompilerPluginConstants.PARALLEL_TEST_JOB_COUNT_PARAMETER)),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
     }
 

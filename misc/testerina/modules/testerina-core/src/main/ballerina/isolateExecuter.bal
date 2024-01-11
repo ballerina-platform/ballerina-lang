@@ -14,39 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-isolated function executeTestIso(TestFunction testFunction, ParallelExecutionArgs parallelExecutionMetaData) returns error? {
+isolated function executeTestIso(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) {
     if !conMgr.isEnabled(testFunction.name) {
-        conMgr.setExecutionDone(testFunction.name);
+        conMgr.setExecutionSuspended(testFunction.name);
         conMgr.releaseWorker();
         return;
     }
 
     error? diagnoseError = testFunction.diagnostics;
-    DataProviderReturnType? dataProviderParams = parallelExecutionMetaData.params;
     if diagnoseError is error {
-        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(dataProviderParams));
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunctionArgs));
         println("\n" + testFunction.name + " has failed.\n");
         enableExit();
-        conMgr.setExecutionDone(testFunction.name);
+        conMgr.setExecutionSuspended(testFunction.name);
         conMgr.releaseWorker();
         return;
     }
-
     executeBeforeGroupFunctionsIso(testFunction);
     executeBeforeEachFunctionsIso();
 
     boolean shouldSkipDependents = false;
     if !conMgr.isSkip(testFunction.name) && !getShouldSkip() {
-        if (isDataDrivenTest(dataProviderParams)) {
-            check executeDataDrivenTestSetIso(testFunction, parallelExecutionMetaData);
+        if (isDataDrivenTest(testFunctionArgs)) {
+            executeDataDrivenTestSetIso(testFunction, testFunctionArgs);
         } else {
-            shouldSkipDependents = executeNonDataDrivenTestIso(testFunction, parallelExecutionMetaData);
+            shouldSkipDependents = executeNonDataDrivenTestIso(testFunction, testFunctionArgs);
         }
     } else {
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(dataProviderParams));
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunctionArgs));
         shouldSkipDependents = true;
     }
-
     testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
     executeAfterEachFunctionsIso();
     executeAfterGroupFunctionsIso(testFunction);
@@ -56,7 +53,6 @@ isolated function executeTestIso(TestFunction testFunction, ParallelExecutionArg
             conMgr.setSkip(dependent.name);
         });
     }
-
     conMgr.setExecutionDone(testFunction.name);
     conMgr.releaseWorker();
 }
@@ -85,20 +81,19 @@ isolated function executeBeforeEachFunctionsIso() {
     }
 }
 
-isolated function executeDataDrivenTestSetIso(TestFunction testFunction, ParallelExecutionArgs parallelExecutionMetaData) returns error? {
-    DataProviderReturnType? params = parallelExecutionMetaData.params;
+isolated function executeDataDrivenTestSetIso(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) {
     string[] keys = [];
     AnyOrErrorOrReadOnlyType[][] values = [];
     TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
-    if params is map<AnyOrErrorOrReadOnlyType[]> {
-        foreach [string, AnyOrErrorOrReadOnlyType[]] entry in params.entries() {
+    if testFunctionArgs is map<AnyOrErrorOrReadOnlyType[]> {
+        foreach [string, AnyOrErrorOrReadOnlyType[]] entry in testFunctionArgs.entries() {
             keys.push(entry[0]);
             values.push(entry[1]);
         }
-    } else if params is AnyOrErrorOrReadOnlyType[][] {
+    } else if testFunctionArgs is AnyOrErrorOrReadOnlyType[][] {
         testType = DATA_DRIVEN_TUPLE_OF_TUPLE;
         int i = 0;
-        foreach AnyOrErrorOrReadOnlyType[] entry in params {
+        foreach AnyOrErrorOrReadOnlyType[] entry in testFunctionArgs {
             keys.push(i.toString());
             values.push(entry);
             i += 1;
@@ -106,37 +101,29 @@ isolated function executeDataDrivenTestSetIso(TestFunction testFunction, Paralle
     }
 
     boolean isIntialJob = true;
-
     while keys.length() != 0 {
-
         if isIntialJob || conMgr.getAvailableWorkers() > 0 {
             string key = keys.remove(0);
             ReadOnlyType[] value = <ReadOnlyType[]>values.remove(0);
-
             if !isIntialJob {
                 conMgr.allocateWorker();
             }
-
             future<()> _ = start prepareDataDrivenTestIso(testFunction, key, value.clone(), testType);
         }
-
         isIntialJob = false;
-        conMgr.waitForWorkers();
     }
-
-    conMgr.waitForWorkers();
 
     if !isIntialJob {
         conMgr.allocateWorker();
     }
 }
 
-isolated function executeNonDataDrivenTestIso(TestFunction testFunction, ParallelExecutionArgs parallelExecutionMetaData) returns boolean {
+isolated function executeNonDataDrivenTestIso(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) returns boolean {
     boolean failed = false;
     boolean beforeFailed = executeBeforeFunctionIso(testFunction);
-    if (beforeFailed) {
+    if beforeFailed {
         conMgr.setSkip(testFunction.name);
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(parallelExecutionMetaData.params));
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunctionArgs));
         return true;
     }
 
@@ -145,17 +132,15 @@ isolated function executeNonDataDrivenTestIso(TestFunction testFunction, Paralle
         failed = true;
         reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
         println("\n" + testFunction.name + " has failed.\n");
-    }
-
-    else if output {
+    } else if output {
         failed = true;
     }
+
     boolean afterFailed = executeAfterFunctionIso(testFunction);
-    if (afterFailed) {
+    if afterFailed {
         return true;
     }
     return failed;
-
 }
 
 isolated function executeAfterEachFunctionsIso() {
@@ -193,14 +178,11 @@ isolated function prepareDataDrivenTestIso(TestFunction testFunction, string key
     boolean beforeFailed = executeBeforeFunctionIso(testFunction);
     if (beforeFailed) {
         reportData.onSkipped(name = testFunction.name, testType = testType);
-    }
-
-    else {
+    } else {
         executeDataDrivenTestIso(testFunction, key, testType, value);
         var _ = executeAfterFunctionIso(testFunction);
     }
     conMgr.releaseWorker();
-
 }
 
 isolated function executeDataDrivenTestIso(TestFunction testFunction, string suffix, TestType testType, AnyOrErrorOrReadOnlyType[] params) {
@@ -215,7 +197,6 @@ isolated function executeDataDrivenTestIso(TestFunction testFunction, string suf
         println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
         enableExit();
     }
-
 }
 
 isolated function executeBeforeFunctionIso(TestFunction testFunction) returns boolean {
@@ -239,17 +220,12 @@ isolated function executeTestFunctionIso(TestFunction testFunction, string suffi
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
         println("\n" + testFunction.name + ":" + suffix + " has failed\n");
         return true;
-    }
-
-    else if output is any {
+    } else if output is any {
         reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
         return false;
-    }
-
-    else {
+    } else {
         enableExit();
         return error(getErrorMessage(output), functionName = testFunction.name);
-
     }
 }
 
@@ -296,7 +272,6 @@ isolated function skipDataDrivenTestIso(TestFunction testFunction, string suffix
                 }
             }
         }
-
     }
 
     // check if no filterSubTests found for a given prefix
@@ -305,9 +280,7 @@ isolated function skipDataDrivenTestIso(TestFunction testFunction, string suffix
     // if a subtest is found specified
     if (!suffixMatch) {
         string[] subTests = testOptions.getFilterSubTest(functionKey);
-
         foreach string subFilter in subTests {
-
             string updatedSubFilter = subFilter;
             if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
                 if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {

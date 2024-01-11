@@ -1,4 +1,3 @@
-import ballerina/lang.array;
 // Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,7 +13,7 @@ import ballerina/lang.array;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/lang.runtime;
+import ballerina/lang.array;
 
 isolated final TestRegistry testRegistry = new ();
 isolated final TestRegistry beforeSuiteRegistry = new ();
@@ -25,10 +24,6 @@ isolated final TestRegistry afterEachRegistry = new ();
 isolated final GroupRegistry beforeGroupsRegistry = new ();
 isolated final GroupRegistry afterGroupsRegistry = new ();
 isolated final GroupStatusRegistry groupStatusRegistry = new ();
-
-type ParallelExecutionArgs record {|
-    DataProviderReturnType? params;
-|};
 
 type TestFunction record {|
     string name;
@@ -50,7 +45,7 @@ type TestFunctionMetaData record {|
     TestFunction[] dependents = [];
     boolean visited = false;
     boolean isInExecutionQueue = false;
-    boolean isExecutionDone = false;
+    TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
 |};
 
 isolated class ConcurrentExecutionManager {
@@ -69,7 +64,13 @@ isolated class ConcurrentExecutionManager {
 
     isolated function setExecutionDone(string functionName) {
         lock {
-            self.testMetaData[functionName].isExecutionDone = true;
+            self.testMetaData[functionName].executionCompletionStatus = COMPLETED;
+        }
+    }
+
+    isolated function setExecutionSuspended(string functionName) {
+        lock {
+            self.testMetaData[functionName].executionCompletionStatus = SUSPENDED;
         }
     }
 
@@ -87,13 +88,12 @@ isolated class ConcurrentExecutionManager {
 
     isolated function isEnabled(string functionName) returns boolean {
         lock {
-            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
-            if unionResult is TestFunctionMetaData {
-                return unionResult.enabled;
+            TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
+            if testFunctionMetaData is TestFunctionMetaData {
+                return testFunctionMetaData.enabled;
             } else {
                 return false;
             }
-
         }
     }
 
@@ -105,25 +105,23 @@ isolated class ConcurrentExecutionManager {
 
     isolated function isVisited(string functionName) returns boolean {
         lock {
-            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
-            if unionResult is TestFunctionMetaData {
-                return unionResult.visited;
+            TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
+            if testFunctionMetaData is TestFunctionMetaData {
+                return testFunctionMetaData.visited;
             } else {
                 return false;
             }
-
         }
     }
 
     isolated function isSkip(string functionName) returns boolean {
         lock {
-            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
-            if unionResult is TestFunctionMetaData {
-                return unionResult.skip;
+            TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
+            if testFunctionMetaData is TestFunctionMetaData {
+                return testFunctionMetaData.skip;
             } else {
                 return false;
             }
-
         }
     }
 
@@ -135,18 +133,18 @@ isolated class ConcurrentExecutionManager {
 
     isolated function addDependent(string functionName, TestFunction dependent) {
         lock {
-            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
-            if unionResult is TestFunctionMetaData {
-                unionResult.dependents.push(dependent);
+            TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
+            if testFunctionMetaData is TestFunctionMetaData {
+                testFunctionMetaData.dependents.push(dependent);
             }
         }
     }
 
     isolated function getDependents(string functionName) returns TestFunction[] {
         lock {
-            TestFunctionMetaData? unionResult = self.testMetaData[functionName];
-            if unionResult is TestFunctionMetaData {
-                return unionResult.dependents.clone();
+            TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
+            if testFunctionMetaData is TestFunctionMetaData {
+                return testFunctionMetaData.dependents.clone();
             } else {
                 return [];
             }
@@ -229,12 +227,6 @@ isolated class ConcurrentExecutionManager {
         }
     }
 
-    isolated function waitForWorkers() {
-        while self.getAvailableWorkers() < 1 {
-            runtime:sleep(0.0001); // sleep is added to yield the strand
-        }
-    }
-
     isolated function getAvailableWorkers() returns int {
         lock {
             return self.unAllocatedTestWorkers;
@@ -253,36 +245,21 @@ isolated class ConcurrentExecutionManager {
         }
     }
 
-    isolated function waitUntilEmptyQueueFilled() {
-        int parallelQueueLength = 0;
-        int serialQueueLength = 0;
-        self.populateExecutionQueues();
-        lock {
-            parallelQueueLength = self.parallelTestExecutionList.length();
-            serialQueueLength = self.serialTestExecutionList.length();
-        }
-        while parallelQueueLength == 0 && serialQueueLength == 0 {
-            self.populateExecutionQueues();
-            runtime:sleep(0.0001); // sleep is added to yield the strand
-            if self.isExecutionDone() {
-                break;
-            }
-        }
-    }
-
     isolated function populateExecutionQueues() {
         lock {
             int i = 0;
-            boolean isExecutionDone = false;
+            TestCompletionStatus executionCompletionStatus = YET_TO_COMPLETE;
             while i < self.testsInExecution.length() {
                 TestFunction testInProgress = self.testsInExecution[i];
                 TestFunctionMetaData? inProgressTestMetaData = self.testMetaData[testInProgress.name];
                 if inProgressTestMetaData == () {
                     return;
                 }
-                isExecutionDone = inProgressTestMetaData.isExecutionDone;
-                if isExecutionDone {
+                executionCompletionStatus = inProgressTestMetaData.executionCompletionStatus;
+                if executionCompletionStatus == COMPLETED {
                     inProgressTestMetaData.dependents.reverse().forEach(dependent => self.checkExecutionReadiness(dependent));
+                    _ = self.testsInExecution.remove(i);
+                } else if executionCompletionStatus == SUSPENDED {
                     _ = self.testsInExecution.remove(i);
                 } else {
                     i = i + 1;
@@ -293,18 +270,16 @@ isolated class ConcurrentExecutionManager {
 
     private isolated function checkExecutionReadiness(TestFunction testFunction) {
         lock {
-            TestFunctionMetaData? unionResult = self.testMetaData[testFunction.name];
-            if unionResult is TestFunctionMetaData {
-                unionResult.dependsOnCount -= 1;
-                if unionResult.dependsOnCount == 0 && unionResult.isInExecutionQueue != true {
-                    unionResult.isInExecutionQueue = true;
+            TestFunctionMetaData? testFunctionMetaData = self.testMetaData[testFunction.name];
+            if testFunctionMetaData is TestFunctionMetaData {
+                testFunctionMetaData.dependsOnCount -= 1;
+                if testFunctionMetaData.dependsOnCount == 0 && testFunctionMetaData.isInExecutionQueue != true {
+                    testFunctionMetaData.isInExecutionQueue = true;
                     _ = testFunction.parallelizable ? self.parallelTestExecutionList.push(testFunction) : self.serialTestExecutionList.push(testFunction);
                 }
-
             }
         }
     }
-
 }
 
 isolated class TestOptions {
@@ -439,7 +414,6 @@ isolated class TestOptions {
             return self.hasFilteredTests;
         }
     }
-
 }
 
 isolated class TestRegistry {
@@ -485,9 +459,7 @@ isolated class TestRegistry {
         lock {
             return self.dependentRegistry.clone();
         }
-
     }
-
 }
 
 isolated class GroupRegistry {
@@ -509,7 +481,6 @@ isolated class GroupRegistry {
                 return self.registry.get('group).cloneReadOnly();
             }
             return;
-
         }
     }
 }
@@ -527,7 +498,6 @@ isolated class GroupStatusRegistry {
     }
     isolated function lastExecuted(string 'group) returns boolean {
         lock {
-
             return self.executedTests.get('group) == self.enabledTests.get('group);
         }
     }
@@ -578,7 +548,4 @@ isolated class GroupStatusRegistry {
             return self.totalTests.keys().clone();
         }
     }
-
 }
-
-isolated function testFunctionsSort(TestFunction testFunction) returns string => testFunction.name;

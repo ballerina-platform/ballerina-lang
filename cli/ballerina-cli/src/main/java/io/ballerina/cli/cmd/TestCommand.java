@@ -132,7 +132,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = "--workers", description = "maximum number of parallel test jobs")
+    @CommandLine.Option(names = "--workers", description = "maximum number of parallel test jobs", defaultValue = "1")
     private int workers;
 
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
@@ -282,7 +282,7 @@ public class TestCommand implements BLauncherCmd {
             return;
         }
 
-        if (workers < 0) {
+        if (workers < 1) {
             this.outStream.println("\nWarning: Workers can not be negative or zero. Test execution is proceeded " +
                     "with default worker count.\n");
         }

@@ -19,13 +19,23 @@ testInvalidDataProvider:0 has failed.
 		    [fail data provider for the function testInvalidDataProvider]
 			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '(string)'")
 				callableName: call moduleName: ballerina.lang.function.0 fileName: function.bal lineNumber: 37
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 446
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 233
-				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 222
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 209
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 185
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 175
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 109
+				callableName: executeTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 40
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 55
+				callableName: __execute__  fileName: invalid-data-provider-test.bal lineNumber: 37
 			",functionName="testInvalidDataProvider")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 461
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 233
-				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 222
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 220
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 185
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 175
+				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 109
+				callableName: executeTest moduleName: ballerina.test.0 fileName: nonIsolateExecuter.bal lineNumber: 40
+				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 81
+				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 55
+				callableName: __execute__  fileName: invalid-data-provider-test.bal lineNumber: 37
 			
 
 

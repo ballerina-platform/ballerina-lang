@@ -210,7 +210,6 @@ isolated function failedTestsReport(ReportData data) {
     error? err = writeContent(filePath, rerunJson.toString());
     if err is error {
         println(err.message());
-
     }
 }
 

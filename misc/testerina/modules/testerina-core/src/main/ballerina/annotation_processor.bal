@@ -51,13 +51,11 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean isDataProviderIsolated = true;
         boolean isTestFunctionParamSafe = true;
         boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated;
-        string[] reasonToSerialExecution = [];
-
+        string[] reasonForSerialExecution = [];
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
             var providerFn = config.dataProvider;
-
             if providerFn is function () returns (DataProviderReturnType?) {
                 isDataProviderIsolated = (<function>providerFn is isolated function);
                 isTestFunctionParamSafe = isFunctionParamConcurrencySafe(f);
@@ -71,20 +69,18 @@ function processConfigAnnotation(string name, function f) returns boolean {
 
         // Register the reason for serial execution.
         if !isTestFunctionIsolated {
-            reasonToSerialExecution.push("non-isolated test function");
+            reasonForSerialExecution.push("non-isolated test function");
         }
-
         if !isDataProviderIsolated {
-            reasonToSerialExecution.push("non-isolated data-provider function");
+            reasonForSerialExecution.push("non-isolated data-provider function");
         }
-
         if !isTestFunctionParamSafe {
-            reasonToSerialExecution.push("unsafe test parameters");
+            reasonForSerialExecution.push("unsafe test parameters");
         }
 
         // If the test function is not parallelizable, then print the reason for serial execution.
         if !isSatisfiedParallelizableConditions && !config.serialExecution && (conMgr.getConfiguredWorkers() > 1) {
-            println("WARNING: Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
+            println("WARNING: Test function '" + name + "' cannot be parallelized, reason: " + string:'join(",", ...reasonForSerialExecution));
         }
 
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
@@ -93,7 +89,8 @@ function processConfigAnnotation(string name, function f) returns boolean {
         dataDrivenTestParams[name] = params;
         testRegistry.addFunction(name = name, executableFunction = f, before = config.before,
             after = config.after, groups = config.groups.cloneReadOnly(), diagnostics = diagnostics, dependsOn = config.dependsOn.cloneReadOnly(),
-            parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (conMgr.getConfiguredWorkers() > 1)), config = config.cloneReadOnly());
+            parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions && (conMgr.getConfiguredWorkers() > 1)),
+            config = config.cloneReadOnly());
         conMgr.createTestFunctionMetaData(functionName = name, dependsOnCount = config.dependsOn.length(), enabled = enabled);
     }
     return false;
@@ -172,9 +169,7 @@ isolated function hasTest(string name) returns boolean {
             foreach string filter in testOptions.getFilterTests() {
                 if (filter.includes(WILDCARD)) {
                     boolean|error wildCardMatch = matchWildcard(testName, filter);
-                    if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
-                        return true;
-                    }
+                    return (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter));
                 }
             }
             return false;
