@@ -104,12 +104,13 @@ public class ArrayUtils {
         TupleType tupleType = (TupleType) arrType;
         List<Type> memTypes = new ArrayList<>();
         List<Type> tupleTypes = tupleType.getTupleTypes();
-        boolean isSameType = true;
-        Type sameType = null;
-        if (!tupleTypes.isEmpty()) {
-            sameType = tupleTypes.get(0);
-            memTypes.add(sameType);
+        if (tupleTypes.isEmpty()) {
+            // Return an array with never type as the element type
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_NEVER));
         }
+        boolean isSameType = true;
+        Type sameType = tupleTypes.get(0);
+        memTypes.add(sameType);
         for (int i = 1; i < tupleTypes.size(); i++) {
             isSameType &= sameType == tupleTypes.get(i);
             memTypes.add(tupleTypes.get(i));
@@ -122,10 +123,6 @@ public class ArrayUtils {
         }
         // Create an array of one type if the member-type-descriptors are the same
         if (isSameType) {
-            // Create an array with never type as element type if the `sameType` is null
-            if (sameType == null) {
-                return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_NEVER));
-            }
             ArrayType type = TypeCreator.createArrayType(sameType);
             return ValueCreator.createArrayValue(type);
         }
