@@ -88,6 +88,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
@@ -349,6 +350,36 @@ public class TestBuildProject extends BaseTest {
 
         platformLibraries = jBallerinaBackend.platformLibraryDependencies(currentPackage.packageId());
         Assert.assertEquals(platformLibraries.size(), 4);
+    }
+
+    @Test(description = "Tests compiling a build project with no langlib files " +
+            "included in the jar file collection for executing the test")
+    public void testBuildProjectWithNoLangLibFilesIncluded() {
+        Path projectPath = tempResourceDir.resolve("myproject_with_lang_import");
+
+        // 1) Initialize the project instance
+        BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        
+        // 2) Compile the current package
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_17);
+
+        // 3) get topologically sorted modules
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+
+            // 4) get jar files for each module
+            Collection<JarLibrary> jarLibraries = jBallerinaBackend.jarResolver()
+                    .getJarFilePathsRequiredForTestExecution(moduleDescriptor.name());
+
+            // 5) assert that langlib files are not included in the jar files
+            for (JarLibrary jarLibrary : jarLibraries) {
+                boolean found = Pattern.matches(".*ballerina-lang\\..+.jar", jarLibrary.path().toString());
+                Assert.assertFalse(found, "langlib files are included in the jar files at " +
+                        jarLibrary.path().toString());
+            }
+        }
     }
 
     @Test(description = "tests package compilation with errors in test source files")
