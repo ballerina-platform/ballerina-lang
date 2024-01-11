@@ -51,6 +51,7 @@ public class Constants {
     public static final String PROFILE_ANALYZER = "io/ballerina/runtime/profiler/runtime/ProfileAnalyzer";
     public static final String GET_INSTANCE_DESCRIPTOR = "()L" + PROFILE_ANALYZER + ";";
     public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String JAVA_COMMAND = "java.command";
     public static final String WORKING_DIRECTORY = "user.dir";
     public static final String PROFILE_DATA = "${profile_data}";
     public static final String HTML_TEMPLATE_FILE = "profiler_output.html";
