@@ -215,3 +215,214 @@ isolated function enableExit() {
     }
 }
 
+isolated function isTestReadyToExecute(TestFunction testFunction, DataProviderReturnType? testFunctionArgs) returns boolean {
+    if !conMgr.isEnabled(testFunction.name) {
+        conMgr.setExecutionSuspended(testFunction.name);
+        conMgr.releaseWorker();
+        return false;
+    }
+
+    error? diagnoseError = testFunction.diagnostics;
+    if diagnoseError is error {
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunctionArgs));
+        println("\n" + testFunction.name + " has failed.\n");
+        enableExit();
+        conMgr.setExecutionSuspended(testFunction.name);
+        conMgr.releaseWorker();
+        return false;
+    }
+    return true;
+}
+
+isolated function finishTestExecution(TestFunction testFunction, boolean shouldSkipDependents) {
+    if shouldSkipDependents {
+        conMgr.getDependents(testFunction.name).forEach(isolated function(TestFunction dependent) {
+            conMgr.setSkip(dependent.name);
+        });
+    }
+    conMgr.setExecutionDone(testFunction.name);
+    conMgr.releaseWorker();
+}
+
+isolated function handleBeforeGroupOutput(TestFunction testFunction, string 'group, ExecutionError? err) {
+    if err is ExecutionError {
+        conMgr.setSkip(testFunction.name);
+        groupStatusRegistry.setSkipAfterGroup('group);
+        enableExit();
+        printExecutionError(err, "before test group function for the test");
+    }
+}
+
+isolated function handleBeforeEachOutput(ExecutionError? err) {
+    if err is ExecutionError {
+        enableShouldSkip();
+        enableExit();
+        printExecutionError(err, "before each test function for the test");
+    }
+}
+
+isolated function handleNonDataDrivenTestOutput(TestFunction testFunction, ExecutionError|boolean output) returns boolean {
+    boolean failed = false;
+    if output is ExecutionError {
+        failed = true;
+        reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
+        println("\n" + testFunction.name + " has failed.\n");
+    } else if output {
+        failed = true;
+    }
+    return failed;
+}
+
+isolated function handleAfterEachOutput(ExecutionError? err) {
+    if err is ExecutionError {
+        enableShouldSkip();
+        enableExit();
+        printExecutionError(err, "after each test function for the test");
+    }
+}
+
+isolated function handleAfterGroupOutput(ExecutionError? err) {
+    if err is ExecutionError {
+        enableExit();
+        printExecutionError(err, "after test group function for the test");
+    }
+}
+
+isolated function handleDataDrivenTestOutput(ExecutionError|boolean err, TestFunction testFunction, string suffix,
+        TestType testType) {
+    if err is ExecutionError {
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
+                + "]\n" + getErrorMessage(err), testType = testType);
+        println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
+        enableExit();
+    }
+}
+
+isolated function handleBeforeFunctionOutput(ExecutionError? err) returns boolean {
+    if err is ExecutionError {
+        enableExit();
+        printExecutionError(err, "before test function for the test");
+        return true;
+    }
+    return false;
+}
+
+isolated function handleAfterFunctionOutput(ExecutionError? err) returns boolean {
+    if err is ExecutionError {
+        enableExit();
+        printExecutionError(err, "after test function for the test");
+        return true;
+    }
+    return false;
+}
+
+isolated function handleTestFuncOutput(any|error output, TestFunction testFunction, string suffix, TestType testType) returns ExecutionError|boolean {
+    if output is TestError {
+        enableExit();
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
+        println("\n" + testFunction.name + ":" + suffix + " has failed\n");
+        return true;
+    } else if output is any {
+        reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
+        return false;
+    } else {
+        enableExit();
+        return error(getErrorMessage(output), functionName = testFunction.name);
+    }
+}
+
+isolated function prepareDataSet(DataProviderReturnType? testFunctionArgs, string[] keys,
+        AnyOrErrorOrReadOnlyType[][] values) returns TestType {
+    TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
+    if testFunctionArgs is map<AnyOrErrorOrReadOnlyType[]> {
+        foreach [string, AnyOrErrorOrReadOnlyType[]] entry in testFunctionArgs.entries() {
+            keys.push(entry[0]);
+            values.push(entry[1]);
+        }
+    } else if testFunctionArgs is AnyOrErrorOrReadOnlyType[][] {
+        testType = DATA_DRIVEN_TUPLE_OF_TUPLE;
+        int i = 0;
+        foreach AnyOrErrorOrReadOnlyType[] entry in testFunctionArgs {
+            keys.push(i.toString());
+            values.push(entry);
+            i += 1;
+        }
+    }
+    return testType;
+}
+
+isolated function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType testType) returns boolean {
+    string functionName = testFunction.name;
+    if (!testOptions.getHasFilteredTests()) {
+        return false;
+    }
+    TestFunction[] dependents = conMgr.getDependents(functionName);
+
+    // if a dependent in a below level is enabled, this test should run
+    if (dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents)) {
+        return false;
+    }
+    string functionKey = functionName;
+
+    // check if prefix matches directly
+    boolean prefixMatch = testOptions.isFilterSubTestsContains(functionName);
+
+    // if prefix matches to a wildcard
+    if (!prefixMatch && hasTest(functionName)) {
+
+        // get the matching wildcard
+        prefixMatch = true;
+        foreach string filter in testOptions.getFilterTests() {
+            if (filter.includes(WILDCARD)) {
+                boolean|error wildCardMatch = matchWildcard(functionKey, filter);
+                if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
+                    functionKey = filter;
+                    break;
+                }
+            }
+        }
+    }
+
+    // check if no filterSubTests found for a given prefix
+    boolean suffixMatch = testOptions.isFilterSubTestsContains(functionKey);
+
+    // if a subtest is found specified
+    if (!suffixMatch) {
+        string[] subTests = testOptions.getFilterSubTest(functionKey);
+        foreach string subFilter in subTests {
+            string updatedSubFilter = subFilter;
+            if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
+                if !subFilter.startsWith(SINGLE_QUOTE) || !subFilter.endsWith(SINGLE_QUOTE) {
+                    continue;
+                }
+                updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
+            }
+            string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
+            updatedSubFilter = decodedSubFilter is string ? decodedSubFilter : updatedSubFilter;
+            string|error decodedSuffix = escapeSpecialCharacters(suffix);
+            string updatedSuffix = decodedSuffix is string ? decodedSuffix : suffix;
+
+            boolean wildCardMatchBoolean = false;
+            if (updatedSubFilter.includes(WILDCARD)) {
+                boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
+                wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
+            }
+            if ((updatedSubFilter == updatedSuffix) || wildCardMatchBoolean) {
+                suffixMatch = true;
+                break;
+            }
+        }
+    }
+
+    // do not skip iff both matches
+    return !(prefixMatch && suffixMatch);
+}
+
+isolated function isBeforeFuncConditionMet(TestFunction testFunction) returns boolean =>
+                testFunction.before is function && !getShouldSkip() && !conMgr.isSkip(testFunction.name);
+
+isolated function isAfterFuncConditionMet(TestFunction testFunction) returns boolean =>
+                testFunction.after is function && !getShouldSkip() && !conMgr.isSkip(testFunction.name);
+
+isolated function isSkipFunction(TestFunction testFunction) returns boolean =>
+                conMgr.isSkip(testFunction.name) || getShouldSkip();

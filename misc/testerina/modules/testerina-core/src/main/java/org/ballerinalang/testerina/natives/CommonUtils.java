@@ -32,8 +32,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
  */
 public class CommonUtils {
     public static BDecimal currentTimeInMillis() {
-        long currentTime = System.currentTimeMillis();
-        return BDecimal.valueOf(currentTime);
+        return BDecimal.valueOf(System.currentTimeMillis());
     }
 
     public static Object isFunctionParamConcurrencySafe(BFunctionPointer func) {

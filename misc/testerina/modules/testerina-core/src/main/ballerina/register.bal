@@ -49,9 +49,9 @@ type TestFunctionMetaData record {|
 |};
 
 isolated class ConcurrentExecutionManager {
-    private TestFunction[] parallelTestExecutionList = [];
-    private TestFunction[] serialTestExecutionList = [];
-    private TestFunction[] testsInExecution = [];
+    private final TestFunction[] parallelTestExecutionList = [];
+    private final TestFunction[] serialTestExecutionList = [];
+    private final TestFunction[] testsInExecution = [];
     private int unAllocatedTestWorkers = 1;
     private int intialWorkers = 1;
     private final map<TestFunctionMetaData> testMetaData = {};
@@ -91,9 +91,8 @@ isolated class ConcurrentExecutionManager {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
             if testFunctionMetaData is TestFunctionMetaData {
                 return testFunctionMetaData.enabled;
-            } else {
-                return false;
             }
+            return false;
         }
     }
 
@@ -108,9 +107,8 @@ isolated class ConcurrentExecutionManager {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
             if testFunctionMetaData is TestFunctionMetaData {
                 return testFunctionMetaData.visited;
-            } else {
-                return false;
             }
+            return false;
         }
     }
 
@@ -119,9 +117,8 @@ isolated class ConcurrentExecutionManager {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
             if testFunctionMetaData is TestFunctionMetaData {
                 return testFunctionMetaData.skip;
-            } else {
-                return false;
             }
+            return false;
         }
     }
 
@@ -145,9 +142,8 @@ isolated class ConcurrentExecutionManager {
             TestFunctionMetaData? testFunctionMetaData = self.testMetaData[functionName];
             if testFunctionMetaData is TestFunctionMetaData {
                 return testFunctionMetaData.dependents.clone();
-            } else {
-                return [];
             }
+            return [];
         }
     }
 
