@@ -70,7 +70,7 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
         reportData.onSkipped(name = testFunction.name, testType = getTestType(dataDrivenTestParams[testFunction.name]));
         return true;
     }
-    boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunctionIso(testFunction, "", GENERAL_TEST));
+    boolean failed = handleNonDataDrivenTestOutput(testFunction, executeTestFunction(testFunction, "", GENERAL_TEST));
 
     if executeAfterFunction(testFunction) {
         return true;
