@@ -3075,6 +3075,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        BType restConstraint) {
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
         BRecordType recordVarType = new BRecordType(recordSymbol);
+        recordSymbol.type = recordVarType;
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
             BType referredRestFieldType = Types.getImpliedType(recordType.restFieldType);

@@ -1,0 +1,5 @@
+[tool]
+id = "gayals" # should be the same as Picocli command name
+
+[[dependency]]
+path = "./tool/libs/GayalsCommand-1.0-SNAPSHOT.jar"

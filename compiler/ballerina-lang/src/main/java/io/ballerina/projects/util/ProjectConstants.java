@@ -85,6 +85,7 @@ public class ProjectConstants {
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TESTS_CACHE_DIR_NAME = "tests_cache";
     public static final String TEST_DIR_NAME = "tests";
+    public static final String USER_DIR_PROPERTY = "user.dir";
 
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".bala";
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
@@ -132,4 +133,8 @@ public class ProjectConstants {
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
     public static final String CONFIG_DIR = ".config";
     public static final String PROFILER_DIR_NAME = "profiler";
+    public static final String TOOL_CACHE_DIR = "tool-cache";
+    public static final String ORG = "org";
+    public static final String PACKAGE_NAME = "name";
+    public static final String LOCAL_TOOLS_JSON = "local-tools.json";
 }
