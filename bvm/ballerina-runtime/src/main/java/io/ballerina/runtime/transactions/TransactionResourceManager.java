@@ -106,7 +106,7 @@ public class TransactionResourceManager {
         resourceRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
-        transactionInfoMap = new HashMap<>();
+        transactionInfoMap = new ConcurrentHashMap<>();
         transactionManagerEnabled = getTransactionManagerEnabled();
         if (transactionManagerEnabled) {
             trxRegistry = new HashMap<>();
@@ -589,11 +589,11 @@ public class TransactionResourceManager {
     }
 
     private String generateCombinedTransactionId(String transactionId, String transactionBlockId) {
-        String compoundId =  transactionId + ":" + transactionBlockId;
         if (transactionBlockId.contains("_")) {
-            return compoundId;
+            // remove the strand id from the transaction block id
+            return transactionBlockId.split("_")[0];
         }
-        return compoundId + "_" + Scheduler.getStrand().getId();
+        return transactionId + ":" + transactionBlockId;
     }
 
     public void notifyResourceFailure(String gTransactionId) {
@@ -610,6 +610,11 @@ public class TransactionResourceManager {
     }
 
     public Object getTransactionRecord(BArray xid) {
-        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+        synchronized (transactionInfoMap) {
+            if (transactionInfoMap.containsKey(ByteBuffer.wrap(xid.getBytes()))) {
+                return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+            }
+            return null;
+        }
     }
 }

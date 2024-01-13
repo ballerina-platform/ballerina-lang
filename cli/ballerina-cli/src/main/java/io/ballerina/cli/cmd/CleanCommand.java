@@ -43,7 +43,7 @@ public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
     private boolean exitWhenFinish;
-    
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -62,9 +62,9 @@ public class CleanCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public CleanCommand(Path projectPath, boolean exitWhenFinish, Path targetDir) {
+    public CleanCommand(Path projectPath, PrintStream printStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = projectPath;
-        this.outStream =  System.out;
+        this.outStream =  printStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
     }
@@ -93,18 +93,31 @@ public class CleanCommand implements BLauncherCmd {
             CommandUtil.printError(this.outStream,
                     "provided target directory '" + this.targetDir + "' does not exist.",
                     null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        if (!Files.isDirectory(this.targetDir)) {
+        } else if (!Files.isDirectory(this.targetDir)) {
             CommandUtil.printError(this.outStream,
                     "provided target path '" + this.targetDir + "' is not a directory.",
                     null, false);
+        } else {
+            ProjectUtils.deleteDirectory(this.targetDir);
+            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        }
+
+        //delete the generated directory
+        Path generatedDir;
+        try {
+            Project project = BuildProject.load(this.projectPath);
+            generatedDir = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        } catch (ProjectException e) {
+            CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        ProjectUtils.deleteDirectory(this.targetDir);
-        this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        if (Files.notExists(generatedDir)) {
+            this.outStream.println("Existing generated directory was not found");
+        } else {
+            ProjectUtils.deleteDirectory(generatedDir);
+            this.outStream.println("Successfully deleted '" + generatedDir + "'.");
+        }
     }
     
     @Override
