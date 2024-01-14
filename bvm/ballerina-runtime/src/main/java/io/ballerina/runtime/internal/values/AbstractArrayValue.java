@@ -17,6 +17,9 @@
 */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
@@ -62,6 +65,14 @@ public abstract class AbstractArrayValue implements ArrayValue {
     protected static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
     protected Type iteratorNextReturnType;
+
+    private SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
+            SimpleTypeTag.LIST));
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
+    }
 
     /**
      * Append value to the existing array.

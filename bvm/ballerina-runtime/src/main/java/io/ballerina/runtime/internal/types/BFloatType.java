@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.FloatType;
 
@@ -36,7 +39,8 @@ public class BFloatType extends BType implements FloatType {
      * @param typeName string name of the type
      */
     public BFloatType(String typeName, Module pkg) {
-        super(typeName, pkg, Double.class);
+        super(typeName, pkg, Double.class,
+                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FLOAT), SimpleTypeBuilder.NONE));
     }
 
     @Override

@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -36,6 +39,20 @@ import java.util.Map;
  */
 public abstract class RegExpCommonValue implements RefValue {
 
+    // FIXME: currently our anydata representation don't have regex
+    private final SimpleType simpleType = new SimpleType(
+            SimpleTypeBuilder.basicTypeUnionBitset(
+                    SimpleTypeTag.NIL,
+                    SimpleTypeTag.BOOLEAN,
+                    SimpleTypeTag.INT,
+                    SimpleTypeTag.FLOAT,
+                    SimpleTypeTag.DECIMAL,
+                    SimpleTypeTag.STRING,
+                    SimpleTypeTag.LIST,
+                    SimpleTypeTag.MAPPING,
+                    SimpleTypeTag.TABLE,
+                    SimpleTypeTag.XML),
+            SimpleTypeBuilder.NONE);
     @Override
     public String expressionStringValue(BLink parent) {
         return stringValue(parent);
@@ -64,5 +81,10 @@ public abstract class RegExpCommonValue implements RefValue {
     @Override
     public BTypedesc getTypedesc() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 }

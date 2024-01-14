@@ -18,6 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -38,6 +40,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@code BUnionType} represents a union type in Ballerina.
@@ -70,7 +74,8 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     private BUnionType(List<Type> memberTypes, List<Type> originalMemberTypes, int typeFlags, boolean isCyclic,
                        long flags) {
-        super(null, null, Object.class);
+        super(null, null, Object.class, SimpleTypeBuilder.union(Stream.concat(memberTypes.stream(),
+                originalMemberTypes.stream()).collect(Collectors.toList())));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.flags = flags;
@@ -79,7 +84,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(int typeFlags, boolean isCyclic, long flags) {
-        super(null, null, Object.class);
+        super(null, null, Object.class, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.ALL));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.memberTypes = new ArrayList<>(0);
@@ -92,7 +97,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(String typeName, Module pkg, List<Type> memberTypes, boolean readonly) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, SimpleTypeBuilder.union(memberTypes));
         this.readonly = readonly;
         setMemberTypes(memberTypes);
     }
@@ -102,7 +107,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(List<Type> memberTypes, boolean readonly, boolean isCyclic) {
-        super(null, null, Object.class);
+        super(null, null, Object.class, SimpleTypeBuilder.union(memberTypes));
         this.typeFlags = 0;
         this.readonly = readonly;
         setMemberTypes(memberTypes);
@@ -118,7 +123,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     public BUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
-        super(name, pkg, Object.class);
+        super(name, pkg, Object.class, SimpleTypeBuilder.union(memberTypes));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.memberTypes = memberTypes;
@@ -131,7 +136,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
-        super(typeName, pkg, valueClass);
+        super(typeName, pkg, valueClass, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.NONE));
         this.readonly = readonly;
     }
 
@@ -142,7 +147,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
      * @param typeName typename associated with the type
      */
     protected BUnionType(BUnionType unionType, String typeName, boolean readonly) {
-        super(typeName, unionType.pkg, unionType.valueClass);
+        super(typeName, unionType.pkg, unionType.valueClass, unionType.simpleType);
         this.typeFlags = unionType.typeFlags;
         this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.originalMemberTypes = new ArrayList<>(unionType.memberTypes.size());
@@ -152,7 +157,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
                       boolean isCyclic, long flags) {
-        super(name, pkg, Object.class);
+        super(name, pkg, Object.class,
+                SimpleTypeBuilder.union(List.of(memberTypes))
+                        .union(SimpleTypeBuilder.union(List.of(originalMemberTypes))));
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
         this.isCyclic = isCyclic;
@@ -164,6 +171,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     public void setMemberTypes(Type[] members) {
         if (members == null) {
             return;
+        }
+        for (Type member : members) {
+            this.simpleType = this.simpleType.union(member.getSimpleType());
         }
         this.memberTypes = readonly ? getReadOnlyTypes(members) : Arrays.asList(members);
         setFlagsBasedOnMembers();
@@ -182,6 +192,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
     }
 
     private void setMemberTypes(List<Type> members, List<Type> originalMembers) {
+        // FIXME: avoid duplication here
         if (members == null) {
             return;
         }
@@ -237,6 +248,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     public void addMembers(Type... types) {
         this.memberTypes.addAll(Arrays.asList(types));
+        for (Type member : types) {
+            this.simpleType = this.simpleType.union(member.getSimpleType());
+        }
         setFlagsBasedOnMembers();
         this.originalMemberTypes.addAll(Arrays.asList(types));
     }

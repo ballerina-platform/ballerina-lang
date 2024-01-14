@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -81,7 +82,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     private BIntersectionType(String typeName, Module pkg, Type[] constituentTypes, int typeFlags, boolean readonly) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class, SimpleTypeBuilder.intersection(List.of(constituentTypes)));
         this.constituentTypes = Arrays.asList(constituentTypes);
         this.typeFlags = typeFlags;
         this.readonly = readonly;

@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -43,14 +44,21 @@ public abstract class BType implements Type {
     protected Class<? extends Object> valueClass;
     private int hashCode;
     private Type impliedType = null;
+    public SimpleType simpleType;
 
-    protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
+    protected BType(String typeName, Module pkg, Class<? extends Object> valueClass, SimpleType simpleType) {
         this.typeName = typeName;
         this.pkg = pkg;
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {
             this.hashCode = Objects.hash(pkg, typeName);
         }
+        this.simpleType = simpleType;
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return this.simpleType;
     }
 
     @SuppressWarnings("unchecked")

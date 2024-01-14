@@ -18,6 +18,9 @@
 
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
@@ -47,6 +50,8 @@ public class StreamValue implements RefValue, BStream {
     private Type completionType;
     private Type iteratorNextReturnType;
     private BObject iteratorObj;
+    private SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
+            SimpleTypeTag.STREAM));
 
 
     /**
@@ -106,6 +111,11 @@ public class StreamValue implements RefValue, BStream {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 
     @Override

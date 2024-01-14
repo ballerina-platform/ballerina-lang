@@ -18,6 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -30,7 +32,7 @@ import io.ballerina.runtime.internal.values.RefValue;
 public class BReadonlyType extends BType implements ReadonlyType {
 
     public BReadonlyType(String typeName, Module pkg) {
-        super(typeName, pkg, RefValue.class);
+        super(typeName, pkg, RefValue.class, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.ALL));
     }
 
     @Override

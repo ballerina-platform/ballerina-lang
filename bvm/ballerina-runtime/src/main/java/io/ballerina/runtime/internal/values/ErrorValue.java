@@ -20,6 +20,9 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
@@ -81,6 +84,8 @@ public class ErrorValue extends BError implements RefValue {
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+    private final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
+            SimpleTypeTag.ERROR));
 
     public ErrorValue(BString message) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
@@ -210,6 +215,11 @@ public class ErrorValue extends BError implements RefValue {
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 
     @Override

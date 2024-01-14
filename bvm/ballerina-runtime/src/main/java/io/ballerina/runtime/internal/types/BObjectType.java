@@ -19,6 +19,9 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -62,6 +65,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private String cachedToString;
     private boolean resolving;
+    // FIXME:
+    private final SimpleType simpleType =
+            new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.OBJECT));
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -73,6 +79,11 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BObjectType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags, Object.class);
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 
     @Override

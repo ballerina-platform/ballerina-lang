@@ -20,6 +20,9 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
@@ -41,14 +44,20 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public Parameter[] parameters;
 
     public BFunctionType(Module pkg) {
-        super("function ()", pkg, Object.class);
+        super("function ()", pkg, Object.class,
+                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUNCTION), SimpleTypeBuilder.NONE));
         this.parameters = new Parameter[0];
         this.retType = PredefinedTypes.TYPE_NULL;
         this.flags = 0;
     }
 
     public BFunctionType(Module pkg, long flags) {
-        super("function", pkg, Object.class);
+        // FIXME: formattitng
+        super("function", pkg, Object.class,
+                flags == 0 ? new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUNCTION),
+                        SimpleTypeBuilder.NONE) :
+                        new SimpleType(SimpleTypeBuilder.NONE,
+                                SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUNCTION)));
         this.parameters = null;
         this.retType = null;
         this.flags = flags;
@@ -56,7 +65,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Deprecated
     public BFunctionType(Module pkg, Type[] paramTypes, Type restType, Type retType, long flags) {
-        super("function ()", pkg, Object.class);
+        super("function ()", pkg, Object.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUNCTION)));
         this.restType = restType;
         this.retType = retType;
         this.flags = flags;
@@ -64,7 +74,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
 
     public BFunctionType(Module pkg, Parameter[] parameters, Type restType, Type retType, long flags, String name) {
-        super(name, pkg, Object.class);
+        super(name, pkg, Object.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUNCTION)));
         this.parameters = parameters;
         this.restType = restType;
         this.retType = retType;

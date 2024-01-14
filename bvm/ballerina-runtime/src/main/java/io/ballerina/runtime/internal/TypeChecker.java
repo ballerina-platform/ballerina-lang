@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
@@ -675,11 +676,36 @@ public class TypeChecker {
         }
     }
 
+    private enum SimpleSubtypeResult {
+        TRUE,
+        FALSE,
+        UNKNOWN
+    }
+
+    private static SimpleSubtypeResult checkIsTypeSimple(SimpleType source, SimpleType target) {
+        S
+        impleType remainder = source.diff(target);
+        if (remainder.all == 0 && remainder.some == 0) {
+            return SimpleSubtypeResult.TRUE;
+        }
+        return remainder.some == 0 ? SimpleSubtypeResult.FALSE : SimpleSubtypeResult.UNKNOWN;
+    }
+
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                        List<TypePair> unresolvedTypes) {
         sourceType = getImpliedType(sourceType);
         targetType = getImpliedType(targetType);
+        return switch (checkIsTypeSimple(sourceType.getSimpleType(), targetType.getSimpleType())) {
+            case TRUE -> true;
+            case FALSE -> false;
+            case UNKNOWN -> checkIsTypeInner(sourceVal, sourceType, targetType, unresolvedTypes);
+        };
+    }
 
+    private static boolean checkIsTypeInner(Object sourceVal, Type sourceType, Type targetType,
+                                            List<TypePair> unresolvedTypes) {
+        sourceType = getImpliedType(sourceType);
+        targetType = getImpliedType(targetType);
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 

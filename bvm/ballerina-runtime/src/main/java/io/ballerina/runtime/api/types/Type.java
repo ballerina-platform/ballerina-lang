@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
 
 /**
  * {@code Type} represents a type in Ballerina.
@@ -30,6 +31,8 @@ import io.ballerina.runtime.api.Module;
  * @since 2.0.0
  */
 public interface Type {
+
+    SimpleType getSimpleType();
 
     /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.

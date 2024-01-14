@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -50,28 +53,33 @@ public class BXmlType extends BType implements XmlType {
      * @param constraint constraint of the xml sequence
      */
     public BXmlType(String typeName, Type constraint, Module pkg) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class,
+                SimpleTypeBuilder.createContainerSimpleType(constraint, SimpleTypeTag.XML));
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;
     }
 
+    // FIXME:
     public BXmlType(String typeName, Module pkg, int tag, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.XML)));
         this.tag = tag;
         this.readonly = readonly;
         this.constraint = null;
     }
 
     public BXmlType(String typeName, Type constraint, Module pkg, boolean readonly) {
-        super(typeName, pkg, XmlValue.class);
+        super(typeName, pkg, XmlValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.XML)));
         this.tag = TypeTags.XML_TAG;
         this.readonly = readonly;
         this.constraint = constraint;
     }
 
     public BXmlType(Type constraint, boolean readonly) {
-        super(TypeConstants.XML_TNAME, null, XmlValue.class);
+        super(TypeConstants.XML_TNAME, null, XmlValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.XML)));
         this.tag = TypeTags.XML_TAG;
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;

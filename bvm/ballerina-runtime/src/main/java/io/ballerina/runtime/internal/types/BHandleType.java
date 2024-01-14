@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.internal.values.RefValue;
@@ -36,7 +39,8 @@ public class BHandleType extends BType implements HandleType {
      * @param typeName string name of the type
      */
     public BHandleType(String typeName, Module pkg) {
-        super(typeName, pkg, RefValue.class);
+        super(typeName, pkg, RefValue.class,
+                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.HANDLE), SimpleTypeBuilder.NONE));
     }
 
     @Override

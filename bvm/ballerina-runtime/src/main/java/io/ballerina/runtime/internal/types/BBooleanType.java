@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.BooleanType;
 
@@ -34,7 +37,8 @@ public class BBooleanType extends BType implements BooleanType {
      * @param typeName string name of the type
      */
     public BBooleanType(String typeName, Module pkg) {
-        super(typeName, pkg, Boolean.class);
+        super(typeName, pkg, Boolean.class,
+                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.BOOLEAN), SimpleTypeBuilder.NONE));
     }
 
     @SuppressWarnings("unchecked")

@@ -17,6 +17,9 @@
   */
  package io.ballerina.runtime.internal.values;
 
+ import io.ballerina.runtime.api.SimpleTypeBuilder;
+ import io.ballerina.runtime.api.SimpleTypeTag;
+ import io.ballerina.runtime.api.SimpleType;
  import io.ballerina.runtime.api.async.Callback;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
@@ -56,6 +59,8 @@
      private boolean waited;
 
      Type type;
+     private SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
+             SimpleTypeTag.FUTURE));
 
      @Deprecated
      public FutureValue(Strand strand, Callback callback, Type constraint) {
@@ -85,6 +90,11 @@
      @Override
      public Type getType() {
          return this.type;
+     }
+
+     @Override
+     public SimpleType getSimpleType() {
+         return simpleType;
      }
 
      @Override

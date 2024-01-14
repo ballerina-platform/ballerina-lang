@@ -16,6 +16,9 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BRegexpValue;
@@ -40,6 +43,19 @@ public class RegExpValue implements BRegexpValue, RefValue {
     private final RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
     private static final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
+    private final SimpleType simpleType = new SimpleType(
+            SimpleTypeBuilder.basicTypeUnionBitset(
+                    SimpleTypeTag.NIL,
+                    SimpleTypeTag.BOOLEAN,
+                    SimpleTypeTag.INT,
+                    SimpleTypeTag.FLOAT,
+                    SimpleTypeTag.DECIMAL,
+                    SimpleTypeTag.STRING,
+                    SimpleTypeTag.LIST,
+                    SimpleTypeTag.MAPPING,
+                    SimpleTypeTag.TABLE,
+                    SimpleTypeTag.XML),
+            SimpleTypeBuilder.NONE);
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;
@@ -85,6 +101,11 @@ public class RegExpValue implements BRegexpValue, RefValue {
             this.typedesc = getTypedescValue(type, this);
         }
         return this.typedesc;
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 
     @Override

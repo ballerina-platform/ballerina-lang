@@ -19,6 +19,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ByteType;
 
@@ -35,7 +38,8 @@ public class BByteType extends BType implements ByteType {
      * @param typeName string name of the type
      */
     public BByteType(String typeName, Module pkg) {
-        super(typeName, pkg, Integer.class);
+        super(typeName, pkg, Integer.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.INT)));
     }
 
     @Override

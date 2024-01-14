@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -51,6 +54,8 @@ public class GenericMockObjectValue implements ObjectValue {
     private ObjectType type;
     private BTypedesc typedesc;
 
+    private final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
+            SimpleTypeTag.OBJECT));
     public GenericMockObjectValue(ObjectType type, ObjectValue mockObj) {
         this.type = type;
         this.mockObj = mockObj;
@@ -247,6 +252,11 @@ public class GenericMockObjectValue implements ObjectValue {
             i += 1;
         }
         return newArgs.toArray();
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 
     @Override

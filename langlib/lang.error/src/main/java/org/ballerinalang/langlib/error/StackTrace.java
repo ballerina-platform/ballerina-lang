@@ -20,6 +20,9 @@ package org.ballerinalang.langlib.error;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -211,6 +214,11 @@ public class StackTrace {
         @Override
         public void set(BString fieldName, Object value) {
             throw ErrorCreator.createError(StringUtils.fromString("No such field or method: callStack"));
+        }
+
+        @Override
+        public SimpleType getSimpleType() {
+            return new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.OBJECT));
         }
 
         @Override

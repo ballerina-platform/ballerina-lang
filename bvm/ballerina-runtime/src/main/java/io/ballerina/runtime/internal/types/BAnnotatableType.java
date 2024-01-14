@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -35,8 +36,8 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
 
     protected BMap<BString, Object> annotations = ValueCreator.createMapValue();
 
-    BAnnotatableType(String typeName, Module pkg, Class<?> valueClass) {
-        super(typeName, pkg, valueClass);
+    BAnnotatableType(String typeName, Module pkg, Class<?> valueClass, SimpleType simpleType) {
+        super(typeName, pkg, valueClass, simpleType);
     }
 
     public void setAnnotations(BMap<BString, Object> annotations) {

@@ -18,6 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 
@@ -35,7 +37,8 @@ public class BXmlAttributesType extends BType implements XmlAttributesType {
      * @param pkg package path
      */
     public BXmlAttributesType(String typeName, Module pkg) {
-        super(typeName, pkg, null);
+        // FIXME: string, error , ()
+        super(typeName, pkg, null, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.ALL));
     }
 
     public <V extends Object> V getZeroValue() {

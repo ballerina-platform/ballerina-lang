@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
@@ -100,6 +103,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private Type referredType;
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
+    private final SimpleType simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(
+            SimpleTypeTag.MAPPING));
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
@@ -450,6 +455,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public String toString() {
         return stringValue(null);
+    }
+
+    @Override
+    public SimpleType getSimpleType() {
+        return simpleType;
     }
 
     @SuppressWarnings("unchecked")

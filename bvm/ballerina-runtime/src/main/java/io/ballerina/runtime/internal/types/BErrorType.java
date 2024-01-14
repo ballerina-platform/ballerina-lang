@@ -19,6 +19,9 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -39,12 +42,15 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
     private IntersectionType intersectionType = null;
 
     public BErrorType(String typeName, Module pkg, Type detailType) {
-        super(typeName, pkg, ErrorValue.class);
+        // FIXME:
+        super(typeName, pkg, ErrorValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.ERROR)));
         this.detailType = detailType;
     }
 
     public BErrorType(String typeName, Module pkg) {
-        super(typeName, pkg, ErrorValue.class);
+        super(typeName, pkg, ErrorValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.ERROR)));
     }
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {

@@ -32,4 +32,5 @@ public interface TypedescValue extends RefValue, BTypedesc {
     Object instantiate(Strand strand);
 
     Object instantiate(Strand strand, BInitialValueEntry[] initialValues);
+
 }

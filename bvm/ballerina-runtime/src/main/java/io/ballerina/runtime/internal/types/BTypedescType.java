@@ -20,6 +20,9 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
@@ -36,11 +39,13 @@ public class BTypedescType extends BType implements TypedescType {
     private Type constraint;
 
     public BTypedescType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class,
+                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.TYPEDESC), SimpleTypeBuilder.NONE));
     }
 
     public BTypedescType(Type constraint) {
-        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class);
+        super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.TYPEDESC)));
         this.constraint = constraint;
     }
 

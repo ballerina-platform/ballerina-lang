@@ -19,6 +19,9 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -46,7 +49,8 @@ public class BAnyType extends BType implements AnyType {
      * @param typeName string name of the type
      */
     public BAnyType(String typeName, Module pkg, boolean readonly) {
-        super(typeName, pkg, RefValue.class);
+        super(typeName, pkg, RefValue.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.except(SimpleTypeTag.ERROR)));
         this.readonly = readonly;
 
         if (!readonly) {

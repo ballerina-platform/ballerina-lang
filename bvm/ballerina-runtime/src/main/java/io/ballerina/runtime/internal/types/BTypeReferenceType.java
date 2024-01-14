@@ -20,6 +20,8 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
@@ -42,7 +44,8 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     private IntersectionType intersectionType;
 
     public BTypeReferenceType(String typeName, Module pkg, int typeFlags, boolean readOnly) {
-        super(typeName, pkg, Object.class);
+        // FIXME:
+        super(typeName, pkg, Object.class, new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.ALL));
         this.typeFlags = typeFlags;
         this.readOnly = readOnly;
     }

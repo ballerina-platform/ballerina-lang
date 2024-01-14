@@ -47,6 +47,7 @@ public class BRecordType extends BStructureType implements RecordType {
     public BRecordType mutableType;
 
     public BRecordType(BTypeSymbol tSymbol) {
+        // FIXME: set the simple type correctly
         super(TypeTags.RECORD, tSymbol);
     }
 

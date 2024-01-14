@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -54,7 +56,11 @@ public class BTableType extends BType implements TableType {
     }
 
     public BTableType(Type constraint, boolean readonly) {
-        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
+        // FIXME: properly define the top level type
+        super(TypeConstants.TABLE_TNAME,
+                null,
+                TableValue.class,
+                SimpleTypeBuilder.createContainerSimpleType(constraint, SimpleTypeTag.TABLE));
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }

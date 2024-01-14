@@ -18,6 +18,9 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.FutureType;
@@ -40,11 +43,14 @@ public class BFutureType extends BType implements FutureType {
      * @param pkg of the type
      */
     public BFutureType(String typeName, Module pkg) {
-        super(typeName, pkg, Object.class);
+        super(typeName, pkg, Object.class,
+                new SimpleType(SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUTURE), SimpleTypeBuilder.NONE));
     }
 
     public BFutureType(Type constraint) {
-        super(TypeConstants.FUTURE_TNAME, null, Object.class);
+        // FIXME: what is the correct top type?
+        super(TypeConstants.FUTURE_TNAME, null, Object.class,
+                new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.basicTypeBitset(SimpleTypeTag.FUTURE)));
         this.constraint = constraint;
     }
 

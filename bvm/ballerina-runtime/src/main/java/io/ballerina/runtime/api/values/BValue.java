@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.SimpleType;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.Map;
  */
 public interface BValue {
 
+    SimpleType getSimpleType();
     /**
      * Method to perform a deep copy, recursively copying all structural values and their members.
      *

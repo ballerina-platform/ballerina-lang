@@ -18,6 +18,8 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.SimpleType;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.NeverType;
@@ -35,6 +37,7 @@ public class BNeverType extends BNullType implements NeverType {
      */
     public BNeverType(Module pkg) {
         super(TypeConstants.NEVER_TNAME, pkg);
+        simpleType = new SimpleType(SimpleTypeBuilder.NONE, SimpleTypeBuilder.NONE);
     }
 
     @Override

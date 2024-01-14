@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.SimpleTypeBuilder;
+import io.ballerina.runtime.api.SimpleTypeTag;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -68,7 +70,8 @@ public class BMapType extends BType implements MapType {
     }
 
     public BMapType(String typeName, Type constraint, Module pkg, boolean readonly) {
-        super(typeName, pkg, MapValueImpl.class);
+        super(typeName, pkg, MapValueImpl.class,
+                SimpleTypeBuilder.createContainerSimpleType(constraint, SimpleTypeTag.MAPPING));
         this.constraint = readonly ? ReadOnlyUtils.getReadOnlyType(constraint) : constraint;
         this.readonly = readonly;
     }
