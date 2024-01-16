@@ -1522,26 +1522,73 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         switch(expression.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
-            case STRING_TEMPLATE_LITERAL:
             case XML_ELEMENT_LITERAL:
             case XML_TEXT_LITERAL:
-            case LIST_CONSTRUCTOR_EXPR:
             case TABLE_CONSTRUCTOR_EXPR:
-            case RECORD_LITERAL_EXPR:
-            case TYPE_CONVERSION_EXPR:
-            case UNARY_EXPR:
-            case BINARY_EXPR:
-            case TYPE_TEST_EXPR:
-            case TERNARY_EXPR:
             case REG_EXP_TEMPLATE_LITERAL:
                 return true;
             case SIMPLE_VARIABLE_REF:
-                return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+                BSymbol varSymbol = ((BLangSimpleVarRef) expression).symbol;
+                return varSymbol == null || (varSymbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            case STRING_TEMPLATE_LITERAL:
+                return checkNestedConstExpr(((BLangStringTemplateLiteral) expression).exprs);
+            case TERNARY_EXPR:
+                BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
+                return isConstExpression(ternaryExpr.expr) && isConstExpression(ternaryExpr.thenExpr) &&
+                        isConstExpression(ternaryExpr.elseExpr);
+            case UNARY_EXPR:
+                return isConstExpression(((BLangUnaryExpr) expression).expr);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
+                return isConstExpression(binaryExpr.lhsExpr) && isConstExpression(binaryExpr.rhsExpr);
             case GROUP_EXPR:
                 return isConstExpression(((BLangGroupExpr) expression).expression);
+            case TYPE_CONVERSION_EXPR:
+                return isConstExpression(((BLangTypeConversionExpr) expression).expr);
+            case TYPE_TEST_EXPR:
+                return isConstExpression(((BLangTypeTestExpr) expression).expr);
+            case LIST_CONSTRUCTOR_EXPR:
+                return checkNestedConstExpr(((BLangListConstructorExpr) expression).exprs);
+            case LIST_CONSTRUCTOR_SPREAD_OP:
+                return isConstExpression(((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expression).expr);
+            case RECORD_LITERAL_EXPR:
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                List<RecordLiteralNode.RecordField> fields = recordLiteral.getFields();
+                for (RecordLiteralNode.RecordField field : fields) {
+                    switch (field.getKind()) {
+                        case RECORD_LITERAL_KEY_VALUE -> {
+                            if (!isConstExpression(((BLangRecordKeyValueField) field).valueExpr) ||
+                                    !isConstExpression(((BLangRecordKeyValueField) field).key.expr)) {
+                                return false;
+                            }
+                        }
+                        case RECORD_LITERAL_SPREAD_OP -> {
+                            if (!isConstExpression(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr)) {
+                                return false;
+                            }
+                        }
+                        case SIMPLE_VARIABLE_REF -> {
+                            if (!isConstExpression(((BLangRecordVarNameField) field))) {
+                                return false;
+                            }
+                        }
+                        default -> {
+                        }
+                    }
+                }
+                return true;
             default:
                 return false;
         }
+    }
+
+    private boolean checkNestedConstExpr(List<? extends BLangExpression> expressions) {
+        for (BLangExpression expr : expressions) {
+            if (!isConstExpression(expr)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BLangExpression getRecordKeyValueField(BLangRecordLiteral recordLiteral,
@@ -1559,7 +1606,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
-
         return null;
     }
 
