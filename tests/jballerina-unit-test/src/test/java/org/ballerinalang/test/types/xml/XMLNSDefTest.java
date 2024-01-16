@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -32,10 +34,12 @@ import org.testng.annotations.Test;
 public class XMLNSDefTest {
 
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/xml/xmlns-def.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/xml/xmlns-def-negative.bal");
     }
 
     @Test
@@ -43,8 +47,18 @@ public class XMLNSDefTest {
         BRunUtil.invoke(result, "testXMLNSDefinitionUsingConstant");
     }
 
+    @Test
+    public void testXMLNSNegativeDefinition() {
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 4, 7);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 5, 7);
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'C'", 6, 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
+        negativeResult = null;
     }
 }
