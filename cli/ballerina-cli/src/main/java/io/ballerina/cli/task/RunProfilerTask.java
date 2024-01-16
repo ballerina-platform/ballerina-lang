@@ -52,7 +52,6 @@ public class RunProfilerTask implements Task {
     private final PrintStream err;
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private static final String CURRENT_DIR_KEY = "current.dir";
-    private static final String JAVA_COMMAND = "java.command";
 
     public RunProfilerTask(PrintStream errStream) {
         this.err = errStream;
@@ -67,7 +66,7 @@ public class RunProfilerTask implements Task {
         try {
             Files.copy(sourcePath, targetPath, copyOption);
             List<String> commands = new ArrayList<>();
-            commands.add(System.getProperty(JAVA_COMMAND));
+            commands.add(System.getProperty("java.command"));
             commands.add("-jar");
             if (isInDebugMode()) {
                 commands.add(getDebugArgs(err));
@@ -84,7 +83,7 @@ public class RunProfilerTask implements Task {
             pb.environment().put(JAVA_OPTS, getAgentArgs());
             pb.environment().put(BALLERINA_HOME, System.getProperty(BALLERINA_HOME));
             pb.environment().put(CURRENT_DIR_KEY, System.getProperty(USER_DIR));
-            pb.environment().put(JAVA_COMMAND, System.getProperty(JAVA_COMMAND));
+            pb.environment().put("java.command", System.getProperty("java.command"));
             pb.directory(new File(getProfilerPath(project).toUri()));
             Process process = pb.start();
             process.waitFor();

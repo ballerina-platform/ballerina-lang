@@ -42,7 +42,6 @@ import java.util.jar.Manifest;
 
 import static io.ballerina.runtime.profiler.util.Constants.CURRENT_DIR_KEY;
 import static io.ballerina.runtime.profiler.util.Constants.ERROR_STREAM;
-import static io.ballerina.runtime.profiler.util.Constants.JAVA_COMMAND;
 import static io.ballerina.runtime.profiler.util.Constants.OUT_STREAM;
 import static io.ballerina.runtime.profiler.util.Constants.USER_DIR;
 
@@ -56,7 +55,7 @@ public class ProfilerMethodWrapper extends ClassLoader {
     public void invokeMethods(String debugArg) throws IOException, InterruptedException {
         String balJarArgs = Main.getBalJarArgs();
         List<String> commands = new ArrayList<>();
-        commands.add(System.getenv(JAVA_COMMAND));
+        commands.add(System.getenv("java.command"));
         commands.add("-jar");
         if (debugArg != null) {
             commands.add(debugArg);
