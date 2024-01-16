@@ -6329,8 +6329,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        rewriteFieldBasedAccess(nsPrefixedFieldBasedAccess);
+    public void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixedFieldBasedAccess) {
+        rewriteFieldBasedAccess(prefixedFieldBasedAccess);
     }
 
     private void rewriteFieldBasedAccess(BLangFieldBasedAccess fieldAccessExpr) {
@@ -6624,9 +6624,13 @@ public class Desugar extends BLangNodeVisitor {
 
         String fieldName = fieldAccessExpr.field.value;
         if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixAccess =
-                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr;
-            fieldName = createExpandedQName(nsPrefixAccess.nsSymbol.namespaceURI, fieldName);
+            BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess prefixAccess =
+                    (BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess) fieldAccessExpr;
+            if (prefixAccess.symbol.getKind() == SymbolKind.CONSTANT) {
+                fieldName = (String) ((BConstantSymbol) prefixAccess.symbol).value.value;
+            } else {
+                fieldName = createExpandedQName(((BXMLNSSymbol) prefixAccess.symbol).namespaceURI, fieldName);
+            }
         }
 
         // Handle element name access.
@@ -10310,9 +10314,9 @@ public class Desugar extends BLangNodeVisitor {
         if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             ((BLangIndexBasedAccess) tempAccessExpr).indexExpr = ((BLangIndexBasedAccess) accessExpr).indexExpr;
         }
-        if (accessExpr instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) {
-            ((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) tempAccessExpr).nsSymbol =
-                    ((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) accessExpr).nsSymbol;
+        if (accessExpr instanceof BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess) {
+            ((BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess) tempAccessExpr).symbol =
+                    ((BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess) accessExpr).symbol;
         }
 
         tempAccessExpr.expr = types.addConversionExprIfRequired(successPatternVarRef, type);

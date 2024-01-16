@@ -2175,10 +2175,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Node fieldName = fieldAccessExprNode.fieldName();
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
-                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess)
+            BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess)
                             TreeBuilder.createFieldBasedAccessWithPrefixNode();
-            accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
+            accessWithPrefixNode.prefix = createIdentifier(qualifiedFieldName.modulePrefix());
             accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
             bLFieldBasedAccess = accessWithPrefixNode;
             bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
@@ -2209,10 +2209,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qualifiedFieldName = (QualifiedNameReferenceNode) fieldName;
-            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess accessWithPrefixNode =
-                    (BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) TreeBuilder
+            BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess accessWithPrefixNode =
+                    (BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess) TreeBuilder
                             .createFieldBasedAccessWithPrefixNode();
-            accessWithPrefixNode.nsPrefix = createIdentifier(qualifiedFieldName.modulePrefix());
+            accessWithPrefixNode.prefix = createIdentifier(qualifiedFieldName.modulePrefix());
             accessWithPrefixNode.field = createIdentifier(qualifiedFieldName.identifier());
             bLFieldBasedAccess = accessWithPrefixNode;
             bLFieldBasedAccess.fieldKind = FieldKind.WITH_NS;
