@@ -43,3 +43,4 @@ const int ARR_8 = [1, 2.0]; // incompatible types
 const TUPLE_4 = [2 > 3]; // const expressions are not yet supported here
 const [record {| int a = 5; 2 b;|}] TUPLE_5 = [{b: 2}];
 const [int, table<int>] TUPLE_6 = [1]; // incompatible types
+const int[UNDEFINED_CONSTANT] i = [1]; // undefined constant symbol

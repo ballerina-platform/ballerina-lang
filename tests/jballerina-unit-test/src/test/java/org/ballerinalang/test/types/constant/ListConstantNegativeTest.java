@@ -65,6 +65,9 @@ public class ListConstantNegativeTest {
                 "'[record {| int a; 2 b; |} 0]'", 44, 7);
         validateError(compileResult, i++, "constant declaration not yet supported for type '[int 0,table<int> 1]'",
                 45, 7);
+        validateError(compileResult, i++, "undefined constant symbol 'UNDEFINED_CONSTANT'",
+                46, 7);
+        validateError(compileResult, i++, "incompatible types: expected 'other', found '[1]'", 46, 35);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

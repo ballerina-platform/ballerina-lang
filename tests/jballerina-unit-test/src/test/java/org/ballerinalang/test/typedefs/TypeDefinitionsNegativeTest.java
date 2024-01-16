@@ -37,6 +37,14 @@ public class TypeDefinitionsNegativeTest {
     }
 
     @Test
+    public void testArrayTypeDefNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/typedefs/array-type-definitions-negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "undefined constant symbol 'NOT_CONST'", 1, 16);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
     public void testSemanticsNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/typedefs/type-definitions-semantics-negative.bal");
 
