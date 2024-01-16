@@ -68,7 +68,7 @@ public class WDChannels {
                 checkAndPopulateResult(strand, field, result, channel);
             } else {
                 if (channel.getState() == WorkerDataChannel.State.AUTO_CLOSED) {
-                    errors.add((ErrorValue) ErrorUtils.createNoMessageError(field.channelName));
+                    checkAndPopulateResult(strand, field, ErrorUtils.createNoMessageError(field.channelName), channel);
                 }
             }
         }

@@ -41,7 +41,7 @@ public class WorkerMultipleReceiveTest {
     }
 
     @Test(dataProvider = "functionProvider")
-    public void workerAlternateReceiveTest(String funcName) {
+    public void workerMultipleReceiveTest(String funcName) {
         BRunUtil.invoke(result, funcName, new Object[0]);
     }
 
@@ -55,7 +55,10 @@ public class WorkerMultipleReceiveTest {
                 "workerMultipleReceiveWithErrorReturn",
                 "workerMultipleReceiveWithAllErrorReturn",
                 "workerMultipleReceiveWithPanic",
-                "workerMultipleReceiveWithAllPanic"
+                "workerMultipleReceiveWithAllPanic",
+                "workerMultipleReceiveWithErrorReturnRec",
+                "workerMultipleReceiveWithConditionalSend1",
+                "workerMultipleReceiveWithConditionalSend2",
         };
     }
 
