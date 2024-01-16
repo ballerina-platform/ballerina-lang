@@ -1,5 +1,5 @@
 NAME
-       ballerina-graphql - Generate the Ballerina client sources for a GraphQL config file, the GraphQL schema for a GraphQL service, and vice versa.
+       ballerina-graphql - Generate the Ballerina client sources for a GraphQL config file, the GraphQL schema for a GraphQL service, and Ballerina service sources for a GraphQL schema.
 
 
 SYNOPSIS
