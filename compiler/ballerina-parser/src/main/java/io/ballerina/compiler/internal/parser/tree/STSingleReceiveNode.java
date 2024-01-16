@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.AlternateReceiveWorkerNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SingleReceiveNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,46 +30,46 @@ import java.util.Collections;
  *
  * @since 2201.9.0
  */
-public class STAlternateReceiveWorkerNode extends STNode {
-    public final STNode workers;
+public class STSingleReceiveNode extends STNode {
+    public final STNode worker;
 
-    STAlternateReceiveWorkerNode(
-            STNode workers) {
+    STSingleReceiveNode(
+            STNode worker) {
         this(
-                workers,
+                worker,
                 Collections.emptyList());
     }
 
-    STAlternateReceiveWorkerNode(
-            STNode workers,
+    STSingleReceiveNode(
+            STNode worker,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.ALTERNATE_RECEIVE_WORKER, diagnostics);
-        this.workers = workers;
+        super(SyntaxKind.SINGLE_RECEIVE, diagnostics);
+        this.worker = worker;
 
         addChildren(
-                workers);
+                worker);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STAlternateReceiveWorkerNode(
-                this.workers,
+        return new STSingleReceiveNode(
+                this.worker,
                 diagnostics);
     }
 
-    public STAlternateReceiveWorkerNode modify(
-            STNode workers) {
+    public STSingleReceiveNode modify(
+            STNode worker) {
         if (checkForReferenceEquality(
-                workers)) {
+                worker)) {
             return this;
         }
 
-        return new STAlternateReceiveWorkerNode(
-                workers,
+        return new STSingleReceiveNode(
+                worker,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new AlternateReceiveWorkerNode(this, position, parent);
+        return new SingleReceiveNode(this, position, parent);
     }
 
     @Override

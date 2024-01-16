@@ -186,8 +186,20 @@
                                       ]
                                     },
                                     {
-                                      "kind": "ALTERNATE_RECEIVE",
+                                      "kind": "STREAM_RECEIVE",
                                       "children": [
+                                        {
+                                          "kind": "STREAM_KEYWORD",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
                                         {
                                           "kind": "LIST",
                                           "children": [
@@ -220,15 +232,18 @@
                                               "children": [
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "B",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
-                                                    }
-                                                  ]
+                                                  "value": "B"
                                                 }
                                               ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         }
@@ -325,8 +340,20 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE",
+                      "kind": "STREAM_RECEIVE",
                       "children": [
+                        {
+                          "kind": "STREAM_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -362,6 +389,9 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
                     }
@@ -400,8 +430,20 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE",
+                      "kind": "STREAM_RECEIVE",
                       "children": [
+                        {
+                          "kind": "STREAM_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -487,6 +529,9 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
                     }
@@ -525,8 +570,20 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE",
+                      "kind": "STREAM_RECEIVE",
                       "children": [
+                        {
+                          "kind": "STREAM_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -581,35 +638,15 @@
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "FUNCTION_KEYWORD",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "PIPE_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "value": "D"
                                 }
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
                     }
@@ -672,8 +709,20 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE",
+                      "kind": "STREAM_RECEIVE",
                       "children": [
+                        {
+                          "kind": "STREAM_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -710,6 +759,9 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
                     }
@@ -772,8 +824,20 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE",
+                      "kind": "STREAM_RECEIVE",
                       "children": [
+                        {
+                          "kind": "STREAM_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -835,6 +899,9 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
                     }
@@ -920,8 +987,20 @@
                       ]
                     },
                     {
-                      "kind": "ALTERNATE_RECEIVE",
+                      "kind": "STREAM_RECEIVE",
                       "children": [
+                        {
+                          "kind": "STREAM_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -959,6 +1038,9 @@
                               ]
                             }
                           ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
                     }

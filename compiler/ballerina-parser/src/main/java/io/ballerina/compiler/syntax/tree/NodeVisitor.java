@@ -631,8 +631,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(receiveFieldsNode);
     }
 
-    public void visit(AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
-        visitSyntaxNode(alternateReceiveWorkerNode);
+    public void visit(AlternateReceiveNode alternateReceiveNode) {
+        visitSyntaxNode(alternateReceiveNode);
     }
 
     public void visit(RestDescriptorNode restDescriptorNode) {
@@ -953,6 +953,14 @@ public abstract class NodeVisitor {
 
     public void visit(ReceiveFieldNode receiveFieldNode) {
         visitSyntaxNode(receiveFieldNode);
+    }
+
+    public void visit(StreamReceiveNode streamReceiveNode) {
+        visitSyntaxNode(streamReceiveNode);
+    }
+
+    public void visit(SingleReceiveNode singleReceiveNode) {
+        visitSyntaxNode(singleReceiveNode);
     }
 
     // Tokens

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.formatter.core;
 
-import io.ballerina.compiler.syntax.tree.AlternateReceiveWorkerNode;
+import io.ballerina.compiler.syntax.tree.AlternateReceiveNode;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
@@ -189,12 +189,14 @@ import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SingleReceiveNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.StreamReceiveNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyncSendActionNode;
@@ -3029,11 +3031,34 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public AlternateReceiveWorkerNode transform(AlternateReceiveWorkerNode alternateReceiveWorkerNode) {
+    public AlternateReceiveNode transform(AlternateReceiveNode alternateReceiveWorkerNode) {
         SeparatedNodeList<SimpleNameReferenceNode> workers =
                 formatSeparatedNodeList(alternateReceiveWorkerNode.workers(), 1, 0, env.trailingWS, env.trailingNL);
         return alternateReceiveWorkerNode.modify()
                 .withWorkers(workers)
+                .apply();
+    }
+
+    @Override
+    public SingleReceiveNode transform(SingleReceiveNode singleReceiveNode) {
+        SimpleNameReferenceNode worker = formatNode(singleReceiveNode.worker(), env.trailingWS, env.trailingNL);
+        return singleReceiveNode.modify()
+                .withWorker(worker)
+                .apply();
+    }
+
+    @Override
+    public StreamReceiveNode transform(StreamReceiveNode streamReceiveNode) {
+        Token streamKeyword = formatToken(streamReceiveNode.streamKeyword(), 1, 0);
+        Token openParenthesis = formatToken(streamReceiveNode.openParenthesis(), 0, 0);
+        SeparatedNodeList<SimpleNameReferenceNode> workers =
+                formatSeparatedNodeList(streamReceiveNode.workers(), 1, 0, 0, 0);
+        Token closeParenthesis = formatToken(streamReceiveNode.closeParenthesis(), env.trailingWS, env.trailingNL);
+        return streamReceiveNode.modify()
+                .withStreamKeyword(streamKeyword)
+                .withOpenParenthesis(openParenthesis)
+                .withWorkers(workers)
+                .withCloseParenthesis(closeParenthesis)
                 .apply();
     }
 
