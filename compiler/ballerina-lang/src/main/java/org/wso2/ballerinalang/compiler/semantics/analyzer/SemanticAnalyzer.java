@@ -4364,11 +4364,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangConstant constant, AnalyzerData data) {
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.getBType())) {
+            boolean isNeverType = types.isNeverTypeOrStructureTypeWithARequiredNeverMember(constant.typeNode.getBType());
             if (types.isAssignable(constant.typeNode.getBType(), symTable.anydataType) &&
-                    !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(constant.typeNode.getBType())) {
+                    !isNeverType) {
                 dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CONSTANT_DECLARATION_NOT_YET_SUPPORTED,
                         constant.typeNode);
-            } else {
+            } else if (isNeverType) {
                 dlog.error(constant.typeNode.pos, DiagnosticErrorCode.INVALID_CONST_DECLARATION,
                         constant.typeNode);
             }

@@ -922,7 +922,7 @@ public class TypeResolver {
                     sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
-                        dlog.error(td.pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, size);
+                        dlog.error(td.pos, DiagnosticErrorCode.UNDEFINED_CONSTANT_SYMBOL, size);
                         isError = true;
                         continue;
                     }
