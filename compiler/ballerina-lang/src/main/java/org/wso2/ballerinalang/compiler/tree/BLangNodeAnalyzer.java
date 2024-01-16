@@ -351,7 +351,7 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T data);
 
-    public abstract void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess node, T data);
+    public abstract void visit(BLangFieldBasedAccess.BLangPrefixedFieldBasedAccess node, T data);
 
     public abstract void visit(BLangGroupExpr node, T data);
 
