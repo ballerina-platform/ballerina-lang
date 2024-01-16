@@ -223,7 +223,7 @@ public enum ParserRuleContext {
     REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS("remote-or-resource-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
     DEFAULT_WORKER_NAME_IN_ASYNC_SEND("default-worker-name-in-async-send"),
-    RECEIVE_WORKERS("receive-workers"),
+    RECEIVE_ACTION_RHS("receive-action-rhs"),
     MULTI_RECEIVE_WORKERS("multi-receive-workers"),
     RECEIVE_FIELD_END("receive-field-end"),
     RECEIVE_FIELD("receive-field"),
@@ -733,9 +733,12 @@ public enum ParserRuleContext {
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     TUPLE_MEMBERS("tuple-members"),
     TUPLE_MEMBER("tuple-member"),
-    SINGLE_OR_ALTERNATE_WORKER("single-or-alternate-worker"),
+    SINGLE_OR_ALTERNATE_RECEIVE_RHS("single-or-alternate-receive-rhs"),
     SINGLE_OR_ALTERNATE_WORKER_SEPARATOR("single-or-alternate-worker-separator"),
     SINGLE_OR_ALTERNATE_WORKER_END("single-or-alternate-worker-end"),
+    STREAM_RECEIVE_RHS("stream-receive-rhs"),
+    STREAM_WORKER_SEPARATOR("stream-worker-separator"),
+    STREAM_WORKER_END("stream-worker-end"),
     ;
 
     private String value;

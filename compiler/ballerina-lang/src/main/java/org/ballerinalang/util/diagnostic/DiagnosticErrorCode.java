@@ -119,7 +119,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("BCE2082", "worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("BCE2083", "worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("BCE2084", "worker.interactions.only.allowed.between.peers"),
-    // VACANT_ERROR("BCE2085", ""),
+    STREAM_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE2085", "stream.receive.action.not.yet.supported"),
     // VACANT_ERROR("BCE2086", ""),
     EXPLICIT_WORKER_CANNOT_BE_DEFAULT("BCE2087", "explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("BCE2088", "worker.multiple.fork.join.send"),
