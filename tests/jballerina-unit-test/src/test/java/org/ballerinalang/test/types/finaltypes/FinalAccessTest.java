@@ -60,6 +60,7 @@ public class FinalAccessTest {
         BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'p2'", 49, 5);
         BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 53, 9);
         BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 59, 9);
+        BAssertUtil.validateError(compileResultNegative, i++, "cannot assign a value to function argument 'b'", 66, 9);
         Assert.assertEquals(compileResultNegative.getErrorCount(), i);
     }
 

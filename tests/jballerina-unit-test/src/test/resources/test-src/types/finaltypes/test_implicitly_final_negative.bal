@@ -59,3 +59,10 @@ public function testLocalLevelRestParamFinal() {
         b = arr;
     };
 }
+
+public function testLocalLevelRestParamFinalWithVar() {
+    int[] arr = [];
+    var func = function (int i, int... b) {
+        b = arr;
+    };
+}
