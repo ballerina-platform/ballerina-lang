@@ -137,10 +137,11 @@ public class RunProfilerTask implements Task {
 
     private String getTargetFilePath(Project project) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return Paths.get(System.getProperty(USER_DIR)).resolve(
-                    getFileNameWithoutExtension(project.sourceRoot()) + BLANG_COMPILED_JAR_EXT).toUri().getPath();
+            return Path.of(Paths.get(System.getProperty(USER_DIR)).resolve(
+                    getFileNameWithoutExtension(project.sourceRoot()) +
+                            BLANG_COMPILED_JAR_EXT).toUri()).toString();
         }
-        return project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
-                BLANG_COMPILED_JAR_EXT).toUri().getPath();
+        return Path.of(project.targetDir().resolve("bin").resolve(project.currentPackage().packageName() +
+                BLANG_COMPILED_JAR_EXT).toUri()).toString();
     }
 }
