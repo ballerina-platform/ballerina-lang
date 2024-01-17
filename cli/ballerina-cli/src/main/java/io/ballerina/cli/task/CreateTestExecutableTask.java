@@ -56,13 +56,17 @@ public class CreateTestExecutableTask extends CreateExecutableTask {
                 Module module = project.currentPackage().module(moduleDescriptor.name());
                 Path testExecutablePath = getTestExecutablePath(target, module);
 
+                List<String> allArgs = this.runTestsTask.getAllTestArgs(target,
+                        project.currentPackage().packageName().toString(),
+                        module.moduleName().toString(),
+                        project,
+                        moduleDescriptor
+                );
+
                 emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.TEST,
                         testExecutablePath,
                         module.moduleName(),
-                        this.runTestsTask.getTestRunnerCmdArgs(target,
-                                project.currentPackage().packageName().toString(),
-                                module.moduleName().toString()
-                        )
+                        allArgs
                 );
 
                 diagnostics.addAll(emitResult.diagnostics().diagnostics());
