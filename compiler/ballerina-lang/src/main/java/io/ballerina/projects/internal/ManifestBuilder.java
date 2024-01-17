@@ -20,6 +20,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Diagnostics;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
@@ -233,23 +234,21 @@ public class ManifestBuilder {
     }
 
     private List<PackageManifest.Tool> getTools() {
-
         TomlTableNode rootNode = ballerinaToml.toml().rootNode();
         if (rootNode.entries().isEmpty()) {
             return Collections.emptyList();
         }
-
         TopLevelNode toolEntries = rootNode.entries().get("tool");
-
         List<PackageManifest.Tool> tools = new ArrayList<>();
         if (toolEntries == null || toolEntries.kind() != TomlType.TABLE) {
             return Collections.emptyList();
         }
         TomlTableNode toolTable = (TomlTableNode) toolEntries;
         Set<String> toolCodes = toolTable.entries().keySet();
-        List<String> toolIds = new ArrayList<>();
-        List<String> toolTargetModules = new ArrayList<>();
+        Set<String> toolIdsSet = new HashSet<>();
+        Set<String> targetModuleSet = new HashSet<>();
 
+        // Gather tool configurations and add the tools to a list
         for (String toolCode : toolCodes) {
             TopLevelNode toolCodeNode = toolTable.entries().get(toolCode);
             if (toolCodeNode.kind() != TomlType.TABLE_ARRAY) {
@@ -281,13 +280,28 @@ public class ManifestBuilder {
                 if (topLevelNode != null && topLevelNode.kind() == TomlType.TABLE) {
                     optionsNode = (TomlTableNode) topLevelNode;
                 }
+
+                // Validate recurring tool ids and target modules
+                if (!toolIdsSet.add(id)) {
+                    reportDiagnostic(dependencyNode, "recurring tool id '" + id + "' found in Ballerina.toml. " +
+                                    "Tool id must be unique for each tool",
+                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
+                            DiagnosticSeverity.ERROR);
+                }
+                if (!targetModuleSet.add(targetModule)) {
+                    reportDiagnostic(dependencyNode, "recurring target module found in Ballerina.toml. Target " +
+                                    "module must be unique for each tool",
+                            ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
+                            DiagnosticSeverity.ERROR);
+                }
+
+                // Add a flag for tools with error diagnostics
+                boolean hasErrorDiagnostic = !Diagnostics.filterErrors(dependencyNode.diagnostics()).isEmpty();
                 PackageManifest.Tool tool = new PackageManifest.Tool(toolCode, id, filePath,
-                    targetModule, optionsToml, optionsNode);
+                    targetModule, optionsToml, optionsNode, hasErrorDiagnostic);
                 tools.add(tool);
-                addIdTargetModuleToLists(id, targetModule, toolIds, toolTargetModules);
             }
         }
-        validateUniqueIdAndTargetModule(toolIds, toolTargetModules, toolTable);
         return tools;
     }
 
@@ -823,7 +837,7 @@ public class ManifestBuilder {
                             + toolCode + "]'. " + "Default module will be taken as the target module",
                     ProjectDiagnosticErrorCode.EMPTY_TOOL_PROPERTY.diagnosticId(),
                     DiagnosticSeverity.WARNING);
-            return getStringFromTomlTableNode(topLevelNode);
+            return null;
         } else if (ToolNodeValueType.NON_STRING.equals(toolNodeValueType)) {
             reportDiagnostic(toolNode, "incompatible type found for key '[" + key + "]': expected 'STRING'",
                 ProjectDiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_TOOL_PROPERTY.diagnosticId(),
@@ -843,42 +857,6 @@ public class ManifestBuilder {
         }
         TomlTableNode optionsNode = (TomlTableNode) topLevelNode;
         return new Toml(optionsNode);
-    }
-
-    private void addIdTargetModuleToLists(String id, String targetModule, List<String> toolIds,
-                                          List<String> targetModules) {
-        if (id != null) {
-            toolIds.add(id);
-        }
-        if (targetModule == null || targetModule.isEmpty()) {
-            targetModules.add("default");
-            return;
-        }
-        targetModules.add(targetModule);
-    }
-
-    private void validateUniqueIdAndTargetModule(List<String> toolIds, List<String> targetModules,
-                                                 TomlTableNode tomlTableNode) {
-        Set<String> toolIdsSet = new HashSet<>();
-        Set<String> targetModuleSet = new HashSet<>();
-        for (String toolId: toolIds) {
-            if (!toolIdsSet.add(toolId)) {
-                reportDiagnostic(tomlTableNode, "recurring tool id '" + toolId + "' found in Ballerina.toml. " +
-                                "Tool id must be unique for each tool",
-                        ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
-                        DiagnosticSeverity.ERROR);
-                break;
-            }
-        }
-        for (String targetModule: targetModules) {
-            if (!targetModuleSet.add(targetModule)) {
-                reportDiagnostic(tomlTableNode, "recurring target module '" + targetModule + "' found in " +
-                                "Ballerina.toml. Target module must be unique for each tool",
-                        ProjectDiagnosticErrorCode.RECURRING_TOOL_PROPERTIES.diagnosticId(),
-                        DiagnosticSeverity.ERROR);
-                break;
-            }
-        }
     }
 
     /**
