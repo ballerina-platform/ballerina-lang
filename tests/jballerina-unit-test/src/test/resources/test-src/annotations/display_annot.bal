@@ -74,3 +74,16 @@ public type RefreshTokenGrantConfig record {|
     @display {iconPath: "Field.icon", label: "clientSecret field", kind: "password"}
     string clientSecret;
 |};
+
+function annotationOnWorker() {
+    @display {
+        label: "worker annotation",
+        'type: "named",
+        id: "hash"
+    }
+    worker testWorker {
+
+    }
+}
+
+function testExternalFunction() = @display { label: "external", id: "hash" } external;

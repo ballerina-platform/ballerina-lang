@@ -138,7 +138,7 @@ public class NegativeValidationTest {
     public void testMethodNotFound7() {
         String path = "test-src/javainterop/negative/method_not_found7.bal";
         CompileResult compileResult = BCompileUtil.compile(path);
-        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 4);
         String message = "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method '%s' with " +
                 "'%s' parameter(s) found in class '%s''";
         BAssertUtil.validateError(compileResult, 0, String.format(message, "getPrintableStackTrace", "1",
@@ -149,6 +149,10 @@ public class NegativeValidationTest {
                 "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public method 'concat' " +
                         "with '3' parameter(s) found in class 'io.ballerina.runtime.api.values.BString''",
                 "method_not_found7.bal", 27, 1);
+        BAssertUtil.validateError(compileResult, 3,
+                "{ballerina/jballerina.java}METHOD_NOT_FOUND 'No such public static method 'indexOf' " +
+                        "with '0' parameter(s) found in class 'java.lang.String''",
+                "method_not_found7.bal", 32, 1);
     }
 
     @Test

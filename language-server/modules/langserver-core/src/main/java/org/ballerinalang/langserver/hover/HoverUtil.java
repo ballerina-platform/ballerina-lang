@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
@@ -70,7 +71,7 @@ public class HoverUtil {
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
         // Check for the cancellation before the time-consuming operation
         context.checkCancelled();
-        Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
+        Optional<Symbol> symbolAtCursor = getSymbolAtCursor(context, semanticModel.get(), srcFile.get(), linePosition);
         // Check for the cancellation after the time-consuming operation
         context.checkCancelled();
 
@@ -115,6 +116,18 @@ public class HoverUtil {
         }
 
         return hoverObj;
+    }
+
+    private static Optional<Symbol> getSymbolAtCursor(HoverContext context, SemanticModel semanticModel,
+                                                      Document srcFile, LinePosition linePosition) {
+        NonTerminalNode cursor = context.getNodeAtCursor();
+        SyntaxKind kind = cursor.kind();
+        if (kind == SyntaxKind.LIST || kind == SyntaxKind.PARENTHESIZED_ARG_LIST
+                || kind == SyntaxKind.SIMPLE_NAME_REFERENCE
+                && cursor.parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
+            return semanticModel.symbol(cursor.parent());
+        }
+        return semanticModel.symbol(srcFile, linePosition);
     }
 
     /**

@@ -103,4 +103,4 @@ public const annotation record {
     "text"|"password"|"file" kind?;
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
-      source var, source const, source annotation, source service;
+      source var, source const, source annotation, source service, source external, source worker;

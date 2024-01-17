@@ -98,15 +98,21 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             try {
                 Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
                     PathUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
-                        Optional<Project> project = this.workspaceManager.project(path);
-                        project.ifPresent(value -> jsonPackages.add(getPackageComponents(value)));
+                        Project project = null;
+                        try {
+                            project = this.workspaceManager.loadProject(path);
+                            jsonPackages.add(getPackageComponents(project));
+                        } catch (Throwable e) {
+                            String msg = "Operation 'ballerinaPackage/components' load project failed!";
+                            this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null);
+                        }
                     });
                 });
-                response.setProjectPackages(jsonPackages);
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/components' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
             }
+            response.setProjectPackages(jsonPackages);
             return response;
         });
     }

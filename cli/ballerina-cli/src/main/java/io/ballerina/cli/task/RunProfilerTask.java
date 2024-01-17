@@ -75,8 +75,6 @@ public class RunProfilerTask implements Task {
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("--file");
             commands.add(getTargetFilePath(project));
-            commands.add("--target");
-            commands.add(targetPath.toString());
             if (isInProfileDebugMode()) {
                 commands.add("--profiler-debug");
                 commands.add(getProfileDebugArg(err));
@@ -94,6 +92,12 @@ public class RunProfilerTask implements Task {
             }
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("error occurred while running the profiler ", e);
+        } finally {
+            try {
+                Files.deleteIfExists(targetPath);
+            } catch (IOException e) {
+                err.println("error occurred while deleting the profiler.jar file");
+            }
         }
     }
 

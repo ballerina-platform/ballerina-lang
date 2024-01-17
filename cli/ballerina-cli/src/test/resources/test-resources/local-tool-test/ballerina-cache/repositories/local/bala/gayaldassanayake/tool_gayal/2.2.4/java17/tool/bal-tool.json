@@ -1,0 +1,6 @@
+{
+  "tool_id": "gayals",
+  "dependency_paths": [
+    "tool/libs/GayalsCommand-1.0-SNAPSHOT.jar"
+  ]
+}

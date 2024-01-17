@@ -193,13 +193,15 @@ class JMethodResolver {
             return false;
         }
         Class<?>[] paramTypes = jMethod.getParamTypes();
-        if (count == reducedParamCount && isParamAssignableToBArray(paramTypes[0])) {
+        if (count == reducedParamCount && paramTypes.length > 0 && isParamAssignableToBArray(paramTypes[0])) {
             return true;
-        } else if ((count == (reducedParamCount + 1)) && isParamAssignableToBArray(paramTypes[1])) {
+        } else if ((count == (reducedParamCount + 1)) && paramTypes.length > 1 &&
+                isParamAssignableToBArray(paramTypes[1])) {
             // This is for object interop functions when self is passed as a parameter
             jMethod.setReceiverType(jMethodRequest.receiverType);
             return jMethodRequest.receiverType != null;
-        } else if ((count == (reducedParamCount + 2)) && isParamAssignableToBArray(paramTypes[2])) {
+        } else if ((count == (reducedParamCount + 2)) && paramTypes.length > 2 &&
+                isParamAssignableToBArray(paramTypes[2])) {
             // This is for object interop functions when both BalEnv and self is passed as parameters.
             if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);

@@ -84,7 +84,7 @@ public class BalToolsManifestBuilder {
             return BalToolsManifest.from();
         }
         validateBalToolsTomlAgainstSchema();
-        Map<String, Map<String, BalToolsManifest.Tool>> tools = getTools();
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> tools = getTools();
         return BalToolsManifest.from(tools);
     }
 
@@ -102,7 +102,7 @@ public class BalToolsManifestBuilder {
         balToolsTomlValidator.validate(balToolsToml.get().toml());
     }
 
-    private Map<String, Map<String, BalToolsManifest.Tool>> getTools() {
+    private Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> getTools() {
         if (balToolsToml.isEmpty()) {
             return new HashMap<>();
         }
@@ -118,7 +118,7 @@ public class BalToolsManifestBuilder {
             return new HashMap<>();
         }
 
-        Map<String, Map<String, BalToolsManifest.Tool>> tools = new HashMap<>();
+        Map<String, Map<String, Map<String, BalToolsManifest.Tool>>> tools = new HashMap<>();
         if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
 
@@ -128,6 +128,7 @@ public class BalToolsManifestBuilder {
                 String name = getStringValueFromToolNode(toolNode, "name");
                 String version = getStringValueFromToolNode(toolNode, "version");
                 Optional<Boolean> active = getBooleanFromToolNode(toolNode, "active");
+                String repository = getStringValueFromToolNode(toolNode, "repository");
 
                 // If id, org or name, one of the value is null, ignore tool record
                 if (id == null || org == null || name == null) {
@@ -148,7 +149,11 @@ public class BalToolsManifestBuilder {
                 if (!tools.containsKey(id)) {
                     tools.put(id, new HashMap<>());
                 }
-                tools.get(id).put(version, new BalToolsManifest.Tool(id, org, name, version, active.get()));
+                if (!tools.get(id).containsKey(version)) {
+                    tools.get(id).put(version, new HashMap<>());
+                }
+                tools.get(id).get(version).put(repository, new BalToolsManifest.Tool(id, org, name, version,
+                        active.get(), repository));
             }
         }
         return tools;

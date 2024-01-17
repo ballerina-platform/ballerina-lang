@@ -696,7 +696,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.setExpression(clone(source.getExpression()));
         clone.matchClauses = cloneList(source.matchClauses);
-        clone.onFailClause = source.onFailClause;
+        clone.onFailClause = clone(source.onFailClause);
     }
 
     @Override

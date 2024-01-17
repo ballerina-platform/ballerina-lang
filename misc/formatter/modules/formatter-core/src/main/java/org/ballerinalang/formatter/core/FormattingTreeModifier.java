@@ -1461,7 +1461,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ComputedNameFieldNode transform(ComputedNameFieldNode computedNameFieldNode) {
         Token openBracket = formatToken(computedNameFieldNode.openBracket(), 0, 0);
         ExpressionNode fieldNameExpr = formatNode(computedNameFieldNode.fieldNameExpr(), 0, 0);
-        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 1, 0);
+        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 0, 0);
         Token colonToken = formatToken(computedNameFieldNode.colonToken(), 1, 0);
         ExpressionNode valueExpr = formatNode(computedNameFieldNode.valueExpr(), env.trailingWS, env.trailingNL);
 
@@ -4355,7 +4355,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
         // Preserve the necessary trailing minutiae coming from the original token
         int consecutiveNewlines = 0;
-        for (Minutiae minutiae : token.trailingMinutiae()) {
+        int size = token.trailingMinutiae().size();
+        for (int i = 0; i < size; i++) {
+            Minutiae minutiae = token.trailingMinutiae().get(i);
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
                     preserveIndentation(true);
@@ -4369,16 +4371,26 @@ public class FormattingTreeModifier extends TreeModifier {
                         continue;
                     }
 
-                    addWhitespace(env.trailingWS, trailingMinutiae);
+                    // We reach here when the prevMinutiae is an invalid node/token
+                    if (i == size - 1) {
+                        addWhitespace(env.trailingWS, trailingMinutiae);
+                    } else {
+                        addWhitespace(1, trailingMinutiae);
+                    }
                     break;
                 case COMMENT_MINUTIAE:
-                    addWhitespace(1, trailingMinutiae);
+                    if (!matchesMinutiaeKind(prevMinutiae, SyntaxKind.WHITESPACE_MINUTIAE)) {
+                        addWhitespace(1, trailingMinutiae);
+                    }
                     trailingMinutiae.add(minutiae);
                     consecutiveNewlines = 0;
                     break;
                 case INVALID_TOKEN_MINUTIAE_NODE:
                 case INVALID_NODE_MINUTIAE:
                 default:
+                    if (matchesMinutiaeKind(prevMinutiae, SyntaxKind.END_OF_LINE_MINUTIAE)) {
+                        addWhitespace(env.currentIndentation, trailingMinutiae);
+                    }
                     trailingMinutiae.add(minutiae);
                     consecutiveNewlines = 0;
                     break;
@@ -4685,6 +4697,10 @@ public class FormattingTreeModifier extends TreeModifier {
             }
         }
         return false;
+    }
+
+    private boolean matchesMinutiaeKind(Minutiae minutiae, SyntaxKind kind) {
+        return minutiae != null && minutiae.kind() == kind;
     }
 
     private NodeList<ImportDeclarationNode> sortAndGroupImportDeclarationNodes(

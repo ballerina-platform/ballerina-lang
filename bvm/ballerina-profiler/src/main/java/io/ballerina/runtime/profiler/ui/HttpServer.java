@@ -21,6 +21,7 @@ package io.ballerina.runtime.profiler.ui;
 import io.ballerina.runtime.profiler.util.Constants;
 import io.ballerina.runtime.profiler.util.ProfilerException;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -49,8 +50,8 @@ public class HttpServer {
 
     public void initializeHTMLExport() throws IOException {
         String profilerOutputDir = System.getProperty(WORKING_DIRECTORY);
-        OUT_STREAM.printf(" ○ Output: " + Constants.ANSI_YELLOW +
-                "%s/" + HTML_PROFILER_REPORT + Constants.ANSI_RESET + "%n", profilerOutputDir);
+        OUT_STREAM.printf("      Output: " + Constants.ANSI_YELLOW + "%s" + File.separator + HTML_PROFILER_REPORT +
+                Constants.ANSI_RESET + "%n", profilerOutputDir);
         Path resourcePath = Paths.get(System.getenv(BALLERINA_HOME)).resolve("resources")
                 .resolve("profiler");
 

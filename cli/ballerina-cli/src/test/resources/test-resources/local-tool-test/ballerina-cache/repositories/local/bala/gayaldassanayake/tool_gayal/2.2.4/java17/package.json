@@ -1,0 +1,14 @@
+{
+  "organization": "gayaldassanayake",
+  "name": "tool_gayal",
+  "version": "2.2.4",
+  "export": [
+    "tool_gayal"
+  ],
+  "ballerina_version": "2201.9.0-SNAPSHOT",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2023R1",
+  "platform": "java17",
+  "graalvmCompatible": true,
+  "template": false
+}

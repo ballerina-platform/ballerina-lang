@@ -140,12 +140,31 @@
                 }
               },
               "description": ""
+            },
+            "employeeReadOnly": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "salary": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "salary"
+              ],
+              "name": "dilhashanazeer/complexconfigs2:0.1.0:EmployeeReadOnly",
+              "description": ""
             }
           },
           "additionalProperties": false,
           "required": [
             "employeeArray",
-            "empMapArray"
+            "empMapArray",
+            "employeeReadOnly"
           ]
         }
       },

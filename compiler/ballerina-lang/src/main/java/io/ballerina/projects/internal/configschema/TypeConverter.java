@@ -20,6 +20,7 @@ package io.ballerina.projects.internal.configschema;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
@@ -181,14 +183,20 @@ public class TypeConverter {
         if (!requiredFields.isEmpty()) {
             typeNode.add("required", requiredFields);
         }
-        // Get record type and set the type name as a property
-        for (BType bType : intersectionType.getConstituentTypes()) {
-            // Does not consider anonymous records
-            if (bType.tag == TypeTags.TYPEREFDESC) {
-                typeNode.addProperty("name", bType.toString().trim());
+        BTypeSymbol intersectionSymbol = intersectionType.tsymbol;
+        // The tsymbol name is implicitly empty
+        if (intersectionSymbol.name != Names.EMPTY) {
+            typeNode.addProperty("name", intersectionSymbol.toString().trim());
+        } else {
+            // Get record type and set the type name as a property
+            for (BType bType : intersectionType.getConstituentTypes()) {
+                // Does not consider anonymous records
+                if (bType.tag == TypeTags.TYPEREFDESC) {
+                    // Revisit with https://github.com/ballerina-platform/ballerina-lang/issues/24078
+                    typeNode.addProperty("name", bType.toString().trim());
+                }
             }
         }
-
         return typeNode;
     }
 

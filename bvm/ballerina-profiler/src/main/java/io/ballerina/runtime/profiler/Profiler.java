@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -59,7 +60,6 @@ public class Profiler {
     private final long profilerStartTime;
     private String balJarArgs = null;
     private String balJarName = null;
-    private String targetDir = null;
     private String profilerDebugArg = null;
     private final List<String> instrumentedPaths = new ArrayList<>();
     private final List<String> instrumentedFiles = new ArrayList<>();
@@ -82,21 +82,19 @@ public class Profiler {
             try {
                 long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) -
                         profilerStartTime;
-                deleteFileIfExists(Constants.TEMP_JAR_FILE_NAME);
+                Files.deleteIfExists(Paths.get(Constants.TEMP_JAR_FILE_NAME));
                 OUT_STREAM.printf("%s[6/6] Generating output...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
                 JsonParser jsonParser = new JsonParser();
                 HttpServer httpServer = new HttpServer();
                 String cpuFilePath = Paths.get(currentDir, CPU_PRE_JSON).toString();
                 jsonParser.initializeCPUParser(cpuFilePath);
                 deleteFileIfExists(cpuFilePath);
-                OUT_STREAM.printf(" ○ Execution time: %d seconds %n", profilerTotalTime / 1000);
+                OUT_STREAM.printf("      Execution time: %d seconds %n", profilerTotalTime / 1000);
                 httpServer.initializeHTMLExport();
                 deleteFileIfExists(PERFORMANCE_JSON);
                 OUT_STREAM.println("--------------------------------------------------------------------------------");
             } catch (IOException e) {
                 throw new ProfilerException("Error occurred while generating the output", e);
-            } finally {
-                deleteFileIfExists(targetDir);
             }
         }));
     }
@@ -139,10 +137,6 @@ public class Profiler {
                     this.balJarArgs = extractBalJarArgs(args[i + 1]);
                     addToUsedArgs(args, usedArgs, i);
                 }
-                case "--target" -> {
-                    this.targetDir = args[i + 1];
-                    addToUsedArgs(args, usedArgs, i);
-                }
                 case "--profiler-debug" -> {
                     this.profilerDebugArg = args[i + 1];
                     addToUsedArgs(args, usedArgs, i);
@@ -180,7 +174,8 @@ public class Profiler {
     private void extractProfiler() throws ProfilerException {
         OUT_STREAM.printf("%s[1/6] Initializing...%s%n", Constants.ANSI_CYAN, Constants.ANSI_RESET);
         try {
-            new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime").start().waitFor();
+            Path profilerRuntimePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            new ProcessBuilder("jar", "xvf", "Profiler.jar", profilerRuntimePath.toString()).start().waitFor();
         } catch (IOException | InterruptedException exception) {
             throw new ProfilerException(exception);
         }
@@ -228,8 +223,8 @@ public class Profiler {
                     moduleCount++;
                 }
             }
-            OUT_STREAM.printf(" ○ Instrumented module count: %d%n", moduleCount);
-            OUT_STREAM.printf(" ○ Instrumented function count: %d%n", balFunctionCount);
+            OUT_STREAM.printf("      Instrumented module count: %d%n", moduleCount);
+            OUT_STREAM.printf("      Instrumented function count: %d%n", balFunctionCount);
             modifyJar();
         } catch (Throwable throwable) {
             throw new ProfilerException(throwable);
@@ -247,7 +242,8 @@ public class Profiler {
             for (String instrumentedFilePath : instrumentedPaths) {
                 FileUtils.deleteDirectory(new File(instrumentedFilePath));
             }
-            FileUtils.deleteDirectory(new File("io/ballerina/runtime/profiler/runtime"));
+            Path filePath = Paths.get("io/ballerina/runtime/profiler/runtime");
+            FileUtils.deleteDirectory(new File(filePath.toString()));
             profilerMethodWrapper.invokeMethods(profilerDebugArg);
         }
     }
@@ -281,12 +277,12 @@ public class Profiler {
     }
 
     private void updateInstrumentedFile(File fileEntry, String absolutePath) {
-        String fileEntryString = String.valueOf(fileEntry);
+        String fileEntryString = fileEntry.getPath();
         if (fileEntryString.endsWith(Constants.CLASS_SUFFIX)) {
-            fileEntryString = fileEntryString.replaceAll(absolutePath, "");
-            int index = fileEntryString.lastIndexOf('/');
+            fileEntryString = fileEntryString.replaceAll(Pattern.quote(absolutePath), "");
+            int index = fileEntryString.lastIndexOf(File.separatorChar);
             fileEntryString = index == -1 ? "" : fileEntryString.substring(0, index);
-            String[] fileEntryParts = fileEntryString.split("/");
+            String[] fileEntryParts = fileEntryString.split(Pattern.quote(File.separator));
             instrumentedPaths.add(fileEntryParts[0]);
             instrumentedFiles.add(fileEntryString);
         }

@@ -142,6 +142,8 @@ public class TypeGuardTest {
 //                190, 17);
 //        BAssertUtil.validateError(negativeResult, i++,
 //                "incompatible types: expected 'string', found '(boolean|int|string)'", 192, 20);
+                BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found 'boolean'", 192, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|boolean)'",
                 199, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '(float|string)'",
@@ -749,6 +751,11 @@ public class TypeGuardTest {
     @Test(description = "Test is condition with circular tuples inside a if block")
     public void testCustomCircularTupleTypeWithIsCheck() {
         BRunUtil.invoke(result, "testCustomCircularTupleTypeWithIsCheck");
+    }
+
+    @Test
+    public void testSingletonTypeNarrowedTypeDesc() {
+        BRunUtil.invoke(result, "testSingletonTypeNarrowedTypeDesc");
     }
 
     @Test

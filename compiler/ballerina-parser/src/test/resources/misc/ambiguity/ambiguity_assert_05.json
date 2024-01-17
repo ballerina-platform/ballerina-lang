@@ -251,13 +251,7 @@
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
+                                          "kind": "CLOSE_BRACKET_TOKEN"
                                         },
                                         {
                                           "kind": "COLON_TOKEN",

@@ -10,6 +10,11 @@ type Employee record {
     int salary;
 };
 
+type EmployeeReadOnly readonly & record {
+    string name;
+    int salary;
+};
+
 configurable table<Employee> key(name) t = table [
     { name: "John", salary: 100 },
     { name: "Jane", salary: 200 }
@@ -22,6 +27,7 @@ configurable map<int>[] myArray = [{"val1" : 22}, {"val2" : 32}];
 configurable Employee[] employeeArray = ?;
 configurable map<Employee> employeeMap = {"emp1": {name: "user1", salary: 1200}};
 configurable map<Employee>[] empMapArray = ?;
+configurable EmployeeReadOnly employeeReadOnly = ?;
 
 public function main() {
 }

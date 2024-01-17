@@ -19,7 +19,11 @@ package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.util.BalToolsUtil;
+import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.runtime.api.values.BError;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -28,10 +32,13 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.launcher.BallerinaCliCommands.HELP;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
+import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -103,13 +110,26 @@ public class LauncherUtils {
         StringBuilder helpBuilder = new StringBuilder();
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP));
 
+        Path balToolsTomlPath = RepoUtils.createAndGetHomeReposPath().resolve(CONFIG_DIR).resolve(BAL_TOOLS_TOML);
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        Map<String, String> activeToolsVsRepos = new HashMap<>();
+
         // if there are any tools, add Tool Commands section
         List<String> toolNames = subCommands.keySet().stream()
                 .filter(BalToolsUtil::isNonBuiltInToolCommand)
                 .sorted().toList();
+
         if (!toolNames.isEmpty()) {
+            toolNames.forEach(toolName -> {
+                balToolsManifest.getActiveTool(toolName).ifPresent(tool -> {
+                    activeToolsVsRepos.put(toolName, tool.repository() == null ? "" : "[" + tool.repository()
+                            .toUpperCase() + "] ");
+                });
+            });
             helpBuilder.append("\n\n   Tool Commands:");
-            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder));
+            toolNames.forEach(key -> generateCommandDescription(subCommands.get(key), helpBuilder,
+                    activeToolsVsRepos.get(key)));
         }
         return helpBuilder.toString();
     }
@@ -124,7 +144,8 @@ public class LauncherUtils {
         return commandUsageInfo.toString();
     }
 
-    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder) {
+    private static void generateCommandDescription(CommandLine command, StringBuilder stringBuilder,
+                                                   String repository) {
         String commandName = command.getCommandName();
         BLauncherCmd bLauncherCmd = (BLauncherCmd) command.getCommandSpec().userObject();
         CommandLine.Command annotation = bLauncherCmd.getClass().getAnnotation(CommandLine.Command.class);
@@ -138,7 +159,7 @@ public class LauncherUtils {
         }
         stringBuilder.append("\n")
                 .append("        ")
-                .append(String.format("%-15s %s", commandName, commandDescription));
+                .append(String.format("%-15s %s", commandName, repository + commandDescription));
     }
 
     static String wrapString(String str, int wrapLength, int indent) {

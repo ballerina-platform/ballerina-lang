@@ -1,48 +1,55 @@
 NAME
-       ballerina-tool - Manage the tools provided by Ballerina
+       ballerina-tool - Extend the Ballerina CLI with custom commands.
 
 SYNOPSIS
        bal tool <command> [<-h> |<--help>]
        bal tool <command> [args]
 
 DESCRIPTION
-       Manage Ballerina command line tools via bal tool chain.
+       Register and manage custom commands for the Ballerina CLI.
 
-       Facilitate pulling tools from Ballerina Central and removing
-       previously pulled tools.
+       This command facilitates searching, pulling, and updating tools from the
+       Ballerina Central, switching between installed versions, and listing and
+       removing installed tools.
 
-       Provide subcommands to list all the locally available tools and search
-       for tools that are available in Ballerina Central.
 
 OPTIONS
        -h, --help
            Print the usage details of all tool commands.
 
-TOOL COMMANDS
+SUBCOMMANDS
         The following is a list of available subcommands:
 
-        pull        Pull a tool from Ballerina Central.
-        list        List all the tools available locally.
-        search      Search Ballerina Central for tools.
-        remove      Remove a tool.
+        pull        Pull a tool from the Ballerina Central.
+        remove      Remove a tool from the local environment.
+        update      Update a tool to the latest version.
+        use         Set a tool version as the active version.
+        list        List all tools available in the local environment.
+        search      Search the Ballerina Central for tools.
 
 EXAMPLES
-       Pull a tool from Ballerina Central.
-           $ bal tool pull openapi
+       Pull a tool from the Ballerina Central.
+           $ bal tool pull health
 
-       Pull a specific version of a tool from Ballerina Central.
-           $ bal tool pull openapi:1.5.0
+       Pull a specific version of a tool from the Ballerina Central.
+           $ bal tool pull health:1.0.0
 
-       List all the tools available locally.
+       Remove a specific version of an installed tool.
+           $ bal tool remove health:1.0.0
+
+       Remove all the versions of an installed tool.
+           $ bal tool remove health
+
+       Update a tool to the latest version compatible with the current distribution.
+           $ bal tool update health
+
+       Change the active version of a tool.
+           $ bal tool use health:1.0.0
+
+       List all tools available in the local environment.
            $ bal tool list
 
-       Search Ballerina Central for tools.
-           $ bal tool search openapi
+       Search the Ballerina Central for tools.
+           $ bal tool search health
 
-       Remove a specific version of previously pulled tool.
-           $ bal tool remove openapi:1.5.0
-
-       Remove all the versions of a previously pulled tool.
-           $ bal tool remove openapi
-
-Use 'bal tool <command> --help' for more information on a specific command.
+Use 'bal tool <subcommand> --help' for more information on a specific tool subcommand.

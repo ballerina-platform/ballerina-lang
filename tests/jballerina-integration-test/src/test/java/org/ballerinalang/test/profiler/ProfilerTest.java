@@ -90,12 +90,12 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("[2/6] Copying executable..."),
                 new LogLeecher("[3/6] Performing analysis..."),
                 new LogLeecher("[4/6] Instrumenting functions..."),
-                new LogLeecher("○ Instrumented module count: "),
-                new LogLeecher("○ Instrumented function count: "),
+                new LogLeecher("      Instrumented module count: "),
+                new LogLeecher("      Instrumented function count: "),
                 new LogLeecher("[5/6] Running executable..."),
                 new LogLeecher("[6/6] Generating output..."),
-                new LogLeecher(" ○ Execution time: [1-5] seconds ", true, LogLeecher.LeecherType.INFO),
-                new LogLeecher("○ Output: "),
+                new LogLeecher("      Execution time: [1-5] seconds ", true, LogLeecher.LeecherType.INFO),
+                new LogLeecher("      Output: "),
                 new LogLeecher(htmlFilePath));
     }
 
@@ -125,15 +125,15 @@ public class ProfilerTest extends BaseTest {
                 new LogLeecher("[2/6] Copying executable..."),
                 new LogLeecher("[3/6] Performing analysis..."),
                 new LogLeecher("[4/6] Instrumenting functions..."),
-                new LogLeecher("○ Instrumented module count: "),
-                new LogLeecher("○ Instrumented function count: "),
+                new LogLeecher("      Instrumented module count: "),
+                new LogLeecher("      Instrumented function count: "),
                 new LogLeecher("[5/6] Running executable...")};
         Process process = bMainInstance.runCommandAndGetProcess("profile", new String[]{packageName},
                 envProperties, sourceRoot);
         LogLeecher[] afterExecleechers = new LogLeecher[]{
                 new LogLeecher("[6/6] Generating output..."),
-                new LogLeecher("○ Execution time:"),
-                new LogLeecher("○ Output: ")};
+                new LogLeecher("      Execution time:"),
+                new LogLeecher("      Output: ")};
         ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
         addLogLeechers(beforeExecleechers, serverInfoLogReader);
         addLogLeechers(afterExecleechers, serverInfoLogReader);
