@@ -32,11 +32,29 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
 public class WorkerFailTest {
 
     @Test
-    public void invalidWorkerSendReceive() {
+    public void testMismatchInSendReceivePairing() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1);
-        Assert.assertTrue(message.contains(" interactions are invalid"), message);
+        String invalidSendErrMsg = "invalid worker send, no matching worker receive";
+        String invalidReceiveErrMsg = "invalid worker receive, no matching worker send";
+        int index = 0;
+        validateError(result, index++, invalidSendErrMsg, 3, 9);
+        validateError(result, index++, invalidSendErrMsg, 7, 9);
+        validateError(result, index++, invalidReceiveErrMsg, 13, 17);
+        validateError(result, index++, invalidReceiveErrMsg, 17, 20);
+        validateError(result, index++, invalidSendErrMsg, 29, 9);
+        validateError(result, index++, invalidReceiveErrMsg, 44, 21);
+        validateError(result, index++, invalidReceiveErrMsg, 54, 34);
+        validateError(result, index++, invalidReceiveErrMsg, 67, 20);
+        validateError(result, index++, invalidReceiveErrMsg, 67, 27);
+        validateError(result, index++, invalidReceiveErrMsg, 67, 34);
+        validateError(result, index++, invalidSendErrMsg, 71, 9);
+        validateWarning(result, index++, "unused variable 'b'", 79, 13);
+        validateError(result, index++, invalidReceiveErrMsg, 81, 17);
+        validateWarning(result, index++, "unused variable 'b'", 85, 13);
+        validateWarning(result, index++, "unused variable 'a'", 90, 13);
+        validateWarning(result, index++, "unused variable 'b'", 91, 13);
+        Assert.assertEquals(result.getErrorCount(), index - 4);
+        Assert.assertEquals(result.getWarnCount(), 4);
     }
 
     @Test
