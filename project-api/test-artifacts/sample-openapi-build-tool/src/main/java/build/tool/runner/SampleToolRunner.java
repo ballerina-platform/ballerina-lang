@@ -44,7 +44,7 @@ public class SampleToolRunner implements CodeGeneratorTool {
                     "The provided filePath does not exist", DiagnosticSeverity.ERROR);
             toolContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
         }
-        System.out.println("Running sample build tool: " + toolContext.toolType());
+        System.out.println("Running sample build tool: " + toolContext.toolId());
         System.out.println("Cache created at: " + toolContext.cachePath());
     }
 
