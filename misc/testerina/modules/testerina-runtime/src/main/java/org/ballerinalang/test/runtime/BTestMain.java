@@ -69,13 +69,18 @@ public class BTestMain {
         int exitStatus = 0;
         int result;
 
-        if(args.length == 3) {
+        if(args.length == 0) {
             List<String> mainArgs = new ArrayList<>();
 
             try (InputStream in = BTestMain.class.getResourceAsStream(ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE_DIR + ProjectConstants.TEST_RUNTIME_MAIN_ARGS_FILE);
                  //make sure that the path start with a leading slash (/)
                  BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
                 // Use resource
+
+                //read first 3 lines to get the packageID, orgName and version
+                String packageID = reader.readLine();
+                String org = reader.readLine();
+                String version = reader.readLine();
 
                 //read just one line to get the jacoco agent jar path
                 String jacocoAgentJarPath = reader.readLine();
@@ -110,7 +115,7 @@ public class BTestMain {
                         (moduleName.equals(TesterinaConstants.DOT) ? packageName : moduleName)
                         : packageName + TesterinaConstants.DOT + moduleName));
 
-                result = startTestExecution(classLoader, argsArr, args[0], args[1], args[2]);
+                result = startTestExecution(classLoader, argsArr, packageID, org, version);
 
                 exitStatus = (result == 1) ? result : exitStatus;
             }
