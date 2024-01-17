@@ -415,50 +415,79 @@ public class PackageManifest {
         }
     }
 
+    /**
+     * Represents the build tool configurations in Ballerina.toml file.
+     *
+     * @since 2201.9.0
+     */
     public static class Tool {
         private final String id;
         private final TomlTableNode optionsTable;
-
-        public String getId() {
-            return id;
-        }
-
-        public String getFilePath() {
-            return this.filePath;
-        }
-
-        public String getTargetModule() {
-            return this.targetModule;
-        }
-
-        public TomlTableNode getOptionsTable() {
-            return this.optionsTable;
-        }
-
-        public String getType() {
-            return type;
-        }
-
         private final String filePath;
         private final String targetModule;
         private final String type;
-
-        public Toml getOptionsToml() {
-            return optionsToml;
-        }
-
         private final Toml optionsToml;
+        private final boolean hasErrorDiagnostic;
 
         public Tool(String type, String id, String filePath, String targetModule, Toml optionsToml,
-                    TomlTableNode optionsTable) {
+                    TomlTableNode optionsTable, boolean hasErrorDiagnostic) {
             this.type = type;
             this.id = id;
             this.filePath = filePath;
             this.targetModule = targetModule;
             this.optionsTable = optionsTable;
             this.optionsToml = optionsToml;
+            this.hasErrorDiagnostic = hasErrorDiagnostic;
         }
 
+        /**
+         * @return the tool id.
+         */
+        public String getId() {
+            return id;
+        }
+
+        /**
+         * @return the filepath.
+         */
+        public String getFilePath() {
+            return this.filePath;
+        }
+
+        /**
+         * @return the tool's target module.
+         */
+        public String getTargetModule() {
+            return this.targetModule;
+        }
+
+        /**
+         * @return the tool options table.
+         */
+        public TomlTableNode getOptionsTable() {
+            return this.optionsTable;
+        }
+
+        /**
+         * @return the tool type.
+         */
+        public String getType() {
+            return type;
+        }
+
+        /**
+         * @return the options toml.
+         */
+        public Toml getOptionsToml() {
+            return optionsToml;
+        }
+
+        /**
+         * @return whether the tool has error diagnostics.
+         */
+        public boolean hasErrorDiagnostic() {
+            return hasErrorDiagnostic;
+        }
     }
 
     private List<String> getExport(PackageDescriptor packageDesc, List<String> export) {
