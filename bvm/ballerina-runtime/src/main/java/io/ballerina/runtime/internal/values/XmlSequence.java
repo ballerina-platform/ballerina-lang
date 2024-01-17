@@ -634,8 +634,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             case TypeTags.XML_PI_TAG:
                 return new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
             default:
-                // Since 'xml:Text is same as xml<'xml:Text>
-                return PredefinedTypes.TYPE_TEXT;
+                return new BXmlType(PredefinedTypes.TYPE_TEXT, false);
         }
     }
 
