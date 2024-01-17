@@ -1,5 +1,6 @@
 module io.ballerina.cli {
     uses io.ballerina.cli.BLauncherCmd;
+    uses io.ballerina.cli.tool.CodeGeneratorTool;
     exports io.ballerina.cli;
     exports io.ballerina.cli.launcher;
     exports io.ballerina.cli.utils;
