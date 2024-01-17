@@ -197,7 +197,7 @@ public class RunTestsTask implements Task {
                 out.println("\t" + moduleName + ": no tests found");
             } else {
                 try {
-                    testResult = runTestModule(project, testExecutablePath, moduleDescriptor);
+                    testResult = runTestModule(testExecutablePath);
                 } catch (IOException | InterruptedException | ClassNotFoundException  e) {
                     throw createLauncherException("error occurred while running tests", e);
                 }
@@ -302,23 +302,13 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestModule(Project project, Path testExecutablePath, ModuleDescriptor moduleDescriptor)
+    private int runTestModule(Path testExecutablePath)
             throws IOException, InterruptedException, ClassNotFoundException {
 
         List<String> cmdArgs = getInitialCmdArgs();
         cmdArgs.add("-jar");
         cmdArgs.add(testExecutablePath.toString());
         //this will start the jar file which has the BTestMain as the initial main class in the manifest
-
-        String testPackageID = TestProcessor.getTestModuleName(
-                project.currentPackage().module(moduleDescriptor.name())
-        );
-        String org = moduleDescriptor.org().toString();
-        String version = moduleDescriptor.version().toString();
-
-        cmdArgs.add(testPackageID);
-        cmdArgs.add(org);
-        cmdArgs.add(version);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -416,7 +406,7 @@ public class RunTestsTask implements Task {
         return cmdArgs;
     }
 
-    public List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
+    private List<String> getTestRunnerCmdArgs(Target target, String packageName, String moduleName) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(getJacocoAgentJarPath());
 
@@ -434,6 +424,34 @@ public class RunTestsTask implements Task {
             cmdArgs.add(arg);
         });
         return cmdArgs;
+    }
+
+    //to load the correct class file for the test module
+    //1st arg is the test package ID
+    //2nd arg is the org name
+    //3rd arg is the version
+    private List<String> getArgsRequiredForLoadingTestClass(Project project, ModuleDescriptor moduleDescriptor) {
+        String testPackageID = TestProcessor.getTestModuleName(
+                project.currentPackage().module(moduleDescriptor.name())
+        );
+        String org = moduleDescriptor.org().toString();
+        String version = moduleDescriptor.version().toString();
+
+        List<String> args = new ArrayList<>();
+        args.add(testPackageID);
+        args.add(org);
+        args.add(version);
+
+        return args;
+    }
+
+    //first 3 args are required for loading the test class
+    public List<String> getAllTestArgs(Target target, String packageName, String moduleName, Project project, ModuleDescriptor moduleDescriptor) {
+        List<String> allArgs = getArgsRequiredForLoadingTestClass(project, moduleDescriptor);
+
+        allArgs.addAll(getTestRunnerCmdArgs(target, packageName, moduleName));
+
+        return allArgs;
     }
 
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
