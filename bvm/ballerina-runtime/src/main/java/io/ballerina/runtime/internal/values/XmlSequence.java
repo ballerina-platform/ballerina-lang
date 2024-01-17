@@ -626,16 +626,12 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     }
 
     private Type getSequenceType(Type tempExprType) {
-        switch (tempExprType.getTag()) {
-            case TypeTags.XML_ELEMENT_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_ELEMENT, false);
-            case TypeTags.XML_COMMENT_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_COMMENT, false);
-            case TypeTags.XML_PI_TAG:
-                return new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
-            default:
-                return new BXmlType(PredefinedTypes.TYPE_TEXT, false);
-        }
+        return switch (tempExprType.getTag()) {
+            case TypeTags.XML_ELEMENT_TAG -> PredefinedTypes.XML_TYPE_ELEMENT;
+            case TypeTags.XML_COMMENT_TAG -> PredefinedTypes.XML_TYPE_COMMENT;
+            case TypeTags.XML_PI_TAG -> PredefinedTypes.XML_TYPE_PI;
+            default -> PredefinedTypes.XML_TYPE_TEXT;
+        };
     }
 
     private void initializeIteratorNextReturnType() {
