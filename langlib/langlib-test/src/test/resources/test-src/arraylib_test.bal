@@ -1838,6 +1838,7 @@ function testArrayFilterWithEmptyArrayAndTypeBinding() {
     anydata[] y = x;
     anydata[] z = y.filter(v => v is int);
     assertValueEquality(z, []);
+    assertTrue(z is never[]);
 }
 
 function testArrayReverseWithEmptyArrayAndTypeBinding() {
@@ -1845,4 +1846,5 @@ function testArrayReverseWithEmptyArrayAndTypeBinding() {
     anydata[] y = x;
     anydata[] z = y.reverse();
     assertValueEquality(z, []);
+    assertTrue(z is never[]);
 }
